@@ -1,0 +1,5 @@
+<svg width="400" height="600" viewBox="0 0 400 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="600" fill="hsl(var(--primary) / 0.1)"/>
+  <circle cx="200" cy="250" r="80" fill="hsl(var(--primary) / 0.2)"/>
+  <path d="M120 400C120 355 155 320 200 320C245 320 280 355 280 400V600H120V400Z" fill="hsl(var(--primary) / 0.2)"/>
+</svg>

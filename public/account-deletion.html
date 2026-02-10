@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Your Account - RentMatch</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-align: center;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #34495e;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        p, li {
+            margin-bottom: 12px;
+            color: #555;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        .icon-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .warning-box h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .danger-box {
+            background: #f8d7da;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .danger-box h3 {
+            color: #721c24;
+            margin-top: 0;
+        }
+        .info-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            color: #004085;
+            margin-top: 0;
+        }
+        .steps {
+            counter-reset: step-counter;
+            list-style: none;
+            margin-left: 0;
+        }
+        .steps li {
+            counter-increment: step-counter;
+            margin-bottom: 20px;
+            padding-left: 50px;
+            position: relative;
+        }
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #3498db;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            text-align: center;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        }
+        .btn-secondary {
+            background: #95a5a6;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .center {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .contact {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        a {
+            color: #3498db;
+        }
+        a:hover {
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon-header">
+            <div class="icon">🗑️</div>
+            <h1>Delete Your RentMatch Account</h1>
+            <p>We're sorry to see you go</p>
+        </div>
+
+        <p>This page provides information about deleting your RentMatch account and all associated data. Please read this carefully before proceeding.</p>
+
+        <div class="danger-box">
+            <h3>⚠️ Important Notice</h3>
+            <p><strong>Account deletion is permanent and cannot be undone.</strong> Once you delete your account, all your data will be permanently removed from our servers and cannot be recovered.</p>
+        </div>
+
+        <h2>What Data Will Be Deleted?</h2>
+
+        <p>When you delete your account, the following data will be permanently removed:</p>
+        <ul>
+            <li><strong>Profile Information:</strong> Name, email, phone number, bio, photos</li>
+            <li><strong>Authentication Data:</strong> Login credentials and OAuth tokens</li>
+            <li><strong>Property Listings:</strong> All your property listings and associated photos (for property owners)</li>
+            <li><strong>Messages:</strong> All your conversations and chat history</li>
+            <li><strong>Matches:</strong> All your matches and swipe history</li>
+            <li><strong>Preferences:</strong> Saved searches, filters, and preferences</li>
+            <li><strong>Media Files:</strong> All photos and documents you've uploaded</li>
+            <li><strong>Activity Data:</strong> Your usage history and interactions</li>
+            <li><strong>Notifications:</strong> Your notification preferences and history</li>
+        </ul>
+
+        <div class="info-box">
+            <h3>📋 Data Retention for Legal Purposes</h3>
+            <p>Some limited data may be retained for legal compliance, fraud prevention, or legitimate business purposes:</p>
+            <ul>
+                <li>Transaction records (required by law)</li>
+                <li>Records of reported violations or safety incidents</li>
+                <li>Aggregated, anonymized analytics data</li>
+            </ul>
+            <p>This data cannot be linked back to you personally and does not include your profile information.</p>
+        </div>
+
+        <h2>How to Delete Your Account</h2>
+
+        <div class="warning-box">
+            <h3>📱 Method 1: Delete Through the Mobile App (Recommended)</h3>
+            <p>The easiest way to delete your account is through the RentMatch mobile app:</p>
+        </div>
+
+        <ol class="steps">
+            <li>
+                <strong>Open the RentMatch App</strong>
+                <p>Launch the RentMatch app on your device and make sure you're logged in.</p>
+            </li>
+            <li>
+                <strong>Go to Settings</strong>
+                <p>Navigate to your profile and tap on the Settings icon or menu.</p>
+            </li>
+            <li>
+                <strong>Find Account Settings</strong>
+                <p>Scroll down to find "Profile Settings" or "Account Settings".</p>
+            </li>
+            <li>
+                <strong>Locate the Danger Zone</strong>
+                <p>Scroll to the bottom of the settings page to find the "Danger Zone" section.</p>
+            </li>
+            <li>
+                <strong>Delete Account</strong>
+                <p>Tap "Delete Account Permanently" and confirm your decision in the dialog that appears.</p>
+            </li>
+            <li>
+                <strong>Confirmation</strong>
+                <p>You'll receive a confirmation message and will be logged out automatically.</p>
+            </li>
+        </ol>
+
+        <div class="info-box">
+            <h3>📧 Method 2: Contact Support</h3>
+            <p>If you're unable to delete your account through the app, you can contact our support team:</p>
+            <ul>
+                <li>Email: <a href="mailto:support@rentmatch.app">support@rentmatch.app</a></li>
+                <li>Subject: "Account Deletion Request"</li>
+                <li>Include: Your registered email address and username</li>
+            </ul>
+            <p>We'll process your request within 7 business days and send you a confirmation email.</p>
+        </div>
+
+        <h2>Timeline for Data Deletion</h2>
+
+        <ul>
+            <li><strong>Immediate:</strong> Your account is deactivated and you're logged out</li>
+            <li><strong>Within 24 hours:</strong> Your profile becomes invisible to other users</li>
+            <li><strong>Within 7 days:</strong> All personal data is permanently deleted from active databases</li>
+            <li><strong>Within 30 days:</strong> Data is removed from backup systems</li>
+        </ul>
+
+        <div class="warning-box">
+            <h3>🔄 Alternatives to Account Deletion</h3>
+            <p>Before deleting your account, consider these alternatives:</p>
+            <ul>
+                <li><strong>Deactivate Temporarily:</strong> Hide your profile without deleting data</li>
+                <li><strong>Update Privacy Settings:</strong> Control what information is visible</li>
+                <li><strong>Disable Notifications:</strong> Stop receiving app notifications</li>
+                <li><strong>Clear Preferences:</strong> Reset your search filters and preferences</li>
+            </ul>
+        </div>
+
+        <h2>After Account Deletion</h2>
+
+        <p>After your account is deleted:</p>
+        <ul>
+            <li>You cannot sign in to the app</li>
+            <li>Other users will not see your profile or messages</li>
+            <li>You cannot recover any data</li>
+            <li>You can create a new account with the same email after deletion is complete</li>
+            <li>Previous matches will lose access to your information</li>
+        </ul>
+
+        <div class="center">
+            <p><strong>Ready to delete your account?</strong></p>
+            <p>Please use the mobile app for the fastest and most secure account deletion.</p>
+            <a href="#" class="btn">Open RentMatch App</a>
+        </div>
+
+        <div class="contact">
+            <h3>Need Help?</h3>
+            <p>If you're experiencing issues or have questions about account deletion:</p>
+            <ul>
+                <li><strong>Support Email:</strong> <a href="mailto:support@rentmatch.app">support@rentmatch.app</a></li>
+                <li><strong>Privacy Questions:</strong> <a href="mailto:privacy@rentmatch.app">privacy@rentmatch.app</a></li>
+                <li><strong>Privacy Policy:</strong> <a href="privacy-policy.html">Read our Privacy Policy</a></li>
+                <li><strong>Data Safety:</strong> <a href="data-safety.html">View Data Safety Information</a></li>
+            </ul>
+        </div>
+
+        <div class="center" style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #ddd;">
+            <p style="color: #7f8c8d; font-size: 0.9em;">
+                RentMatch - Making rental connections simple and secure<br>
+                Last Updated: November 25, 2024
+            </p>
+        </div>
+    </div>
+</body>
+</html>

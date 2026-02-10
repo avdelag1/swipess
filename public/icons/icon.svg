@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background gradient: Pink to Orange -->
+    <linearGradient id="bgGradient" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#FF1B8D"/>
+      <stop offset="25%" stop-color="#FF3B7D"/>
+      <stop offset="50%" stop-color="#FF5B6D"/>
+      <stop offset="75%" stop-color="#FF8B4D"/>
+      <stop offset="100%" stop-color="#FFAB3D"/>
+    </linearGradient>
+
+    <!-- Top curve gradient: Yellow to Orange -->
+    <linearGradient id="topGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFF4CC"/>
+      <stop offset="20%" stop-color="#FFE999"/>
+      <stop offset="50%" stop-color="#FFD666"/>
+      <stop offset="80%" stop-color="#FFBA44"/>
+      <stop offset="100%" stop-color="#FF9E33"/>
+    </linearGradient>
+
+    <!-- Bottom curve gradient: Cyan to Blue -->
+    <linearGradient id="bottomGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#66E0FF"/>
+      <stop offset="30%" stop-color="#55CCFF"/>
+      <stop offset="60%" stop-color="#5599FF"/>
+      <stop offset="100%" stop-color="#6666FF"/>
+    </linearGradient>
+
+    <!-- Shadow filters -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="12"/>
+      <feOffset dx="0" dy="8" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background with rounded corners -->
+  <rect width="1024" height="1024" rx="226" fill="url(#bgGradient)"/>
+
+  <!-- S letter composed of two curves -->
+  <g filter="url(#shadow)">
+    <!-- Top curve (yellow-orange) -->
+    <path
+      d="M 312 360
+         C 312 280, 380 220, 480 220
+         C 580 220, 660 260, 700 320
+         C 740 380, 740 440, 700 490
+         C 660 540, 600 570, 530 600
+         L 490 620"
+      fill="url(#topGradient)"
+      stroke="none"
+    />
+    <path
+      d="M 312 360
+         C 312 280, 380 220, 480 220
+         C 580 220, 660 260, 700 320
+         C 740 380, 740 440, 700 490
+         C 660 540, 600 570, 530 600
+         C 460 630, 380 650, 340 680
+         C 300 710, 280 750, 320 790
+         L 490 620
+         C 560 590, 620 560, 660 510
+         C 700 460, 700 400, 660 350
+         C 620 300, 560 270, 480 270
+         C 400 270, 350 310, 350 360
+         C 350 410, 390 440, 450 470
+         Z"
+      fill="url(#topGradient)"
+      stroke="none"
+    />
+
+    <!-- Bottom curve (cyan-blue) -->
+    <path
+      d="M 712 664
+         C 712 744, 644 804, 544 804
+         C 444 804, 364 764, 324 704
+         C 284 644, 284 584, 324 534
+         C 364 484, 424 454, 494 424
+         L 534 404"
+      fill="url(#bottomGradient)"
+      stroke="none"
+    />
+    <path
+      d="M 712 664
+         C 712 744, 644 804, 544 804
+         C 444 804, 364 764, 324 704
+         C 284 644, 284 584, 324 534
+         C 364 484, 424 454, 494 424
+         C 564 394, 644 374, 684 344
+         C 724 314, 744 274, 704 234
+         L 534 404
+         C 464 434, 404 464, 364 514
+         C 324 564, 324 624, 364 674
+         C 404 724, 464 754, 544 754
+         C 624 754, 674 714, 674 664
+         C 674 614, 634 584, 574 554
+         Z"
+      fill="url(#bottomGradient)"
+      stroke="none"
+    />
+  </g>
+
+  <!-- Main S shape with 3D effect -->
+  <g filter="url(#shadow)">
+    <!-- Upper curve - Yellow to Orange gradient -->
+    <path
+      d="M 380 320
+         C 380 260, 430 220, 500 220
+         C 580 220, 640 260, 670 320
+         C 690 360, 680 400, 650 440
+         C 620 480, 570 510, 512 540
+         C 454 570, 400 600, 370 640
+         C 340 680, 340 730, 380 770
+         C 420 810, 480 830, 550 820
+         Q 650 800, 650 750
+         Q 650 750, 700 750
+         C 700 830, 620 880, 520 890
+         C 420 900, 330 860, 290 790
+         C 250 720, 250 650, 300 590
+         C 350 530, 420 490, 490 460
+         C 560 430, 620 400, 650 360
+         C 680 320, 680 280, 650 250
+         C 620 220, 570 200, 500 210
+         C 430 220, 380 250, 360 300
+         Q 360 340, 330 340
+         Q 330 340, 380 320
+         Z"
+      fill="url(#topGradient)"
+    />
+
+    <!-- Lower curve - Cyan to Blue gradient -->
+    <path
+      d="M 644 704
+         C 644 764, 594 804, 524 804
+         C 444 804, 384 764, 354 704
+         C 334 664, 344 624, 374 584
+         C 404 544, 454 514, 512 484
+         C 570 454, 624 424, 654 384
+         C 684 344, 684 294, 644 254
+         C 604 214, 544 194, 474 204
+         Q 374 224, 374 274
+         Q 374 274, 324 274
+         C 324 194, 404 144, 504 134
+         C 604 124, 694 164, 734 234
+         C 774 304, 774 374, 724 434
+         C 674 494, 604 534, 534 564
+         C 464 594, 404 624, 374 664
+         C 344 704, 344 744, 374 774
+         C 404 804, 454 824, 524 814
+         C 594 804, 644 774, 664 724
+         Q 664 684, 694 684
+         Q 694 684, 644 704
+         Z"
+      fill="url(#bottomGradient)"
+    />
+  </g>
+</svg>

@@ -1,0 +1,145 @@
+{
+  "name": "Swipess - Find Your Perfect Rental",
+  "short_name": "Swipess",
+  "description": "Find your perfect rental property or tenant with ease. Swipe through properties and connect with the right matches. Swipess makes matching easy.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#000000",
+  "theme_color": "#f97316",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "dir": "ltr",
+  "id": "com.swipes.app",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/s-logo-app.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["lifestyle", "business", "social"],
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot-browse.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Browse rental properties with ease"
+    },
+    {
+      "src": "/screenshots/screenshot-match.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Match with your perfect rental"
+    },
+    {
+      "src": "/screenshots/screenshot-chat.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Chat with landlords and tenants"
+    },
+    {
+      "src": "/screenshots/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Swipess on desktop"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Browse Properties",
+      "short_name": "Browse",
+      "description": "Browse available rental properties",
+      "url": "/client/dashboard",
+      "icons": [
+        {
+          "src": "/icons/s-logo-app.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "My Properties",
+      "short_name": "Properties",
+      "description": "Manage your rental properties",
+      "url": "/owner/properties",
+      "icons": [
+        {
+          "src": "/icons/s-logo-app.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "short_name": "Chat",
+      "description": "View your conversations",
+      "url": "/messages",
+      "icons": [
+        {
+          "src": "/icons/s-logo-app.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/swipes/id1234567890"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
