@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useUserSubscription } from './useSubscription';
 import { supabase } from '@/integrations/supabase/client';

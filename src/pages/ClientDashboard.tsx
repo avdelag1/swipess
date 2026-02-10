@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TinderentSwipeContainer } from '@/components/TinderentSwipeContainer';

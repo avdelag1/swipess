@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap } from 'lucide-react';

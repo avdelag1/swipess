@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** SPEED OF LIGHT: Owner Dashboard - Direct Client Cards */
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

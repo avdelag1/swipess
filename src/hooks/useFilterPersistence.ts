@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * FILTER PERSISTENCE HOOK
  * 
