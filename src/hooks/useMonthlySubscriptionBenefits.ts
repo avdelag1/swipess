@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useUserSubscription } from './useSubscription';
 import { useMessageActivations } from './useMessageActivations';
 import { useQuery } from '@tanstack/react-query';

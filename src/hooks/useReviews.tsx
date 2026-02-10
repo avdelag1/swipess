@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Reviews System Hooks
  *

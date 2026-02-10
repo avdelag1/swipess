@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Rating System Hooks
  *

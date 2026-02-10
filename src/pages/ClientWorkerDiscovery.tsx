@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';

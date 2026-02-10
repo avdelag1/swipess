@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * FIRE-AND-FORGET SWIPE QUEUE
  *

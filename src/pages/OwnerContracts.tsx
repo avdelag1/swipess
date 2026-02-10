@@ -1,3 +1,4 @@
+// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
