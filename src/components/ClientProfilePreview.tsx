@@ -17,7 +17,7 @@ interface ClientProfilePreviewProps {
 }
 
 export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewProps) {
-  // Fetch combined profile data
+  // Fetch profile data
   const { data: profileData, isLoading } = useQuery({
     queryKey: ['client-profile-preview', mode === 'self' ? 'self' : clientId],
     queryFn: async () => {
@@ -32,33 +32,18 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
 
       if (!userId) throw new Error('No user ID available');
 
-      // Fetch from profiles table
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .single();
 
       if (profileError) throw profileError;
 
-      // Fetch from client_profiles table for extended fields
-      const { data: clientProfile, error: clientError } = await supabase
-        .from('client_profiles')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (clientError && clientError.code !== 'PGRST116') throw clientError;
-
-      // Merge data - prefer client_profile fields when available
       return {
         ...profile,
-        ...clientProfile,
-        // Use profile_images from client_profiles if available, otherwise fall back to profiles.images
-        images: clientProfile?.profile_images && clientProfile.profile_images.length > 0 
-          ? clientProfile.profile_images 
-          : profile.images || [],
-      };
+        images: [] as string[],
+      } as any;
     },
     enabled: mode === 'self' || !!clientId,
   });
