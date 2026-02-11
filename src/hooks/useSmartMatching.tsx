@@ -1101,20 +1101,36 @@ export function useSmartClientMatching(
         if (profileError) {
           // CRITICAL FIX: Don't throw error when paginating beyond available results
           // Return empty array to show "All Caught Up" screen instead of error
-          logger.error('[SmartMatching] Error fetching client profiles:', profileError.message);
+          logger.error('[SmartMatching] Error fetching client profiles:', {
+            message: profileError.message,
+            code: profileError.code,
+            details: profileError.details,
+            hint: profileError.hint
+          });
           return [] as MatchedClientProfile[];
         }
 
         if (!profiles?.length) {
-          logger.info('[SmartMatching] No client profiles found for page:', page);
+          logger.info('[SmartMatching] No client profiles found:', {
+            page,
+            userId,
+            swipedCount: swipedProfileIds.size,
+            category
+          });
           return [] as MatchedClientProfile[];
         }
 
-        logger.info('[SmartMatching] Fetched profiles before filtering:', profiles.length);
+        logger.info('[SmartMatching] Successfully fetched profiles:', {
+          count: profiles.length,
+          page,
+          userId,
+          firstProfileId: profiles[0]?.id,
+          hasImages: profiles.filter(p => p.images && p.images.length > 0).length
+        });
 
         // Map profiles with placeholder images
         // NOTE: Swiped profiles are now excluded at SQL level (see query above)
-        // CRITICAL: Also filter out profiles with mock/fake images (unsplash, placeholder URLs, etc.)
+        // UPDATED: Allow profiles even with placeholder/test images for better UX
         let filteredProfiles = (profiles as any[])
           .filter(profile => {
             // DEFENSE IN DEPTH: Double-check - never show user their own profile
@@ -1124,7 +1140,8 @@ export function useSmartClientMatching(
             }
             return true;
           })
-          .filter(profile => !hasMockImages(profile.images)) // Remove profiles with fake/mock photos
+          // NOTE: Removed hasMockImages filter to allow test/placeholder images
+          // Users can still see profiles with placeholder images for better discovery
           .map(profile => ({
             ...profile,
             images: profile.images && profile.images.length > 0
