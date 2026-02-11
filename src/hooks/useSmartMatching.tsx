@@ -402,7 +402,6 @@ export function useSmartListingMatching(
           amenities,
           pet_friendly,
           furnished,
-          has_verified_documents,
           owner_id,
           created_at
         `;
