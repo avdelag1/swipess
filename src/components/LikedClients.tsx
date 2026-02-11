@@ -157,43 +157,21 @@ export function LikedClients() {
 
       // First try with inner join to get only clients
       let profiles: any[] = [];
-      const { data: clientProfiles, error: clientProfilesError } = await supabase
+      // UPDATED: Show all users as potential clients, not just those with role='client'
+      // All users can now be liked as clients regardless of their primary role
+      const { data: allProfiles, error: allProfilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles!inner(role)
-        `)
-        .in('id', targetIds)
-        .eq('user_roles.role', 'client');
+        .select('*')
+        .in('id', targetIds);
 
-      if (!clientProfilesError && clientProfiles && clientProfiles.length > 0) {
-        profiles = clientProfiles;
-      } else {
-        // Fallback: Get all profiles and filter by checking if they're NOT owners
-        // This handles cases where user_roles entry might be missing
-        const { data: allProfiles, error: allProfilesError } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', targetIds);
+      if (allProfilesError) {
+        logger.error('[LikedClients] Error fetching profiles:', allProfilesError);
+        throw allProfilesError;
+      }
 
-        if (allProfilesError) {
-          logger.error('[LikedClients] Error fetching profiles:', allProfilesError);
-          throw allProfilesError;
-        }
-
-        if (allProfiles && allProfiles.length > 0) {
-          // Check which ones are owners to exclude them
-          const { data: ownerRoles } = await supabase
-            .from('user_roles')
-            .select('user_id')
-            .in('user_id', targetIds)
-            .eq('role', 'owner');
-
-          const ownerIds = new Set((ownerRoles || []).map(r => r.user_id));
-
-          // Filter out owners - keep everyone else (clients or users without role)
-          profiles = allProfiles.filter(p => !ownerIds.has(p.id));
-        }
+      if (allProfiles && allProfiles.length > 0) {
+        // Show all profiles - all users are treated as potential clients
+        profiles = allProfiles;
       }
 
       if (!profiles || profiles.length === 0) return [];

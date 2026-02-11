@@ -1053,9 +1053,9 @@ export function useSmartClientMatching(
           }
         }
 
-        // CRITICAL: Only show CLIENT profiles to owners, exclude admins and other owners
+        // CRITICAL: Show ALL user profiles to owners (all users are potential clients)
         // PERF: Select only fields needed for owner's client swipe cards (reduces payload ~50%)
-        // FIXED: Removed non-existent columns (property_types, moto_types, bicycle_types)
+        // FIXED: Removed user_roles filter - all users are now shown as potential clients
         const CLIENT_SWIPE_CARD_FIELDS = `
           id,
           full_name,
@@ -1076,16 +1076,15 @@ export function useSmartClientMatching(
           work_schedule,
           nationality,
           languages_spoken,
-          neighborhood,
-          user_roles!inner(role)
+          neighborhood
         `;
 
         // Build the query with SQL-level exclusions
+        // NOTE: All users are shown as potential clients, regardless of their primary role
         let profileQuery = supabase
           .from('profiles')
           .select(CLIENT_SWIPE_CARD_FIELDS)
           .neq('id', userId) // CRITICAL: Never show user their own profile
-          .eq('user_roles.role', 'client')
           .or('is_active.is.null,is_active.eq.true'); // Only show active profiles (null or true)
 
         // CRITICAL FIX: Exclude swiped profiles at SQL level (not JavaScript)

@@ -44,17 +44,8 @@ export default function OwnerViewClientProfile() {
         throw new Error('Profile not found');
       }
 
-      // Check role - but be lenient (allow viewing if user is NOT an owner)
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', clientId)
-        .maybeSingle();
-
-      // Only block if explicitly an owner (allow null/undefined roles or client role)
-      if (roleData?.role === 'owner') {
-        throw new Error('Cannot view owner profiles from this page');
-      }
+      // UPDATED: All users can be viewed as potential clients, including owners
+      // No role restrictions - everyone is a potential client
 
       // TRY to get updated photos from client_profiles table (newer source)
       const { data: clientProfile } = await supabase
