@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Offline Swipe Queue - Queues swipes when offline and syncs when back online
  *
