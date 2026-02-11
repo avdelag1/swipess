@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { memo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
