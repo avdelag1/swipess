@@ -56,8 +56,8 @@ function TopBarComponent({
     <header
       className={cn(
         'app-header',
-        // Transparent - no background, no blur, no border
-        transparent ? 'bg-transparent border-transparent backdrop-blur-none' : 'bg-[#1C1C1E] border-transparent',
+        // Gradient fade-out to black - buttons float without rectangle background
+        transparent ? 'bg-transparent border-transparent backdrop-blur-none' : 'bg-gradient-to-b from-black/60 via-black/30 to-transparent border-transparent',
         shouldHide && 'header-hidden',
         className
       )}
