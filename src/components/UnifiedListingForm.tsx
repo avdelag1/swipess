@@ -127,6 +127,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
       const listingData = {
+        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (selectedMode === 'rent' ? 'rent' : 'buy'),
@@ -138,6 +139,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         currency: 'USD',
         rental_rates: formData.rental_rates,
         rental_duration_type: formData.rental_duration_type,
+        description: formData.description || '',
+        location: formData.city || formData.address || 'Unknown',
         country: formData.country || 'Mexico',
         state: formData.state || formData.city || 'Unknown',
         city: formData.city || 'Unknown',
