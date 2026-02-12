@@ -1,28 +1,21 @@
 /**
- * CLIENT FILTERS PAGE - SIMPLE & WORKING
+ * CLIENT FILTERS PAGE - Premium glass design
  * 
- * A clean, mobile-first filter page that:
- * 1. Opens properly
- * 2. Updates filterStore correctly
- * 3. Triggers the query to refresh
- * 4. Shows results immediately
+ * Full-screen filter page that properly updates filterStore
+ * and triggers category-based filtering on swipe cards.
  */
 
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, Home, Bike, Briefcase, X, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Sparkles, Home, Bike, Briefcase, X, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GlassSurface } from '@/components/ui/glass-surface';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import type { QuickFilterCategory } from '@/types/filters';
 
-// Category configuration
 const categories: { 
   id: QuickFilterCategory; 
   label: string; 
@@ -34,7 +27,7 @@ const categories: {
     id: 'property', 
     label: 'Properties', 
     icon: <Home className="w-5 h-5" />,
-    color: 'text-blue-500',
+    color: 'text-blue-400',
     bgColor: 'bg-blue-500',
   },
   { 
@@ -48,21 +41,21 @@ const categories: {
         <path d="M14 7h3l2 5" />
       </svg>
     ),
-    color: 'text-slate-600',
+    color: 'text-slate-400',
     bgColor: 'bg-slate-500',
   },
   { 
     id: 'bicycle', 
     label: 'Bicycles', 
     icon: <Bike className="w-5 h-5" />,
-    color: 'text-emerald-500',
+    color: 'text-emerald-400',
     bgColor: 'bg-emerald-500',
   },
   { 
     id: 'services', 
     label: 'Services', 
     icon: <Briefcase className="w-5 h-5" />,
-    color: 'text-purple-500',
+    color: 'text-purple-400',
     bgColor: 'bg-purple-500',
   },
 ];
@@ -73,30 +66,22 @@ const listingTypes = [
   { id: 'sale' as const, label: 'For Sale' },
 ];
 
+const springTransition = { type: 'spring' as const, stiffness: 400, damping: 28 };
+
 export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
   
-  // Get current filters from store
   const storeCategories = useFilterStore((state) => state.categories);
   const storeListingType = useFilterStore((state) => state.listingType);
   const setCategories = useFilterStore((state) => state.setCategories);
   const setListingType = useFilterStore((state) => state.setListingType);
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   
-  // Local state initialized from store
   const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(storeCategories);
   const [selectedListingType, setSelectedListingType] = useState<'rent' | 'sale' | 'both'>(storeListingType);
   
-  // Determine initial category from URL or store
-  const initialCategory = location.search.includes('category=') 
-    ? location.search.split('category=')[1]?.split('&')[0] as QuickFilterCategory
-    : storeCategories[0] || 'property';
-    
-  const [activeTab, setActiveTab] = useState<QuickFilterCategory>(initialCategory);
-  
-  // Count active filters
   const activeFilterCount = selectedCategories.length + (selectedListingType !== 'both' ? 1 : 0);
   
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
@@ -110,15 +95,10 @@ export default function ClientFilters() {
   }, []);
   
   const handleApply = useCallback(() => {
-    // Update filter store
     setCategories(selectedCategories);
     setListingType(selectedListingType);
-    
-    // Invalidate queries to force refresh with new filters
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
     queryClient.invalidateQueries({ queryKey: ['listings'] });
-    
-    // Always go back to dashboard, not just -1
     navigate('/client/dashboard', { replace: true });
   }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate]);
   
@@ -129,183 +109,187 @@ export default function ClientFilters() {
   }, [resetClientFilters]);
   
   const handleBack = useCallback(() => {
-    // Always go back to dashboard, not just -1
     navigate('/client/dashboard', { replace: true });
   }, [navigate]);
   
   return (
-    <div className="min-h-screen bg-background flex flex-col" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+    <div className="fixed inset-0 z-50 bg-background flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
-        <div className="max-w-lg mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleBack}
-                className="h-8 w-8"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div>
-                <h1 className="text-lg font-semibold">What I'm Looking For</h1>
-                <p className="text-xs text-muted-foreground">
-                  {activeFilterCount > 0 
-                    ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`
-                    : 'Select categories to browse'
-                  }
-                </p>
-              </div>
+      <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3">
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={handleBack}
+              className="h-9 w-9 rounded-full"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">Filters</h1>
+              <p className="text-xs text-muted-foreground">
+                {activeFilterCount > 0 
+                  ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`
+                  : 'Choose what to browse'
+                }
+              </p>
             </div>
-            
-            {activeFilterCount > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleReset}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Reset
-              </Button>
-            )}
           </div>
+          
+          {activeFilterCount > 0 && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={handleReset}
+              className="text-muted-foreground hover:text-foreground rounded-full"
+            >
+              <X className="w-4 h-4 mr-1" />
+              Reset
+            </Button>
+          )}
         </div>
       </header>
 
-      {/* Content */}
-      <ScrollArea className="flex-1">
-        <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="max-w-lg mx-auto px-4 py-4 space-y-5">
           
           {/* Listing Type */}
-          <GlassSurface elevation="elevated">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                I WANT TO
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-3 gap-2">
-                {listingTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => setSelectedListingType(type.id)}
-                    className={cn(
-                      "py-3 px-4 rounded-xl text-sm font-medium transition-all",
-                      selectedListingType === type.id
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "bg-muted hover:bg-muted/80 text-muted-foreground"
-                    )}
-                  >
-                    {type.label}
-                  </button>
-                ))}
-              </div>
-            </CardContent>
+          <GlassSurface elevation="elevated" className="p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              I want to
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              {listingTypes.map((type) => (
+                <motion.button
+                  key={type.id}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setSelectedListingType(type.id)}
+                  className={cn(
+                    "py-3 px-4 rounded-[var(--radius-md)] text-sm font-medium transition-all duration-[var(--duration-fast)]",
+                    selectedListingType === type.id
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "bg-muted/60 hover:bg-muted text-muted-foreground"
+                  )}
+                >
+                  {type.label}
+                </motion.button>
+              ))}
+            </div>
           </GlassSurface>
 
           {/* Categories */}
-          <GlassSurface elevation="elevated">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                CATEGORIES
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <GlassSurface elevation="elevated" className="p-4">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              Categories
+            </p>
+            <div className="space-y-2">
               {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category.id);
                 return (
                   <motion.button
                     key={category.id}
-                    whileTap={{ scale: 0.98 }}
+                    whileTap={{ scale: 0.97 }}
+                    layout
                     onClick={() => handleCategoryToggle(category.id)}
                     className={cn(
-                      "w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all",
+                      "w-full flex items-center justify-between p-3.5 rounded-[var(--radius-md)] border-2 transition-all duration-[var(--duration-fast)]",
                       isSelected
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
+                        ? "border-primary/60 bg-primary/8"
+                        : "border-transparent bg-muted/40 hover:bg-muted/60"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center",
-                        isSelected ? category.bgColor : "bg-muted"
-                      )}>
+                      <motion.div 
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-[var(--duration-fast)]",
+                          isSelected ? category.bgColor : "bg-muted"
+                        )}
+                        animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
+                        transition={springTransition}
+                      >
                         <span className={isSelected ? "text-white" : category.color}>
                           {category.icon}
                         </span>
-                      </div>
+                      </motion.div>
                       <span className={cn(
-                        "font-medium",
+                        "font-medium text-[15px]",
                         isSelected ? "text-foreground" : "text-muted-foreground"
                       )}>
                         {category.label}
                       </span>
                     </div>
                     
-                    {isSelected && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className={cn(
-                          "w-6 h-6 rounded-full flex items-center justify-center",
-                          category.bgColor
-                        )}
-                      >
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </motion.div>
-                    )}
+                    <AnimatePresence>
+                      {isSelected && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={springTransition}
+                          className={cn(
+                            "w-7 h-7 rounded-full flex items-center justify-center",
+                            category.bgColor
+                          )}
+                        >
+                          <Check className="w-4 h-4 text-white" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </motion.button>
                 );
               })}
-            </CardContent>
+            </div>
           </GlassSurface>
 
-          {/* Quick Filters */}
+          {/* Quick Actions */}
           {selectedCategories.length > 0 && (
-            <GlassSurface elevation="surface">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={springTransition}
+            >
+              <GlassSurface elevation="surface" className="p-4">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
                   Quick Actions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
+                </p>
                 <button
                   onClick={() => navigate(`/client/filters-explore`)}
-                  className="w-full flex items-center justify-between p-3 rounded-xl border border-border hover:bg-muted/50 transition-colors"
+                  className="w-full flex items-center justify-between p-3 rounded-[var(--radius-md)] bg-muted/40 hover:bg-muted/60 transition-colors"
                 >
-                  <span className="text-sm font-medium">More Filters...</span>
+                  <span className="text-sm font-medium text-foreground">More Filters...</span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </button>
-              </CardContent>
-            </GlassSurface>
+              </GlassSurface>
+            </motion.div>
           )}
 
           {/* Empty State */}
           {selectedCategories.length === 0 && (
             <div className="text-center py-8">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-muted-foreground" />
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-muted/60 flex items-center justify-center">
+                <Sparkles className="w-7 h-7 text-muted-foreground" />
               </div>
               <p className="text-sm text-muted-foreground">
-                Select at least one category to start browsing
+                Select a category to start browsing
               </p>
             </div>
           )}
+
+          {/* Bottom spacer for the sticky button */}
+          <div className="h-20" />
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Footer - Apply Button */}
-      <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t p-4">
+      <div className="shrink-0 px-4 pb-[max(env(safe-area-inset-bottom,12px),12px)] pt-3 bg-gradient-to-t from-background via-background to-transparent">
         <div className="max-w-lg mx-auto">
           <Button
             onClick={handleApply}
             disabled={selectedCategories.length === 0}
-            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+            className="w-full h-12 text-base font-semibold rounded-[var(--radius-lg)]"
           >
             <Sparkles className="w-5 h-5 mr-2" />
             {selectedCategories.length === 0 
