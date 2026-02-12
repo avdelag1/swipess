@@ -566,7 +566,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       >
         {enhancedChildren}
         {/* Fade-out gradient at bottom of content */}
-        <div className="pointer-events-none fixed bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black via-black/60 to-transparent z-[1]" 
+        <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]" 
           style={{ bottom: `calc(${bottomNavHeight}px + var(--safe-bottom))` }} 
         />
       </main>
