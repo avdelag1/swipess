@@ -56,8 +56,8 @@ function TopBarComponent({
     <header
       className={cn(
         'app-header',
-        // Solid black background
-        'bg-black border-transparent',
+        // Transparent - gradient masks handle the fade
+        'bg-transparent border-transparent',
         shouldHide && 'header-hidden',
         className
       )}

@@ -91,7 +91,7 @@ body {
   backface-visibility: hidden;
 }
 
-/* App Header - Fixed top bar - Semi-transparent with fade */
+/* App Header - Fully transparent, buttons float over gradient masks */
 .app-header {
   position: fixed;
   top: 0;
@@ -102,8 +102,8 @@ body {
   padding-bottom: 4px;
   padding-left: max(var(--safe-left), 8px);
   padding-right: max(var(--safe-right), 8px);
-  /* Semi-transparent so content peeks through */
-  background: rgba(0, 0, 0, 0.75);
+  /* NO background - gradient masks handle the fade */
+  background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: none;
@@ -112,7 +112,6 @@ body {
   will-change: transform, opacity, filter;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  /* FADE VANISH */
   opacity: 1;
   filter: blur(0px);
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
@@ -120,17 +119,7 @@ body {
               filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Soft fade gradient below the header */
-.app-header::after {
-  content: '';
-  position: absolute;
-  bottom: -16px;
-  left: 0;
-  right: 0;
-  height: 16px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);
-  pointer-events: none;
-}
+/* No ::after pseudo - gradient masks handle the fade */
 
 /* Hidden state for scroll behavior - fades out with subtle blur */
 .app-header.header-hidden {
@@ -170,8 +159,7 @@ body {
   position: relative;
 }
 
-/* App Bottom Bar - Fixed bottom nav with safe-area-bottom */
-/* DARK PREMIUM styling - matches app dark theme */
+/* App Bottom Bar - Fully transparent, gradient masks handle the fade */
 .app-bottom-bar {
   position: fixed;
   bottom: 0;
@@ -182,10 +170,9 @@ body {
   padding-top: 4px;
   padding-left: max(var(--safe-left), 12px);
   padding-right: max(var(--safe-right), 12px);
-  /* Transparent dark with fade - no hard edge */
-  background: rgba(0, 0, 0, 0.7);
+  /* NO background - gradient masks handle the fade */
+  background: transparent;
   border-top: none;
-  /* FADE VANISH: Smooth fade - matches header */
   transform: translateZ(0) translateY(0);
   opacity: 1;
   filter: blur(0px);
