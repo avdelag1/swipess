@@ -96,31 +96,38 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
               </div>
               
               <div className="flex flex-wrap gap-2">
-                {filter.client_types && filter.client_types.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {filter.client_types.join(', ')}
-                  </Badge>
-                )}
-                {(filter.min_budget || filter.max_budget) && (
-                  <Badge variant="secondary" className="text-xs">
-                    ${filter.min_budget || 0} - ${filter.max_budget || '∞'}
-                  </Badge>
-                )}
-                {(filter.min_age || filter.max_age) && (
-                  <Badge variant="secondary" className="text-xs">
-                    Age {filter.min_age || 18}-{filter.max_age || 65}
-                  </Badge>
-                )}
-                {filter.lifestyle_tags && filter.lifestyle_tags.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {filter.lifestyle_tags.length} lifestyle tags
-                  </Badge>
-                )}
-                {filter.preferred_occupations && filter.preferred_occupations.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {filter.preferred_occupations.length} occupations
-                  </Badge>
-                )}
+                {(() => {
+                  const fd = (filter.filter_data || {}) as Record<string, any>;
+                  return (
+                    <>
+                      {fd.client_types?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.client_types.join(', ')}
+                        </Badge>
+                      )}
+                      {(fd.min_budget || fd.max_budget) && (
+                        <Badge variant="secondary" className="text-xs">
+                          ${fd.min_budget || 0} - ${fd.max_budget || '∞'}
+                        </Badge>
+                      )}
+                      {(fd.min_age || fd.max_age) && (
+                        <Badge variant="secondary" className="text-xs">
+                          Age {fd.min_age || 18}-{fd.max_age || 65}
+                        </Badge>
+                      )}
+                      {fd.lifestyle_tags?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.lifestyle_tags.length} lifestyle tags
+                        </Badge>
+                      )}
+                      {fd.preferred_occupations?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.preferred_occupations.length} occupations
+                        </Badge>
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             </CardContent>
           </Card>
