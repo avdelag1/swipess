@@ -1084,13 +1084,13 @@ export function useSmartClientMatching(
         let profileQuery = supabase
           .from('profiles')
           .select(CLIENT_SWIPE_CARD_FIELDS)
-          .neq('id', userId); // CRITICAL: Never show user their own profile
+          .neq('user_id', userId); // CRITICAL: Never show user their own profile
 
         // CRITICAL FIX: Exclude swiped profiles at SQL level (not JavaScript)
         // This ensures pagination works correctly
         if (swipedProfileIds.size > 0) {
           const idsToExclude = Array.from(swipedProfileIds);
-          profileQuery = profileQuery.not('id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
+          profileQuery = profileQuery.not('user_id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
         }
 
         const start = page * pageSize;
@@ -1134,8 +1134,8 @@ export function useSmartClientMatching(
         let filteredProfiles = (profiles as any[])
           .filter(profile => {
             // DEFENSE IN DEPTH: Double-check - never show user their own profile
-            if (profile.id === userId) {
-              logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query, filtering it out:', profile.id);
+            if (profile.user_id === userId) {
+              logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query, filtering it out:', profile.user_id);
               return false;
             }
             // Only show profiles that have at least a name set (created their profile)

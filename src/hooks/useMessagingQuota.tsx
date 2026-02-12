@@ -40,7 +40,7 @@ export function useMessagingQuota() {
       const { data, error } = await supabase
         .from('matches')
         .select('*')
-        .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`);
+        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
       
       if (error) {
         logger.error('[useMessagingQuota] Error fetching matches:', error);
@@ -67,10 +67,20 @@ export function useMessagingQuota() {
       startOfMonth.setHours(0, 0, 0, 0);
       
       // Count conversations where the user sent the FIRST message this month
+      // Conversations don't have client_id/owner_id - they link through matches
+      // First get user's match IDs, then find conversations for those matches
+      const { data: userMatches } = await supabase
+        .from('matches')
+        .select('id')
+        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+      
+      const matchIds = userMatches?.map(m => m.id) || [];
+      if (matchIds.length === 0) return 0;
+
       const { data: conversations, error } = await supabase
         .from('conversations')
         .select('id, created_at')
-        .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
+        .in('match_id', matchIds)
         .gte('created_at', startOfMonth.toISOString());
       
       if (error) {

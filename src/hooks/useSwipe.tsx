@@ -58,11 +58,7 @@ export function useSwipe() {
     },
     onError: (error: any) => {
       logger.error('[useSwipe] Error:', error);
-      toast({
-        title: 'Error Saving',
-        description: error?.message || 'Could not save. Please try again.',
-        variant: 'destructive'
-      });
+      toast.error(error?.message || 'Could not save. Please try again.');
     }
   });
 }
