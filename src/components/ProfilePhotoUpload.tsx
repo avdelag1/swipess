@@ -176,10 +176,6 @@ export function ProfilePhotoUpload({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center" className="w-48">
-          <DropdownMenuItem onClick={handleOpenCamera} className="cursor-pointer">
-            <Camera className="w-4 h-4 mr-2" />
-            Take Photo
-          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => document.getElementById('profile-photo-upload')?.click()}
             className="cursor-pointer"

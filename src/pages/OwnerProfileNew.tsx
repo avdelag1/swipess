@@ -18,7 +18,12 @@ import {
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
-const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
+const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
+const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
+const childVariant = {
+  hidden: { opacity: 0, y: 18, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
+};
 
 const OwnerProfileNew = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -51,25 +56,30 @@ const OwnerProfileNew = () => {
 
   return (
     <>
-      <div className="w-full px-5 py-4 pb-24">
+      <motion.div
+        className="w-full px-5 py-4 pb-24"
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: stagger } }}
+      >
         <div className="max-w-lg mx-auto space-y-4">
           {/* Back Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-2 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
+          <motion.div variants={childVariant}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate(-1)}
+              className="mb-2 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+          </motion.div>
 
           {/* Profile Header */}
           <motion.div
             className="flex items-center gap-4"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={fastSpring}
+            variants={childVariant}
           >
             <div className="relative">
               <div
@@ -103,9 +113,7 @@ const OwnerProfileNew = () => {
 
           {/* Edit Profile Button - Always visible */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.03 }}
+            variants={childVariant}
           >
             <Button
               onClick={() => setShowEditDialog(true)}
@@ -125,9 +133,7 @@ const OwnerProfileNew = () => {
 
           {/* Your Liked Clients */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.15 }}
+            variants={childVariant}
           >
             <Card className="bg-card border-border">
               <CardContent className="p-4">
@@ -148,9 +154,7 @@ const OwnerProfileNew = () => {
 
           {/* Clients Who Liked You */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.17 }}
+            variants={childVariant}
           >
             <Card className="bg-card border-border">
               <CardContent className="p-4">
@@ -171,9 +175,7 @@ const OwnerProfileNew = () => {
 
           {/* Filter Colors / Theme Section */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.2 }}
+            variants={childVariant}
           >
             <Card className="bg-card border-border">
               <CardHeader>
@@ -195,9 +197,7 @@ const OwnerProfileNew = () => {
 
           {/* Quick Links */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.25 }}
+            variants={childVariant}
           >
             <Card className="bg-card border-border">
               <CardContent className="p-0">
@@ -242,9 +242,7 @@ const OwnerProfileNew = () => {
 
           {/* Logout Button */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.3 }}
+            variants={childVariant}
           >
             <Button
               onClick={signOut}
@@ -259,7 +257,7 @@ const OwnerProfileNew = () => {
           {/* Bottom spacing for navigation */}
           <div className="h-8" />
         </div>
-      </div>
+      </motion.div>
 
       <OwnerProfileDialog
         open={showEditDialog}
