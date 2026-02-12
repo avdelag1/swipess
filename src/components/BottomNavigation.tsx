@@ -211,7 +211,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               <Icon
                 className={cn(
                   'transition-colors duration-150',
-                  active ? 'text-orange-500' : 'text-white/90'
+                  active ? 'text-orange-500' : 'text-white'
                 )}
                 style={{
                   width: ICON_SIZE - 4,
@@ -221,7 +221,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               />
               <span className={cn(
                 'text-[10px] leading-tight font-medium transition-colors duration-150',
-                active ? 'text-orange-500' : 'text-white/90'
+                active ? 'text-orange-500' : 'text-white'
               )}>
                 {item.label}
               </span>

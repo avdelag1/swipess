@@ -133,8 +133,8 @@ function TopBarComponent({
                 className={cn(
                   "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                   notificationCount > 0
-                    ? "text-white group-hover:text-white/80"
-                    : "text-white/90 group-hover:text-white"
+                    ? "text-white group-hover:text-white/90"
+                    : "text-white group-hover:text-white/90"
                 )}
               />
               <AnimatePresence>

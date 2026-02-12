@@ -55,6 +55,7 @@ export function useSwipe() {
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['liked-clients'] }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['smart-listings'] }).catch(() => {});
     },
     onError: (error: any) => {
       logger.error('[useSwipe] Error:', error);
