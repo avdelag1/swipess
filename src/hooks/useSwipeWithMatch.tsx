@@ -63,7 +63,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // This prevents FK violations from stale cached profile data
           const { data: clientExists, error: verifyError } = await supabase
             .from('profiles')
-            .select('id, full_name, is_active, city')
+            .select('id, full_name, city')
             .eq('id', targetId)
             .maybeSingle();
 

@@ -12,9 +12,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { Briefcase, Search, Filter, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft } from 'lucide-react';
+import { Briefcase, Search, Filter, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
 import { SERVICE_CATEGORIES, PRICING_UNITS } from '@/components/WorkerListingForm';
+import { cn } from '@/lib/utils';
+
+// Hire duration quick filter options
+const HIRE_DURATION_FILTERS = [
+  { value: 'all', label: 'All', description: 'Show all services' },
+  { value: 'per_month', label: 'Monthly', description: 'Monthly hire' },
+  { value: 'per_hour', label: 'Hourly', description: 'Pay per hour' },
+  { value: 'per_day', label: 'Daily', description: 'Pay per day' },
+  { value: 'per_session', label: 'Session', description: 'Per session' },
+] as const;
 
 interface WorkerListing {
   id: string;
@@ -40,16 +50,21 @@ interface WorkerListing {
   } | null;
 }
 
-function useWorkerListings(serviceTypeFilter?: string) {
+function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
   return useQuery({
-    queryKey: ['worker-listings', serviceTypeFilter],
+    queryKey: ['worker-listings', serviceTypeFilter, pricingFilter],
     queryFn: async () => {
-      const query = (supabase as any)
+      let query = (supabase as any)
         .from('listings')
         .select('*')
         .eq('category', 'worker')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
+
+      // Apply pricing unit filter at DB level
+      if (pricingFilter && pricingFilter !== 'all') {
+        query = query.eq('pricing_unit', pricingFilter);
+      }
 
       const { data: listings, error } = await query;
 
@@ -71,6 +86,9 @@ function useWorkerListings(serviceTypeFilter?: string) {
           price: l.price,
           images: l.images,
           city: l.city,
+          service_category: l.service_category,
+          pricing_unit: l.pricing_unit,
+          experience_years: l.experience_years,
           owner_id: l.owner_id,
           created_at: l.created_at,
           status: l.status,
@@ -104,6 +122,11 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
         <Badge className="absolute top-2 left-2 bg-background/90 backdrop-blur-sm">
           {categoryInfo?.icon} {categoryInfo?.label || worker.service_category}
         </Badge>
+        {pricingInfo && (
+          <Badge className="absolute top-2 right-2 bg-emerald-500/90 text-white backdrop-blur-sm">
+            {pricingInfo.label}
+          </Badge>
+        )}
       </div>
 
       <CardContent className="p-4 space-y-3">
@@ -181,14 +204,19 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
 export default function ClientWorkerDiscovery() {
   const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
+  const [selectedDuration, setSelectedDuration] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(selectedType);
+  const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(selectedType, selectedDuration);
   const startConversation = useStartConversation();
   const [contactingId, setContactingId] = useState<string | null>(null);
 
-  // Filter workers by search query
+  // Filter workers by search query and service type
   const filteredWorkers = workers?.filter(worker => {
+    // Service type filter
+    if (selectedType && worker.service_category !== selectedType) return false;
+
+    // Search query filter
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -229,8 +257,11 @@ export default function ClientWorkerDiscovery() {
 
   const clearFilters = () => {
     setSelectedType(undefined);
+    setSelectedDuration('all');
     setSearchQuery('');
   };
+
+  const hasActiveFilters = selectedType || selectedDuration !== 'all' || searchQuery;
 
   return (
     <>
@@ -268,7 +299,27 @@ export default function ClientWorkerDiscovery() {
             </Button>
           </div>
 
-          {/* Filters */}
+          {/* Hire Duration Quick Filter */}
+          <div className="flex gap-1.5 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+            {HIRE_DURATION_FILTERS.map((filter) => (
+              <button
+                key={filter.value}
+                onClick={() => setSelectedDuration(filter.value)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all",
+                  selectedDuration === filter.value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "bg-muted/80 text-muted-foreground hover:bg-muted"
+                )}
+              >
+                {filter.value === 'per_month' && <CalendarDays className="w-3 h-3" />}
+                {filter.value === 'per_hour' && <Clock className="w-3 h-3" />}
+                {filter.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search and Service Type Filters */}
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -302,9 +353,18 @@ export default function ClientWorkerDiscovery() {
           </div>
 
           {/* Active Filters */}
-          {(selectedType || searchQuery) && (
+          {hasActiveFilters && (
             <div className="flex items-center gap-2 mt-3">
               <span className="text-xs text-muted-foreground">Filters:</span>
+              {selectedDuration !== 'all' && (
+                <Badge variant="secondary" className="gap-1">
+                  {HIRE_DURATION_FILTERS.find(f => f.value === selectedDuration)?.label}
+                  <X
+                    className="w-3 h-3 cursor-pointer"
+                    onClick={() => setSelectedDuration('all')}
+                  />
+                </Badge>
+              )}
               {selectedType && (
                 <Badge variant="secondary" className="gap-1">
                   {SERVICE_CATEGORIES.find(t => t.value === selectedType)?.label}
@@ -376,11 +436,11 @@ export default function ClientWorkerDiscovery() {
               </div>
               <h3 className="text-lg font-semibold mb-2">No Services Found</h3>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto mb-4">
-                {selectedType || searchQuery
+                {hasActiveFilters
                   ? "Try adjusting your filters to find more service providers"
                   : "Service providers will appear here once sellers list their services"}
               </p>
-              {(selectedType || searchQuery) && (
+              {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters}>
                   Clear Filters
                 </Button>
