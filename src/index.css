@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './styles/tokens.css';
+
 
 /* Hide scrollbar for horizontal scrolling action buttons */
 .scrollbar-hide {
@@ -712,9 +714,9 @@ body {
       -webkit-backdrop-filter: none !important;
     }
 
-    /* Faster transitions on mobile */
+    /* Faster transitions on mobile - no !important to avoid janky framer-motion */
     * {
-      transition-duration: 150ms !important;
+      transition-duration: 150ms;
     }
 
     /* Disable box-shadow animations (expensive repaints) */
@@ -772,10 +774,11 @@ body {
     user-select: none;
   }
 
-  /* Active state for instant feedback */
+  /* Active state for instant feedback - spring-like press */
   button:active, a:active, [role="button"]:active {
-    transform: scale(0.97);
-    transition: transform 50ms ease-out;
+    transform: scale(0.96);
+    opacity: 0.95;
+    transition: transform 50ms var(--ease-spring), opacity 50ms ease-out;
   }
   
   .brand-glow {

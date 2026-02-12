@@ -15,6 +15,7 @@ import { ArrowLeft, Sparkles, Home, Bike, Briefcase, X, ChevronRight } from 'luc
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassSurface } from '@/components/ui/glass-surface';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
@@ -133,7 +134,7 @@ export default function ClientFilters() {
   }, [navigate]);
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
         <div className="max-w-lg mx-auto px-4 py-3">
@@ -178,7 +179,7 @@ export default function ClientFilters() {
         <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
           
           {/* Listing Type */}
-          <Card>
+          <GlassSurface elevation="elevated">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 I WANT TO
@@ -202,10 +203,10 @@ export default function ClientFilters() {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </GlassSurface>
 
           {/* Categories */}
-          <Card>
+          <GlassSurface elevation="elevated">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 CATEGORIES
@@ -261,11 +262,11 @@ export default function ClientFilters() {
                 );
               })}
             </CardContent>
-          </Card>
+          </GlassSurface>
 
           {/* Quick Filters */}
           {selectedCategories.length > 0 && (
-            <Card>
+            <GlassSurface elevation="surface">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
@@ -281,7 +282,7 @@ export default function ClientFilters() {
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </button>
               </CardContent>
-            </Card>
+            </GlassSurface>
           )}
 
           {/* Empty State */}
