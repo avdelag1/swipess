@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useStartConversation } from '@/hooks/useConversations';
+import { useSwipe } from '@/hooks/useSwipe';
 import { toast as sonnerToast } from 'sonner';
 import { Search, RefreshCw, MessageCircle, Heart, User, MapPin, DollarSign, Home, Car, Bike, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -101,7 +102,7 @@ export default function OwnerDiscoverClients() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-
+  const swipeMutation = useSwipe();
   const { data: clients = [], isLoading, error, refetch, isRefetching } = useSmartClientMatching(
     user?.id, 
     undefined, // no category filter - show all
@@ -124,7 +125,14 @@ export default function OwnerDiscoverClients() {
   const handleRefresh = async () => { setIsRefreshing(true); await refetch(); setIsRefreshing(false); };
 
   const handleLike = (clientId: string) => {
-    sonnerToast.success('❤️ Liked!', { description: 'Client added to your likes' });
+    swipeMutation.mutate(
+      { targetId: clientId, direction: 'right', targetType: 'profile' },
+      {
+        onSuccess: () => {
+          sonnerToast.success('❤️ Liked!', { description: 'Client added to your likes' });
+        }
+      }
+    );
   };
 
   const handleMessage = async (clientId: string) => {
