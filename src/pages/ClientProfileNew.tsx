@@ -20,7 +20,12 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 
-const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
+const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
+const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
+const childVariant = {
+  hidden: { opacity: 0, y: 18, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
+};
 
 const ClientProfileNew = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -73,10 +78,16 @@ const ClientProfileNew = () => {
 
   return (
     <>
-      <div className="w-full px-5 py-4 pb-24">
+      <motion.div
+        className="w-full px-5 py-4 pb-24"
+        initial="hidden"
+        animate="visible"
+        variants={{ visible: { transition: stagger } }}
+      >
         <div className="max-w-lg mx-auto space-y-4">
           {/* Back Button */}
           <motion.button
+            variants={childVariant}
             onClick={() => navigate(-1)}
             whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
             className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150 mb-4 px-1"
@@ -88,9 +99,7 @@ const ClientProfileNew = () => {
           {/* Profile Header */}
           <motion.div
             className="flex items-center gap-4"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={fastSpring}
+            variants={childVariant}
           >
             <div className="relative">
               <div
@@ -124,9 +133,7 @@ const ClientProfileNew = () => {
 
           {/* Edit Profile Button - Always visible */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.03 }}
+            variants={childVariant}
           >
             <Button
               onClick={() => setShowEditDialog(true)}
@@ -140,9 +147,7 @@ const ClientProfileNew = () => {
           {/* Profile Completion */}
           {completionPercent < 100 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...fastSpring, delay: 0.05 }}
+              variants={childVariant}
             >
               <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 cursor-pointer" onClick={() => setShowEditDialog(true)}>
                 <CardContent className="p-4">
@@ -164,9 +169,7 @@ const ClientProfileNew = () => {
 
           {/* Your Likes & Who Liked You */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.12 }}
+            variants={childVariant}
             className="space-y-3"
           >
             <Card className="bg-card border-border">
@@ -202,9 +205,7 @@ const ClientProfileNew = () => {
           {/* About & Interests Section */}
           {(profile?.bio || profile?.interests?.length > 0) && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...fastSpring, delay: 0.15 }}
+              variants={childVariant}
               className="space-y-3"
             >
               {profile?.bio && (
@@ -245,9 +246,7 @@ const ClientProfileNew = () => {
 
           {/* Filter Colors / Theme Section */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.25 }}
+            variants={childVariant}
           >
             <Card className="bg-card border-border">
               <CardHeader>
@@ -269,9 +268,7 @@ const ClientProfileNew = () => {
 
           {/* Quick Links */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.3 }}
+            variants={childVariant}
           >
             <Card className="bg-card border-border">
               <CardContent className="p-0">
@@ -323,9 +320,7 @@ const ClientProfileNew = () => {
 
           {/* Logout Button */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...fastSpring, delay: 0.35 }}
+            variants={childVariant}
           >
             <Button
               onClick={signOut}
@@ -340,7 +335,7 @@ const ClientProfileNew = () => {
           {/* Bottom spacing for navigation */}
           <div className="h-8" />
         </div>
-      </div>
+      </motion.div>
 
       <ClientProfileDialog
         open={showEditDialog}
