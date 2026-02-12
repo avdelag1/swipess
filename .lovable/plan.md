@@ -1,67 +1,130 @@
 
 
-# Fix Swipe Cards: Missing Data, Broken Upsert, and Missing DB Columns
+# Ultra Polish Mode: Premium UI Refinement + Bug Fixes
 
-## Problems Found
+This plan takes a phased, incremental approach. Phase 1 (this implementation) focuses on the highest-impact changes that will immediately make the app feel premium without breaking the existing architecture.
 
-### 1. Swipe upsert fails silently - missing UPDATE policy on `likes`
-The `likes` table has INSERT, SELECT, and DELETE policies but **no UPDATE policy**. The `useSwipe.tsx` hook uses `upsert` which requires UPDATE permission when a row already exists. This means every re-swipe on the same listing fails silently.
+## What stays the same
+- Core layout and navigation structure
+- Swipe card mechanics
+- All existing features and routes
+- The dark theme identity
 
-### 2. Listings show placeholder images instead of real photos
-All seed listings have `images: []` (empty array) but they DO have a populated `image_url` column with real Unsplash URLs. The swipe card (`SimpleSwipeCard.tsx`) only reads from `listing.images`, never falling back to `image_url`. This makes every card show a grey placeholder icon.
+## What changes
 
-### 3. Missing columns on `profiles` table cause repeated 400 errors
-The network logs show constant 400 errors for:
-- `radio_current_station_id` - used by the radio feature
-- `swipe_sound_theme` - used by swipe sound settings
+### 1. Fix the reviews table (stops the constant errors)
 
-These columns don't exist on the `profiles` table yet.
+The `reviews` table was created with only basic columns but the code queries for many more. A migration will add all the missing columns:
 
-## Plan
+- `review_title` (text)
+- `review_type` (text, default 'property')
+- `cleanliness_rating`, `communication_rating`, `accuracy_rating`, `location_rating`, `value_rating` (integer, 1-5)
+- `response_text` (text)
+- `responded_at` (timestamptz)
+- `is_verified_stay` (boolean, default false)
+- `is_flagged` (boolean, default false)
+- `helpful_count` (integer, default 0)
 
-### Step 1: Database Migration
-Add the missing pieces in one migration:
+This stops the repeating "column reviews.is_flagged does not exist" errors on every swipe card.
 
-```sql
--- 1. Add UPDATE policy on likes for upsert to work
-CREATE POLICY "Users can update their own likes"
-  ON public.likes FOR UPDATE
-  USING (auth.uid() = user_id);
+### 2. Unified Design Token System
 
--- 2. Add missing columns to profiles
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS radio_current_station_id text,
-  ADD COLUMN IF NOT EXISTS swipe_sound_theme text DEFAULT 'default';
-```
+Create a new file `src/styles/tokens.css` with centralized CSS custom properties:
 
-### Step 2: Fix image fallback in swipe card
-In `src/components/SimpleSwipeCard.tsx`, update the `images` memo to fall back to `image_url` when the `images` array is empty:
+- **Radius tokens**: `--radius-sm: 8px`, `--radius-md: 14px`, `--radius-lg: 20px`, `--radius-xl: 28px`
+- **Elevation tokens**: 4 levels of shadow depth (surface, elevated, floating, modal)
+- **Motion tokens**: `--ease-spring`, `--ease-smooth`, `--duration-fast: 150ms`, `--duration-normal: 250ms`, `--duration-slow: 400ms`
+- **Glass surface tokens**: `--glass-bg`, `--glass-border`, `--glass-blur`
 
-```typescript
-const images = useMemo(() => {
-  if (Array.isArray(listing.images) && listing.images.length > 0) {
-    return listing.images;
-  }
-  // Fallback to legacy image_url field
-  if ((listing as any).image_url) {
-    return [(listing as any).image_url];
-  }
-  return [FALLBACK_PLACEHOLDER];
-}, [listing.images, (listing as any).image_url]);
-```
+These tokens get imported into `index.css` and used by all components going forward.
 
-### Step 3: Include `image_url` in smart matching query
-In `src/hooks/useSmartMatching.tsx`, add `image_url` to the `SWIPE_CARD_FIELDS` select string so the fallback has data to work with. Currently only `images` is selected.
+### 3. Premium Glass Surface Component
+
+Create `src/components/ui/glass-surface.tsx` - a reusable wrapper that gives any panel/section a premium frosted glass look:
+
+- Subtle translucent background with backdrop blur (desktop only for performance)
+- Multi-layer depth shadow
+- Soft internal highlight border
+- Configurable elevation level (surface / elevated / floating / modal)
+
+This replaces the basic Card usage in Settings, Filters, and Profile pages.
+
+### 4. Motion System Upgrade
+
+Update `src/components/PageTransition.tsx`:
+- Replace the current 0.08s duration with spring physics (stiffness: 380, damping: 30)
+- Add `prefers-reduced-motion` respect
+- Add a new `glass` variant for settings/filter pages
+
+Update the stagger system:
+- Faster stagger delay (0.04s instead of 0.06s)
+- Add subtle scale on entry (0.98 to 1 instead of 0.97 to 1)
+- Add spring physics to each item
+
+### 5. Settings Page Refinement
+
+Both `ClientSettingsNew.tsx` and `OwnerSettingsNew.tsx`:
+- Wrap the settings menu items in the new GlassSurface component
+- Add smooth icon hover micro-animations (subtle translate + color shift)
+- Add pressed state feedback on each row
+- Clean spacing using token system
+- Remove redundant "Back" button (PageHeader already has one)
+
+### 6. Filter Pages Refinement
+
+Both `ClientFilters.tsx` and `OwnerFilters.tsx`:
+- Replace Cards with GlassSurface for filter sections
+- Add spring-based toggle animations for filter selections
+- Smoother category pill transitions
+- Consistent radius and spacing from token system
+
+### 7. Button and Interactive Element Polish
+
+Update `src/components/ui/button.tsx`:
+- Add subtle elevation change on hover (shadow lifts)
+- Refine the ripple effect timing (300ms instead of 400ms)
+- Add a glass variant for overlay buttons
+
+Update `src/components/ui/card.tsx`:
+- Remove the aggressive `hover:-translate-y-1` (too much movement for settings cards)
+- Use token-based radius and shadow
+- Add a `variant` prop: default (no hover lift) and interactive (with hover lift)
+
+### 8. Consistent Active States
+
+In `src/index.css`:
+- Refine the global `button:active` scale from 0.97 to 0.96 with a spring-like cubic-bezier
+- Add subtle opacity change on press (0.95)
+- Remove the `!important` on mobile transition-duration override (causes janky animations)
+
+### 9. MiniMax AI Integration Prep
+
+The user mentioned having a MiniMax API key for AI features. This phase will:
+- Create a placeholder AI chat component structure at `src/components/ai/AIChatAssistant.tsx`
+- The user will need to provide the MiniMax API key via the secrets manager
+- Full implementation will follow in a subsequent phase once the key is configured
 
 ## Technical Details
 
-### Files to modify:
-- New migration SQL - Add UPDATE policy on likes + add missing profile columns
-- `src/components/SimpleSwipeCard.tsx` - Image fallback logic (lines ~97-101)
-- `src/hooks/useSmartMatching.tsx` - Add `image_url` to SWIPE_CARD_FIELDS (line ~390)
+### Files to create:
+- `src/styles/tokens.css` - Design token system
+- `src/components/ui/glass-surface.tsx` - Premium glass surface component
 
-### Result after fix:
-- Swipe right/left will save correctly (upsert works with UPDATE policy)
-- All listings will show their actual photos (falling back to `image_url`)
-- No more 400 errors for missing profile columns in network logs
+### Files to modify:
+- New migration SQL - Add missing columns to reviews table
+- `src/index.css` - Import tokens, refine active states, remove mobile transition override
+- `src/components/ui/button.tsx` - Hover elevation, faster ripple
+- `src/components/ui/card.tsx` - Remove aggressive hover, add variant prop
+- `src/components/PageTransition.tsx` - Spring physics, reduced-motion respect
+- `src/pages/ClientSettingsNew.tsx` - Glass surface, micro-interactions
+- `src/pages/OwnerSettingsNew.tsx` - Glass surface, micro-interactions
+- `src/pages/ClientFilters.tsx` - Glass surface, spring toggles
+- `src/pages/OwnerFilters.tsx` - Glass surface, spring toggles
+
+### Performance rules followed:
+- Only `transform` and `opacity` for animations
+- Backdrop blur disabled on mobile (already in place)
+- `will-change` used sparingly
+- `prefers-reduced-motion` respected
+- No layout thrashing (no width/height animations)
 
