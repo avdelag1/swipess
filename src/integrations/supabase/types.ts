@@ -768,7 +768,9 @@ export type Database = {
           neighborhood: string | null
           onboarding_completed: boolean | null
           phone: string | null
+          radio_current_station_id: string | null
           smoking: boolean | null
+          swipe_sound_theme: string | null
           theme_preference: string | null
           updated_at: string
           user_id: string
@@ -795,7 +797,9 @@ export type Database = {
           neighborhood?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
+          radio_current_station_id?: string | null
           smoking?: boolean | null
+          swipe_sound_theme?: string | null
           theme_preference?: string | null
           updated_at?: string
           user_id: string
@@ -822,7 +826,9 @@ export type Database = {
           neighborhood?: string | null
           onboarding_completed?: boolean | null
           phone?: string | null
+          radio_current_station_id?: string | null
           smoking?: boolean | null
+          swipe_sound_theme?: string | null
           theme_preference?: string | null
           updated_at?: string
           user_id?: string

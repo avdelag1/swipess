@@ -387,6 +387,7 @@ export function useSmartListingMatching(
           title,
           price,
           images,
+          image_url,
           city,
           neighborhood,
           beds,
