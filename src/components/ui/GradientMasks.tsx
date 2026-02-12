@@ -40,7 +40,7 @@ export const GradientMaskTop = memo(function GradientMaskTop({
   className = '',
   zIndex = 15,
   light = false,
-  heightPercent = 28,
+  heightPercent = 18,
 }: GradientMaskProps) {
   const baseColor = light ? '255,255,255' : '0,0,0';
 
@@ -53,11 +53,11 @@ export const GradientMaskTop = memo(function GradientMaskTop({
     // CURVED SCREEN gradient: Strong edge, smooth curved fade
     background: `linear-gradient(
       to bottom,
-      rgba(${baseColor}, ${0.85 * intensity}) 0%,
-      rgba(${baseColor}, ${0.65 * intensity}) 15%,
-      rgba(${baseColor}, ${0.40 * intensity}) 35%,
-      rgba(${baseColor}, ${0.18 * intensity}) 60%,
-      rgba(${baseColor}, ${0.05 * intensity}) 80%,
+      rgba(${baseColor}, ${0.6 * intensity}) 0%,
+      rgba(${baseColor}, ${0.35 * intensity}) 30%,
+      rgba(${baseColor}, ${0.12 * intensity}) 60%,
+      rgba(${baseColor}, ${0.03 * intensity}) 80%,
+      rgba(${baseColor}, 0) 90%,
       rgba(${baseColor}, 0) 100%
     )`,
     // GPU acceleration
@@ -88,7 +88,7 @@ export const GradientMaskBottom = memo(function GradientMaskBottom({
   className = '',
   zIndex = 20,
   light = false,
-  heightPercent = 50,
+  heightPercent = 35,
 }: GradientMaskProps) {
   const baseColor = light ? '255,255,255' : '0,0,0';
 
@@ -101,11 +101,11 @@ export const GradientMaskBottom = memo(function GradientMaskBottom({
     // CURVED SCREEN gradient: Strong edge at bottom, smooth curved fade upward
     background: `linear-gradient(
       to top,
-      rgba(${baseColor}, ${0.90 * intensity}) 0%,
-      rgba(${baseColor}, ${0.75 * intensity}) 10%,
-      rgba(${baseColor}, ${0.55 * intensity}) 25%,
-      rgba(${baseColor}, ${0.30 * intensity}) 45%,
-      rgba(${baseColor}, ${0.10 * intensity}) 65%,
+      rgba(${baseColor}, ${0.65 * intensity}) 0%,
+      rgba(${baseColor}, ${0.4 * intensity}) 20%,
+      rgba(${baseColor}, ${0.15 * intensity}) 50%,
+      rgba(${baseColor}, ${0.04 * intensity}) 70%,
+      rgba(${baseColor}, 0) 85%,
       rgba(${baseColor}, 0) 100%
     )`,
     // GPU acceleration
