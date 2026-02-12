@@ -84,18 +84,18 @@ export function RadioMiniPlayer() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           whileDrag={{ scale: 1.05, zIndex: 100 }}
-          className="fixed bottom-20 right-4 z-50 touch-none cursor-grab active:cursor-grabbing"
+          className="fixed bottom-20 right-3 z-50 touch-none cursor-grab active:cursor-grabbing"
           style={{ touchAction: 'none' }}
         >
-          <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-lg rounded-full shadow-lg border border-white/20">
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-white/10 backdrop-blur-lg rounded-full shadow-lg border border-white/20 max-w-[180px]">
             {/* Drag indicator */}
             <div className="flex items-center justify-center opacity-40">
-              <GripVertical className="w-3 h-3 text-white" />
+              <GripVertical className="w-2.5 h-2.5 text-white" />
             </div>
 
             {/* Album art placeholder */}
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 animate-pulse" />
+            <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 animate-pulse" />
             </div>
 
             {/* Station info - tap to navigate */}
@@ -103,34 +103,25 @@ export function RadioMiniPlayer() {
               onClick={handleNavigateToRadio}
               className="flex flex-col min-w-0 flex-1 text-left"
             >
-              <span className="text-xs font-medium text-white truncate max-w-[100px]">
+              <span className="text-[10px] font-medium text-white truncate max-w-[70px]">
                 {state.currentStation.name}
               </span>
-              <span className="text-[10px] text-white/60 truncate max-w-[100px]">
+              <span className="text-[8px] text-white/60 truncate max-w-[70px]">
                 {state.currentStation.genre}
               </span>
             </button>
 
-            {/* Controls */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={handleTogglePlay}
-                className="w-8 h-8 rounded-full bg-white flex items-center justify-center"
-              >
-                {state.isPlaying ? (
-                  <Pause className="w-4 h-4 text-black" fill="currentColor" />
-                ) : (
-                  <Play className="w-4 h-4 text-black ml-0.5" fill="currentColor" />
-                )}
-              </button>
-
-              <button
-                onClick={handleNavigateToRadio}
-                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"
-              >
-                <Volume2 className="w-4 h-4 text-white" />
-              </button>
-            </div>
+            {/* Play/Pause only */}
+            <button
+              onClick={handleTogglePlay}
+              className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0"
+            >
+              {state.isPlaying ? (
+                <Pause className="w-3 h-3 text-black" fill="currentColor" />
+              ) : (
+                <Play className="w-3 h-3 text-black ml-0.5" fill="currentColor" />
+              )}
+            </button>
           </div>
         </motion.div>
       </AnimatePresence>

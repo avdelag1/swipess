@@ -14,9 +14,9 @@ import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 
-// ICON SIZING
-const ICON_SIZE = 26;
-const TOUCH_TARGET_SIZE = 56;
+// ICON SIZING - responsive
+const ICON_SIZE = 22;
+const TOUCH_TARGET_SIZE = 48;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';

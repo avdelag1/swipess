@@ -106,7 +106,7 @@ body {
   background: #000000 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: none;
   /* GPU acceleration */
   transform: translateZ(0) translateY(0);
   will-change: transform, opacity, filter;
@@ -118,6 +118,18 @@ body {
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
               opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
               filter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Soft fade gradient below the header */
+.app-header::after {
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(to bottom, #000000, transparent);
+  pointer-events: none;
 }
 
 /* Hidden state for scroll behavior - fades out with subtle blur */
