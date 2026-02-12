@@ -146,6 +146,47 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_messages: {
+        Row: {
+          attachments: Json | null
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          message_type: string | null
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message_type?: string | null
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -171,6 +212,68 @@ export type Database = {
             columns: ["match_id"]
             isOneToOne: true
             referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      digital_contracts: {
+        Row: {
+          client_id: string
+          client_signature: string | null
+          client_signed_at: string | null
+          content: string | null
+          created_at: string
+          id: string
+          listing_id: string | null
+          metadata: Json | null
+          owner_id: string
+          owner_signature: string | null
+          owner_signed_at: string | null
+          status: string
+          template_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          client_signature?: string | null
+          client_signed_at?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          owner_id: string
+          owner_signature?: string | null
+          owner_signed_at?: string | null
+          status?: string
+          template_type?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          client_signature?: string | null
+          client_signed_at?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          metadata?: Json | null
+          owner_id?: string
+          owner_signature?: string | null
+          owner_signed_at?: string | null
+          status?: string
+          template_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digital_contracts_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
             referencedColumns: ["id"]
           },
         ]
@@ -498,6 +601,33 @@ export type Database = {
           },
         ]
       }
+      message_activations: {
+        Row: {
+          activations_remaining: number
+          created_at: string
+          id: string
+          total_purchased: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          activations_remaining?: number
+          created_at?: string
+          id?: string
+          total_purchased?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          activations_remaining?: number
+          created_at?: string
+          id?: string
+          total_purchased?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -532,6 +662,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          link_url: string | null
+          message: string | null
+          metadata: Json | null
+          notification_type: string
+          related_user_id: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link_url?: string | null
+          message?: string | null
+          metadata?: Json | null
+          notification_type?: string
+          related_user_id?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link_url?: string | null
+          message?: string | null
+          metadata?: Json | null
+          notification_type?: string
+          related_user_id?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       owner_profiles: {
         Row: {
@@ -653,6 +822,108 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_filters: {
+        Row: {
+          created_at: string
+          filter_data: Json
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string
+          user_role: string
+        }
+        Insert: {
+          created_at?: string
+          filter_data?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+          user_role?: string
+        }
+        Update: {
+          created_at?: string
+          filter_data?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
+      subscription_packages: {
+        Row: {
+          advanced_match_tips: boolean | null
+          availability_sync: boolean | null
+          best_deal_notifications: number | null
+          created_at: string
+          currency: string
+          description: string | null
+          duration_days: number | null
+          early_profile_access: boolean | null
+          features: Json | null
+          id: number
+          is_active: boolean
+          legal_documents_included: number | null
+          market_reports: boolean | null
+          max_listings: number | null
+          message_activations: number | null
+          name: string
+          package_category: string
+          price: number
+          seeker_insights: boolean | null
+          tier: string
+        }
+        Insert: {
+          advanced_match_tips?: boolean | null
+          availability_sync?: boolean | null
+          best_deal_notifications?: number | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_days?: number | null
+          early_profile_access?: boolean | null
+          features?: Json | null
+          id?: number
+          is_active?: boolean
+          legal_documents_included?: number | null
+          market_reports?: boolean | null
+          max_listings?: number | null
+          message_activations?: number | null
+          name: string
+          package_category?: string
+          price?: number
+          seeker_insights?: boolean | null
+          tier?: string
+        }
+        Update: {
+          advanced_match_tips?: boolean | null
+          availability_sync?: boolean | null
+          best_deal_notifications?: number | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          duration_days?: number | null
+          early_profile_access?: boolean | null
+          features?: Json | null
+          id?: number
+          is_active?: boolean
+          legal_documents_included?: number | null
+          market_reports?: boolean | null
+          max_listings?: number | null
+          message_activations?: number | null
+          name?: string
+          package_category?: string
+          price?: number
+          seeker_insights?: boolean | null
+          tier?: string
+        }
+        Relationships: []
+      }
       swipes: {
         Row: {
           created_at: string
@@ -705,6 +976,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: number
+          is_active: boolean
+          package_id: number | null
+          payment_status: string | null
+          starts_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: number
+          is_active?: boolean
+          package_id?: number | null
+          payment_status?: string | null
+          starts_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: number
+          is_active?: boolean
+          package_id?: number | null
+          payment_status?: string | null
+          starts_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_packages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
