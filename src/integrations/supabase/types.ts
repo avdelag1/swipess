@@ -749,6 +749,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active_mode: string | null
           age: number | null
           avatar_url: string | null
           bio: string | null
@@ -765,14 +766,17 @@ export type Database = {
           lifestyle_tags: Json | null
           nationality: string | null
           neighborhood: string | null
+          onboarding_completed: boolean | null
           phone: string | null
           smoking: boolean | null
+          theme_preference: string | null
           updated_at: string
           user_id: string
           username: string | null
           work_schedule: string | null
         }
         Insert: {
+          active_mode?: string | null
           age?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -789,14 +793,17 @@ export type Database = {
           lifestyle_tags?: Json | null
           nationality?: string | null
           neighborhood?: string | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           smoking?: boolean | null
+          theme_preference?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
           work_schedule?: string | null
         }
         Update: {
+          active_mode?: string | null
           age?: number | null
           avatar_url?: string | null
           bio?: string | null
@@ -813,8 +820,10 @@ export type Database = {
           lifestyle_tags?: Json | null
           nationality?: string | null
           neighborhood?: string | null
+          onboarding_completed?: boolean | null
           phone?: string | null
           smoking?: boolean | null
+          theme_preference?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
