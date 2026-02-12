@@ -56,15 +56,15 @@ function TopBarComponent({
     <header
       className={cn(
         'app-header',
-        // Always use gradient fade-out - buttons float without solid rectangle background
-        'bg-gradient-to-b from-black/60 via-black/30 to-transparent border-transparent backdrop-blur-none',
+        // Solid black background
+        'bg-black border-transparent',
         shouldHide && 'header-hidden',
         className
       )}
     >
       <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2">
         {/* Left section: Title + Mode switcher + filters */}
-        <div className="flex items-center gap-2 min-w-0 flex-1">
+        <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
           {/* Title on the left - NEW */}
           {title && (
             <div className="hidden sm:block flex-shrink-0 font-bold text-sm sm:text-base text-white whitespace-nowrap">
@@ -83,6 +83,16 @@ function TopBarComponent({
             </div>
           )}
         </div>
+
+        {/* Center tap zone - navigates back to dashboard */}
+        <div 
+          className="flex-1 h-full cursor-pointer"
+          onClick={() => {
+            const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
+            navigate(dashboardPath);
+          }}
+          aria-label="Go to dashboard"
+        />
 
         {/* Right section: Actions */}
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">

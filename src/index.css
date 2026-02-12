@@ -102,10 +102,10 @@ body {
   padding-bottom: 6px;
   padding-left: max(var(--safe-left), 8px);
   padding-right: max(var(--safe-right), 8px);
-  /* DARK PREMIUM BACKGROUND - Matches app dark theme */
-  background: #1C1C1E !important;
-  backdrop-filter: blur(12px) !important;
-  -webkit-backdrop-filter: blur(12px) !important;
+  /* SOLID BLACK BACKGROUND */
+  background: #000000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   /* GPU acceleration */
   transform: translateZ(0) translateY(0);

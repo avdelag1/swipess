@@ -18,31 +18,38 @@ export function useUnreadMessageCount() {
       if (!user?.id) return 0;
 
       try {
-        // Get all conversations for this user
+        // Get all matches for this user (conversations link via match_id)
+        const { data: matches, error: matchError } = await supabase
+          .from('matches')
+          .select('id')
+          .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+
+        if (matchError) throw matchError;
+        if (!matches?.length) return 0;
+
+        const matchIds = matches.map(m => m.id);
+
+        // Get conversations for these matches
         const { data: conversations, error: convError } = await supabase
           .from('conversations')
           .select('id')
-          .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
-          .eq('status', 'active');
+          .in('match_id', matchIds);
 
         if (convError) throw convError;
         if (!conversations?.length) return 0;
 
-        // Get conversation IDs as array
         const conversationIds = conversations.map(c => c.id);
 
-        // OPTIMIZED: Use COUNT query instead of fetching all messages
-        // Count unique conversations with unread messages using a single efficient query
+        // Count unread messages not sent by current user
         const { count, error: unreadError } = await supabase
           .from('conversation_messages')
           .select('conversation_id', { count: 'exact', head: true })
           .in('conversation_id', conversationIds)
           .neq('sender_id', user.id)
-          .eq('is_read', false);
+          .is('read_at', null);
 
         if (unreadError) throw unreadError;
 
-        // Return count of unread conversations (capped to avoid performance issues)
         return Math.min(count || 0, 99);
       } catch (error) {
         logger.error('[UnreadCount] Error:', error);
