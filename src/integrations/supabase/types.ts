@@ -839,34 +839,70 @@ export type Database = {
       }
       reviews: {
         Row: {
+          accuracy_rating: number | null
+          cleanliness_rating: number | null
           comment: string | null
+          communication_rating: number | null
           created_at: string
+          helpful_count: number | null
           id: string
+          is_flagged: boolean | null
+          is_verified_stay: boolean | null
           listing_id: string | null
+          location_rating: number | null
           rating: number
+          responded_at: string | null
+          response_text: string | null
+          review_title: string | null
+          review_type: string | null
           reviewed_id: string
           reviewer_id: string
           updated_at: string
+          value_rating: number | null
         }
         Insert: {
+          accuracy_rating?: number | null
+          cleanliness_rating?: number | null
           comment?: string | null
+          communication_rating?: number | null
           created_at?: string
+          helpful_count?: number | null
           id?: string
+          is_flagged?: boolean | null
+          is_verified_stay?: boolean | null
           listing_id?: string | null
+          location_rating?: number | null
           rating?: number
+          responded_at?: string | null
+          response_text?: string | null
+          review_title?: string | null
+          review_type?: string | null
           reviewed_id: string
           reviewer_id: string
           updated_at?: string
+          value_rating?: number | null
         }
         Update: {
+          accuracy_rating?: number | null
+          cleanliness_rating?: number | null
           comment?: string | null
+          communication_rating?: number | null
           created_at?: string
+          helpful_count?: number | null
           id?: string
+          is_flagged?: boolean | null
+          is_verified_stay?: boolean | null
           listing_id?: string | null
+          location_rating?: number | null
           rating?: number
+          responded_at?: string | null
+          response_text?: string | null
+          review_title?: string | null
+          review_type?: string | null
           reviewed_id?: string
           reviewer_id?: string
           updated_at?: string
+          value_rating?: number | null
         }
         Relationships: [
           {

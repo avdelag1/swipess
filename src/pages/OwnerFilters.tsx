@@ -11,6 +11,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Sparkles, Users, User, Briefcase, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { GlassSurface } from '@/components/ui/glass-surface';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
@@ -74,7 +75,7 @@ export default function OwnerFilters() {
   }, [navigate]);
   
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
         <div className="max-w-lg mx-auto px-4 py-3">
@@ -119,7 +120,7 @@ export default function OwnerFilters() {
         <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
           
           {/* Gender */}
-          <Card>
+          <GlassSurface elevation="elevated">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <User className="w-4 h-4" />
@@ -161,10 +162,10 @@ export default function OwnerFilters() {
                 );
               })}
             </CardContent>
-          </Card>
+          </GlassSurface>
 
           {/* Client Type */}
-          <Card>
+          <GlassSurface elevation="elevated">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Briefcase className="w-4 h-4" />
@@ -213,11 +214,11 @@ export default function OwnerFilters() {
                 );
               })}
             </CardContent>
-          </Card>
+          </GlassSurface>
 
           {/* Active Filters Summary */}
           {activeFilterCount > 0 && (
-            <Card className="bg-primary/5 border-primary/20">
+            <GlassSurface elevation="surface" className="bg-primary/5 border-primary/20">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2 text-sm">
                   <Sparkles className="w-4 h-4 text-primary" />
@@ -226,7 +227,7 @@ export default function OwnerFilters() {
                   </span>
                 </div>
               </CardContent>
-            </Card>
+            </GlassSurface>
           )}
 
           {/* Empty State */}

@@ -114,11 +114,11 @@ const variantMap = {
   morphIn: morphInVariants,
 };
 
-// Buttery smooth spring config
+// Premium spring config - organic, confident
 const pageTransition = {
   type: 'spring' as const,
-  stiffness: 350,
-  damping: 32,
+  stiffness: 380,
+  damping: 30,
   mass: 0.8,
 };
 
@@ -130,14 +130,15 @@ const exitTransition = {
 
 export function PageTransition({ children, className = '', variant = 'default' }: PageTransitionProps) {
   const variants = variantMap[variant];
+  const prefersReduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   
   return (
     <motion.div
-      initial="initial"
+      initial={prefersReduced ? false : "initial"}
       animate="in"
       exit="out"
       variants={variants}
-      transition={{ duration: 0.08, ease: 'easeOut' }}
+      transition={prefersReduced ? { duration: 0 } : pageTransition}
       className={`w-full h-full ${className}`}
     >
       {children}
@@ -190,8 +191,8 @@ export function StaggerItem({
       variants={{
         hidden: { 
           opacity: 0, 
-          y: 20,
-          scale: 0.95,
+          y: 16,
+          scale: 0.98,
         },
         visible: { 
           opacity: 1, 
@@ -199,8 +200,8 @@ export function StaggerItem({
           scale: 1,
           transition: {
             type: 'spring',
-            stiffness: 400,
-            damping: 25,
+            stiffness: 380,
+            damping: 28,
           },
         },
       }}

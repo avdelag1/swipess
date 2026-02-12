@@ -15,7 +15,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-button text-white shadow-button hover:shadow-glow",
+        default: "bg-gradient-button text-white shadow-button hover:shadow-glow hover:shadow-[var(--elevation-floating)]",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-lg rounded-3xl",
         outline:
@@ -70,7 +70,7 @@ const createRipple = (event: React.MouseEvent<HTMLElement>) => {
 
   setTimeout(() => {
     circle.remove();
-  }, 400);
+  }, 300);
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

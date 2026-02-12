@@ -1,6 +1,7 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
+import { GlassSurface } from "@/components/ui/glass-surface";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight, Scale, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -94,11 +95,11 @@ const OwnerSettingsNew = () => {
             transition={fastSpring}
             className="space-y-6"
           >
-            <Card className="bg-card border-border">
+            <GlassSurface elevation="elevated">
               <CardContent className="p-6">
                 <AccountSecurity userRole="owner" />
               </CardContent>
-            </Card>
+            </GlassSurface>
 
             {/* Danger Zone - Delete Account */}
             <div className="space-y-3">
@@ -174,11 +175,12 @@ const OwnerSettingsNew = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={fastSpring}
         >
-          <Card className="bg-card border-border overflow-hidden">
+          <GlassSurface elevation="elevated" className="overflow-hidden">
             <CardContent className="p-0">
               {settingsItems.map((item, index) => (
                 <div key={item.label}>
-                  <button
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => {
                       if (item.section) {
                         setActiveSection(item.section);
@@ -186,22 +188,26 @@ const OwnerSettingsNew = () => {
                         item.action();
                       }
                     }}
-                    className="w-full flex items-start gap-4 p-4 hover:bg-muted/50 transition-colors text-left"
+                    className="w-full flex items-start gap-4 p-4 hover:bg-muted/50 active:bg-muted/70 transition-colors text-left"
                   >
-                    <div className={`mt-1 ${item.color}`}>
+                    <motion.div 
+                      className={`mt-1 ${item.color}`}
+                      whileHover={{ y: -1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                    >
                       <item.icon className="w-5 h-5" />
-                    </div>
+                    </motion.div>
                     <div className="flex-1">
                       <div className="font-medium text-foreground">{item.label}</div>
                       <div className="text-sm text-muted-foreground">{item.description}</div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground mt-1" />
-                  </button>
+                  </motion.button>
                   {index < settingsItems.length - 1 && <Separator />}
                 </div>
               ))}
             </CardContent>
-          </Card>
+          </GlassSurface>
         </motion.div>
 
         {/* App Version */}
