@@ -1,68 +1,67 @@
 
-# Fix Header, Navigation Brightness, Swipe Errors, and Listing Display
 
-## Problems Identified
+# Fix Swipe Cards: Missing Data, Broken Upsert, and Missing DB Columns
 
-1. **Header too thick/dark** - The solid black header with a `::after` fade gradient creates a double-dark effect. The header needs to be slimmer and use only one fade layer.
-2. **Bottom nav icons too dim** - Icons use `text-white/90` which is hard to see. Need brighter icons.
-3. **Top bar icons too dim** - Same issue with the Zap and Bell icons.
-4. **Swipe "ON CONFLICT" error** - The `likes` table has NO unique constraint on `(user_id, target_id, target_type)`, but `useSwipe.tsx` uses `upsert` with `onConflict: 'user_id,target_id,target_type'`. This causes every swipe to fail.
-5. **Old/stale listing data showing** - Listings have empty `images: []` arrays, causing placeholder icons. The 19 active listings are real but have no images, which makes them look broken. The cards are actually showing but the data looks stale because images are missing.
-6. **Missing `reviews` table** - Console shows `Could not find the table 'public.reviews'`.
+## Problems Found
+
+### 1. Swipe upsert fails silently - missing UPDATE policy on `likes`
+The `likes` table has INSERT, SELECT, and DELETE policies but **no UPDATE policy**. The `useSwipe.tsx` hook uses `upsert` which requires UPDATE permission when a row already exists. This means every re-swipe on the same listing fails silently.
+
+### 2. Listings show placeholder images instead of real photos
+All seed listings have `images: []` (empty array) but they DO have a populated `image_url` column with real Unsplash URLs. The swipe card (`SimpleSwipeCard.tsx`) only reads from `listing.images`, never falling back to `image_url`. This makes every card show a grey placeholder icon.
+
+### 3. Missing columns on `profiles` table cause repeated 400 errors
+The network logs show constant 400 errors for:
+- `radio_current_station_id` - used by the radio feature
+- `swipe_sound_theme` - used by swipe sound settings
+
+These columns don't exist on the `profiles` table yet.
 
 ## Plan
 
-### 1. Database Migration - Fix the likes unique constraint and create reviews table
-
-Add the missing unique constraint on `likes(user_id, target_id, target_type)` so upsert works. Also create the `reviews` table to stop that error.
+### Step 1: Database Migration
+Add the missing pieces in one migration:
 
 ```sql
--- Add unique constraint for upsert to work
-ALTER TABLE public.likes 
-  ADD CONSTRAINT likes_user_target_unique 
-  UNIQUE (user_id, target_id, target_type);
+-- 1. Add UPDATE policy on likes for upsert to work
+CREATE POLICY "Users can update their own likes"
+  ON public.likes FOR UPDATE
+  USING (auth.uid() = user_id);
 
--- Create reviews table
-CREATE TABLE IF NOT EXISTS public.reviews (...);
+-- 2. Add missing columns to profiles
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS radio_current_station_id text,
+  ADD COLUMN IF NOT EXISTS swipe_sound_theme text DEFAULT 'default';
 ```
 
-### 2. Slim down the header (CSS)
+### Step 2: Fix image fallback in swipe card
+In `src/components/SimpleSwipeCard.tsx`, update the `images` memo to fall back to `image_url` when the `images` array is empty:
 
-In `src/index.css`:
-- Reduce header padding (6px to 4px)
-- Change header background from solid `#000000` to a semi-transparent `rgba(0,0,0,0.85)` so it blends better
-- Reduce the `::after` fade gradient height from 24px to 16px and make it softer
-- Remove the `!important` on the background
+```typescript
+const images = useMemo(() => {
+  if (Array.isArray(listing.images) && listing.images.length > 0) {
+    return listing.images;
+  }
+  // Fallback to legacy image_url field
+  if ((listing as any).image_url) {
+    return [(listing as any).image_url];
+  }
+  return [FALLBACK_PLACEHOLDER];
+}, [listing.images, (listing as any).image_url]);
+```
 
-### 3. Brighten navigation icons
-
-In `src/components/BottomNavigation.tsx`:
-- Change inactive icon color from `text-white/90` to `text-white`
-- Change inactive label from `text-white/90` to `text-white`
-
-In `src/components/TopBar.tsx`:
-- Brighten the Zap and Bell icons to pure white
-
-### 4. Fix bottom bar background
-
-In `src/index.css`:
-- Change `.app-bottom-bar` background from `#1C1C1E` to a more transparent dark with a top-fade effect (similar to header's bottom-fade)
-- Remove the hard `border-top`
-
-### 5. Invalidate listing cache after swipe
-
-In `src/hooks/useSwipe.tsx`:
-- Add `queryClient.invalidateQueries({ queryKey: ['smart-listings'] })` in `onSuccess` to refresh the deck after swiping
+### Step 3: Include `image_url` in smart matching query
+In `src/hooks/useSmartMatching.tsx`, add `image_url` to the `SWIPE_CARD_FIELDS` select string so the fallback has data to work with. Currently only `images` is selected.
 
 ## Technical Details
 
 ### Files to modify:
-- `src/index.css` - Header and bottom bar styling
-- `src/components/BottomNavigation.tsx` - Icon brightness  
-- `src/components/TopBar.tsx` - Icon brightness
-- `src/hooks/useSwipe.tsx` - Add smart-listings cache invalidation
-- New migration SQL - Add unique constraint on likes + create reviews table
+- New migration SQL - Add UPDATE policy on likes + add missing profile columns
+- `src/components/SimpleSwipeCard.tsx` - Image fallback logic (lines ~97-101)
+- `src/hooks/useSmartMatching.tsx` - Add `image_url` to SWIPE_CARD_FIELDS (line ~390)
 
-### Files NOT modified:
-- `src/integrations/supabase/types.ts` (auto-generated)
-- `src/integrations/supabase/client.ts` (auto-generated)
+### Result after fix:
+- Swipe right/left will save correctly (upsert works with UPDATE policy)
+- All listings will show their actual photos (falling back to `image_url`)
+- No more 400 errors for missing profile columns in network logs
+
