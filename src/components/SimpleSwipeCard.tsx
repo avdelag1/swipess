@@ -104,10 +104,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const images = useMemo(() => {
-    return Array.isArray(listing.images) && listing.images.length > 0
-      ? listing.images
-      : [FALLBACK_PLACEHOLDER];
-  }, [listing.images]);
+    if (Array.isArray(listing.images) && listing.images.length > 0) {
+      return listing.images;
+    }
+    if ((listing as any).image_url) {
+      return [(listing as any).image_url];
+    }
+    return [FALLBACK_PLACEHOLDER];
+  }, [listing.images, (listing as any).image_url]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
