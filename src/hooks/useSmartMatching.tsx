@@ -1054,10 +1054,11 @@ export function useSmartClientMatching(
         }
 
         // CRITICAL: Show ALL user profiles to owners (all users are potential clients)
-        // PERF: Select only fields needed for owner's client swipe cards (reduces payload ~50%)
-        // FIXED: Removed user_roles filter - all users are now shown as potential clients
+        // PERF: Select only fields that exist in the profiles table
+        // FIXED: Removed non-existent columns (budget_min, budget_max, verified, has_pets, party_friendly, is_active)
         const CLIENT_SWIPE_CARD_FIELDS = `
           id,
+          user_id,
           full_name,
           age,
           gender,
@@ -1065,27 +1066,25 @@ export function useSmartClientMatching(
           country,
           images,
           avatar_url,
-          verified,
-          budget_min,
-          budget_max,
           interests,
           lifestyle_tags,
-          has_pets,
           smoking,
-          party_friendly,
           work_schedule,
           nationality,
           languages_spoken,
-          neighborhood
+          neighborhood,
+          bio,
+          onboarding_completed
         `;
 
         // Build the query with SQL-level exclusions
         // NOTE: All users are shown as potential clients, regardless of their primary role
+        // FIXED: Removed is_active filter - column doesn't exist on profiles table
+        // Instead filter by onboarding_completed to only show users who have set up profiles
         let profileQuery = supabase
           .from('profiles')
           .select(CLIENT_SWIPE_CARD_FIELDS)
-          .neq('id', userId) // CRITICAL: Never show user their own profile
-          .or('is_active.is.null,is_active.eq.true'); // Only show active profiles (null or true)
+          .neq('id', userId); // CRITICAL: Never show user their own profile
 
         // CRITICAL FIX: Exclude swiped profiles at SQL level (not JavaScript)
         // This ensures pagination works correctly
@@ -1131,11 +1130,16 @@ export function useSmartClientMatching(
         // Map profiles with placeholder images
         // NOTE: Swiped profiles are now excluded at SQL level (see query above)
         // UPDATED: Allow profiles even with placeholder/test images for better UX
+        // FIXED: Show all users who have created their profile (have a name set)
         let filteredProfiles = (profiles as any[])
           .filter(profile => {
             // DEFENSE IN DEPTH: Double-check - never show user their own profile
             if (profile.id === userId) {
               logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query, filtering it out:', profile.id);
+              return false;
+            }
+            // Only show profiles that have at least a name set (created their profile)
+            if (!profile.full_name) {
               return false;
             }
             return true;
@@ -1332,7 +1336,7 @@ export function useSmartClientMatching(
 
           return {
             id: profile.id, // Use stable user ID instead of random number
-            user_id: profile.id,
+            user_id: profile.user_id || profile.id,
             name: profile.full_name || 'Anonymous',
             age: profile.age || 0,
             gender: profile.gender || '',
@@ -1342,15 +1346,15 @@ export function useSmartClientMatching(
             lifestyle_tags: profile.lifestyle_tags || [],
             profile_images: profile.images || [],
             preferred_listing_types: [],
-            budget_min: profile.budget_min || 0,
-            budget_max: profile.budget_max || 100000,
+            budget_min: 0,
+            budget_max: 100000,
             matchPercentage: match.percentage,
             matchReasons: match.reasons,
             incompatibleReasons: match.incompatible,
             city: profile.city || undefined,
             country: profile.country || undefined,
             avatar_url: profile.avatar_url || undefined,
-            verified: profile.verified || false,
+            verified: false,
             work_schedule: profile.work_schedule || undefined,
             nationality: profile.nationality || undefined,
             languages: profile.languages_spoken || undefined,
