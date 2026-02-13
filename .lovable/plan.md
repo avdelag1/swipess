@@ -1,73 +1,74 @@
 
 
-## Fix Swipe Card Zoom (Magnifier) -- Client + Owner Side
+## Fix Filter Title Icon + Fix Zoom Panning on Client Swipe Cards
 
-### Problem 1: Zoom shows "small image" on client side
-The magnifier hook finds the `<img>` element and applies `scale(2.8)` to it. But the image is wrapped inside a `<div>` with `overflow: hidden` (from the `CardImage` component), AND the container div also has `overflow-hidden`. So the zoomed image gets clipped by its parent -- it scales up but you can only see the original-size viewport of it, making it look like a weird small cropped image instead of a full zoom.
+### Issue 1: Remove emoji icons from filter title in top bar
 
-### Problem 2: Swipe gesture conflicts with zoom panning
-When the user holds their finger to activate zoom then drags to pan, framer-motion's drag handler can intercept the pointer events before the magnifier's 350ms hold timer fires. This causes:
-- Hold + slight movement triggers a drag instead of waiting for zoom
-- Once zoomed, panning can accidentally trigger card movement
+The top-left corner title currently shows emojis like "🏠 Properties", "🏍️ Motorcycles". Remove the emoji prefixes so it just shows plain text: "Properties", "Motorcycles", etc.
 
-### Solution
+**File: `src/components/DashboardLayout.tsx`** (lines 500-520)
 
-**File: `src/hooks/useMagnifier.ts`** -- Fix overflow clipping during zoom
+Change the category/client type label maps to remove emoji prefixes:
+- `'🏠 Properties'` becomes `'Properties'`
+- `'🏍️ Motorcycles'` becomes `'Motorcycles'`  
+- `'🚲 Bicycles'` becomes `'Bicycles'`
+- `'💼 Services'` becomes `'Workers'`
+- Same for owner-side labels: `'🏠 Property Seekers'` becomes `'Property Seekers'`, etc.
 
-When the magnifier activates, walk up from the `<img>` element to the container and set `overflow: visible` on all intermediate wrapper divs. When deactivating, restore them to `overflow: hidden`. This ensures the scaled image isn't clipped by any parent.
+---
+
+### Issue 2: Zoom activates but panning doesn't work on client swipe cards
+
+**Root cause**: Framer-motion's `drag` prop automatically attaches internal pointer listeners to the `motion.div`. When the user holds their finger down, framer-motion captures the pointer events for drag tracking. Even though the magnifier's `onPointerMove` handler is on an inner div, framer-motion's internal system intercepts subsequent pointer move events after drag detection starts, so the magnifier never receives the move events needed for panning.
+
+The current `drag={!magnifierActive}` approach doesn't work because:
+1. At pointer-down time, `magnifierActive` is `false` (the 350ms timer hasn't fired yet)
+2. Framer-motion starts tracking drag immediately
+3. By the time magnifier activates (350ms later), framer-motion already owns the pointer
+
+**Fix**: Use `useDragControls` from framer-motion with `dragListener={false}`. This prevents framer-motion from auto-attaching pointer listeners. Instead, we manually decide when to start a drag:
+
+- On `onPointerDown`: start the magnifier's hold timer AND store the event
+- On `onPointerMove`: if movement > 15px before 350ms, manually call `dragControls.start(storedEvent)` to begin swiping
+- If 350ms passes without significant movement, magnifier activates -- drag is never started, so panning works freely
+- On `onPointerUp`: deactivate magnifier if active
+
+**File: `src/components/SimpleSwipeCard.tsx`**
 
 Changes:
-- Add a `savedOverflows` ref to store original overflow values
-- In `activateMagnifier`: traverse parent elements from `<img>` up to `containerRef`, set each to `overflow: visible`
-- In `deactivateMagnifier`: restore all saved overflow values
-- Also set `overflow: visible` on the container itself during zoom
+1. Import `useDragControls` from framer-motion
+2. Create `const dragControls = useDragControls()`
+3. Set `dragListener={false}` on the `motion.div` -- framer-motion will NOT auto-listen for drag
+4. Add `dragControls={dragControls}` to the `motion.div`
+5. Create a unified `onPointerDown` handler on the outer motion.div that:
+   - Stores the pointer event
+   - Starts the magnifier hold timer
+6. Create a unified `onPointerMove` handler that:
+   - If magnifier is active: delegate to magnifier's pan handler
+   - If hold timer is pending and movement > 15px: cancel hold timer, call `dragControls.start(storedEvent)` to begin drag
+   - If hold timer is pending and movement < 15px: do nothing (wait for hold to complete)
+7. On `onPointerUp`: deactivate magnifier, end drag
 
-**File: `src/components/SimpleSwipeCard.tsx`** -- Better gesture timing for client cards
+**File: `src/components/SimpleOwnerSwipeCard.tsx`**
 
-- Add a `gesturePhase` ref that tracks: `'idle' | 'pending' | 'zooming'`
-- On pointer down, set phase to `'pending'` (waiting to see if it's a hold or a swipe)
-- Use `dragListener={false}` and manually start drag only after determining it's a swipe (movement > 15px before hold timer fires)
-- When magnifier activates (hold timer fires with no significant movement), set phase to `'zooming'` -- drag is completely blocked
-- On pointer up, reset to `'idle'`
+Apply the same `useDragControls` pattern for consistency, even though the owner side was reported as working (ensures both sides use the same robust gesture separation).
 
-Simplified approach (less invasive): Keep `drag={!magnifierActive}` but also add `onDragStart` guard that cancels drag if hold timer is still pending and movement is minimal. Plus increase the movement threshold in magnifier from 25px to 15px so swipes are detected faster.
+### Technical flow
 
-**File: `src/components/SimpleOwnerSwipeCard.tsx`** -- Same overflow fix applies
-
-The owner side card has the same `CardImage` wrapper with `overflow: hidden`. Apply the identical overflow fix via the shared `useMagnifier` hook (no per-card changes needed for this part). Ensure the same gesture timing improvements are mirrored.
-
-### Technical Details
-
-**Overflow fix in `useMagnifier.ts`:**
-```
-activateMagnifier:
-  1. Find img element
-  2. Walk from img.parentElement up to containerRef.current
-  3. For each element: save overflow style, set overflow = 'visible'
-  4. Apply scale transform to img
-
-deactivateMagnifier:
-  1. Restore all saved overflow values
-  2. Reset img transform to scale(1)
+```text
+Pointer Down
+    |
+    v
+Start 350ms hold timer
+    |
+    +-- Movement > 15px before timer? --> Cancel timer, start drag via dragControls.start()
+    |
+    +-- Timer fires (no big movement)? --> Activate magnifier, panning works freely
+    |
+    +-- Pointer Up before either? --> Cancel timer, no action (tap)
 ```
 
-**Gesture timing in both swipe cards:**
-```
-handleDragStart:
-  - If magnifier hold timer is pending (user held < 350ms but started moving):
-    - If movement < 15px: cancel drag start (return false or set drag to false)
-    - If movement > 15px: allow drag, cancel magnifier timer
-  - If magnifier is active: block drag entirely
-```
-
-The key insight: The `useMagnifier` hook's `onPointerMove` already cancels the hold timer when movement exceeds 25px. Lowering this to 15px makes swipe detection faster, giving a crisper feel. Combined with `drag={!magnifierActive}`, the gesture separation becomes:
-
-- Instant swipe (fast movement) -- magnifier timer cancelled immediately, drag proceeds
-- Hold still 350ms -- magnifier activates, drag disabled, pan freely
-- Slow drag that doesn't reach 15px in 350ms -- magnifier activates (rare edge case, acceptable)
-
-### Files Modified
-1. `src/hooks/useMagnifier.ts` -- overflow fix + lower movement threshold
-2. `src/components/SimpleSwipeCard.tsx` -- drag start guard
-3. `src/components/SimpleOwnerSwipeCard.tsx` -- drag start guard (mirror)
-
+### Files modified
+1. `src/components/DashboardLayout.tsx` -- Remove emoji icons from title labels
+2. `src/components/SimpleSwipeCard.tsx` -- Use useDragControls for manual gesture control
+3. `src/components/SimpleOwnerSwipeCard.tsx` -- Same useDragControls pattern
