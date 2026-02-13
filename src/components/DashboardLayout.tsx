@@ -492,7 +492,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
-  const clientType = useFilterStore((s) => s.clientType);
   
   const pageTitle = useMemo(() => {
     const path = location.pathname;
