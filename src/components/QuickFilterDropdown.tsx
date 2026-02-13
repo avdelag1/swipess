@@ -166,150 +166,139 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     setClickedCategory(null);
   };
 
-  // Render owner filters dropdown - gender, client type, AND categories
+  // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-background border border-white/10 rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),400px)]">
+      <div className="bg-background border border-white/10 rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),340px)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
-          <span className="text-sm sm:text-base font-semibold text-foreground">Filter Clients</span>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+          <span className="text-sm font-semibold text-foreground">Filter Clients</span>
           {activeFilterCount > 0 && (
             <motion.button
-              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleClearFilters}
               className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 touch-manipulation"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </motion.button>
           )}
         </div>
 
-        <div className="py-2 max-h-[60vh] overflow-y-auto">
-          {/* Gender Section */}
-          <div className="px-4 sm:px-5 py-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
-            <div className="flex flex-wrap gap-1.5">
+        <div className="py-3 px-4 space-y-4 max-h-[65vh] overflow-y-auto">
+          {/* Gender - horizontal pills */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
+            <div className="flex gap-1.5">
               {genderOptions.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => handleGenderSelect(option.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[40px]',
+                    'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientGender === option.id
-                      ? `bg-gradient-to-r ${option.color} text-white`
-                      : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
+                      ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
+                      : 'text-muted-foreground hover:bg-white/5 bg-white/[0.03] border border-white/10'
                   )}
                 >
-                  <span className="p-1 rounded-lg bg-white/20">{option.icon}</span>
-                  <span className="font-medium">{option.label}</span>
+                  {option.icon}
+                  <span>{option.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="mx-4 my-2 border-t border-white/5" />
-
-          {/* Client Type Section */}
-          <div className="px-4 sm:px-5 py-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Looking For</p>
-            <div className="flex flex-wrap gap-1.5">
+          {/* Client Type - horizontal pills */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Looking For</p>
+            <div className="grid grid-cols-2 gap-1.5">
               {clientTypeOptions.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => handleClientTypeSelect(option.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[40px]',
+                    'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientType === option.id
-                      ? `bg-gradient-to-r ${option.color} text-white`
-                      : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
+                      ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
+                      : 'text-muted-foreground hover:bg-white/5 bg-white/[0.03] border border-white/10'
                   )}
                 >
-                  <span className="p-1 rounded-lg bg-white/20">{option.icon}</span>
-                  <span className="font-medium">{option.label}</span>
+                  {option.icon}
+                  <span>{option.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Divider */}
-          <div className="mx-4 my-2 border-t border-white/5" />
+          <div className="border-t border-white/5" />
 
-          {/* Category Section */}
-          <div className="px-4 sm:px-5 py-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
-          </div>
-          {categoryOptions.map((category, index) => (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="relative"
-            >
-              <button
-                onClick={() => handleCategoryClick(category.id)}
-                className={cn(
-                  'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
-                  categories.includes(category.id)
-                    ? 'bg-gradient-to-r ' + category.color + ' text-white'
-                    : 'text-foreground/80 hover:bg-white/5'
-                )}
-              >
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <span className={cn(
-                    'p-1.5 sm:p-2 rounded-lg',
-                    categories.includes(category.id)
-                      ? 'bg-white/20'
-                      : `bg-gradient-to-br ${category.color} bg-opacity-20`
-                  )}>
-                    {category.icon}
-                  </span>
-                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
-                </div>
-                {category.hasSubOptions && (
-                  <ChevronRight className={cn(
-                    "w-5 h-5 text-muted-foreground transition-transform",
-                    clickedCategory === category.id && "rotate-90"
-                  )} />
-                )}
-              </button>
-
-              {/* Sub-menu for listing type */}
-              <AnimatePresence>
-                {clickedCategory === category.id && category.hasSubOptions && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ type: 'spring', stiffness: 600, damping: 30 }}
-                    className="overflow-hidden"
+          {/* Categories */}
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
+            <div className="space-y-1">
+              {categoryOptions.map((category) => (
+                <div key={category.id}>
+                  <button
+                    onClick={() => handleCategoryClick(category.id)}
+                    className={cn(
+                      'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all duration-150 touch-manipulation',
+                      categories.includes(category.id)
+                        ? 'bg-gradient-to-r ' + category.color + ' text-white'
+                        : 'text-foreground/80 hover:bg-white/5'
+                    )}
                   >
-                    <div className="pl-12 sm:pl-14 pr-4 pb-2">
-                      {listingTypeOptions.map((ltOption, ltIndex) => (
-                        <motion.button
-                          key={ltOption.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: ltIndex * 0.05 }}
-                          onClick={() => handleCategorySelect(category.id, ltOption.id)}
-                          className={cn(
-                            'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
-                            categories.includes(category.id) && listingType === ltOption.id
-                              ? `bg-gradient-to-r ${category.color} text-white`
-                              : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
-                          )}
-                        >
-                          <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
-                        </motion.button>
-                      ))}
+                    <div className="flex items-center gap-2.5">
+                      <span className={cn(
+                        'p-1.5 rounded-lg',
+                        categories.includes(category.id)
+                          ? 'bg-white/20'
+                          : `bg-gradient-to-br ${category.color} bg-opacity-20`
+                      )}>
+                        {category.icon}
+                      </span>
+                      <span className="font-medium">{category.label}</span>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
+                    {category.hasSubOptions && (
+                      <ChevronRight className={cn(
+                        "w-4 h-4 text-muted-foreground transition-transform",
+                        clickedCategory === category.id && "rotate-90"
+                      )} />
+                    )}
+                  </button>
+
+                  {/* Sub-menu for listing type */}
+                  <AnimatePresence>
+                    {clickedCategory === category.id && category.hasSubOptions && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ type: 'spring', stiffness: 600, damping: 30 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-10 pr-2 py-1">
+                          {listingTypeOptions.map((ltOption) => (
+                            <button
+                              key={ltOption.id}
+                              onClick={() => handleCategorySelect(category.id, ltOption.id)}
+                              className={cn(
+                                'w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 touch-manipulation mb-0.5',
+                                categories.includes(category.id) && listingType === ltOption.id
+                                  ? `bg-gradient-to-r ${category.color} text-white`
+                                  : 'text-foreground/70 hover:bg-white/5 bg-white/[0.02]'
+                              )}
+                            >
+                              {ltOption.label}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -466,7 +455,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 600, damping: 25 }}
-              className="fixed left-1/2 -translate-x-1/2 top-16 sm:absolute sm:left-0 sm:translate-x-0 sm:top-full sm:mt-2 z-[10002]"
+              className="fixed left-1/2 -translate-x-1/2 top-14 z-[10002]"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
             </motion.div>
