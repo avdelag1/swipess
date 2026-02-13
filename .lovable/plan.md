@@ -1,107 +1,73 @@
 
-## Fix Messaging Errors + Redesign Messaging UI
 
-### Root Cause of "Failed to check existing conversations"
+## Fix Swipe Card Zoom (Magnifier) -- Client + Owner Side
 
-The `conversations` table only has 4 columns: `id`, `match_id`, `created_at`, `updated_at`. But the code references columns that do not exist: `client_id`, `owner_id`, `listing_id`, `status`, `last_message_at`, `free_messaging`.
+### Problem 1: Zoom shows "small image" on client side
+The magnifier hook finds the `<img>` element and applies `scale(2.8)` to it. But the image is wrapped inside a `<div>` with `overflow: hidden` (from the `CardImage` component), AND the container div also has `overflow-hidden`. So the zoomed image gets clipped by its parent -- it scales up but you can only see the original-size viewport of it, making it look like a weird small cropped image instead of a full zoom.
 
-Similarly, `conversation_messages` uses `content` (not `message_text`) and `read_at` (not `is_read`).
+### Problem 2: Swipe gesture conflicts with zoom panning
+When the user holds their finger to activate zoom then drags to pan, framer-motion's drag handler can intercept the pointer events before the magnifier's 350ms hold timer fires. This causes:
+- Hold + slight movement triggers a drag instead of waiting for zoom
+- Once zoomed, panning can accidentally trigger card movement
 
-The `matches` table uses `user_id` (not `client_id`).
+### Solution
 
-Every messaging query fails because of these column mismatches.
+**File: `src/hooks/useMagnifier.ts`** -- Fix overflow clipping during zoom
 
-### Fix Strategy
+When the magnifier activates, walk up from the `<img>` element to the container and set `overflow: visible` on all intermediate wrapper divs. When deactivating, restore them to `overflow: hidden`. This ensures the scaled image isn't clipped by any parent.
 
-**Part 1: Database Migration -- Add missing columns to conversations**
+Changes:
+- Add a `savedOverflows` ref to store original overflow values
+- In `activateMagnifier`: traverse parent elements from `<img>` up to `containerRef`, set each to `overflow: visible`
+- In `deactivateMagnifier`: restore all saved overflow values
+- Also set `overflow: visible` on the container itself during zoom
 
-Add the columns the code expects to the `conversations` table:
+**File: `src/components/SimpleSwipeCard.tsx`** -- Better gesture timing for client cards
 
-```sql
-ALTER TABLE public.conversations
-  ADD COLUMN IF NOT EXISTS client_id uuid,
-  ADD COLUMN IF NOT EXISTS owner_id uuid,
-  ADD COLUMN IF NOT EXISTS listing_id uuid REFERENCES public.listings(id) ON DELETE SET NULL,
-  ADD COLUMN IF NOT EXISTS status text DEFAULT 'active',
-  ADD COLUMN IF NOT EXISTS last_message_at timestamptz,
-  ADD COLUMN IF NOT EXISTS free_messaging boolean DEFAULT false;
+- Add a `gesturePhase` ref that tracks: `'idle' | 'pending' | 'zooming'`
+- On pointer down, set phase to `'pending'` (waiting to see if it's a hold or a swipe)
+- Use `dragListener={false}` and manually start drag only after determining it's a swipe (movement > 15px before hold timer fires)
+- When magnifier activates (hold timer fires with no significant movement), set phase to `'zooming'` -- drag is completely blocked
+- On pointer up, reset to `'idle'`
 
--- Make match_id nullable (conversations can exist without a match)
-ALTER TABLE public.conversations
-  ALTER COLUMN match_id DROP NOT NULL;
+Simplified approach (less invasive): Keep `drag={!magnifierActive}` but also add `onDragStart` guard that cancels drag if hold timer is still pending and movement is minimal. Plus increase the movement threshold in magnifier from 25px to 15px so swipes are detected faster.
 
--- Drop the unique constraint on match_id so multiple conversations can share a match
-ALTER TABLE public.conversations
-  DROP CONSTRAINT IF EXISTS conversations_match_id_key;
+**File: `src/components/SimpleOwnerSwipeCard.tsx`** -- Same overflow fix applies
+
+The owner side card has the same `CardImage` wrapper with `overflow: hidden`. Apply the identical overflow fix via the shared `useMagnifier` hook (no per-card changes needed for this part). Ensure the same gesture timing improvements are mirrored.
+
+### Technical Details
+
+**Overflow fix in `useMagnifier.ts`:**
+```
+activateMagnifier:
+  1. Find img element
+  2. Walk from img.parentElement up to containerRef.current
+  3. For each element: save overflow style, set overflow = 'visible'
+  4. Apply scale transform to img
+
+deactivateMagnifier:
+  1. Restore all saved overflow values
+  2. Reset img transform to scale(1)
 ```
 
-**Part 2: Fix conversation_messages column references**
-
-The table has `content` but code uses `message_text`, and has `read_at` but code uses `is_read`. Add aliases:
-
-```sql
-ALTER TABLE public.conversation_messages
-  ADD COLUMN IF NOT EXISTS message_text text,
-  ADD COLUMN IF NOT EXISTS is_read boolean DEFAULT false;
-
--- Backfill from existing columns
-UPDATE public.conversation_messages SET message_text = content WHERE message_text IS NULL;
-UPDATE public.conversation_messages SET is_read = (read_at IS NOT NULL) WHERE is_read IS NULL;
+**Gesture timing in both swipe cards:**
+```
+handleDragStart:
+  - If magnifier hold timer is pending (user held < 350ms but started moving):
+    - If movement < 15px: cancel drag start (return false or set drag to false)
+    - If movement > 15px: allow drag, cancel magnifier timer
+  - If magnifier is active: block drag entirely
 ```
 
-**Part 3: Fix matches table references**
+The key insight: The `useMagnifier` hook's `onPointerMove` already cancels the hold timer when movement exceeds 25px. Lowering this to 15px makes swipe detection faster, giving a crisper feel. Combined with `drag={!magnifierActive}`, the gesture separation becomes:
 
-Some code uses `client_id` on matches but the column is actually `user_id`. Rather than adding a column, fix the code references in these files:
-- `src/lib/swipe/SwipeQueue.ts` -- change `client_id` to `user_id`
-- `src/lib/realtimeManager.ts` -- change `client_id` to `user_id`
-- `src/hooks/useClientStats.tsx` -- change `client_id` to `user_id`
+- Instant swipe (fast movement) -- magnifier timer cancelled immediately, drag proceeds
+- Hold still 350ms -- magnifier activates, drag disabled, pan freely
+- Slow drag that doesn't reach 15px in 350ms -- magnifier activates (rare edge case, acceptable)
 
-**Part 4: Add RLS policies for conversations**
+### Files Modified
+1. `src/hooks/useMagnifier.ts` -- overflow fix + lower movement threshold
+2. `src/components/SimpleSwipeCard.tsx` -- drag start guard
+3. `src/components/SimpleOwnerSwipeCard.tsx` -- drag start guard (mirror)
 
-Enable proper access control so authenticated users can create and read their own conversations:
-
-```sql
-ALTER TABLE public.conversations ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can view their own conversations"
-  ON public.conversations FOR SELECT
-  USING (auth.uid() = client_id OR auth.uid() = owner_id);
-
-CREATE POLICY "Users can create conversations"
-  ON public.conversations FOR INSERT
-  WITH CHECK (auth.uid() = client_id OR auth.uid() = owner_id);
-
-CREATE POLICY "Users can update their own conversations"
-  ON public.conversations FOR UPDATE
-  USING (auth.uid() = client_id OR auth.uid() = owner_id);
-```
-
-**Part 5: Messaging UI Redesign**
-
-Update `MessagingDashboard.tsx` conversation list with a modern, clean design:
-- Larger avatars with gradient ring indicators
-- Cleaner conversation preview cards with subtle glassmorphism
-- Better typography hierarchy (name bold, preview muted, timestamp subtle)
-- Unread message dot indicator
-- Smooth hover/press animations
-- Remove the duplicate stats badge that appears twice
-- Clean up the overall spacing and visual rhythm to feel premium and iOS-native
-
-Update `MessagingInterface.tsx` chat view:
-- Simplify the header (remove redundant info rows)
-- Better message input area with rounded pill-style input
-- Smoother message bubble animations
-- Cleaner empty state
-
-### Files to modify
-
-1. **Database migration** (new) -- Add missing columns + RLS policies
-2. `src/hooks/useConversations.tsx` -- No changes needed (already uses the column names we are adding)
-3. `src/hooks/useDirectMessageListing.ts` -- No changes needed
-4. `src/hooks/useMarkMessagesAsRead.tsx` -- No changes needed (uses is_read which we are adding)
-5. `src/hooks/useUnreadMessageCount.tsx` -- No changes needed
-6. `src/lib/swipe/SwipeQueue.ts` -- Fix `client_id` to `user_id` for matches table
-7. `src/lib/realtimeManager.ts` -- Fix `client_id` to `user_id` for matches table
-8. `src/hooks/useClientStats.tsx` -- Fix `client_id` to `user_id` for matches table
-9. `src/pages/MessagingDashboard.tsx` -- UI redesign
-10. `src/components/MessagingInterface.tsx` -- UI cleanup
