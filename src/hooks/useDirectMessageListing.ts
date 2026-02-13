@@ -111,6 +111,7 @@ export function useDirectMessageListing() {
         .insert({
           conversation_id: newConversation.id,
           sender_id: user.id,
+          content: messageText,
           message_text: messageText,
           message_type: 'text'
         })
