@@ -762,6 +762,7 @@ export type Database = {
           id: string
           images: Json | null
           interests: Json | null
+          is_active: boolean | null
           languages_spoken: Json | null
           lifestyle_tags: Json | null
           nationality: string | null
@@ -769,6 +770,7 @@ export type Database = {
           onboarding_completed: boolean | null
           phone: string | null
           radio_current_station_id: string | null
+          role: string | null
           smoking: boolean | null
           swipe_sound_theme: string | null
           theme_preference: string | null
@@ -791,6 +793,7 @@ export type Database = {
           id?: string
           images?: Json | null
           interests?: Json | null
+          is_active?: boolean | null
           languages_spoken?: Json | null
           lifestyle_tags?: Json | null
           nationality?: string | null
@@ -798,6 +801,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           phone?: string | null
           radio_current_station_id?: string | null
+          role?: string | null
           smoking?: boolean | null
           swipe_sound_theme?: string | null
           theme_preference?: string | null
@@ -820,6 +824,7 @@ export type Database = {
           id?: string
           images?: Json | null
           interests?: Json | null
+          is_active?: boolean | null
           languages_spoken?: Json | null
           lifestyle_tags?: Json | null
           nationality?: string | null
@@ -827,6 +832,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           phone?: string | null
           radio_current_station_id?: string | null
+          role?: string | null
           smoking?: boolean | null
           swipe_sound_theme?: string | null
           theme_preference?: string | null
