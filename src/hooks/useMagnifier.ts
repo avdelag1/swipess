@@ -38,6 +38,7 @@ interface UseMagnifierReturn {
     onPointerLeave: (e: React.PointerEvent) => void;
   };
   isActive: () => boolean;
+  isHoldPending: () => boolean;
 }
 
 export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
@@ -54,6 +55,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const rafRef = useRef<number | null>(null);
   const startPosRef = useRef<{ x: number; y: number } | null>(null);
   const pointerIdRef = useRef<number | null>(null);
+  const savedOverflowsRef = useRef<{ el: HTMLElement; overflow: string }[]>([]);
 
   const magnifierState = useRef<MagnifierState>({
     isActive: false,
@@ -119,7 +121,20 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_) { /* ignore if already captured */ }
     }
 
+    // FIX: Walk up from <img> to container and set overflow: visible on all parents
+    // This prevents the zoomed image from being clipped by parent divs
     const img = imageRef.current;
+    const container = containerRef.current;
+    if (img && container) {
+      savedOverflowsRef.current = [];
+      let el: HTMLElement | null = img.parentElement;
+      while (el && el !== container.parentElement) {
+        savedOverflowsRef.current.push({ el, overflow: el.style.overflow });
+        el.style.overflow = 'visible';
+        el = el.parentElement;
+      }
+    }
+
     if (img) {
       img.style.transition = 'transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     }
@@ -154,6 +169,12 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_) { /* ignore */ }
     }
     pointerIdRef.current = null;
+
+    // FIX: Restore all saved overflow values
+    for (const { el, overflow } of savedOverflowsRef.current) {
+      el.style.overflow = overflow || '';
+    }
+    savedOverflowsRef.current = [];
 
     const img = imageRef.current;
     if (img) {
@@ -214,7 +235,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       const dx = Math.abs(e.clientX - startPosRef.current.x);
       const dy = Math.abs(e.clientY - startPosRef.current.y);
       // Only cancel if clearly swiping (large movement)
-      if (dx > 25 || dy > 25) {
+      if (dx > 15 || dy > 15) {
         clearTimeout(holdTimerRef.current);
         holdTimerRef.current = null;
         startPosRef.current = null;
@@ -242,6 +263,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   }, []);
 
   const isActive = useCallback(() => magnifierState.current.isActive, []);
+  const isHoldPending = useCallback(() => holdTimerRef.current !== null, []);
 
   return {
     containerRef,
@@ -254,5 +276,6 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       onPointerLeave,
     },
     isActive,
+    isHoldPending,
   };
 }
