@@ -158,7 +158,7 @@ export default defineConfig(({ mode }) => ({
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
     // Prevent duplicate React instances (including jsx runtimes)
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-query'],
   },
   optimizeDeps: {
     include: [
