@@ -1,11 +1,12 @@
 // @ts-nocheck
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TinderentSwipeContainer } from '@/components/TinderentSwipeContainer';
 import { PropertyInsightsDialog } from '@/components/PropertyInsightsDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { Listing } from '@/hooks/useListings';
+import { useFilterStore } from '@/state/filterStore';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
@@ -25,6 +26,12 @@ export default function ClientDashboard({
 }: ClientDashboardProps) {
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
+  
+  // Connect filter store to swipe container
+  const filterVersion = useFilterStore((s) => s.filterVersion);
+  const getListingFilters = useFilterStore((s) => s.getListingFilters);
+  const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
+  const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
 
   // PERFORMANCE: Only fetch the selected listing when dialog opens
   const { data: selectedListing } = useQuery({
@@ -59,7 +66,7 @@ export default function ClientDashboard({
         onListingTap={handleListingTap}
         onInsights={handleListingTap}
         onMessageClick={onMessageClick}
-        filters={filters}
+        filters={mergedFilters}
       />
 
       <PropertyInsightsDialog
