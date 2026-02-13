@@ -292,32 +292,32 @@ export default function RetroRadioStation() {
  * Responsive vinyl size based on viewport
  */
 function getVinylSize(): number {
-  if (typeof window === 'undefined') return 200;
+  if (typeof window === 'undefined') return 140;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Mobile portrait
-  if (vw < 380) return 180;
-  if (vw < 480) return 200;
+  // Mobile portrait - smaller to fit content
+  if (vw < 380) return 120;
+  if (vw < 480) return 140;
   // Mobile landscape or small tablet
-  if (vh < 600) return 160;
+  if (vh < 600) return 120;
   // Tablet
-  if (vw < 768) return 220;
+  if (vw < 768) return 160;
   // Desktop
-  return 260;
+  return 200;
 }
 
 /**
  * Responsive click wheel size
  */
 function getWheelSize(): number {
-  if (typeof window === 'undefined') return 160;
+  if (typeof window === 'undefined') return 120;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 140;
-  if (vw < 480) return 155;
-  if (vh < 600) return 130;
-  if (vw < 768) return 165;
-  return 180;
+  if (vw < 380) return 100;
+  if (vw < 480) return 110;
+  if (vh < 600) return 95;
+  if (vw < 768) return 130;
+  return 150;
 }
