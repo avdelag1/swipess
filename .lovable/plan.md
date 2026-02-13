@@ -1,74 +1,52 @@
 
 
-## Fix Filter Title Icon + Fix Zoom Panning on Client Swipe Cards
+## Fix Quick Filter to Show Listing Categories (Both Sides)
 
-### Issue 1: Remove emoji icons from filter title in top bar
+### What's Wrong Now
 
-The top-left corner title currently shows emojis like "🏠 Properties", "🏍️ Motorcycles". Remove the emoji prefixes so it just shows plain text: "Properties", "Motorcycles", etc.
+The **owner-side quick filter** dropdown currently shows "Gender" and "Looking For" (Hiring/Renting/Buying) options. The user wants it to show **listing categories** instead (Property, Motos, Bikes, Workers) -- the same categories as the client side. When you select a category, the dashboard should refresh to show only clients interested in that category, and the top bar title should update to reflect the active filter.
 
-**File: `src/components/DashboardLayout.tsx`** (lines 500-520)
+The **client side** already works correctly with category-based quick filters.
 
-Change the category/client type label maps to remove emoji prefixes:
-- `'🏠 Properties'` becomes `'Properties'`
-- `'🏍️ Motorcycles'` becomes `'Motorcycles'`  
-- `'🚲 Bicycles'` becomes `'Bicycles'`
-- `'💼 Services'` becomes `'Workers'`
-- Same for owner-side labels: `'🏠 Property Seekers'` becomes `'Property Seekers'`, etc.
+### What Will Change
 
----
+1. **Owner Quick Filter Dropdown** (`QuickFilterDropdown.tsx`) -- Replace the Gender + Client Type sections with the same category selection UI used for clients (Property, Motorcycle, Bicycle, Workers). Remove gender/clientType filter options from the owner dropdown.
 
-### Issue 2: Zoom activates but panning doesn't work on client swipe cards
+2. **Owner Quick Filter Bar** (`QuickFilterBar.tsx`) -- Same change: replace Gender + Client Type chips with category chips matching the client side.
 
-**Root cause**: Framer-motion's `drag` prop automatically attaches internal pointer listeners to the `motion.div`. When the user holds their finger down, framer-motion captures the pointer events for drag tracking. Even though the magnifier's `onPointerMove` handler is on an inner div, framer-motion's internal system intercepts subsequent pointer move events after drag detection starts, so the magnifier never receives the move events needed for panning.
+3. **Top Bar Title** (`DashboardLayout.tsx`) -- Update the owner dashboard title logic to use `activeCategory` (same as client side) instead of `clientType`. When a category is selected, it shows "Properties", "Motorcycles", etc. When no filter is active, it shows "Your Matches".
 
-The current `drag={!magnifierActive}` approach doesn't work because:
-1. At pointer-down time, `magnifierActive` is `false` (the 350ms timer hasn't fired yet)
-2. Framer-motion starts tracking drag immediately
-3. By the time magnifier activates (350ms later), framer-motion already owns the pointer
+4. **Dashboard Refresh** -- The `ClientSwipeContainer` already watches for filter changes and resets the deck. When the quick filter updates `activeCategory` in the Zustand store, the container will detect the change and refetch client profiles filtered by that category. The `useSmartClientMatching` hook already accepts a `category` parameter -- we just need to wire the store's `activeCategory` into it.
 
-**Fix**: Use `useDragControls` from framer-motion with `dragListener={false}`. This prevents framer-motion from auto-attaching pointer listeners. Instead, we manually decide when to start a drag:
+### Technical Details
 
-- On `onPointerDown`: start the magnifier's hold timer AND store the event
-- On `onPointerMove`: if movement > 15px before 350ms, manually call `dragControls.start(storedEvent)` to begin swiping
-- If 350ms passes without significant movement, magnifier activates -- drag is never started, so panning works freely
-- On `onPointerUp`: deactivate magnifier if active
+**File: `src/components/QuickFilterDropdown.tsx`**
+- In `renderOwnerFilters()`: Replace the Gender and Client Type sections with the same category list used in `renderClientFilters()`. When the user selects a category (Property, Moto, Bicycle, Workers), it calls `setCategories([categoryId])` and `setActiveCategory(categoryId)` on the store.
+- The listing type sub-options (Rent/Buy/Both) remain available per category, same as client side.
 
-**File: `src/components/SimpleSwipeCard.tsx`**
+**File: `src/components/QuickFilterBar.tsx`**
+- In the owner section (lines 218-265): Replace Gender + Client Type dropdowns with category chip buttons matching the client layout.
 
-Changes:
-1. Import `useDragControls` from framer-motion
-2. Create `const dragControls = useDragControls()`
-3. Set `dragListener={false}` on the `motion.div` -- framer-motion will NOT auto-listen for drag
-4. Add `dragControls={dragControls}` to the `motion.div`
-5. Create a unified `onPointerDown` handler on the outer motion.div that:
-   - Stores the pointer event
-   - Starts the magnifier hold timer
-6. Create a unified `onPointerMove` handler that:
-   - If magnifier is active: delegate to magnifier's pan handler
-   - If hold timer is pending and movement > 15px: cancel hold timer, call `dragControls.start(storedEvent)` to begin drag
-   - If hold timer is pending and movement < 15px: do nothing (wait for hold to complete)
-7. On `onPointerUp`: deactivate magnifier, end drag
+**File: `src/components/DashboardLayout.tsx`**
+- Update owner dashboard title (around line 512-520): Use `activeCategory` to determine the title instead of `clientType`. Map categories to labels: property -> "Properties", motorcycle -> "Motorcycles", bicycle -> "Bicycles", services -> "Workers". Default to "Your Matches" when no category is active.
 
-**File: `src/components/SimpleOwnerSwipeCard.tsx`**
+**File: `src/pages/OwnerDashboardNew.tsx`**
+- Pass the store's `activeCategory` as the `category` prop to `ClientSwipeContainer` so the swipe deck refreshes when the filter changes.
 
-Apply the same `useDragControls` pattern for consistency, even though the owner side was reported as working (ensures both sides use the same robust gesture separation).
+**File: `src/components/ClientSwipeContainer.tsx`**
+- Ensure the `category` prop is wired into `useSmartClientMatching` so that switching categories triggers a data refetch with the correct filter.
 
-### Technical flow
+### Flow
 
-```text
-Pointer Down
-    |
-    v
-Start 350ms hold timer
-    |
-    +-- Movement > 15px before timer? --> Cancel timer, start drag via dragControls.start()
-    |
-    +-- Timer fires (no big movement)? --> Activate magnifier, panning works freely
-    |
-    +-- Pointer Up before either? --> Cancel timer, no action (tap)
-```
+When an owner taps "Quick Filter" and selects "Motos":
+1. Store updates: `activeCategory = 'motorcycle'`, `categories = ['motorcycle']`
+2. Top bar title changes from "Your Matches" to "Motorcycles"
+3. `ClientSwipeContainer` detects filter change, resets deck
+4. `useSmartClientMatching` refetches with `category='moto'`
+5. New client profiles (moto seekers) appear in the swipe deck
 
-### Files modified
-1. `src/components/DashboardLayout.tsx` -- Remove emoji icons from title labels
-2. `src/components/SimpleSwipeCard.tsx` -- Use useDragControls for manual gesture control
-3. `src/components/SimpleOwnerSwipeCard.tsx` -- Same useDragControls pattern
+### Files Modified
+1. `src/components/QuickFilterDropdown.tsx` -- Owner filter uses categories instead of gender/clientType
+2. `src/components/QuickFilterBar.tsx` -- Owner bar uses category chips
+3. `src/components/DashboardLayout.tsx` -- Owner title uses activeCategory
+4. `src/pages/OwnerDashboardNew.tsx` -- Pass activeCategory to ClientSwipeContainer
