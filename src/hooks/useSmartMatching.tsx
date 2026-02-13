@@ -288,7 +288,7 @@ export function useSmartListingMatching(
   return useQuery({
     queryKey: ['smart-listings', userId, filtersKey, page, isRefreshMode], // Stable query key with userId
     // PERF: Longer stale time for listings since they don't change frequently
-    staleTime: 10 * 60 * 1000, // 10 minutes - listings are stable
+    staleTime: 2 * 60 * 1000, // 2 minutes - ensure swiped cards stay excluded
     gcTime: 15 * 60 * 1000, // 15 minutes cache time
     // PERF: Keep previous data while fetching new data to prevent UI flash
     placeholderData: (prev) => prev,
@@ -681,7 +681,7 @@ export function useSmartListingMatching(
     },
     enabled: !!userId,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always' as const,
     refetchOnReconnect: false,
     retry: 1,
     retryDelay: 1000,
@@ -1422,7 +1422,7 @@ export function useSmartClientMatching(
     },
     enabled: !!userId,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: 'always' as const,
     refetchOnReconnect: false,
     retry: 1,
     retryDelay: 1000,
