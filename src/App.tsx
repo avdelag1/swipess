@@ -92,7 +92,7 @@ import OwnerFilters from "./pages/OwnerFilters";
 import { MessagingDashboard } from "./pages/MessagingDashboard";
 import NotificationsPage from "./pages/NotificationsPage";
 import SubscriptionPackagesPage from "./pages/SubscriptionPackagesPage";
-import RadioPlayer from "./pages/RadioPlayer";
+import RetroRadioStation from "./pages/RetroRadioStation";
 import RadioPlaylists from "./pages/RadioPlaylists";
 import RadioFavorites from "./pages/RadioFavorites";
 
@@ -239,7 +239,7 @@ const App = () => (
                       <Route path="/messages" element={<MessagingDashboard />} />
                       <Route path="/notifications" element={<NotificationsPage />} />
                       <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
-                      <Route path="/radio" element={<RadioPlayer />} />
+                      <Route path="/radio" element={<RetroRadioStation />} />
                       <Route path="/radio/playlists" element={<RadioPlaylists />} />
                       <Route path="/radio/favorites" element={<RadioFavorites />} />
                     </Route>
