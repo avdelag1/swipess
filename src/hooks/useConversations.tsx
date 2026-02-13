@@ -254,21 +254,37 @@ export function useConversationMessages(conversationId: string) {
   return useQuery({
     queryKey: ['conversation-messages', conversationId],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      // Fetch messages without FK join (no FK exists between conversation_messages and profiles)
+      const { data: messages, error } = await supabase
         .from('conversation_messages')
-        .select(`
-          *,
-          sender:profiles!conversation_messages_sender_id_fkey (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      return (data || []) as any[];
+      if (!messages || messages.length === 0) return [];
+
+      // Batch fetch sender profiles
+      const senderIds = [...new Set(messages.map((m: any) => m.sender_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', senderIds);
+
+      const profileMap = new Map<string, any>();
+      (profiles || []).forEach((p: any) => profileMap.set(p.user_id, p));
+
+      return messages.map((msg: any) => {
+        const profile = profileMap.get(msg.sender_id);
+        return {
+          ...msg,
+          sender: profile ? {
+            id: profile.user_id,
+            full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
+          } : undefined,
+        };
+      });
     },
     enabled: !!conversationId,
   });
@@ -496,14 +512,7 @@ export function useSendMessage() {
           message_text: message,
           message_type: 'text'
         })
-        .select(`
-          *,
-          sender:profiles!conversation_messages_sender_id_fkey (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .single();
 
       if (error) {
