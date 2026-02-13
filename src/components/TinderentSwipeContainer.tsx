@@ -283,21 +283,10 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
 
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
+  // FIX: Don't restore from cache — always start empty and let DB query populate
+  // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
+  // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
   const getInitialDeck = () => {
-    // Get swiped IDs from store to filter out already-swiped cards
-    const storeSwipedIds = new Set(useSwipeDeckStore.getState().clientDeck.swipedIds);
-    
-    // Try session storage first (faster, tab-scoped)
-    const sessionItems = getDeckFromSession('client', 'listings');
-    if (sessionItems.length > 0) {
-      // Filter out already-swiped cards from restored deck
-      return sessionItems.filter(item => !storeSwipedIds.has(item.id));
-    }
-    // Fallback to store items (persisted across sessions) - non-reactive read
-    const storeState = useSwipeDeckStore.getState();
-    if (storeState.clientDeck.deckItems.length > 0) {
-      return storeState.clientDeck.deckItems.filter(item => !storeSwipedIds.has(item.id));
-    }
     return [];
   };
 
@@ -414,29 +403,13 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
   // Navigation guard
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
 
-  // HYDRATION SYNC: One-time sync on mount if not already initialized
-  // PERF: Use getState() to check store without subscribing
-  // This effect only runs once and doesn't cause re-renders on store updates
+  // FIX: Hydration sync disabled — DB query is the single source of truth
+  // The query with refetchOnMount:'always' ensures fresh data on every mount
+  // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
-    if (!initializedRef.current) {
-      const storeState = useSwipeDeckStore.getState();
-      const hasStoreData = storeState.clientDeck.deckItems.length > 0;
-      const hasSessionData = getDeckFromSession('client', 'listings').length > 0;
-
-      if (hasStoreData || hasSessionData) {
-        initializedRef.current = true;
-        const items = getInitialDeck();
-        if (items.length > 0 && deckQueueRef.current.length === 0) {
-          deckQueueRef.current = items;
-          const newIndex = storeState.clientDeck.currentIndex;
-          currentIndexRef.current = newIndex;
-          setCurrentIndex(newIndex);
-          setDeckLength(items.length);
-          swipedIdsRef.current = new Set(storeState.clientDeck.swipedIds);
-        }
-      }
-    }
-  }, []); // Empty deps - only run once on mount
+    // Clear any stale session storage on mount
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch {}
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
