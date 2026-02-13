@@ -498,28 +498,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
     // Dashboard/discovery pages show active filter category
     if (path === '/client/dashboard') {
-      if (activeCategory) {
-        const categoryLabels: Record<string, string> = {
-          property: 'Properties',
-          motorcycle: 'Motorcycles',
-          bicycle: 'Bicycles',
-          services: 'Services',
-        };
-        return categoryLabels[activeCategory] || activeCategory;
-      }
-      return 'All Types';
+      return '';
     }
     if (path === '/owner/dashboard') {
-      if (activeCategory) {
-        const ownerCategoryLabels: Record<string, string> = {
-          property: 'Properties',
-          motorcycle: 'Motorcycles',
-          bicycle: 'Bicycles',
-          services: 'Workers',
-        };
-        return ownerCategoryLabels[activeCategory] || activeCategory;
-      }
-      return 'Your Matches';
+      return '';
     }
     if (path.includes('discovery')) return 'Discover';
 

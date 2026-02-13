@@ -189,8 +189,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Unified pointer move: decides between magnifier pan vs starting drag
   const handleUnifiedPointerMove = useCallback((e: React.PointerEvent) => {
-    // If magnifier is active, delegate to magnifier for panning
-    if (magnifierActive) {
+    // Check ref directly (not React state) — avoids stale closure / re-render lag
+    if (isMagnifierActive()) {
       magnifierPointerHandlers.onPointerMove(e);
       return;
     }
@@ -220,7 +220,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     }
 
     // If drag already started, let framer-motion handle it
-  }, [magnifierActive, isHoldPending, magnifierPointerHandlers, dragControls]);
+  }, [isMagnifierActive, isHoldPending, magnifierPointerHandlers, dragControls]);
 
   // Unified pointer up: deactivate magnifier and clean up
   const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
