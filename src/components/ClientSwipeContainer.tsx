@@ -148,24 +148,10 @@ const ClientSwipeContainerComponent = ({
     });
   }, []);
 
+  // FIX: Don't restore from cache — always start empty and let DB query populate
+  // The DB query (with refetchOnMount:'always') excludes swiped items at SQL level
+  // Restoring from cache caused swiped cards to reappear across sessions/dashboard switches
   const getInitialDeck = () => {
-    const userId = user?.id;
-    // Get swiped IDs from store to filter out already-swiped cards
-    const currentDeckState = useSwipeDeckStore.getState().ownerDecks[category];
-    const storeSwipedIds = new Set(currentDeckState?.swipedIds || []);
-    
-    // Try session storage first (faster, tab-scoped)
-    const sessionItems = getDeckFromSession('owner', category);
-    if (sessionItems.length > 0) {
-      // Filter out already-swiped cards AND own profile from restored deck
-      return filterOwnProfile(sessionItems, userId).filter(item => !storeSwipedIds.has(item.user_id || item.id));
-    }
-    // Fallback to store items (persisted across sessions) - non-reactive read
-    const storeState = useSwipeDeckStore.getState();
-    const currentDeck = storeState.ownerDecks[category];
-    if (currentDeck?.deckItems?.length > 0) {
-      return filterOwnProfile(currentDeck.deckItems, userId).filter(item => !storeSwipedIds.has(item.user_id || item.id));
-    }
     return [];
   };
 
@@ -260,29 +246,13 @@ const ClientSwipeContainerComponent = ({
   const isFetchingMore = useRef(false);
   const prefetchSchedulerRef = useRef(new PrefetchScheduler());
 
-  // HYDRATION SYNC: One-time sync on mount if not already initialized
-  // PERF: Use getState() to check store without subscribing
-  // This effect only runs once and doesn't cause re-renders on store updates
+  // FIX: Hydration sync disabled — DB query is the single source of truth
+  // The query with refetchOnMount:'always' ensures fresh data on every mount
+  // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
-    if (!initializedRef.current) {
-      const storeState = useSwipeDeckStore.getState();
-      const currentDeck = storeState.ownerDecks[category];
-      const hasStoreData = currentDeck?.deckItems?.length > 0;
-      const hasSessionData = getDeckFromSession('owner', category).length > 0;
-
-      if (hasStoreData || hasSessionData) {
-        initializedRef.current = true;
-        const items = getInitialDeck();
-        if (items.length > 0 && deckQueueRef.current.length === 0) {
-          deckQueueRef.current = items;
-          const newIndex = currentDeck?.currentIndex || 0;
-          currentIndexRef.current = newIndex;
-          setCurrentIndex(newIndex);
-          swipedIdsRef.current = new Set(currentDeck?.swipedIds || []);
-        }
-      }
-    }
-  }, []); // Empty deps - only run once on mount
+    // Clear any stale session storage on mount
+    try { sessionStorage.removeItem(`swipe-deck-owner-${category}`); } catch {}
+  }, [category]);
 
   // ========================================
   // 🔥 CRITICAL: ALL HOOKS MUST BE AT TOP
