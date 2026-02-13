@@ -67,7 +67,7 @@ function TopBarComponent({
         <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
           {/* Title on the left - NEW */}
           {title && (
-            <div className="hidden sm:block flex-shrink-0 font-bold text-sm sm:text-base text-white whitespace-nowrap">
+            <div className="flex-shrink-0 font-bold text-sm sm:text-base text-white whitespace-nowrap">
               {title}
             </div>
           )}
