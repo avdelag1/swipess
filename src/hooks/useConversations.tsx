@@ -52,15 +52,10 @@ export function useConversations() {
       }
 
       try {
-        // OPTIMIZED: Single query with joins instead of N+1 queries
-        const { data, error } = await supabase
+        // Fetch conversations first, then join profiles manually (no FK constraints on new columns)
+        const { data, error } = await (supabase as any)
           .from('conversations')
-          .select(`
-            *,
-            client_profile:profiles!conversations_client_id_fkey(id, full_name, avatar_url),
-            owner_profile:profiles!conversations_owner_id_fkey(id, full_name, avatar_url),
-            listing:listings!conversations_listing_id_fkey(id, title, price, images, category, mode, address, city)
-          `)
+          .select('*')
           .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
           .order('last_message_at', { ascending: false, nullsFirst: false });
 
@@ -78,10 +73,29 @@ export function useConversations() {
         // Defensive null check
         if (!data) return [];
 
-        // Get all conversation IDs for batch message query
-        const conversationIds = data.map(c => c.id);
-
+        // Get all conversation IDs and user IDs for batch queries
+        const conversationIds = data.map((c: any) => c.id);
         if (conversationIds.length === 0) return [];
+
+        // Collect unique user IDs to fetch profiles
+        const userIds = new Set<string>();
+        data.forEach((c: any) => {
+          if (c.client_id) userIds.add(c.client_id);
+          if (c.owner_id) userIds.add(c.owner_id);
+        });
+
+        // Batch fetch profiles and listings
+        const [profilesResult, listingsResult] = await Promise.all([
+          supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', Array.from(userIds)),
+          data.some((c: any) => c.listing_id)
+            ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id))
+            : Promise.resolve({ data: [] as any[], error: null })
+        ]);
+
+        const profilesMap = new Map<string, any>();
+        (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, p));
+        const listingsMap = new Map<string, any>();
+        ((listingsResult as any).data || []).forEach((l: any) => listingsMap.set(l.id, l));
 
         // OPTIMIZED: Single query for all last messages instead of N queries
         const { data: messagesData, error: messagesError } = await supabase
@@ -103,24 +117,12 @@ export function useConversations() {
         });
 
         // Transform data to include other_user, last_message, and listing
-        type ConversationRow = {
-          id: string;
-          client_id: string;
-          owner_id: string;
-          listing_id?: string;
-          last_message_at?: string;
-          status: string;
-          created_at: string;
-          updated_at: string;
-          client_profile: { id: string; full_name: string; avatar_url?: string } | null;
-          owner_profile: { id: string; full_name: string; avatar_url?: string } | null;
-          listing: { id: string; title: string; price?: number; images?: string[]; category?: string; mode?: string; address?: string; city?: string } | null;
-        };
         const conversationsWithProfiles = (data as any[]).map((conversation: any) => {
           const isClient = conversation.client_id === user.id;
-          const otherUserProfile = isClient ? conversation.owner_profile : conversation.client_profile;
-          // Determine role based on which side of the conversation the other user is
+          const otherUserId = isClient ? conversation.owner_id : conversation.client_id;
+          const otherUserProfile = profilesMap.get(otherUserId);
           const otherUserRole = isClient ? 'owner' : 'client';
+          const listingData = conversation.listing_id ? listingsMap.get(conversation.listing_id) : undefined;
 
           return {
             id: conversation.id,
@@ -132,13 +134,13 @@ export function useConversations() {
             created_at: conversation.created_at,
             updated_at: conversation.updated_at,
             other_user: otherUserProfile ? {
-              id: otherUserProfile.id,
+              id: otherUserId,
               full_name: otherUserProfile.full_name,
               avatar_url: otherUserProfile.avatar_url,
-              role: otherUserRole || 'client'
+              role: otherUserRole
             } : undefined,
             last_message: lastMessagesMap.get(conversation.id),
-            listing: conversation.listing || undefined
+            listing: listingData || undefined
           };
         });
 
@@ -191,12 +193,7 @@ export function useConversations() {
     try {
       const { data, error } = await (supabase as any)
         .from('conversations')
-        .select(`
-          *,
-          client_profile:profiles!conversations_client_id_fkey(id, full_name, avatar_url),
-          owner_profile:profiles!conversations_owner_id_fkey(id, full_name, avatar_url),
-          listing:listings!conversations_listing_id_fkey(id, title, price, images, category, address, city)
-        `)
+        .select('*')
         .eq('id', conversationId)
         .single();
 
@@ -207,20 +204,17 @@ export function useConversations() {
         return null;
       }
 
-      // Get last message for this conversation
-      const { data: messagesData } = await supabase
-        .from('conversation_messages')
-        .select('conversation_id, message_text, created_at, sender_id')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
-      const lastMessage = messagesData?.[0];
-
-      // Transform data - handle both array and object profile responses
+      // Fetch profile, listing, and last message in parallel
+      const otherUserId = data.client_id === user.id ? data.owner_id : data.client_id;
       const isClient = data.client_id === user.id;
-      const rawOtherProfile = isClient ? data.owner_profile : data.client_profile;
-      const otherUserProfile = Array.isArray(rawOtherProfile) ? rawOtherProfile[0] : rawOtherProfile;
+
+      const [profileResult, listingResult, messagesResult] = await Promise.all([
+        otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
+        supabase.from('conversation_messages').select('conversation_id, message_text, created_at, sender_id').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
+      ]);
+
+      const otherUserProfile = (profileResult as any).data;
       const otherUserRole = isClient ? 'owner' : 'client';
 
       return {
@@ -233,13 +227,13 @@ export function useConversations() {
         created_at: data.created_at,
         updated_at: data.updated_at,
         other_user: otherUserProfile ? {
-          id: otherUserProfile.id,
+          id: otherUserId,
           full_name: otherUserProfile.full_name,
           avatar_url: otherUserProfile.avatar_url,
           role: otherUserRole
         } : undefined,
-        last_message: lastMessage,
-        listing: (data.listing && !('error' in data.listing)) ? data.listing : undefined
+        last_message: (messagesResult as any).data?.[0],
+        listing: (listingResult as any).data || undefined
       };
     } catch (error) {
       if (import.meta.env.DEV) {
@@ -394,10 +388,9 @@ export function useStartConversation() {
           await supabase
             .from('matches')
             .insert({
-              client_id: clientId,
+              user_id: clientId,
               owner_id: ownerId,
-              listing_id: listingId,
-              status: 'active'
+              listing_id: listingId || '00000000-0000-0000-0000-000000000000'
             });
         } catch (matchError) {
           // Match creation failed, but conversation was created successfully

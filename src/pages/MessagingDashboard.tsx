@@ -392,7 +392,7 @@ export function MessagingDashboard() {
 
   return (
     <>
-      {/* Activation Banner - shown when trying to message without activations */}
+      {/* Activation Banner */}
       <MessageActivationBanner
         isVisible={showActivationBanner}
         onClose={() => setShowActivationBanner(false)}
@@ -400,156 +400,124 @@ export function MessagingDashboard() {
         variant="conversation-limit"
       />
 
-      <div className="w-full pb-24 bg-[#000000]">
-        <div className="w-full max-w-4xl mx-auto p-3 sm:p-4">
-          {/* Vibrant Header */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate(-1)}
-                  className="text-white hover:bg-white/10 rounded-full"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">Messages</h1>
-              </div>
-              {stats && (
-                <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-[#8B5CF6]/20 to-[#6366F1]/20 border border-[#8B5CF6]/30">
-                  <p className="text-xs font-medium text-[#8B5CF6]">
-                    {stats.conversationsUsed}/{stats.isPremium ? '∞' : 5} this week
-                  </p>
-                </div>
-              )}
-            </div>
-            {stats && (
-              <div className="px-2.5 py-1 rounded-full bg-gradient-to-r from-[#FF6B35]/20 to-[#F7931E]/20 border border-[#FF6B35]/30">
-                <p className="text-[11px] font-medium text-[#FF6B35]">
-                  {stats.conversationsUsed}/{stats.isPremium ? '∞' : 5}
-                </p>
-              </div>
-            )}
+      <div className="w-full pb-24 min-h-screen bg-background">
+        <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
+          {/* Clean Header */}
+          <div className="flex items-center gap-3 mb-6">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="text-foreground hover:bg-muted rounded-full shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Messages</h1>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#8E8E93]" />
+          {/* Search */}
+          <div className="relative mb-5">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search conversations..."
-              className="pl-9 h-10 bg-[#1C1C1E] border-[#38383A] text-white placeholder:text-[#8E8E93] rounded-xl focus:border-[#007AFF] focus:ring-1 focus:ring-[#007AFF]"
+              className="pl-10 h-11 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground rounded-2xl focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-            {/* Conversations List */}
-            <ScrollArea className="h-[calc(100vh-16rem)]">
-              {isLoading ? (
-                <div className="p-12 text-center">
-                  <MessageCircle className="w-10 h-10 mx-auto mb-3 text-[#007AFF] animate-pulse" />
-                  <p className="text-sm text-[#8E8E93]">Loading...</p>
-                </div>
-              ) : filteredConversations.length > 0 ? (
-                filteredConversations.map((conversation) => {
-                  const isOwner = conversation.other_user?.role === 'owner';
-                  const listing = conversation.listing;
+          {/* Conversations */}
+          <div className="space-y-1.5">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-20">
+                <MessageCircle className="w-10 h-10 text-primary animate-pulse mb-3" />
+                <p className="text-sm text-muted-foreground">Loading conversations...</p>
+              </div>
+            ) : filteredConversations.length > 0 ? (
+              filteredConversations.map((conversation) => {
+                const isOwner = conversation.other_user?.role === 'owner';
+                const hasUnread = conversation.last_message?.sender_id !== user?.id && 
+                  conversation.last_message_at && 
+                  new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
 
-                  const getCategoryIcon = (category?: string) => {
-                    switch (category) {
-                      case 'yacht': return <Ship className="w-3 h-3" />;
-                      case 'motorcycle': return <Car className="w-3 h-3" />;
-                      case 'bicycle': return <Bike className="w-3 h-3" />;
-                      case 'vehicle': return <Car className="w-3 h-3" />;
-                      default: return <Home className="w-3 h-3" />;
-                    }
-                  };
-
-                  return (
-                    <div
-                      key={conversation.id}
-                      className="p-3 border-b border-[#38383A] last:border-b-0 cursor-pointer hover:bg-[#2C2C2E]/50 transition-colors active:bg-[#2C2C2E]"
-                      onClick={() => setSelectedConversationId(conversation.id)}
-                    >
-                      <div className="flex items-center gap-3">
-                        {/* Compact Avatar */}
-                        <div className="relative shrink-0">
-                          <Avatar className={`w-14 h-14 ring-2 ring-offset-2 ring-offset-[#1C1C1E] ${
-                            isOwner ? 'ring-[#8B5CF6]' : 'ring-[#007AFF]'
+                return (
+                  <button
+                    key={conversation.id}
+                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
+                    onClick={() => setSelectedConversationId(conversation.id)}
+                  >
+                    {/* Avatar with gradient ring */}
+                    <div className="relative shrink-0">
+                      <div className={`p-[2px] rounded-full ${
+                        isOwner 
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500' 
+                          : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                      }`}>
+                        <Avatar className="w-13 h-13 border-2 border-background">
+                          <AvatarImage src={conversation.other_user?.avatar_url} />
+                          <AvatarFallback className={`text-sm font-semibold text-white ${
+                            isOwner
+                              ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                              : 'bg-gradient-to-br from-blue-500 to-cyan-500'
                           }`}>
-                            <AvatarImage src={conversation.other_user?.avatar_url} />
-                            <AvatarFallback className={`text-base font-semibold text-white ${
-                              isOwner
-                                ? 'bg-gradient-to-br from-[#8B5CF6] to-[#6366F1]'
-                                : 'bg-gradient-to-br from-[#007AFF] to-[#5856D6]'
-                            }`}>
-                              {conversation.other_user?.full_name?.charAt(0) || '?'}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-[#34C759] rounded-full border-2 border-[#1C1C1E]" />
-                        </div>
+                            {conversation.other_user?.full_name?.charAt(0) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      {/* Online dot */}
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
+                    </div>
 
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-baseline justify-between mb-1">
-                            <h3 className="font-semibold text-white truncate text-sm">
-                              {conversation.other_user?.full_name || 'Unknown User'}
-                            </h3>
-                            <span className="text-[11px] text-[#8E8E93] ml-2 shrink-0">
-                              {conversation.last_message_at
-                                ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
-                                : ''
-                              }
-                            </span>
-                          </div>
-                          <p className="text-xs text-[#8E8E93] truncate mb-1.5">
-                            {conversation.last_message?.message_text || 'Start a conversation...'}
-                          </p>
-                          <div className="flex items-center gap-1.5">
-                            <Badge
-                              className={`text-[10px] px-1.5 py-0 h-5 border-0 ${
-                                isOwner
-                                  ? 'bg-[#8B5CF6]/20 text-[#8B5CF6]'
-                                  : 'bg-[#007AFF]/20 text-[#007AFF]'
-                              }`}
-                            >
-                              {isOwner ? 'Provider' : 'Explorer'}
-                            </Badge>
-                            {listing && userRole === 'client' && (
-                              <>
-                                {listing.price && (
-                                  <span className="text-xs font-semibold text-[#34C759]">
-                                    ${listing.price.toLocaleString()}
-                                  </span>
-                                )}
-                                <Badge className="text-[10px] px-1.5 py-0 h-5 border-0 bg-[#34C759]/20 text-[#34C759] flex items-center gap-1">
-                                  {getCategoryIcon(listing.category)}
-                                </Badge>
-                              </>
-                            )}
-                          </div>
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-0.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
+                            {conversation.other_user?.full_name || 'Unknown'}
+                          </span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                            isOwner 
+                              ? 'bg-purple-500/15 text-purple-400' 
+                              : 'bg-blue-500/15 text-blue-400'
+                          }`}>
+                            {isOwner ? 'Provider' : 'Explorer'}
+                          </span>
                         </div>
+                        <span className="text-[11px] text-muted-foreground ml-2 shrink-0">
+                          {conversation.last_message_at
+                            ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
+                            : ''
+                          }
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
+                          {conversation.last_message?.message_text || 'Start a conversation...'}
+                        </p>
+                        {hasUnread && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+                        )}
                       </div>
                     </div>
-                  );
-                })
-              ) : (
-                <div className="p-12 text-center">
-                  <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[#8B5CF6]/20 to-[#6366F1]/20 flex items-center justify-center">
-                    <MessageCircle className="w-10 h-10 text-[#8B5CF6]" />
-                  </div>
-                  <p className="text-white font-medium mb-1">
-                    {searchQuery ? 'No conversations found' : 'No conversations yet'}
-                  </p>
-                  <p className="text-xs text-[#8E8E93]">
-                    {searchQuery ? 'Try a different search' : 'Start matching to chat!'}
-                  </p>
+                  </button>
+                );
+              })
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                  <MessageCircle className="w-10 h-10 text-primary" />
                 </div>
-              )}
-            </ScrollArea>
+                <p className="text-foreground font-medium mb-1">
+                  {searchQuery ? 'No conversations found' : 'No conversations yet'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {searchQuery ? 'Try a different search' : 'Start matching to chat!'}
+                </p>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
       {/* Upgrade Dialog */}
       <MessageActivationPackages

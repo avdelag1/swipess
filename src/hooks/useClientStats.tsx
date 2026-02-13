@@ -36,11 +36,11 @@ export function useClientStats() {
         .eq('target_type', 'profile')
         .eq('direction', 'like');
 
-      // Count mutual matches (using client_id/owner_id columns)
+      // Count mutual matches (using user_id/owner_id columns)
       const { count: matchesCount } = await supabase
         .from('matches')
         .select('*', { count: 'exact', head: true })
-        .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`);
+        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
 
       // Count active conversations
       const { count: activeChats } = await supabase
