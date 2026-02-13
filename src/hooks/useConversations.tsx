@@ -403,6 +403,7 @@ export function useStartConversation() {
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
+          content: initialMessage,
           message_text: initialMessage,
           message_type: 'text'
         })
@@ -491,6 +492,7 @@ export function useSendMessage() {
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
+          content: message,
           message_text: message,
           message_type: 'text'
         })
