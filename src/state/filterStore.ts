@@ -250,6 +250,9 @@ export const useFilterStore = create<FilterState>()(
     resetOwnerFilters: () => {
       logger.info('[FilterStore] resetOwnerFilters');
       set((state) => ({
+        activeCategory: null,
+        categories: [],
+        listingType: 'both',
         clientGender: 'any',
         clientType: 'all',
         filterVersion: state.filterVersion + 1,
