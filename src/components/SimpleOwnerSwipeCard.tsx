@@ -110,8 +110,8 @@ const PlaceholderImage = memo(({ name }: { name?: string | null }) => {
   );
 });
 
-// Image cache to prevent reloading and blinking
-const imageCache = new Map<string, boolean>();
+// Use shared image cache to prevent reloading and blinking
+import { imageCache } from '@/lib/swipe/cardImageCache';
 
 /**
  * FULL-SCREEN CARD IMAGE
@@ -443,15 +443,21 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
     const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
 
+    // Track if onSwipe was called to prevent double-fire
+    let swipeFired = false;
+    const fireSwipe = () => {
+      if (swipeFired) return;
+      swipeFired = true;
+      isExitingRef.current = false;
+      onSwipe(direction);
+    };
+
     // Spring-based exit for button taps (consistent physics)
     animate(x, exitX, {
       type: 'spring',
       stiffness: 500,
       damping: 30,
-      onComplete: () => {
-        isExitingRef.current = false;
-        onSwipe(direction);
-      },
+      onComplete: fireSwipe,
     });
     
     // Slight upward arc for button swipes
@@ -460,6 +466,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       stiffness: 500,
       damping: 30,
     });
+
+    // SAFETY NET: If animation callback doesn't fire within 350ms, force it
+    setTimeout(fireSwipe, 350);
   }, [profile?.user_id, onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref

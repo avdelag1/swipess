@@ -237,13 +237,15 @@ const ClientSwipeContainerComponent = ({
     eagerPreloadInitiatedRef.current = true;
     const currentIdx = currentIndexRef.current;
 
-    // Preload current + next 4 card images (5 total for smooth swiping)
-    // This ensures the next 2 cards are always ready when swiping
+    // Preload ALL images of current + next 4 profiles for smooth swiping
     [0, 1, 2, 3, 4].forEach((offset) => {
       const profile = deckQueueRef.current[currentIdx + offset];
-      const firstImage = profile?.profile_images?.[0] || profile?.avatar_url;
-      if (firstImage) {
-        preloadClientImageToCache(firstImage);
+      if (profile?.profile_images && Array.isArray(profile.profile_images)) {
+        profile.profile_images.forEach((imgUrl: string) => {
+          if (imgUrl) preloadClientImageToCache(imgUrl);
+        });
+      } else if (profile?.avatar_url) {
+        preloadClientImageToCache(profile.avatar_url);
       }
     });
   }
@@ -543,13 +545,15 @@ const ClientSwipeContainerComponent = ({
     // The next card will show with skeleton placeholder until image loads
     executeSwipe(direction);
 
-    // AGGRESSIVE PREFETCH: Immediately preload next 5 cards to maintain buffer
-    // Always keep 2-3 cards ready behind the visible next card
-    [1, 2, 3, 4, 5].forEach((offset) => {
+    // AGGRESSIVE PREFETCH: Preload ALL images of next 3 profiles to prevent blink
+    [1, 2, 3].forEach((offset) => {
       const futureProfile = deckQueueRef.current[currentIndexRef.current + offset];
-      const futureImage = futureProfile?.profile_images?.[0] || futureProfile?.avatar_url;
-      if (futureImage) {
-        preloadClientImageToCache(futureImage);
+      if (futureProfile?.profile_images && Array.isArray(futureProfile.profile_images)) {
+        futureProfile.profile_images.forEach((imgUrl: string) => {
+          if (imgUrl) preloadClientImageToCache(imgUrl);
+        });
+      } else if (futureProfile?.avatar_url) {
+        preloadClientImageToCache(futureProfile.avatar_url);
       }
     });
   }, [executeSwipe, playSwipeSound]);

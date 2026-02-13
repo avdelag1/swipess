@@ -284,15 +284,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
     const exitX = direction === 'right' ? getExitDistance() : -getExitDistance();
 
+    // Track if onSwipe was called to prevent double-fire
+    let swipeFired = false;
+    const fireSwipe = () => {
+      if (swipeFired) return;
+      swipeFired = true;
+      isExitingRef.current = false;
+      onSwipe(direction);
+    };
+
     // Spring-based exit for button taps (consistent physics)
     animate(x, exitX, {
       type: 'spring',
       stiffness: 500,
       damping: 30,
-      onComplete: () => {
-        isExitingRef.current = false;
-        onSwipe(direction);
-      },
+      onComplete: fireSwipe,
     });
     
     // Slight upward arc for button swipes
@@ -301,6 +307,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       stiffness: 500,
       damping: 30,
     });
+
+    // SAFETY NET: If animation callback doesn't fire within 350ms, force it
+    setTimeout(fireSwipe, 350);
   }, [listing.id, onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref

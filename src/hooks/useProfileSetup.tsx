@@ -202,9 +202,7 @@ export function useProfileSetup() {
           .from('profiles')
           .upsert([{
             ...profileData,
-            role: role,  // ✅ CRITICAL FIX: Set role in profiles table!
-            is_active: true,
-            onboarding_completed: true, // ✅ Set onboarding complete so user appears in swipe deck
+            onboarding_completed: true, // Set onboarding complete so user appears in swipe deck
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           }], {
