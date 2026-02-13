@@ -102,6 +102,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     if (Array.isArray(listing.images) && listing.images.length > 0) {
@@ -153,6 +154,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     scale: 2.8, // Edge-to-edge zoom level
     holdDelay: 350, // Fast activation
     enabled: isTop,
+    onActiveChange: setMagnifierActive,
   });
 
   // Fetch rating aggregate for this listing
@@ -346,7 +348,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     <div className="absolute inset-0 flex flex-col">
       {/* Draggable Card - FREE XY MOVEMENT (Tinder-style diagonal) */}
       <motion.div
-        drag={!isMagnifierActive()}
+        drag={!magnifierActive}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.9}
         dragMomentum={false}

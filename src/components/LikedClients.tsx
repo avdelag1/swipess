@@ -162,7 +162,7 @@ export function LikedClients() {
       const { data: allProfiles, error: allProfilesError } = await supabase
         .from('profiles')
         .select('*')
-        .in('id', targetIds);
+        .in('user_id', targetIds);
 
       if (allProfilesError) {
         logger.error('[LikedClients] Error fetching profiles:', allProfilesError);
@@ -182,10 +182,10 @@ export function LikedClients() {
 
       // Return the client profiles with like data
       const likedClientsList = profiles.map(profile => {
-        const like = ownerLikes.find((l: any) => l.client_id === profile.id);
+        const like = ownerLikes.find((l: any) => l.target_id === profile.user_id);
         return {
-          id: profile.id,
-          user_id: profile.id,
+          id: profile.user_id,
+          user_id: profile.user_id,
           full_name: profile.full_name || 'Unknown',
           name: profile.full_name || 'Unknown',
           age: profile.age || 0,
