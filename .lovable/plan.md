@@ -1,59 +1,63 @@
 
 
-## Plan: Make Swipe Like/Dislike Truly Persistent Across Sessions
+## Live Sunset-Night-Sunrise Cycle Background
 
-### Problem
-When you swipe right (like) or left (dislike) on a listing or client, the action saves to the database but the cards can reappear when you:
-- Refresh the page
-- Switch between client/owner dashboards
-- Navigate away and come back
+Replace the empty `StarFieldBackground` component with a full cinematic day/night cycle that plays continuously on the landing page. The effect will be entirely CSS-driven (no canvas, no heavy libraries) for smooth 60fps performance.
 
-This happens because the app aggressively caches the card deck locally (in memory and session storage) and restores stale decks that still contain already-swiped cards.
-
-### Solution
-Three targeted fixes to ensure swiped cards never come back:
-
-### 1. Force Fresh Data on Dashboard Entry
-**Files:** `src/components/TinderentSwipeContainer.tsx`, `src/components/ClientSwipeContainer.tsx`
-
-- When the swipe container mounts, immediately invalidate the `smart-listings` / `smart-clients` query cache so it re-fetches from the database (which already excludes swiped IDs at the SQL level)
-- Change `refetchOnMount: false` to `refetchOnMount: 'always'` in `useSmartMatching` so the query always re-checks the database when the dashboard loads
-
-### 2. Filter Restored Decks Against Database Swipes
-**Files:** `src/components/TinderentSwipeContainer.tsx`, `src/components/ClientSwipeContainer.tsx`
-
-- When restoring a deck from session storage or Zustand store, cross-check restored cards against the `swipedIds` set from the store
-- Any card whose ID is already in `swipedIds` gets filtered out before display
-- This prevents the brief flash of already-swiped cards while the fresh DB query loads
-
-### 3. Reduce Stale Time for Smart Matching Queries
-**File:** `src/hooks/useSmartMatching.tsx`
-
-- Reduce `staleTime` from 10 minutes to 2 minutes for both `useSmartListingMatching` and `useSmartClientMatching`
-- Change `refetchOnMount` from `false` to `'always'` so re-entering the dashboard always gets fresh exclusion data from the database
-- Keep `refetchOnWindowFocus: false` and `refetchOnReconnect: false` to avoid unnecessary refetches during active swiping
-
-### 4. Ensure Query Invalidation After Swipes
-**File:** `src/hooks/useSwipe.tsx`
-
-- After a successful swipe, also invalidate `smart-clients` query key (currently only invalidates `smart-listings`)
-- This ensures both client-side and owner-side decks respect new swipes immediately
-
-### Technical Details
+### Visual Cycle (120 seconds total loop)
 
 ```text
-Current Flow (broken):
-  User swipes -> saves to DB -> cache still has old deck -> old cards reappear
+Phase 1: SUNSET (0-30s)
+  - Sky gradient shifts from warm orange/pink to deep purple/red
+  - Sun (circle element) slowly descends from mid-screen toward the horizon
+  - Ocean reflects warm sunset colors with gentle wave shimmer
+  - Clouds tinted in golden/pink hues
 
-Fixed Flow:
-  User swipes -> saves to DB -> invalidates query cache
-  Dashboard mount -> refetch from DB -> DB excludes swiped IDs -> only new cards shown
-  Session restore -> filter against swipedIds set -> no stale cards
+Phase 2: NIGHT (30-70s)
+  - Sky transitions to deep dark blue/black
+  - Sun disappears below horizon
+  - Stars fade in (scattered dot elements with twinkle animation)
+  - Moon appears with soft glow
+  - Ocean darkens, reflects moonlight with subtle silver shimmer
+
+Phase 3: SUNRISE (70-100s)
+  - Sky lightens from dark to soft pink/coral/gold
+  - Stars fade out
+  - Sun rises from the horizon, glowing warmly
+  - Ocean reflects sunrise colors
+  - Fresh morning light wash
+
+Phase 4: TRANSITION BACK (100-120s)
+  - Smoothly blend back to sunset position to restart the loop seamlessly
 ```
 
+### Architecture
+
+Only **one file** needs to be created/modified:
+
+1. **`src/components/StarFieldBackground.tsx`** - Replace the empty component with the full scene. This component is already imported and rendered in `LegendaryLandingPage.tsx`, so no other files need changes.
+
+### Technical Approach
+
+- **Sun/Moon**: Absolutely positioned `div` elements with `border-radius: 50%` and radial gradients, animated along a vertical path using CSS `@keyframes`
+- **Sky**: Multiple layered gradient backgrounds that shift colors through the cycle using a single long CSS animation
+- **Ocean**: Bottom 30% of the screen with a separate gradient that mirrors the sky colors, plus a subtle wave effect using an SVG wave path with CSS animation
+- **Stars**: 40-50 small absolutely positioned dots that fade in/out with random twinkle delays, only visible during the night phase
+- **Waves**: 2-3 SVG wave shapes at the bottom with gentle horizontal translate animation for realistic water movement
+- **All animations**: Pure CSS `@keyframes` with `will-change: transform, opacity` for GPU acceleration
+- **Reduced motion**: Falls back to a static sunset scene
+- **z-index**: Stays at z-index 0-5, below the main content at z-index 20
+
+### Performance
+
+- Zero JavaScript animation loops (all CSS)
+- No canvas or WebGL
+- GPU-accelerated transforms only
+- Respects `prefers-reduced-motion`
+- Disabled on devices with fewer than 4 CPU cores
+- Non-interactive (`pointer-events: none`)
+
 ### Files to Modify
-1. `src/hooks/useSmartMatching.tsx` - Reduce staleTime, enable refetchOnMount
-2. `src/hooks/useSwipe.tsx` - Add smart-clients invalidation
-3. `src/components/TinderentSwipeContainer.tsx` - Filter restored deck against swipedIds
-4. `src/components/ClientSwipeContainer.tsx` - Filter restored deck against swipedIds
+
+1. `src/components/StarFieldBackground.tsx` - Complete rewrite with the sunset/night/sunrise cycle scene
 
