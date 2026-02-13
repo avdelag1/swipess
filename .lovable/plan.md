@@ -1,52 +1,59 @@
 
 
-## Fix Quick Filter to Show Listing Categories (Both Sides)
+## Plan: Make Swipe Like/Dislike Truly Persistent Across Sessions
 
-### What's Wrong Now
+### Problem
+When you swipe right (like) or left (dislike) on a listing or client, the action saves to the database but the cards can reappear when you:
+- Refresh the page
+- Switch between client/owner dashboards
+- Navigate away and come back
 
-The **owner-side quick filter** dropdown currently shows "Gender" and "Looking For" (Hiring/Renting/Buying) options. The user wants it to show **listing categories** instead (Property, Motos, Bikes, Workers) -- the same categories as the client side. When you select a category, the dashboard should refresh to show only clients interested in that category, and the top bar title should update to reflect the active filter.
+This happens because the app aggressively caches the card deck locally (in memory and session storage) and restores stale decks that still contain already-swiped cards.
 
-The **client side** already works correctly with category-based quick filters.
+### Solution
+Three targeted fixes to ensure swiped cards never come back:
 
-### What Will Change
+### 1. Force Fresh Data on Dashboard Entry
+**Files:** `src/components/TinderentSwipeContainer.tsx`, `src/components/ClientSwipeContainer.tsx`
 
-1. **Owner Quick Filter Dropdown** (`QuickFilterDropdown.tsx`) -- Replace the Gender + Client Type sections with the same category selection UI used for clients (Property, Motorcycle, Bicycle, Workers). Remove gender/clientType filter options from the owner dropdown.
+- When the swipe container mounts, immediately invalidate the `smart-listings` / `smart-clients` query cache so it re-fetches from the database (which already excludes swiped IDs at the SQL level)
+- Change `refetchOnMount: false` to `refetchOnMount: 'always'` in `useSmartMatching` so the query always re-checks the database when the dashboard loads
 
-2. **Owner Quick Filter Bar** (`QuickFilterBar.tsx`) -- Same change: replace Gender + Client Type chips with category chips matching the client side.
+### 2. Filter Restored Decks Against Database Swipes
+**Files:** `src/components/TinderentSwipeContainer.tsx`, `src/components/ClientSwipeContainer.tsx`
 
-3. **Top Bar Title** (`DashboardLayout.tsx`) -- Update the owner dashboard title logic to use `activeCategory` (same as client side) instead of `clientType`. When a category is selected, it shows "Properties", "Motorcycles", etc. When no filter is active, it shows "Your Matches".
+- When restoring a deck from session storage or Zustand store, cross-check restored cards against the `swipedIds` set from the store
+- Any card whose ID is already in `swipedIds` gets filtered out before display
+- This prevents the brief flash of already-swiped cards while the fresh DB query loads
 
-4. **Dashboard Refresh** -- The `ClientSwipeContainer` already watches for filter changes and resets the deck. When the quick filter updates `activeCategory` in the Zustand store, the container will detect the change and refetch client profiles filtered by that category. The `useSmartClientMatching` hook already accepts a `category` parameter -- we just need to wire the store's `activeCategory` into it.
+### 3. Reduce Stale Time for Smart Matching Queries
+**File:** `src/hooks/useSmartMatching.tsx`
+
+- Reduce `staleTime` from 10 minutes to 2 minutes for both `useSmartListingMatching` and `useSmartClientMatching`
+- Change `refetchOnMount` from `false` to `'always'` so re-entering the dashboard always gets fresh exclusion data from the database
+- Keep `refetchOnWindowFocus: false` and `refetchOnReconnect: false` to avoid unnecessary refetches during active swiping
+
+### 4. Ensure Query Invalidation After Swipes
+**File:** `src/hooks/useSwipe.tsx`
+
+- After a successful swipe, also invalidate `smart-clients` query key (currently only invalidates `smart-listings`)
+- This ensures both client-side and owner-side decks respect new swipes immediately
 
 ### Technical Details
 
-**File: `src/components/QuickFilterDropdown.tsx`**
-- In `renderOwnerFilters()`: Replace the Gender and Client Type sections with the same category list used in `renderClientFilters()`. When the user selects a category (Property, Moto, Bicycle, Workers), it calls `setCategories([categoryId])` and `setActiveCategory(categoryId)` on the store.
-- The listing type sub-options (Rent/Buy/Both) remain available per category, same as client side.
+```text
+Current Flow (broken):
+  User swipes -> saves to DB -> cache still has old deck -> old cards reappear
 
-**File: `src/components/QuickFilterBar.tsx`**
-- In the owner section (lines 218-265): Replace Gender + Client Type dropdowns with category chip buttons matching the client layout.
+Fixed Flow:
+  User swipes -> saves to DB -> invalidates query cache
+  Dashboard mount -> refetch from DB -> DB excludes swiped IDs -> only new cards shown
+  Session restore -> filter against swipedIds set -> no stale cards
+```
 
-**File: `src/components/DashboardLayout.tsx`**
-- Update owner dashboard title (around line 512-520): Use `activeCategory` to determine the title instead of `clientType`. Map categories to labels: property -> "Properties", motorcycle -> "Motorcycles", bicycle -> "Bicycles", services -> "Workers". Default to "Your Matches" when no category is active.
+### Files to Modify
+1. `src/hooks/useSmartMatching.tsx` - Reduce staleTime, enable refetchOnMount
+2. `src/hooks/useSwipe.tsx` - Add smart-clients invalidation
+3. `src/components/TinderentSwipeContainer.tsx` - Filter restored deck against swipedIds
+4. `src/components/ClientSwipeContainer.tsx` - Filter restored deck against swipedIds
 
-**File: `src/pages/OwnerDashboardNew.tsx`**
-- Pass the store's `activeCategory` as the `category` prop to `ClientSwipeContainer` so the swipe deck refreshes when the filter changes.
-
-**File: `src/components/ClientSwipeContainer.tsx`**
-- Ensure the `category` prop is wired into `useSmartClientMatching` so that switching categories triggers a data refetch with the correct filter.
-
-### Flow
-
-When an owner taps "Quick Filter" and selects "Motos":
-1. Store updates: `activeCategory = 'motorcycle'`, `categories = ['motorcycle']`
-2. Top bar title changes from "Your Matches" to "Motorcycles"
-3. `ClientSwipeContainer` detects filter change, resets deck
-4. `useSmartClientMatching` refetches with `category='moto'`
-5. New client profiles (moto seekers) appear in the swipe deck
-
-### Files Modified
-1. `src/components/QuickFilterDropdown.tsx` -- Owner filter uses categories instead of gender/clientType
-2. `src/components/QuickFilterBar.tsx` -- Owner bar uses category chips
-3. `src/components/DashboardLayout.tsx` -- Owner title uses activeCategory
-4. `src/pages/OwnerDashboardNew.tsx` -- Pass activeCategory to ClientSwipeContainer
