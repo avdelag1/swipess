@@ -1,130 +1,70 @@
 
 
-# Ultra Polish Mode: Premium UI Refinement + Bug Fixes
+# Fix Swipe Cards: Buttons, Blinking, Preloading, and Mock Data
 
-This plan takes a phased, incremental approach. Phase 1 (this implementation) focuses on the highest-impact changes that will immediately make the app feel premium without breaking the existing architecture.
+## Problems Identified
 
-## What stays the same
-- Core layout and navigation structure
-- Swipe card mechanics
-- All existing features and routes
-- The dark theme identity
+1. **Profile creation fails** -- The `profiles` table is missing `is_active` and `role` columns, causing PGRST204 errors on every sign-in attempt. This breaks profile setup for new and returning users.
 
-## What changes
+2. **All listing images are empty** -- Every listing in the database has `images: []`. The swipe cards show placeholder images instead of real photos, making it impossible to test the carousel.
 
-### 1. Fix the reviews table (stops the constant errors)
+3. **No motorcycle/bicycle/worker listings** -- Only 18 property listings and 1 bicycle listing exist. There is nothing to show when users filter by Motorcycle or Workers.
 
-The `reviews` table was created with only basic columns but the code queries for many more. A migration will add all the missing columns:
+4. **Only 1 client profile** -- The owner swipe deck has only 1 client profile (Alejandro), making it impossible to test owner-side like/dislike flow properly.
 
-- `review_title` (text)
-- `review_type` (text, default 'property')
-- `cleanliness_rating`, `communication_rating`, `accuracy_rating`, `location_rating`, `value_rating` (integer, 1-5)
-- `response_text` (text)
-- `responded_at` (timestamptz)
-- `is_verified_stay` (boolean, default false)
-- `is_flagged` (boolean, default false)
-- `helpful_count` (integer, default 0)
+5. **Black screen blink between swipes** -- When the top card exits, the next card briefly shows a black/empty frame before the image loads. The preloading works for the first image only but does not preload ALL images of the next 2 cards aggressively enough.
 
-This stops the repeating "column reviews.is_flagged does not exist" errors on every swipe card.
+6. **Owner card button-triggered swipes may not fire `onSwipe`** -- The `SimpleOwnerSwipeCard` calls `handleButtonSwipe` which animates x/y exit, but the `onComplete` callback may not fire reliably if the component unmounts during animation.
 
-### 2. Unified Design Token System
+## Plan
 
-Create a new file `src/styles/tokens.css` with centralized CSS custom properties:
+### Step 1: Database Migration -- Add missing columns + seed data
 
-- **Radius tokens**: `--radius-sm: 8px`, `--radius-md: 14px`, `--radius-lg: 20px`, `--radius-xl: 28px`
-- **Elevation tokens**: 4 levels of shadow depth (surface, elevated, floating, modal)
-- **Motion tokens**: `--ease-spring`, `--ease-smooth`, `--duration-fast: 150ms`, `--duration-normal: 250ms`, `--duration-slow: 400ms`
-- **Glass surface tokens**: `--glass-bg`, `--glass-border`, `--glass-blur`
+Add the missing `is_active` (boolean, default true) and `role` (text, nullable) columns to the `profiles` table so `useProfileSetup` stops crashing.
 
-These tokens get imported into `index.css` and used by all components going forward.
+Insert mock listings with real sample image URLs:
+- 5 motorcycle listings (sale + rent) with 3-4 images each
+- 3 bicycle listings with 2-3 images each
+- 3 worker/service listings with 2 images each
+- Update existing property listings to have 3-4 sample images each
 
-### 3. Premium Glass Surface Component
+Insert 4-5 additional mock client profiles with multiple profile images for owner-side swiping.
 
-Create `src/components/ui/glass-surface.tsx` - a reusable wrapper that gives any panel/section a premium frosted glass look:
+### Step 2: Fix the black blink between swipes
 
-- Subtle translucent background with backdrop blur (desktop only for performance)
-- Multi-layer depth shadow
-- Soft internal highlight border
-- Configurable elevation level (surface / elevated / floating / modal)
+The root cause: when `currentIndex` advances, the next card's `CardImage` component starts with `loaded = false` and shows a skeleton, even if the image was already preloaded into the browser cache.
 
-This replaces the basic Card usage in Settings, Filters, and Profile pages.
+**Fix in `SimpleSwipeCard.tsx` and `SimpleOwnerSwipeCard.tsx`:**
+- Check the shared `imageCache` Map on mount. If the image URL is already cached, initialize `loaded = true` so no skeleton/transition is shown.
+- Already partially implemented but the owner card uses its own local `imageCache` instead of the shared one. Unify both to use `@/lib/swipe/cardImageCache`.
 
-### 4. Motion System Upgrade
+**Fix in `TinderentSwipeContainer.tsx`:**
+- After every swipe, preload ALL images (not just `[0]`) of the next 3 cards into the shared cache.
+- Use `requestIdleCallback` for cards 2-3 to avoid blocking.
 
-Update `src/components/PageTransition.tsx`:
-- Replace the current 0.08s duration with spring physics (stiffness: 380, damping: 30)
-- Add `prefers-reduced-motion` respect
-- Add a new `glass` variant for settings/filter pages
+**Fix in `ClientSwipeContainer.tsx`:**
+- Same: preload ALL images of next 3 profiles after each swipe.
 
-Update the stagger system:
-- Faster stagger delay (0.04s instead of 0.06s)
-- Add subtle scale on entry (0.98 to 1 instead of 0.97 to 1)
-- Add spring physics to each item
+### Step 3: Fix owner card like/dislike button reliability
 
-### 5. Settings Page Refinement
+In `SimpleOwnerSwipeCard.tsx`, the `handleButtonSwipe` fires `onSwipe(direction)` inside `animate().onComplete`. If the parent unmounts or re-renders the card before animation completes, the callback is lost.
 
-Both `ClientSettingsNew.tsx` and `OwnerSettingsNew.tsx`:
-- Wrap the settings menu items in the new GlassSurface component
-- Add smooth icon hover micro-animations (subtle translate + color shift)
-- Add pressed state feedback on each row
-- Clean spacing using token system
-- Remove redundant "Back" button (PageHeader already has one)
+**Fix:** Add a safety timeout (same pattern as `TinderentSwipeContainer`). After calling `animate()`, set a 350ms timeout that calls `onSwipe` if it hasn't been called yet. This ensures the swipe always fires.
 
-### 6. Filter Pages Refinement
+### Step 4: Fix undo/return button on both sides
 
-Both `ClientFilters.tsx` and `OwnerFilters.tsx`:
-- Replace Cards with GlassSurface for filter sections
-- Add spring-based toggle animations for filter selections
-- Smoother category pill transitions
-- Consistent radius and spacing from token system
-
-### 7. Button and Interactive Element Polish
-
-Update `src/components/ui/button.tsx`:
-- Add subtle elevation change on hover (shadow lifts)
-- Refine the ripple effect timing (300ms instead of 400ms)
-- Add a glass variant for overlay buttons
-
-Update `src/components/ui/card.tsx`:
-- Remove the aggressive `hover:-translate-y-1` (too much movement for settings cards)
-- Use token-based radius and shadow
-- Add a `variant` prop: default (no hover lift) and interactive (with hover lift)
-
-### 8. Consistent Active States
-
-In `src/index.css`:
-- Refine the global `button:active` scale from 0.97 to 0.96 with a spring-like cubic-bezier
-- Add subtle opacity change on press (0.95)
-- Remove the `!important` on mobile transition-duration override (causes janky animations)
-
-### 9. MiniMax AI Integration Prep
-
-The user mentioned having a MiniMax API key for AI features. This phase will:
-- Create a placeholder AI chat component structure at `src/components/ai/AIChatAssistant.tsx`
-- The user will need to provide the MiniMax API key via the secrets manager
-- Full implementation will follow in a subsequent phase once the key is configured
+The undo button is already wired (`onUndo={undoLastSwipe}`, `canUndo={canUndo}`). Verify it works by ensuring the `useSwipeUndo` hook properly restores the previous card index in both containers. No code change expected here -- the undo logic is already implemented. The button appears disabled when `canUndo = false` (first card).
 
 ## Technical Details
 
-### Files to create:
-- `src/styles/tokens.css` - Design token system
-- `src/components/ui/glass-surface.tsx` - Premium glass surface component
+### Files to create/modify:
+- **New migration SQL** -- Add `is_active` and `role` to `profiles`, insert mock data with images
+- **`src/components/SimpleOwnerSwipeCard.tsx`** -- Import shared `imageCache` from `@/lib/swipe/cardImageCache`, add safety timeout to `handleButtonSwipe`
+- **`src/components/SimpleSwipeCard.tsx`** -- Ensure `CardImage` checks shared cache on init (already does this)
+- **`src/components/TinderentSwipeContainer.tsx`** -- Preload ALL images of next 3 cards (not just first image)
+- **`src/components/ClientSwipeContainer.tsx`** -- Preload ALL profile images of next 3 profiles
+- **`src/hooks/useProfileSetup.tsx`** -- Remove `role` from the upsert payload (not a column), keep `is_active`
 
-### Files to modify:
-- New migration SQL - Add missing columns to reviews table
-- `src/index.css` - Import tokens, refine active states, remove mobile transition override
-- `src/components/ui/button.tsx` - Hover elevation, faster ripple
-- `src/components/ui/card.tsx` - Remove aggressive hover, add variant prop
-- `src/components/PageTransition.tsx` - Spring physics, reduced-motion respect
-- `src/pages/ClientSettingsNew.tsx` - Glass surface, micro-interactions
-- `src/pages/OwnerSettingsNew.tsx` - Glass surface, micro-interactions
-- `src/pages/ClientFilters.tsx` - Glass surface, spring toggles
-- `src/pages/OwnerFilters.tsx` - Glass surface, spring toggles
-
-### Performance rules followed:
-- Only `transform` and `opacity` for animations
-- Backdrop blur disabled on mobile (already in place)
-- `will-change` used sparingly
-- `prefers-reduced-motion` respected
-- No layout thrashing (no width/height animations)
+### Mock image sources:
+Use royalty-free Unsplash/Picsum URLs for mock data images (e.g., `https://images.unsplash.com/photo-...?w=800&h=1200&fit=crop`). These load fast and look realistic for testing the carousel.
 
