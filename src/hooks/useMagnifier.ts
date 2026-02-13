@@ -17,6 +17,8 @@ interface MagnifierConfig {
   holdDelay?: number;
   /** Whether enabled. Default: true */
   enabled?: boolean;
+  /** Callback when magnifier activates/deactivates (for re-render triggers) */
+  onActiveChange?: (active: boolean) => void;
 }
 
 interface MagnifierState {
@@ -43,6 +45,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     scale = 2.8,
     holdDelay = 300,
     enabled = true,
+    onActiveChange,
   } = config;
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -106,6 +109,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const activateMagnifier = useCallback((x: number, y: number, target: Element | null) => {
     magnifierState.current = { isActive: true, x, y };
     triggerHaptic('light');
+    onActiveChange?.(true);
     findImage();
 
     // Capture pointer so we keep getting events even if finger leaves the element
@@ -130,7 +134,9 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
 
   const deactivateMagnifier = useCallback(() => {
     if (!magnifierState.current.isActive && !holdTimerRef.current) return;
+    const wasActive = magnifierState.current.isActive;
     magnifierState.current = { isActive: false, x: 0, y: 0 };
+    if (wasActive) onActiveChange?.(false);
 
     if (holdTimerRef.current) {
       clearTimeout(holdTimerRef.current);

@@ -261,6 +261,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     // FIX: Add null check for profile
@@ -333,6 +334,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     scale: 2.8,
     holdDelay: 350,
     enabled: isTop,
+    onActiveChange: setMagnifierActive,
   });
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -510,7 +512,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     <div className="absolute inset-0 flex flex-col">
       {/* Draggable Card - FREE XY MOVEMENT (Tinder-style diagonal) */}
       <motion.div
-        drag={!isMagnifierActive()}
+        drag={!magnifierActive}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.9}
         dragMomentum={false}
