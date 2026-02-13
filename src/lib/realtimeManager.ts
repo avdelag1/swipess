@@ -170,7 +170,7 @@ class RealtimeSubscriptionManager {
           filter = `target_id=eq.${this.userId}`;
           break;
         case 'matches':
-          filter = `or(client_id.eq.${this.userId},owner_id.eq.${this.userId})`;
+          filter = `or(user_id.eq.${this.userId},owner_id.eq.${this.userId})`;
           break;
         // conversation_messages and likes don't have direct user filter
         // They filter in the listener based on conversation membership

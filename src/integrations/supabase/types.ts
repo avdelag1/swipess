@@ -153,6 +153,8 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          is_read: boolean | null
+          message_text: string | null
           message_type: string | null
           read_at: string | null
           sender_id: string
@@ -163,6 +165,8 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          is_read?: boolean | null
+          message_text?: string | null
           message_type?: string | null
           read_at?: string | null
           sender_id: string
@@ -173,6 +177,8 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          is_read?: boolean | null
+          message_text?: string | null
           message_type?: string | null
           read_at?: string | null
           sender_id?: string
@@ -189,28 +195,53 @@ export type Database = {
       }
       conversations: {
         Row: {
+          client_id: string | null
           created_at: string
+          free_messaging: boolean | null
           id: string
-          match_id: string
+          last_message_at: string | null
+          listing_id: string | null
+          match_id: string | null
+          owner_id: string | null
+          status: string | null
           updated_at: string
         }
         Insert: {
+          client_id?: string | null
           created_at?: string
+          free_messaging?: boolean | null
           id?: string
-          match_id: string
+          last_message_at?: string | null
+          listing_id?: string | null
+          match_id?: string | null
+          owner_id?: string | null
+          status?: string | null
           updated_at?: string
         }
         Update: {
+          client_id?: string | null
           created_at?: string
+          free_messaging?: boolean | null
           id?: string
-          match_id?: string
+          last_message_at?: string | null
+          listing_id?: string | null
+          match_id?: string | null
+          owner_id?: string | null
+          status?: string | null
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "conversations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_match_id_fkey"
             columns: ["match_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "matches"
             referencedColumns: ["id"]
           },

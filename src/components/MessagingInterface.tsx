@@ -247,14 +247,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
   if (isLoading) {
     return (
-      <Card className="flex-1 flex items-center justify-center border-0 shadow-none bg-[#1C1C1E]">
+      <Card className="flex-1 flex items-center justify-center border-0 shadow-none bg-background">
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-3">
-            <span className="w-2 h-2 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-[#8E8E93] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
           </div>
-          <p className="text-[#8E8E93] text-sm">Loading conversation...</p>
+          <p className="text-muted-foreground text-sm">Loading conversation...</p>
         </div>
       </Card>
     );
@@ -270,131 +270,78 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         variant="activation-required"
       />
 
-      <Card className="flex-1 flex flex-col h-[calc(100vh-6rem)] overflow-hidden border-0 shadow-none bg-[#1C1C1E]">
-        {/* iOS-style Header - Compact */}
-        <div className="border-b border-[#38383A] shrink-0 bg-[#1C1C1E]/95 backdrop-blur-xl">
-        {/* Main Header Row */}
-        <div className="flex items-center gap-2 px-3 py-1.5">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onBack}
-            className="shrink-0 text-[#007AFF] hover:bg-transparent hover:text-[#0056CC] px-1 -ml-1"
-          >
-            <ChevronLeft className="w-6 h-6" />
-            <span className="text-[17px] font-normal hidden sm:inline">Back</span>
-          </Button>
-
-          {/* Clickable Center Section */}
-          <button
-            onClick={() => setShowPreviewSheet(true)}
-            className="flex-1 flex items-center justify-center gap-2 min-w-0 py-0.5 hover:bg-[#2C2C2E]/50 rounded-xl transition-colors active:scale-[0.98]"
-          >
-            <div className="relative shrink-0">
-              <Avatar className="w-9 h-9">
-                <AvatarImage src={otherUser.avatar_url} />
-                <AvatarFallback className={`font-semibold text-white ${
-                  otherUser.role === 'owner'
-                    ? 'bg-gradient-to-br from-[#8B5CF6] to-[#6366F1]'
-                    : 'bg-gradient-to-br from-[#007AFF] to-[#5856D6]'
-                }`}>
-                  {otherUser.full_name?.charAt(0) || '?'}
-                </AvatarFallback>
-              </Avatar>
-              {/* Online indicator */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#34C759] rounded-full border-2 border-[#1C1C1E]" />
-            </div>
-            <div className="flex flex-col items-start min-w-0">
-              <div className="flex items-center gap-1.5">
-                <h3 className="font-semibold text-[14px] text-white truncate max-w-[120px] sm:max-w-[180px]">
-                  {otherUser.full_name}
-                </h3>
-                <Badge
-                  variant="secondary"
-                  className={`text-[9px] px-1.5 py-0 h-3.5 border-0 ${
-                    otherUser.role === 'owner'
-                      ? 'bg-[#8B5CF6]/20 text-[#8B5CF6]'
-                      : 'bg-[#007AFF]/20 text-[#007AFF]'
-                  }`}
-                >
-                  {otherUser.role === 'client' ? 'Explorer' : 'Provider'}
-                </Badge>
-              </div>
-              <span className="text-[9px] text-[#34C759] font-medium flex items-center gap-1">
-                <span className="w-1 h-1 bg-[#34C759] rounded-full"></span>
-                Online
-              </span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-[#48484A] shrink-0" />
-          </button>
-
-          {/* Quick Action Buttons */}
-          <div className="flex gap-1 shrink-0">
+      <Card className="flex-1 flex flex-col h-[calc(100vh-6rem)] overflow-hidden border-0 shadow-none bg-background">
+        {/* Clean Header */}
+        <div className="border-b border-border/50 shrink-0 bg-background/95 backdrop-blur-xl">
+          <div className="flex items-center gap-2 px-3 py-2.5">
             <Button
               variant="ghost"
-              size="icon"
-              onClick={() => setShowRatingDialog(true)}
-              className="w-9 h-9 rounded-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-[#FFD60A]"
-              title="Rate user"
+              size="sm"
+              onClick={onBack}
+              className="shrink-0 text-primary hover:bg-transparent px-1 -ml-1"
             >
-              <Star className="w-4 h-4" />
+              <ChevronLeft className="w-6 h-6" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowPreviewSheet(true)}
-              className="w-9 h-9 rounded-full bg-[#2C2C2E] hover:bg-[#3A3A3C] text-[#8E8E93]"
-            >
-              <Info className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
 
-        {/* Match Context + Listing Info Bar - Compact */}
-        <div className="w-full bg-[#2C2C2E]/50 border-b border-[#38383A]">
-          {/* Match Context */}
-          <div className="px-3 py-1 flex items-center gap-1.5">
-            <Heart className="w-3 h-3 text-[#FF453A]" />
-            <p className="text-[9px] text-[#8E8E93]">
-              {listing
-                ? `Matched on "${listing.title.substring(0, 25)}${listing.title.length > 25 ? '...' : ''}"`
-                : 'Mutual match'
-              }
-            </p>
-            <div className="ml-auto flex items-center gap-1">
-              <Star className="w-3 h-3 text-[#FFD60A] fill-[#FFD60A]" />
-              <span className="text-[9px] text-white font-medium">4.8</span>
-            </div>
-          </div>
-
-          {/* Listing Quick Info (if available) */}
-          {listing && currentUserRole === 'client' && (
+            {/* Center: Avatar + Name */}
             <button
               onClick={() => setShowPreviewSheet(true)}
-              className="w-full px-3 py-1 flex items-center gap-2 hover:bg-[#2C2C2E] transition-colors"
+              className="flex-1 flex items-center gap-2.5 min-w-0 py-0.5 rounded-xl transition-colors active:scale-[0.98]"
             >
-              <div className="w-5 h-5 rounded bg-[#8B5CF6]/20 flex items-center justify-center shrink-0">
-                <Home className="w-2.5 h-2.5 text-[#8B5CF6]" />
+              <div className="relative shrink-0">
+                <div className={`p-[1.5px] rounded-full ${
+                  otherUser.role === 'owner'
+                    ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                    : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                }`}>
+                  <Avatar className="w-9 h-9 border-[1.5px] border-background">
+                    <AvatarImage src={otherUser.avatar_url} />
+                    <AvatarFallback className={`font-semibold text-white text-xs ${
+                      otherUser.role === 'owner'
+                        ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                        : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                    }`}>
+                      {otherUser.full_name?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background" />
               </div>
-              <div className="flex-1 text-left min-w-0">
-                <p className="text-[10px] text-white truncate">{listing.title}</p>
+              <div className="flex flex-col items-start min-w-0">
+                <h3 className="font-semibold text-[14px] text-foreground truncate max-w-[160px] sm:max-w-[220px]">
+                  {otherUser.full_name}
+                </h3>
+                <span className="text-[10px] text-emerald-500 font-medium">Online</span>
               </div>
-              {listing.price && (
-                <p className="text-[10px] font-semibold text-[#34C759] shrink-0">
-                  ${listing.price.toLocaleString()}{listing.mode === 'rent' ? '/mo' : ''}
-                </p>
-              )}
-              <ChevronRight className="w-3 h-3 text-[#48484A] shrink-0" />
             </button>
-          )}
+
+            {/* Actions */}
+            <div className="flex gap-1.5 shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowRatingDialog(true)}
+                className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-amber-400"
+              >
+                <Star className="w-3.5 h-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowPreviewSheet(true)}
+                className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
 
       {/* iOS-style Connection Status */}
       {showConnecting && (
-        <div className="px-4 py-2 bg-[#2C2C2E] border-b border-[#38383A] text-center">
-          <p className="text-xs text-[#FF9F0A] flex items-center justify-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#FF9F0A] rounded-full animate-pulse" />
+        <div className="px-4 py-2 bg-muted border-b border-border/50 text-center">
+          <p className="text-xs text-amber-500 flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
             Connecting to chat...
           </p>
         </div>
@@ -402,20 +349,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
       {/* Messages - iOS-style with Virtualization for 60fps */}
       {messages.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-12 text-center bg-[#000000]">
-          <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ${
-            otherUser.role === 'owner'
-              ? 'bg-[#8B5CF6]/20'
-              : 'bg-[#007AFF]/20'
-          }`}>
-            <Send className={`w-7 h-7 ${
-              otherUser.role === 'owner' ? 'text-[#8B5CF6]' : 'text-[#007AFF]'
-            }`} />
+        <div className="flex-1 flex flex-col items-center justify-center py-12 text-center bg-background">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-primary/10">
+            <Send className="w-7 h-7 text-primary" />
           </div>
-          <p className="text-sm font-medium text-white mb-1">
+          <p className="text-sm font-medium text-foreground mb-1">
             Start the conversation
           </p>
-          <p className="text-xs text-[#8E8E93] max-w-[200px]">
+          <p className="text-xs text-muted-foreground max-w-[200px]">
             Say hello to {otherUser.full_name?.split(' ')?.[0] || 'your match'}!
           </p>
         </div>
@@ -429,21 +370,19 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
       )}
       <div ref={messagesEndRef} />
 
-      {/* iOS-style Limit Warning - Compact */}
+      {/* Limit Warning */}
       {hasMonthlyLimit && isAtLimit && (
-        <div className="px-3 py-2 bg-[#2C2C2E] border-t border-[#38383A]">
+        <div className="px-3 py-2 bg-muted border-t border-border/50">
           <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-[#FF453A] flex-shrink-0" />
-            <div className="flex-1">
-              <p className="font-medium text-xs text-[#FF453A]">Limit reached</p>
-            </div>
+            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+            <p className="font-medium text-xs text-destructive flex-1">Limit reached</p>
             <Button
               size="sm"
               onClick={() => {
                 setShowActivationBanner(true);
                 setShowUpgradeDialog(true);
               }}
-              className="shrink-0 h-6 bg-[#007AFF] hover:bg-[#0056CC] text-white border-0 rounded-full px-3 text-[10px]"
+              className="shrink-0 h-6 bg-primary hover:bg-primary/90 text-primary-foreground border-0 rounded-full px-3 text-[10px]"
             >
               Upgrade
             </Button>
@@ -451,18 +390,18 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         </div>
       )}
 
-      {/* iOS-style Limit Info - Compact */}
+      {/* Limit Info */}
       {hasMonthlyLimit && !isAtLimit && (
-        <div className="px-3 py-1.5 bg-[#2C2C2E] border-t border-[#38383A] flex items-center justify-center">
-          <div className="flex items-center gap-1.5 text-[10px] text-[#8E8E93]">
-            <Zap className="w-3 h-3 text-[#FF9F0A]" />
+        <div className="px-3 py-1.5 bg-muted border-t border-border/50 flex items-center justify-center">
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <Zap className="w-3 h-3 text-amber-500" />
             <span>{messagesRemaining} remaining</span>
           </div>
         </div>
       )}
 
-      {/* iOS-style Input Area - Compact */}
-      <form onSubmit={handleSendMessage} className="px-3 py-1.5 border-t border-[#38383A] shrink-0 bg-[#1C1C1E]">
+      {/* Input Area */}
+      <form onSubmit={handleSendMessage} className="px-3 py-2 border-t border-border/50 shrink-0 bg-background">
         <div className="flex gap-2 items-end">
           <div className="flex-1 relative">
             <Input
@@ -475,8 +414,8 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   stopTyping();
                 }
               }}
-              placeholder={isAtLimit ? "Monthly limit reached" : "iMessage"}
-              className="flex-1 text-[15px] min-h-[36px] px-4 py-2 rounded-full border-[#38383A] bg-[#2C2C2E] text-white placeholder:text-[#8E8E93] focus:border-[#48484A] focus:ring-0 focus:ring-offset-0 transition-all"
+              placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
+              className="flex-1 text-[15px] min-h-[38px] px-4 py-2 rounded-full border-border/50 bg-muted/60 text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-0 focus:ring-offset-0 transition-all"
               disabled={sendMessage.isPending || isAtLimit}
               maxLength={1000}
               onKeyDown={(e) => {
@@ -487,7 +426,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               }}
             />
             {newMessage.length > 800 && (
-              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-[#8E8E93]">
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
                 {1000 - newMessage.length}
               </span>
             )}
@@ -498,14 +437,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
             size="icon"
             className={`shrink-0 h-9 w-9 rounded-full transition-all border-0 ${
               newMessage.trim() && !isAtLimit
-                ? otherUser.role === 'owner'
-                  ? 'bg-gradient-to-br from-[#8B5CF6] to-[#6366F1] hover:from-[#7C3AED] hover:to-[#4F46E5]'
-                  : 'bg-gradient-to-br from-[#007AFF] to-[#5856D6] hover:from-[#0056CC] hover:to-[#4A45B5]'
-                : 'bg-[#3A3A3C] opacity-50'
+                ? 'bg-primary hover:bg-primary/90'
+                : 'bg-muted opacity-50'
             }`}
             title={isAtLimit ? "Monthly message limit reached" : "Send message"}
           >
-            <Send className="w-4 h-4 text-white" />
+            <Send className="w-4 h-4 text-primary-foreground" />
           </Button>
         </div>
       </form>
