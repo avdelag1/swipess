@@ -150,7 +150,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
   // FULL-IMAGE ZOOM: Entire image zooms on press-and-hold, no lens/clipping
-  const { containerRef, pointerHandlers, isActive: isMagnifierActive } = useMagnifier({
+  const { containerRef, pointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
     holdDelay: 350, // Fast activation
     enabled: isTop,
@@ -176,10 +176,22 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, [x, isTop, updateParallaxDrag]);
 
   const handleDragStart = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // GUARD: If magnifier hold timer is pending and movement is small, block drag
+    if (isHoldPending()) {
+      const dx = Math.abs(info.offset.x);
+      const dy = Math.abs(info.offset.y);
+      if (dx < 15 && dy < 15) {
+        return false; // Cancel drag start
+      }
+    }
+    // GUARD: If magnifier is active, block drag entirely
+    if (magnifierActive) {
+      return false;
+    }
     isDragging.current = true;
     dragStartY.current = info.point.y;
     triggerHaptic('light');
-  }, []);
+  }, [isHoldPending, magnifierActive]);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
