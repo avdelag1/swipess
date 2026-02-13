@@ -121,14 +121,16 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
       } catch (_) { /* ignore if already captured */ }
     }
 
-    // FIX: Walk up from <img> to container and set overflow: visible on all parents
+    // FIX: Walk up from <img> past container AND its parent (motion.div with overflow-hidden)
     // This prevents the zoomed image from being clipped by parent divs
     const img = imageRef.current;
     const container = containerRef.current;
     if (img && container) {
       savedOverflowsRef.current = [];
+      // Walk up 2 levels past container to also clear overflow on the drag wrapper (motion.div)
+      const stopAt = container.parentElement?.parentElement || container.parentElement;
       let el: HTMLElement | null = img.parentElement;
-      while (el && el !== container.parentElement) {
+      while (el && el !== stopAt) {
         savedOverflowsRef.current.push({ el, overflow: el.style.overflow });
         el.style.overflow = 'visible';
         el = el.parentElement;
