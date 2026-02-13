@@ -106,11 +106,15 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
-  // Count active filters from store values - both sides use categories now
+  // Count active filters from store values
   const activeFilterCount = (() => {
     let count = 0;
     count += categories.length;
     if (listingType !== 'both') count += 1;
+    if (userRole === 'owner') {
+      if (clientGender !== 'any') count += 1;
+      if (clientType !== 'all') count += 1;
+    }
     return count;
   })();
 
@@ -162,8 +166,154 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     setClickedCategory(null);
   };
 
-  // Render owner filters dropdown - now uses same category UI as client side
-  const renderOwnerFilters = () => renderClientFilters();
+  // Render owner filters dropdown - gender, client type, AND categories
+  const renderOwnerFilters = () => {
+    return (
+      <div className="bg-background border border-white/10 rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),400px)]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
+          <span className="text-sm sm:text-base font-semibold text-foreground">Filter Clients</span>
+          {activeFilterCount > 0 && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={handleClearFilters}
+              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 touch-manipulation"
+            >
+              <X className="w-5 h-5" />
+            </motion.button>
+          )}
+        </div>
+
+        <div className="py-2 max-h-[60vh] overflow-y-auto">
+          {/* Gender Section */}
+          <div className="px-4 sm:px-5 py-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
+            <div className="flex flex-wrap gap-1.5">
+              {genderOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => handleGenderSelect(option.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[40px]',
+                    clientGender === option.id
+                      ? `bg-gradient-to-r ${option.color} text-white`
+                      : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
+                  )}
+                >
+                  <span className="p-1 rounded-lg bg-white/20">{option.icon}</span>
+                  <span className="font-medium">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-4 my-2 border-t border-white/5" />
+
+          {/* Client Type Section */}
+          <div className="px-4 sm:px-5 py-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Looking For</p>
+            <div className="flex flex-wrap gap-1.5">
+              {clientTypeOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => handleClientTypeSelect(option.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[40px]',
+                    clientType === option.id
+                      ? `bg-gradient-to-r ${option.color} text-white`
+                      : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
+                  )}
+                >
+                  <span className="p-1 rounded-lg bg-white/20">{option.icon}</span>
+                  <span className="font-medium">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-4 my-2 border-t border-white/5" />
+
+          {/* Category Section */}
+          <div className="px-4 sm:px-5 py-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
+          </div>
+          {categoryOptions.map((category, index) => (
+            <motion.div
+              key={category.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="relative"
+            >
+              <button
+                onClick={() => handleCategoryClick(category.id)}
+                className={cn(
+                  'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                  categories.includes(category.id)
+                    ? 'bg-gradient-to-r ' + category.color + ' text-white'
+                    : 'text-foreground/80 hover:bg-white/5'
+                )}
+              >
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className={cn(
+                    'p-1.5 sm:p-2 rounded-lg',
+                    categories.includes(category.id)
+                      ? 'bg-white/20'
+                      : `bg-gradient-to-br ${category.color} bg-opacity-20`
+                  )}>
+                    {category.icon}
+                  </span>
+                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
+                </div>
+                {category.hasSubOptions && (
+                  <ChevronRight className={cn(
+                    "w-5 h-5 text-muted-foreground transition-transform",
+                    clickedCategory === category.id && "rotate-90"
+                  )} />
+                )}
+              </button>
+
+              {/* Sub-menu for listing type */}
+              <AnimatePresence>
+                {clickedCategory === category.id && category.hasSubOptions && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ type: 'spring', stiffness: 600, damping: 30 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-12 sm:pl-14 pr-4 pb-2">
+                      {listingTypeOptions.map((ltOption, ltIndex) => (
+                        <motion.button
+                          key={ltOption.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: ltIndex * 0.05 }}
+                          onClick={() => handleCategorySelect(category.id, ltOption.id)}
+                          className={cn(
+                            'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
+                            categories.includes(category.id) && listingType === ltOption.id
+                              ? `bg-gradient-to-r ${category.color} text-white`
+                              : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
+                          )}
+                        >
+                          <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {

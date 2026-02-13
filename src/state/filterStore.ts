@@ -315,7 +315,7 @@ export const useFilterStore = create<FilterState>()(
       if (role === 'client') {
         return state.categories.length > 0 || state.listingType !== 'both';
       }
-      return state.clientGender !== 'any' || state.clientType !== 'all';
+      return state.clientGender !== 'any' || state.clientType !== 'all' || state.categories.length > 0 || state.listingType !== 'both';
     },
     
     getActiveFilterCount: (role) => {
@@ -323,7 +323,7 @@ export const useFilterStore = create<FilterState>()(
       if (role === 'client') {
         return state.categories.length + (state.listingType !== 'both' ? 1 : 0);
       }
-      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0);
+      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
     },
   }))
 );

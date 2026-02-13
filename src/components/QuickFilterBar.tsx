@@ -214,9 +214,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     ? filters.categories.length > 0 || filters.listingType !== 'both'
     : (filters.clientGender && filters.clientGender !== 'any') || (filters.clientType && filters.clientType !== 'all');
 
-  // Owner Quick Filters - same category chips as client side
+  // Owner Quick Filters - gender, client type, categories, and listing type
   if (userRole === 'owner') {
-    const ownerHasActiveFilters = filters.categories.length > 0 || filters.listingType !== 'both';
+    const ownerHasActiveFilters = filters.categories.length > 0 || filters.listingType !== 'both' ||
+      (filters.clientGender && filters.clientGender !== 'any') || (filters.clientType && filters.clientType !== 'all');
     return (
       <div
         className={cn(
@@ -226,7 +227,30 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       >
         <div className="max-w-screen-xl mx-auto">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {/* Category chips - same as client side */}
+            {/* Gender dropdown */}
+            <FilterDropdown
+              label="Gender"
+              icon={<Users className="w-3.5 h-3.5" />}
+              options={genderOptions}
+              value={filters.clientGender || 'any'}
+              onChange={(id) => handleGenderChange(id as OwnerClientGender)}
+              isActive={filters.clientGender !== undefined && filters.clientGender !== 'any'}
+            />
+
+            {/* Client type dropdown */}
+            <FilterDropdown
+              label="Looking For"
+              icon={<Briefcase className="w-3.5 h-3.5" />}
+              options={clientTypeOptions}
+              value={filters.clientType || 'all'}
+              onChange={(id) => handleClientTypeChange(id as OwnerClientType)}
+              isActive={filters.clientType !== undefined && filters.clientType !== 'all'}
+            />
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-white/20 flex-shrink-0" />
+
+            {/* Category chips */}
             <div className="flex items-center gap-1 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
@@ -252,18 +276,6 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 );
               })}
             </div>
-
-            {/* Divider */}
-            <div className="w-px h-6 bg-white/20 flex-shrink-0" />
-
-            {/* Listing type dropdown */}
-            <FilterDropdown
-              label="Type"
-              options={listingTypes}
-              value={filters.listingType}
-              onChange={(id) => handleListingTypeChange(id as QuickFilterListingType)}
-              isActive={filters.listingType !== 'both'}
-            />
 
             {/* Reset button */}
             {ownerHasActiveFilters && (
