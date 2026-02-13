@@ -34,10 +34,10 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
   'tulum': {
     id: 'tulum',
     name: 'Tulum/Playa',
-    primaryColor: '#2d6a4f',
-    secondaryColor: '#52b788',
-    accentColor: '#f4a261',
-    gradient: 'linear-gradient(135deg, #2d6a4f 0%, #52b788 50%, #f4a261 100%)',
+    primaryColor: '#FF4D00',
+    secondaryColor: '#FFB347',
+    accentColor: '#FF6B35',
+    gradient: 'linear-gradient(135deg, #FF4D00 0%, #FFB347 50%, #FF6B35 100%)',
     description: 'Earthy jungle meets beach sunset'
   },
   'california': {

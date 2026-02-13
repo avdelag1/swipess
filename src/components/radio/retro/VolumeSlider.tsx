@@ -74,7 +74,7 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
             className="absolute left-0 top-0 h-full rounded-full transition-[width] duration-75"
             style={{
               width: `${volume * 100}%`,
-              background: 'linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.5))',
+              background: 'linear-gradient(90deg, #FF4D00, #FFB347)',
             }}
           />
 
@@ -84,8 +84,8 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
             style={{
               left: `calc(${volume * 100}% - 7px)`,
               boxShadow: isDragging
-                ? '0 0 12px rgba(255,255,255,0.4), 0 0 4px rgba(255,255,255,0.6)'
-                : '0 1px 4px rgba(0,0,0,0.4)',
+                ? '0 0 16px rgba(255, 77, 0, 0.6), 0 0 8px rgba(255, 77, 0, 0.8)'
+                : '0 1px 4px rgba(0,0,0,0.4), 0 0 4px rgba(255, 77, 0, 0.3)',
             }}
             animate={{ scale: isDragging ? 1.2 : 1 }}
             transition={{ duration: 0.15 }}
