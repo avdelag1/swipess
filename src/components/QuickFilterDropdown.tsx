@@ -106,16 +106,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
-  // Count active filters from store values
+  // Count active filters from store values - both sides use categories now
   const activeFilterCount = (() => {
     let count = 0;
-    if (userRole === 'client') {
-      count += categories.length;
-      if (listingType !== 'both') count += 1;
-    } else {
-      if (clientGender !== 'any') count += 1;
-      if (clientType !== 'all') count += 1;
-    }
+    count += categories.length;
+    if (listingType !== 'both') count += 1;
     return count;
   })();
 
@@ -167,79 +162,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     setClickedCategory(null);
   };
 
-  // Render owner filters dropdown - MOBILE OPTIMIZED
-  const renderOwnerFilters = () => (
-    <div className="bg-background border border-white/10 rounded-2xl shadow-lg overflow-hidden w-[calc(100vw-2rem)] sm:min-w-[280px] sm:w-auto max-w-[400px]">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
-        <span className="text-sm sm:text-base font-semibold text-foreground">Filter Clients</span>
-        {activeFilterCount > 0 && (
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={handleClearFilters}
-            className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 touch-manipulation"
-          >
-            <X className="w-5 h-5" />
-          </motion.button>
-        )}
-      </div>
-
-      {/* Gender Section */}
-      <div className="p-3 sm:p-4 border-b border-white/5 max-h-[50vh] overflow-y-auto">
-        <span className="text-sm font-medium text-muted-foreground mb-3 block">Gender</span>
-        <div className="flex flex-wrap gap-2">
-          {genderOptions.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => handleGenderSelect(option.id)}
-              className={cn(
-                'flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 touch-manipulation min-h-[44px]',
-                clientGender === option.id
-                  ? `bg-gradient-to-r ${option.color} text-white shadow-md`
-                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/5'
-              )}
-            >
-              {option.icon}
-              <span className="whitespace-nowrap">{option.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Client Type Section */}
-      <div className="p-3 sm:p-4">
-        <span className="text-sm font-medium text-muted-foreground mb-3 block">Looking For</span>
-        <div className="grid grid-cols-2 gap-2">
-          {clientTypeOptions.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => handleClientTypeSelect(option.id)}
-              className={cn(
-                'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-150 touch-manipulation min-h-[44px] will-change-transform active:scale-95',
-                clientType === option.id
-                  ? `bg-gradient-to-r ${option.color} text-white shadow-md`
-                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/5'
-              )}
-            >
-              {option.icon}
-              <span className="whitespace-nowrap">{option.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Apply button */}
-      <div className="p-3 sm:p-4 border-t border-white/5">
-        <button
-          onClick={() => setIsOpen(false)}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold text-sm shadow-lg shadow-orange-500/25 touch-manipulation min-h-[48px] will-change-transform active:scale-95 transition-transform duration-150"
-        >
-          Apply Filters
-        </button>
-      </div>
-    </div>
-  );
+  // Render owner filters dropdown - now uses same category UI as client side
+  const renderOwnerFilters = () => renderClientFilters();
 
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {

@@ -214,8 +214,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     ? filters.categories.length > 0 || filters.listingType !== 'both'
     : (filters.clientGender && filters.clientGender !== 'any') || (filters.clientType && filters.clientType !== 'all');
 
-  // Owner Quick Filters
+  // Owner Quick Filters - same category chips as client side
   if (userRole === 'owner') {
+    const ownerHasActiveFilters = filters.categories.length > 0 || filters.listingType !== 'both';
     return (
       <div
         className={cn(
@@ -225,37 +226,57 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       >
         <div className="max-w-screen-xl mx-auto">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {/* Gender dropdown */}
+            {/* Category chips - same as client side */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {categories.map((category) => {
+                const isActive = filters.categories.includes(category.id);
+                const isServices = category.id === 'services';
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => handleCategoryToggle(category.id)}
+                    className={cn(
+                      smoothButtonClass,
+                      'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
+                      'border',
+                      isActive
+                        ? isServices
+                          ? 'bg-emerald-500 text-white border-emerald-500'
+                          : 'bg-orange-500 text-white border-orange-500'
+                        : 'bg-white/15 text-white border-white/30'
+                    )}
+                  >
+                    {category.icon}
+                    <span className="hidden sm:inline">{category.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-white/20 flex-shrink-0" />
+
+            {/* Listing type dropdown */}
             <FilterDropdown
-              label="Gender"
-              icon={<Users className="w-4 h-4" />}
-              options={genderOptions}
-              value={filters.clientGender || 'any'}
-              onChange={(id) => handleGenderChange(id as OwnerClientGender)}
-              isActive={filters.clientGender !== 'any' && filters.clientGender !== undefined}
+              label="Type"
+              options={listingTypes}
+              value={filters.listingType}
+              onChange={(id) => handleListingTypeChange(id as QuickFilterListingType)}
+              isActive={filters.listingType !== 'both'}
             />
 
-            {/* Client type dropdown */}
-            <FilterDropdown
-              label="Looking for"
-              icon={<Briefcase className="w-4 h-4" />}
-              options={clientTypeOptions}
-              value={filters.clientType || 'all'}
-              onChange={(id) => handleClientTypeChange(id as OwnerClientType)}
-              isActive={filters.clientType !== 'all' && filters.clientType !== undefined}
-            />
-
-          {/* Reset button */}
-          {hasActiveFilters && (
+            {/* Reset button */}
+            {ownerHasActiveFilters && (
               <button
                 onClick={handleReset}
                 className={cn(
                   smoothButtonClass,
-                  'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
-                  'bg-red-500/20 text-red-400 border border-red-500/40'
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold',
+                  'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
                 )}
               >
                 <RotateCcw className="w-3 h-3" />
+                <span>Clear</span>
               </button>
             )}
           </div>

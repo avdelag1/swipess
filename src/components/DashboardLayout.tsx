@@ -510,14 +510,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       return 'All Types';
     }
     if (path === '/owner/dashboard') {
-      const clientTypeLabels: Record<string, string> = {
-        all: 'Your Matches',
-        property_seekers: 'Property Seekers',
-        moto_seekers: 'Moto Seekers',
-        bicycle_seekers: 'Bicycle Seekers',
-        worker_seekers: 'Hiring Clients',
-      };
-      return clientTypeLabels[clientType] || 'Your Matches';
+      if (activeCategory) {
+        const ownerCategoryLabels: Record<string, string> = {
+          property: 'Properties',
+          motorcycle: 'Motorcycles',
+          bicycle: 'Bicycles',
+          services: 'Workers',
+        };
+        return ownerCategoryLabels[activeCategory] || activeCategory;
+      }
+      return 'Your Matches';
     }
     if (path.includes('discovery')) return 'Discover';
 
