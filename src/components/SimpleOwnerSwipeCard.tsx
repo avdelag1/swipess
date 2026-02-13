@@ -12,7 +12,7 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
 import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
@@ -237,6 +237,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const isExitingRef = useRef(false);
   const lastProfileIdRef = useRef(profile?.user_id || '');
   const dragStartY = useRef(0);
+  const dragControls = useDragControls();
+  const dragStartedRef = useRef(false);
+  const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
   // Motion values for BOTH X and Y - enables diagonal movement
   const x = useMotionValue(0);
@@ -324,30 +327,63 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [x, isTop, updateParallaxDrag]);
 
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
-  const { containerRef, pointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
+  const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8,
     holdDelay: 350,
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
 
-  const handleDragStart = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    // GUARD: If magnifier hold timer is pending and movement is small, block drag
-    if (isHoldPending()) {
-      const dx = Math.abs(info.offset.x);
-      const dy = Math.abs(info.offset.y);
-      if (dx < 15 && dy < 15) {
-        return false;
-      }
-    }
-    // GUARD: If magnifier is active, block drag entirely
+  // Unified pointer down handler
+  const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
+    if (!isTop) return;
+    dragStartedRef.current = false;
+    storedPointerEventRef.current = e;
+    magnifierPointerHandlers.onPointerDown(e);
+  }, [isTop, magnifierPointerHandlers]);
+
+  // Unified pointer move: decides between magnifier pan vs starting drag
+  const handleUnifiedPointerMove = useCallback((e: React.PointerEvent) => {
     if (magnifierActive) {
-      return false;
+      magnifierPointerHandlers.onPointerMove(e);
+      return;
     }
+    if (isHoldPending() && storedPointerEventRef.current) {
+      const startX = storedPointerEventRef.current.clientX;
+      const startY = storedPointerEventRef.current.clientY;
+      const dx = Math.abs(e.clientX - startX);
+      const dy = Math.abs(e.clientY - startY);
+      if (dx > 15 || dy > 15) {
+        magnifierPointerHandlers.onPointerMove(e);
+        if (!dragStartedRef.current && storedPointerEventRef.current) {
+          dragStartedRef.current = true;
+          isDragging.current = true;
+          triggerHaptic('light');
+          dragControls.start(e.nativeEvent);
+        }
+      } else {
+        magnifierPointerHandlers.onPointerMove(e);
+      }
+      return;
+    }
+  }, [magnifierActive, isHoldPending, magnifierPointerHandlers, dragControls]);
+
+  const handleUnifiedPointerUp = useCallback((e: React.PointerEvent) => {
+    magnifierPointerHandlers.onPointerUp(e);
+    storedPointerEventRef.current = null;
+    dragStartedRef.current = false;
+  }, [magnifierPointerHandlers]);
+
+  const handleUnifiedPointerCancel = useCallback((e: React.PointerEvent) => {
+    magnifierPointerHandlers.onPointerCancel(e);
+    storedPointerEventRef.current = null;
+    dragStartedRef.current = false;
+  }, [magnifierPointerHandlers]);
+
+  const handleDragStart = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     isDragging.current = true;
     dragStartY.current = info.point.y;
-    triggerHaptic('light');
-  }, [isHoldPending, magnifierActive]);
+  }, []);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
@@ -524,13 +560,19 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     <div className="absolute inset-0 flex flex-col">
       {/* Draggable Card - FREE XY MOVEMENT (Tinder-style diagonal) */}
       <motion.div
-        drag={!magnifierActive}
+        drag
+        dragControls={dragControls}
+        dragListener={false}
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
         dragElastic={0.9}
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onClick={handleCardTap}
+        onPointerDown={handleUnifiedPointerDown}
+        onPointerMove={handleUnifiedPointerMove}
+        onPointerUp={handleUnifiedPointerUp}
+        onPointerCancel={handleUnifiedPointerCancel}
         style={{
           x,
           y,
@@ -551,7 +593,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           ref={containerRef}
           className="absolute inset-0 w-full h-full overflow-hidden rounded-[24px]"
           onClick={handleImageTap}
-          {...pointerHandlers}
           style={{
             touchAction: 'none',
             WebkitUserSelect: 'none',

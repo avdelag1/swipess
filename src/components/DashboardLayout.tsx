@@ -500,10 +500,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path === '/client/dashboard') {
       if (activeCategory) {
         const categoryLabels: Record<string, string> = {
-          property: '🏠 Properties',
-          motorcycle: '🏍️ Motorcycles',
-          bicycle: '🚲 Bicycles',
-          services: '💼 Services',
+          property: 'Properties',
+          motorcycle: 'Motorcycles',
+          bicycle: 'Bicycles',
+          services: 'Services',
         };
         return categoryLabels[activeCategory] || activeCategory;
       }
@@ -512,10 +512,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path === '/owner/dashboard') {
       const clientTypeLabels: Record<string, string> = {
         all: 'Your Matches',
-        property_seekers: '🏠 Property Seekers',
-        moto_seekers: '🏍️ Moto Seekers',
-        bicycle_seekers: '🚲 Bicycle Seekers',
-        worker_seekers: '💼 Hiring Clients',
+        property_seekers: 'Property Seekers',
+        moto_seekers: 'Moto Seekers',
+        bicycle_seekers: 'Bicycle Seekers',
+        worker_seekers: 'Hiring Clients',
       };
       return clientTypeLabels[clientType] || 'Your Matches';
     }
