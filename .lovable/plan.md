@@ -1,70 +1,71 @@
 
 
-# Fix Swipe Cards: Buttons, Blinking, Preloading, and Mock Data
+## Fix: Owner Swipe Cards Not Showing Any Users
 
-## Problems Identified
+### Root Cause
+The owner swipe deck queries the `profiles` table, but all 6 users in the database have `full_name = null` and `images = []` in that table. Line 1143 of `useSmartClientMatching` filters out any profile without `full_name`, so zero profiles make it through.
 
-1. **Profile creation fails** -- The `profiles` table is missing `is_active` and `role` columns, causing PGRST204 errors on every sign-in attempt. This breaks profile setup for new and returning users.
+Meanwhile, the `client_profiles` table has all the real data (names, photos, ages, cities) but is not being used by the owner deck.
 
-2. **All listing images are empty** -- Every listing in the database has `images: []`. The swipe cards show placeholder images instead of real photos, making it impossible to test the carousel.
+### Solution (Two-Part Fix)
 
-3. **No motorcycle/bicycle/worker listings** -- Only 18 property listings and 1 bicycle listing exist. There is nothing to show when users filter by Motorcycle or Workers.
+**Part 1: Enrich profiles from client_profiles data**
 
-4. **Only 1 client profile** -- The owner swipe deck has only 1 client profile (Alejandro), making it impossible to test owner-side like/dislike flow properly.
+After fetching from `profiles`, also fetch from `client_profiles` and merge the data. This way, if a user has filled out their client profile (name, images), that data supplements the sparse `profiles` record.
 
-5. **Black screen blink between swipes** -- When the top card exits, the next card briefly shows a black/empty frame before the image loads. The preloading works for the first image only but does not preload ALL images of the next 2 cards aggressively enough.
+**Part 2: Remove the strict full_name filter**
 
-6. **Owner card button-triggered swipes may not fire `onSwipe`** -- The `SimpleOwnerSwipeCard` calls `handleButtonSwipe` which animates x/y exit, but the `onComplete` callback may not fire reliably if the component unmounts during animation.
+Instead of filtering out profiles without `full_name`, show them with a fallback name like "New User". This ensures every signed-up user appears in the owner deck, even if they haven't completed their profile yet.
 
-## Plan
+### Technical Details
 
-### Step 1: Database Migration -- Add missing columns + seed data
+**File: `src/hooks/useSmartMatching.tsx`** (in `useSmartClientMatching`, ~lines 1057-1155)
 
-Add the missing `is_active` (boolean, default true) and `role` (text, nullable) columns to the `profiles` table so `useProfileSetup` stops crashing.
+1. After fetching profiles from the `profiles` table, also fetch from `client_profiles` to get supplementary data:
+```typescript
+const { data: clientProfileData } = await supabase
+  .from('client_profiles')
+  .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood')
+  .limit(200);
 
-Insert mock listings with real sample image URLs:
-- 5 motorcycle listings (sale + rent) with 3-4 images each
-- 3 bicycle listings with 2-3 images each
-- 3 worker/service listings with 2 images each
-- Update existing property listings to have 3-4 sample images each
+// Build lookup map
+const clientProfileMap = new Map();
+if (clientProfileData) {
+  for (const cp of clientProfileData) {
+    clientProfileMap.set(cp.user_id, cp);
+  }
+}
+```
 
-Insert 4-5 additional mock client profiles with multiple profile images for owner-side swiping.
+2. In the profile mapping step, merge client_profiles data and remove the strict `full_name` filter:
+```typescript
+let filteredProfiles = (profiles as any[])
+  .filter(profile => {
+    if (profile.user_id === userId) return false;
+    return true; // Show ALL signed-up users
+  })
+  .map(profile => {
+    const cpData = clientProfileMap.get(profile.user_id);
+    const name = profile.full_name || cpData?.name || 'New User';
+    const images = (profile.images?.length > 0 ? profile.images : null)
+      || (cpData?.profile_images?.length > 0 ? cpData.profile_images : null)
+      || ['/placeholder-avatar.svg'];
+    return {
+      ...profile,
+      full_name: name,
+      images,
+      age: profile.age || cpData?.age || null,
+      gender: profile.gender || cpData?.gender || null,
+      city: profile.city || cpData?.city || null,
+      country: profile.country || cpData?.country || null,
+      bio: profile.bio || cpData?.bio || null,
+      nationality: profile.nationality || cpData?.nationality || null,
+      neighborhood: profile.neighborhood || cpData?.neighborhood || null,
+    };
+  });
+```
 
-### Step 2: Fix the black blink between swipes
+3. In the final mapping to `MatchedClientProfile`, use `full_name` as the `name` field and `images` as `profile_images` so the card component renders correctly.
 
-The root cause: when `currentIndex` advances, the next card's `CardImage` component starts with `loaded = false` and shows a skeleton, even if the image was already preloaded into the browser cache.
-
-**Fix in `SimpleSwipeCard.tsx` and `SimpleOwnerSwipeCard.tsx`:**
-- Check the shared `imageCache` Map on mount. If the image URL is already cached, initialize `loaded = true` so no skeleton/transition is shown.
-- Already partially implemented but the owner card uses its own local `imageCache` instead of the shared one. Unify both to use `@/lib/swipe/cardImageCache`.
-
-**Fix in `TinderentSwipeContainer.tsx`:**
-- After every swipe, preload ALL images (not just `[0]`) of the next 3 cards into the shared cache.
-- Use `requestIdleCallback` for cards 2-3 to avoid blocking.
-
-**Fix in `ClientSwipeContainer.tsx`:**
-- Same: preload ALL images of next 3 profiles after each swipe.
-
-### Step 3: Fix owner card like/dislike button reliability
-
-In `SimpleOwnerSwipeCard.tsx`, the `handleButtonSwipe` fires `onSwipe(direction)` inside `animate().onComplete`. If the parent unmounts or re-renders the card before animation completes, the callback is lost.
-
-**Fix:** Add a safety timeout (same pattern as `TinderentSwipeContainer`). After calling `animate()`, set a 350ms timeout that calls `onSwipe` if it hasn't been called yet. This ensures the swipe always fires.
-
-### Step 4: Fix undo/return button on both sides
-
-The undo button is already wired (`onUndo={undoLastSwipe}`, `canUndo={canUndo}`). Verify it works by ensuring the `useSwipeUndo` hook properly restores the previous card index in both containers. No code change expected here -- the undo logic is already implemented. The button appears disabled when `canUndo = false` (first card).
-
-## Technical Details
-
-### Files to create/modify:
-- **New migration SQL** -- Add `is_active` and `role` to `profiles`, insert mock data with images
-- **`src/components/SimpleOwnerSwipeCard.tsx`** -- Import shared `imageCache` from `@/lib/swipe/cardImageCache`, add safety timeout to `handleButtonSwipe`
-- **`src/components/SimpleSwipeCard.tsx`** -- Ensure `CardImage` checks shared cache on init (already does this)
-- **`src/components/TinderentSwipeContainer.tsx`** -- Preload ALL images of next 3 cards (not just first image)
-- **`src/components/ClientSwipeContainer.tsx`** -- Preload ALL profile images of next 3 profiles
-- **`src/hooks/useProfileSetup.tsx`** -- Remove `role` from the upsert payload (not a column), keep `is_active`
-
-### Mock image sources:
-Use royalty-free Unsplash/Picsum URLs for mock data images (e.g., `https://images.unsplash.com/photo-...?w=800&h=1200&fit=crop`). These load fast and look realistic for testing the carousel.
+This ensures every user who signs up appears as a swipe card on the owner side -- with their photo and name if available, or a placeholder if not.
 
