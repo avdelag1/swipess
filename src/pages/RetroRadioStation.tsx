@@ -110,11 +110,11 @@ export default function RetroRadioStation() {
         }}
       />
 
-      {/* Content - scrollable vertically */}
-      <div className="relative z-10 flex-1 flex flex-col items-center overflow-y-auto">
+      {/* Content - viewport locked, no scrolling */}
+      <div className="relative z-10 flex-1 flex flex-col items-center overflow-hidden">
 
         {/* Header */}
-        <div className="w-full flex items-center justify-between px-5 pt-12 pb-2 flex-shrink-0">
+        <div className="w-full flex items-center justify-between px-5 pt-8 pb-1 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => window.history.back()}
@@ -132,10 +132,10 @@ export default function RetroRadioStation() {
           </div>
 
           {/* Live indicator */}
-          <div className={`px-3 py-1.5 rounded-full ${state.isPlaying ? 'bg-white/10' : 'bg-white/5'}`}>
+          <div className={`px-3 py-1.5 rounded-full ${state.isPlaying ? 'bg-orange-500/10' : 'bg-white/5'}`}>
             <div className="flex items-center gap-1.5">
               <motion.div
-                className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-green-400' : 'bg-white/20'}`}
+                className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-orange-500' : 'bg-white/20'}`}
                 animate={state.isPlaying ? { opacity: [1, 0.3, 1] } : {}}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
@@ -147,14 +147,14 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Quick actions row */}
-        <div className="flex items-center justify-center gap-3 py-3 flex-shrink-0">
+        <div className="flex items-center justify-center gap-3 py-2 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={toggleShuffle}
-            className={`p-2.5 rounded-full transition-colors ${state.isShuffle ? 'bg-white/15' : 'bg-white/5'}`}
+            className={`p-2.5 rounded-full transition-colors ${state.isShuffle ? 'bg-orange-500/15' : 'bg-white/5'}`}
             aria-label={state.isShuffle ? 'Disable shuffle' : 'Enable shuffle'}
           >
-            <Shuffle className={`w-4 h-4 ${state.isShuffle ? 'text-white/80' : 'text-white/30'}`} />
+            <Shuffle className={`w-4 h-4 ${state.isShuffle ? 'text-orange-400' : 'text-white/30'}`} />
           </motion.button>
 
           <motion.button
@@ -169,17 +169,17 @@ export default function RetroRadioStation() {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
-            className={`p-2.5 rounded-full transition-colors ${isFav ? 'bg-red-500/15' : 'bg-white/5'}`}
+            className={`p-2.5 rounded-full transition-colors ${isFav ? 'bg-orange-500/15' : 'bg-white/5'}`}
             aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${isFav ? 'text-red-400 fill-red-400' : 'text-white/30'}`}
+              className={`w-4 h-4 transition-colors ${isFav ? 'text-orange-400 fill-orange-400' : 'text-white/30'}`}
             />
           </motion.button>
         </div>
 
         {/* Vinyl Record - the hero */}
-        <div className="flex-shrink-0 py-4 sm:py-6">
+        <div className="flex-shrink-0 py-2">
           <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id ?? 'empty'}
@@ -200,7 +200,7 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Now Playing Info */}
-        <div className="flex-shrink-0 pb-3">
+        <div className="flex-shrink-0 pb-2">
           <NowPlayingInfo
             station={state.currentStation}
             isPlaying={state.isPlaying}
@@ -223,7 +223,7 @@ export default function RetroRadioStation() {
         </AnimatePresence>
 
         {/* iPod Click Wheel */}
-        <div className="flex-shrink-0 py-2 sm:py-4">
+        <div className="flex-shrink-0 py-1">
           <ClickWheel
             isPlaying={state.isPlaying}
             onPlayPause={togglePlayPause}
@@ -236,12 +236,12 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Volume Slider */}
-        <div className="flex-shrink-0 px-8 pb-4 w-full">
+        <div className="flex-shrink-0 px-8 pb-2 w-full">
           <VolumeSlider volume={state.volume} onVolumeChange={setVolume} />
         </div>
 
         {/* City quick-switch pills */}
-        <div className="flex-shrink-0 px-5 pb-8 w-full">
+        <div className="flex-shrink-0 px-5 pb-4 w-full">
           <div className="flex gap-1.5 overflow-x-auto scrollbar-hide justify-center flex-wrap">
             {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
               const ct = cityThemes[city];
@@ -269,7 +269,7 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Bottom spacer for safe area */}
-        <div className="flex-shrink-0 h-4" />
+        <div className="flex-shrink-0 h-2" />
       </div>
 
       {/* Station Drawer */}
@@ -292,32 +292,32 @@ export default function RetroRadioStation() {
  * Responsive vinyl size based on viewport
  */
 function getVinylSize(): number {
-  if (typeof window === 'undefined') return 240;
+  if (typeof window === 'undefined') return 200;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
   // Mobile portrait
-  if (vw < 380) return 200;
-  if (vw < 480) return 230;
+  if (vw < 380) return 180;
+  if (vw < 480) return 200;
   // Mobile landscape or small tablet
-  if (vh < 600) return 180;
+  if (vh < 600) return 160;
   // Tablet
-  if (vw < 768) return 260;
+  if (vw < 768) return 220;
   // Desktop
-  return 300;
+  return 260;
 }
 
 /**
  * Responsive click wheel size
  */
 function getWheelSize(): number {
-  if (typeof window === 'undefined') return 170;
+  if (typeof window === 'undefined') return 160;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 150;
-  if (vw < 480) return 165;
-  if (vh < 600) return 140;
-  if (vw < 768) return 180;
-  return 200;
+  if (vw < 380) return 140;
+  if (vw < 480) return 155;
+  if (vh < 600) return 130;
+  if (vw < 768) return 165;
+  return 180;
 }
