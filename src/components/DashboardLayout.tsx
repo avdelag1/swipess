@@ -491,12 +491,35 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, [location.pathname]);
 
   // Get page title based on location for TopBar display
+  const activeCategory = useFilterStore((s) => s.activeCategory);
+  const clientType = useFilterStore((s) => s.clientType);
+  
   const pageTitle = useMemo(() => {
     const path = location.pathname;
 
-    // Dashboard/discovery pages show swipes/listings count or title
-    if (path === '/client/dashboard') return 'Browsing';
-    if (path === '/owner/dashboard') return 'Your Matches';
+    // Dashboard/discovery pages show active filter category
+    if (path === '/client/dashboard') {
+      if (activeCategory) {
+        const categoryLabels: Record<string, string> = {
+          property: '🏠 Properties',
+          motorcycle: '🏍️ Motorcycles',
+          bicycle: '🚲 Bicycles',
+          services: '💼 Services',
+        };
+        return categoryLabels[activeCategory] || activeCategory;
+      }
+      return 'All Types';
+    }
+    if (path === '/owner/dashboard') {
+      const clientTypeLabels: Record<string, string> = {
+        all: 'Your Matches',
+        property_seekers: '🏠 Property Seekers',
+        moto_seekers: '🏍️ Moto Seekers',
+        bicycle_seekers: '🚲 Bicycle Seekers',
+        worker_seekers: '💼 Hiring Clients',
+      };
+      return clientTypeLabels[clientType] || 'Your Matches';
+    }
     if (path.includes('discovery')) return 'Discover';
 
     // Other pages show section names
@@ -511,7 +534,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path.includes('/contracts')) return 'Contracts';
 
     return '';
-  }, [location.pathname]);
+  }, [location.pathname, activeCategory, clientType]);
 
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;
