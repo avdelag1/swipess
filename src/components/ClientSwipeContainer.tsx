@@ -150,17 +150,21 @@ const ClientSwipeContainerComponent = ({
 
   const getInitialDeck = () => {
     const userId = user?.id;
+    // Get swiped IDs from store to filter out already-swiped cards
+    const currentDeckState = useSwipeDeckStore.getState().ownerDecks[category];
+    const storeSwipedIds = new Set(currentDeckState?.swipedIds || []);
     
     // Try session storage first (faster, tab-scoped)
     const sessionItems = getDeckFromSession('owner', category);
     if (sessionItems.length > 0) {
-      return filterOwnProfile(sessionItems, userId);
+      // Filter out already-swiped cards AND own profile from restored deck
+      return filterOwnProfile(sessionItems, userId).filter(item => !storeSwipedIds.has(item.user_id || item.id));
     }
     // Fallback to store items (persisted across sessions) - non-reactive read
     const storeState = useSwipeDeckStore.getState();
     const currentDeck = storeState.ownerDecks[category];
     if (currentDeck?.deckItems?.length > 0) {
-      return filterOwnProfile(currentDeck.deckItems, userId);
+      return filterOwnProfile(currentDeck.deckItems, userId).filter(item => !storeSwipedIds.has(item.user_id || item.id));
     }
     return [];
   };

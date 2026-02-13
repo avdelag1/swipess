@@ -284,15 +284,19 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
   const getInitialDeck = () => {
+    // Get swiped IDs from store to filter out already-swiped cards
+    const storeSwipedIds = new Set(useSwipeDeckStore.getState().clientDeck.swipedIds);
+    
     // Try session storage first (faster, tab-scoped)
     const sessionItems = getDeckFromSession('client', 'listings');
     if (sessionItems.length > 0) {
-      return sessionItems;
+      // Filter out already-swiped cards from restored deck
+      return sessionItems.filter(item => !storeSwipedIds.has(item.id));
     }
     // Fallback to store items (persisted across sessions) - non-reactive read
     const storeState = useSwipeDeckStore.getState();
     if (storeState.clientDeck.deckItems.length > 0) {
-      return storeState.clientDeck.deckItems;
+      return storeState.clientDeck.deckItems.filter(item => !storeSwipedIds.has(item.id));
     }
     return [];
   };
