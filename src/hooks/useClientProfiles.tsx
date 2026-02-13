@@ -39,36 +39,29 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
       }
 
       try {
-        // Query profiles table directly - filter by role='client'
-        // Only show active profiles
+        // FIX: Query only columns that actually exist on the profiles table
         const { data: profiles, error } = await supabase
           .from('profiles')
           .select(`
             id,
+            user_id,
             full_name,
             avatar_url,
             role,
             age,
             gender,
-            profile_images,
+            images,
             interests,
-            preferred_activities,
-            client_type,
             lifestyle_tags,
-            has_pets,
-            smoking_preference,
-            party_friendly,
-            budget_min,
-            budget_max,
-            move_in_date,
+            smoking,
             city,
-            is_verified,
-            is_active,
+            country,
+            neighborhood,
+            nationality,
+            bio,
             created_at
           `)
-          .eq('role', 'client')
-          .eq('is_active', true)
-          .neq('id', user.id)
+          .neq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(100);
 
@@ -81,29 +74,52 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
           return [];
         }
 
-        // Transform profiles to ClientProfile interface
-        const transformed: ClientProfile[] = profiles.map((profile: any, index: number) => ({
-          id: index + 1,
-          user_id: profile.id,
-          name: profile.full_name || 'Anonymous',
-          age: profile.age || 25,
-          gender: profile.gender || '',
-          interests: profile.interests || [],
-          preferred_activities: profile.preferred_activities || [],
-          profile_images: profile.profile_images || profile.images || [],
-          location: profile.city ? { city: profile.city } : null,
-          city: profile.city || undefined,
-          avatar_url: profile.avatar_url || profile.profile_images?.[0] || undefined,
-          verified: profile.is_verified || false,
-          client_type: profile.client_type || [],
-          lifestyle_tags: profile.lifestyle_tags || [],
-          has_pets: profile.has_pets || false,
-          smoking_preference: profile.smoking_preference || 'any',
-          party_friendly: profile.party_friendly || false,
-          budget_min: profile.budget_min || undefined,
-          budget_max: profile.budget_max || undefined,
-          move_in_date: profile.move_in_date || undefined
-        }));
+        // FIX: Also fetch client_profiles for enrichment (same pattern as useSmartMatching)
+        const { data: clientProfileData } = await supabase
+          .from('client_profiles')
+          .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood')
+          .limit(200);
+
+        const clientProfileMap = new Map<string, any>();
+        if (clientProfileData) {
+          for (const cp of clientProfileData) {
+            clientProfileMap.set(cp.user_id, cp);
+          }
+        }
+
+        // Transform profiles to ClientProfile interface with enrichment
+        const transformed: ClientProfile[] = profiles.map((profile: any, index: number) => {
+          const cpData = clientProfileMap.get(profile.user_id);
+          const name = profile.full_name || cpData?.name || 'New User';
+          const profileImages = (profile.images && (profile.images as any[]).length > 0)
+            ? profile.images
+            : (cpData?.profile_images && (cpData.profile_images as any[]).length > 0)
+              ? cpData.profile_images
+              : [];
+
+          return {
+            id: index + 1,
+            user_id: profile.user_id,
+            name,
+            age: profile.age || cpData?.age || 0,
+            gender: profile.gender || cpData?.gender || '',
+            interests: (profile.interests?.length > 0 ? profile.interests : cpData?.interests) || [],
+            preferred_activities: [],
+            profile_images: profileImages,
+            location: (profile.city || cpData?.city) ? { city: profile.city || cpData?.city } : null,
+            city: profile.city || cpData?.city || undefined,
+            avatar_url: profile.avatar_url || profileImages?.[0] || undefined,
+            verified: false,
+            client_type: [],
+            lifestyle_tags: profile.lifestyle_tags || [],
+            has_pets: false,
+            smoking_preference: profile.smoking ? 'yes' : 'any',
+            party_friendly: false,
+            budget_min: undefined,
+            budget_max: undefined,
+            move_in_date: undefined
+          };
+        });
 
         // Filter out swiped profiles
         return transformed.filter(p => !excludeSwipedIds.includes(p.user_id));
