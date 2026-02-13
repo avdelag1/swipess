@@ -330,8 +330,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
   const { containerRef, pointerHandlers, isActive: isMagnifierActive } = useMagnifier({
-    scale: 2.0,
-    holdDelay: 350,
+    scale: 2.8,
+    holdDelay: 800,
     enabled: isTop,
   });
 
