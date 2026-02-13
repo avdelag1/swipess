@@ -1118,6 +1118,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_email_exists: { Args: { p_email: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1128,6 +1129,13 @@ export type Database = {
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
+      }
+      upsert_user_role: {
+        Args: {
+          p_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
