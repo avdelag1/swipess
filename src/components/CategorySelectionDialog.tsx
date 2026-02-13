@@ -158,7 +158,7 @@ export function CategorySelectionDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
+      <DialogContent className="max-w-2xl max-h-[85vh] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-background">
           
           {/* AI BUTTON - Prominent at top */}
