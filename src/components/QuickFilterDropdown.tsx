@@ -136,7 +136,15 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   }, []);
 
   const handleCategoryClick = (categoryId: QuickFilterCategory) => {
-    // Toggle the submenu for all categories with sub-options
+    // Workers/services: select directly without submenu (no rent/buy/both)
+    if (categoryId === 'services') {
+      setCategories([categoryId]);
+      setListingType('both');
+      setIsOpen(false);
+      setClickedCategory(null);
+      return;
+    }
+    // Toggle the submenu for other categories with sub-options
     setClickedCategory(clickedCategory === categoryId ? null : categoryId);
   };
 
@@ -229,76 +237,6 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-white/5" />
-
-          {/* Categories */}
-          <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Category</p>
-            <div className="space-y-1">
-              {categoryOptions.map((category) => (
-                <div key={category.id}>
-                  <button
-                    onClick={() => handleCategoryClick(category.id)}
-                    className={cn(
-                      'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all duration-150 touch-manipulation',
-                      categories.includes(category.id)
-                        ? 'bg-gradient-to-r ' + category.color + ' text-white'
-                        : 'text-foreground/80 hover:bg-white/5'
-                    )}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className={cn(
-                        'p-1.5 rounded-lg',
-                        categories.includes(category.id)
-                          ? 'bg-white/20'
-                          : `bg-gradient-to-br ${category.color} bg-opacity-20`
-                      )}>
-                        {category.icon}
-                      </span>
-                      <span className="font-medium">{category.label}</span>
-                    </div>
-                    {category.hasSubOptions && (
-                      <ChevronRight className={cn(
-                        "w-4 h-4 text-muted-foreground transition-transform",
-                        clickedCategory === category.id && "rotate-90"
-                      )} />
-                    )}
-                  </button>
-
-                  {/* Sub-menu for listing type */}
-                  <AnimatePresence>
-                    {clickedCategory === category.id && category.hasSubOptions && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ type: 'spring', stiffness: 600, damping: 30 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="pl-10 pr-2 py-1">
-                          {listingTypeOptions.map((ltOption) => (
-                            <button
-                              key={ltOption.id}
-                              onClick={() => handleCategorySelect(category.id, ltOption.id)}
-                              className={cn(
-                                'w-full flex items-center px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 touch-manipulation mb-0.5',
-                                categories.includes(category.id) && listingType === ltOption.id
-                                  ? `bg-gradient-to-r ${category.color} text-white`
-                                  : 'text-foreground/70 hover:bg-white/5 bg-white/[0.02]'
-                              )}
-                            >
-                              {ltOption.label}
-                            </button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -361,9 +299,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 )}
               </button>
 
-              {/* Sub-menu for listing type - always inline below */}
+              {/* Sub-menu for listing type - skip for workers/services */}
               <AnimatePresence>
-                {clickedCategory === category.id && category.hasSubOptions && (
+                {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
