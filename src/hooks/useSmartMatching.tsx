@@ -1120,18 +1120,30 @@ export function useSmartClientMatching(
           return [] as MatchedClientProfile[];
         }
 
+        // FIX: Fetch supplementary data from client_profiles to enrich sparse profiles
+        const { data: clientProfileData } = await supabase
+          .from('client_profiles')
+          .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood')
+          .limit(200);
+
+        const clientProfileMap = new Map<string, any>();
+        if (clientProfileData) {
+          for (const cp of clientProfileData) {
+            clientProfileMap.set(cp.user_id, cp);
+          }
+        }
+
         logger.info('[SmartMatching] Successfully fetched profiles:', {
           count: profiles.length,
           page,
           userId,
           firstProfileId: profiles[0]?.id,
-          hasImages: profiles.filter(p => p.images && p.images.length > 0).length
+          hasImages: profiles.filter(p => p.images && (p.images as any[]).length > 0).length,
+          clientProfilesEnriched: clientProfileMap.size
         });
 
-        // Map profiles with placeholder images
-        // NOTE: Swiped profiles are now excluded at SQL level (see query above)
-        // UPDATED: Allow profiles even with placeholder/test images for better UX
-        // FIXED: Show all users who have created their profile (have a name set)
+        // Map profiles with enriched data from client_profiles
+        // FIX: Show ALL signed-up users, not just those with full_name set
         let filteredProfiles = (profiles as any[])
           .filter(profile => {
             // DEFENSE IN DEPTH: Double-check - never show user their own profile
@@ -1139,20 +1151,31 @@ export function useSmartClientMatching(
               logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query, filtering it out:', profile.user_id);
               return false;
             }
-            // Only show profiles that have at least a name set (created their profile)
-            if (!profile.full_name) {
-              return false;
-            }
-            return true;
+            return true; // Show ALL signed-up users
           })
-          // NOTE: Removed hasMockImages filter to allow test/placeholder images
-          // Users can still see profiles with placeholder images for better discovery
-          .map(profile => ({
-            ...profile,
-            images: profile.images && profile.images.length > 0
+          .map(profile => {
+            const cpData = clientProfileMap.get(profile.user_id);
+            const name = profile.full_name || cpData?.name || 'New User';
+            const images = (profile.images && (profile.images as any[]).length > 0)
               ? profile.images
-              : ['/placeholder-avatar.svg']
-          }));
+              : (cpData?.profile_images && (cpData.profile_images as any[]).length > 0)
+                ? cpData.profile_images
+                : ['/placeholder-avatar.svg'];
+            return {
+              ...profile,
+              full_name: name,
+              images,
+              age: profile.age || cpData?.age || null,
+              gender: profile.gender || cpData?.gender || null,
+              city: profile.city || cpData?.city || null,
+              country: profile.country || cpData?.country || null,
+              bio: profile.bio || cpData?.bio || null,
+              nationality: profile.nationality || cpData?.nationality || null,
+              neighborhood: profile.neighborhood || cpData?.neighborhood || null,
+              interests: profile.interests?.length > 0 ? profile.interests : cpData?.interests || [],
+              languages_spoken: profile.languages_spoken?.length > 0 ? profile.languages_spoken : cpData?.languages || [],
+            };
+          });
 
         // Apply client filters if provided
         if (filters) {
