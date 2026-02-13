@@ -151,7 +151,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // FULL-IMAGE ZOOM: Entire image zooms on press-and-hold, no lens/clipping
   const { containerRef, pointerHandlers, isActive: isMagnifierActive } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 800, // ~1 second hold to activate
+    holdDelay: 350, // Fast activation
     enabled: isTop,
   });
 

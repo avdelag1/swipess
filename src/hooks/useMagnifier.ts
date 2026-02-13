@@ -12,9 +12,9 @@ import { useRef, useCallback, useEffect } from 'react';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface MagnifierConfig {
-  /** Zoom level (2.0 = 200%). Default: 2.8 */
+  /** Zoom level (2.8 = 280%). Default: 2.8 */
   scale?: number;
-  /** Hold time in ms before activation. Default: 800 */
+  /** Hold time in ms before activation. Default: 350 */
   holdDelay?: number;
   /** Whether enabled. Default: true */
   enabled?: boolean;
@@ -42,7 +42,7 @@ interface UseMagnifierReturn {
 export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
   const {
     scale = 2.8,
-    holdDelay = 800,
+    holdDelay = 350,
     enabled = true,
   } = config;
 
