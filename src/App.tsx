@@ -20,6 +20,9 @@ import NotFound from "./pages/NotFound";
 // Automatic update system
 import { useForceUpdateOnVersionChange, UpdateNotification } from "@/hooks/useAutomaticUpdates";
 
+// Profile auto-sync system - keeps profile data fresh for all users
+import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProfileAutoSync";
+
 // SPEED OF LIGHT: Persistent layout wrapper - mounted ONCE, never remounts
 import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayout";
 
@@ -114,10 +117,10 @@ const queryClient = new QueryClient({
     queries: {
       retry: 2,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
+      refetchOnWindowFocus: true,  // AUTO-SYNC: Refresh data when user returns to app
+      refetchOnMount: 'always',    // AUTO-SYNC: Always check for fresh data on mount
       refetchOnReconnect: 'always',
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 2 * 60 * 1000, // 2 minutes - shorter so profiles stay fresh
       gcTime: 10 * 60 * 1000, // 10 minutes
       networkMode: 'offlineFirst', // Better offline support
     },
@@ -140,6 +143,13 @@ function UpdateWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Wrapper for profile auto-sync (real-time, visibility, periodic)
+function ProfileSyncWrapper({ children }: { children: React.ReactNode }) {
+  useProfileAutoSync();
+  useEnsureSpecializedProfile();
+  return <>{children}</>;
+}
+
 const App = () => (
   <GlobalErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -157,6 +167,7 @@ const App = () => (
             <RadioProvider>
             <ResponsiveProvider>
             <UpdateWrapper>
+            <ProfileSyncWrapper>
               <NotificationWrapper>
                 {/* DISABLED: DepthParallaxBackground was causing performance issues */}
                 {/* <DepthParallaxBackground /> */}
@@ -260,7 +271,8 @@ const App = () => (
                   </Routes>
                 </Suspense>
               </AppLayout>
-            </NotificationWrapper>
+              </NotificationWrapper>
+            </ProfileSyncWrapper>
             </UpdateWrapper>
             </ResponsiveProvider>
             </RadioProvider>
