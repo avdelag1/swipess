@@ -270,7 +270,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         variant="activation-required"
       />
 
-      <Card className="flex-1 flex flex-col h-[calc(100vh-6rem)] overflow-hidden border-0 shadow-none bg-background">
+      <Card className="flex-1 flex flex-col h-full overflow-hidden border-0 shadow-none bg-background">
         {/* Clean Header */}
         <div className="border-b border-border/50 shrink-0 bg-background/95 backdrop-blur-xl">
           <div className="flex items-center gap-2 px-3 py-2.5">

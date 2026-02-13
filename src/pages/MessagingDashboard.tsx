@@ -352,8 +352,8 @@ export function MessagingDashboard() {
 
     return (
       <>
-        <div className="w-full flex flex-col pb-24">
-          <div className="w-full max-w-4xl mx-auto p-2 sm:p-3 flex flex-col h-[calc(100vh-6rem)]">
+        <div className="w-full flex flex-col" style={{ height: 'calc(100vh - 5rem)' }}>
+          <div className="w-full max-w-4xl mx-auto p-2 sm:p-3 flex flex-col flex-1 min-h-0">
             {otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
