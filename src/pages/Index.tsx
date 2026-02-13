@@ -84,9 +84,10 @@ const Index = () => {
         }
       }
 
-      // Last resort: default to 'client'
-      logger.log("[Index] No role found, defaulting to 'client'");
-      return 'client';
+      // Last resort: use metadata role or default to 'client'
+      const fallbackRole = (user.user_metadata?.role as string) || 'client';
+      logger.log("[Index] No role in DB, using fallback:", fallbackRole);
+      return fallbackRole;
     },
     enabled: !!user && initialized,
     retry: 3,
