@@ -381,14 +381,17 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     eagerPreloadInitiatedRef.current = true;
     const currentIdx = currentIndexRef.current;
 
-    // Preload current + next 4 card images with decode (5 total for smooth swiping)
-    // This ensures the next 2 cards are always ready when swiping
+    // Preload ALL images of current + next 4 cards for smooth swiping
     const imagesToPreload: string[] = [];
     [0, 1, 2, 3, 4].forEach((offset) => {
-      const cardImages = deckQueueRef.current[currentIdx + offset]?.images;
-      if (cardImages?.[0]) {
-        imagesToPreload.push(cardImages[0]);
-        preloadImageToCache(cardImages[0]);
+      const card = deckQueueRef.current[currentIdx + offset];
+      if (card?.images && Array.isArray(card.images)) {
+        card.images.forEach((imgUrl: string) => {
+          if (imgUrl) {
+            imagesToPreload.push(imgUrl);
+            preloadImageToCache(imgUrl);
+          }
+        });
       }
     });
 
@@ -885,16 +888,18 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     // The next card will show with skeleton placeholder until image loads
     executeSwipe(direction);
 
-    // AGGRESSIVE PREFETCH: Immediately preload next 5 cards to maintain buffer
-    // Always keep 2-3 cards ready behind the visible next card
+    // AGGRESSIVE PREFETCH: Preload ALL images of next 3 cards to prevent blink
     // Use BOTH preloaders for maximum cache coverage and instant display
     const imagesToPreload: string[] = [];
-    [1, 2, 3, 4, 5].forEach((offset) => {
+    [1, 2, 3].forEach((offset) => {
       const futureCard = deckQueueRef.current[currentIndexRef.current + offset];
-      if (futureCard?.images?.[0]) {
-        imagesToPreload.push(futureCard.images[0]);
-        // Also preload to basic cache
-        preloadImageToCache(futureCard.images[0]);
+      if (futureCard?.images && Array.isArray(futureCard.images)) {
+        futureCard.images.forEach((imgUrl: string) => {
+          if (imgUrl) {
+            imagesToPreload.push(imgUrl);
+            preloadImageToCache(imgUrl);
+          }
+        });
       }
     });
 
