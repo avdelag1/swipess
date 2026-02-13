@@ -44,8 +44,9 @@ export function useOwnerProfile() {
     queryFn: fetchOwnProfile,
     // INSTANT NAVIGATION: Keep previous data during refetch to prevent UI blanking
     placeholderData: (prev) => prev,
-    staleTime: 5 * 60 * 1000, // 5 minutes - profile data doesn't change often
+    staleTime: 2 * 60 * 1000, // 2 minutes - auto-sync keeps data fresh
     gcTime: 10 * 60 * 1000, // 10 minutes cache
+    refetchOnWindowFocus: true, // AUTO-SYNC: refresh when user returns to app
   });
 }
 
@@ -92,7 +93,9 @@ export function useSaveOwnerProfile() {
       }
 
       // SYNC to profiles table - so owner info shows in messages/public profiles
-      const syncPayload: any = {};
+      const syncPayload: any = {
+        updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
+      };
 
       if (updates.profile_images !== undefined && updates.profile_images.length > 0) {
         syncPayload.images = updates.profile_images;

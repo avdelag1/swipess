@@ -129,10 +129,10 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
         return [];
       }
     },
-    // PERF: Longer stale time for profiles since they don't change frequently
-    staleTime: 10 * 60 * 1000, // 10 minutes
+    // AUTO-SYNC: Shorter stale time so profile updates propagate faster
+    staleTime: 3 * 60 * 1000, // 3 minutes
     gcTime: 15 * 60 * 1000, // 15 minutes cache
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // AUTO-SYNC: refresh when user returns to app
     placeholderData: (prev) => prev,
     retry: 2
   });

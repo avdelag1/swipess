@@ -247,6 +247,39 @@ export function useProfileSetup() {
       // Add small delay to ensure profile is fully created
       await new Promise(resolve => setTimeout(resolve, 150));
 
+      // Create specialized profile row (client_profiles or owner_profiles) for new users
+      // This ensures the user has a complete profile entry from the start
+      try {
+        if (role === 'client') {
+          const { error: cpError } = await supabase
+            .from('client_profiles')
+            .insert([{
+              user_id: user.id,
+              name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+              profile_images: [],
+              interests: [],
+            }]);
+          if (cpError && cpError.code !== '23505') {
+            logger.error('[ProfileSetup] Failed to create client_profiles entry:', cpError);
+          }
+        } else if (role === 'owner') {
+          const { error: opError } = await supabase
+            .from('owner_profiles')
+            .insert([{
+              user_id: user.id,
+              business_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+              contact_email: user.email || '',
+              profile_images: [],
+            }]);
+          if (opError && opError.code !== '23505') {
+            logger.error('[ProfileSetup] Failed to create owner_profiles entry:', opError);
+          }
+        }
+      } catch (specializedProfileError) {
+        // Non-fatal: the useEnsureSpecializedProfile hook will retry later
+        logger.error('[ProfileSetup] Error creating specialized profile:', specializedProfileError);
+      }
+
       // Retry logic for role creation (up to 3 attempts with exponential backoff)
       let roleCreated = false;
       let lastRoleError = null;
