@@ -83,7 +83,7 @@ function LegendaryLandingPage() {
             whileTap={{ scale: 0.98 }}
             className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent"
           >
-            <SwipessLogoWithOrb size="4xl" className="drop-shadow-2xl" orbActive={true} />
+            <SwipessLogoWithOrb size="4xl" orbActive={true} />
           </motion.div>
 
           <motion.p

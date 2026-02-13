@@ -3,16 +3,16 @@ import { memo, useMemo } from 'react';
 /**
  * CINEMATIC DAY/NIGHT CYCLE BACKGROUND
  * 120s loop: Sunset → Night → Sunrise → repeat
- * Pure CSS animations, GPU-accelerated, zero JS loops
+ * Realistic muted tones, no purple/pink. Earth & ocean colors only.
  */
 
 function generateStars(count: number) {
   const stars: { top: string; left: string; size: number; delay: string; duration: string }[] = [];
   for (let i = 0; i < count; i++) {
     stars.push({
-      top: `${Math.random() * 65}%`,
+      top: `${Math.random() * 60}%`,
       left: `${Math.random() * 100}%`,
-      size: Math.random() * 2.5 + 0.5,
+      size: Math.random() * 2 + 0.5,
       delay: `${(Math.random() * 5).toFixed(1)}s`,
       duration: `${(Math.random() * 3 + 2).toFixed(1)}s`,
     });
@@ -21,7 +21,7 @@ function generateStars(count: number) {
 }
 
 function StarFieldBackground() {
-  const stars = useMemo(() => generateStars(50), []);
+  const stars = useMemo(() => generateStars(45), []);
 
   return (
     <div
@@ -30,7 +30,7 @@ function StarFieldBackground() {
       aria-hidden="true"
     >
       {/* SKY */}
-      <div className="absolute inset-0 sf-sky" />
+      <div className="sf-sky" />
 
       {/* SUN */}
       <div className="sf-sun" />
@@ -62,112 +62,96 @@ function StarFieldBackground() {
       </div>
 
       {/* WAVES */}
-      <svg
-        className="sf-wave sf-wave-1"
-        viewBox="0 0 1440 120"
-        preserveAspectRatio="none"
-      >
+      <svg className="sf-wave sf-wave-1" viewBox="0 0 1440 120" preserveAspectRatio="none">
         <path d="M0,60 C240,120 480,0 720,60 C960,120 1200,0 1440,60 L1440,120 L0,120 Z" />
       </svg>
-      <svg
-        className="sf-wave sf-wave-2"
-        viewBox="0 0 1440 120"
-        preserveAspectRatio="none"
-      >
+      <svg className="sf-wave sf-wave-2" viewBox="0 0 1440 120" preserveAspectRatio="none">
         <path d="M0,80 C360,20 720,100 1080,40 C1260,10 1380,70 1440,80 L1440,120 L0,120 Z" />
       </svg>
-      <svg
-        className="sf-wave sf-wave-3"
-        viewBox="0 0 1440 120"
-        preserveAspectRatio="none"
-      >
+      <svg className="sf-wave sf-wave-3" viewBox="0 0 1440 120" preserveAspectRatio="none">
         <path d="M0,90 C180,60 360,100 540,70 C720,40 900,100 1080,80 C1260,60 1380,90 1440,85 L1440,120 L0,120 Z" />
       </svg>
 
       <style>{`
-        /* ===== SKY CYCLE ===== */
+        /* ===== SKY - realistic muted earth tones ===== */
         .sf-sky {
+          position: absolute;
+          inset: 0;
           animation: sfSkyCycle 120s linear infinite;
-          will-change: background;
         }
         @keyframes sfSkyCycle {
-          /* Sunset */
-          0%   { background: linear-gradient(180deg, #ff6b35 0%, #ff8c42 20%, #f7567c 45%, #6a0572 70%, #1a0533 100%); }
-          8%   { background: linear-gradient(180deg, #e85d26 0%, #ff6347 20%, #c44569 45%, #4a0e4e 70%, #0d0221 100%); }
-          15%  { background: linear-gradient(180deg, #c0392b 0%, #d35400 20%, #8e44ad 45%, #2c003e 70%, #060011 100%); }
-          25%  { background: linear-gradient(180deg, #6c3483 0%, #4a235a 20%, #1b2631 45%, #0b0e1a 70%, #020108 100%); }
-          /* Night */
-          33%  { background: linear-gradient(180deg, #0a0e27 0%, #0d1137 20%, #0f1442 45%, #0a0f2e 70%, #050816 100%); }
-          50%  { background: linear-gradient(180deg, #080c22 0%, #0b0f30 20%, #0d1238 45%, #090d28 70%, #040712 100%); }
-          /* Sunrise */
-          60%  { background: linear-gradient(180deg, #0f1442 0%, #1a1a5e 20%, #2d1b69 45%, #1a0533 70%, #0a0e27 100%); }
-          70%  { background: linear-gradient(180deg, #2d1b69 0%, #6c3483 20%, #c0392b 45%, #e67e22 70%, #f39c12 100%); }
-          78%  { background: linear-gradient(180deg, #f39c12 0%, #e74c3c 20%, #ff6b6b 45%, #feca57 70%, #ff9ff3 100%); }
-          85%  { background: linear-gradient(180deg, #fdcb6e 0%, #ff7675 20%, #fab1a0 45%, #ffeaa7 70%, #dfe6e9 100%); }
-          /* Transition back to sunset */
-          92%  { background: linear-gradient(180deg, #ff9ff3 0%, #ff6b6b 20%, #ee5a24 45%, #f39c12 70%, #ffeaa7 100%); }
-          100% { background: linear-gradient(180deg, #ff6b35 0%, #ff8c42 20%, #f7567c 45%, #6a0572 70%, #1a0533 100%); }
+          0%   { background: linear-gradient(180deg, #d4873a 0%, #c46a2e 25%, #a34525 50%, #5a2a1a 75%, #1a1510 100%); }
+          10%  { background: linear-gradient(180deg, #b35a28 0%, #8c3a1e 25%, #5c2518 50%, #2a1810 75%, #0f0d0a 100%); }
+          20%  { background: linear-gradient(180deg, #6b3020 0%, #3a1a12 25%, #1a120e 50%, #0d0b09 75%, #080706 100%); }
+          25%  { background: linear-gradient(180deg, #1a1510 0%, #0f0d0a 25%, #0a0908 50%, #070605 75%, #050404 100%); }
+          33%  { background: linear-gradient(180deg, #0a0c14 0%, #08091a 25%, #060812 50%, #04050c 75%, #030406 100%); }
+          50%  { background: linear-gradient(180deg, #080a12 0%, #060818 25%, #050710 50%, #03040a 75%, #020305 100%); }
+          60%  { background: linear-gradient(180deg, #0d0c14 0%, #1a1218 25%, #2a1510 50%, #1a0f0a 75%, #0a0806 100%); }
+          70%  { background: linear-gradient(180deg, #3a2015 0%, #6b3520 25%, #a04a28 50%, #c46a2e 75%, #d4873a 100%); }
+          80%  { background: linear-gradient(180deg, #c49050 0%, #d4a060 25%, #c88040 50%, #a05a30 75%, #704028 100%); }
+          90%  { background: linear-gradient(180deg, #d4903a 0%, #c47030 25%, #a85028 50%, #7a3820 75%, #4a2518 100%); }
+          100% { background: linear-gradient(180deg, #d4873a 0%, #c46a2e 25%, #a34525 50%, #5a2a1a 75%, #1a1510 100%); }
         }
 
-        /* ===== SUN ===== */
+        /* ===== SUN - warm golden, not neon ===== */
         .sf-sun {
           position: absolute;
-          width: 60px;
-          height: 60px;
+          width: 50px;
+          height: 50px;
           border-radius: 50%;
           left: 50%;
-          margin-left: -30px;
-          background: radial-gradient(circle, #fff7ae 0%, #ffd32a 40%, #ff9f43 70%, transparent 100%);
-          box-shadow: 0 0 40px 15px rgba(255, 211, 42, 0.5), 0 0 80px 30px rgba(255, 159, 67, 0.3);
-          animation: sfSunCycle 120s linear infinite;
-          will-change: transform, opacity;
+          margin-left: -25px;
+          background: radial-gradient(circle, #ffe8b0 0%, #e8a840 45%, #c07020 80%, transparent 100%);
+          box-shadow: 0 0 30px 10px rgba(232, 168, 64, 0.35), 0 0 60px 20px rgba(192, 112, 32, 0.15);
+          animation: sfSunPos 120s linear infinite;
+          will-change: top, opacity;
         }
-        @keyframes sfSunCycle {
-          0%   { transform: translateY(0); opacity: 1; top: 30%; }
-          25%  { transform: translateY(0); opacity: 0.3; top: 68%; }
-          30%  { transform: translateY(0); opacity: 0; top: 75%; }
-          58%  { transform: translateY(0); opacity: 0; top: 75%; }
-          65%  { transform: translateY(0); opacity: 0; top: 75%; }
-          70%  { transform: translateY(0); opacity: 0.3; top: 68%; }
-          78%  { transform: translateY(0); opacity: 1; top: 40%; }
-          85%  { transform: translateY(0); opacity: 1; top: 25%; }
-          92%  { transform: translateY(0); opacity: 1; top: 30%; }
-          100% { transform: translateY(0); opacity: 1; top: 30%; }
+        @keyframes sfSunPos {
+          0%   { top: 32%; opacity: 1; }
+          15%  { top: 55%; opacity: 0.9; }
+          25%  { top: 70%; opacity: 0.2; }
+          30%  { top: 74%; opacity: 0; }
+          60%  { top: 74%; opacity: 0; }
+          65%  { top: 70%; opacity: 0.2; }
+          75%  { top: 50%; opacity: 0.9; }
+          85%  { top: 30%; opacity: 1; }
+          95%  { top: 32%; opacity: 1; }
+          100% { top: 32%; opacity: 1; }
         }
 
         /* ===== MOON ===== */
         .sf-moon {
           position: absolute;
-          width: 40px;
-          height: 40px;
+          width: 32px;
+          height: 32px;
           border-radius: 50%;
-          left: 35%;
-          background: radial-gradient(circle at 35% 35%, #f5f6fa 0%, #dcdde1 60%, #b0b3b8 100%);
-          box-shadow: 0 0 20px 8px rgba(245, 246, 250, 0.2), 0 0 50px 15px rgba(200, 210, 230, 0.1);
-          animation: sfMoonCycle 120s linear infinite;
+          left: 38%;
+          background: radial-gradient(circle at 35% 35%, #e8e4d8 0%, #c8c0b0 60%, #a09888 100%);
+          box-shadow: 0 0 15px 5px rgba(232, 228, 216, 0.12);
+          animation: sfMoonPos 120s linear infinite;
           will-change: opacity;
         }
-        @keyframes sfMoonCycle {
-          0%   { opacity: 0; top: 20%; }
-          25%  { opacity: 0; top: 20%; }
-          33%  { opacity: 0.8; top: 15%; }
-          50%  { opacity: 1; top: 12%; }
-          58%  { opacity: 0.8; top: 15%; }
-          65%  { opacity: 0; top: 20%; }
-          100% { opacity: 0; top: 20%; }
+        @keyframes sfMoonPos {
+          0%   { opacity: 0; top: 18%; }
+          28%  { opacity: 0; top: 18%; }
+          35%  { opacity: 0.7; top: 14%; }
+          50%  { opacity: 0.9; top: 11%; }
+          58%  { opacity: 0.7; top: 14%; }
+          65%  { opacity: 0; top: 18%; }
+          100% { opacity: 0; top: 18%; }
         }
 
         /* ===== STARS ===== */
         .sf-stars-container {
           position: absolute;
           inset: 0;
-          animation: sfStarsVisibility 120s linear infinite;
+          animation: sfStarsVis 120s linear infinite;
           will-change: opacity;
         }
-        @keyframes sfStarsVisibility {
+        @keyframes sfStarsVis {
           0%   { opacity: 0; }
-          25%  { opacity: 0; }
-          33%  { opacity: 1; }
+          28%  { opacity: 0; }
+          35%  { opacity: 1; }
           58%  { opacity: 1; }
           65%  { opacity: 0; }
           100% { opacity: 0; }
@@ -175,32 +159,31 @@ function StarFieldBackground() {
         .sf-star {
           position: absolute;
           border-radius: 50%;
-          background: #fff;
+          background: #e8e0d0;
           animation: sfTwinkle ease-in-out infinite alternate;
         }
         @keyframes sfTwinkle {
-          0%   { opacity: 0.3; transform: scale(0.8); }
-          100% { opacity: 1; transform: scale(1.2); }
+          0%   { opacity: 0.2; transform: scale(0.8); }
+          100% { opacity: 0.9; transform: scale(1.1); }
         }
 
-        /* ===== OCEAN ===== */
+        /* ===== OCEAN - dark realistic water ===== */
         .sf-ocean {
           position: absolute;
           bottom: 0;
           left: 0;
           right: 0;
-          height: 30%;
+          height: 28%;
           animation: sfOceanCycle 120s linear infinite;
-          will-change: background;
         }
         @keyframes sfOceanCycle {
-          0%   { background: linear-gradient(180deg, rgba(255,107,53,0.3) 0%, #1a0533 40%, #0d0221 100%); }
-          25%  { background: linear-gradient(180deg, rgba(44,0,62,0.5) 0%, #050816 40%, #020108 100%); }
-          33%  { background: linear-gradient(180deg, rgba(10,14,39,0.6) 0%, #050816 40%, #020510 100%); }
-          50%  { background: linear-gradient(180deg, rgba(8,12,34,0.5) 0%, #040712 40%, #020410 100%); }
-          70%  { background: linear-gradient(180deg, rgba(192,57,43,0.3) 0%, #1a0533 40%, #0d0221 100%); }
-          85%  { background: linear-gradient(180deg, rgba(253,203,110,0.3) 0%, #2d6cb5 40%, #1a4a7a 100%); }
-          100% { background: linear-gradient(180deg, rgba(255,107,53,0.3) 0%, #1a0533 40%, #0d0221 100%); }
+          0%   { background: linear-gradient(180deg, rgba(164,69,37,0.25) 0%, #1a1510 35%, #0d0b08 100%); }
+          25%  { background: linear-gradient(180deg, rgba(15,13,10,0.4) 0%, #080706 35%, #040403 100%); }
+          33%  { background: linear-gradient(180deg, rgba(8,10,18,0.5) 0%, #04050c 35%, #020305 100%); }
+          50%  { background: linear-gradient(180deg, rgba(6,8,16,0.4) 0%, #03040a 35%, #020204 100%); }
+          70%  { background: linear-gradient(180deg, rgba(160,74,40,0.2) 0%, #1a1510 35%, #0d0b08 100%); }
+          85%  { background: linear-gradient(180deg, rgba(196,128,64,0.2) 0%, #2a3848 35%, #141c28 100%); }
+          100% { background: linear-gradient(180deg, rgba(164,69,37,0.25) 0%, #1a1510 35%, #0d0b08 100%); }
         }
         .sf-ocean-shimmer {
           position: absolute;
@@ -208,7 +191,7 @@ function StarFieldBackground() {
           background: repeating-linear-gradient(
             90deg,
             transparent 0%,
-            rgba(255,255,255,0.03) 10%,
+            rgba(255,255,255,0.015) 10%,
             transparent 20%
           );
           animation: sfShimmer 8s ease-in-out infinite;
@@ -224,82 +207,51 @@ function StarFieldBackground() {
           bottom: 0;
           left: -5%;
           width: 110%;
-          height: 50px;
+          height: 45px;
           will-change: transform;
         }
-        .sf-wave-1 {
-          z-index: 3;
-          animation: sfOceanCycle 120s linear infinite, sfWaveMove1 7s ease-in-out infinite;
+        .sf-wave-1 { z-index: 3; }
+        .sf-wave-1 path { animation: sfWF1 120s linear infinite; }
+        .sf-wave-2 { z-index: 2; height: 35px; bottom: 6px; }
+        .sf-wave-2 path { animation: sfWF2 120s linear infinite; }
+        .sf-wave-3 { z-index: 1; height: 30px; bottom: 12px; }
+        .sf-wave-3 path { animation: sfWF3 120s linear infinite; }
+
+        @keyframes sfWF1 {
+          0%   { fill: rgba(26,21,16,0.6); }
+          33%  { fill: rgba(5,6,12,0.7); }
+          50%  { fill: rgba(4,5,10,0.7); }
+          85%  { fill: rgba(20,28,40,0.6); }
+          100% { fill: rgba(26,21,16,0.6); }
         }
-        .sf-wave-1 path {
-          fill: rgba(0, 0, 0, 0.35);
-          animation: sfWaveFill1 120s linear infinite;
+        @keyframes sfWF2 {
+          0%   { fill: rgba(26,21,16,0.35); }
+          33%  { fill: rgba(5,6,12,0.45); }
+          50%  { fill: rgba(4,5,10,0.45); }
+          85%  { fill: rgba(20,28,40,0.35); }
+          100% { fill: rgba(26,21,16,0.35); }
         }
-        @keyframes sfWaveFill1 {
-          0%   { fill: rgba(26, 5, 51, 0.5); }
-          33%  { fill: rgba(5, 8, 22, 0.7); }
-          50%  { fill: rgba(4, 7, 18, 0.7); }
-          85%  { fill: rgba(26, 74, 122, 0.5); }
-          100% { fill: rgba(26, 5, 51, 0.5); }
-        }
-        .sf-wave-2 {
-          z-index: 2;
-          height: 40px;
-          bottom: 8px;
-          animation: sfWaveMove2 9s ease-in-out infinite;
-        }
-        .sf-wave-2 path {
-          fill: rgba(0, 0, 0, 0.2);
-          animation: sfWaveFill2 120s linear infinite;
-        }
-        @keyframes sfWaveFill2 {
-          0%   { fill: rgba(26, 5, 51, 0.3); }
-          33%  { fill: rgba(5, 8, 22, 0.5); }
-          50%  { fill: rgba(4, 7, 18, 0.5); }
-          85%  { fill: rgba(45, 108, 181, 0.3); }
-          100% { fill: rgba(26, 5, 51, 0.3); }
-        }
-        .sf-wave-3 {
-          z-index: 1;
-          height: 35px;
-          bottom: 15px;
-          animation: sfWaveMove3 11s ease-in-out infinite;
-        }
-        .sf-wave-3 path {
-          fill: rgba(0, 0, 0, 0.12);
-          animation: sfWaveFill3 120s linear infinite;
-        }
-        @keyframes sfWaveFill3 {
-          0%   { fill: rgba(26, 5, 51, 0.2); }
-          33%  { fill: rgba(5, 8, 22, 0.35); }
-          50%  { fill: rgba(4, 7, 18, 0.35); }
-          85%  { fill: rgba(45, 108, 181, 0.2); }
-          100% { fill: rgba(26, 5, 51, 0.2); }
-        }
-        @keyframes sfWaveMove1 {
-          0%, 100% { transform: translateX(0); }
-          50%      { transform: translateX(-15px); }
-        }
-        @keyframes sfWaveMove2 {
-          0%, 100% { transform: translateX(0); }
-          50%      { transform: translateX(12px); }
-        }
-        @keyframes sfWaveMove3 {
-          0%, 100% { transform: translateX(0); }
-          50%      { transform: translateX(-8px); }
+        @keyframes sfWF3 {
+          0%   { fill: rgba(26,21,16,0.2); }
+          33%  { fill: rgba(5,6,12,0.3); }
+          50%  { fill: rgba(4,5,10,0.3); }
+          85%  { fill: rgba(20,28,40,0.2); }
+          100% { fill: rgba(26,21,16,0.2); }
         }
 
-        /* ===== REDUCED MOTION ===== */
+        .sf-wave-1 { animation: sfWM1 7s ease-in-out infinite; }
+        .sf-wave-2 { animation: sfWM2 9s ease-in-out infinite; }
+        .sf-wave-3 { animation: sfWM3 11s ease-in-out infinite; }
+        @keyframes sfWM1 { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-12px)} }
+        @keyframes sfWM2 { 0%,100%{transform:translateX(0)} 50%{transform:translateX(10px)} }
+        @keyframes sfWM3 { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-7px)} }
+
         @media (prefers-reduced-motion: reduce) {
-          .sf-sky, .sf-sun, .sf-moon, .sf-stars-container,
-          .sf-ocean, .sf-ocean-shimmer, .sf-star,
-          .sf-wave, .sf-wave path {
+          .sf-sky,.sf-sun,.sf-moon,.sf-stars-container,.sf-ocean,.sf-ocean-shimmer,.sf-star,.sf-wave,.sf-wave path {
             animation: none !important;
           }
-          .sf-sky {
-            background: linear-gradient(180deg, #ff6b35 0%, #ff8c42 20%, #f7567c 45%, #6a0572 70%, #1a0533 100%) !important;
-          }
-          .sf-sun { opacity: 1 !important; top: 30% !important; }
+          .sf-sky { background: linear-gradient(180deg, #d4873a 0%, #c46a2e 25%, #a34525 50%, #5a2a1a 75%, #1a1510 100%) !important; }
+          .sf-sun { opacity: 1 !important; top: 32% !important; }
           .sf-moon { opacity: 0 !important; }
           .sf-stars-container { opacity: 0 !important; }
         }
