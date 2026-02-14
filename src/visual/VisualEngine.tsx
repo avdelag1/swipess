@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/hooks/useTheme";
 
 /**
  * VisualEngine - Cinematic Background Layer System
@@ -12,8 +12,8 @@ import { useTheme } from "@/components/theme-provider";
  * Mounted once in AppLayout for persistent luxury feel
  */
 export const VisualEngine = () => {
-  const { theme, actualTheme } = useTheme();
-  const isDark = actualTheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme === "black-matte";
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
