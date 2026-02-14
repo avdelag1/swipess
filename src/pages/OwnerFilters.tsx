@@ -19,13 +19,17 @@ const genderOptions: { id: ClientGender; label: string; description: string }[] 
   { id: 'any', label: 'All Genders', description: 'Show everyone' },
   { id: 'female', label: 'Women', description: 'Female clients' },
   { id: 'male', label: 'Men', description: 'Male clients' },
+  { id: 'other', label: 'Non-Binary', description: 'Non-binary clients' },
 ];
 
 const clientTypeOptions: { id: ClientType; label: string; description: string }[] = [
-  { id: 'all', label: 'All Types', description: 'All clients' },
-  { id: 'hire', label: 'Hiring Services', description: 'Looking to hire' },
-  { id: 'rent', label: 'Renting', description: 'Looking to rent' },
-  { id: 'buy', label: 'Buying', description: 'Looking to buy' },
+  { id: 'all', label: 'All Types', description: 'Show all client types' },
+  { id: 'hire', label: 'Hiring Services', description: 'Need workers or services' },
+  { id: 'rent', label: 'Renting Property', description: 'Looking for rentals' },
+  { id: 'buy', label: 'Buying Property', description: 'Looking to purchase' },
+  { id: 'individual', label: 'Individual', description: 'Single person looking' },
+  { id: 'family', label: 'Family', description: 'Family looking together' },
+  { id: 'business', label: 'Business', description: 'Company or business needs' },
 ];
 
 const springTransition = { type: 'spring' as const, stiffness: 400, damping: 28 };
@@ -114,40 +118,46 @@ export default function OwnerFilters() {
               <User className="w-3.5 h-3.5" />
               Gender
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2.5">
               {genderOptions.map((option) => {
                 const isSelected = selectedGender === option.id;
                 return (
                   <motion.button
                     key={option.id}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.97 }}
                     onClick={() => setSelectedGender(option.id)}
                     className={cn(
-                      "flex flex-col items-center justify-center p-3.5 rounded-[var(--radius-md)] border-2 transition-all duration-[var(--duration-fast)]",
+                      "flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-200 shadow-sm",
                       isSelected
-                        ? "border-primary/60 bg-primary/8"
-                        : "border-transparent bg-muted/40 hover:bg-muted/60"
+                        ? "bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg shadow-primary/25"
+                        : "bg-card hover:bg-muted/60 border border-border"
                     )}
                   >
-                    <motion.div 
+                    <motion.div
                       className={cn(
-                        "w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-colors duration-[var(--duration-fast)]",
-                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                        "w-12 h-12 rounded-full flex items-center justify-center mb-2.5 transition-all duration-200",
+                        isSelected ? "bg-white/20" : "bg-muted"
                       )}
-                      animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
+                      animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                       transition={springTransition}
                     >
                       {isSelected ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-6 h-6" />
                       ) : (
-                        <Users className="w-5 h-5 text-muted-foreground" />
+                        <Users className="w-6 h-6 text-muted-foreground" />
                       )}
                     </motion.div>
                     <span className={cn(
-                      "text-sm font-medium",
-                      isSelected ? "text-foreground" : "text-muted-foreground"
+                      "text-sm font-semibold mb-0.5",
+                      isSelected ? "text-white" : "text-foreground"
                     )}>
                       {option.label}
+                    </span>
+                    <span className={cn(
+                      "text-xs",
+                      isSelected ? "text-white/80" : "text-muted-foreground"
+                    )}>
+                      {option.description}
                     </span>
                   </motion.button>
                 );
@@ -161,44 +171,47 @@ export default function OwnerFilters() {
               <Briefcase className="w-3.5 h-3.5" />
               Looking For
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {clientTypeOptions.map((option) => {
                 const isSelected = selectedClientType === option.id;
                 return (
                   <motion.button
                     key={option.id}
-                    whileTap={{ scale: 0.97 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedClientType(option.id)}
                     className={cn(
-                      "w-full flex items-center justify-between p-3.5 rounded-[var(--radius-md)] border-2 transition-all duration-[var(--duration-fast)]",
+                      "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 shadow-sm",
                       isSelected
-                        ? "border-primary/60 bg-primary/8"
-                        : "border-transparent bg-muted/40 hover:bg-muted/60"
+                        ? "bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg shadow-primary/25"
+                        : "bg-card hover:bg-muted/60 border border-border"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <motion.div 
+                    <div className="flex items-center gap-3.5">
+                      <motion.div
                         className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-[var(--duration-fast)]",
-                          isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                          "w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200",
+                          isSelected ? "bg-white/20" : "bg-muted"
                         )}
-                        animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
+                        animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                         transition={springTransition}
                       >
                         {isSelected ? (
-                          <Check className="w-5 h-5" />
+                          <Check className="w-5 h-5 text-white" />
                         ) : (
                           <Briefcase className="w-5 h-5 text-muted-foreground" />
                         )}
                       </motion.div>
                       <div className="text-left">
                         <span className={cn(
-                          "block font-medium text-[15px]",
-                          isSelected ? "text-foreground" : "text-muted-foreground"
+                          "block font-semibold text-[15px]",
+                          isSelected ? "text-white" : "text-foreground"
                         )}>
                           {option.label}
                         </span>
-                        <span className="text-xs text-muted-foreground">
+                        <span className={cn(
+                          "text-xs",
+                          isSelected ? "text-white/80" : "text-muted-foreground"
+                        )}>
                           {option.description}
                         </span>
                       </div>
@@ -210,8 +223,9 @@ export default function OwnerFilters() {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
                           transition={springTransition}
+                          className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
                         >
-                          <Check className="w-5 h-5 text-primary" />
+                          <Check className="w-4 h-4 text-white" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -261,11 +275,11 @@ export default function OwnerFilters() {
         <div className="max-w-lg mx-auto">
           <Button
             onClick={handleApply}
-            className="w-full h-12 text-base font-semibold rounded-[var(--radius-lg)]"
+            className="w-full h-12 text-base font-semibold rounded-2xl shadow-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
           >
             <Sparkles className="w-5 h-5 mr-2" />
-            {activeFilterCount === 0 
-              ? 'Show All Clients' 
+            {activeFilterCount === 0
+              ? 'Show All Clients'
               : `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}`
             }
           </Button>

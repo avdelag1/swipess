@@ -61,9 +61,9 @@ const categories: {
 ];
 
 const listingTypes = [
-  { id: 'both' as const, label: 'Both' },
-  { id: 'rent' as const, label: 'For Rent' },
-  { id: 'sale' as const, label: 'For Sale' },
+  { id: 'both' as const, label: 'All', description: 'Rent & Sale' },
+  { id: 'rent' as const, label: 'Rent', description: 'Rentals only' },
+  { id: 'sale' as const, label: 'Buy', description: 'For sale only' },
 ];
 
 const springTransition = { type: 'spring' as const, stiffness: 400, damping: 28 };
@@ -160,20 +160,26 @@ export default function ClientFilters() {
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               I want to
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2.5">
               {listingTypes.map((type) => (
                 <motion.button
                   key={type.id}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => setSelectedListingType(type.id)}
                   className={cn(
-                    "py-3 px-4 rounded-[var(--radius-md)] text-sm font-medium transition-all duration-[var(--duration-fast)]",
+                    "flex flex-col items-center justify-center py-3.5 px-3 rounded-2xl transition-all duration-200 shadow-sm",
                     selectedListingType === type.id
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "bg-muted/60 hover:bg-muted text-muted-foreground"
+                      ? "bg-gradient-to-br from-primary/90 to-primary text-white shadow-lg shadow-primary/25"
+                      : "bg-card border border-border hover:bg-muted/60 text-foreground"
                   )}
                 >
-                  {type.label}
+                  <span className="text-sm font-semibold">{type.label}</span>
+                  <span className={cn(
+                    "text-xs mt-0.5",
+                    selectedListingType === type.id ? "text-white/80" : "text-muted-foreground"
+                  )}>
+                    {type.description}
+                  </span>
                 </motion.button>
               ))}
             </div>
@@ -184,29 +190,29 @@ export default function ClientFilters() {
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Categories
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category.id);
                 return (
                   <motion.button
                     key={category.id}
-                    whileTap={{ scale: 0.97 }}
+                    whileTap={{ scale: 0.98 }}
                     layout
                     onClick={() => handleCategoryToggle(category.id)}
                     className={cn(
-                      "w-full flex items-center justify-between p-3.5 rounded-[var(--radius-md)] border-2 transition-all duration-[var(--duration-fast)]",
+                      "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 shadow-sm",
                       isSelected
-                        ? "border-primary/60 bg-primary/8"
-                        : "border-transparent bg-muted/40 hover:bg-muted/60"
+                        ? "bg-gradient-to-br from-primary/90 to-primary text-white shadow-lg shadow-primary/25"
+                        : "bg-card border border-border hover:bg-muted/60"
                     )}
                   >
-                    <div className="flex items-center gap-3">
-                      <motion.div 
+                    <div className="flex items-center gap-3.5">
+                      <motion.div
                         className={cn(
-                          "w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-[var(--duration-fast)]",
-                          isSelected ? category.bgColor : "bg-muted"
+                          "w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200",
+                          isSelected ? "bg-white/20" : "bg-muted"
                         )}
-                        animate={isSelected ? { scale: [1, 1.1, 1] } : {}}
+                        animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                         transition={springTransition}
                       >
                         <span className={isSelected ? "text-white" : category.color}>
@@ -214,13 +220,13 @@ export default function ClientFilters() {
                         </span>
                       </motion.div>
                       <span className={cn(
-                        "font-medium text-[15px]",
-                        isSelected ? "text-foreground" : "text-muted-foreground"
+                        "font-semibold text-[15px]",
+                        isSelected ? "text-white" : "text-foreground"
                       )}>
                         {category.label}
                       </span>
                     </div>
-                    
+
                     <AnimatePresence>
                       {isSelected && (
                         <motion.div
@@ -228,10 +234,7 @@ export default function ClientFilters() {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
                           transition={springTransition}
-                          className={cn(
-                            "w-7 h-7 rounded-full flex items-center justify-center",
-                            category.bgColor
-                          )}
+                          className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center"
                         >
                           <Check className="w-4 h-4 text-white" />
                         </motion.div>
@@ -289,11 +292,11 @@ export default function ClientFilters() {
           <Button
             onClick={handleApply}
             disabled={selectedCategories.length === 0}
-            className="w-full h-12 text-base font-semibold rounded-[var(--radius-lg)]"
+            className="w-full h-12 text-base font-semibold rounded-2xl shadow-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary disabled:opacity-50"
           >
             <Sparkles className="w-5 h-5 mr-2" />
-            {selectedCategories.length === 0 
-              ? 'Select a Category' 
+            {selectedCategories.length === 0
+              ? 'Select a Category'
               : `Browse ${selectedCategories.length} Categor${selectedCategories.length > 1 ? 'ies' : 'y'}`
             }
           </Button>
