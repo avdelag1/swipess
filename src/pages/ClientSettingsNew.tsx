@@ -150,16 +150,6 @@ const ClientSettingsNew = () => {
   return (
     <div className="w-full min-h-full overflow-y-auto px-5 py-4 pb-32">
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Back
-        </Button>
-
         {/* Page Header */}
         <PageHeader
           title="Settings"

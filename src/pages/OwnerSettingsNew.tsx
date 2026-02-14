@@ -152,17 +152,6 @@ const OwnerSettingsNew = () => {
   return (
     <div className="w-full px-4 sm:px-5 py-4" style={{ paddingBottom: 'calc(8rem + env(safe-area-inset-bottom, 0px))' }}>
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate(-1)}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-
         {/* Page Header */}
         <PageHeader
           title="Settings"
