@@ -88,7 +88,7 @@ export default function RetroRadioStation() {
   }, [play]);
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden select-none">
+    <div className="relative w-full h-full flex flex-col overflow-hidden select-none">
       {/* Background - subtle gradient based on city theme */}
       <div
         className="absolute inset-0 transition-all duration-1000"
@@ -241,8 +241,8 @@ export default function RetroRadioStation() {
         </div>
 
         {/* City quick-switch pills */}
-        <div className="flex-shrink-0 px-5 pb-4 w-full">
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide justify-center flex-wrap">
+        <div className="flex-shrink-0 px-5 pb-2 w-full">
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide justify-start">
             {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
               const ct = cityThemes[city];
               const isActive = city === state.currentCity;
@@ -292,32 +292,28 @@ export default function RetroRadioStation() {
  * Responsive vinyl size based on viewport
  */
 function getVinylSize(): number {
-  if (typeof window === 'undefined') return 140;
+  if (typeof window === 'undefined') return 100;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  // Mobile portrait - smaller to fit content
-  if (vw < 380) return 120;
-  if (vw < 480) return 140;
-  // Mobile landscape or small tablet
-  if (vh < 600) return 120;
-  // Tablet
-  if (vw < 768) return 160;
-  // Desktop
-  return 200;
+  if (vw < 380) return 80;
+  if (vw < 480) return 100;
+  if (vh < 600) return 80;
+  if (vw < 768) return 120;
+  return 160;
 }
 
 /**
  * Responsive click wheel size
  */
 function getWheelSize(): number {
-  if (typeof window === 'undefined') return 120;
+  if (typeof window === 'undefined') return 85;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 100;
-  if (vw < 480) return 110;
-  if (vh < 600) return 95;
-  if (vw < 768) return 130;
-  return 150;
+  if (vw < 380) return 70;
+  if (vw < 480) return 85;
+  if (vh < 600) return 70;
+  if (vw < 768) return 100;
+  return 120;
 }

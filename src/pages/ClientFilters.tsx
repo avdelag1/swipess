@@ -10,7 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Home, Bike, Briefcase, X, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { GlassSurface } from '@/components/ui/glass-surface';
+
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -113,7 +113,7 @@ export default function ClientFilters() {
   }, [navigate]);
   
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+    <div className="min-h-full flex flex-col pb-24">
       {/* Header */}
       <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
@@ -156,8 +156,8 @@ export default function ClientFilters() {
         <div className="max-w-lg mx-auto px-4 py-4 space-y-5">
           
           {/* Listing Type */}
-          <GlassSurface elevation="elevated" className="p-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               I want to
             </p>
             <div className="grid grid-cols-3 gap-2">
@@ -177,11 +177,11 @@ export default function ClientFilters() {
                 </motion.button>
               ))}
             </div>
-          </GlassSurface>
+          </div>
 
           {/* Categories */}
-          <GlassSurface elevation="elevated" className="p-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Categories
             </p>
             <div className="space-y-2">
@@ -241,7 +241,7 @@ export default function ClientFilters() {
                 );
               })}
             </div>
-          </GlassSurface>
+          </div>
 
           {/* Quick Actions */}
           {selectedCategories.length > 0 && (
@@ -250,8 +250,8 @@ export default function ClientFilters() {
               animate={{ opacity: 1, y: 0 }}
               transition={springTransition}
             >
-              <GlassSurface elevation="surface" className="p-4">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   Quick Actions
                 </p>
@@ -262,7 +262,7 @@ export default function ClientFilters() {
                   <span className="text-sm font-medium text-foreground">More Filters...</span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </button>
-              </GlassSurface>
+              </div>
             </motion.div>
           )}
 
@@ -284,7 +284,7 @@ export default function ClientFilters() {
       </div>
 
       {/* Footer - Apply Button */}
-      <div className="shrink-0 px-4 pb-[max(env(safe-area-inset-bottom,12px),12px)] pt-3 bg-gradient-to-t from-background via-background to-transparent">
+      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pt-3 pb-2 bg-gradient-to-t from-background via-background to-transparent">
         <div className="max-w-lg mx-auto">
           <Button
             onClick={handleApply}
