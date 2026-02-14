@@ -1,63 +1,57 @@
 
 
-## Live Sunset-Night-Sunrise Cycle Background
+## Fix Page Layouts: Remove Bordered Frames, Fix Overlaps, Resize Radio
 
-Replace the empty `StarFieldBackground` component with a full cinematic day/night cycle that plays continuously on the landing page. The effect will be entirely CSS-driven (no canvas, no heavy libraries) for smooth 60fps performance.
+### Problems Identified
+From the screenshots, there are several issues across multiple pages:
 
-### Visual Cycle (120 seconds total loop)
+1. **White bordered frames** on filter and settings pages (the `GlassSurface` component adds visible borders around every section)
+2. **Buttons/content hidden behind bottom navigation** on filter pages and radio page
+3. **Radio page is too large** - vinyl record, click wheel, volume slider, and city pills overflow and mix with the bottom navigation
+4. **Radio iPod design is oversized** - the click wheel and vinyl need to be significantly smaller to fit on mobile screens within the available space (between top bar and bottom nav)
 
-```text
-Phase 1: SUNSET (0-30s)
-  - Sky gradient shifts from warm orange/pink to deep purple/red
-  - Sun (circle element) slowly descends from mid-screen toward the horizon
-  - Ocean reflects warm sunset colors with gentle wave shimmer
-  - Clouds tinted in golden/pink hues
+### Changes
 
-Phase 2: NIGHT (30-70s)
-  - Sky transitions to deep dark blue/black
-  - Sun disappears below horizon
-  - Stars fade in (scattered dot elements with twinkle animation)
-  - Moon appears with soft glow
-  - Ocean darkens, reflects moonlight with subtle silver shimmer
+#### 1. Owner Filters Page (`src/pages/OwnerFilters.tsx`)
+- Remove `GlassSurface` wrappers and replace with simple unstyled containers (no borders, no glass effect)
+- Change the layout from `fixed inset-0 z-50` to a normal flow layout that respects the `DashboardLayout` padding (top bar + bottom nav)
+- Move the Apply button up so it does not collide with the bottom navigation (use `pb-28` spacer instead of relying on safe area)
 
-Phase 3: SUNRISE (70-100s)
-  - Sky lightens from dark to soft pink/coral/gold
-  - Stars fade out
-  - Sun rises from the horizon, glowing warmly
-  - Ocean reflects sunrise colors
-  - Fresh morning light wash
+#### 2. Client Filters Page (`src/pages/ClientFilters.tsx`)
+- Same treatment: remove `GlassSurface` wrappers, remove bordered frames
+- Change layout from `fixed inset-0 z-50` to normal flow within `DashboardLayout`
+- Ensure Apply button and category list do not overlap with bottom navigation
 
-Phase 4: TRANSITION BACK (100-120s)
-  - Smoothly blend back to sunset position to restart the loop seamlessly
-```
+#### 3. Client Settings Page (`src/pages/ClientSettingsNew.tsx`)
+- Remove `GlassSurface` wrapper around the settings menu list
+- Keep the clean list style but without the visible bordered card frame
 
-### Architecture
+#### 4. Radio Page (`src/pages/RetroRadioStation.tsx`)
+- Significantly reduce the vinyl disc and click wheel sizes (reduce by ~30-40% on mobile)
+- Remove the `fixed inset-0` layout and make it work within the `DashboardLayout` content area so it respects top bar and bottom nav spacing
+- Reduce padding and spacing between sections so everything fits in the viewport
+- Make city pills a single horizontal scroll row instead of wrapping (to save vertical space)
 
-Only **one file** needs to be created/modified:
+### Technical Details
 
-1. **`src/components/StarFieldBackground.tsx`** - Replace the empty component with the full scene. This component is already imported and rendered in `LegendaryLandingPage.tsx`, so no other files need changes.
+**Filter pages layout change:**
+- Remove `fixed inset-0 z-50` wrapper -- instead use `min-h-full` within the DashboardLayout scroll container
+- Replace `<GlassSurface elevation="elevated" className="p-4">` with plain `<div className="space-y-2">` or similar borderless containers
+- Move the sticky Apply button to use `fixed bottom-20` (above the ~60px bottom nav) instead of using safe area insets
 
-### Technical Approach
+**Radio page sizing:**
+- Reduce `getVinylSize()` returns: mobile values from 120-140px down to 80-100px
+- Reduce `getWheelSize()` returns: mobile values from 100-110px down to 70-85px
+- Remove `fixed inset-0` and use a normal page layout that flows within DashboardLayout
+- Tighten all vertical padding (`py-2` to `py-1`, remove spacers)
 
-- **Sun/Moon**: Absolutely positioned `div` elements with `border-radius: 50%` and radial gradients, animated along a vertical path using CSS `@keyframes`
-- **Sky**: Multiple layered gradient backgrounds that shift colors through the cycle using a single long CSS animation
-- **Ocean**: Bottom 30% of the screen with a separate gradient that mirrors the sky colors, plus a subtle wave effect using an SVG wave path with CSS animation
-- **Stars**: 40-50 small absolutely positioned dots that fade in/out with random twinkle delays, only visible during the night phase
-- **Waves**: 2-3 SVG wave shapes at the bottom with gentle horizontal translate animation for realistic water movement
-- **All animations**: Pure CSS `@keyframes` with `will-change: transform, opacity` for GPU acceleration
-- **Reduced motion**: Falls back to a static sunset scene
-- **z-index**: Stays at z-index 0-5, below the main content at z-index 20
-
-### Performance
-
-- Zero JavaScript animation loops (all CSS)
-- No canvas or WebGL
-- GPU-accelerated transforms only
-- Respects `prefers-reduced-motion`
-- Disabled on devices with fewer than 4 CPU cores
-- Non-interactive (`pointer-events: none`)
+**Settings page:**
+- Replace `<GlassSurface elevation="elevated">` with a simple `<div className="rounded-xl overflow-hidden bg-card/30">` or remove the wrapper entirely
 
 ### Files to Modify
-
-1. `src/components/StarFieldBackground.tsx` - Complete rewrite with the sunset/night/sunrise cycle scene
+1. `src/pages/OwnerFilters.tsx` - Remove glass frames, fix layout
+2. `src/pages/ClientFilters.tsx` - Remove glass frames, fix layout  
+3. `src/pages/ClientSettingsNew.tsx` - Remove glass frame around menu
+4. `src/pages/RetroRadioStation.tsx` - Shrink vinyl/wheel, fix layout to not overlap bottom nav
+5. `src/pages/OwnerSettingsNew.tsx` (if exists with same pattern) - Remove glass frames
 
