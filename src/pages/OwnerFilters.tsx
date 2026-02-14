@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Users, User, Briefcase, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { GlassSurface } from '@/components/ui/glass-surface';
+
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -66,7 +66,7 @@ export default function OwnerFilters() {
   }, [navigate]);
   
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col">
+    <div className="min-h-full flex flex-col pb-24">
       {/* Header */}
       <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
@@ -109,8 +109,8 @@ export default function OwnerFilters() {
         <div className="max-w-lg mx-auto px-4 py-4 space-y-5">
           
           {/* Gender */}
-          <GlassSurface elevation="elevated" className="p-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
               <User className="w-3.5 h-3.5" />
               Gender
             </p>
@@ -153,11 +153,11 @@ export default function OwnerFilters() {
                 );
               })}
             </div>
-          </GlassSurface>
+          </div>
 
           {/* Client Type */}
-          <GlassSurface elevation="elevated" className="p-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <div className="space-y-3">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
               <Briefcase className="w-3.5 h-3.5" />
               Looking For
             </p>
@@ -219,7 +219,7 @@ export default function OwnerFilters() {
                 );
               })}
             </div>
-          </GlassSurface>
+          </div>
 
           {/* Active Filters Summary */}
           {activeFilterCount > 0 && (
@@ -228,14 +228,14 @@ export default function OwnerFilters() {
               animate={{ opacity: 1, y: 0 }}
               transition={springTransition}
             >
-              <GlassSurface elevation="surface" className="p-4 border-primary/20">
+              <div className="p-4 rounded-xl bg-primary/5">
                 <div className="flex items-center gap-2 text-sm">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="font-medium text-primary">
                     {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} applied
                   </span>
                 </div>
-              </GlassSurface>
+              </div>
             </motion.div>
           )}
 
@@ -257,7 +257,7 @@ export default function OwnerFilters() {
       </div>
 
       {/* Footer - Apply Button */}
-      <div className="shrink-0 px-4 pb-[max(env(safe-area-inset-bottom,12px),12px)] pt-3 bg-gradient-to-t from-background via-background to-transparent">
+      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pt-3 pb-2 bg-gradient-to-t from-background via-background to-transparent">
         <div className="max-w-lg mx-auto">
           <Button
             onClick={handleApply}

@@ -1,7 +1,7 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
-import { GlassSurface } from "@/components/ui/glass-surface";
+
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight, Scale, Volume2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -94,11 +94,11 @@ const ClientSettingsNew = () => {
             transition={fastSpring}
             className="space-y-6"
           >
-            <GlassSurface elevation="elevated">
+            <div className="rounded-xl overflow-hidden bg-card/30">
               <CardContent className="p-6">
                 <AccountSecurity userRole="client" />
               </CardContent>
-            </GlassSurface>
+            </div>
 
             {/* Danger Zone - Delete Account */}
             <div className="space-y-3">
@@ -172,7 +172,7 @@ const ClientSettingsNew = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={fastSpring}
         >
-          <GlassSurface elevation="elevated" className="overflow-hidden">
+          <div className="rounded-xl overflow-hidden bg-card/30">
             <CardContent className="p-0">
               {settingsItems.map((item, index) => (
                 <div key={item.label}>
@@ -204,7 +204,7 @@ const ClientSettingsNew = () => {
                 </div>
               ))}
             </CardContent>
-          </GlassSurface>
+          </div>
         </motion.div>
 
         {/* App Version */}
