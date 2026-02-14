@@ -157,28 +157,61 @@ Return JSON with suggested filters:
         );
     }
 
-    const response = await fetch(MINIMAX_API_URL, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${MINIMAX_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "MiniMax-Text-01",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
-    });
+    // Retry logic for rate limiting
+    let response;
+    let retries = 0;
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 second
+
+    while (retries <= maxRetries) {
+      response = await fetch(MINIMAX_API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${MINIMAX_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "MiniMax-Text-01",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+          ],
+          temperature: 0.7,
+          max_tokens: 1000,
+        }),
+      });
+
+      // If successful or non-retryable error, break
+      if (response.ok || (response.status !== 429 && response.status !== 503)) {
+        break;
+      }
+
+      // If we've exhausted retries, break
+      if (retries === maxRetries) {
+        break;
+      }
+
+      // Wait with exponential backoff before retrying
+      const delay = baseDelay * Math.pow(2, retries);
+      console.log(`Rate limited (429). Retrying in ${delay}ms... (attempt ${retries + 1}/${maxRetries})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      retries++;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("MiniMax API error:", response.status, errorText);
+
+      // Provide more helpful error messages
+      let errorMessage = `AI service error (${response.status})`;
+      if (response.status === 429) {
+        errorMessage = "AI service is temporarily busy. Please try again in a moment.";
+      } else if (response.status === 503) {
+        errorMessage = "AI service is temporarily unavailable. Please try again later.";
+      }
+
       return new Response(
-        JSON.stringify({ error: `AI service error (${response.status})` }),
+        JSON.stringify({ error: errorMessage }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
