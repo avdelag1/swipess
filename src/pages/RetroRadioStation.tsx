@@ -117,32 +117,32 @@ export default function RetroRadioStation() {
       <div className="relative z-10 flex-1 flex flex-col items-center overflow-hidden">
 
         {/* Header */}
-        <div className="w-full flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
+        <div className="w-full flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => window.history.back()}
-            className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center backdrop-blur-sm"
+            className="w-10 h-10 rounded-full flex items-center justify-center"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-4 h-4 text-white/60" />
+            <ArrowLeft className="w-5 h-5 text-white/70" />
           </motion.button>
 
           <div className="flex items-center gap-1.5">
-            <Disc3 className="w-3 h-3 text-white/30" />
-            <span className="text-white/30 text-[9px] tracking-[0.15em] uppercase font-medium">
+            <Disc3 className="w-4 h-4 text-white/40" />
+            <span className="text-white/40 text-[10px] tracking-[0.15em] uppercase font-medium">
               Radio
             </span>
           </div>
 
           {/* Live indicator */}
-          <div className={`px-2.5 py-1 rounded-full text-[9px] ${state.isPlaying ? 'bg-orange-500/10' : 'bg-white/5'}`}>
-            <div className="flex items-center gap-1">
+          <div className="px-3 py-1 rounded-full text-[10px]">
+            <div className="flex items-center gap-1.5">
               <motion.div
-                className={`w-1 h-1 rounded-full ${state.isPlaying ? 'bg-orange-500' : 'bg-white/20'}`}
+                className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-orange-500' : 'bg-white/30'}`}
                 animate={state.isPlaying ? { opacity: [1, 0.3, 1] } : {}}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
-              <span className={`font-medium tracking-wider ${state.isPlaying ? 'text-white/60' : 'text-white/30'}`}>
+              <span className={`font-medium tracking-wider ${state.isPlaying ? 'text-white/70' : 'text-white/40'}`}>
                 {state.isPlaying ? 'LIVE' : 'OFF'}
               </span>
             </div>
@@ -150,36 +150,36 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Quick actions row */}
-        <div className="flex items-center justify-center gap-3 py-2 flex-shrink-0">
+        <div className="flex items-center justify-center gap-4 py-3 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
             onClick={toggleShuffle}
-            className={`p-2 rounded-full transition-all ${state.isShuffle ? '' : 'bg-white/10'}`}
+            className="p-2.5 rounded-full transition-all"
             style={state.isShuffle ? {
               background: `linear-gradient(135deg, ${cityTheme.primaryColor}30, ${cityTheme.secondaryColor}20)`,
               boxShadow: `0 4px 16px ${cityTheme.primaryColor}25`,
             } : {}}
             aria-label={state.isShuffle ? 'Disable shuffle' : 'Enable shuffle'}
           >
-            <Shuffle className={`w-4 h-4 ${state.isShuffle ? 'text-white' : 'text-white/40'}`} />
+            <Shuffle className={`w-5 h-5 ${state.isShuffle ? 'text-white' : 'text-white/50'}`} />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
             onClick={() => setShowStationDrawer(true)}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/15 transition-all"
+            className="p-2.5 rounded-full transition-all"
             aria-label="Browse stations"
           >
-            <ListMusic className="w-4 h-4 text-white/40" />
+            <ListMusic className="w-5 h-5 text-white/50" />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
-            className={`p-2 rounded-full transition-all ${isFav ? '' : 'bg-white/10'}`}
+            className="p-2.5 rounded-full transition-all"
             style={isFav ? {
               background: `linear-gradient(135deg, ${cityTheme.primaryColor}30, ${cityTheme.secondaryColor}20)`,
               boxShadow: `0 4px 16px ${cityTheme.primaryColor}25`,
@@ -187,13 +187,13 @@ export default function RetroRadioStation() {
             aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${isFav ? 'text-white fill-white' : 'text-white/40'}`}
+              className={`w-5 h-5 transition-colors ${isFav ? 'text-white fill-white' : 'text-white/50'}`}
             />
           </motion.button>
         </div>
 
         {/* Main Content - Centered Vinyl with Controls */}
-        <div className="flex-1 flex flex-col items-center justify-center py-4 gap-6">
+        <div className="flex-1 flex flex-col items-center justify-center py-6 gap-8">
           {/* Vinyl Record - Large and Centered */}
           <AnimatePresence mode="wait">
             <motion.div
@@ -237,21 +237,21 @@ export default function RetroRadioStation() {
           </AnimatePresence>
 
           {/* Minimalist Control Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center gap-6">
             {/* Previous Button */}
             <motion.button
               whileTap={{ scale: 0.9 }}
               whileHover={{ scale: 1.05 }}
               onClick={() => changeStation('prev')}
-              className="w-14 h-14 rounded-full flex items-center justify-center transition-all"
+              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
               style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}20, ${cityTheme.secondaryColor}15)`,
+                background: `linear-gradient(135deg, ${cityTheme.primaryColor}25, ${cityTheme.secondaryColor}20)`,
                 backdropFilter: 'blur(10px)',
-                boxShadow: `0 4px 20px ${cityTheme.primaryColor}25`,
+                boxShadow: `0 4px 20px ${cityTheme.primaryColor}30`,
               }}
               aria-label="Previous station"
             >
-              <SkipBack className="w-6 h-6 text-white" />
+              <SkipBack className="w-6 h-6 text-white" fill="white" />
             </motion.button>
 
             {/* Play/Pause Button - Larger and Centered */}
@@ -259,17 +259,17 @@ export default function RetroRadioStation() {
               whileTap={{ scale: 0.92 }}
               whileHover={{ scale: 1.05 }}
               onClick={togglePlayPause}
-              className="w-20 h-20 rounded-full flex items-center justify-center transition-all"
+              className="w-24 h-24 rounded-full flex items-center justify-center transition-all"
               style={{
                 background: `linear-gradient(135deg, ${cityTheme.primaryColor}, ${cityTheme.secondaryColor})`,
-                boxShadow: `0 8px 32px ${cityTheme.primaryColor}40, 0 0 60px ${cityTheme.primaryColor}30`,
+                boxShadow: `0 8px 32px ${cityTheme.primaryColor}50, 0 0 60px ${cityTheme.primaryColor}35`,
               }}
               aria-label={state.isPlaying ? 'Pause' : 'Play'}
             >
               {state.isPlaying ? (
-                <Pause className="w-8 h-8 text-white" fill="white" />
+                <Pause className="w-9 h-9 text-white" fill="white" />
               ) : (
-                <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                <Play className="w-9 h-9 text-white ml-1" fill="white" />
               )}
             </motion.button>
 
@@ -278,27 +278,27 @@ export default function RetroRadioStation() {
               whileTap={{ scale: 0.9 }}
               whileHover={{ scale: 1.05 }}
               onClick={() => changeStation('next')}
-              className="w-14 h-14 rounded-full flex items-center justify-center transition-all"
+              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
               style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}20, ${cityTheme.secondaryColor}15)`,
+                background: `linear-gradient(135deg, ${cityTheme.primaryColor}25, ${cityTheme.secondaryColor}20)`,
                 backdropFilter: 'blur(10px)',
-                boxShadow: `0 4px 20px ${cityTheme.primaryColor}25`,
+                boxShadow: `0 4px 20px ${cityTheme.primaryColor}30`,
               }}
               aria-label="Next station"
             >
-              <SkipForward className="w-6 h-6 text-white" />
+              <SkipForward className="w-6 h-6 text-white" fill="white" />
             </motion.button>
           </div>
         </div>
 
         {/* Volume Slider */}
-        <div className="flex-shrink-0 px-8 py-3 w-full">
+        <div className="flex-shrink-0 px-8 py-4 w-full">
           <VolumeSlider volume={state.volume} onVolumeChange={setVolume} />
         </div>
 
         {/* City quick-switch pills */}
-        <div className="flex-shrink-0 px-4 py-2 w-full overflow-hidden">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide justify-start">
+        <div className="flex-shrink-0 px-4 py-3 w-full overflow-hidden">
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide justify-center">
             {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
               const ct = cityThemes[city];
               const isActive = city === state.currentCity;
@@ -306,12 +306,12 @@ export default function RetroRadioStation() {
                 <motion.button
                   key={city}
                   whileTap={{ scale: 0.93 }}
-                  whileHover={{ scale: isActive ? 1 : 1.02 }}
+                  whileHover={{ scale: isActive ? 1 : 1.05 }}
                   onClick={() => handleCitySelect(city)}
-                  className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all whitespace-nowrap ${
+                  className={`px-3.5 py-2 rounded-full text-[11px] font-medium transition-all whitespace-nowrap ${
                     isActive
                       ? 'text-white'
-                      : 'bg-white/10 text-white/50 hover:bg-white/15 hover:text-white/70'
+                      : 'text-white/60 hover:text-white/80'
                   }`}
                   style={isActive ? {
                     background: `linear-gradient(135deg, ${ct.primaryColor}, ${ct.secondaryColor})`,
@@ -326,7 +326,7 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Bottom spacer for safe area */}
-        <div className="flex-shrink-0 h-1" />
+        <div className="flex-shrink-0 h-4" />
       </div>
 
       {/* Station Drawer */}

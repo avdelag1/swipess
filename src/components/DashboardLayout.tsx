@@ -477,9 +477,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     });
   }, [children, handlePropertyInsights, handleClientInsights, handleMessageClick, combinedFilters]);
 
-  // PERF FIX: Detect camera routes to hide TopBar/BottomNav (fullscreen camera UX)
-  // Camera routes are now INSIDE layout to prevent dashboard remount on navigate back
+  // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
+  // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back
   const isCameraRoute = location.pathname.includes('/camera');
+  const isRadioRoute = location.pathname.includes('/radio');
 
   // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   // On these routes, TopBar becomes transparent and content extends behind it
@@ -535,9 +536,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           in App.tsx. This prevents race conditions and UI flickers from multiple handlers
           firing on the same conversation_messages INSERT event. */}
 
-      {/* Top Bar - Fixed with safe-area-top. Hidden on camera routes for fullscreen UX */}
+      {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {!isCameraRoute && (
+      {!isCameraRoute && !isRadioRoute && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
@@ -550,15 +551,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       )}
 
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
-      {/* On camera route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
+      {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum"
         style={{
-          paddingTop: (isCameraRoute || isImmersiveDashboard) 
-            ? 'var(--safe-top)' 
+          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
+            ? 'var(--safe-top)'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: isCameraRoute ? 'var(--safe-bottom)' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isCameraRoute || isRadioRoute) ? 'var(--safe-bottom)' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
@@ -571,14 +572,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         }}
       >
         {enhancedChildren}
-        {/* Fade-out gradient at bottom of content */}
-        <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]" 
-          style={{ bottom: `calc(${bottomNavHeight}px + var(--safe-bottom))` }} 
-        />
+        {/* Fade-out gradient at bottom of content - hide on fullscreen routes */}
+        {!isCameraRoute && !isRadioRoute && (
+          <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]"
+            style={{ bottom: `calc(${bottomNavHeight}px + var(--safe-bottom))` }}
+          />
+        )}
       </main>
 
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera routes for fullscreen UX */}
-      {!isCameraRoute && (
+      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera and radio routes for fullscreen UX */}
+      {!isCameraRoute && !isRadioRoute && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}
