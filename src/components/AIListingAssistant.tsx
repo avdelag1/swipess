@@ -167,54 +167,52 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
     setIsGenerating(true);
     setStep('generating');
 
-    // Simulate AI generation (in production, this would call an AI API)
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    try {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke('ai-assistant', {
+        body: {
+          type: 'listing',
+          data: {
+            category: selectedCategory,
+            description: description.trim(),
+            price: price.trim(),
+            location: location.trim(),
+            imageCount: images.length,
+          },
+        },
+      });
 
-    // Generate smart defaults based on category and user input
-    const baseData: Record<string, unknown> = {
-      title: generateTitle(selectedCategory, description),
-      price: price ? parseFloat(price) : undefined,
-      city: location || undefined,
-      mode: 'rent',
-    };
+      if (fnError) throw new Error(fnError.message || 'AI generation failed');
+      if (fnData?.error) throw new Error(fnData.error);
 
-    // Add category-specific fields
-    if (selectedCategory === 'property') {
-      Object.assign(baseData, {
-        property_type: 'apartment',
-        beds: 2,
-        baths: 1,
-        furnished: true,
-        pet_friendly: false,
-        amenities: ['wifi', 'kitchen', 'washer'],
-      });
-    } else if (selectedCategory === 'motorcycle') {
-      Object.assign(baseData, {
-        motorcycle_type: 'sport',
-        vehicle_condition: 'good',
-        includes_helmet: true,
-      });
-    } else if (selectedCategory === 'bicycle') {
-      Object.assign(baseData, {
-        bicycle_type: 'city',
-        vehicle_condition: 'good',
-        includes_lock: true,
-        includes_lights: true,
-      });
-    } else if (selectedCategory === 'worker') {
-      Object.assign(baseData, {
-        service_category: 'general',
-        work_type: 'freelance',
-        experience_level: 'intermediate',
-        location_type: 'on_site',
-      });
+      const aiResult = fnData?.result || {};
+      
+      // Merge AI result with base data
+      const baseData: Record<string, unknown> = {
+        ...aiResult,
+        mode: 'rent',
+        price: aiResult.price || (price ? parseFloat(price) : undefined),
+        city: aiResult.city || location || undefined,
+      };
+
+      setGeneratedData(baseData);
+      setStep('review');
+      toast.success('AI listing generated!');
+    } catch (err: any) {
+      console.error('[AI] Generation error:', err);
+      toast.error(err.message || 'AI generation failed. Using defaults.');
+      
+      // Fallback to basic defaults
+      const baseData: Record<string, unknown> = {
+        title: generateTitle(selectedCategory, description),
+        price: price ? parseFloat(price) : undefined,
+        city: location || undefined,
+        mode: 'rent',
+      };
+      setGeneratedData(baseData);
+      setStep('review');
+    } finally {
+      setIsGenerating(false);
     }
-
-    // AI usage tracking removed - table doesn't exist
-
-    setGeneratedData(baseData);
-    setIsGenerating(false);
-    setStep('review');
   };
 
   const generateTitle = (category: Category, desc: string): string => {
