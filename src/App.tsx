@@ -71,6 +71,7 @@ import OwnerProfile from "./pages/OwnerProfileNew";
 import OwnerSettings from "./pages/OwnerSettingsNew";
 import OwnerProperties from "./pages/OwnerProperties";
 import OwnerNewListing from "./pages/OwnerNewListing";
+import { ConversationalListingCreator } from "./components/ConversationalListingCreator";
 import OwnerLikedClients from "./pages/OwnerLikedClients";
 import OwnerInterestedClients from "./pages/OwnerInterestedClients";
 import OwnerContracts from "./pages/OwnerContracts";
@@ -220,6 +221,7 @@ const App = () => (
                       <Route path="/owner/settings" element={<OwnerSettings />} />
                       <Route path="/owner/properties" element={<OwnerProperties />} />
                       <Route path="/owner/listings/new" element={<OwnerNewListing />} />
+                      <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
                       <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
                       <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
                       <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
