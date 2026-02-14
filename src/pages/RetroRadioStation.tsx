@@ -5,7 +5,6 @@ import { useRadio } from '@/contexts/RadioContext';
 import { cityThemes, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { VinylDisc } from '@/components/radio/retro/VinylDisc';
-import { ClickWheel } from '@/components/radio/retro/ClickWheel';
 import { NowPlayingInfo } from '@/components/radio/retro/NowPlayingInfo';
 import { VolumeSlider } from '@/components/radio/retro/VolumeSlider';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
@@ -15,6 +14,10 @@ import {
   Shuffle,
   ListMusic,
   Disc3,
+  SkipBack,
+  SkipForward,
+  Play,
+  Pause,
 } from 'lucide-react';
 
 /**
@@ -89,14 +92,14 @@ export default function RetroRadioStation() {
 
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden select-none">
-      {/* Background - subtle gradient based on city theme */}
+      {/* Background - vibrant gradient based on city theme */}
       <div
         className="absolute inset-0 transition-all duration-1000"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 20%, ${cityTheme.primaryColor}15 0%, transparent 60%),
-            radial-gradient(ellipse at 80% 80%, ${cityTheme.secondaryColor}10 0%, transparent 50%),
-            linear-gradient(180deg, #0a0a0a 0%, #050505 100%)
+            radial-gradient(ellipse at 50% 30%, ${cityTheme.primaryColor}35 0%, transparent 70%),
+            radial-gradient(ellipse at 80% 80%, ${cityTheme.secondaryColor}25 0%, transparent 60%),
+            linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)
           `,
         }}
       />
@@ -147,46 +150,58 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Quick actions row */}
-        <div className="flex items-center justify-center gap-2 py-1 flex-shrink-0">
+        <div className="flex items-center justify-center gap-3 py-2 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
             onClick={toggleShuffle}
-            className={`p-1.5 rounded-full transition-colors ${state.isShuffle ? 'bg-orange-500/15' : 'bg-white/5'}`}
+            className={`p-2 rounded-full transition-all ${state.isShuffle ? '' : 'bg-white/10'}`}
+            style={state.isShuffle ? {
+              background: `linear-gradient(135deg, ${cityTheme.primaryColor}30, ${cityTheme.secondaryColor}20)`,
+              boxShadow: `0 4px 16px ${cityTheme.primaryColor}25`,
+            } : {}}
             aria-label={state.isShuffle ? 'Disable shuffle' : 'Enable shuffle'}
           >
-            <Shuffle className={`w-3 h-3 ${state.isShuffle ? 'text-orange-400' : 'text-white/30'}`} />
+            <Shuffle className={`w-4 h-4 ${state.isShuffle ? 'text-white' : 'text-white/40'}`} />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
             onClick={() => setShowStationDrawer(true)}
-            className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-2 rounded-full bg-white/10 hover:bg-white/15 transition-all"
             aria-label="Browse stations"
           >
-            <ListMusic className="w-3 h-3 text-white/30" />
+            <ListMusic className="w-4 h-4 text-white/40" />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
-            className={`p-1.5 rounded-full transition-colors ${isFav ? 'bg-orange-500/15' : 'bg-white/5'}`}
+            className={`p-2 rounded-full transition-all ${isFav ? '' : 'bg-white/10'}`}
+            style={isFav ? {
+              background: `linear-gradient(135deg, ${cityTheme.primaryColor}30, ${cityTheme.secondaryColor}20)`,
+              boxShadow: `0 4px 16px ${cityTheme.primaryColor}25`,
+            } : {}}
             aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
-              className={`w-3 h-3 transition-colors ${isFav ? 'text-orange-400 fill-orange-400' : 'text-white/30'}`}
+              className={`w-4 h-4 transition-colors ${isFav ? 'text-white fill-white' : 'text-white/40'}`}
             />
           </motion.button>
         </div>
 
-        {/* Vinyl Record - the hero */}
-        <div className="flex-shrink-0 py-1">
+        {/* Main Content - Centered Vinyl with Controls */}
+        <div className="flex-1 flex flex-col items-center justify-center py-4 gap-6">
+          {/* Vinyl Record - Large and Centered */}
           <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id ?? 'empty'}
-              initial={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.4 }}
+              exit={{ opacity: 0, scale: 0.92 }}
+              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
             >
               <VinylDisc
                 isPlaying={state.isPlaying}
@@ -197,52 +212,93 @@ export default function RetroRadioStation() {
               />
             </motion.div>
           </AnimatePresence>
-        </div>
 
-        {/* Now Playing Info */}
-        <div className="flex-shrink-0 py-1">
-          <NowPlayingInfo
-            station={state.currentStation}
-            isPlaying={state.isPlaying}
-            cityTheme={cityTheme}
-          />
-        </div>
+          {/* Now Playing Info */}
+          <div className="flex-shrink-0">
+            <NowPlayingInfo
+              station={state.currentStation}
+              isPlaying={state.isPlaying}
+              cityTheme={cityTheme}
+            />
+          </div>
 
-        {/* Error message */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="px-4 py-1 flex-shrink-0"
+          {/* Error message */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="px-4 flex-shrink-0"
+              >
+                <p className="text-red-400/70 text-xs text-center font-medium">{error}</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Minimalist Control Buttons */}
+          <div className="flex items-center gap-4">
+            {/* Previous Button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={() => changeStation('prev')}
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all"
+              style={{
+                background: `linear-gradient(135deg, ${cityTheme.primaryColor}20, ${cityTheme.secondaryColor}15)`,
+                backdropFilter: 'blur(10px)',
+                boxShadow: `0 4px 20px ${cityTheme.primaryColor}25`,
+              }}
+              aria-label="Previous station"
             >
-              <p className="text-red-400/60 text-[10px] text-center">{error}</p>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <SkipBack className="w-6 h-6 text-white" />
+            </motion.button>
 
-        {/* iPod Click Wheel - Centered & Primary */}
-        <div className="flex-1 flex items-center justify-center py-1 min-h-0">
-          <ClickWheel
-            isPlaying={state.isPlaying}
-            onPlayPause={togglePlayPause}
-            onPrevious={() => changeStation('prev')}
-            onNext={() => changeStation('next')}
-            onMenuPress={() => setShowStationDrawer(true)}
-            variant="dark"
-            size={getWheelSize()}
-          />
+            {/* Play/Pause Button - Larger and Centered */}
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={togglePlayPause}
+              className="w-20 h-20 rounded-full flex items-center justify-center transition-all"
+              style={{
+                background: `linear-gradient(135deg, ${cityTheme.primaryColor}, ${cityTheme.secondaryColor})`,
+                boxShadow: `0 8px 32px ${cityTheme.primaryColor}40, 0 0 60px ${cityTheme.primaryColor}30`,
+              }}
+              aria-label={state.isPlaying ? 'Pause' : 'Play'}
+            >
+              {state.isPlaying ? (
+                <Pause className="w-8 h-8 text-white" fill="white" />
+              ) : (
+                <Play className="w-8 h-8 text-white ml-1" fill="white" />
+              )}
+            </motion.button>
+
+            {/* Next Button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={() => changeStation('next')}
+              className="w-14 h-14 rounded-full flex items-center justify-center transition-all"
+              style={{
+                background: `linear-gradient(135deg, ${cityTheme.primaryColor}20, ${cityTheme.secondaryColor}15)`,
+                backdropFilter: 'blur(10px)',
+                boxShadow: `0 4px 20px ${cityTheme.primaryColor}25`,
+              }}
+              aria-label="Next station"
+            >
+              <SkipForward className="w-6 h-6 text-white" />
+            </motion.button>
+          </div>
         </div>
 
         {/* Volume Slider */}
-        <div className="flex-shrink-0 px-6 py-1 w-full">
+        <div className="flex-shrink-0 px-8 py-3 w-full">
           <VolumeSlider volume={state.volume} onVolumeChange={setVolume} />
         </div>
 
         {/* City quick-switch pills */}
-        <div className="flex-shrink-0 px-4 py-1 w-full overflow-hidden">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide justify-start">
+        <div className="flex-shrink-0 px-4 py-2 w-full overflow-hidden">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide justify-start">
             {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
               const ct = cityThemes[city];
               const isActive = city === state.currentCity;
@@ -250,15 +306,16 @@ export default function RetroRadioStation() {
                 <motion.button
                   key={city}
                   whileTap={{ scale: 0.93 }}
+                  whileHover={{ scale: isActive ? 1 : 1.02 }}
                   onClick={() => handleCitySelect(city)}
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-all whitespace-nowrap ${
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all whitespace-nowrap ${
                     isActive
                       ? 'text-white'
-                      : 'bg-white/5 text-white/35 hover:bg-white/10 hover:text-white/50'
+                      : 'bg-white/10 text-white/50 hover:bg-white/15 hover:text-white/70'
                   }`}
                   style={isActive ? {
-                    background: `linear-gradient(135deg, ${ct.primaryColor}60, ${ct.secondaryColor}40)`,
-                    boxShadow: `0 0 12px ${ct.primaryColor}30`,
+                    background: `linear-gradient(135deg, ${ct.primaryColor}, ${ct.secondaryColor})`,
+                    boxShadow: `0 4px 20px ${ct.primaryColor}40, 0 0 40px ${ct.primaryColor}25`,
                   } : undefined}
                 >
                   {ct.name}
@@ -289,32 +346,16 @@ export default function RetroRadioStation() {
 }
 
 /**
- * Responsive vinyl size based on viewport
+ * Responsive vinyl size based on viewport - larger for centered design
  */
 function getVinylSize(): number {
-  if (typeof window === 'undefined') return 80;
+  if (typeof window === 'undefined') return 140;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 60;
-  if (vw < 480) return 70;
-  if (vh < 600) return 60;
-  if (vw < 768) return 85;
-  return 120;
-}
-
-/**
- * Responsive click wheel size
- */
-function getWheelSize(): number {
-  if (typeof window === 'undefined') return 100;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  // Make wheel size proportional to available space, with room for other controls
-  if (vw < 380) return 90;
-  if (vw < 480) return 110;
-  if (vh < 600) return 90;
-  if (vw < 768) return 130;
-  return 160;
+  if (vw < 380) return 100;
+  if (vw < 480) return 120;
+  if (vh < 600) return 100;
+  if (vw < 768) return 140;
+  return 180;
 }
