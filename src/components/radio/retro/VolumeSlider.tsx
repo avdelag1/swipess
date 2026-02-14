@@ -43,21 +43,21 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
   const VolumeIcon = volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
   return (
-    <div className="flex items-center gap-3 w-full max-w-xs mx-auto">
+    <div className="flex items-center gap-2 w-full max-w-xs mx-auto">
       {/* Volume icon - tappable to mute/unmute */}
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => onVolumeChange(volume > 0 ? 0 : 0.7)}
-        className="p-1 flex-shrink-0"
+        className="p-0.5 flex-shrink-0"
         aria-label={volume > 0 ? 'Mute' : 'Unmute'}
       >
-        <VolumeIcon className="w-4 h-4 text-white/40" />
+        <VolumeIcon className="w-3 h-3 text-white/40" />
       </motion.button>
 
       {/* Track */}
       <div
         ref={trackRef}
-        className="flex-1 h-10 flex items-center cursor-pointer touch-none"
+        className="flex-1 h-6 flex items-center cursor-pointer touch-none"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -68,7 +68,7 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
         aria-valuemax={100}
         aria-valuenow={Math.round(volume * 100)}
       >
-        <div className="w-full h-1 bg-white/10 rounded-full relative">
+        <div className="w-full h-0.5 bg-white/10 rounded-full relative">
           {/* Fill */}
           <div
             className="absolute left-0 top-0 h-full rounded-full transition-[width] duration-75"
@@ -80,21 +80,21 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
 
           {/* Thumb */}
           <motion.div
-            className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white"
+            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white"
             style={{
-              left: `calc(${volume * 100}% - 7px)`,
+              left: `calc(${volume * 100}% - 5px)`,
               boxShadow: isDragging
-                ? '0 0 16px rgba(255, 77, 0, 0.6), 0 0 8px rgba(255, 77, 0, 0.8)'
-                : '0 1px 4px rgba(0,0,0,0.4), 0 0 4px rgba(255, 77, 0, 0.3)',
+                ? '0 0 12px rgba(255, 77, 0, 0.5), 0 0 6px rgba(255, 77, 0, 0.7)'
+                : '0 1px 3px rgba(0,0,0,0.3), 0 0 3px rgba(255, 77, 0, 0.2)',
             }}
-            animate={{ scale: isDragging ? 1.2 : 1 }}
+            animate={{ scale: isDragging ? 1.1 : 1 }}
             transition={{ duration: 0.15 }}
           />
         </div>
       </div>
 
       {/* Percentage */}
-      <span className="text-[10px] text-white/30 w-7 text-right flex-shrink-0 font-mono tabular-nums">
+      <span className="text-[8px] text-white/30 w-6 text-right flex-shrink-0 font-mono tabular-nums">
         {Math.round(volume * 100)}
       </span>
     </div>

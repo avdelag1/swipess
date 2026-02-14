@@ -114,32 +114,32 @@ export default function RetroRadioStation() {
       <div className="relative z-10 flex-1 flex flex-col items-center overflow-hidden">
 
         {/* Header */}
-        <div className="w-full flex items-center justify-between px-5 pt-8 pb-1 flex-shrink-0">
+        <div className="w-full flex items-center justify-between px-4 pt-3 pb-1 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => window.history.back()}
-            className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center backdrop-blur-sm"
+            className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center backdrop-blur-sm"
             aria-label="Go back"
           >
-            <ArrowLeft className="w-5 h-5 text-white/60" />
+            <ArrowLeft className="w-4 h-4 text-white/60" />
           </motion.button>
 
-          <div className="flex items-center gap-2">
-            <Disc3 className="w-4 h-4 text-white/30" />
-            <span className="text-white/30 text-xs tracking-[0.2em] uppercase font-medium">
+          <div className="flex items-center gap-1.5">
+            <Disc3 className="w-3 h-3 text-white/30" />
+            <span className="text-white/30 text-[9px] tracking-[0.15em] uppercase font-medium">
               Radio
             </span>
           </div>
 
           {/* Live indicator */}
-          <div className={`px-3 py-1.5 rounded-full ${state.isPlaying ? 'bg-orange-500/10' : 'bg-white/5'}`}>
-            <div className="flex items-center gap-1.5">
+          <div className={`px-2.5 py-1 rounded-full text-[9px] ${state.isPlaying ? 'bg-orange-500/10' : 'bg-white/5'}`}>
+            <div className="flex items-center gap-1">
               <motion.div
-                className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-orange-500' : 'bg-white/20'}`}
+                className={`w-1 h-1 rounded-full ${state.isPlaying ? 'bg-orange-500' : 'bg-white/20'}`}
                 animate={state.isPlaying ? { opacity: [1, 0.3, 1] } : {}}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
-              <span className={`text-[10px] font-medium tracking-wider ${state.isPlaying ? 'text-white/60' : 'text-white/30'}`}>
+              <span className={`font-medium tracking-wider ${state.isPlaying ? 'text-white/60' : 'text-white/30'}`}>
                 {state.isPlaying ? 'LIVE' : 'OFF'}
               </span>
             </div>
@@ -147,39 +147,39 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Quick actions row */}
-        <div className="flex items-center justify-center gap-3 py-2 flex-shrink-0">
+        <div className="flex items-center justify-center gap-2 py-1 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={toggleShuffle}
-            className={`p-2.5 rounded-full transition-colors ${state.isShuffle ? 'bg-orange-500/15' : 'bg-white/5'}`}
+            className={`p-1.5 rounded-full transition-colors ${state.isShuffle ? 'bg-orange-500/15' : 'bg-white/5'}`}
             aria-label={state.isShuffle ? 'Disable shuffle' : 'Enable shuffle'}
           >
-            <Shuffle className={`w-4 h-4 ${state.isShuffle ? 'text-orange-400' : 'text-white/30'}`} />
+            <Shuffle className={`w-3 h-3 ${state.isShuffle ? 'text-orange-400' : 'text-white/30'}`} />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setShowStationDrawer(true)}
-            className="p-2.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
             aria-label="Browse stations"
           >
-            <ListMusic className="w-4 h-4 text-white/30" />
+            <ListMusic className="w-3 h-3 text-white/30" />
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
-            className={`p-2.5 rounded-full transition-colors ${isFav ? 'bg-orange-500/15' : 'bg-white/5'}`}
+            className={`p-1.5 rounded-full transition-colors ${isFav ? 'bg-orange-500/15' : 'bg-white/5'}`}
             aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
-              className={`w-4 h-4 transition-colors ${isFav ? 'text-orange-400 fill-orange-400' : 'text-white/30'}`}
+              className={`w-3 h-3 transition-colors ${isFav ? 'text-orange-400 fill-orange-400' : 'text-white/30'}`}
             />
           </motion.button>
         </div>
 
         {/* Vinyl Record - the hero */}
-        <div className="flex-shrink-0 py-2">
+        <div className="flex-shrink-0 py-1">
           <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id ?? 'empty'}
@@ -200,7 +200,7 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Now Playing Info */}
-        <div className="flex-shrink-0 pb-2">
+        <div className="flex-shrink-0 py-1">
           <NowPlayingInfo
             station={state.currentStation}
             isPlaying={state.isPlaying}
@@ -215,15 +215,15 @@ export default function RetroRadioStation() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="px-4 pb-2 flex-shrink-0"
+              className="px-4 py-1 flex-shrink-0"
             >
-              <p className="text-red-400/60 text-xs text-center">{error}</p>
+              <p className="text-red-400/60 text-[10px] text-center">{error}</p>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* iPod Click Wheel */}
-        <div className="flex-shrink-0 py-1">
+        {/* iPod Click Wheel - Centered & Primary */}
+        <div className="flex-1 flex items-center justify-center py-1 min-h-0">
           <ClickWheel
             isPlaying={state.isPlaying}
             onPlayPause={togglePlayPause}
@@ -236,13 +236,13 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Volume Slider */}
-        <div className="flex-shrink-0 px-8 pb-2 w-full">
+        <div className="flex-shrink-0 px-6 py-1 w-full">
           <VolumeSlider volume={state.volume} onVolumeChange={setVolume} />
         </div>
 
         {/* City quick-switch pills */}
-        <div className="flex-shrink-0 px-5 pb-2 w-full">
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide justify-start">
+        <div className="flex-shrink-0 px-4 py-1 w-full overflow-hidden">
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide justify-start">
             {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
               const ct = cityThemes[city];
               const isActive = city === state.currentCity;
@@ -251,7 +251,7 @@ export default function RetroRadioStation() {
                   key={city}
                   whileTap={{ scale: 0.93 }}
                   onClick={() => handleCitySelect(city)}
-                  className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all ${
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-all whitespace-nowrap ${
                     isActive
                       ? 'text-white'
                       : 'bg-white/5 text-white/35 hover:bg-white/10 hover:text-white/50'
@@ -269,7 +269,7 @@ export default function RetroRadioStation() {
         </div>
 
         {/* Bottom spacer for safe area */}
-        <div className="flex-shrink-0 h-2" />
+        <div className="flex-shrink-0 h-1" />
       </div>
 
       {/* Station Drawer */}
@@ -292,28 +292,29 @@ export default function RetroRadioStation() {
  * Responsive vinyl size based on viewport
  */
 function getVinylSize(): number {
-  if (typeof window === 'undefined') return 100;
+  if (typeof window === 'undefined') return 80;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 80;
-  if (vw < 480) return 100;
-  if (vh < 600) return 80;
-  if (vw < 768) return 120;
-  return 160;
+  if (vw < 380) return 60;
+  if (vw < 480) return 70;
+  if (vh < 600) return 60;
+  if (vw < 768) return 85;
+  return 120;
 }
 
 /**
  * Responsive click wheel size
  */
 function getWheelSize(): number {
-  if (typeof window === 'undefined') return 85;
+  if (typeof window === 'undefined') return 100;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 70;
-  if (vw < 480) return 85;
-  if (vh < 600) return 70;
-  if (vw < 768) return 100;
-  return 120;
+  // Make wheel size proportional to available space, with room for other controls
+  if (vw < 380) return 90;
+  if (vw < 480) return 110;
+  if (vh < 600) return 90;
+  if (vw < 768) return 130;
+  return 160;
 }
