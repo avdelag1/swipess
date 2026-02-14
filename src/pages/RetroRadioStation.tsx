@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { cityThemes, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
@@ -32,6 +33,7 @@ import {
  * This replaces the previous RadioPlayer page.
  */
 export default function RetroRadioStation() {
+  const navigate = useNavigate();
   const {
     state,
     error,
@@ -120,7 +122,7 @@ export default function RetroRadioStation() {
         <div className="w-full flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-full flex items-center justify-center"
             aria-label="Go back"
           >
@@ -297,8 +299,8 @@ export default function RetroRadioStation() {
         </div>
 
         {/* City quick-switch pills */}
-        <div className="flex-shrink-0 px-4 py-3 w-full overflow-hidden">
-          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide justify-center">
+        <div className="flex-shrink-0 w-full py-3">
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide px-4 pb-1" style={{ scrollSnapType: 'x mandatory' }}>
             {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
               const ct = cityThemes[city];
               const isActive = city === state.currentCity;
@@ -308,15 +310,18 @@ export default function RetroRadioStation() {
                   whileTap={{ scale: 0.93 }}
                   whileHover={{ scale: isActive ? 1 : 1.05 }}
                   onClick={() => handleCitySelect(city)}
-                  className={`px-3.5 py-2 rounded-full text-[11px] font-medium transition-all whitespace-nowrap ${
+                  className={`px-3.5 py-2 rounded-full text-[11px] font-medium transition-all whitespace-nowrap flex-shrink-0 ${
                     isActive
                       ? 'text-white'
                       : 'text-white/60 hover:text-white/80'
                   }`}
-                  style={isActive ? {
-                    background: `linear-gradient(135deg, ${ct.primaryColor}, ${ct.secondaryColor})`,
-                    boxShadow: `0 4px 20px ${ct.primaryColor}40, 0 0 40px ${ct.primaryColor}25`,
-                  } : undefined}
+                  style={{
+                    scrollSnapAlign: 'start',
+                    ...(isActive ? {
+                      background: `linear-gradient(135deg, ${ct.primaryColor}, ${ct.secondaryColor})`,
+                      boxShadow: `0 4px 20px ${ct.primaryColor}40, 0 0 40px ${ct.primaryColor}25`,
+                    } : {})
+                  }}
                 >
                   {ct.name}
                 </motion.button>
