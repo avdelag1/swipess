@@ -96,9 +96,13 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
         .eq('target_type', 'profile');
 
       if (error) throw error;
+
+      // Return user ID for cache invalidation
+      return user.user.id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+    onSuccess: (userId) => {
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', userId] });
       toast({
         title: 'Client removed',
         description: 'Client removed from your liked list.',
@@ -139,9 +143,13 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
         .eq('user_id', user.user.id)
         .eq('target_id', client.user_id)
         .eq('target_type', 'profile');
+
+      // Return user ID for cache invalidation
+      return user.user.id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+    onSuccess: (userId) => {
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', userId] });
       toast({
         title: 'Client blocked',
         description: 'Client blocked successfully.',

@@ -337,7 +337,8 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         // Owner swiping right on client - invalidate liked-clients cache so it shows in the list
         const invalidations = [
           queryClient.invalidateQueries({ queryKey: ['matches'] }),
-          queryClient.invalidateQueries({ queryKey: ['liked-clients'] }),
+          // FIXED: Include user ID in query key to match LikedClients query key format
+          queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] }),
           queryClient.invalidateQueries({ queryKey: ['owner-stats'] }),
         ];
         Promise.all(invalidations).catch(() => {});

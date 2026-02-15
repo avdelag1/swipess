@@ -290,7 +290,8 @@ export function LikedClients() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+      // FIXED: Include user ID in query key to match query key format
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] });
       toast.success("Client removed from liked list");
     },
     onError: () => {
@@ -352,7 +353,8 @@ export function LikedClients() {
         .eq('target_type', 'profile');
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] });
       toast.success("Client blocked successfully");
       setShowBlockDialog(false);
       setSelectedClientForAction(null);
@@ -582,7 +584,8 @@ export function LikedClients() {
                 variant="outline"
                 onClick={() => {
                   // Force a fresh fetch by invalidating the cache
-                  queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+                  // FIXED: Include user ID in query key to match LikedClients query key
+                  queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] });
                   refetch();
                 }}
                 disabled={isLoading || isFetching}
