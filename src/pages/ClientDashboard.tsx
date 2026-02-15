@@ -1,11 +1,12 @@
 // @ts-nocheck
+/** SPEED OF LIGHT: Client Dashboard */
 import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TinderentSwipeContainer } from '@/components/TinderentSwipeContainer';
 import { PropertyInsightsDialog } from '@/components/PropertyInsightsDialog';
+import { LegalAIButton } from '@/components/LegalAIAssistant';
 import { supabase } from '@/integrations/supabase/client';
 import { ListingFilters } from '@/hooks/useSmartMatching';
-import { Listing } from '@/hooks/useListings';
 import { useFilterStore } from '@/state/filterStore';
 
 interface ClientDashboardProps {
@@ -14,12 +15,7 @@ interface ClientDashboardProps {
   filters?: ListingFilters;
 }
 
-/**
- * SPEED OF LIGHT: Client Dashboard
- * DashboardLayout is now rendered ONCE at route level via PersistentDashboardLayout
- * This component only renders its inner content
- */
-export default function ClientDashboard({ 
+export default function ClientDashboard({  
   onPropertyInsights, 
   onMessageClick, 
   filters 
@@ -30,7 +26,7 @@ export default function ClientDashboard({
   // Connect filter store to swipe container
   const filterVersion = useFilterStore((s) => s.filterVersion);
   const getListingFilters = useFilterStore((s) => s.getListingFilters);
-  const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
+  const storeFilters = useMemo(() => getListingFilters(), [filterVersion, getListingFilters]);
   const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
 
   // PERFORMANCE: Only fetch the selected listing when dialog opens
@@ -50,7 +46,6 @@ export default function ClientDashboard({
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
@@ -62,18 +57,29 @@ export default function ClientDashboard({
 
   return (
     <>
+      {/* Full-screen Tinder-style swipe interface */}
       <TinderentSwipeContainer
         onListingTap={handleListingTap}
         onInsights={handleListingTap}
         onMessageClick={onMessageClick}
+        insightsOpen={insightsOpen}
         filters={mergedFilters}
       />
 
+      {/* Property Insights Dialog */}
       <PropertyInsightsDialog
         open={insightsOpen}
-        onOpenChange={setInsightsOpen}
-        listing={selectedListing ?? null}
+        onOpenChange={(open) => {
+          setInsightsOpen(open);
+          if (!open) setSelectedListingId(null);
+        }}
+        listing={selectedListing || null}
       />
+
+      {/* Legal AI Button - Fixed at bottom right */}
+      <div className="fixed bottom-24 right-4 z-50">
+        <LegalAIButton context={{ userRole: 'client' }} />
+      </div>
     </>
   );
 }
