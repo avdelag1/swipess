@@ -72,34 +72,34 @@ export default function OwnerFilters() {
   return (
     <div className="min-h-full flex flex-col pb-24">
       {/* Header */}
-      <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3">
+      <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3 bg-background/95 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={handleBack}
-              className="h-9 w-9 rounded-full"
+              className="h-9 w-9 rounded-full hover:bg-muted/80"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 text-foreground" />
             </Button>
             <div>
               <h1 className="text-lg font-semibold text-foreground">Filters</h1>
               <p className="text-xs text-muted-foreground">
-                {activeFilterCount > 0 
+                {activeFilterCount > 0
                   ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`
                   : 'Filter client profiles'
                 }
               </p>
             </div>
           </div>
-          
+
           {activeFilterCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleReset}
-              className="text-muted-foreground hover:text-foreground rounded-full"
+              className="text-foreground hover:text-foreground hover:bg-muted/80 rounded-full font-medium"
             >
               <X className="w-4 h-4 mr-1" />
               Reset
@@ -114,11 +114,11 @@ export default function OwnerFilters() {
           
           {/* Gender */}
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5" />
+            <p className="text-sm font-semibold text-foreground uppercase tracking-wide flex items-center gap-2">
+              <User className="w-4 h-4 text-primary" />
               Gender
             </p>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-3">
               {genderOptions.map((option) => {
                 const isSelected = selectedGender === option.id;
                 return (
@@ -127,35 +127,35 @@ export default function OwnerFilters() {
                     whileTap={{ scale: 0.97 }}
                     onClick={() => setSelectedGender(option.id)}
                     className={cn(
-                      "flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-200 shadow-sm",
+                      "flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-200 shadow-md border-2",
                       isSelected
-                        ? "bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg shadow-primary/25"
-                        : "bg-card hover:bg-muted/60 border border-border"
+                        ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 border-primary"
+                        : "bg-card hover:bg-muted/70 hover:border-muted-foreground/30 border-border"
                     )}
                   >
                     <motion.div
                       className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center mb-2.5 transition-all duration-200",
-                        isSelected ? "bg-white/20" : "bg-muted"
+                        "w-12 h-12 rounded-full flex items-center justify-center mb-2.5 transition-all duration-200 shadow-sm",
+                        isSelected ? "bg-primary-foreground/20" : "bg-muted"
                       )}
                       animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                       transition={springTransition}
                     >
                       {isSelected ? (
-                        <Check className="w-6 h-6" />
+                        <Check className="w-6 h-6 text-primary-foreground font-bold" />
                       ) : (
-                        <Users className="w-6 h-6 text-muted-foreground" />
+                        <Users className="w-6 h-6 text-foreground" />
                       )}
                     </motion.div>
                     <span className={cn(
-                      "text-sm font-semibold mb-0.5",
-                      isSelected ? "text-white" : "text-foreground"
+                      "text-sm font-bold mb-0.5",
+                      isSelected ? "text-primary-foreground" : "text-foreground"
                     )}>
                       {option.label}
                     </span>
                     <span className={cn(
                       "text-xs",
-                      isSelected ? "text-white/80" : "text-muted-foreground"
+                      isSelected ? "text-primary-foreground/90" : "text-muted-foreground"
                     )}>
                       {option.description}
                     </span>
@@ -167,11 +167,11 @@ export default function OwnerFilters() {
 
           {/* Client Type */}
           <div className="space-y-3">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Briefcase className="w-3.5 h-3.5" />
+            <p className="text-sm font-semibold text-foreground uppercase tracking-wide flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-primary" />
               Looking For
             </p>
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               {clientTypeOptions.map((option) => {
                 const isSelected = selectedClientType === option.id;
                 return (
@@ -180,37 +180,37 @@ export default function OwnerFilters() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedClientType(option.id)}
                     className={cn(
-                      "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 shadow-sm",
+                      "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 shadow-md border-2",
                       isSelected
-                        ? "bg-gradient-to-br from-primary/90 to-primary text-primary-foreground shadow-lg shadow-primary/25"
-                        : "bg-card hover:bg-muted/60 border border-border"
+                        ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 border-primary"
+                        : "bg-card hover:bg-muted/70 hover:border-muted-foreground/30 border-border"
                     )}
                   >
                     <div className="flex items-center gap-3.5">
                       <motion.div
                         className={cn(
-                          "w-11 h-11 rounded-full flex items-center justify-center transition-all duration-200",
-                          isSelected ? "bg-white/20" : "bg-muted"
+                          "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm",
+                          isSelected ? "bg-primary-foreground/20" : "bg-muted"
                         )}
                         animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
                         transition={springTransition}
                       >
                         {isSelected ? (
-                          <Check className="w-5 h-5 text-white" />
+                          <Check className="w-5 h-5 text-primary-foreground font-bold" />
                         ) : (
-                          <Briefcase className="w-5 h-5 text-muted-foreground" />
+                          <Briefcase className="w-5 h-5 text-foreground" />
                         )}
                       </motion.div>
                       <div className="text-left">
                         <span className={cn(
-                          "block font-semibold text-[15px]",
-                          isSelected ? "text-white" : "text-foreground"
+                          "block font-bold text-base",
+                          isSelected ? "text-primary-foreground" : "text-foreground"
                         )}>
                           {option.label}
                         </span>
                         <span className={cn(
                           "text-xs",
-                          isSelected ? "text-white/80" : "text-muted-foreground"
+                          isSelected ? "text-primary-foreground/90" : "text-muted-foreground"
                         )}>
                           {option.description}
                         </span>
@@ -223,9 +223,9 @@ export default function OwnerFilters() {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
                           transition={springTransition}
-                          className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center"
+                          className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center"
                         >
-                          <Check className="w-4 h-4 text-white" />
+                          <Check className="w-5 h-5 text-primary-foreground font-bold" />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -242,10 +242,10 @@ export default function OwnerFilters() {
               animate={{ opacity: 1, y: 0 }}
               transition={springTransition}
             >
-              <div className="p-4 rounded-xl bg-primary/5">
+              <div className="p-4 rounded-2xl bg-primary/10 border-2 border-primary/20 shadow-sm">
                 <div className="flex items-center gap-2 text-sm">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="font-medium text-primary">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  <span className="font-bold text-primary">
                     {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} applied
                   </span>
                 </div>
@@ -255,11 +255,11 @@ export default function OwnerFilters() {
 
           {/* Empty State */}
           {activeFilterCount === 0 && (
-            <div className="text-center py-8">
-              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-muted/60 flex items-center justify-center">
-                <Users className="w-7 h-7 text-muted-foreground" />
+            <div className="text-center py-10">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center shadow-sm">
+                <Users className="w-8 h-8 text-primary" />
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-base font-medium text-foreground">
                 Set filters to find your ideal clients
               </p>
             </div>
@@ -271,11 +271,11 @@ export default function OwnerFilters() {
       </div>
 
       {/* Footer - Apply Button */}
-      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pt-3 pb-2 bg-gradient-to-t from-background via-background to-transparent">
+      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pt-4 pb-3 bg-gradient-to-t from-background via-background/95 to-transparent backdrop-blur-sm">
         <div className="max-w-lg mx-auto">
           <Button
             onClick={handleApply}
-            className="w-full h-12 text-base font-semibold rounded-2xl shadow-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+            className="w-full h-14 text-base font-bold rounded-2xl shadow-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/95 text-primary-foreground border-2 border-primary"
           >
             <Sparkles className="w-5 h-5 mr-2" />
             {activeFilterCount === 0
