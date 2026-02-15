@@ -1,11 +1,10 @@
 // @ts-nocheck
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, Loader2, X, Zap, Send, Circle } from 'lucide-react';
+import { Sparkles, Loader2, X, Send, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAIGeneration } from '@/hooks/ai/useAIGeneration';
@@ -137,87 +136,84 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent 
         className="sm:max-w-md bg-[#1C1C1E]/95 backdrop-blur-2xl border border-white/10 p-0 overflow-hidden"
+        hideCloseButton={true}
         style={{ 
           '--modal-radius': '24px' 
         } as React.CSSProperties}
       >
-        {/* Header with gradient */}
-        <div className="relative bg-gradient-to-r from-orange-500/20 via-red-500/10 to-purple-500/10 px-6 py-4 border-b border-white/5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {/* AI Status Indicator */}
-              <div className="relative">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                {/* Online indicator */}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-[#1C1C1E]" />
+        {/* Header */}
+        <div className="relative bg-gradient-to-r from-orange-500/20 via-red-500/10 to-purple-500/10 px-4 py-3 border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* AI Avatar */}
+            <div className="relative">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
-              
-              <div>
-                <h2 className="text-white font-semibold text-base">AI Search</h2>
-                <div className="flex items-center gap-1.5">
-                  <Circle className="w-2 h-2 fill-green-500 text-green-500" />
-                  <span className="text-xs text-white/60">Online</span>
-                </div>
+              {/* Online indicator */}
+              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#1C1C1E]" />
+            </div>
+            
+            <div>
+              <h2 className="text-white font-semibold text-sm">AI Search</h2>
+              <div className="flex items-center gap-1">
+                <Circle className="w-1.5 h-1.5 fill-green-500 text-green-500" />
+                <span className="text-xs text-white/50">Online</span>
               </div>
             </div>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="h-8 w-8 rounded-full hover:bg-white/10"
-            >
-              <X className="w-4 h-4 text-white/70" />
-            </Button>
           </div>
+
+          {/* Single Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClose}
+            className="h-8 w-8 rounded-full hover:bg-white/10"
+          >
+            <X className="w-4 h-4 text-white/70" />
+          </Button>
         </div>
 
         {/* Messages Area */}
         <div className="h-80 overflow-y-auto px-4 py-4 space-y-4">
-          {/* Welcome Message */}
           {messages.length === 0 && (
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-4"
+              className="text-center space-y-3"
             >
-              <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-orange-400" />
+              <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
+                <Sparkles className="w-7 h-7 text-orange-400" />
               </div>
               <div>
                 <h3 className="text-white font-medium text-sm">What are you looking for?</h3>
-                <p className="text-white/50 text-xs mt-1">Describe it in natural language</p>
+                <p className="text-white/50 text-xs mt-1">Tell me in your own words</p>
               </div>
             </motion.div>
           )}
 
-          {/* Messages */}
           <AnimatePresence>
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <motion.div
                 key={message.timestamp}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
                 className={cn(
                   "flex gap-2",
                   message.role === 'user' && "justify-end"
                 )}
               >
                 {message.role === 'ai' && (
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Sparkles className="w-3.5 h-3.5 text-white" />
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center flex-shrink-0 mt-1">
+                    <Sparkles className="w-3 h-3 text-white" />
                   </div>
                 )}
                 
                 <div className={cn(
-                  "max-w-[80%] px-4 py-2.5 rounded-2xl text-sm",
+                  "max-w-[75%] px-3 py-2 rounded-2xl text-sm",
                   message.role === 'user' 
                     ? "bg-orange-500 text-white rounded-br-md" 
                     : "bg-white/10 text-white/90 rounded-bl-md",
-                  isTyping && index === messages.length - 1 && message.role === 'ai' && message.content === ''
+                  isTyping && message.role === 'ai' && message.content === ''
                     ? "animate-pulse"
                     : ""
                 )}>
@@ -233,23 +229,22 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-xs font-medium">You</span>
+                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-white text-[10px] font-medium">You</span>
                   </div>
                 )}
               </motion.div>
             ))}
           </AnimatePresence>
 
-          {/* Processing indicator */}
-          {isTyping && messages[messages.length - 1]?.role === 'ai' && (
+          {isTyping && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center gap-2 text-white/50 text-xs"
+              className="flex items-center gap-2 text-white/50 text-xs pl-8"
             >
               <Loader2 className="w-3 h-3 animate-spin" />
-              Processing your request...
+              Processing...
             </motion.div>
           )}
 
@@ -259,7 +254,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         {/* Quick Prompts */}
         {messages.length === 0 && (
           <div className="px-4 pb-2">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-2">Try asking:</p>
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt, index) => (
                 <button
@@ -284,11 +278,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="pr-24 h-12 bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-xl focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+              className="pr-20 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-xl focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
               disabled={isSearching}
             />
             
-            {/* Send Button */}
             <Button
               size="sm"
               onClick={handleSearch}
