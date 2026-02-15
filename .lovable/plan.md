@@ -1,57 +1,118 @@
 
 
-## Fix Page Layouts: Remove Bordered Frames, Fix Overlaps, Resize Radio
+## AI Orchestrator System -- Unified Multi-Task Intelligence
 
-### Problems Identified
-From the screenshots, there are several issues across multiple pages:
+### What We're Building
 
-1. **White bordered frames** on filter and settings pages (the `GlassSurface` component adds visible borders around every section)
-2. **Buttons/content hidden behind bottom navigation** on filter pages and radio page
-3. **Radio page is too large** - vinyl record, click wheel, volume slider, and city pills overflow and mix with the bottom navigation
-4. **Radio iPod design is oversized** - the click wheel and vinyl need to be significantly smaller to fit on mobile screens within the available space (between top bar and bottom nav)
+A single `ai-orchestrator` edge function that replaces the current `ai-assistant` and `ai-conversation` functions, handling all AI tasks through one entry point with provider fallback support.
+
+### Current State
+
+- `ai-assistant` handles: listing generation, profile enhancement, search
+- `ai-conversation` handles: conversational listing builder
+- Both use Lovable AI Gateway with `google/gemini-3-flash-preview`
+- Frontend hooks: `useAIGeneration` and `useConversationalAI`
+- MiniMax API key is stored but has no balance (fallback only)
+
+### Architecture
+
+```text
+[ Frontend ]
+     |
+     |-- useAIGeneration() -----> listing, profile, search, enhance
+     |-- useConversationalAI() -> conversation (listing builder)
+     |
+     v
+[ supabase.functions.invoke("ai-orchestrator") ]
+     |
+     |  task routing + provider selection
+     |
+     |---> Lovable AI Gateway (default, free)
+     |---> MiniMax (fallback, if key has balance)
+     |
+     v
+[ Normalized JSON Response ]
+     |
+     v
+[ Form Autofill / Search Filters / Enhanced Text ]
+```
+
+### Tasks Supported
+
+1. **listing** -- Generate structured listing data from description + category
+2. **profile** -- Enhance user bio and interests
+3. **search** -- Convert natural language query to structured filters (semantic search)
+4. **enhance** -- Improve existing listing/profile text
+5. **conversation** -- Multi-turn conversational listing builder with memory
 
 ### Changes
 
-#### 1. Owner Filters Page (`src/pages/OwnerFilters.tsx`)
-- Remove `GlassSurface` wrappers and replace with simple unstyled containers (no borders, no glass effect)
-- Change the layout from `fixed inset-0 z-50` to a normal flow layout that respects the `DashboardLayout` padding (top bar + bottom nav)
-- Move the Apply button up so it does not collide with the bottom navigation (use `pb-28` spacer instead of relying on safe area)
+#### 1. New Edge Function: `supabase/functions/ai-orchestrator/index.ts`
 
-#### 2. Client Filters Page (`src/pages/ClientFilters.tsx`)
-- Same treatment: remove `GlassSurface` wrappers, remove bordered frames
-- Change layout from `fixed inset-0 z-50` to normal flow within `DashboardLayout`
-- Ensure Apply button and category list do not overlap with bottom navigation
+Single file that:
+- Accepts `{ task, data, context, messages }` payload
+- Routes to the correct prompt builder based on `task`
+- Calls Lovable AI Gateway (primary) with fallback to MiniMax if Lovable fails
+- Parses AI response into structured JSON
+- Handles rate limit errors (429) and payment errors (402) with clear messages
+- Returns normalized `{ result, provider_used }` response
 
-#### 3. Client Settings Page (`src/pages/ClientSettingsNew.tsx`)
-- Remove `GlassSurface` wrapper around the settings menu list
-- Keep the clean list style but without the visible bordered card frame
+Provider logic is inline (no subfolders -- edge functions require single file). The orchestrator tries Lovable AI first; if it returns 429/500, it attempts MiniMax as fallback (if the key exists and has balance).
 
-#### 4. Radio Page (`src/pages/RetroRadioStation.tsx`)
-- Significantly reduce the vinyl disc and click wheel sizes (reduce by ~30-40% on mobile)
-- Remove the `fixed inset-0` layout and make it work within the `DashboardLayout` content area so it respects top bar and bottom nav spacing
-- Reduce padding and spacing between sections so everything fits in the viewport
-- Make city pills a single horizontal scroll row instead of wrapping (to save vertical space)
+#### 2. Update `supabase/config.toml`
 
-### Technical Details
+Register `ai-orchestrator` with `verify_jwt = false`. Keep old functions registered for backward compatibility during transition.
 
-**Filter pages layout change:**
-- Remove `fixed inset-0 z-50` wrapper -- instead use `min-h-full` within the DashboardLayout scroll container
-- Replace `<GlassSurface elevation="elevated" className="p-4">` with plain `<div className="space-y-2">` or similar borderless containers
-- Move the sticky Apply button to use `fixed bottom-20` (above the ~60px bottom nav) instead of using safe area insets
+#### 3. Update Frontend Hooks
 
-**Radio page sizing:**
-- Reduce `getVinylSize()` returns: mobile values from 120-140px down to 80-100px
-- Reduce `getWheelSize()` returns: mobile values from 100-110px down to 70-85px
-- Remove `fixed inset-0` and use a normal page layout that flows within DashboardLayout
-- Tighten all vertical padding (`py-2` to `py-1`, remove spacers)
+**`src/hooks/ai/useAIGeneration.ts`**
+- Change invoke target from `ai-assistant` to `ai-orchestrator`
+- Add `enhance` task type support
+- Surface rate limit / payment errors as toast messages
 
-**Settings page:**
-- Replace `<GlassSurface elevation="elevated">` with a simple `<div className="rounded-xl overflow-hidden bg-card/30">` or remove the wrapper entirely
+**`src/hooks/ai/useConversationalAI.ts`**
+- Change invoke target from `ai-conversation` to `ai-orchestrator`
+- Send `task: "conversation"` with messages array
 
-### Files to Modify
-1. `src/pages/OwnerFilters.tsx` - Remove glass frames, fix layout
-2. `src/pages/ClientFilters.tsx` - Remove glass frames, fix layout  
-3. `src/pages/ClientSettingsNew.tsx` - Remove glass frame around menu
-4. `src/pages/RetroRadioStation.tsx` - Shrink vinyl/wheel, fix layout to not overlap bottom nav
-5. `src/pages/OwnerSettingsNew.tsx` (if exists with same pattern) - Remove glass frames
+**`src/components/AIListingAssistant.tsx`**
+- Update the direct `supabase.functions.invoke('ai-assistant')` call to use `ai-orchestrator`
+
+#### 4. Add AI Enhance Capability
+
+New export in `useAIGeneration`:
+- `enhance(text, tone)` method that sends `task: "enhance"` to the orchestrator
+- Returns improved text that user must confirm before applying
+
+#### 5. AI Semantic Search
+
+The existing `search` task already converts natural language to structured filters. The orchestrator will improve the prompt to also detect language and return richer intent data:
+```text
+Input:  "clean lady near me under 1000"
+Output: { category: "worker", filters: { keywords: ["cleaning"], max_price: 1000 }, language: "en", suggestion: "..." }
+```
+
+No new database queries needed -- the AI only structures intent, and the existing frontend filter logic applies the result.
+
+### Files to Create/Modify
+
+1. **Create** `supabase/functions/ai-orchestrator/index.ts` -- unified orchestrator with all task routing and provider fallback
+2. **Modify** `supabase/config.toml` -- add orchestrator function registration
+3. **Modify** `src/hooks/ai/useAIGeneration.ts` -- point to orchestrator, add enhance task
+4. **Modify** `src/hooks/ai/useConversationalAI.ts` -- point to orchestrator
+5. **Modify** `src/components/AIListingAssistant.tsx` -- point to orchestrator
+
+### Provider Fallback Logic
+
+```text
+1. Try Lovable AI Gateway (free, fast)
+2. If 429/500 -> Try MiniMax (if MINIMAX_API_KEY exists)
+3. If both fail -> Return error with clear message
+```
+
+### What Stays the Same
+
+- All existing frontend UI components remain unchanged
+- The swipe mechanics, filters, and database schema are untouched
+- The conversational listing builder flow stays identical
+- All existing AI capabilities (listing, profile, search) work exactly as before, just routed through the new orchestrator
 
