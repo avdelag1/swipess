@@ -67,7 +67,8 @@ const OwnerNewListing = () => {
   };
 
   const handleAIOpen = () => {
-    setIsAIAssistantOpen(true);
+    // Navigate to the new conversational AI flow
+    navigate('/owner/listings/new-ai');
   };
 
   return (
