@@ -48,12 +48,13 @@ export function useSwipe() {
         throw error;
       }
 
-      return { success: true, direction, targetId };
+      return { success: true, direction, targetId, userId: user.id };
     },
     onSuccess: (data) => {
       // Invalidate likes cache so saved list updates
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] }).catch(() => {});
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', data.userId] }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['smart-listings'] }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['smart-clients'] }).catch(() => {});
