@@ -2,7 +2,7 @@
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Zap, Sparkles } from 'lucide-react';
+import { Bell, Zap, Sparkles, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -13,27 +13,18 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 
 // DARK MODE: White text on dark background
-const TokenText = () => (
+const TokensText = () => (
   <>
     <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
       Tokens
     </span>
-    <Zap className="sm:hidden h-5 w-5 text-white" />
-  </>
-);
-
-const MessageActivationText = () => (
-  <>
-    <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
-      Messages
-    </span>
-    <Bell className="sm:hidden h-5 w-5 text-white" />
+    <Coins className="sm:hidden h-5 w-5 text-orange-400" />
   </>
 );
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
-  onMessageActivationsClick?: () => void;
+  onTokensClick?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner';
@@ -44,7 +35,7 @@ interface TopBarProps {
 
 function TopBarComponent({
   onNotificationsClick,
-  onMessageActivationsClick,
+  onTokensClick,
   className,
   showFilters,
   userRole,
@@ -124,21 +115,21 @@ function TopBarComponent({
               <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:text-orange-400 transition-colors" />
             </Button>
 
-            {/* Message Activation Button */}
+            {/* Tokens Button */}
             <Button
               variant="ghost"
               className={cn(
                 "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
-                "hover:bg-white/10",
+                "hover:bg-orange-500/20 hover:text-orange-400",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent",
                 "flex items-center"
               )}
-              onClick={onMessageActivationsClick}
-              aria-label="Message activations"
+              onClick={onTokensClick}
+              aria-label="Tokens"
             >
-              <MessageActivationText />
+              <TokensText />
             </Button>
 
             {/* Notifications Button */}
