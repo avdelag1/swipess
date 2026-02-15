@@ -1,15 +1,15 @@
 /**
  * CLIENT FILTERS PAGE - Premium glass design
  * 
- * Full-screen filter page that properly updates filterStore
- * and triggers category-based filtering on swipe cards.
+ * Full-screen filter page with smooth rounded corners and clean save button.
  */
 
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Home, Bike, Briefcase, X, ChevronRight, Check } from 'lucide-react';
+import { ArrowLeft, Sparkles, Home, Bike, Briefcase, X, ChevronRight, Check, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,14 +21,12 @@ const categories: {
   label: string; 
   icon: React.ReactNode;
   color: string;
-  bgColor: string;
-}[] = [
+}[] = [ 
   { 
     id: 'property', 
     label: 'Properties', 
     icon: <Home className="w-5 h-5" />,
     color: 'text-blue-400',
-    bgColor: 'bg-blue-500',
   },
   { 
     id: 'motorcycle', 
@@ -41,37 +39,39 @@ const categories: {
         <path d="M14 7h3l2 5" />
       </svg>
     ),
-    color: 'text-slate-400',
-    bgColor: 'bg-slate-500',
+    color: 'text-orange-400',
   },
   { 
     id: 'bicycle', 
     label: 'Bicycles', 
     icon: <Bike className="w-5 h-5" />,
     color: 'text-emerald-400',
-    bgColor: 'bg-emerald-500',
   },
   { 
     id: 'services', 
     label: 'Services', 
     icon: <Briefcase className="w-5 h-5" />,
     color: 'text-purple-400',
-    bgColor: 'bg-purple-500',
   },
 ];
 
 const listingTypes = [
-  { id: 'both' as const, label: 'All', description: 'Rent & Sale' },
-  { id: 'rent' as const, label: 'Rent', description: 'Rentals only' },
-  { id: 'sale' as const, label: 'Buy', description: 'For sale only' },
+  { id: 'both' as const, label: 'All Types', description: 'Rent & Sale' },
+  { id: 'rent' as const, label: 'Rent Only', description: 'For rent' },
+  { id: 'sale' as const, label: 'Buy Only', description: 'For sale' },
 ];
-
-const springTransition = { type: 'spring' as const, stiffness: 400, damping: 28 };
 
 export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  
+  // Get URL params for AI-suggested filters
+  const urlParams = new URLSearchParams(location.search);
+  const aiCategory = urlParams.get('category');
+  const aiPriceMin = urlParams.get('priceMin');
+  const aiPriceMax = urlParams.get('priceMax');
+  const aiKeywords = urlParams.get('keywords');
   
   const storeCategories = useFilterStore((state) => state.categories);
   const storeListingType = useFilterStore((state) => state.listingType);
@@ -79,10 +79,16 @@ export default function ClientFilters() {
   const setListingType = useFilterStore((state) => state.setListingType);
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   
-  const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(storeCategories);
-  const [selectedListingType, setSelectedListingType] = useState<'rent' | 'sale' | 'both'>(storeListingType);
+  // Initialize with URL params if available, otherwise use store
+  const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(
+    aiCategory ? [aiCategory as QuickFilterCategory] : storeCategories
+  );
+  const [selectedListingType, setSelectedListingType] = useState<'rent' | 'sale' | 'both'>(
+    storeListingType
+  );
   
   const activeFilterCount = selectedCategories.length + (selectedListingType !== 'both' ? 1 : 0);
+  const hasChanges = activeFilterCount > 0;
   
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     setSelectedCategories(prev => {
@@ -98,8 +104,7 @@ export default function ClientFilters() {
     setCategories(selectedCategories);
     setListingType(selectedListingType);
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
-    queryClient.invalidateQueries({ queryKey: ['listings'] });
-    navigate('/client/dashboard', { replace: true });
+    navigate(-1);
   }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate]);
   
   const handleReset = useCallback(() => {
@@ -109,137 +114,149 @@ export default function ClientFilters() {
   }, [resetClientFilters]);
   
   const handleBack = useCallback(() => {
-    navigate('/client/dashboard', { replace: true });
+    navigate(-1);
   }, [navigate]);
-  
+
   return (
-    <div className="min-h-full flex flex-col pb-40">
+    <div className="min-h-full bg-[#1C1C1E]">
       {/* Header */}
-      <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3 bg-background/95 backdrop-blur-sm border-b border-border/40">
-        <div className="max-w-lg mx-auto flex items-center justify-between">
+      <header className="sticky top-0 z-10 bg-[#1C1C1E]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleBack}
-              className="h-9 w-9 rounded-full hover:bg-muted/80"
+              className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
             >
-              <ArrowLeft className="w-5 h-5 text-foreground" />
+              <ArrowLeft className="w-5 h-5 text-white" />
             </Button>
             <div>
-              <h1 className="text-lg font-semibold text-foreground">Filters</h1>
-              <p className="text-xs text-muted-foreground">
-                {activeFilterCount > 0
-                  ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`
-                  : 'Choose what to browse'
-                }
+              <h1 className="text-lg font-semibold text-white">Filters</h1>
+              <p className="text-xs text-white/50">
+                {activeFilterCount > 0 ? `${activeFilterCount} active` : 'Customize your search'}
               </p>
             </div>
           </div>
 
-          {activeFilterCount > 0 && (
+          {hasChanges && (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleReset}
-              className="text-foreground hover:text-foreground hover:bg-muted/80 rounded-full font-medium"
+              className="text-white/60 hover:text-white text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10"
             >
-              <X className="w-4 h-4 mr-1" />
+              <RotateCcw className="w-3.5 h-3.5" />
               Reset
             </Button>
           )}
         </div>
       </header>
 
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
-        <div className="max-w-lg mx-auto px-4 py-4 space-y-5">
-          
-          {/* Listing Type */}
-          <div className="space-y-3">
-            <p className="text-sm font-semibold text-foreground uppercase tracking-wide">
-              I want to
-            </p>
-            <div className="grid grid-cols-3 gap-3">
-              {listingTypes.map((type) => (
-                <motion.button
-                  key={type.id}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setSelectedListingType(type.id)}
-                  className={cn(
-                    "flex flex-col items-center justify-center py-4 px-3 rounded-2xl transition-all duration-200 shadow-sm border-2",
-                    selectedListingType === type.id
-                      ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 border-primary"
-                      : "bg-card border-border hover:bg-muted/70 hover:border-muted-foreground/30 text-foreground"
-                  )}
-                >
-                  <span className={cn(
-                    "text-sm font-bold",
-                    selectedListingType === type.id ? "text-primary-foreground" : "text-foreground"
-                  )}>{type.label}</span>
-                  <span className={cn(
-                    "text-xs mt-1",
-                    selectedListingType === type.id ? "text-primary-foreground/90" : "text-muted-foreground"
-                  )}>
-                    {type.description}
+      <ScrollArea className="h-[calc(100vh-200px)]">
+        <div className="px-4 py-6 space-y-8">
+          {/* AI Suggestions Banner */}
+          {(aiCategory || aiPriceMin || aiPriceMax) && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 rounded-2xl bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-orange-400" />
+                <span className="text-sm font-medium text-orange-400">AI Suggested Filters</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {aiCategory && (
+                  <span className="px-2 py-1 text-xs rounded-lg bg-white/10 text-white/80">
+                    Category: {aiCategory}
                   </span>
-                </motion.button>
-              ))}
-            </div>
-          </div>
+                )}
+                {(aiPriceMin || aiPriceMax) && (
+                  <span className="px-2 py-1 text-xs rounded-lg bg-white/10 text-white/80">
+                    Price: ${aiPriceMin || '0'} - ${aiPriceMax || '∞'}
+                  </span>
+                )}
+              </div>
+            </motion.div>
+          )}
 
-          {/* Categories */}
-          <div className="space-y-3">
-            <p className="text-sm font-semibold text-foreground uppercase tracking-wide">
-              Categories
-            </p>
-            <div className="space-y-3">
+          {/* Categories Section */}
+          <section className="space-y-3">
+            <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider">Categories</h2>
+            <div className="grid grid-cols-2 gap-3">
               {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category.id);
                 return (
                   <motion.button
                     key={category.id}
-                    whileTap={{ scale: 0.98 }}
-                    layout
                     onClick={() => handleCategoryToggle(category.id)}
+                    whileTap={{ scale: 0.95 }}
                     className={cn(
-                      "w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-200 shadow-md border-2",
+                      "relative p-4 rounded-2xl border transition-all duration-200 overflow-hidden",
                       isSelected
-                        ? "bg-gradient-to-br from-primary to-primary/90 text-primary-foreground shadow-lg shadow-primary/30 border-primary"
-                        : "bg-card border-border hover:bg-muted/70 hover:border-muted-foreground/30 text-foreground"
+                        ? "bg-white/10 border-orange-500/50"
+                        : "bg-white/5 border-white/10 hover:bg-white/10"
                     )}
                   >
-                    <div className="flex items-center gap-3.5">
-                      <motion.div
-                        className={cn(
-                          "w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm",
-                          isSelected ? "bg-primary-foreground/20" : "bg-muted"
-                        )}
-                        animate={isSelected ? { scale: [1, 1.08, 1] } : {}}
-                        transition={springTransition}
-                      >
-                        <span className={isSelected ? "text-primary-foreground" : category.color}>
-                          {category.icon}
-                        </span>
-                      </motion.div>
-                      <span className={cn(
-                        "font-bold text-base",
-                        isSelected ? "text-primary-foreground" : "text-foreground"
-                      )}>
-                        {category.label}
-                      </span>
-                    </div>
-
+                    {/* Selection indicator */}
                     <AnimatePresence>
                       {isSelected && (
                         <motion.div
-                          initial={{ scale: 0, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0, opacity: 0 }}
-                          transition={springTransition}
-                          className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center"
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                          className="absolute top-2 right-2"
                         >
-                          <Check className="w-5 h-5 text-primary-foreground font-bold" />
+                          <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <div className={cn("mb-2", category.color)}>
+                      {category.icon}
+                    </div>
+                    <span className="text-sm font-medium text-white">{category.label}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Listing Type Section */}
+          <section className="space-y-3">
+            <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider">Listing Type</h2>
+            <div className="space-y-2">
+              {listingTypes.map((type) => {
+                const isSelected = selectedListingType === type.id;
+                return (
+                  <motion.button
+                    key={type.id}
+                    onClick={() => setSelectedListingType(type.id)}
+                    whileTap={{ scale: 0.98 }}
+                    className={cn(
+                      "w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200",
+                      isSelected
+                        ? "bg-orange-500/10 border-orange-500/50"
+                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                    )}
+                  >
+                    <div className="text-left">
+                      <span className="text-sm font-medium text-white block">{type.label}</span>
+                      <span className="text-xs text-white/50">{type.description}</span>
+                    </div>
+                    <AnimatePresence>
+                      {isSelected && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ scale: 0 }}
+                        >
+                          <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -247,61 +264,24 @@ export default function ClientFilters() {
                 );
               })}
             </div>
-          </div>
-
-          {/* Quick Actions */}
-          {selectedCategories.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={springTransition}
-            >
-              <div className="space-y-3">
-                <p className="text-sm font-semibold text-foreground uppercase tracking-wide flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  Quick Actions
-                </p>
-                <button
-                  onClick={() => navigate(`/client/filters-explore`)}
-                  className="w-full flex items-center justify-between p-4 rounded-2xl bg-muted/60 hover:bg-muted border-2 border-border hover:border-muted-foreground/30 transition-all shadow-sm"
-                >
-                  <span className="text-sm font-semibold text-foreground">More Filters...</span>
-                  <ChevronRight className="w-5 h-5 text-foreground" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Empty State */}
-          {selectedCategories.length === 0 && (
-            <div className="text-center py-10">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center shadow-sm">
-                <Sparkles className="w-8 h-8 text-primary" />
-              </div>
-              <p className="text-base font-medium text-foreground">
-                Select a category to start browsing
-              </p>
-            </div>
-          )}
-
-          {/* Bottom spacer for the sticky button */}
-          <div className="h-32" />
+          </section>
         </div>
-      </div>
+      </ScrollArea>
 
-      {/* Footer - Apply Button */}
-      <div className="fixed bottom-20 left-0 right-0 z-40 px-4 pt-4 pb-3 bg-gradient-to-t from-background via-background/95 to-transparent backdrop-blur-sm">
-        <div className="max-w-lg mx-auto">
+      {/* Bottom Fixed Save Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1C1C1E]/95 backdrop-blur-xl border-t border-white/5">
+        <div className="max-w-md mx-auto">
           <Button
             onClick={handleApply}
-            disabled={selectedCategories.length === 0}
-            className="w-full h-14 text-base font-bold rounded-2xl shadow-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/95 disabled:opacity-50 disabled:cursor-not-allowed text-primary-foreground border-2 border-primary"
+            className={cn(
+              "w-full h-14 rounded-2xl text-base font-semibold transition-all duration-200",
+              hasChanges
+                ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white shadow-lg shadow-orange-500/25"
+                : "bg-white/10 text-white/40 cursor-not-allowed"
+            )}
+            disabled={!hasChanges}
           >
-            <Sparkles className="w-5 h-5 mr-2" />
-            {selectedCategories.length === 0
-              ? 'Select a Category'
-              : `Browse ${selectedCategories.length} Categor${selectedCategories.length > 1 ? 'ies' : 'y'}`
-            }
+            {hasChanges ? 'Apply Filters' : 'No filters selected'}
           </Button>
         </div>
       </div>
