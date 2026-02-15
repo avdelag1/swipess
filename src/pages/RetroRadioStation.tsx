@@ -298,40 +298,8 @@ export default function RetroRadioStation() {
           <VolumeSlider volume={state.volume} onVolumeChange={setVolume} />
         </div>
 
-        {/* City quick-switch pills */}
-        <div className="flex-shrink-0 w-full py-3">
-          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide px-4 pb-1" style={{ scrollSnapType: 'x mandatory' }}>
-            {(Object.keys(cityThemes) as CityLocation[]).map((city) => {
-              const ct = cityThemes[city];
-              const isActive = city === state.currentCity;
-              return (
-                <motion.button
-                  key={city}
-                  whileTap={{ scale: 0.93 }}
-                  whileHover={{ scale: isActive ? 1 : 1.05 }}
-                  onClick={() => handleCitySelect(city)}
-                  className={`px-3.5 py-2 rounded-full text-[11px] font-medium transition-all whitespace-nowrap flex-shrink-0 ${
-                    isActive
-                      ? 'text-white'
-                      : 'text-white/60 hover:text-white/80'
-                  }`}
-                  style={{
-                    scrollSnapAlign: 'start',
-                    ...(isActive ? {
-                      background: `linear-gradient(135deg, ${ct.primaryColor}, ${ct.secondaryColor})`,
-                      boxShadow: `0 4px 20px ${ct.primaryColor}40, 0 0 40px ${ct.primaryColor}25`,
-                    } : {})
-                  }}
-                >
-                  {ct.name}
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Bottom spacer for safe area */}
-        <div className="flex-shrink-0 h-4" />
+        <div className="flex-shrink-0 h-8" />
       </div>
 
       {/* Station Drawer */}

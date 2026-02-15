@@ -3,13 +3,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { getStationsByCity, cityThemes, CityLocation } from '@/data/radioStations';
-import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic, Radio } from 'lucide-react';
+import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic } from 'lucide-react';
 
 export default function RadioPlayer() {
   const { state, error, togglePlayPause, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin } = useRadio();
   const [showCitySelector, setShowCitySelector] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
-  const [showCityCascade, setShowCityCascade] = useState(false);
 
   const cityStations = getStationsByCity(state.currentCity);
   const currentStationIndex = cityStations.findIndex(s => s.id === state.currentStation?.id);
@@ -242,64 +241,6 @@ export default function RadioPlayer() {
             <SkipForward className="w-5 h-5" />
           </button>
         </div>
-      </div>
-
-      {/* Floating City Cascade Button */}
-      <div className="fixed bottom-24 right-4 z-40">
-        <AnimatePresence>
-          {showCityCascade && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="flex flex-col-reverse gap-3 mb-3"
-            >
-              {allCities.map((city, index) => (
-                <motion.button
-                  key={city}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => {
-                    setCity(city);
-                    setShowCityCascade(false);
-                  }}
-                  className={`group relative px-4 py-3 rounded-full backdrop-blur-md shadow-lg flex items-center gap-3 transition-all ${
-                    state.currentCity === city
-                      ? 'bg-white text-black'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                  style={{
-                    background: state.currentCity === city
-                      ? 'white'
-                      : cityThemes[city].gradient.replace('linear-gradient(135deg,', 'linear-gradient(90deg,')
-                  }}
-                >
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">
-                    {city.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="font-medium text-sm whitespace-nowrap">
-                    {cityThemes[city].name}
-                  </span>
-                  <span className="text-xs opacity-60">
-                    ({getStationsByCity(city).length})
-                  </span>
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* FAB Button */}
-        <motion.button
-          onClick={() => setShowCityCascade(!showCityCascade)}
-          className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white shadow-lg flex items-center justify-center"
-          whileTap={{ scale: 0.9 }}
-          animate={{ rotate: showCityCascade ? 45 : 0 }}
-        >
-          <Radio className="w-6 h-6" />
-        </motion.button>
       </div>
 
       {/* City Selector Modal */}
