@@ -433,7 +433,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-xl"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -465,7 +465,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
 
           {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
-          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
+          <GradientMaskBottom intensity={0.8} zIndex={18} heightPercent={50} />
         </div>
         
         {/* YES! overlay */}
