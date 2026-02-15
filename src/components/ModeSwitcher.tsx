@@ -48,7 +48,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'relative flex items-center justify-center rounded-xl',
           'transition-all duration-100 ease-out',
           'active:scale-[0.9]',
-          'hover:bg-white/10',
+          'bg-white/15 hover:bg-white/25',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
@@ -158,7 +158,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       disabled={isSwitching || !canSwitchMode}
       className={cn(
         'relative flex items-center gap-1.5 rounded-xl px-2.5',
-        'hover:bg-white/10',
+        'bg-white/15 hover:bg-white/25',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',

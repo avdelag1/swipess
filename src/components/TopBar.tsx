@@ -114,7 +114,7 @@ function TopBarComponent({
                 className={cn(
                   "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
                   "active:scale-[0.95]",
-                  "hover:bg-orange-500/30 hover:text-orange-300",
+                  "bg-white/15 hover:bg-orange-500/40",
                   "touch-manipulation",
                   "-webkit-tap-highlight-color-transparent",
                   "group flex-shrink-0"
@@ -122,7 +122,7 @@ function TopBarComponent({
                 onClick={() => setIsAISearchOpen(true)}
                 aria-label="AI Search"
               >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-orange-300 group-hover:text-orange-200 transition-colors" />
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-orange-200 group-hover:text-orange-100 transition-colors" />
               </Button>
             )}
 
@@ -132,7 +132,7 @@ function TopBarComponent({
               className={cn(
                 "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
-                "hover:bg-white/20",
+                "bg-white/15 hover:bg-white/30",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent",
                 "flex items-center"
@@ -150,7 +150,7 @@ function TopBarComponent({
               className={cn(
                 "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
-                "hover:bg-white/20",
+                "bg-white/15 hover:bg-white/30",
                 "group flex-shrink-0",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent"
@@ -163,8 +163,8 @@ function TopBarComponent({
                   className={cn(
                     "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-300 group-hover:text-orange-200"
-                      : "text-white group-hover:text-orange-200"
+                      ? "text-orange-200 group-hover:text-orange-100"
+                      : "text-gray-50 group-hover:text-white"
                   )}
                 />
                 <AnimatePresence>
