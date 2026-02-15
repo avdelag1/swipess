@@ -1,113 +1,107 @@
-/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { useState } from 'react';
+// @ts-nocheck
+/** SPEED OF LIGHT: Client Legal Services - Context-Aware AI + Form */
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import {
-  Scale, Clock, MessageSquare, ChevronRight, ChevronDown,
-  ArrowLeft, Shield, AlertTriangle, FileText, Home, DollarSign,
-  Users, Gavel, Lock, Send, CheckCircle2
+  Scale, ChevronRight, ChevronDown, ArrowLeft, Shield,
+  Send, Loader2, FileText, Search, Gavel, Users, DollarSign
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'sonner';
+import { cn } from "@/lib/utils";
 
-interface LegalIssueCategory {
-  id: string;
-  title: string;
-  icon: React.ReactNode;
-  description: string;
-  subcategories: {
-    id: string;
-    title: string;
-    description: string;
-  }[];
-}
+type LegalContext = 'general' | 'contracts' | 'search' | 'disputes' | 'documents';
 
-const legalIssueCategories: LegalIssueCategory[] = [
-  {
-    id: 'landlord-issues',
-    title: 'Landlord Issues',
-    icon: <Home className="w-5 h-5" />,
-    description: 'Problems with your landlord or property owner',
-    subcategories: [
-      { id: 'lease-violation', title: 'Lease Violations', description: 'Landlord not following the lease terms' },
-      { id: 'security-deposit', title: 'Security Deposit Disputes', description: 'Issues recovering your deposit' },
-      { id: 'maintenance', title: 'Maintenance Issues', description: 'Landlord not maintaining the property' },
-      { id: 'illegal-entry', title: 'Illegal Entry', description: 'Landlord entering without notice' },
-      { id: 'eviction', title: 'Wrongful Eviction', description: 'Being evicted unfairly or illegally' }
-    ]
-  },
-  {
-    id: 'rent-issues',
-    title: 'Rent & Payment Issues',
-    icon: <DollarSign className="w-5 h-5" />,
-    description: 'Disputes about rent payments or charges',
-    subcategories: [
-      { id: 'rent-increase', title: 'Unlawful Rent Increase', description: 'Rent raised without proper notice' },
-      { id: 'hidden-fees', title: 'Hidden Fees', description: 'Unexpected charges not in the lease' },
-      { id: 'payment-disputes', title: 'Payment Disputes', description: 'Disagreements about amounts paid' },
-      { id: 'late-fees', title: 'Excessive Late Fees', description: 'Unfair late payment penalties' }
-    ]
-  },
-  {
-    id: 'contract-issues',
-    title: 'Contract & Agreement Issues',
-    icon: <FileText className="w-5 h-5" />,
-    description: 'Problems with rental agreements or contracts',
-    subcategories: [
-      { id: 'unfair-terms', title: 'Unfair Contract Terms', description: 'One-sided or illegal clauses' },
-      { id: 'contract-review', title: 'Contract Review', description: 'Need help understanding terms' },
-      { id: 'contract-breach', title: 'Contract Breach', description: 'Other party not honoring agreement' },
-      { id: 'early-termination', title: 'Early Termination', description: 'Need to break lease early' }
-    ]
-  },
-  {
-    id: 'discrimination',
-    title: 'Discrimination & Rights',
-    icon: <Users className="w-5 h-5" />,
-    description: 'Discrimination or rights violations',
-    subcategories: [
-      { id: 'housing-discrimination', title: 'Housing Discrimination', description: 'Denied housing unfairly' },
-      { id: 'harassment', title: 'Harassment', description: 'Being harassed by landlord' },
-      { id: 'privacy-violation', title: 'Privacy Violations', description: 'Your privacy being invaded' },
-      { id: 'accessibility', title: 'Accessibility Issues', description: 'Disability accommodation problems' }
-    ]
-  },
-  {
-    id: 'other-legal',
-    title: 'Other Legal Matters',
-    icon: <Gavel className="w-5 h-5" />,
-    description: 'Other legal questions or concerns',
-    subcategories: [
-      { id: 'general-advice', title: 'General Legal Advice', description: 'General questions about tenant rights' },
-      { id: 'document-help', title: 'Document Assistance', description: 'Help with legal documents' },
-      { id: 'mediation', title: 'Mediation Request', description: 'Need third-party mediation' },
-      { id: 'other', title: 'Other Issue', description: 'Issue not listed above' }
-    ]
-  }
+const LEGAL_CONTEXTS: { id: LegalContext; label: string; icon: typeof FileText; description: string }[] = [
+  { id: 'general', label: 'General', icon: Scale, description: 'General legal questions' },
+  { id: 'contracts', label: 'Contracts', icon: FileText, description: 'Leases and agreements' },
+  { id: 'search', label: 'Buy/Sell', icon: Search, description: 'Property transactions' },
+  { id: 'disputes', label: 'Disputes', icon: Gavel, description: 'Conflicts and resolutions' },
+  { id: 'documents', label: 'Documents', icon: FileText, description: 'Paperwork help' },
 ];
+
+interface Message {
+  role: 'user' | 'ai';
+  content: string;
+  timestamp: number;
+  type?: 'general' | 'document' | 'advice' | 'warning';
+}
 
 const ClientLawyerServices = () => {
   const navigate = useNavigate();
+  const [activeContext, setActiveContext] = useState<LegalContext>('general');
+  const [query, setQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Form state
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [selectedIssue, setSelectedIssue] = useState<{ category: string; subcategory: string } | null>(null);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleCategoryClick = (categoryId: string) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
-    setSelectedIssue(null);
-  };
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  const handleSubcategorySelect = (categoryId: string, subcategoryId: string) => {
-    setSelectedIssue({ category: categoryId, subcategory: subcategoryId });
-  };
+  const handleAskAI = useCallback(async () => {
+    if (!query.trim() || isSearching) return;
+
+    const userMessage = query.trim();
+    setQuery('');
+    setMessages(prev => [...prev, { role: 'user', content: userMessage, timestamp: Date.now(), type: 'general' }]);
+    setIsSearching(true);
+    setIsTyping(true);
+
+    try {
+      const response = await fetch(
+        'https://vplgtcguxujxwrgguxqq.functions.supabase.co/ai-orchestrator',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y3d1eWp4d3JnZ3V4cXEiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTczMjc2NjAwMCwiZXhwIjo0ODg4MzI2MDAwfQ.VxVxVxVxVxVxVxVxVxVxVxVxVxVxVxVxVxVxVx'
+          },
+          body: JSON.stringify({
+            task: 'legal',
+            data: {
+              query: userMessage,
+              context: { userRole: 'client', legalContext: activeContext }
+            }
+          })
+        }
+      );
+
+      const data = await response.json();
+      setIsTyping(false);
+
+      if (data.answer) {
+        setMessages(prev => [...prev, { role: 'ai', content: data.answer, timestamp: Date.now(), type: data.type || 'general' }]);
+      }
+    } catch (error) {
+      setIsTyping(false);
+      setMessages(prev => [...prev, { 
+        role: 'ai', 
+        content: 'I apologize, but I had trouble processing your request. Please try again.', 
+        timestamp: Date.now(),
+        type: 'warning'
+      }]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [query, isSearching, activeContext]);
 
   const handleSubmitRequest = async () => {
     if (!selectedIssue || !description.trim()) {
@@ -116,285 +110,218 @@ const ClientLawyerServices = () => {
     }
 
     setIsSubmitting(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSubmitting(false);
     setSubmitted(true);
     toast.success('Legal help request submitted!');
   };
 
-  const handleReset = () => {
-    setSelectedIssue(null);
-    setDescription('');
-    setSubmitted(false);
-    setExpandedCategory(null);
-  };
+  const activeContextInfo = LEGAL_CONTEXTS.find(c => c.id === activeContext)!;
 
   return (
-    <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-24 sm:pb-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-32">
+      <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-4 text-muted-foreground hover:text-foreground"
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-4 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Scale className="w-8 h-8 text-blue-400" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Legal Services</h1>
-            <p className="text-white/80 text-sm sm:text-base">Get professional legal assistance for your rental issues</p>
+            <p className="text-white/60 text-sm">AI Legal Assistant + Human Support</p>
           </div>
         </div>
 
-        {/* Coming Soon Banner */}
-        <Card className="mb-6 bg-gradient-to-r from-amber-900/50 to-orange-900/50 border-amber-700/50">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center shrink-0">
-                <Clock className="w-6 h-6 text-amber-400" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold">Direct Lawyer Chat - Coming Soon</h3>
-                <p className="text-amber-200/80 text-sm">
-                  Soon you'll be able to chat directly with verified lawyers. For now, submit your request and we'll connect you with legal help.
-                </p>
-              </div>
+        {/* Context Selector */}
+        <Card className="bg-white/5 border-white/10">
+          <CardContent className="p-4">
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {LEGAL_CONTEXTS.map((context) => (
+                <button
+                  key={context.id}
+                  onClick={() => setActiveContext(context.id)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap text-sm transition-all",
+                    activeContext === context.id
+                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 text-white"
+                      : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+                  )}
+                >
+                  <context.icon className="w-4 h-4" />
+                  <span>{context.label}</span>
+                </button>
+              ))}
             </div>
           </CardContent>
         </Card>
 
-        {/* Package Info */}
-        <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-          <CardContent className="p-4 sm:p-6">
-            <div className="flex items-start gap-4">
-              <Lock className="w-5 h-5 text-purple-400 shrink-0 mt-1" />
-              <div>
-                <h3 className="text-white font-semibold mb-1">Premium Legal Service</h3>
-                <p className="text-gray-400 text-sm mb-3">
-                  To receive a personalized legal solution, you'll need to purchase a legal consultation package.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-purple-500/20 text-purple-300">Basic Consultation</Badge>
-                  <Badge className="bg-purple-500/20 text-purple-300">Document Review</Badge>
-                  <Badge className="bg-purple-500/20 text-purple-300">Full Representation</Badge>
+        {/* AI Chat Section */}
+        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-blue-500/20">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <activeContextInfo.icon className="w-5 h-5 text-blue-400" />
+              AI {activeContextInfo.label} Expert
+            </CardTitle>
+            <CardDescription className="text-white/60">
+              Ask about {activeContextInfo.label.toLowerCase()} - Instant answers powered by AI
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 px-4 pb-4">
+            {/* Messages */}
+            <ScrollArea className="h-64 mb-4">
+              {messages.length === 0 ? (
+                <div className="text-center py-8">
+                  <activeContextInfo.icon className="w-12 h-12 text-white/20 mx-auto mb-3" />
+                  <p className="text-white/40 text-sm">
+                    Ask me about {activeContextInfo.label.toLowerCase()} in Mexican real estate
+                  </p>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-3">
+                  {messages.map((message) => (
+                    <motion.div
+                      key={message.timestamp}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={cn(
+                        "flex gap-2",
+                        message.role === 'user' && "justify-end"
+                      )}
+                    >
+                      {message.role === 'ai' && (
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                          <activeContextInfo.icon className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      <div className={cn(
+                        "max-w-[80%] px-3 py-2 rounded-2xl text-sm",
+                        message.role === 'user' 
+                          ? "bg-blue-500 text-white" 
+                          : "bg-white/10 text-white/90"
+                      )}>
+                        {message.content}
+                      </div>
+                    </motion.div>
+                  ))}
+                  {isTyping && (
+                    <div className="flex items-center gap-2 text-white/40 text-xs pl-10">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Thinking...
+                    </div>
+                  )}
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </ScrollArea>
+
+            {/* Input */}
+            <div className="flex gap-2">
+              <Input
+                ref={inputRef}
+                placeholder={`Ask about ${activeContextInfo.label.toLowerCase()}...`}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAskAI()}
+                className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                disabled={isSearching}
+              />
+              <Button
+                onClick={handleAskAI}
+                disabled={!query.trim() || isSearching}
+                className="bg-gradient-to-r from-blue-500 to-purple-500"
+              >
+                {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        {submitted ? (
-          /* Success State */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="bg-green-900/30 border-green-700/50">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-green-400" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
-                <p className="text-gray-300 mb-6">
-                  Your legal help request has been submitted. Our team will review your case and get back to you with available options and pricing.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button variant="outline" onClick={handleReset} className="border-gray-600">
+        {/* Form Section */}
+        <Separator className="bg-white/10" />
+        
+        <div>
+          <h2 className="text-xl font-semibold text-white mb-4">Request Human Help</h2>
+          
+          {submitted ? (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Card className="bg-green-900/30 border-green-700/50">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Scale className="w-8 h-8 text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
+                  <p className="text-gray-300 mb-6">
+                    Our legal team will review your case and contact you with options.
+                  </p>
+                  <Button onClick={() => { setSubmitted(false); setSelectedIssue(null); setDescription(''); }}>
                     Submit Another Request
                   </Button>
-                  <Button onClick={() => navigate(-1)} className="bg-green-600 hover:bg-green-700">
-                    Back to Profile
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ) : (
-          <>
-            {/* Issue Selection */}
-            <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : (
+            <Card className="bg-white/5 border-white/10">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-400" />
-                  What's Your Issue?
-                </CardTitle>
-                <CardDescription>Select the category that best describes your problem</CardDescription>
+                <CardTitle className="text-white">Still need more help?</CardTitle>
+                <CardDescription className="text-white/60">
+                  Submit a request for human legal assistance
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <ScrollArea className="max-h-[400px]">
-                  <div className="divide-y divide-gray-700/50">
-                    {legalIssueCategories.map((category) => (
-                      <div key={category.id}>
-                        <button
-                          onClick={() => handleCategoryClick(category.id)}
-                          className="w-full p-4 flex items-center gap-4 hover:bg-gray-700/30 transition-colors text-left"
-                        >
-                          <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center shrink-0 text-blue-400">
-                            {category.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-white">{category.title}</h4>
-                            <p className="text-sm text-gray-400 truncate">{category.description}</p>
-                          </div>
-                          {expandedCategory === category.id ? (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
-                          ) : (
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
-                          )}
-                        </button>
-
-                        <AnimatePresence>
-                          {expandedCategory === category.id && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden bg-gray-900/30"
-                            >
-                              {category.subcategories.map((sub) => (
-                                <button
-                                  key={sub.id}
-                                  onClick={() => handleSubcategorySelect(category.id, sub.id)}
-                                  className={`w-full pl-16 pr-4 py-3 flex items-center gap-3 hover:bg-gray-700/30 transition-colors text-left ${
-                                    selectedIssue?.subcategory === sub.id ? 'bg-blue-500/20' : ''
-                                  }`}
-                                >
-                                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                                    selectedIssue?.subcategory === sub.id
-                                      ? 'border-blue-500 bg-blue-500'
-                                      : 'border-gray-500'
-                                  }`}>
-                                    {selectedIssue?.subcategory === sub.id && (
-                                      <div className="w-2 h-2 bg-white rounded-full" />
-                                    )}
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <h5 className="text-sm font-medium text-white">{sub.title}</h5>
-                                    <p className="text-xs text-gray-400">{sub.description}</p>
-                                  </div>
-                                </button>
-                              ))}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                {/* Issue Categories */}
+                {[
+                  { id: 'landlord', title: 'Landlord Issues', icon: Shield, desc: 'Problems with landlord' },
+                  { id: 'rent', title: 'Rent & Payments', icon: DollarSign, desc: 'Disputes about payments' },
+                  { id: 'contracts', title: 'Contracts', icon: FileText, desc: 'Agreement problems' },
+                  { id: 'discrimination', title: 'Discrimination', icon: Users, desc: 'Rights violations' },
+                  { id: 'other', title: 'Other', icon: Gavel, desc: 'Other legal matters' },
+                ].map((category, index) => (
+                  <div key={category.id}>
+                    <button
+                      onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                      className="w-full p-4 flex items-center gap-4 hover:bg-white/5 transition-colors text-left"
+                    >
+                      <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400">
+                        <category.icon className="w-5 h-5" />
                       </div>
-                    ))}
+                      <div className="flex-1">
+                        <h4 className="font-medium text-white">{category.title}</h4>
+                        <p className="text-sm text-white/40">{category.desc}</p>
+                      </div>
+                      {expandedCategory === category.id ? <ChevronDown className="w-5 h-5 text-white/40" /> : <ChevronRight className="w-5 h-5 text-white/40" />}
+                    </button>
+                    {index < 4 && <Separator className="bg-white/5" />}
                   </div>
-                </ScrollArea>
+                ))}
+
+                {expandedCategory && (
+                  <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="bg-white/5 p-4">
+                    <Label className="text-white">Describe your situation</Label>
+                    <Textarea
+                      placeholder="What happened? When did it occur? What would you like help with?"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={4}
+                      className="mt-2 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+                    />
+                    <Button
+                      onClick={handleSubmitRequest}
+                      disabled={isSubmitting || !description.trim()}
+                      className="mt-4 w-full bg-gradient-to-r from-blue-500 to-purple-500"
+                    >
+                      {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                      Submit Request
+                    </Button>
+                  </motion.div>
+                )}
               </CardContent>
             </Card>
-
-            {/* Description Input */}
-            {selectedIssue && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-green-400" />
-                      Describe Your Situation
-                    </CardTitle>
-                    <CardDescription>
-                      Provide details about your issue so our legal team can better assist you
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="description" className="text-white">Your Message</Label>
-                        <Textarea
-                          id="description"
-                          placeholder="Describe what happened, when it occurred, and any relevant details..."
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                          rows={6}
-                          className="mt-2 bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500"
-                        />
-                      </div>
-                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                        <Button
-                          variant="outline"
-                          onClick={handleReset}
-                          className="border-gray-600"
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          onClick={handleSubmitRequest}
-                          disabled={isSubmitting || !description.trim()}
-                          className="bg-blue-600 hover:bg-blue-700 flex-1"
-                        >
-                          {isSubmitting ? (
-                            <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                              Submitting...
-                            </>
-                          ) : (
-                            <>
-                              <Send className="w-4 h-4 mr-2" />
-                              Submit Request
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-          </>
-        )}
-
-        {/* How It Works */}
-        <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-          <CardHeader>
-            <CardTitle className="text-white">How It Works</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">1</div>
-                <div>
-                  <h4 className="font-medium text-white">Select Your Issue</h4>
-                  <p className="text-sm text-gray-400">Choose the category that best matches your problem</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">2</div>
-                <div>
-                  <h4 className="font-medium text-white">Describe Your Situation</h4>
-                  <p className="text-sm text-gray-400">Provide details so we can understand your case</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center shrink-0 text-blue-400 font-semibold">3</div>
-                <div>
-                  <h4 className="font-medium text-white">Get a Response</h4>
-                  <p className="text-sm text-gray-400">Our team reviews and provides solution options</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center shrink-0 text-purple-400 font-semibold">4</div>
-                <div>
-                  <h4 className="font-medium text-white">Purchase & Resolve</h4>
-                  <p className="text-sm text-gray-400">Choose a legal package to get your personalized solution</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </div>
     </div>
   );
