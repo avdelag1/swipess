@@ -106,8 +106,8 @@ interface ReactiveBackgroundProps {
 }
 
 export const ReactiveBackground = ({ sentiment = "neutral" }: ReactiveBackgroundProps) => {
-  const { actualTheme } = useTheme();
-  const isDark = actualTheme === "dark";
+  const { theme } = useTheme();
+  const isDark = theme === "black-matte";
 
   // Subtle color shift based on user action (e.g., swipe direction)
   const getSentimentGlow = () => {
