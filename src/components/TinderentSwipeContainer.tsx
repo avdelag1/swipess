@@ -6,6 +6,7 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { AmbientSwipeBackground } from './AmbientSwipeBackground';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
+import { imageCache } from '@/lib/swipe/cardImageCache';
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
@@ -383,6 +384,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
           if (imgUrl) {
             imagesToPreload.push(imgUrl);
             preloadImageToCache(imgUrl);
+            // FIX: Also add to simple imageCache so CardImage.tsx detects cached images
+            imageCache.set(imgUrl, true);
           }
         });
       }
@@ -815,6 +818,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const nextNextCard = deckQueueRef.current[newIndex + 1];
     if (nextNextCard?.images?.[0]) {
       preloadImageToCache(nextNextCard.images[0]);
+      // FIX: Also add to simple imageCache so CardImage.tsx detects cached images
+      imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget]);
@@ -875,6 +880,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
           if (imgUrl) {
             imagesToPreload.push(imgUrl);
             preloadImageToCache(imgUrl);
+            // FIX: Also add to simple imageCache so CardImage.tsx detects cached images
+            imageCache.set(imgUrl, true);
           }
         });
       }
@@ -1057,6 +1064,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
         if (futureCard?.images?.[0]) {
           imagesToPreload.push(futureCard.images[0]);
           preloadImageToCache(futureCard.images[0]);
+          // FIX: Also add to simple imageCache so CardImage.tsx detects cached images
+          imageCache.set(futureCard.images[0], true);
         }
       });
 
