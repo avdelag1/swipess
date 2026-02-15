@@ -47,7 +47,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           suggestion: (result as any).suggestion || 'Processing your search...',
         });
         
-        // Navigate to filters with parsed results
         setTimeout(() => {
           navigateToFilters((result as any));
         }, 1500);
@@ -61,7 +60,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [query, isSearching, userRole, generate, navigate]);
 
   const navigateToFilters = (result: Record<string, any>) => {
-    // Build query params from AI-parsed filters
     const params = new URLSearchParams();
     
     if (result.category) params.set('category', result.category);
@@ -109,7 +107,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Search Input */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
             <Input
@@ -134,7 +131,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             )}
           </div>
 
-          {/* Search Button */}
           <Button
             onClick={handleSearch}
             disabled={!query.trim() || isSearching}
@@ -157,7 +153,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             )}
           </Button>
 
-          {/* AI Result Animation */}
           <AnimatePresence>
             {isSearching && (
               <motion.div
@@ -174,7 +169,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             )}
           </AnimatePresence>
 
-          {/* Success Result */}
           <AnimatePresence>
             {searchResult && !isSearching && (
               <motion.div
@@ -195,7 +189,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             )}
           </AnimatePresence>
 
-          {/* Quick Prompts */}
           {!query && !isSearching && (
             <div className="space-y-2">
               <p className="text-xs text-white/50 uppercase tracking-wider">Try asking:</p>
