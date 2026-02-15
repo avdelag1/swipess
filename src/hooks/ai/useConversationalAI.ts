@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -32,7 +33,6 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setIsLoading(true);
     setError(null);
 
-    // Add user message to history
     const newUserMessage: Message = {
       role: 'user',
       content: userMessage,
@@ -42,32 +42,42 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setMessages(prev => [...prev, newUserMessage]);
 
     try {
-      // Build messages for API (map to system/user/assistant format)
       const apiMessages = messages.map(msg => ({
         role: msg.role,
         content: msg.content,
       }));
 
-      // Add the new user message
-      apiMessages.push({
-        role: 'user',
-        content: userMessage,
-      });
+      apiMessages.push({ role: 'user', content: userMessage });
 
-      const { data, error: functionError } = await supabase.functions.invoke('ai-conversation', {
+      const { data, error: functionError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
-          category,
-          imageCount,
-          messages: apiMessages,
-          extractedData,
+          task: 'conversation',
+          data: {
+            category,
+            imageCount,
+            messages: apiMessages,
+            extractedData,
+          },
         },
       });
 
-      if (functionError) throw functionError;
+      if (functionError) {
+        const msg = functionError.message || '';
+        if (msg.includes('429') || msg.includes('rate limit')) {
+          toast.error('AI rate limit reached. Please try again in a moment.');
+        } else if (msg.includes('402')) {
+          toast.error('AI credits exhausted. Please add funds.');
+        }
+        throw functionError;
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+        throw new Error(data.error);
+      }
 
       const response: ConversationalAIResponse = data.result;
 
-      // Add AI response to messages
       const aiMessage: Message = {
         role: 'assistant',
         content: response.message,
@@ -88,7 +98,6 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     }
   }, [category, imageCount, messages, extractedData]);
 
-  // Initialize conversation with first AI message
   const initializeConversation = useCallback(async () => {
     if (isInitialized) return;
 
@@ -97,7 +106,6 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
 
     try {
       const initialPrompt = initialMessage || `Hi! I'd like to create a ${category} listing. I've uploaded ${imageCount} photo${imageCount !== 1 ? 's' : ''}.`;
-
       await sendMessage(initialPrompt);
     } catch (err) {
       console.error('Failed to initialize conversation:', err);
@@ -107,7 +115,6 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     }
   }, [category, imageCount, initialMessage, isInitialized, sendMessage]);
 
-  // Reset conversation
   const resetConversation = useCallback(() => {
     setMessages([]);
     setExtractedData({});
@@ -117,7 +124,6 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
     setIsInitialized(false);
   }, []);
 
-  // Get completion percentage based on extracted data
   const getCompletionPercentage = useCallback(() => {
     const requiredFields = getRequiredFields(category);
     const filledRequiredFields = requiredFields.filter(field => {
@@ -142,7 +148,6 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
   };
 }
 
-// Helper function to get required fields by category
 function getRequiredFields(category: string): string[] {
   const commonFields = ['title', 'description', 'price', 'city'];
 

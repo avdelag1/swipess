@@ -168,9 +168,9 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
     setStep('generating');
 
     try {
-      const { data: fnData, error: fnError } = await supabase.functions.invoke('ai-assistant', {
+      const { data: fnData, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
-          type: 'listing',
+          task: 'listing',
           data: {
             category: selectedCategory,
             description: description.trim(),
