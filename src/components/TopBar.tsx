@@ -126,7 +126,7 @@ function TopBarComponent({
               </Button>
             )}
 
-            {/* Message Activation Button */}
+            {/* Token Button */}
             <Button
               variant="ghost"
               className={cn(
@@ -138,9 +138,9 @@ function TopBarComponent({
                 "flex items-center"
               )}
               onClick={onMessageActivationsClick}
-              aria-label="Message activations"
+              aria-label="Tokens"
             >
-              <MessageActivationText />
+              <TokenText />
             </Button>
 
             {/* Notifications Button */}
