@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MINIMAX_API_URL = "https://api.minimax.io/v1/chat/completions";
+const AI_GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -13,10 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    const MINIMAX_API_KEY = Deno.env.get("MINIMAX_API_KEY");
-    if (!MINIMAX_API_KEY) {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
       return new Response(
-        JSON.stringify({ error: "MiniMax API key not configured" }),
+        JSON.stringify({ error: "AI API key not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -157,61 +157,28 @@ Return JSON with suggested filters:
         );
     }
 
-    // Retry logic for rate limiting
-    let response;
-    let retries = 0;
-    const maxRetries = 3;
-    const baseDelay = 1000; // 1 second
-
-    while (retries <= maxRetries) {
-      response = await fetch(MINIMAX_API_URL, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${MINIMAX_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "MiniMax-Text-01",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
-      });
-
-      // If successful or non-retryable error, break
-      if (response.ok || (response.status !== 429 && response.status !== 503)) {
-        break;
-      }
-
-      // If we've exhausted retries, break
-      if (retries === maxRetries) {
-        break;
-      }
-
-      // Wait with exponential backoff before retrying
-      const delay = baseDelay * Math.pow(2, retries);
-      console.log(`Rate limited (429). Retrying in ${delay}ms... (attempt ${retries + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      retries++;
-    }
+    const response = await fetch(AI_GATEWAY_URL, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("MiniMax API error:", response.status, errorText);
-
-      // Provide more helpful error messages
-      let errorMessage = `AI service error (${response.status})`;
-      if (response.status === 429) {
-        errorMessage = "AI service is temporarily busy. Please try again in a moment.";
-      } else if (response.status === 503) {
-        errorMessage = "AI service is temporarily unavailable. Please try again later.";
-      }
-
+      console.error("AI Gateway error:", response.status, errorText);
       return new Response(
-        JSON.stringify({ error: errorMessage }),
+        JSON.stringify({ error: `AI service error (${response.status})` }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -219,10 +186,8 @@ Return JSON with suggested filters:
     const aiResponse = await response.json();
     const content = aiResponse.choices?.[0]?.message?.content || "";
 
-    // Parse the JSON from the AI response
     let result;
     try {
-      // Try to extract JSON from the response (handles markdown code blocks too)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         result = JSON.parse(jsonMatch[0]);
