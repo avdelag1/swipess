@@ -19,7 +19,7 @@ import { MessagingInterface } from '@/components/MessagingInterface';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { TokenPackages } from '@/components/TokenPackages';
+import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
@@ -520,7 +520,7 @@ export function MessagingDashboard() {
       </div>
 
       {/* Upgrade Dialog */}
-      <TokenPackages
+      <MessageActivationPackages
         isOpen={showUpgradeDialog}
         onClose={() => setShowUpgradeDialog(false)}
         userRole={userRole}

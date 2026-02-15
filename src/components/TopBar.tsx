@@ -2,7 +2,7 @@
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Sparkles, Coins } from 'lucide-react';
+import { Bell, Zap, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -13,18 +13,27 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 
 // DARK MODE: White text on dark background
-const TokensText = () => (
+const TokenText = () => (
   <>
     <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
       Tokens
     </span>
-    <Coins className="sm:hidden h-5 w-5 text-orange-400" />
+    <Zap className="sm:hidden h-5 w-5 text-white" />
+  </>
+);
+
+const MessageActivationText = () => (
+  <>
+    <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
+      Messages
+    </span>
+    <Bell className="sm:hidden h-5 w-5 text-white" />
   </>
 );
 
 interface TopBarProps {
   onNotificationsClick?: () => void;
-  onTokensClick?: () => void;
+  onMessageActivationsClick?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner';
@@ -35,7 +44,7 @@ interface TopBarProps {
 
 function TopBarComponent({
   onNotificationsClick,
-  onTokensClick,
+  onMessageActivationsClick,
   className,
   showFilters,
   userRole,
@@ -53,7 +62,6 @@ function TopBarComponent({
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
   const shouldHide = hideOnScroll && !isVisible;
-  const showAISearch = userRole === 'client'; // Only show AI search for clients, not owners
 
   return (
     <>
@@ -98,41 +106,39 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button - Only for clients */}
-            {showAISearch && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
-                  "active:scale-[0.95]",
-                  "hover:bg-orange-500/20 hover:text-orange-400",
-                  "touch-manipulation",
-                  "-webkit-tap-highlight-color-transparent",
-                  "group flex-shrink-0"
-                )}
-                onClick={() => setIsAISearchOpen(true)}
-                aria-label="AI Search"
-              >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:text-orange-400 transition-colors" />
-              </Button>
-            )}
+            {/* AI Search Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
+                "active:scale-[0.95]",
+                "hover:bg-orange-500/20 hover:text-orange-400",
+                "touch-manipulation",
+                "-webkit-tap-highlight-color-transparent",
+                "group flex-shrink-0"
+              )}
+              onClick={() => setIsAISearchOpen(true)}
+              aria-label="AI Search"
+            >
+              <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-white group-hover:text-orange-400 transition-colors" />
+            </Button>
 
-            {/* Tokens Button */}
+            {/* Message Activation Button */}
             <Button
               variant="ghost"
               className={cn(
                 "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
-                "hover:bg-orange-500/20 hover:text-orange-400",
+                "hover:bg-white/10",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent",
                 "flex items-center"
               )}
-              onClick={onTokensClick}
-              aria-label="Tokens"
+              onClick={onMessageActivationsClick}
+              aria-label="Message activations"
             >
-              <TokensText />
+              <MessageActivationText />
             </Button>
 
             {/* Notifications Button */}
@@ -194,14 +200,12 @@ function TopBarComponent({
         </div>
       </header>
 
-      {/* AI Search Dialog - Only for clients */}
-      {showAISearch && (
-        <AISearchDialog 
-          isOpen={isAISearchOpen} 
-          onClose={() => setIsAISearchOpen(false)}
-          userRole={userRole}
-        />
-      )}
+      {/* AI Search Dialog */}
+      <AISearchDialog 
+        isOpen={isAISearchOpen} 
+        onClose={() => setIsAISearchOpen(false)}
+        userRole={userRole}
+      />
     </>
   );
 }
