@@ -113,7 +113,7 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm"
+        className="fixed inset-0 bg-background/80 z-50 backdrop-blur-md"
         onClick={onClose}
       >
         <motion.div
@@ -121,33 +121,33 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-          className="absolute bottom-0 left-0 right-0 bg-background rounded-t-3xl shadow-2xl"
+          className="absolute bottom-0 left-0 right-0 bg-background rounded-t-3xl shadow-2xl border-t-2 border-border"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="sticky top-0 bg-background border-b z-10 rounded-t-3xl">
+          <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b-2 border-border z-10 rounded-t-3xl">
             <div className="flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-full bg-primary/10 p-2">
+                <div className="rounded-full bg-primary/10 p-2 shadow-sm">
                   <SlidersHorizontal className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold">Quick Filter</h2>
+                  <h2 className="text-lg font-bold text-foreground">Quick Filter</h2>
                   {activeFilterCount > 0 && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs font-medium text-primary">
                       {activeFilterCount} active
                     </p>
                   )}
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-5 w-5" />
+              <Button variant="ghost" size="icon" onClick={onClose} className="hover:bg-muted/80">
+                <X className="h-5 w-5 text-foreground" />
               </Button>
             </div>
 
             {/* Drag Handle */}
             <div className="flex justify-center pb-3">
-              <div className="w-12 h-1 bg-muted-foreground/20 rounded-full" />
+              <div className="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
             </div>
           </div>
 
@@ -157,7 +157,7 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
 
               {/* Category Selection */}
               <div className="space-y-3">
-                <label className="text-sm font-medium">What are you looking for?</label>
+                <label className="text-sm font-bold text-foreground">What are you looking for?</label>
                 <div className="grid grid-cols-3 gap-3">
                   {categories.map((cat) => {
                     const Icon = cat.icon;
@@ -167,21 +167,21 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
                         key={cat.id}
                         onClick={() => setFilters({ ...filters, category: cat.id })}
                         className={cn(
-                          "relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all",
+                          "relative flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all shadow-sm",
                           isActive
-                            ? "border-primary bg-primary/10"
-                            : "border-border hover:border-primary/50"
+                            ? "border-primary bg-primary/15 shadow-primary/20"
+                            : "border-border hover:border-primary/50 hover:bg-muted/50"
                         )}
                       >
                         {isActive && (
-                          <div className="absolute top-2 right-2 bg-primary rounded-full p-0.5">
-                            <Check className="h-3 w-3 text-primary-foreground" />
+                          <div className="absolute top-2 right-2 bg-primary rounded-full p-0.5 shadow-sm">
+                            <Check className="h-3 w-3 text-primary-foreground font-bold" />
                           </div>
                         )}
-                        <div className={cn("rounded-full p-3", cat.color)}>
+                        <div className={cn("rounded-full p-3 shadow-md", cat.color)}>
                           <Icon className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-xs font-medium">{cat.label}</span>
+                        <span className={cn("text-xs font-semibold", isActive ? "text-foreground" : "text-foreground")}>{cat.label}</span>
                       </button>
                     );
                   })}
@@ -193,8 +193,8 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
               {/* Price Range */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <label className="text-sm font-medium">Price Range</label>
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  <label className="text-sm font-bold text-foreground">Price Range</label>
                 </div>
                 <div className="space-y-4">
                   <Slider
@@ -223,21 +223,21 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
                 <>
                   <Separator />
                   <div className="space-y-4">
-                    <label className="text-sm font-medium">Property Details</label>
+                    <label className="text-sm font-bold text-foreground">Property Details</label>
 
                     {/* Bedrooms */}
                     <div className="space-y-2">
-                      <span className="text-xs text-muted-foreground">Bedrooms</span>
+                      <span className="text-sm font-semibold text-foreground">Bedrooms</span>
                       <div className="flex gap-2">
                         {[0, 1, 2, 3, 4, 5].map((num) => (
                           <button
                             key={num}
                             onClick={() => setFilters({ ...filters, bedrooms: num })}
                             className={cn(
-                              "flex-1 py-3 rounded-lg border-2 font-medium text-sm transition-all",
+                              "flex-1 py-3 rounded-xl border-2 font-bold text-sm transition-all shadow-sm",
                               filters.bedrooms === num
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-border hover:border-primary/50"
+                                ? "border-primary bg-primary text-primary-foreground shadow-primary/30"
+                                : "border-border hover:border-primary/50 hover:bg-muted/50 text-foreground"
                             )}
                           >
                             {num === 5 ? '5+' : num === 0 ? 'Any' : num}
@@ -248,17 +248,17 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
 
                     {/* Bathrooms */}
                     <div className="space-y-2">
-                      <span className="text-xs text-muted-foreground">Bathrooms</span>
+                      <span className="text-sm font-semibold text-foreground">Bathrooms</span>
                       <div className="flex gap-2">
                         {[0, 1, 2, 3, 4].map((num) => (
                           <button
                             key={num}
                             onClick={() => setFilters({ ...filters, bathrooms: num })}
                             className={cn(
-                              "flex-1 py-3 rounded-lg border-2 font-medium text-sm transition-all",
+                              "flex-1 py-3 rounded-xl border-2 font-bold text-sm transition-all shadow-sm",
                               filters.bathrooms === num
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-border hover:border-primary/50"
+                                ? "border-primary bg-primary text-primary-foreground shadow-primary/30"
+                                : "border-border hover:border-primary/50 hover:bg-muted/50 text-foreground"
                             )}
                           >
                             {num === 4 ? '4+' : num === 0 ? 'Any' : num}
@@ -266,10 +266,10 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
                         ))}
                       </div>
                     </div>
-                    
+
                     {/* Amenities */}
                     <div className="space-y-2">
-                      <span className="text-xs text-muted-foreground">Amenities</span>
+                      <span className="text-sm font-semibold text-foreground">Amenities</span>
                       <div className="flex flex-wrap gap-2">
                         {amenityOptions.map((amenity) => {
                           const isActive = activeAmenities.has(amenity.id);
@@ -278,10 +278,10 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
                               key={amenity.id}
                               onClick={() => handleAmenityToggle(amenity.id)}
                               className={cn(
-                                "py-2 px-4 rounded-full border-2 font-medium text-sm transition-all flex items-center gap-2",
+                                "py-2 px-4 rounded-full border-2 font-semibold text-sm transition-all flex items-center gap-2 shadow-sm",
                                 isActive
-                                  ? "border-primary bg-primary/10 text-primary"
-                                  : "border-border hover:border-primary/50"
+                                  ? "border-primary bg-primary/15 text-primary shadow-primary/20"
+                                  : "border-border hover:border-primary/50 hover:bg-muted/50 text-foreground"
                               )}
                             >
                               {amenity.label}
@@ -308,22 +308,22 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
           </ScrollArea>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-background border-t p-4 flex gap-3">
+          <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t-2 border-border p-4 flex gap-3">
             <Button
               variant="outline"
               onClick={handleReset}
-              className="flex-1"
+              className="flex-1 font-bold border-2 hover:bg-muted/80 text-foreground"
               disabled={activeFilterCount === 0}
             >
               Reset
             </Button>
             <Button
               onClick={handleApply}
-              className="flex-1 bg-gradient-to-r from-primary to-primary/80"
+              className="flex-1 font-bold bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/95 text-primary-foreground shadow-lg border-2 border-primary"
             >
               Apply Filters
               {activeFilterCount > 0 && (
-                <Badge className="ml-2 bg-primary-foreground text-primary">
+                <Badge className="ml-2 bg-primary-foreground text-primary font-bold">
                   {activeFilterCount}
                 </Badge>
               )}
