@@ -143,7 +143,7 @@ export default function OwnerFilters() {
       </header>
 
       <ScrollArea className="h-[calc(100vh-200px)]">
-        <div className="px-4 py-6 space-y-8">
+        <div className="px-4 py-6 space-y-8 pb-32">
           {/* Gender Section */}
           <section className="space-y-3">
             <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider">Gender</h2>

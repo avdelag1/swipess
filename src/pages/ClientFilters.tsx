@@ -154,7 +154,7 @@ export default function ClientFilters() {
       </header>
 
       <ScrollArea className="h-[calc(100vh-200px)]">
-        <div className="px-4 py-6 space-y-8">
+        <div className="px-4 py-6 space-y-8 pb-32">
           {/* AI Suggestions Banner */}
           {(aiCategory || aiPriceMin || aiPriceMax) && (
             <motion.div
