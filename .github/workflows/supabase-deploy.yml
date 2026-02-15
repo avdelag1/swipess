@@ -1,0 +1,52 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  # Manual trigger - you control when to deploy
+  workflow_dispatch:
+    inputs:
+      function:
+        description: 'Which function to deploy'
+        required: false
+        type: choice
+        options:
+          - all
+          - ai-orchestrator
+          - ai-assistant
+          - ai-conversation
+        default: 'all'
+  
+  # Also deploy on push to main (optional - remove if you only want manual)
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/functions/**'
+
+jobs:
+  deploy-functions:
+    runs-on: ubuntu-latest
+    
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      
+      - name: Deploy Edge Functions
+        run: |
+          if [ "${{ github.event.inputs.function }}" == "all" ] || [ "${{ github.event.inputs.function }}" == "" ]; then
+            echo "Deploying ALL functions..."
+            supabase functions deploy ai-orchestrator --project-ref $PROJECT_REF
+            supabase functions deploy ai-assistant --project-ref $PROJECT_REF
+            supabase functions deploy ai-conversation --project-ref $PROJECT_REF
+          else
+            echo "Deploying ${{ github.event.inputs.function }}..."
+            supabase functions deploy ${{ github.event.inputs.function }} --project-ref $PROJECT_REF
+          fi
