@@ -11,7 +11,7 @@ type SubscriptionPackageLite = {
   tier?: string;
   features?: unknown;
   package_category?: string;
-  message_activations?: number;
+  tokens?: number;
   legal_documents_included?: number;
   best_deal_notifications?: number;
   max_listings?: number;
@@ -64,7 +64,7 @@ export function useUserSubscription() {
       // Limit columns and break inference to avoid TS2589
       const { data, error }: any = await (supabase
         .from('user_subscriptions' as any)
-        .select('id,user_id,is_active,payment_status,subscription_packages(id,name,tier,features,package_category,message_activations,legal_documents_included,early_profile_access,advanced_match_tips,seeker_insights,availability_sync,market_reports,max_listings)')
+        .select('id,user_id,is_active,payment_status,subscription_packages(id,name,tier,features,package_category,tokens,legal_documents_included,early_profile_access,advanced_match_tips,seeker_insights,availability_sync,market_reports,max_listings)')
         .eq('user_id', user.user.id)
         .eq('is_active', true)
         .maybeSingle());
@@ -86,7 +86,7 @@ export function useUserSubscription() {
               tier: data.subscription_packages.tier as string | undefined,
               features: data.subscription_packages.features as unknown,
               package_category: data.subscription_packages.package_category as string | undefined,
-              message_activations: data.subscription_packages.message_activations as number | undefined,
+              tokens: data.subscription_packages.tokens as number | undefined,
               legal_documents_included: data.subscription_packages.legal_documents_included as number | undefined,
               early_profile_access: data.subscription_packages.early_profile_access as boolean | undefined,
               advanced_match_tips: data.subscription_packages.advanced_match_tips as boolean | undefined,

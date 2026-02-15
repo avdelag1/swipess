@@ -26,14 +26,14 @@ export function MessageActivationBanner({
 
   const bannerContent = variant === 'conversation-limit'
     ? {
-        title: '💬 Message Activation Required',
-        description: 'You need a message activation to start a new conversation with this person.',
-        ctaText: 'Get Message Activations',
+        title: '💬 Token Required',
+        description: 'You need a token to start a new conversation with this person.',
+        ctaText: 'Get Tokens',
         icon: MessageCircle,
       }
     : {
         title: '✨ Unlock Unlimited Messaging',
-        description: 'Get message activations or upgrade to Premium to chat with more people!',
+        description: 'Get tokens or upgrade to Premium to chat with more people!',
         ctaText: 'View Packages',
         icon: Sparkles,
       };

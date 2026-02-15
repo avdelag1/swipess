@@ -612,7 +612,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
-      {/* Message Activations Packages */}
+      {/* Token Packages */}
       <Suspense fallback={null}>
         <MessageActivationPackages
           isOpen={showMessageActivations}
