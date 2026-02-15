@@ -113,7 +113,7 @@ export default function ClientFilters() {
   }, [navigate]);
   
   return (
-    <div className="min-h-full flex flex-col pb-24">
+    <div className="min-h-full flex flex-col pb-40">
       {/* Header */}
       <header className="shrink-0 px-4 pt-[max(env(safe-area-inset-top,12px),12px)] pb-3 bg-background/95 backdrop-blur-sm border-b border-border/40">
         <div className="max-w-lg mx-auto flex items-center justify-between">
@@ -285,7 +285,7 @@ export default function ClientFilters() {
           )}
 
           {/* Bottom spacer for the sticky button */}
-          <div className="h-20" />
+          <div className="h-32" />
         </div>
       </div>
 
