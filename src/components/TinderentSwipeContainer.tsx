@@ -1483,7 +1483,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
         document.body
       )}
 
-      {/* Message Confirmation Dialog - Shows remaining message activations */}
+      {/* Message Confirmation Dialog - Shows remaining tokens */}
       <MessageConfirmationDialog
         open={messageDialogOpen}
         onOpenChange={setMessageDialogOpen}

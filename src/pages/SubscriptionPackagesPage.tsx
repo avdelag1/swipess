@@ -199,7 +199,7 @@ export default function SubscriptionPackagesPage() {
   const premiumPlans = userRole === 'owner' ? ownerPremiumPlans : clientPremiumPlans;
   const roleLabel = userRole === 'owner' ? 'Provider' : 'Explorer';
 
-  // Fetch message activation packages
+  // Fetch token packages
   const { data: messagePackages, isLoading: packagesLoading } = useQuery({
     queryKey: ['activation-packages', packageCategory],
     queryFn: async () => {
@@ -208,7 +208,7 @@ export default function SubscriptionPackagesPage() {
         .select('*')
         .eq('package_category', packageCategory)
         .eq('is_active', true)
-        .order('message_activations', { ascending: true });
+        .order('tokens', { ascending: true });
       if (error) throw error;
       return data;
     },
@@ -221,20 +221,20 @@ export default function SubscriptionPackagesPage() {
     const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
 
     return dbPackages.map((pkg, index) => {
-      const pricePerActivation = pkg.message_activations > 0 ? pkg.price / pkg.message_activations : 0;
+      const pricePerToken = pkg.tokens > 0 ? pkg.price / pkg.tokens : 0;
       const tier = tierMap[index] || 'starter';
       let savings: string | undefined;
       if (index > 0 && dbPackages[0]) {
-        const firstPricePerActivation = dbPackages[0].price / dbPackages[0].message_activations;
-        const savingsPercent = Math.round(((firstPricePerActivation - pricePerActivation) / firstPricePerActivation) * 100);
+        const firstPricePerToken = dbPackages[0].price / dbPackages[0].tokens;
+        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
         if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
       }
       return {
         id: pkg.id,
         name: tier.charAt(0).toUpperCase() + tier.slice(1),
-        activations: pkg.message_activations,
+        tokens: pkg.tokens,
         price: pkg.price,
-        pricePerActivation,
+        pricePerToken,
         savings,
         tier,
         icon: iconMap[tier],
@@ -252,7 +252,7 @@ export default function SubscriptionPackagesPage() {
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
-      activations: pkg.activations,
+      tokens: pkg.tokens,
       price: pkg.price,
     }));
     if (pkg.paypalUrl) {
@@ -310,20 +310,20 @@ export default function SubscriptionPackagesPage() {
 
       <div className="container mx-auto px-4 py-6 sm:py-8 space-y-12">
         
-        {/* MESSAGE ACTIVATION PACKAGES SECTION */}
+        {/* TOKEN PACKAGES SECTION */}
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center space-y-4 mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <MessageCircle className="w-5 h-5 text-primary" />
-              <span className="text-sm font-semibold text-primary">Message Activations</span>
+              <span className="text-sm font-semibold text-primary">Tokens</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Start New Conversations</h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-              Each activation lets you start a new conversation. Once started, send unlimited messages.
+              Each token lets you start a new conversation. Once started, send unlimited messages.
             </p>
             <div className="flex items-center justify-center gap-2 text-sm">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span className="text-foreground font-medium">New users get 1 FREE welcome activation!</span>
+              <span className="text-foreground font-medium">New users get 1 FREE welcome token!</span>
             </div>
           </div>
 
@@ -357,17 +357,17 @@ export default function SubscriptionPackagesPage() {
                           <span className="text-4xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
                           <span className="text-muted-foreground text-sm ml-1">MXN</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{formatPriceMXN(pkg.pricePerActivation)} per activation</p>
+                        <p className="text-xs text-muted-foreground mt-1">{formatPriceMXN(pkg.pricePerToken)} per token</p>
                       </CardHeader>
                       <CardContent className="flex-1 pt-4">
                         <div className="text-center py-4 mb-4 rounded-xl bg-background/50 border border-border/50">
-                          <div className="text-5xl font-bold text-foreground">{pkg.activations}</div>
-                          <div className="text-sm text-muted-foreground font-medium mt-1">Message Activations</div>
+                          <div className="text-5xl font-bold text-foreground">{pkg.tokens}</div>
+                          <div className="text-sm text-muted-foreground font-medium mt-1">Tokens</div>
                         </div>
                         <div className="space-y-3">
                           <div className="flex items-center gap-3 text-sm">
                             <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Start {pkg.activations} new conversations</span>
+                            <span className="text-foreground">Start {pkg.tokens} new conversations</span>
                           </div>
                           <div className="flex items-center gap-3 text-sm">
                             <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>

@@ -2,7 +2,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star } from "lucide-react";
+import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,12 +11,12 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
 
-type MessagePackage = {
+type TokenPackage = {
   id: number;
   name: string;
-  activations: number;
+  tokens: number;
   price: number;
-  pricePerActivation: number;
+  pricePerToken: number;
   savings?: string;
   tier: 'starter' | 'standard' | 'premium';
   icon: typeof MessageCircle;
@@ -70,19 +70,19 @@ export function MessageActivationPackages({
         .select('*')
         .eq('package_category', packageCategory)
         .eq('is_active', true)
-        .order('message_activations', { ascending: true });
+        .order('tokens', { ascending: true });
       if (error) throw error;
       return data;
     },
   });
 
   // Convert database packages to UI format
-  const convertPackages = (dbPackages: any[] | undefined): MessagePackage[] => {
+  const convertPackages = (dbPackages: any[] | undefined): TokenPackage[] => {
     if (!dbPackages || dbPackages.length === 0) return [];
 
     return dbPackages.map((pkg, index) => {
-      const pricePerActivation = pkg.message_activations > 0
-        ? pkg.price / pkg.message_activations
+      const pricePerToken = pkg.tokens > 0
+        ? pkg.price / pkg.tokens
         : 0;
 
       // Determine tier based on position
@@ -92,8 +92,8 @@ export function MessageActivationPackages({
       // Calculate savings vs first package
       let savings: string | undefined;
       if (index > 0 && dbPackages[0]) {
-        const firstPricePerActivation = dbPackages[0].price / dbPackages[0].message_activations;
-        const savingsPercent = Math.round(((firstPricePerActivation - pricePerActivation) / firstPricePerActivation) * 100);
+        const firstPricePerToken = dbPackages[0].price / dbPackages[0].tokens;
+        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
         if (savingsPercent > 0) {
           savings = `Save ${savingsPercent}%`;
         }
@@ -105,7 +105,7 @@ export function MessageActivationPackages({
         features = Array.isArray(pkg.features) ? pkg.features : JSON.parse(pkg.features || '[]');
       } catch {
         features = [
-          `${pkg.message_activations} message activations`,
+          `${pkg.tokens} tokens`,
           `${pkg.duration_days || 30} days validity`,
           'Unlimited messages per conversation',
         ];
@@ -120,9 +120,9 @@ export function MessageActivationPackages({
       return {
         id: pkg.id,
         name: tier.charAt(0).toUpperCase() + tier.slice(1),
-        activations: pkg.message_activations,
+        tokens: pkg.tokens,
         price: pkg.price,
-        pricePerActivation,
+        pricePerToken,
         savings,
         tier,
         icon: iconMap[tier],
@@ -135,11 +135,11 @@ export function MessageActivationPackages({
     });
   };
 
-  const handlePurchase = async (pkg: MessagePackage) => {
+  const handlePurchase = async (pkg: TokenPackage) => {
     // Store selection for post-payment processing
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
-      activations: pkg.activations,
+      tokens: pkg.tokens,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
@@ -159,8 +159,8 @@ export function MessageActivationPackages({
         await supabase.from('notifications').insert([{
           user_id: user.id,
           notification_type: 'payment_received',
-          title: 'Message Activations Selected!',
-          message: `You selected the ${pkg.name} package with ${pkg.activations} message activations (${formatPriceMXN(pkg.price)}). Complete payment to activate!`,
+          title: 'Tokens Selected!',
+          message: `You selected the ${pkg.name} package with ${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}). Complete payment to activate!`,
           is_read: false
         }]).then(
           () => { /* Notification saved successfully */ },
@@ -169,8 +169,8 @@ export function MessageActivationPackages({
 
         // Show browser notification if permission granted
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-          const notification = new Notification('Message Activations Selected!', {
-            body: `${pkg.activations} activations (${formatPriceMXN(pkg.price)}) - Complete payment to start messaging`,
+          const notification = new Notification('Tokens Selected!', {
+            body: `${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}) - Complete payment to start messaging`,
             icon: '/favicon.ico',
             tag: `activation-${pkg.id}`,
             badge: '/favicon.ico',
@@ -245,16 +245,16 @@ export function MessageActivationPackages({
         </div>
         
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
-          Message Activation Packages
+          Token Packages
         </h2>
-        
+
         <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
           {roleDescription}. Choose the package that fits your needs.
         </p>
 
         <div className="flex items-center justify-center gap-2 text-sm">
           <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-          <span className="text-foreground font-medium">New users get 3 FREE activations!</span>
+          <span className="text-foreground font-medium">New users get 3 FREE tokens!</span>
         </div>
       </motion.div>
 
@@ -315,16 +315,16 @@ export function MessageActivationPackages({
                     </div>
                     
                     <p className="text-xs text-muted-foreground mt-1">
-                      {formatPriceMXN(pkg.pricePerActivation)} per activation
+                      {formatPriceMXN(pkg.pricePerToken)} per token
                     </p>
                   </CardHeader>
 
                   <CardContent className="flex-1 pt-4">
-                    {/* Activations Display */}
+                    {/* Tokens Display */}
                     <div className="text-center py-4 mb-4 rounded-xl bg-background/50 border border-border/50">
-                      <div className="text-5xl font-bold text-foreground">{pkg.activations}</div>
+                      <div className="text-5xl font-bold text-foreground">{pkg.tokens}</div>
                       <div className="text-sm text-muted-foreground font-medium mt-1">
-                        Message Activations
+                        Tokens
                       </div>
                     </div>
 
@@ -334,7 +334,7 @@ export function MessageActivationPackages({
                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
                           <Check className="w-3 h-3 text-green-500" />
                         </div>
-                        <span className="text-foreground">Start {pkg.activations} new conversations</span>
+                        <span className="text-foreground">Start {pkg.tokens} new conversations</span>
                       </div>
                       
                       <div className="flex items-center gap-3 text-sm">
@@ -370,12 +370,13 @@ export function MessageActivationPackages({
                   </CardContent>
 
                   <CardFooter className="pt-4 pb-6">
-                    <Button 
+                    <Button
                       onClick={() => handlePurchase(pkg)}
                       className={`w-full h-12 font-semibold text-base ${styles.button}`}
                       size="lg"
                     >
-                      {isPopular ? '🔥 Get Best Value' : 'Buy Now'}
+                      <FileText className="w-5 h-5 mr-2" />
+                      {isPopular ? 'Get it Now' : 'Buy Now'}
                     </Button>
                   </CardFooter>
                 </Card>

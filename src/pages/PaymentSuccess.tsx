@@ -80,7 +80,7 @@ export default function PaymentSuccess() {
         localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
         // Invalidate relevant queries for immediate UI update
-        queryClient.invalidateQueries({ queryKey: ['message-activations'] });
+        queryClient.invalidateQueries({ queryKey: ['tokens'] });
         queryClient.invalidateQueries({ queryKey: ['user-subscriptions'] });
         queryClient.invalidateQueries({ queryKey: ['legal-document-quota'] });
 
@@ -132,18 +132,18 @@ export default function PaymentSuccess() {
 
     if (subError) throw subError;
 
-    // Create message activations for monthly
+    // Create tokens for monthly
     const resetDate = new Date();
     resetDate.setMonth(resetDate.getMonth() + 1);
     resetDate.setDate(1);
 
     const { error: activError } = await supabase
-      .from('message_activations')
+      .from('tokens')
       .insert({
         user_id: userId,
         activation_type: 'monthly_subscription',
-        total_activations: pkg.message_activations || 30,
-        remaining_activations: pkg.message_activations || 30,
+        total_activations: pkg.tokens || 30,
+        remaining_activations: pkg.tokens || 30,
         used_activations: 0,
         reset_date: resetDate.toISOString().split('T')[0],
       });
@@ -167,18 +167,18 @@ export default function PaymentSuccess() {
     }
   };
 
-  // Process pay-per-use activation
+  // Process pay-per-use token purchase
   const processPayPerUseActivation = async (userId: string, pkg: any) => {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + (pkg.duration_days || 30));
 
     const { error: activError } = await supabase
-      .from('message_activations')
+      .from('tokens')
       .insert({
         user_id: userId,
         activation_type: 'pay_per_use',
-        total_activations: pkg.message_activations,
-        remaining_activations: pkg.message_activations,
+        total_activations: pkg.tokens,
+        remaining_activations: pkg.tokens,
         used_activations: 0,
         expires_at: expiresAt.toISOString(),
       });

@@ -632,7 +632,7 @@ export type Database = {
           },
         ]
       }
-      message_activations: {
+      tokens: {
         Row: {
           activations_remaining: number
           created_at: string
@@ -1000,7 +1000,7 @@ export type Database = {
           legal_documents_included: number | null
           market_reports: boolean | null
           max_listings: number | null
-          message_activations: number | null
+          tokens: number | null
           name: string
           package_category: string
           price: number
@@ -1022,7 +1022,7 @@ export type Database = {
           legal_documents_included?: number | null
           market_reports?: boolean | null
           max_listings?: number | null
-          message_activations?: number | null
+          tokens?: number | null
           name: string
           package_category?: string
           price?: number
@@ -1044,7 +1044,7 @@ export type Database = {
           legal_documents_included?: number | null
           market_reports?: boolean | null
           max_listings?: number | null
-          message_activations?: number | null
+          tokens?: number | null
           name?: string
           package_category?: string
           price?: number

@@ -6,16 +6,16 @@ import { useAuth } from './useAuth';
 export function useMessageActivations() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  
-  // Fetch available activations from actual table schema
-  const { data: activations, isLoading } = useQuery({
-    queryKey: ['message-activations', user?.id],
+
+  // Fetch available tokens from actual table schema
+  const { data: tokens, isLoading } = useQuery({
+    queryKey: ['tokens', user?.id],
     queryFn: async () => {
       if (!user?.id) return { totalRemaining: 999 };
 
       try {
         const { data, error } = await supabase
-          .from('message_activations')
+          .from('tokens')
           .select('*')
           .eq('user_id', user.id);
 
@@ -25,7 +25,7 @@ export function useMessageActivations() {
         }
 
         if (!data || data.length === 0) {
-          // No activation records - allow free messaging
+          // No token records - allow free messaging
           return { totalRemaining: 999 };
         }
 
@@ -39,20 +39,20 @@ export function useMessageActivations() {
     },
     enabled: !!user?.id,
   });
-  
-  // Use an activation (conversation start) - simplified
+
+  // Use a token (conversation start) - simplified
   const useActivation = useMutation({
     mutationFn: async ({ conversationId }: { conversationId: string }) => {
       // No-op for now - messaging is free
       return { success: true };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['message-activations'] });
+      queryClient.invalidateQueries({ queryKey: ['tokens'] });
     },
   });
-  
+
   return {
-    totalActivations: activations?.totalRemaining || 999,
+    totalActivations: tokens?.totalRemaining || 999,
     canSendMessage: true, // Always allow messaging for testing
     useActivation,
     isLoading,

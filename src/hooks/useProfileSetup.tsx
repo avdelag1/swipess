@@ -60,7 +60,7 @@ export function useProfileSetup() {
 
       // Check if reward already granted (prevent abuse)
       const { data: existingReward } = await supabase
-        .from('message_activations')
+        .from('tokens')
         .select('id')
         .eq('user_id', referrerId)
         .eq('activation_type', 'referral_bonus')
@@ -77,7 +77,7 @@ export function useProfileSetup() {
       expiresAt.setDate(expiresAt.getDate() + 60);
 
       const { data: activationData, error: activError } = await supabase
-        .from('message_activations')
+        .from('tokens')
         .insert({
           user_id: referrerId,
           activation_type: 'referral_bonus',
@@ -119,7 +119,7 @@ export function useProfileSetup() {
       localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
 
       // Invalidate queries for referrer
-      queryClient.invalidateQueries({ queryKey: ['message-activations', referrerId] });
+      queryClient.invalidateQueries({ queryKey: ['tokens', referrerId] });
     } catch (error) {
       logger.error('[ProfileSetup] Error processing referral:', error);
       localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
@@ -324,14 +324,14 @@ export function useProfileSetup() {
       // Add small delay to ensure cache invalidation propagates
       await new Promise(resolve => setTimeout(resolve, 150));
 
-      // Grant welcome message activation for the new user
-      // This gives them 1 free message to start (or 2 if they signed up via referral)
+      // Grant welcome token for the new user
+      // This gives them 1 free token to start (or 2 if they signed up via referral)
       const grantWelcomeActivation = async (userId: string) => {
         try {
           // Check if welcome activation already granted - escape deep type inference
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const welcomeResult = await (supabase as any)
-            .from('message_activations')
+            .from('tokens')
             .select('id')
             .eq('user_id', userId)
             .eq('activation_type', 'welcome')
@@ -372,16 +372,16 @@ export function useProfileSetup() {
             }
           }
 
-          // Grant free message activations (expires in 90 days)
-          // - 2 activations if signed up via referral
-          // - 1 activation if normal signup
+          // Grant free tokens (expires in 90 days)
+          // - 2 tokens if signed up via referral
+          // - 1 token if normal signup
           const expiresAt = new Date();
           expiresAt.setDate(expiresAt.getDate() + 90);
 
           const activationCount = hasReferralCode ? 2 : 1;
           const notesText = hasReferralCode
-            ? 'Welcome bonus - referral signup (2 free messages)'
-            : 'Welcome bonus - first message free';
+            ? 'Welcome bonus - referral signup (2 free tokens)'
+            : 'Welcome bonus - first token free';
 
           const insertData = {
             user_id: userId,
@@ -393,7 +393,7 @@ export function useProfileSetup() {
             notes: notesText,
           };
           const { error: activError } = await supabase
-            .from('message_activations')
+            .from('tokens')
             .insert(insertData);
 
           if (!activError) {
@@ -401,7 +401,7 @@ export function useProfileSetup() {
               logger.log(`[ProfileSetup] Welcome activation granted to ${userId}: ${activationCount} message(s)`);
             }
             // Invalidate activations cache
-            queryClient.invalidateQueries({ queryKey: ['message-activations', userId] });
+            queryClient.invalidateQueries({ queryKey: ['tokens', userId] });
           }
         } catch (error) {
           logger.error('[ProfileSetup] Error granting welcome activation:', error);

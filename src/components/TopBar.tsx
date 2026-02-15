@@ -12,10 +12,10 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 // DARK MODE: White text on dark background
-const MessageActivationText = () => (
+const TokenText = () => (
   <>
     <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
-      Message Activation
+      Tokens
     </span>
     <Zap className="sm:hidden h-5 w-5 text-white" />
   </>
@@ -108,9 +108,9 @@ function TopBarComponent({
               "flex items-center"
             )}
             onClick={onMessageActivationsClick}
-            aria-label="Message activations"
+            aria-label="Tokens"
           >
-            <MessageActivationText />
+            <TokenText />
           </Button>
 
           <Button
