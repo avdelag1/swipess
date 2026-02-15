@@ -236,8 +236,17 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (audioRef.current.src !== targetStation.streamUrl) {
         audioRef.current.src = targetStation.streamUrl;
         audioRef.current.load();
-        setState(prev => ({ ...prev, currentStation: targetStation }));
-        savePreferences({ currentStation: targetStation });
+
+        // Update station AND city (important for shuffle mode)
+        setState(prev => ({
+          ...prev,
+          currentStation: targetStation,
+          currentCity: targetStation.city // Update city to match the station
+        }));
+        savePreferences({
+          currentStation: targetStation,
+          currentCity: targetStation.city // Save the new city too
+        });
       }
 
       // Set a timeout to detect if the stream takes too long to load
