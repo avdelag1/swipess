@@ -228,7 +228,7 @@ Respond with valid JSON:
   "nextSteps": "What's still needed"
 }
 
-Current extracted: ${JSON.stringify(extractedData, null, 2)}
+Current extracted: ${JSON.stringify(extractedData, null 2)}
 `;
 
   let categoryPrompt = "";
@@ -250,6 +250,36 @@ Current extracted: ${JSON.stringify(extractedData, null, 2)}
   return [
     { role: "system", content: baseInstructions + categoryPrompt },
     ...messages,
+  ];
+}
+
+function buildLegalPrompt(data: Record<string, unknown>): Message[] {
+  const query = (data.query as string) || "";
+  const userRole = (data.context?.userRole as string) || "client";
+
+  return [
+    { role: "system", content: `You are a knowledgeable legal assistant specializing in real estate, property law, and contracts in Mexico. 
+
+IMPORTANT: You are an AI assistant, NOT a lawyer. Always include a disclaimer that this is general information and users should consult a licensed attorney for specific legal advice.
+
+Your role:
+- Provide general legal information about Mexican real estate laws
+- Explain common real estate documents and their purposes
+- Describe typical processes for buying, selling, and renting property
+- Answer general legal questions about property disputes
+- Suggest what documents are typically needed for transactions
+- NEVER provide specific legal advice or create legally binding documents
+- Always recommend consulting with a licensed attorney for important transactions
+
+Language: Respond in the same language as the user's question. If the question is in Spanish, respond in Spanish.
+
+Respond with valid JSON:
+{
+  "answer": "Your helpful response",
+  "type": "general|document|advice|warning",
+  "disclaimer": "This is general information, consult a lawyer for specific advice"
+}` },
+    { role: "user", content: query },
   ];
 }
 
@@ -284,6 +314,10 @@ serve(async (req) => {
       case "conversation":
         messages = buildConversationMessages(data);
         maxTokens = 1500;
+        break;
+      case "legal":
+        messages = buildLegalPrompt(data);
+        maxTokens = 2000;
         break;
       default:
         return new Response(
