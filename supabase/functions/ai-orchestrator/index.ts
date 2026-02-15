@@ -5,68 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Google Gemini via Lovable Gateway (Primary)
+// Google Gemini via Lovable Gateway
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const LOVABLE_MODEL = "google/gemini-3-flash-preview";
-
-// MiniMax (Fallback)
-const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2";
-const MINIMAX_MODEL = "MiniMax-M1";
-
-// ─── Provider Calls ───────────────────────────────────────────────
-
-async function callGemini(messages: Message[], maxTokens: number): Promise<ProviderResult> {
-  const key = Deno.env.get("LOVABLE_API_KEY");
-  if (!key) throw new Error("LOVABLE_API_KEY not configured");
-
-  const res = await fetch(LOVABLE_GATEWAY, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: LOVABLE_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: maxTokens,
-    }),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const body = await res.text();
-    console.error("Gemini error:", status, body);
-    throw new ProviderError(`Gemini AI error (${status})`, status);
-  }
-
-  const data = await res.json();
-  return { content: data.choices?.[0]?.message?.content || "", provider: "gemini" };
-}
-
-async function callMinimax(messages: Message[], maxTokens: number): Promise<ProviderResult> {
-  const key = Deno.env.get("MINIMAX_API_KEY");
-  if (!key) throw new Error("MINIMAX_API_KEY not available");
-
-  const res = await fetch(MINIMAX_ENDPOINT, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: MINIMAX_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: maxTokens,
-    }),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const body = await res.text();
-    console.error("MiniMax error:", status, body);
-    throw new ProviderError(`MiniMax error (${status})`, status);
-  }
-
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content || "";
-  return { content, provider: "minimax" };
-}
+const GEMINI_MODEL = "google/gemini-3-flash-preview";
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -88,24 +29,32 @@ class ProviderError extends Error {
   }
 }
 
-// ─── Provider with Fallback ───────────────────────────────────────
+// ─── AI Provider ───────────────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  try {
-    // Primary: Google Gemini
-    return await callGemini(messages, maxTokens);
-  } catch (err) {
-    const isRetryable = err instanceof ProviderError && (err.status === 429 || err.status >= 500);
-    if (!isRetryable) throw err;
+  const key = Deno.env.get("LOVABLE_API_KEY");
+  if (!key) throw new Error("LOVABLE_API_KEY not configured");
 
-    console.warn("Gemini failed, trying MiniMax fallback...");
-    try {
-      return await callMinimax(messages, maxTokens);
-    } catch (fallbackErr) {
-      console.error("MiniMax fallback also failed:", fallbackErr);
-      throw err; // throw original error
-    }
+  const res = await fetch(LOVABLE_GATEWAY, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: GEMINI_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: maxTokens,
+    }),
+  });
+
+  if (!res.ok) {
+    const status = res.status;
+    const body = await res.text();
+    console.error("Gemini error:", status, body);
+    throw new ProviderError(`Gemini AI error (${status})`, status);
   }
+
+  const data = await res.json();
+  return { content: data.choices?.[0]?.message?.content || "", provider: "gemini" };
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
@@ -127,7 +76,7 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const location = (data.location as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
-  const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings. Always respond with valid JSON only.`;
+  const system = `You are an expert marketplace listing creator. Generate compelling listings. Always respond with valid JSON only.`;
 
   let userPrompt = "";
 
