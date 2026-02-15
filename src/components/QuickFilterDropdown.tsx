@@ -177,9 +177,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-background border border-white/10 rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),340px)]">
+      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),340px)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <span className="text-sm font-semibold text-foreground">Filter Clients</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -205,7 +205,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientGender === option.id
                       ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : 'text-muted-foreground hover:bg-white/5 bg-white/[0.03] border border-white/10'
+                      : 'text-muted-foreground hover:bg-muted/50 bg-muted/30 border border-border'
                   )}
                 >
                   {option.icon}
@@ -227,7 +227,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientType === option.id
                       ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : 'text-muted-foreground hover:bg-white/5 bg-white/[0.03] border border-white/10'
+                      : 'text-muted-foreground hover:bg-muted/50 bg-muted/30 border border-border'
                   )}
                 >
                   {option.icon}
@@ -245,9 +245,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {
     return (
-      <div className="bg-background border border-white/10 rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),400px)]">
+      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),400px)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-border">
           <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -277,15 +277,15 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                   categories.includes(category.id)
                     ? 'bg-gradient-to-r ' + category.color + ' text-white'
-                    : 'text-foreground/80 hover:bg-white/5'
+                    : 'text-foreground hover:bg-muted/50'
                 )}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className={cn(
                     'p-1.5 sm:p-2 rounded-lg',
                     categories.includes(category.id)
-                      ? 'bg-white/20'
-                      : `bg-gradient-to-br ${category.color} bg-opacity-20`
+                      ? 'bg-white/20 text-white'
+                      : 'bg-muted text-foreground'
                   )}>
                     {category.icon}
                   </span>
@@ -321,7 +321,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                             'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
                             categories.includes(category.id) && listingType === ltOption.id
                               ? `bg-gradient-to-r ${category.color} text-white`
-                              : 'text-foreground/80 hover:bg-white/5 bg-white/[0.03]'
+                              : 'text-foreground hover:bg-muted/50 bg-muted/30'
                           )}
                         >
                           <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
@@ -350,8 +350,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 md:px-5 h-9 sm:h-10 md:h-11 rounded-xl transition-all duration-200 touch-manipulation',
-          'hover:bg-white/5',
-          hasActiveFilters && 'bg-white/5'
+          'hover:bg-muted/50',
+          hasActiveFilters && 'bg-muted/30'
         )}
       >
         <QuickFilterText hasActiveFilters={hasActiveFilters} />
