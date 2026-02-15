@@ -5,12 +5,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Google Gemini via Lovable Gateway (Primary)
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const LOVABLE_MODEL = "google/gemini-3-flash-preview";
+
+// MiniMax (Fallback)
 const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2";
+const MINIMAX_MODEL = "MiniMax-M1";
 
 // ─── Provider Calls ───────────────────────────────────────────────
 
-async function callLovable(messages: Message[], maxTokens: number): Promise<ProviderResult> {
+async function callGemini(messages: Message[], maxTokens: number): Promise<ProviderResult> {
   const key = Deno.env.get("LOVABLE_API_KEY");
   if (!key) throw new Error("LOVABLE_API_KEY not configured");
 
@@ -18,7 +23,7 @@ async function callLovable(messages: Message[], maxTokens: number): Promise<Prov
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-3-flash-preview",
+      model: LOVABLE_MODEL,
       messages,
       temperature: 0.7,
       max_tokens: maxTokens,
@@ -28,12 +33,12 @@ async function callLovable(messages: Message[], maxTokens: number): Promise<Prov
   if (!res.ok) {
     const status = res.status;
     const body = await res.text();
-    console.error("Lovable error:", status, body);
-    throw new ProviderError(`Lovable AI error (${status})`, status);
+    console.error("Gemini error:", status, body);
+    throw new ProviderError(`Gemini AI error (${status})`, status);
   }
 
   const data = await res.json();
-  return { content: data.choices?.[0]?.message?.content || "", provider: "lovable" };
+  return { content: data.choices?.[0]?.message?.content || "", provider: "gemini" };
 }
 
 async function callMinimax(messages: Message[], maxTokens: number): Promise<ProviderResult> {
@@ -44,7 +49,7 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "MiniMax-M1",
+      model: MINIMAX_MODEL,
       messages,
       temperature: 0.7,
       max_tokens: maxTokens,
@@ -63,7 +68,7 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
   return { content, provider: "minimax" };
 }
 
-// ─── Types ────────────────────────────────────────────────────────
+// ─── Types ───────────────────────────────────────────────────────
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -87,12 +92,13 @@ class ProviderError extends Error {
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
   try {
-    return await callLovable(messages, maxTokens);
+    // Primary: Google Gemini
+    return await callGemini(messages, maxTokens);
   } catch (err) {
     const isRetryable = err instanceof ProviderError && (err.status === 429 || err.status >= 500);
     if (!isRetryable) throw err;
 
-    console.warn("Lovable failed, trying MiniMax fallback...");
+    console.warn("Gemini failed, trying MiniMax fallback...");
     try {
       return await callMinimax(messages, maxTokens);
     } catch (fallbackErr) {
@@ -121,36 +127,35 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const location = (data.location as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
-  const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings that attract renters/buyers. Always respond with valid JSON only, no markdown or extra text.`;
+  const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings. Always respond with valid JSON only.`;
 
   let userPrompt = "";
 
   if (cat === "property") {
-    userPrompt = `Create a property rental/sale listing with this info:
+    userPrompt = `Create a property listing:
 Description: ${desc}
 Price: ${price}
 Location: ${location}
-Photos: ${imageCount} uploaded
+Photos: ${imageCount}
 
-Return JSON with these fields:
+Return JSON:
 {
   "title": "catchy title max 60 chars",
-  "description": "detailed 2-3 paragraph description highlighting features",
+  "description": "detailed 2-3 paragraph description",
   "property_type": "apartment|house|room|studio|villa|condo",
   "beds": number,
   "baths": number,
   "furnished": boolean,
   "pet_friendly": boolean,
-  "amenities": ["wifi", "kitchen", "parking", etc],
   "price": number or null,
-  "city": "city name" or null
+  "city": "city name"
 }`;
   } else if (cat === "motorcycle") {
-    userPrompt = `Create a motorcycle listing with this info:
+    userPrompt = `Create a motorcycle listing:
 Description: ${desc}
 Price: ${price}
 Location: ${location}
-Photos: ${imageCount} uploaded
+Photos: ${imageCount}
 
 Return JSON:
 {
@@ -158,17 +163,15 @@ Return JSON:
   "description": "detailed description",
   "motorcycle_type": "sport|cruiser|adventure|scooter|touring|naked",
   "vehicle_condition": "new|excellent|good|fair",
-  "includes_helmet": boolean,
-  "includes_gear": boolean,
   "price": number or null,
-  "city": "city name" or null
+  "city": "city name"
 }`;
   } else if (cat === "bicycle") {
-    userPrompt = `Create a bicycle listing with this info:
+    userPrompt = `Create a bicycle listing:
 Description: ${desc}
 Price: ${price}
 Location: ${location}
-Photos: ${imageCount} uploaded
+Photos: ${imageCount}
 
 Return JSON:
 {
@@ -177,28 +180,25 @@ Return JSON:
   "bicycle_type": "city|mountain|road|electric|hybrid|bmx",
   "vehicle_condition": "new|excellent|good|fair",
   "electric_assist": boolean,
-  "includes_lock": boolean,
-  "includes_lights": boolean,
   "price": number or null,
-  "city": "city name" or null
+  "city": "city name"
 }`;
   } else if (cat === "worker") {
-    userPrompt = `Create a service/worker listing with this info:
+    userPrompt = `Create a service listing:
 Description: ${desc}
 Price: ${price}
 Location: ${location}
-Photos: ${imageCount} uploaded
+Photos: ${imageCount}
 
 Return JSON:
 {
   "title": "professional title max 60 chars",
-  "description": "detailed service description highlighting skills and experience",
+  "description": "service description",
   "service_category": "cleaning|plumbing|electrical|carpentry|gardening|painting|moving|general",
   "experience_level": "beginner|intermediate|expert",
-  "skills": ["skill1", "skill2"],
   "pricing_unit": "hour|day|project",
   "price": number or null,
-  "city": "city name" or null
+  "city": "city name"
 }`;
   }
 
@@ -210,18 +210,16 @@ Return JSON:
 
 function buildProfilePrompt(data: Record<string, unknown>): Message[] {
   return [
-    { role: "system", content: `You are a profile writing expert. Create warm, genuine, and attractive profile descriptions. Always respond with valid JSON only.` },
-    { role: "user", content: `Enhance this user profile:
+    { role: "system", content: `You are a profile writing expert. Create warm, genuine profiles. Always respond with valid JSON only.` },
+    { role: "user", content: `Enhance this profile:
 Name: ${data.name || ""}
 Age: ${data.age || ""}
 Bio: ${data.currentBio || ""}
 Interests: ${(data.interests as string[] || []).join(", ")}
-Occupation: ${data.occupation || ""}
-Location: ${data.location || ""}
 
 Return JSON:
 {
-  "bio": "engaging 2-3 sentence bio that sounds natural and friendly",
+  "bio": "2-3 sentence engaging bio",
   "lifestyle": "brief lifestyle description",
   "interests_enhanced": ["refined interest tags"]
 }` },
@@ -230,18 +228,17 @@ Return JSON:
 
 function buildSearchPrompt(data: Record<string, unknown>): Message[] {
   return [
-    { role: "system", content: `You are a smart search assistant for a premium marketplace app (properties, motorcycles, bicycles, workers/services). Convert natural language queries into structured search filters. Detect the language of the query. Always respond with valid JSON only.` },
+    { role: "system", content: `You are a smart search assistant for a marketplace (properties, motorcycles, bicycles, services). Convert natural language to filters. Always respond with valid JSON only.` },
     { role: "user", content: `User is searching for: "${data.query}"
-Available categories: property, motorcycle, bicycle, worker
 
-Return JSON with suggested filters:
+Return JSON:
 {
   "category": "property|motorcycle|bicycle|worker" or null,
   "priceMin": number or null,
   "priceMax": number or null,
   "keywords": ["relevant", "search", "terms"],
   "language": "detected ISO language code",
-  "suggestion": "brief helpful suggestion for the user in the detected language"
+  "suggestion": "helpful suggestion"
 }` },
   ];
 }
@@ -250,14 +247,12 @@ function buildEnhancePrompt(data: Record<string, unknown>): Message[] {
   const tone = (data.tone as string) || "professional";
   const text = (data.text as string) || "";
   return [
-    { role: "system", content: `You are a premium copywriter. Enhance the given text to sound more ${tone}. Keep the same meaning but make it more compelling and polished. Always respond with valid JSON only.` },
-    { role: "user", content: `Enhance this text (tone: ${tone}):
-
-"${text}"
+    { role: "system", content: `You are a premium copywriter. Enhance text to sound more ${tone}. Always respond with valid JSON only.` },
+    { role: "user", content: `Enhance: "${text}"
 
 Return JSON:
 {
-  "text": "the enhanced version of the text"
+  "text": "enhanced version"
 }` },
   ];
 }
@@ -268,40 +263,38 @@ function buildConversationMessages(data: Record<string, unknown>): Message[] {
   const extractedData = (data.extractedData as Record<string, unknown>) || {};
   const messages = (data.messages as Message[]) || [];
 
-  const baseInstructions = `You are a friendly AI assistant helping users create a ${category} listing. You have access to ${imageCount} photos they've uploaded.
+  const baseInstructions = `You are a friendly AI helping create a ${category} listing. You have ${imageCount} photos.
 
-Your job is to:
-1. Have a natural conversation to gather listing information
-2. Ask follow-up questions to get missing details
-3. Extract structured data from the conversation
-4. Be conversational and helpful, not robotic
+Job:
+1. Have a natural conversation
+2. Ask follow-up questions
+3. Extract structured data
+4. Be conversational and helpful
 
-CRITICAL: Always respond with valid JSON in this format:
+Respond with valid JSON:
 {
-  "message": "Your friendly response or question to the user",
-  "extractedData": {
-    // All fields extracted so far from the conversation
-  },
+  "message": "Your response or question",
+  "extractedData": { /* all fields extracted */ },
   "isComplete": false or true,
-  "nextSteps": "What information is still needed (optional)"
+  "nextSteps": "What's still needed"
 }
 
-Current extracted data: ${JSON.stringify(extractedData, null, 2)}
+Current extracted: ${JSON.stringify(extractedData, null, 2)}
 `;
 
   let categoryPrompt = "";
   switch (category) {
     case "property":
-      categoryPrompt = `\nAVAILABLE PROPERTY FIELDS:\nRequired: title, description, property_type, mode, price, city, neighborhood\nOptional: beds, baths, square_footage, furnished, pet_friendly, amenities, services_included, rental_duration_type, house_rules, address, state\n\nTips: Start by asking about property type and rent/sale, then features, amenities, pricing, location.\n`;
+      categoryPrompt = `\nFields: title, description, property_type, mode, price, city, neighborhood, beds, baths, furnished, pet_friendly, amenities.\n`;
       break;
     case "motorcycle":
-      categoryPrompt = `\nAVAILABLE MOTORCYCLE FIELDS:\nRequired: title, description, mode, price, city\nImportant: motorcycle_type, vehicle_brand, vehicle_model, vehicle_condition, year, engine_cc, mileage, transmission\nOptional: has_abs, has_esc, has_traction_control, has_heated_grips, has_luggage_rack, includes_helmet, includes_gear\n`;
+      categoryPrompt = `\nFields: title, description, mode, price, city, motorcycle_type, vehicle_brand, vehicle_model, condition, year, engine_cc, mileage.\n`;
       break;
     case "bicycle":
-      categoryPrompt = `\nAVAILABLE BICYCLE FIELDS:\nRequired: title, description, mode, price, city\nImportant: bicycle_type, vehicle_brand, vehicle_model, vehicle_condition, year, frame_size, frame_material, number_of_gears, electric_assist\nOptional: battery_range, includes_lock, includes_lights, includes_basket, includes_pump, suspension_type, brake_type, wheel_size\n`;
+      categoryPrompt = `\nFields: title, description, mode, price, city, bicycle_type, vehicle_brand, vehicle_model, condition, electric_assist, frame_size.\n`;
       break;
     case "worker":
-      categoryPrompt = `\nAVAILABLE SERVICE/WORKER FIELDS:\nRequired: title, description, service_category, pricing_unit, price, city\nImportant: experience_level, experience_years, skills, certifications, service_radius_km\nOptional: minimum_booking_hours, offers_emergency_service, background_check_verified, insurance_verified, tools_equipment, days_available, time_slots_available, work_type, schedule_type, location_type\n`;
+      categoryPrompt = `\nFields: title, description, service_category, pricing_unit, price, city, experience_level, skills.\n`;
       break;
   }
 
@@ -320,7 +313,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const task: string = body.task || body.type; // support legacy "type" field
+    const task: string = body.task || body.type;
     const data: Record<string, unknown> = body.data || body;
 
     let messages: Message[];
@@ -345,14 +338,13 @@ serve(async (req) => {
         break;
       default:
         return new Response(
-          JSON.stringify({ error: `Invalid task: ${task}. Use: listing, profile, search, enhance, conversation` }),
+          JSON.stringify({ error: `Invalid task: ${task}` }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     }
 
     const aiResult = await callAI(messages, maxTokens);
 
-    // Parse structured response
     let result: Record<string, unknown>;
     const parsed = parseJSON(aiResult.content);
 
@@ -368,7 +360,6 @@ serve(async (req) => {
       result = { text: aiResult.content };
     }
 
-    // Surface rate-limit / payment errors to frontend
     return new Response(
       JSON.stringify({ result, provider_used: aiResult.provider }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -378,9 +369,9 @@ serve(async (req) => {
 
     const status = err instanceof ProviderError ? (err.status === 429 ? 429 : err.status === 402 ? 402 : 502) : 500;
     const message = err instanceof ProviderError && err.status === 429
-      ? "AI rate limit reached. Please try again in a moment."
+      ? "AI rate limit reached. Please try again."
       : err instanceof ProviderError && err.status === 402
-      ? "AI credits exhausted. Please add funds to continue."
+      ? "AI credits exhausted. Please add funds."
       : err instanceof Error ? err.message : "Unknown error";
 
     return new Response(

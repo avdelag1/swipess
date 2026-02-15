@@ -22,6 +22,15 @@ const TokenText = () => (
   </>
 );
 
+const MessageActivationText = () => (
+  <>
+    <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
+      Messages
+    </span>
+    <Bell className="sm:hidden h-5 w-5 text-white" />
+  </>
+);
+
 interface TopBarProps {
   onNotificationsClick?: () => void;
   onMessageActivationsClick?: () => void;
