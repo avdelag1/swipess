@@ -51,7 +51,22 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current.volume = state.volume;
       audioRef.current.preload = 'auto';
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
   }, []);
+
+  // Track failed stations to avoid infinite loops
+  const failedStationsRef = useRef<Set<string>>(new Set());
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Update listeners when state changes to have access to latest state
   useEffect(() => {
@@ -62,21 +77,51 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleAudioError = (e: Event) => {
-      if (audioRef.current?.paused === false) {
-        logger.error('[RadioPlayer] Audio error:', e);
-        setError('Stream unavailable');
-        setTimeout(() => {
-          changeStation('next');
-        }, 3000);
+      const currentStationId = state.currentStation?.id;
+      if (currentStationId) {
+        failedStationsRef.current.add(currentStationId);
+        logger.error(`[RadioPlayer] Station ${currentStationId} failed:`, e);
       }
+
+      setError('Station unavailable, switching...');
+
+      // Immediately cancel the current stream
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+
+      // Skip to next station immediately (reduced from 3000ms to 500ms)
+      setTimeout(() => {
+        setError(null);
+        changeStation('next');
+      }, 500);
+    };
+
+    const handleCanPlay = () => {
+      // Clear any loading timeout when stream successfully loads
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+      setError(null);
+    };
+
+    const handleStalled = () => {
+      logger.warn('[RadioPlayer] Stream stalled');
+      setError('Buffering...');
     };
 
     audioRef.current.addEventListener('ended', handleTrackEnded);
     audioRef.current.addEventListener('error', handleAudioError);
+    audioRef.current.addEventListener('canplay', handleCanPlay);
+    audioRef.current.addEventListener('stalled', handleStalled);
 
     return () => {
       audioRef.current?.removeEventListener('ended', handleTrackEnded);
       audioRef.current?.removeEventListener('error', handleAudioError);
+      audioRef.current?.removeEventListener('canplay', handleCanPlay);
+      audioRef.current?.removeEventListener('stalled', handleStalled);
     };
   }, [state.isPlaying, state.currentStation, state.isShuffle, state.currentCity]);
 
@@ -171,7 +216,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const targetStation = station || state.currentStation;
     if (!targetStation || !audioRef.current) return;
 
+    // Check if this station failed recently, if so skip it
+    if (failedStationsRef.current.has(targetStation.id)) {
+      logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
+      // Clear the failed status after some time
+      setTimeout(() => {
+        failedStationsRef.current.delete(targetStation.id);
+      }, 60000); // Allow retry after 1 minute
+      changeStation('next');
+      return;
+    }
+
     try {
+      // Clear any existing timeout
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
+
       if (audioRef.current.src !== targetStation.streamUrl) {
         audioRef.current.src = targetStation.streamUrl;
         audioRef.current.load();
@@ -179,12 +240,41 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         savePreferences({ currentStation: targetStation });
       }
 
+      // Set a timeout to detect if the stream takes too long to load
+      loadTimeoutRef.current = setTimeout(() => {
+        logger.warn(`[RadioPlayer] Station ${targetStation.id} took too long to load, skipping`);
+        failedStationsRef.current.add(targetStation.id);
+        setError('Station timeout, switching...');
+        setTimeout(() => {
+          setError(null);
+          changeStation('next');
+        }, 500);
+      }, 10000); // 10 second timeout
+
       await audioRef.current.play();
       setState(prev => ({ ...prev, isPlaying: true }));
       setError(null);
+
+      // Clear timeout on successful play
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
     } catch (err) {
       logger.error('[RadioPlayer] Playback error:', err);
-      setError('Failed to play station');
+      failedStationsRef.current.add(targetStation.id);
+      setError('Failed to play station, switching...');
+
+      // Clear timeout on error
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+
+      setTimeout(() => {
+        setError(null);
+        changeStation('next');
+      }, 500);
     }
   }, [state.currentStation]);
 
