@@ -99,23 +99,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         setInitialized(true); // Mark as initialized on any auth state change
 
-        // Handle OAuth setup asynchronously WITHOUT blocking loading state
+        // Handle profile setup asynchronously on SIGNED_IN for ALL users
         if (event === 'SIGNED_IN' && session?.user) {
           const provider = session.user.app_metadata?.provider;
           const isOAuthUser = provider && provider !== 'email';
 
-          // Only process OAuth users, and only once per user
           if (isOAuthUser && !processingOAuthRef.current && processedUserIdRef.current !== session.user.id) {
+            // OAuth user setup (existing logic)
             processingOAuthRef.current = true;
             processedUserIdRef.current = session.user.id;
 
-            // Run OAuth setup in background with timeout protection (non-blocking)
             const oauthSetupTimeout = setTimeout(() => {
               if (processingOAuthRef.current) {
                 logger.warn('[Auth] OAuth setup timeout - resetting state');
                 processingOAuthRef.current = false;
               }
-            }, 15000); // 15 second timeout
+            }, 15000);
 
             handleOAuthUserSetupAsync(session.user)
               .catch((error) => {
@@ -130,6 +129,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 clearTimeout(oauthSetupTimeout);
                 processingOAuthRef.current = false;
               });
+          } else if (!isOAuthUser && processedUserIdRef.current !== session.user.id) {
+            // Email user profile setup (e.g. after email confirmation click)
+            // Ensures user_roles, client/owner profiles, and onboarding are set up
+            processedUserIdRef.current = session.user.id;
+            const metadataRole = (session.user.user_metadata?.role as 'client' | 'owner') || 'client';
+            createProfileIfMissing(session.user, metadataRole).catch((err) => {
+              logger.error('[Auth] Email user profile setup failed:', err);
+            });
           }
         }
 
@@ -263,30 +270,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
 
-      if (data.user && !data.user.email_confirmed_at) {
-        toast({
-          title: "Check Your Email",
-          description: "Please check your email to verify your account.",
-        });
-        return { error: null };
-      } else if (data.user) {
-        toast({
-          title: "Creating your account...",
-          description: "Setting up your profile.",
+      if (data.user) {
+        // Always attempt profile creation regardless of email confirmation status.
+        // The DB trigger creates a bare profile, but we need user_roles,
+        // client_profiles/owner_profiles, and onboarding_completed=true.
+        createProfileIfMissing(data.user, role).catch((err) => {
+          logger.error('[Auth] Background profile setup failed:', err);
         });
 
-        // Create profile
-        const profileResult = await createProfileIfMissing(data.user, role);
-
-        if (!profileResult) {
-          logger.error('[Auth] Profile creation failed');
-          await supabase.auth.signOut();
+        if (!data.user.email_confirmed_at) {
           toast({
-            title: "Setup Failed",
-            description: "Could not complete account setup. Please try again.",
-            variant: "destructive"
+            title: "Check Your Email",
+            description: "Please check your email to verify your account.",
           });
-          return { error: new Error('Failed to complete account setup') };
+          return { error: null };
         }
 
         // Invalidate role query cache to ensure fresh data

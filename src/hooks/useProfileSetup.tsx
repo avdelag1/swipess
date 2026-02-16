@@ -180,10 +180,75 @@ export function useProfileSetup() {
           });
         }
         
+        // CRITICAL FIX: The DB trigger creates profiles with onboarding_completed=false
+        // and may leave full_name/email empty. Update these fields so the user
+        // appears correctly in the backend and in swipe decks.
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_completed: true,
+            full_name: user.user_metadata?.name || user.user_metadata?.full_name || undefined,
+            email: user.email || undefined,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', user.id)
+          .eq('onboarding_completed', false); // Only update if still false (idempotent)
+
+        if (updateError && import.meta.env.DEV) {
+          logger.error('[ProfileSetup] Failed to update onboarding status:', updateError);
+        }
+
+        // Ensure specialized profile exists (client_profiles or owner_profiles)
+        try {
+          if (role === 'client') {
+            const { data: existingClientProfile } = await supabase
+              .from('client_profiles')
+              .select('id')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (!existingClientProfile) {
+              const { error: cpError } = await supabase
+                .from('client_profiles')
+                .insert([{
+                  user_id: user.id,
+                  name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+                  profile_images: [],
+                  interests: [],
+                }]);
+              if (cpError && cpError.code !== '23505') {
+                logger.error('[ProfileSetup] Failed to create client_profiles for existing user:', cpError);
+              }
+            }
+          } else if (role === 'owner') {
+            const { data: existingOwnerProfile } = await supabase
+              .from('owner_profiles')
+              .select('id')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (!existingOwnerProfile) {
+              const { error: opError } = await supabase
+                .from('owner_profiles')
+                .insert([{
+                  user_id: user.id,
+                  business_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+                  contact_email: user.email || '',
+                  profile_images: [],
+                }]);
+              if (opError && opError.code !== '23505') {
+                logger.error('[ProfileSetup] Failed to create owner_profiles for existing user:', opError);
+              }
+            }
+          }
+        } catch (specializedProfileError) {
+          logger.error('[ProfileSetup] Error creating specialized profile for existing user:', specializedProfileError);
+        }
+
         // CRITICAL: Invalidate cache for existing profiles too!
         queryClient.invalidateQueries({ queryKey: ['user-role', user.id] });
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         return existingProfile;
       }
 
