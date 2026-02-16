@@ -350,8 +350,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 md:px-5 h-9 sm:h-10 md:h-11 rounded-xl transition-all duration-200 touch-manipulation',
-          'hover:bg-muted/50',
-          hasActiveFilters && 'bg-muted/30'
+          'bg-white/15 hover:bg-white/25',
+          hasActiveFilters && 'bg-gradient-to-r from-pink-500/20 to-rose-500/20'
         )}
       >
         <QuickFilterText hasActiveFilters={hasActiveFilters} />

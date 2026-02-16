@@ -76,16 +76,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             return updated;
           });
 
-          // Show the AI response - NO auto navigation to filters
-          // User can decide to apply filters manually if they want
-          setMessages(prev => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { ...updated[updated.length - 1], content: aiResponse };
-            return updated;
-          });
-
-          // Don't auto-navigate - let user decide
-          // User can copy the filters or apply manually
+          // Navigate to filters after showing response
+          setTimeout(() => {
+            navigateToFilters((result as any));
+          }, 2000);
         }, 1000);
       }
     } catch (error) {
@@ -141,8 +135,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent 
-        // SOLID BACKGROUND - no translucency
-        className="sm:max-w-md bg-[#1C1C1E] border border-white/10 p-0 overflow-hidden rounded-2xl"
+        className="sm:max-w-md bg-[#1C1C1E]/95 backdrop-blur-2xl border border-white/10 p-0 overflow-hidden"
         hideCloseButton={true}
         style={{ 
           '--modal-radius': '24px' 

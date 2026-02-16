@@ -39,7 +39,7 @@ const NotificationsDialog = lazy(() => import('@/components/NotificationsDialog'
 const OnboardingFlow = lazy(() => import('@/components/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })))
 const CategorySelectionDialog = lazy(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })))
 const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })))
-const TokenPackages = lazy(() => import('@/components/TokenPackages').then(m => ({ default: m.TokenPackages })))
+const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
 
@@ -133,7 +133,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
-  const [showTokens, setShowTokens] = useState(false)
+  const [showMessageActivations, setShowMessageActivations] = useState(false)
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
@@ -342,8 +342,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowNotifications(true)
   }, [])
 
-  const handleTokensClick = useCallback(() => {
-    setShowTokens(true)
+  const handleMessageActivationsClick = useCallback(() => {
+    setShowMessageActivations(true)
   }, [])
 
   const handleMenuItemClick = useCallback((action: string) => {
@@ -541,7 +541,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {!isCameraRoute && !isRadioRoute && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
-          onTokensClick={handleTokensClick}
+          onMessageActivationsClick={handleMessageActivationsClick}
           showFilters={isOnDiscoveryPage}
           userRole={userRole === 'admin' ? 'client' : userRole}
           transparent={isImmersiveDashboard}
@@ -614,9 +614,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Token Packages */}
       <Suspense fallback={null}>
-        <TokenPackages
-          isOpen={showTokens}
-          onClose={() => setShowTokens(false)}
+        <MessageActivationPackages
+          isOpen={showMessageActivations}
+          onClose={() => setShowMessageActivations(false)}
           userRole={userRole === 'admin' ? 'client' : userRole}
         />
       </Suspense>

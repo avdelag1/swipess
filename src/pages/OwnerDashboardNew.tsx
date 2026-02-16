@@ -4,7 +4,6 @@ import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { ClientInsightsDialog } from '@/components/ClientInsightsDialog';
-import { LegalAIButton } from '@/components/LegalAIAssistant';
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
@@ -57,11 +56,6 @@ export default function OwnerDashboardNew() {
         }}
         profile={selectedProfile || null}
       />
-
-      {/* Legal AI Button - Fixed at bottom right */}
-      <div className="fixed bottom-24 right-4 z-50">
-        <LegalAIButton context={{ userRole: 'owner' }} />
-      </div>
     </>
   );
 }
