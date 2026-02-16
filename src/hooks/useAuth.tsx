@@ -278,12 +278,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           logger.error('[Auth] Background profile setup failed:', err);
         });
 
-        if (!data.user.email_confirmed_at) {
-          toast({
-            title: "Check Your Email",
-            description: "Please check your email to verify your account.",
+        // If the signup returned a session, the user is already signed in
+        // (email confirmation is disabled or auto-confirmed).
+        // If no session, auto-sign in with the same credentials.
+        if (!data.session) {
+          logger.log('[Auth] No session after signup, attempting auto sign-in...');
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password
           });
-          return { error: null };
+
+          if (signInError) {
+            // If auto sign-in fails (e.g. email confirmation still required on server),
+            // show a helpful message but don't block the flow
+            logger.warn('[Auth] Auto sign-in after signup failed:', signInError.message);
+            toast({
+              title: "Account Created!",
+              description: "Your account has been created. Please sign in to continue.",
+            });
+            return { error: null };
+          }
+
+          // Auto sign-in succeeded - update local state
+          if (signInData.user) {
+            setUser(signInData.user);
+            setSession(signInData.session);
+          }
         }
 
         // Invalidate role query cache to ensure fresh data
@@ -292,13 +312,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Brief wait for cache invalidation to propagate
         await new Promise(resolve => setTimeout(resolve, 200));
 
+        // Determine dashboard path from role
+        const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
+
+        // AUTO-REFRESH: Invalidate all queries to force fresh data
+        queryClient.invalidateQueries();
+
         toast({
           title: "Account Created!",
           description: "Loading your dashboard...",
         });
 
-        // Navigation will be handled by Index.tsx using metadata role
-        // This ensures a single navigation point and prevents race conditions
+        navigate(targetPath, { replace: true });
       }
 
       return { error: null };
