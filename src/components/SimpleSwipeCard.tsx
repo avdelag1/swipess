@@ -387,12 +387,16 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Render based on position - all hooks called above regardless of render path
   if (!isTop) {
-    // Non-top card: simple static preview (no interaction, just visual)
+    // Non-top card: simple static preview with Tinder-style scale (0.96)
     return (
       <div
         className="absolute inset-0 overflow-hidden"
         style={{
           pointerEvents: 'none',
+          // TINDER-STYLE: Scale down slightly to create stack depth effect
+          transform: 'scale(0.96) translateZ(0)',
+          // Subtle opacity for depth
+          opacity: 0.85,
         }}
       >
         <CardImage src={currentImage} alt={listing.title || 'Listing'} />
@@ -433,7 +437,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-2xl"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div

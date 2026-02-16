@@ -1,29 +1,29 @@
 /**
- * CARD INFORMATION HIERARCHY
- * 
+ * CARD INFORMATION HIERARCHY - TINDER STYLE
+ *
  * Users must be able to decide in under 2 seconds.
  * 
- * Priority order:
- * 1. Primary value (price / rate)
- * 2. Primary identity (vehicle / property / worker)
- * 3. Location or service area
- * 4. Trust signal (rating / verified)
- * 
- * Rules:
- * - One strong headline
- * - One supporting line
- * - Everything else hidden behind tap
- * - No paragraph text on cards
+ * Typography:
+ * - Name/Price: 28-32px (text-3xl), bold, pure white (#FFFFFF)
+ * - Details: 16px (text-base), white with 85% opacity
+ * - Location: 14px (text-sm), white with opacity
+ * - Drop shadow for readability
  */
 
 import { memo } from 'react';
-import { MapPin, DollarSign, Bed, Bath, Car, Bike, Briefcase, Anchor } from 'lucide-react';
+import { MapPin, DollarSign, Bed, Bath, Car, Bike, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge, RatingDisplay } from './TrustSignals';
 
 interface CardInfoProps {
   className?: string;
 }
+
+// TINDER TYPOGRAPHY CONSTANTS
+const NAME_SIZE = 'text-3xl';      // 30px - bold headline
+const NAME_WEIGHT = 'font-bold';    // Bold
+const DETAIL_SIZE = 'text-base';    // 16px - clear details
+const LOCATION_SIZE = 'text-sm';    // 14px - smaller but readable
 
 // ============================================
 // PROPERTY CARD INFO
@@ -54,25 +54,23 @@ export const PropertyCardInfo = memo(({
   photoIndex = 0,
 }: PropertyCardInfoProps) => {
   const priceLabel = priceType === 'month' ? '/mo' : priceType === 'night' ? '/night' : '/yr';
-
-  // Normalize photoIndex to cycle through 0-3
   const normalizedIndex = photoIndex % 4;
 
   return (
-    <div className={cn("space-y-1", className)}>
+    <div className={cn("space-y-1.5", className)}>
       {/* Photo 0: Price + Property Type */}
       {normalizedIndex === 0 && (
         <>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className="flex items-baseline gap-2">
+            <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               ${price.toLocaleString()}
             </span>
-            <span className="text-sm text-white/80">{priceLabel}</span>
+            <span className="text-lg text-white/85">{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
           {propertyType && (
             <div className="flex items-center gap-3 text-white/90">
-              <span className="text-base font-semibold">{propertyType}</span>
+              <span className="text-xl font-semibold">{propertyType}</span>
             </div>
           )}
         </>
@@ -81,22 +79,22 @@ export const PropertyCardInfo = memo(({
       {/* Photo 1: Beds/Baths + Location */}
       {normalizedIndex === 1 && (
         <>
-          <div className="flex items-center gap-3 text-white/90">
+          <div className="flex items-center gap-4 text-white/90">
             {beds !== undefined && (
-              <span className="flex items-center gap-1 text-lg">
+              <span className="flex items-center gap-1.5 text-xl">
                 <Bed className="w-5 h-5" />
                 <span className="font-bold">{beds} {beds === 1 ? 'Bed' : 'Beds'}</span>
               </span>
             )}
             {baths !== undefined && (
-              <span className="flex items-center gap-1 text-lg">
+              <span className="flex items-center gap-1.5 text-xl">
                 <Bath className="w-5 h-5" />
                 <span className="font-bold">{baths} {baths === 1 ? 'Bath' : 'Baths'}</span>
               </span>
             )}
           </div>
           {location && (
-            <div className="flex items-center gap-1 text-base text-white/90">
+            <div className="flex items-center gap-1 text-white/85">
               <MapPin className="w-4 h-4" />
               <span className="font-medium">{location}</span>
             </div>
@@ -104,47 +102,44 @@ export const PropertyCardInfo = memo(({
         </>
       )}
 
-      {/* Photo 2: Property Type + Location (alternative view) */}
+      {/* Photo 2: Property Type + Location */}
       {normalizedIndex === 2 && (
         <>
           {propertyType && (
-            <div className="text-2xl font-bold text-white drop-shadow-lg">
+            <div className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               {propertyType}
             </div>
           )}
           {location && (
-            <div className="flex items-center gap-1 text-base text-white/90">
+            <div className="flex items-center gap-1 text-white/85">
               <MapPin className="w-4 h-4" />
               <span className="font-medium">{location}</span>
             </div>
-          )}
-          {rating !== undefined && rating > 0 && (
-            <RatingDisplay rating={rating} size="md" className="text-white" />
           )}
         </>
       )}
 
       {/* Photo 3+: Full Summary */}
-      {normalizedIndex === 3 && (
+      {normalizedIndex >= 3 && (
         <>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className="flex items-baseline gap-2">
+            <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               ${price.toLocaleString()}
             </span>
-            <span className="text-sm text-white/80">{priceLabel}</span>
+            <span className="text-lg text-white/85">{priceLabel}</span>
           </div>
           <div className="flex items-center gap-3 text-white/90">
             {propertyType && (
-              <span className="text-base font-semibold">{propertyType}</span>
+              <span className="text-lg font-semibold">{propertyType}</span>
             )}
             {beds !== undefined && (
-              <span className="flex items-center gap-1 text-sm">
+              <span className="flex items-center gap-1 text-base">
                 <Bed className="w-4 h-4" />
                 {beds}
               </span>
             )}
             {baths !== undefined && (
-              <span className="flex items-center gap-1 text-sm">
+              <span className="flex items-center gap-1 text-base">
                 <Bath className="w-4 h-4" />
                 {baths}
               </span>
@@ -153,7 +148,7 @@ export const PropertyCardInfo = memo(({
           {(location || (rating !== undefined && rating > 0)) && (
             <div className="flex items-center justify-between">
               {location && (
-                <span className="flex items-center gap-1 text-sm text-white/80">
+                <span className="flex items-center gap-1 text-white/80">
                   <MapPin className="w-3.5 h-3.5" />
                   {location}
                 </span>
@@ -201,37 +196,33 @@ export const VehicleCardInfo = memo(({
 }: VehicleCardInfoProps) => {
   const priceLabel = priceType === 'sale' ? '' : `/${priceType}`;
   const vehicleName = [year, make, model].filter(Boolean).join(' ');
-
-  // Normalize photoIndex to cycle through 0-3
   const normalizedIndex = photoIndex % 4;
 
   return (
-    <div className={cn("space-y-1", className)}>
-      {/* Photo 0: Price + Vehicle Name */}
+    <div className={cn("space-y-1.5", className)}>
       {normalizedIndex === 0 && (
         <>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className="flex items-baseline gap-2">
+            <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               ${price.toLocaleString()}
             </span>
-            <span className="text-sm text-white/80">{priceLabel}</span>
+            <span className="text-lg text-white/85">{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
           <div className="flex items-center gap-2 text-white/90">
             <Car className="w-5 h-5" />
-            <span className="text-lg font-bold truncate">{vehicleName || 'Vehicle'}</span>
+            <span className="text-xl font-bold truncate">{vehicleName || 'Vehicle'}</span>
           </div>
         </>
       )}
 
-      {/* Photo 1: Vehicle Details + Location */}
       {normalizedIndex === 1 && (
         <>
-          <div className="text-2xl font-bold text-white drop-shadow-lg truncate">
+          <div className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg truncate")}>
             {vehicleName || 'Vehicle'}
           </div>
           {location && (
-            <div className="flex items-center gap-1 text-base text-white/90">
+            <div className="flex items-center gap-1 text-white/85">
               <MapPin className="w-4 h-4" />
               <span className="font-medium">{location}</span>
             </div>
@@ -239,7 +230,6 @@ export const VehicleCardInfo = memo(({
         </>
       )}
 
-      {/* Photo 2: Rating + Price Info */}
       {normalizedIndex === 2 && (
         <>
           {rating !== undefined && rating > 0 ? (
@@ -247,51 +237,31 @@ export const VehicleCardInfo = memo(({
           ) : (
             <div className="flex items-center gap-2 text-white/90">
               <Car className="w-5 h-5" />
-              <span className="text-lg font-bold truncate">{vehicleName || 'Vehicle'}</span>
+              <span className="text-xl font-bold truncate">{vehicleName || 'Vehicle'}</span>
             </div>
           )}
           <div className="flex items-baseline gap-1">
-            <span className="text-xl font-bold text-white/90">
+            <span className="text-2xl font-bold text-white/90">
               ${price.toLocaleString()}
             </span>
-            <span className="text-sm text-white/80">{priceLabel}</span>
+            <span className="text-base text-white/85">{priceLabel}</span>
           </div>
-          {location && (
-            <div className="flex items-center gap-1 text-sm text-white/80">
-              <MapPin className="w-3.5 h-3.5" />
-              {location}
-            </div>
-          )}
         </>
       )}
 
-      {/* Photo 3+: Full Summary */}
-      {normalizedIndex === 3 && (
+      {normalizedIndex >= 3 && (
         <>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className="flex items-baseline gap-2">
+            <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               ${price.toLocaleString()}
             </span>
-            <span className="text-sm text-white/80">{priceLabel}</span>
+            <span className="text-lg text-white/85">{priceLabel}</span>
             {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
           </div>
           <div className="flex items-center gap-2 text-white/90">
             <Car className="w-4 h-4" />
-            <span className="text-base font-semibold truncate">{vehicleName || 'Vehicle'}</span>
+            <span className="text-lg font-semibold truncate">{vehicleName || 'Vehicle'}</span>
           </div>
-          {(location || (rating !== undefined && rating > 0)) && (
-            <div className="flex items-center justify-between">
-              {location && (
-                <span className="flex items-center gap-1 text-sm text-white/80">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {location}
-                </span>
-              )}
-              {rating !== undefined && rating > 0 && (
-                <RatingDisplay rating={rating} size="sm" className="text-white" />
-              )}
-            </div>
-          )}
         </>
       )}
     </div>
@@ -326,41 +296,38 @@ export const ServiceCardInfo = memo(({
   className,
   photoIndex = 0,
 }: ServiceCardInfoProps) => {
-  // Normalize photoIndex to cycle through 0-3
   const normalizedIndex = photoIndex % 4;
 
   return (
-    <div className={cn("space-y-1", className)}>
-      {/* Photo 0: Rate + Service Name */}
+    <div className={cn("space-y-1.5", className)}>
       {normalizedIndex === 0 && (
         <>
           {hourlyRate !== undefined && (
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-white drop-shadow-lg">
+            <div className="flex items-baseline gap-2">
+              <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
                 ${hourlyRate}
               </span>
-              <span className="text-sm text-white/80">/hr</span>
+              <span className="text-lg text-white/85">/hr</span>
               {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
             </div>
           )}
           <div className="flex items-center gap-2 text-white/90">
             <Briefcase className="w-5 h-5" />
-            <span className="text-lg font-bold">{serviceName}</span>
+            <span className="text-xl font-bold">{serviceName}</span>
           </div>
         </>
       )}
 
-      {/* Photo 1: Provider Name + Location */}
       {normalizedIndex === 1 && (
         <>
-          <div className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
             {serviceName}
           </div>
           {name && (
-            <div className="text-base text-white/90 font-medium">{name}</div>
+            <div className="text-lg text-white/90 font-medium">{name}</div>
           )}
           {location && (
-            <div className="flex items-center gap-1 text-base text-white/80">
+            <div className="flex items-center gap-1 text-white/85">
               <MapPin className="w-4 h-4" />
               <span className="font-medium">{location}</span>
             </div>
@@ -368,60 +335,33 @@ export const ServiceCardInfo = memo(({
         </>
       )}
 
-      {/* Photo 2: Rating + Reviews */}
       {normalizedIndex === 2 && (
         <>
           {rating !== undefined && rating > 0 ? (
             <>
               <RatingDisplay rating={rating} reviewCount={reviewCount} size="lg" className="text-white" />
-              <div className="text-base text-white/90 font-medium">{serviceName}</div>
+              <div className="text-xl text-white/90 font-medium">{serviceName}</div>
             </>
           ) : (
-            <>
-              <div className="text-2xl font-bold text-white drop-shadow-lg">{serviceName}</div>
-              {name && <div className="text-base text-white/90 font-medium">{name}</div>}
-            </>
-          )}
-          {location && (
-            <div className="flex items-center gap-1 text-sm text-white/80">
-              <MapPin className="w-3.5 h-3.5" />
-              {location}
-            </div>
+            <div className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>{serviceName}</div>
           )}
         </>
       )}
 
-      {/* Photo 3+: Full Summary */}
-      {normalizedIndex === 3 && (
+      {normalizedIndex >= 3 && (
         <>
           {hourlyRate !== undefined && (
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold text-white drop-shadow-lg">
+            <div className="flex items-baseline gap-2">
+              <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
                 ${hourlyRate}
               </span>
-              <span className="text-sm text-white/80">/hr</span>
+              <span className="text-lg text-white/85">/hr</span>
               {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
             </div>
           )}
           <div className="flex items-center gap-2 text-white/90">
             <Briefcase className="w-4 h-4" />
-            <span className="text-base font-semibold">{serviceName}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {name && (
-                <span className="text-sm text-white/90 font-medium">{name}</span>
-              )}
-              {location && (
-                <span className="flex items-center gap-1 text-sm text-white/70">
-                  <MapPin className="w-3 h-3" />
-                  {location}
-                </span>
-              )}
-            </div>
-            {rating !== undefined && rating > 0 && (
-              <RatingDisplay rating={rating} reviewCount={reviewCount} size="sm" className="text-white" />
-            )}
+            <span className="text-lg font-semibold">{serviceName}</span>
           </div>
         </>
       )}
@@ -467,23 +407,21 @@ export const ClientCardInfo = memo(({
     ? `From $${budgetMin.toLocaleString()}`
     : null;
 
-  // Normalize photoIndex to cycle through 0-3
   const normalizedIndex = photoIndex % 4;
 
   return (
-    <div className={cn("space-y-1", className)}>
-      {/* Photo 0: Name + Age */}
+    <div className={cn("space-y-1.5", className)}>
       {normalizedIndex === 0 && (
         <>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className="flex items-baseline gap-3">
+            <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               {name || 'Client'}
             </span>
-            {age && <span className="text-lg text-white/80">{age}</span>}
+            {age && <span className="text-xl text-white/85">{age}</span>}
             {isVerified && <VerifiedBadge size="sm" className="ml-1" />}
           </div>
           {occupation && (
-            <div className="flex items-center gap-1 text-base text-white/90">
+            <div className="flex items-center gap-1 text-white/90">
               <Briefcase className="w-4 h-4" />
               <span className="font-medium">{occupation}</span>
             </div>
@@ -491,81 +429,46 @@ export const ClientCardInfo = memo(({
         </>
       )}
 
-      {/* Photo 1: Budget */}
       {normalizedIndex === 1 && (
         <>
           {budgetText && (
             <>
-              <div className="text-lg text-white/80 font-medium">Monthly Budget</div>
+              <div className="text-white/80 font-medium">Monthly Budget</div>
               <div className="flex items-center gap-1 text-white/90">
                 <DollarSign className="w-5 h-5" />
                 <span className="text-2xl font-bold">{budgetText}</span>
               </div>
             </>
           )}
-          {!budgetText && occupation && (
-            <div className="flex items-center gap-2 text-white/90">
-              <Briefcase className="w-5 h-5" />
-              <span className="text-lg font-bold">{occupation}</span>
-            </div>
-          )}
         </>
       )}
 
-      {/* Photo 2: Location + Work Schedule */}
       {normalizedIndex === 2 && (
         <>
           {location && (
             <div className="flex items-center gap-1 text-white/90">
               <MapPin className="w-5 h-5" />
-              <span className="text-xl font-bold">{location}</span>
-            </div>
-          )}
-          {workSchedule && (
-            <div className="flex items-center gap-1 text-base text-white/80">
-              <Briefcase className="w-4 h-4" />
-              <span className="font-medium">{workSchedule}</span>
-            </div>
-          )}
-          {!location && !workSchedule && budgetText && (
-            <div className="flex items-center gap-1 text-white/90">
-              <DollarSign className="w-5 h-5" />
-              <span className="text-xl font-bold">{budgetText}</span>
+              <span className="text-2xl font-bold">{location}</span>
             </div>
           )}
         </>
       )}
 
-      {/* Photo 3+: Full Summary */}
-      {normalizedIndex === 3 && (
+      {normalizedIndex >= 3 && (
         <>
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-white drop-shadow-lg">
+          <div className="flex items-baseline gap-3">
+            <span className={cn(NAME_SIZE, NAME_WEIGHT, "text-white drop-shadow-lg")}>
               {name || 'Client'}
             </span>
-            {age && <span className="text-lg text-white/80">{age}</span>}
+            {age && <span className="text-xl text-white/85">{age}</span>}
             {isVerified && <VerifiedBadge size="sm" className="ml-1" />}
           </div>
           {budgetText && (
             <div className="flex items-center gap-1 text-white/90">
               <DollarSign className="w-4 h-4" />
-              <span className="text-base font-semibold">{budgetText}/mo</span>
+              <span className="text-lg font-semibold">{budgetText}/mo</span>
             </div>
           )}
-          <div className="flex items-center gap-3 text-white/80">
-            {occupation && (
-              <span className="flex items-center gap-1 text-sm">
-                <Briefcase className="w-3.5 h-3.5" />
-                {occupation}
-              </span>
-            )}
-            {location && (
-              <span className="flex items-center gap-1 text-sm">
-                <MapPin className="w-3.5 h-3.5" />
-                {location}
-              </span>
-            )}
-          </div>
         </>
       )}
     </div>
