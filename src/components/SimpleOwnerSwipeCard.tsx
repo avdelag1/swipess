@@ -17,7 +17,6 @@ import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { useMagnifier } from '@/hooks/useMagnifier';
-import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import { useParallaxStore } from '@/state/parallaxStore';
@@ -551,8 +550,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         }}
       >
         <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
-        {/* Bottom gradient for depth */}
-        <GradientMaskBottom intensity={0.6} zIndex={2} heightPercent={40} />
+        {/* No gradient - full-bleed cards */}
       </div>
     );
   }
@@ -603,9 +601,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
 
-          {/* TOP GRADIENT MASK - Creates visual contrast for header UI */}
-          <GradientMaskTop intensity={1} zIndex={15} heightPercent={28} />
-
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
             <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -617,9 +612,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               ))}
             </div>
           )}
-
-          {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
-          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
         </div>
         
         {/* YES! overlay */}
