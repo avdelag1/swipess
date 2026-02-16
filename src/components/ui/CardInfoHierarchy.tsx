@@ -5,8 +5,8 @@
  * 
  * Typography:
  * - Name/Price: 28-32px (text-3xl), bold, pure white (#FFFFFF)
- * - Details: 16px (text-base), white with 85% opacity
- * - Location: 14px (text-sm), white with opacity
+ * - Details: 16px (text-base), white with 92% opacity
+ * - Location: 14px (text-sm), white with 85% opacity
  * - Drop shadow for readability
  */
 
