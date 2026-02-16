@@ -1059,7 +1059,6 @@ export function useSmartClientMatching(
         // FIXED: Removed non-existent columns (budget_min, budget_max, verified, has_pets, party_friendly, is_active)
         const CLIENT_SWIPE_CARD_FIELDS = `
           id,
-          user_id,
           full_name,
           age,
           gender,
@@ -1085,13 +1084,13 @@ export function useSmartClientMatching(
         let profileQuery = supabase
           .from('profiles')
           .select(CLIENT_SWIPE_CARD_FIELDS)
-          .neq('user_id', userId); // CRITICAL: Never show user their own profile
+          .neq('id', userId); // CRITICAL: Never show user their own profile
 
         // CRITICAL FIX: Exclude swiped profiles at SQL level (not JavaScript)
         // This ensures pagination works correctly
         if (swipedProfileIds.size > 0) {
           const idsToExclude = Array.from(swipedProfileIds);
-          profileQuery = profileQuery.not('user_id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
+          profileQuery = profileQuery.not('id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
         }
 
         const start = page * pageSize;
@@ -1147,14 +1146,14 @@ export function useSmartClientMatching(
         let filteredProfiles = (profiles as any[])
           .filter(profile => {
             // DEFENSE IN DEPTH: Double-check - never show user their own profile
-            if (profile.user_id === userId) {
-              logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query, filtering it out:', profile.user_id);
+            if (profile.id === userId) {
+              logger.warn('[SmartMatching] CRITICAL: Own profile leaked through DB query, filtering it out:', profile.id);
               return false;
             }
             return true; // Show ALL signed-up users
           })
           .map(profile => {
-            const cpData = clientProfileMap.get(profile.user_id);
+            const cpData = clientProfileMap.get(profile.id);
             const name = profile.full_name || cpData?.name || 'New User';
             const images = (profile.images && (profile.images as any[]).length > 0)
               ? profile.images
