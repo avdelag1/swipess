@@ -127,14 +127,15 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       changeStation('next');
     };
 
-    const handleAudioError = (e: Event) => {
+    const handleAudioError = async (e: Event) => {
       logger.error('[RadioPlayer] Audio error:', e);
-      if (audioRef.current?.paused === false) {
-        setError('Stream unavailable');
-        setTimeout(() => {
-          changeStation('next');
-        }, 3000);
-      }
+      setError('Station unavailable, skipping...');
+      
+      // Clear error and immediately try next station
+      setTimeout(() => {
+        setError(null);
+        changeStation('next');
+      }, 1500);
     };
 
     const handlePlay = () => {
@@ -146,18 +147,24 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       setState(prev => ({ ...prev, isPlaying: false }));
     };
 
+    const handleCanPlay = () => {
+      setError(null);
+    };
+
     audioRef.current.addEventListener('ended', handleTrackEnded);
     audioRef.current.addEventListener('error', handleAudioError);
     audioRef.current.addEventListener('play', handlePlay);
     audioRef.current.addEventListener('pause', handlePause);
+    audioRef.current.addEventListener('canplay', handleCanPlay);
 
     return () => {
       audioRef.current?.removeEventListener('ended', handleTrackEnded);
       audioRef.current?.removeEventListener('error', handleAudioError);
       audioRef.current?.removeEventListener('play', handlePlay);
       audioRef.current?.removeEventListener('pause', handlePause);
+      audioRef.current?.removeEventListener('canplay', handleCanPlay);
     };
-  }, []);
+  }, [changeStation]);
 
   // Load user preferences from Supabase
   useEffect(() => {

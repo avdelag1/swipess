@@ -178,15 +178,6 @@ export const radioStations: RadioStation[] = [
 
   // Ibiza - Electronic Paradise
   {
-    id: 'ibiza-global',
-    name: 'Ibiza Global Radio',
-    frequency: '97.6 FM',
-    streamUrl: 'https://s1.radio.co/s4e8c8c3d1/listen',
-    city: 'ibiza',
-    genre: 'Electronic',
-    description: 'The worlds most iconic electronic music station'
-  },
-  {
     id: 'ibiza-deep',
     name: 'Ibiza Deep House',
     frequency: '95.2 FM',
@@ -421,15 +412,6 @@ export const radioStations: RadioStation[] = [
   },
 
   // Talk Radio & Informational - News, Culture, Variety
-  {
-    id: 'talk-bbc-world',
-    name: 'BBC World Service',
-    frequency: 'Talk 1',
-    streamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',
-    city: 'podcasts',
-    genre: 'World News',
-    description: 'Global news, analysis and features from the BBC'
-  },
   {
     id: 'talk-fip',
     name: 'FIP',
