@@ -387,16 +387,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Render based on position - all hooks called above regardless of render path
   if (!isTop) {
-    // Non-top card: simple static preview with Tinder-style scale (0.96)
+    // Non-top card: simple static preview (no interaction, just visual)
     return (
       <div
         className="absolute inset-0 overflow-hidden"
         style={{
           pointerEvents: 'none',
-          // TINDER-STYLE: Scale down slightly to create stack depth effect
-          transform: 'scale(0.96) translateZ(0)',
-          // Subtle opacity for depth
-          opacity: 0.85,
         }}
       >
         <CardImage src={currentImage} alt={listing.title || 'Listing'} />
@@ -437,7 +433,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-2xl"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -469,8 +465,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
 
           {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
-          {/* STRONG GRADIENT: 85% at bottom for white text contrast */}
-          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
+          <GradientMaskBottom intensity={0.8} zIndex={18} heightPercent={50} />
         </div>
         
         {/* YES! overlay */}
