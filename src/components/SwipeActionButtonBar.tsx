@@ -1,31 +1,21 @@
 /**
- * SWIPE ACTION BUTTON BAR - PREMIUM 2025 DESIGN
+ * SWIPE ACTION BUTTON BAR - TINDER-LEVEL DESIGN
  *
- * Modern floating button bar for swipe cards with premium aesthetics.
- * Designed to feel like buttons "emerge from the gradient" rather than
- * sitting on transparent backgrounds.
- *
- * Features:
- * - PILL-SHAPED buttons with soft, premium rounded corners
- * - Subtle backdrop blur (not heavy frosted glass)
- * - Color-coded variants that glow softly on press
- * - GPU-accelerated animations at 60fps
- * - Large touch-first hit areas (invisible padding extends target)
- * - Minimal chrome - no heavy shadows or cartoon effects
- * - Micro-interactions on press for premium feedback
+ * Large circular buttons with heavy shadows like Tinder.
+ * Bold, confident, professional.
  *
  * BUTTON ORDER (LEFT → RIGHT):
- * 1. Return/Undo (small) - amber icon
- * 2. Dislike (large) - red thumbs down icon
- * 3. Share (small) - purple icon
- * 4. Like (large) - green heart icon
- * 5. Message/Chat (small) - cyan icon
+ * 1. Return/Undo (large) - white circle, amber icon
+ * 2. Dislike (large) - white circle, red icon
+ * 3. Like (large) - white circle, green icon
+ * 4. Message (large) - white circle, blue icon
  */
 
-import { memo, useCallback, useState, useMemo } from 'react';
+import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, RotateCcw, MessageCircle, Heart, ThumbsDown } from 'lucide-react';
+import { Share2, RotateCcw, MessageCircle, Heart, ThumbsDown, X } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
@@ -38,179 +28,90 @@ interface SwipeActionButtonBarProps {
   className?: string;
 }
 
-// Premium spring animation - soft, bouncy, modern
+// TINDER-STYLE SIZING
+const BUTTON_SIZE = 68;  // Large circular buttons like Tinder
+const ICON_SIZE = 30;    // Bold icons (28-32px recommended)
+
+// Tap animation - subtle press
+const TAP_SCALE = 0.92;
+
 const springConfig = {
   type: 'spring',
   stiffness: 400,
-  damping: 25,
-  mass: 0.6,
+  damping: 30,
 } as const;
 
 /**
- * BUTTON SIZING SYSTEM - Premium 2025
+ * TINDER-STYLE ACTION BUTTON
  *
- * Large touch-first buttons with generous hit areas.
- * Size hierarchy creates clear visual prominence.
- */
-const LARGE_SIZE = 64;  // Primary actions (Like/Dislike) - touch targets
-const SMALL_SIZE = 48;  // Secondary actions
-
-// Icon sizes - BIGGER for floating icon style
-const LARGE_ICON_SIZE = 40;  // Primary icons - bold and visible
-const SMALL_ICON_SIZE = 28;  // Secondary icons - clear
-
-// Gap between buttons - tighter grouping
-const BUTTON_GAP = 6;
-
-// Tap animation - subtle premium press
-const TAP_SCALE = 0.88;
-
-/**
- * Premium ActionButton - Modern Pill-Shaped Design
- *
- * Buttons appear to "emerge from the gradient" with subtle glass effect.
- * No heavy chrome or cartoon shadows - clean, premium, modern.
+ * Solid white circle with heavy shadow.
+ * Icon colored, not the button.
+ * Bold and confident.
  */
 const ActionButton = memo(({
   onClick,
   disabled = false,
-  size = 'small',
   variant = 'default',
   children,
   ariaLabel,
 }: {
   onClick: () => void;
   disabled?: boolean;
-  size?: 'small' | 'large';
-  variant?: 'default' | 'like' | 'dislike' | 'amber' | 'cyan' | 'purple';
+  variant: 'like' | 'dislike' | 'undo' | 'message' | 'share';
   children: React.ReactNode;
   ariaLabel: string;
 }) => {
-  const [isPressed, setIsPressed] = useState(false);
-
   const handleClick = useCallback((e: React.MouseEvent) => {
     if (disabled) return;
-
-    // CRITICAL: Stop event from bubbling to parent card's onClick
     e.stopPropagation();
     e.preventDefault();
-
-    // Haptic feedback - stronger for primary actions
-    if (variant === 'like') {
-      triggerHaptic('success');
-    } else if (variant === 'dislike') {
-      triggerHaptic('warning');
-    } else {
-      triggerHaptic('light');
-    }
-
+    triggerHaptic(variant === 'like' ? 'success' : variant === 'dislike' ? 'warning' : 'light');
     onClick();
   }, [disabled, variant, onClick]);
 
-  // Compute sizes
-  const buttonSize = size === 'large' ? LARGE_SIZE : SMALL_SIZE;
-  const iconSize = size === 'large' ? LARGE_ICON_SIZE : SMALL_ICON_SIZE;
-  const isPrimary = size === 'large';
-
-  // Premium color configurations - TINDER STYLE with transparent backgrounds
-  // Only borders and icons provide visual definition, gradient overlay does the rest
-  const variantConfig = useMemo(() => {
-    const configs: Record<string, {
-      iconColor: string;
-      bgColor: string;
-      pressedBg: string;
-      glowColor: string;
-      borderColor: string;
-    }> = {
-      like: {
-        iconColor: '#22c55e',
-        bgColor: 'rgba(34, 197, 94, 0.08)',
-        pressedBg: 'rgba(34, 197, 94, 0.20)',
-        glowColor: 'rgba(34, 197, 94, 0.4)',
-        borderColor: 'rgba(34, 197, 94, 0.35)',
-      },
-      dislike: {
-        iconColor: '#ef4444',
-        bgColor: 'rgba(239, 68, 68, 0.08)',
-        pressedBg: 'rgba(239, 68, 68, 0.20)',
-        glowColor: 'rgba(239, 68, 68, 0.4)',
-        borderColor: 'rgba(239, 68, 68, 0.35)',
-      },
-      amber: {
-        iconColor: '#f59e0b',
-        bgColor: 'rgba(245, 158, 11, 0.06)',
-        pressedBg: 'rgba(245, 158, 11, 0.18)',
-        glowColor: 'rgba(245, 158, 11, 0.35)',
-        borderColor: 'rgba(245, 158, 11, 0.30)',
-      },
-      cyan: {
-        iconColor: '#06b6d4',
-        bgColor: 'rgba(6, 182, 212, 0.06)',
-        pressedBg: 'rgba(6, 182, 212, 0.18)',
-        glowColor: 'rgba(6, 182, 212, 0.35)',
-        borderColor: 'rgba(6, 182, 212, 0.30)',
-      },
-      purple: {
-        iconColor: '#a855f7',
-        bgColor: 'rgba(168, 85, 247, 0.06)',
-        pressedBg: 'rgba(168, 85, 247, 0.18)',
-        glowColor: 'rgba(168, 85, 247, 0.35)',
-        borderColor: 'rgba(168, 85, 247, 0.30)',
-      },
-      default: {
-        iconColor: 'rgba(255, 255, 255, 0.9)',
-        bgColor: 'rgba(255, 255, 255, 0.04)',
-        pressedBg: 'rgba(255, 255, 255, 0.12)',
-        glowColor: 'rgba(255, 255, 255, 0.2)',
-        borderColor: 'rgba(255, 255, 255, 0.20)',
-      },
-    };
-    return configs[variant] || configs.default;
-  }, [variant]);
+  // Icon colors - NOT the button, just the icon
+  const iconColors: Record<string, string> = {
+    like: '#22c55e',     // Green
+    dislike: '#ef4444',   // Red
+    undo: '#f59e0b',     // Amber
+    message: '#06b6d4',  // Cyan
+    share: '#a855f7',    // Purple
+  };
 
   return (
     <motion.button
       onClick={handleClick}
       disabled={disabled}
       aria-label={ariaLabel}
-      onPointerDown={() => setIsPressed(true)}
-      onPointerUp={() => setIsPressed(false)}
-      onPointerLeave={() => setIsPressed(false)}
-      onPointerCancel={() => setIsPressed(false)}
       whileTap={{ scale: TAP_SCALE }}
       transition={springConfig}
       style={{
-        width: buttonSize,
-        height: buttonSize,
-        // NO FRAME: Just floating icons with subtle glow on press
-        backgroundColor: 'transparent',
+        width: BUTTON_SIZE,
+        height: BUTTON_SIZE,
+        // SOLID WHITE CIRCLE like Tinder
+        backgroundColor: disabled ? 'rgba(255,255,255,0.3)' : '#ffffff',
+        borderRadius: '50%',
+        // HEAVY DROP SHADOW
+        boxShadow: disabled 
+          ? 'none'
+          : '0 8px 32px rgba(0,0,0,0.35)',
         border: 'none',
-        // GPU acceleration
-        transform: 'translateZ(0)',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        willChange: 'transform',
-        // Disabled state
-        opacity: disabled ? 0.35 : 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        padding: 0,
       }}
-      className="flex items-center justify-center touch-manipulation select-none relative"
+      className="touch-manipulation select-none"
     >
-      {/* Icon with color and subtle animation */}
       <motion.span
-        animate={{
-          scale: isPressed ? 0.9 : 1,
-        }}
-        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        animate={{ scale: disabled ? 0.9 : 1 }}
         style={{
-          width: iconSize,
-          height: iconSize,
-          color: variantConfig.iconColor,
+          width: ICON_SIZE,
+          height: ICON_SIZE,
+          color: disabled ? 'rgba(0,0,0,0.3)' : iconColors[variant] || '#1a1a1a',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          filter: isPrimary ? `drop-shadow(0 0 4px ${variantConfig.glowColor})` : 'none',
         }}
       >
         {children}
@@ -233,81 +134,59 @@ function SwipeActionButtonBarComponent({
 }: SwipeActionButtonBarProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ ...springConfig, delay: 0.02 }}
-      className={`relative flex items-center justify-center ${className}`}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={cn("relative flex items-center justify-center gap-4", className)}
       style={{
-        // Transparent container - buttons float on gradient
-        padding: '8px 20px',
-        // GPU acceleration
-        transform: 'translateZ(0)',
-        willChange: 'transform, opacity',
-        // Position above gradient
-        zIndex: 100,
+        padding: '12px 24px',
+        // Center the button group
+        width: '100%',
       }}
     >
-      {/* Buttons Row - Premium spacing, centered layout */}
-      <div
-        className="flex items-center justify-center"
-        style={{ gap: BUTTON_GAP }}
-      >
-        {/* 1. Return/Undo Button (Small) - Amber */}
-        <ActionButton
-          onClick={onUndo || (() => {})}
-          disabled={disabled || !canUndo}
-          size="small"
-          variant="amber"
-          ariaLabel="Undo last swipe"
-        >
-          <RotateCcw className="w-full h-full" strokeWidth={2} />
-        </ActionButton>
-
-        {/* 2. Dislike Button (Large) - Red Thumbs Down */}
-        <ActionButton
-          onClick={onDislike}
-          disabled={disabled}
-          size="large"
-          variant="dislike"
-          ariaLabel="Pass on this listing"
-        >
-          <ThumbsDown className="w-full h-full" fill="currentColor" />
-        </ActionButton>
-
-        {/* 3. Share Button (Small) - Purple */}
-        {onShare && (
+      {/* Buttons Row - TINDER STYLE */}
+      <div className="flex items-center justify-center gap-4">
+        {/* Undo Button - White circle */}
+        {onUndo && (
           <ActionButton
-            onClick={onShare}
-            disabled={disabled}
-            size="small"
-            variant="purple"
-            ariaLabel="Share this listing"
+            onClick={onUndo || (() => {})}
+            disabled={disabled || !canUndo}
+            variant="undo"
+            ariaLabel="Undo last swipe"
           >
-            <Share2 className="w-full h-full" strokeWidth={2} />
+            <RotateCcw strokeWidth={2.5} />
           </ActionButton>
         )}
 
-        {/* 4. Like Button (Large) - Green Heart */}
+        {/* Dislike Button - White circle */}
+        <ActionButton
+          onClick={onDislike}
+          disabled={disabled}
+          variant="dislike"
+          ariaLabel="Pass on this listing"
+        >
+          <X strokeWidth={2.5} />
+        </ActionButton>
+
+        {/* Like Button - White circle */}
         <ActionButton
           onClick={onLike}
           disabled={disabled}
-          size="large"
           variant="like"
           ariaLabel="Like this listing"
         >
-          <Heart className="w-full h-full" fill="currentColor" />
+          <Heart strokeWidth={2.5} fill={disabled ? 'none' : 'currentColor'} />
         </ActionButton>
 
-        {/* 5. Message Button (Small) - Cyan */}
+        {/* Message Button - White circle */}
         {onMessage && (
           <ActionButton
             onClick={onMessage}
             disabled={disabled}
-            size="small"
-            variant="cyan"
+            variant="message"
             ariaLabel="Message the owner"
           >
-            <MessageCircle className="w-full h-full" strokeWidth={2} />
+            <MessageCircle strokeWidth={2.5} />
           </ActionButton>
         )}
       </div>

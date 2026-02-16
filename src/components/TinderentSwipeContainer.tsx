@@ -1221,34 +1221,37 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
             <motion.div
               animate={isRefreshing ? { rotate: 360 } : { scale: [1, 1.15, 1, 1.1, 1] }}
               transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
+              className={`w-24 h-24 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
             >
-              <CategoryIcon className="w-10 h-10" />
+              <CategoryIcon className="w-12 h-12" />
             </motion.div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+          {/* TINDER-STYLE: Pure white text, bold, high contrast */}
+          <div className="space-y-3">
+            <h3 className="text-3xl font-bold text-white drop-shadow-lg">{title}</h3>
+            <p className="text-white/85 text-lg max-w-xs mx-auto leading-relaxed">
               {description}
             </p>
           </div>
-          <div className="flex flex-col gap-3">
+          
+          {/* Bold CTA button - white background like Tinder */}
+          <div className="flex flex-col gap-4 pt-4">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-base"
+                className="rounded-full px-10 py-4 bg-white text-black font-bold text-lg shadow-2xl hover:bg-white/95 active:scale-95 transition-all"
               >
                 {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} />
+                  <RadarSearchIcon size={22} isActive={true} />
                 ) : (
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-6 h-6" />
                 )}
-                {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
+                <span className="ml-2">{isRefreshing ? `Scanning...` : cta}</span>
               </Button>
             </motion.div>
-            <p className="text-xs text-muted-foreground">New {categoryLower} are added daily</p>
+            <p className="text-white/60 text-sm">New {categoryLower} are added daily</p>
           </div>
         </motion.div>
       </div>
