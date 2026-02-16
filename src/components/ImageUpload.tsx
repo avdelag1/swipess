@@ -148,10 +148,10 @@ export function ImageUpload({
       {/* Upload Area */}
       <div
         className={cn(
-          'relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200',
+          'relative border-2 border-dashed rounded-[20px] p-8 text-center transition-all duration-300',
           dragActive
             ? 'border-primary bg-primary/5'
-            : 'border-gray-300 hover:border-gray-400',
+            : 'border-white/10 hover:border-white/20 bg-white/[0.02]',
           uploading && 'opacity-50 pointer-events-none'
         )}
         onDragEnter={handleDrag}
@@ -228,7 +228,7 @@ export function ImageUpload({
                 className="relative group"
               >
                 <motion.div
-                  className="relative aspect-square rounded-lg overflow-hidden bg-muted border-2 border-transparent hover:border-primary transition-all duration-200"
+                  className="relative aspect-square rounded-[20px] overflow-hidden bg-muted/50 border border-white/8 hover:border-primary/40 transition-all duration-300 shadow-[var(--shadow-soft-sm)]"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
