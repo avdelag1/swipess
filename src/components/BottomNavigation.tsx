@@ -167,10 +167,10 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               onPointerDown={(e) => { e.stopPropagation(); if (item.path) prefetchRoute(item.path); }}
               onTouchStart={(e) => { e.stopPropagation(); if (item.path) prefetchRoute(item.path); }}
               className={cn(
-                'relative flex flex-col items-center justify-center rounded-2xl gap-0.5',
-                'transition-all duration-150 ease-out',
-                'active:scale-[0.92]',
-                'bg-white/8 hover:bg-white/15',
+                'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
+                'transition-all duration-100 ease-out',
+                'active:scale-[0.9]',
+                'bg-white/10 hover:bg-white/25',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent'
               )}
