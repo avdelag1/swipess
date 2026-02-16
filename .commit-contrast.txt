@@ -1,0 +1,8 @@
+Enhanced contrast: stronger gradients, lighter modals, brighter text
+
+- Bottom gradient: 85% opacity at edge for white UI contrast
+- Top gradient: 75% opacity for header contrast
+- Empty state modal: #1C1C1E instead of dark gray
+- Empty state corners: standardized 20px rounded
+- Text brightness: 92% opacity for details, 85% for location
+- Multi-layer button shadow with glow effect
