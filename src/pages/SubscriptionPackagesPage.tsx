@@ -286,7 +286,7 @@ export default function SubscriptionPackagesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+    <div className="bg-gradient-to-b from-background via-background to-muted/30 pb-24">
       {/* Header */}
       <div className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border/50 pt-[env(safe-area-inset-top)]">
         <div className="container mx-auto px-4 py-4">

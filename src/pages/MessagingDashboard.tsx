@@ -400,7 +400,7 @@ export function MessagingDashboard() {
         variant="conversation-limit"
       />
 
-      <div className="w-full pb-24 min-h-screen bg-background">
+      <div className="w-full pb-24 bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
           {/* Clean Header */}
           <div className="flex items-center gap-3 mb-6">
