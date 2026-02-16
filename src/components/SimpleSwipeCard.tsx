@@ -469,7 +469,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           )}
 
           {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
-          <GradientMaskBottom intensity={0.8} zIndex={18} heightPercent={50} />
+          {/* STRONG GRADIENT: 85% at bottom for white text contrast */}
+          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
         </div>
         
         {/* YES! overlay */}
