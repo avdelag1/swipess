@@ -1209,56 +1209,46 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     
     return (
       <div className="relative w-full h-full flex-1 flex items-center justify-center px-4">
-        {/* UNIFIED animation - all elements animate together */}
+        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          // LIGHTER MODAL: #1C1C1E instead of #111111
-          className="text-center space-y-6 p-8 rounded-3xl"
-          style={{
-            backgroundColor: '#1C1C1E',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-          }}
+          className="text-center space-y-6 p-8"
         >
-          {/* Category-specific icon */}
+          {/* Category-specific icon with heartbeat pulse animation */}
           <div className="flex justify-center">
             <motion.div
               animate={isRefreshing ? { rotate: 360 } : { scale: [1, 1.15, 1, 1.1, 1] }}
               transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-24 h-24 rounded-full border-2 border-white/30 flex items-center justify-center ${iconColor}`}
-              style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+              className={`w-20 h-20 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
             >
-              <CategoryIcon className="w-12 h-12 text-white" />
+              <CategoryIcon className="w-10 h-10" />
             </motion.div>
           </div>
 
-          {/* PURE WHITE TEXT - 92% opacity */}
-          <div className="space-y-3">
-            <h3 className="text-3xl font-bold text-white drop-shadow-lg">{title}</h3>
-            <p className="text-white/92 text-lg max-w-xs mx-auto leading-relaxed">
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
               {description}
             </p>
           </div>
-          
-          {/* Bold CTA button - pure white */}
-          <div className="flex flex-col gap-4 pt-4">
+          <div className="flex flex-col gap-3">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                // STANDARDIZED 20px corners, pure white
-                className="rounded-2xl px-10 py-4 bg-white text-black font-bold text-lg shadow-xl hover:bg-white/95 active:scale-95 transition-all"
+                className="gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-base"
               >
                 {isRefreshing ? (
-                  <RadarSearchIcon size={22} isActive={true} />
+                  <RadarSearchIcon size={20} isActive={true} />
                 ) : (
-                  <RefreshCw className="w-6 h-6" />
+                  <RefreshCw className="w-5 h-5" />
                 )}
-                <span className="ml-2">{isRefreshing ? `Scanning...` : cta}</span>
+                {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
               </Button>
             </motion.div>
-            <p className="text-white/60 text-sm">New {categoryLower} are added daily</p>
+            <p className="text-xs text-muted-foreground">New {categoryLower} are added daily</p>
           </div>
         </motion.div>
       </div>

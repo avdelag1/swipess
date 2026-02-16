@@ -28,42 +28,47 @@ interface GradientMaskProps {
 }
 
 /**
- * TOP GRADIENT MASK - STRONG CONTRAST FOR HEADER UI
+ * TOP GRADIENT MASK - CURVED SCREEN EFFECT
  *
- * Creates darkness at top for header elements contrast.
+ * Creates a subtle curved shadow at the top of the screen:
+ * - Darkest at the very top edge (simulates screen curve)
+ * - Smooth gradient fade to transparent
+ * - Provides contrast for TopBar UI elements
  */
 export const GradientMaskTop = memo(function GradientMaskTop({
   intensity = 1,
   className = '',
   zIndex = 15,
   light = false,
-  heightPercent = 20,
+  heightPercent = 18,
 }: GradientMaskProps) {
   const baseColor = light ? '255,255,255' : '0,0,0';
 
-  // STRONG GRADIENT: 75% at top edge
   const style: CSSProperties = {
-    position: 'fixed',
+    position: 'fixed', // Fixed to persist across scroll
     top: 0,
     left: 0,
     right: 0,
     height: `${heightPercent}%`,
-    // Strong gradient for header contrast
+    // CURVED SCREEN gradient: Strong edge, smooth curved fade
     background: `linear-gradient(
       to bottom,
-      rgba(${baseColor}, ${0.75 * intensity}) 0%,
-      rgba(${baseColor}, ${0.5 * intensity}) 15%,
-      rgba(${baseColor}, ${0.25 * intensity}) 40%,
-      rgba(${baseColor}, ${0.1 * intensity}) 65%,
+      rgba(${baseColor}, ${0.6 * intensity}) 0%,
+      rgba(${baseColor}, ${0.35 * intensity}) 30%,
+      rgba(${baseColor}, ${0.12 * intensity}) 60%,
+      rgba(${baseColor}, ${0.03 * intensity}) 80%,
       rgba(${baseColor}, 0) 90%,
       rgba(${baseColor}, 0) 100%
     )`,
+    // GPU acceleration
     transform: 'translateZ(0)',
     willChange: 'opacity',
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
+    // Click-through
     pointerEvents: 'none',
     zIndex,
+    // Safe area support
     paddingTop: 'env(safe-area-inset-top, 0px)',
   };
 
@@ -71,43 +76,47 @@ export const GradientMaskTop = memo(function GradientMaskTop({
 });
 
 /**
- * BOTTOM GRADIENT MASK - STRONG CONTRAST FOR WHITE UI
+ * BOTTOM GRADIENT MASK - CURVED SCREEN EFFECT
  *
- * Creates deep darkness at bottom for button/text contrast.
- * White elements must pop against this.
+ * Creates a subtle curved shadow at the bottom of the screen:
+ * - Darkest at the very bottom edge (simulates screen curve)
+ * - Smooth gradient fade to transparent
+ * - Provides contrast for navigation and swipe buttons
  */
 export const GradientMaskBottom = memo(function GradientMaskBottom({
   intensity = 1,
   className = '',
   zIndex = 20,
   light = false,
-  heightPercent = 45,
+  heightPercent = 35,
 }: GradientMaskProps) {
   const baseColor = light ? '255,255,255' : '0,0,0';
 
-  // STRONG GRADIENT: 85% opacity at bottom edge for white UI contrast
   const style: CSSProperties = {
-    position: 'fixed',
+    position: 'fixed', // Fixed to persist across scroll
     bottom: 0,
     left: 0,
     right: 0,
     height: `${heightPercent}%`,
-    // Strong gradient for white text/button contrast
+    // CURVED SCREEN gradient: Strong edge at bottom, smooth curved fade upward
     background: `linear-gradient(
       to top,
-      rgba(${baseColor}, ${0.85 * intensity}) 0%,
-      rgba(${baseColor}, ${0.6 * intensity}) 20%,
-      rgba(${baseColor}, ${0.35 * intensity}) 45%,
-      rgba(${baseColor}, ${0.15 * intensity}) 70%,
-      rgba(${baseColor}, ${0.05 * intensity}) 85%,
+      rgba(${baseColor}, ${0.65 * intensity}) 0%,
+      rgba(${baseColor}, ${0.4 * intensity}) 20%,
+      rgba(${baseColor}, ${0.15 * intensity}) 50%,
+      rgba(${baseColor}, ${0.04 * intensity}) 70%,
+      rgba(${baseColor}, 0) 85%,
       rgba(${baseColor}, 0) 100%
     )`,
+    // GPU acceleration
     transform: 'translateZ(0)',
     willChange: 'opacity',
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
+    // Click-through
     pointerEvents: 'none',
     zIndex,
+    // Safe area support
     paddingBottom: 'env(safe-area-inset-bottom, 0px)',
   };
 
