@@ -95,7 +95,8 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md sm:max-w-lg h-[90vh] sm:h-[80vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl border-border/50">
+      <DialogContent className="max-w-md sm:max-w-lg h-[90vh] sm:h-[80vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl border border-white/10 bg-[#1C1C1E]">
+        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-white/5">
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-background">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
