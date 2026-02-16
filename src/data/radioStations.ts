@@ -523,15 +523,6 @@ export const radioStations: RadioStation[] = [
 
   // Talk Radio & Informational - News, Culture, Variety
   {
-    id: 'talk-bbc-world',
-    name: 'BBC World Service',
-    frequency: 'Talk 1',
-    streamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',
-    city: 'podcasts',
-    genre: 'World News',
-    description: 'Global news, analysis and features from the BBC'
-  },
-  {
     id: 'talk-fip',
     name: 'FIP',
     frequency: 'Talk 2',
