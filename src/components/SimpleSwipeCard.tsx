@@ -22,7 +22,6 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
-import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
 import { useParallaxStore } from '@/state/parallaxStore';
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -396,8 +395,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         }}
       >
         <CardImage src={currentImage} alt={listing.title || 'Listing'} />
-        {/* Bottom gradient for depth */}
-        <GradientMaskBottom intensity={0.6} zIndex={2} heightPercent={40} />
+        {/* No gradient - full-bleed cards */}
       </div>
     );
   }
@@ -449,9 +447,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={listing.title || 'Listing'} />
 
-          {/* TOP GRADIENT MASK - Creates visual contrast for header UI */}
-          <GradientMaskTop intensity={1} zIndex={15} heightPercent={28} />
-
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
             <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -463,9 +458,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               ))}
             </div>
           )}
-
-          {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
-          <GradientMaskBottom intensity={0.8} zIndex={18} heightPercent={50} />
         </div>
         
         {/* YES! overlay */}
