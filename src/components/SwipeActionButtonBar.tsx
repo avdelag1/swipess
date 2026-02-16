@@ -51,7 +51,7 @@ const springConfig = {
 const ActionButton = memo(({
   onClick,
   disabled = false,
-  variant = 'default',
+  variant = 'like' as const,
   children,
   ariaLabel,
 }: {

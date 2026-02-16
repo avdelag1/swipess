@@ -95,17 +95,16 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md sm:max-w-lg h-[90vh] sm:h-[80vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl border border-white/10 bg-[#1C1C1E]">
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-white/5">
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-background">
+      <DialogContent className="max-w-md sm:max-w-lg h-[90vh] sm:h-[80vh] flex flex-col p-0 gap-0 overflow-hidden rounded-[28px] border-white/8 bg-[#0F0F11]/98 backdrop-blur-3xl">
+        <DialogHeader className="shrink-0 px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-white/6 bg-gradient-to-r from-red-500/8 via-transparent to-transparent">
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10 shrink-0">
-                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="p-2.5 rounded-2xl bg-red-500/10 shrink-0">
+                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
               </div>
               <div className="min-w-0">
-                <DialogTitle className="text-lg sm:text-xl font-bold">Notifications</DialogTitle>
-                <p className="text-xs sm:text-sm text-gray-300 truncate">
+                <DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Notifications</DialogTitle>
+                <p className="text-xs sm:text-sm text-white/40 truncate font-medium">
                   {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
                 </p>
               </div>
@@ -126,33 +125,33 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
         </DialogHeader>
 
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1 flex flex-col min-h-0">
-          <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b bg-muted/20">
-            <TabsList className="flex w-full bg-card/80 backdrop-blur-sm border border-border/40 rounded-lg p-1 h-auto gap-1">
+          <div className="shrink-0 px-4 sm:px-6 py-3 border-b border-white/5">
+            <TabsList className="flex w-full bg-white/4 backdrop-blur-sm border border-white/6 rounded-2xl p-1 h-auto gap-1">
               <TabsTrigger
                 value="all"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-xl py-2 px-2 text-[11px] sm:text-xs font-semibold transition-all"
               >
                 All
               </TabsTrigger>
               <TabsTrigger
                 value="unread"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-xl py-2 px-2 text-[11px] sm:text-xs font-semibold transition-all gap-1"
               >
                 <span>Unread</span>
                 {unreadCount > 0 && (
-                  <Badge variant="secondary" className="h-4 px-1 text-[9px] bg-background/50">{unreadCount}</Badge>
+                  <Badge variant="secondary" className="h-4 px-1 text-[9px] bg-white/10">{unreadCount}</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger
                 value="message"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-xl py-2 px-2 text-[11px] sm:text-xs font-semibold transition-all"
               >
                 <span className="hidden sm:inline">Msgs</span>
                 <MessageSquare className="w-3.5 h-3.5 sm:hidden" />
               </TabsTrigger>
               <TabsTrigger
                 value="like"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-md rounded-xl py-2 px-2 text-[11px] sm:text-xs font-semibold transition-all"
               >
                 <span className="hidden sm:inline">Flames</span>
                 <Flame className="w-3.5 h-3.5 sm:hidden" />
@@ -196,13 +195,13 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                             exit={{ opacity: 0, x: -50 }}
                             transition={{ delay: index * 0.03 }}
                           >
-                            <Card
+                    <Card
                               className={`
-                                group cursor-pointer transition-all duration-200 border overflow-hidden
-                                hover:shadow-md hover:-translate-y-0.5
+                                group cursor-pointer transition-all duration-300 border overflow-hidden rounded-2xl
+                                hover:shadow-[var(--shadow-soft-md)] hover:-translate-y-0.5
                                 ${!notification.read
-                                  ? 'bg-gradient-to-r from-primary/5 via-card to-card border-primary/20'
-                                  : 'hover:bg-accent/30 border-border/50'
+                                  ? 'bg-white/[0.04] border-white/10'
+                                  : 'bg-white/[0.02] hover:bg-white/[0.05] border-white/6'
                                 }
                               `}
                               onClick={() => {
@@ -252,12 +251,12 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                                     </Button>
                                   </div>
                                   
-                                  <p className="text-xs text-gray-300 line-clamp-2 mb-1.5">
+                                   <p className="text-xs text-white/50 line-clamp-2 mb-1.5 leading-relaxed">
                                     {notification.message}
                                   </p>
                                   
                                   <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-gray-400">
+                                     <span className="text-[10px] text-white/30 font-medium">
                                       {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
                                     </span>
                                     {!notification.read && (
@@ -282,7 +281,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
         </Tabs>
 
         {notifications.length > 0 && (
-          <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-muted/30">
+          <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-white/5 bg-white/[0.02]">
             <Button
               variant="outline"
               className="w-full gap-2 h-9 sm:h-10 text-xs sm:text-sm"

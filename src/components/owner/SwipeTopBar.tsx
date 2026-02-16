@@ -22,15 +22,15 @@ export function SwipeTopBar({ currentIndex, totalCount, onBack, onFilters }: Swi
           variant="ghost"
           size="icon"
           onClick={onBack}
-          className="w-10 h-10 text-gray-200 hover:bg-white/10 transition-colors"
+          className="w-10 h-10 text-white bg-white/15 hover:bg-white/30 hover:text-orange-200 transition-all"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
 
         {/* Counter - Increased Contrast */}
-        <div className="text-gray-300 font-semibold text-sm">
+        <div className="text-white font-bold text-sm px-3 py-1.5 rounded-lg bg-white/15">
           <span>{currentIndex + 1}</span>
-          <span className="text-gray-500"> / {totalCount}</span>
+          <span className="text-gray-200"> / {totalCount}</span>
         </div>
 
         {/* Filter Button - Increased Brightness */}
@@ -39,7 +39,7 @@ export function SwipeTopBar({ currentIndex, totalCount, onBack, onFilters }: Swi
             variant="ghost"
             size="icon"
             onClick={onFilters}
-            className="w-10 h-10 text-gray-200 hover:bg-white/10 transition-colors"
+            className="w-10 h-10 text-white bg-white/15 hover:bg-white/30 hover:text-orange-200 transition-all"
           >
             <SlidersHorizontal className="w-5 h-5" />
           </Button>
