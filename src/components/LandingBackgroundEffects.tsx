@@ -29,15 +29,18 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const initializedRef = useRef<EffectMode | null>(null);
 
   const initStars = useCallback((w: number, h: number) => {
-    const count = Math.floor((w * h) / 2500);
-    starsRef.current = Array.from({ length: Math.min(count, 200) }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.7 + 0.3,
-      twinkleSpeed: Math.random() * 0.02 + 0.005,
-      twinklePhase: Math.random() * Math.PI * 2,
-    }));
+    const count = Math.floor((w * h) / 1200);
+    starsRef.current = Array.from({ length: Math.min(count, 400) }, () => {
+      const isBlinker = Math.random() < 0.15; // 15% of stars blink
+      return {
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 1.2 + 0.3, // smaller, more realistic
+        opacity: Math.random() * 0.5 + 0.15,
+        twinkleSpeed: isBlinker ? Math.random() * 0.08 + 0.03 : Math.random() * 0.008 + 0.002,
+        twinklePhase: Math.random() * Math.PI * 2,
+      };
+    });
   }, []);
 
   const initOrbs = useCallback((w: number, h: number) => {
@@ -49,14 +52,14 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       [255, 20, 147],  // deep pink
       [50, 205, 50],   // lime green
     ];
-    orbsRef.current = Array.from({ length: 8 }, () => ({
+    orbsRef.current = Array.from({ length: 10 }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 1.2,
-      vy: (Math.random() - 0.5) * 1.2,
-      radius: Math.random() * 60 + 40,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8,
+      radius: Math.random() * 120 + 80, // much bigger orbs
       color: colors[Math.floor(Math.random() * colors.length)],
-      opacity: Math.random() * 0.25 + 0.15,
+      opacity: Math.random() * 0.3 + 0.12,
     }));
   }, []);
 
@@ -98,18 +101,15 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       time += 1;
       for (const star of starsRef.current) {
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase);
-        const alpha = star.opacity * (0.5 + 0.5 * twinkle);
+        // Fast blinkers fade to near-zero, slow ones stay subtle
+        const alpha = star.twinkleSpeed > 0.02
+          ? star.opacity * Math.max(0, twinkle) // blinkers: on/off feel
+          : star.opacity * (0.6 + 0.4 * twinkle); // steady with gentle shimmer
+        if (alpha < 0.01) continue;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
         ctx.fill();
-        // Subtle glow for larger stars
-        if (star.size > 1.2) {
-          ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.1})`;
-          ctx.fill();
-        }
       }
     };
 
