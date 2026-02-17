@@ -82,21 +82,21 @@ function LegendaryLandingPage() {
           whileTap={{ scale: 0.98 }}
           className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
         >
-          <img src={swipessLogo} alt="Swipess" className="w-[55vw] max-w-[280px] sm:max-w-[340px] md:max-w-[400px] h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto" />
+          <img src={swipessLogo} alt="Swipess" className="w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px] h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto" />
         </motion.div>
 
         {/* Tagline */}
         <motion.p
-          className="mt-5"
+          className="-mt-2 relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          <span className="text-white/90 text-base sm:text-lg md:text-xl font-medium">
+          <span className="text-white/90 text-lg sm:text-xl md:text-2xl font-medium">
             swipe or tap{' '}
           </span>
           <span
-            className="text-2xl sm:text-3xl md:text-4xl font-bold italic"
+            className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
             style={{
               background: 'linear-gradient(to right, #ff69b4, #ffa500)',
               WebkitBackgroundClip: 'text',
@@ -114,17 +114,17 @@ function LegendaryLandingPage() {
           transition={{ duration: 0.4, delay: 0.5 }}
           className="mt-6"
         >
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+              <Sparkles className="w-3.5 h-3.5 text-white/90" />
               <span className="text-white/90 text-xs font-medium">Perfect Deals</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
-              <Shield className="w-3.5 h-3.5 text-white" />
+            <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+              <Shield className="w-3.5 h-3.5 text-white/90" />
               <span className="text-white/90 text-xs font-medium">Secure Chat</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
-              <Users className="w-3.5 h-3.5 text-white" />
+            <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
+              <Users className="w-3.5 h-3.5 text-white/90" />
               <span className="text-white/90 text-xs font-medium">Instant Connect</span>
             </div>
           </div>
