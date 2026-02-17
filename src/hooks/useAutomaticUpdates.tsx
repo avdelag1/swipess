@@ -280,24 +280,51 @@ function checkHtmlVersionMismatch(): boolean {
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
-    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+    // GUARD 1: Session-level cooldown — only trigger one reload per session
+    const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
+    if (alreadyReloaded) return;
 
+    // GUARD 2: Minimum time on page — don't reload within the first 30s of a fresh load
+    // This prevents the infinite reload loop on initial page visits
+    const pageLoadTime = performance.now();
+    if (pageLoadTime < 30000) {
+      // Only silently mark the version as installed on fresh load
+      // and skip the forced update — user just arrived
+      const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+      if (!storedVersion) {
+        markVersionAsInstalled();
+      }
+
+      // Schedule a deferred check after the user has been on the page for 30s
+      const timer = setTimeout(() => {
+        const stillMismatch = checkHtmlVersionMismatch();
+        const versionChanged = localStorage.getItem(VERSION_STORAGE_KEY) !== BUILD_TIMESTAMP;
+        if (stillMismatch || versionChanged) {
+          sessionStorage.setItem('swipes_reload_triggered', '1');
+          forceAppUpdate();
+        } else {
+          markVersionAsInstalled();
+        }
+      }, 30000);
+
+      return () => clearTimeout(timer);
+    }
+
+    // If already been on page 30s+ (e.g. focus regain), do the normal check
+    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
-      // Version changed - force update
+      sessionStorage.setItem('swipes_reload_triggered', '1');
       forceAppUpdate();
       return;
     }
 
-    // Even if stored version matches BUILD_TIMESTAMP, the JS itself may be stale.
-    // The HTML <meta app-version> is always fresh (no-cache headers).
-    // If the HTML version differs from the running JS version, we need to reload.
     if (checkHtmlVersionMismatch()) {
       console.log('[AutoUpdate] HTML version differs from JS — stale JS detected, forcing update');
+      sessionStorage.setItem('swipes_reload_triggered', '1');
       forceAppUpdate();
       return;
     }
 
-    // Mark current version as installed
     markVersionAsInstalled();
   }, []);
 }
