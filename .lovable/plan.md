@@ -1,118 +1,68 @@
 
 
-## AI Orchestrator System -- Unified Multi-Task Intelligence
+# Fix Sign-In Errors, Add Flame Like Button, Enhance Button Feel, and Fix White Background Contrast
 
-### What We're Building
+## Problem Summary
 
-A single `ai-orchestrator` edge function that replaces the current `ai-assistant` and `ai-conversation` functions, handling all AI tasks through one entry point with provider fallback support.
+1. **Error notification on sign-in**: The console shows `column profiles.average_rating does not exist` -- the `useUserRatingAggregate` hook queries `profiles.average_rating` and `profiles.total_reviews`, but these columns don't exist in the `profiles` table. This fires every time a dashboard loads and shows error toasts.
 
-### Current State
+2. **Like button needs a flame icon**: The `SwipeActionButtonBar` currently uses a green Heart for the like button. User wants an orange-red flame instead, on both client and owner sides.
 
-- `ai-assistant` handles: listing generation, profile enhancement, search
-- `ai-conversation` handles: conversational listing builder
-- Both use Lovable AI Gateway with `google/gemini-3-flash-preview`
-- Frontend hooks: `useAIGeneration` and `useConversationalAI`
-- MiniMax API key is stored but has no balance (fallback only)
+3. **Buttons should feel more "real"**: The current action buttons are transparent with no background frame. Adding subtle glass-pill backgrounds with depth (shadow, border, backdrop-blur) will make them feel tactile and premium.
 
-### Architecture
+4. **White background contrast**: Several pages (contracts, radio, discover clients) use white/light backgrounds with dark text that doesn't contrast well. Fonts need to match the background they sit on.
 
-```text
-[ Frontend ]
-     |
-     |-- useAIGeneration() -----> listing, profile, search, enhance
-     |-- useConversationalAI() -> conversation (listing builder)
-     |
-     v
-[ supabase.functions.invoke("ai-orchestrator") ]
-     |
-     |  task routing + provider selection
-     |
-     |---> Lovable AI Gateway (default, free)
-     |---> MiniMax (fallback, if key has balance)
-     |
-     v
-[ Normalized JSON Response ]
-     |
-     v
-[ Form Autofill / Search Filters / Enhanced Text ]
-```
+---
 
-### Tasks Supported
+## Technical Plan
 
-1. **listing** -- Generate structured listing data from description + category
-2. **profile** -- Enhance user bio and interests
-3. **search** -- Convert natural language query to structured filters (semantic search)
-4. **enhance** -- Improve existing listing/profile text
-5. **conversation** -- Multi-turn conversational listing builder with memory
+### 1. Fix the `average_rating` Error
 
-### Changes
+**File: `src/hooks/useReviews.tsx`** (lines ~280-330)
 
-#### 1. New Edge Function: `supabase/functions/ai-orchestrator/index.ts`
+The `useUserRatingAggregate` function queries `profiles.average_rating` and `profiles.total_reviews` -- columns that don't exist. Instead of adding columns, rewrite this function to compute the aggregate from the `reviews` table directly (same approach as `useListingRatingAggregate`). This eliminates the error without requiring a database migration.
 
-Single file that:
-- Accepts `{ task, data, context, messages }` payload
-- Routes to the correct prompt builder based on `task`
-- Calls Lovable AI Gateway (primary) with fallback to MiniMax if Lovable fails
-- Parses AI response into structured JSON
-- Handles rate limit errors (429) and payment errors (402) with clear messages
-- Returns normalized `{ result, provider_used }` response
+- Query `reviews` table where `reviewed_id = userId`
+- Compute average rating and count client-side
+- Return the same `ReviewAggregate` shape
 
-Provider logic is inline (no subfolders -- edge functions require single file). The orchestrator tries Lovable AI first; if it returns 429/500, it attempts MiniMax as fallback (if the key exists and has balance).
+### 2. Add Flame Icon on Like Button
 
-#### 2. Update `supabase/config.toml`
+**File: `src/components/SwipeActionButtonBar.tsx`**
 
-Register `ai-orchestrator` with `verify_jwt = false`. Keep old functions registered for backward compatibility during transition.
+- Import `Flame` from `lucide-react` (already available in the project)
+- Replace `Heart` with `Flame` on the like button (line ~298)
+- Change the like variant color from green (`#22c55e`) to an orange-red gradient feel (`#ff6b35` or `#ef4444` blended with orange)
+- Update the variant config for `like` to use orange-red tones: icon `#ff6b35`, glow `rgba(255, 107, 53, 0.4)`, border `rgba(255, 107, 53, 0.35)`
 
-#### 3. Update Frontend Hooks
+### 3. Make Buttons Feel More Real (Tactile Premium)
 
-**`src/hooks/ai/useAIGeneration.ts`**
-- Change invoke target from `ai-assistant` to `ai-orchestrator`
-- Add `enhance` task type support
-- Surface rate limit / payment errors as toast messages
+**File: `src/components/SwipeActionButtonBar.tsx`**
 
-**`src/hooks/ai/useConversationalAI.ts`**
-- Change invoke target from `ai-conversation` to `ai-orchestrator`
-- Send `task: "conversation"` with messages array
+Currently buttons have `backgroundColor: 'transparent'` and `border: 'none'`. Update:
 
-**`src/components/AIListingAssistant.tsx`**
-- Update the direct `supabase.functions.invoke('ai-assistant')` call to use `ai-orchestrator`
+- Add a subtle glass-pill background: `rgba(255,255,255,0.06)` with `backdrop-blur(8px)`
+- Add a thin border: `1px solid rgba(255,255,255,0.12)`
+- Add a soft inset top glow via `box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)`
+- Round to full circle (`border-radius: 50%`)
+- On press, compress the shadow and darken slightly for a "pushed in" feel
 
-#### 4. Add AI Enhance Capability
+### 4. Fix White Background Font Contrast
 
-New export in `useAIGeneration`:
-- `enhance(text, tone)` method that sends `task: "enhance"` to the orchestrator
-- Returns improved text that user must confirm before applying
+**Files affected:**
+- `src/pages/OwnerContracts.tsx` and `src/pages/ClientContracts.tsx` -- status badges use `bg-gray-100 text-gray-800` etc. These are fine on white, but ensure parent containers have proper dark theme support
+- `src/pages/RadioPlayer.tsx` -- white circles with black text are intentional design (vinyl/tape aesthetic), leave as-is
+- `src/pages/OwnerDiscoverClients.tsx` -- `bg-white text-black` button, ensure it has sufficient contrast
+- `src/components/ui/button.tsx` -- the `tinder` variant uses `bg-white/90 text-card-foreground`, verify `card-foreground` resolves to a dark color
 
-#### 5. AI Semantic Search
+Primary fix: Scan for any `bg-white` or light background containers where text uses `text-white` or low-opacity white (invisible on white). Add explicit dark text colors (`text-gray-900`, `text-gray-700`) where backgrounds are white/light.
 
-The existing `search` task already converts natural language to structured filters. The orchestrator will improve the prompt to also detect language and return richer intent data:
-```text
-Input:  "clean lady near me under 1000"
-Output: { category: "worker", filters: { keywords: ["cleaning"], max_price: 1000 }, language: "en", suggestion: "..." }
-```
+---
 
-No new database queries needed -- the AI only structures intent, and the existing frontend filter logic applies the result.
+## Implementation Order
 
-### Files to Create/Modify
-
-1. **Create** `supabase/functions/ai-orchestrator/index.ts` -- unified orchestrator with all task routing and provider fallback
-2. **Modify** `supabase/config.toml` -- add orchestrator function registration
-3. **Modify** `src/hooks/ai/useAIGeneration.ts` -- point to orchestrator, add enhance task
-4. **Modify** `src/hooks/ai/useConversationalAI.ts` -- point to orchestrator
-5. **Modify** `src/components/AIListingAssistant.tsx` -- point to orchestrator
-
-### Provider Fallback Logic
-
-```text
-1. Try Lovable AI Gateway (free, fast)
-2. If 429/500 -> Try MiniMax (if MINIMAX_API_KEY exists)
-3. If both fail -> Return error with clear message
-```
-
-### What Stays the Same
-
-- All existing frontend UI components remain unchanged
-- The swipe mechanics, filters, and database schema are untouched
-- The conversational listing builder flow stays identical
-- All existing AI capabilities (listing, profile, search) work exactly as before, just routed through the new orchestrator
+1. Fix `useUserRatingAggregate` to query `reviews` table (eliminates error toasts)
+2. Replace Heart with Flame icon + orange-red color on like button
+3. Add glass-pill depth to all swipe action buttons
+4. Audit and fix white-background text contrast across affected pages
 

@@ -1,82 +1,61 @@
 import { memo, useState, useRef } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
-import { Shield, Sparkles, Users } from 'lucide-react';
+import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from 'framer-motion';
+import { Shield, Sparkles, Users, Star, Circle, X } from 'lucide-react';
 import { AuthDialog } from './AuthDialog';
-import { SwipessLogoWithOrb } from './SwipessLogoWithOrb';
-import StarFieldBackground from './StarFieldBackground';
+import LandingBackgroundEffects from './LandingBackgroundEffects';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 const SWIPE_THRESHOLD = 120;
 
+type EffectMode = 'off' | 'stars' | 'orbs';
+
 function LegendaryLandingPage() {
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [effectMode, setEffectMode] = useState<EffectMode>('off');
   const isDragging = useRef(false);
 
-  // Motion values for swipe - straight horizontal movement
   const x = useMotionValue(0);
-  
-  // Fade out as it moves right (like being banished into light)
   const logoOpacity = useTransform(x, [0, 80, 200], [1, 0.6, 0]);
-  
-  // Scale down slightly as it fades
   const logoScale = useTransform(x, [0, 100, 200], [1, 0.95, 0.85]);
-  
-  // Blur effect increases as it moves right (like dissolving)
   const logoBlur = useTransform(x, [0, 80, 200], [0, 4, 12]);
+  const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
   const openAuthDialog = () => setAuthDialogOpen(true);
   const closeAuthDialog = () => setAuthDialogOpen(false);
 
-  const handleDragStart = () => {
-    isDragging.current = true;
-  };
+  const handleDragStart = () => { isDragging.current = true; };
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const offset = info.offset.x;
-    
-    // If swiped right past threshold, open auth dialog
-    if (offset > SWIPE_THRESHOLD) {
-      openAuthDialog();
-    }
-    
-    // Reset position smoothly
+    if (info.offset.x > SWIPE_THRESHOLD) openAuthDialog();
     x.set(0);
-    
-    // Reset dragging state after a short delay
-    setTimeout(() => {
-      isDragging.current = false;
-    }, 100);
+    setTimeout(() => { isDragging.current = false; }, 100);
   };
 
   const handleTap = () => {
-    // Only open if not dragging
-    if (!isDragging.current) {
-      openAuthDialog();
-    }
+    if (!isDragging.current) openAuthDialog();
   };
+
+  const cycleEffect = () => {
+    setEffectMode((prev) => {
+      if (prev === 'off') return 'stars';
+      if (prev === 'stars') return 'orbs';
+      return 'off';
+    });
+  };
+
+  const effectLabel = effectMode === 'off' ? 'FX' : effectMode === 'stars' ? '✦' : '◉';
 
   return (
     <div
-      className="min-h-screen min-h-dvh flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden safe-area-p"
+      className="h-screen h-dvh flex items-center justify-center relative overflow-hidden"
+      style={{ background: '#050505' }}
     >
-      {/* Live Star Timelapse Background */}
-      <StarFieldBackground />
+      {/* Live background effects */}
+      <LandingBackgroundEffects mode={effectMode} />
 
-      {/* Fade out gradient from TOP - vanishing effect */}
-      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none" />
-
-      {/* Fade out gradient from BOTTOM - vanishing effect */}
-      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none" />
-
-      {/* Main Content */}
-      <div className="relative z-20 text-center max-w-4xl w-full px-4 min-h-[400px] flex flex-col items-center justify-center">
-        {/* Background slogan - BEHIND the logo (visible in background) */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white/10 whitespace-nowrap tracking-tight truncate select-none">
-            swipes or tap to connect
-          </h1>
-        </div>
-
-        {/* Swipable Swipess Logo - On TOP of background slogan */}
+      {/* Centered Content */}
+      <div className="relative z-20 flex flex-col items-center justify-center text-center w-full px-4">
+        {/* Swipable Logo - MASSIVE */}
         <motion.div
           data-swipe-logo
           drag="x"
@@ -86,53 +65,75 @@ function LegendaryLandingPage() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
           onClick={handleTap}
-          style={{
-            x,
-            opacity: logoOpacity,
-            scale: logoScale,
-            filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
-          }}
-          whileTap={{ scale: 0.95 }}
-          className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent z-10 relative"
+          style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
+          whileTap={{ scale: 0.98 }}
+          className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
         >
-          <SwipessLogoWithOrb size="4xl" className="drop-shadow-2xl" orbActive={true} />
+          <img
+            src={swipessLogo}
+            alt="Swipess"
+            className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+          />
         </motion.div>
 
-        {/* Main slogan below logo */}
+        {/* Tagline - tight under logo */}
         <motion.p
-          className="text-white/80 text-xl sm:text-2xl md:text-3xl font-medium text-center px-4 mt-6 z-10 relative"
+          className="-mt-4 relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
-          swipes or tap to connect
+          <span className="text-white/90 text-lg sm:text-xl md:text-2xl font-medium">
+            swipe or tap{' '}
+          </span>
+          <span
+            className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+            style={{
+              background: 'linear-gradient(to right, #ff69b4, #ffa500)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
+            to connect
+          </span>
         </motion.p>
 
-        {/* Bottom Info Section */}
+        {/* Info chips */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.5 }}
-          className="pt-4 space-y-2"
+          className="mt-3"
         >
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
-              <span className="text-white/90 text-xs font-medium">Perfect Deals</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
-              <Shield className="w-3.5 h-3.5 text-white" />
-              <span className="text-white/90 text-xs font-medium">Secure Chat</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
-              <Users className="w-3.5 h-3.5 text-white" />
-              <span className="text-white/90 text-xs font-medium">Instant Connect</span>
-            </div>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {[
+              { icon: Sparkles, label: 'Perfect Deals' },
+              { icon: Shield, label: 'Secure Chat' },
+              { icon: Users, label: 'Instant Connect' },
+            ].map(({ icon: Icon, label }) => (
+              <div
+                key={label}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              >
+                <Icon className="w-3.5 h-3.5 text-white/90" />
+                <span className="text-white/90 text-xs font-medium">{label}</span>
+              </div>
+            ))}
           </div>
         </motion.div>
       </div>
 
-      {/* Auth Dialog - defaults to client role, user can switch roles after login */}
+      {/* Effects toggle - bottom left */}
+      <motion.button
+        onClick={cycleEffect}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        aria-label="Toggle background effect"
+      >
+        {effectLabel}
+      </motion.button>
+
       <AuthDialog isOpen={authDialogOpen} onClose={closeAuthDialog} role="client" />
     </div>
   );

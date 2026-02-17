@@ -62,8 +62,6 @@ export function ImageUpload({
         .getPublicUrl(data.path);
 
       return publicUrl;
-
-      return publicUrl;
     } catch (error: unknown) {
       const err = error as Error;
       logger.error('Image upload error:', err);

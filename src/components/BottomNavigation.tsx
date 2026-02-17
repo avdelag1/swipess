@@ -170,7 +170,6 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
-                'bg-white/10 hover:bg-white/25',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent'
               )}
