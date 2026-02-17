@@ -56,68 +56,63 @@ function LegendaryLandingPage() {
 
   return (
     <div
-      className="min-h-screen min-h-dvh flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 relative overflow-hidden safe-area-p"
+      className="min-h-screen min-h-dvh flex items-center justify-center relative overflow-hidden"
+      style={{ background: '#0a0a0a' }}
     >
-      {/* Live Star Timelapse Background */}
       <StarFieldBackground />
 
-      {/* Clean background - no S watermarks */}
+      {/* Centered Content */}
+      <div className="relative z-20 flex flex-col items-center justify-center text-center w-full px-6">
+        {/* Swipable Logo */}
+        <motion.div
+          data-swipe-logo
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.9}
+          dragMomentum={false}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onClick={handleTap}
+          style={{
+            x,
+            opacity: logoOpacity,
+            scale: logoScale,
+            filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
+          }}
+          whileTap={{ scale: 0.98 }}
+          className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
+        >
+          <img src={swipessLogo} alt="Swipess" className="w-[240px] sm:w-[320px] md:w-[400px] max-h-[25vh] object-contain h-auto drop-shadow-2xl mx-auto" />
+        </motion.div>
 
-      {/* Main Content */}
-      <div className="relative z-20 text-center space-y-4 sm:space-y-6 max-w-2xl w-full px-2 sm:px-4">
-        {/* Swipable Swipess Logo - Only the logo moves */}
-        <div className="space-y-3 text-center">
-          <motion.div
-            data-swipe-logo
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.9}
-            dragMomentum={false}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onClick={handleTap}
+        {/* Tagline */}
+        <motion.p
+          className="mt-5"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          <span className="text-white/90 text-base sm:text-lg md:text-xl font-medium">
+            swipe or tap{' '}
+          </span>
+          <span
+            className="text-2xl sm:text-3xl md:text-4xl font-bold italic"
             style={{
-              x,
-              opacity: logoOpacity,
-              scale: logoScale,
-              filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
+              background: 'linear-gradient(to right, #ff69b4, #ffa500)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
             }}
-            whileTap={{ scale: 0.98 }}
-            className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent"
           >
-            <img src={swipessLogo} alt="Swipess" className="w-[200px] sm:w-[280px] md:w-[360px] max-h-[30vh] object-contain h-auto drop-shadow-2xl" />
-          </motion.div>
+            to connect
+          </span>
+        </motion.p>
 
-          {/* Main slogan */}
-          <motion.p
-            className="text-center px-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            <span className="text-white/90 text-base sm:text-lg md:text-xl font-medium">
-              swipe or tap{' '}
-            </span>
-            <span
-              className="text-2xl sm:text-3xl md:text-4xl font-bold italic"
-              style={{
-                background: 'linear-gradient(to right, #ff69b4, #ffa500)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(255,105,180,0.3)',
-              }}
-            >
-              to connect
-            </span>
-          </motion.p>
-        </div>
-
-        {/* Bottom Info Section */}
+        {/* Info chips */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.5 }}
-          className="pt-4 space-y-2"
+          className="mt-6"
         >
           <div className="flex flex-wrap items-center justify-center gap-1.5">
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
