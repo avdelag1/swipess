@@ -127,7 +127,6 @@ const LandingView = memo(({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <span className="text-white/90 text-lg sm:text-xl md:text-2xl font-medium">swipe or tap </span>
         <span
           className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
           style={{
@@ -136,7 +135,7 @@ const LandingView = memo(({
             WebkitTextFillColor: 'transparent',
           }}
         >
-          to connect
+          swipe or tap to connect
         </span>
       </motion.p>
 
