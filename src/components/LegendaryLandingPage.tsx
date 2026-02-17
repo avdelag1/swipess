@@ -88,23 +88,26 @@ function LegendaryLandingPage() {
             <img src={swipessLogo} alt="Swipess" className="w-[280px] sm:w-[360px] md:w-[440px] h-auto drop-shadow-2xl" />
           </motion.div>
 
+          {/* Background slogan - behind the logo */}
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center -z-10 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.15 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white/20 whitespace-nowrap tracking-tight">
+              swipes or tap to connect
+            </h1>
+          </motion.div>
+
+          {/* Main slogan */}
           <motion.p
-            className="text-white text-lg sm:text-xl md:text-2xl font-medium text-center px-2"
+            className="text-white/80 text-lg sm:text-xl md:text-2xl font-medium text-center px-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            Swipe and find your perfect deal
-          </motion.p>
-
-          {/* Swipe hint */}
-          <motion.p
-            className="text-white/60 text-sm font-medium"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            Swipe or tap Swipess to login or signup
+            swipes or tap to connect
           </motion.p>
         </div>
 
