@@ -98,6 +98,18 @@ With Swipess, you can discover properties, vehicles, and services.">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <link rel="icon" type="image/jpeg" sizes="32x32" href="/icons/s-icon.jpg">
 
+    <!-- Anti-clickjacking: Prevent site from being loaded inside iframes -->
+    <script>
+      (function() {
+        if (window.self !== window.top) {
+          // This app is being framed by another site - block rendering
+          document.documentElement.innerHTML = '';
+          document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;text-align:center;padding:2rem}.msg{max-width:480px}.msg h1{font-size:1.5rem;margin-bottom:1rem;color:#f97316}.msg p{color:#9ca3af;line-height:1.6;margin-bottom:1.5rem}.msg a{color:#f97316;text-decoration:underline}</style></head><body><div class="msg"><h1>This app cannot be displayed here</h1><p>Swipess has been loaded inside an unauthorized frame. This is blocked for your security.</p><p><a href="' + window.self.location.href + '" target="_top">Open Swipess directly</a></p></div></body></html>');
+          document.close();
+        }
+      })();
+    </script>
+
     <!-- Reduced Motion: apply class when user prefers reduced motion -->
     <script>
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
