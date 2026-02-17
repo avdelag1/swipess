@@ -22,6 +22,7 @@ function LegendaryLandingPage() {
   
   // Blur effect increases as it moves right (like dissolving)
   const logoBlur = useTransform(x, [0, 80, 200], [0, 4, 12]);
+  const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
   const openAuthDialog = () => setAuthDialogOpen(true);
   const closeAuthDialog = () => setAuthDialogOpen(false);
@@ -56,7 +57,7 @@ function LegendaryLandingPage() {
 
   return (
     <div
-      className="min-h-screen min-h-dvh flex items-center justify-center relative overflow-hidden"
+      className="h-screen h-dvh flex items-center justify-center relative overflow-hidden"
       style={{ background: '#0a0a0a' }}
     >
       <StarFieldBackground />
@@ -77,7 +78,7 @@ function LegendaryLandingPage() {
             x,
             opacity: logoOpacity,
             scale: logoScale,
-            filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
+            filter: logoFilter
           }}
           whileTap={{ scale: 0.98 }}
           className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
