@@ -121,23 +121,33 @@ const LandingView = memo(({
       </motion.div>
 
       {/* Tagline */}
-      <motion.p
-        className="-mt-4 relative z-10"
+      <motion.div
+        className="-mt-6 relative z-10 flex flex-col items-center gap-0.5"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <span
-          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+          className="text-xl sm:text-2xl md:text-3xl font-semibold italic tracking-wide"
+          style={{
+            background: 'linear-gradient(to right, #ff69b4cc, #ffa500cc)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          swipe or
+        </span>
+        <span
+          className="text-2xl sm:text-3xl md:text-4xl font-bold italic tracking-tight"
           style={{
             background: 'linear-gradient(to right, #ff69b4, #ffa500)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}
         >
-          swipe or tap to connect
+          tap to connect
         </span>
-      </motion.p>
+      </motion.div>
 
       {/* Info chips */}
       <motion.div
