@@ -1,130 +1,130 @@
 
-## Fix All Loading Screen Issues
+## Fix: Cinematic Swipe-to-Open Auth Flow
 
-### What the User is Seeing
+### Root Cause of the Freeze/Snap-Back
 
-Two separate ugly loading states appear every time the app opens:
+The current implementation has **two bugs** that cause the jarring freeze and snap-back:
 
-1. **The Flame Loader** — An animated flame CSS animation in `index.html` that flickers briefly before React mounts.
-2. **The Gray Spinner Screen** — A dark gray gradient background with an orange spinning circle, shown in `src/pages/Index.tsx` during auth initialization and role loading. This is the "another main page" described by the user.
+1. **`x.set(0)` fires immediately in `handleDragEnd`** — before the auth dialog opens. This causes the logo to visibly snap back to center right before the dialog appears, creating the "freeze / comes back" effect the user sees.
 
-Additionally, the console logs reveal a **reload loop** triggered by `useAutomaticUpdates` detecting a "stale JS" version mismatch, which calls `forceAppUpdate()` → reload → flame loader → gray spinner → repeat.
+2. **AuthDialog is a Radix `Dialog` overlay** — it appears on top of the landing page. The landing page (with the logo) stays mounted underneath. So the swipe completes, the logo snaps to center, then the dialog fades in on top — which looks broken.
+
+3. **`dragMomentum={false}`** kills all natural feel. The card just stops dead, with no throw energy.
 
 ---
 
-### Root Cause Map
+### The Vision: What It Should Look Like
 
 ```text
-User visits site
-     │
-     ▼
-index.html renders → Shows FLAME LOADER (#initial-loader div)
-     │
-     ▼
-React mounts → main.tsx removes #initial-loader (fades it out)
-     │
-     ▼
-Index.tsx renders → auth.loading=true → Shows GRAY SPINNER SCREEN
-     │
-     ▼
-useForceUpdateOnVersionChange() runs → detects HTML vs JS version mismatch
-     │
-     ▼
-forceAppUpdate() called → reloads page → LOOP (flame → gray → reload)
+User swipes right →
+  Logo accelerates to the right, fading and shrinking →
+  The ENTIRE landing page vanishes (like turning a page) →
+  Auth screen slides in from the right seamlessly →
+  If user taps "Back", auth slides out and landing page returns
+```
+
+This is a **full-page transition**, NOT a dialog overlay on top of the landing page.
+
+---
+
+### Solution: Replace AuthDialog popup with a full-page auth panel
+
+**The entire LegendaryLandingPage will be rebuilt** to handle two states:
+- `landing` — the swipeable logo screen
+- `auth` — the full auth form
+
+Both states live in the same component. The transition between them is an **AnimatePresence** page-swap animation.
+
+**No more Radix Dialog. No more overlay. Pure framer-motion page transition.**
+
+---
+
+### Implementation Plan
+
+**File: `src/components/LegendaryLandingPage.tsx`**
+
+Replace the entire component with a two-state design:
+
+**State 1: Landing** — the logo page (current)  
+**State 2: Auth** — the full auth form rendered inline (not in a Dialog)
+
+The swipe mechanic:
+- `dragMomentum={true}` — re-enable natural throw physics
+- On drag end with `offset.x > 80` OR `velocity.x > 400` → trigger transition
+- **Do NOT snap back** — instead animate the logo **off-screen to the right** using `x.set(window.innerWidth)` then trigger state change
+- `AnimatePresence mode="wait"` controls the page swap: landing exits right → auth enters from right
+
+The auth form (extracted from `AuthDialog.tsx`):
+- Same form fields, Google OAuth button, everything
+- Rendered as a full-screen dark panel
+- "Back" button triggers reverse transition: auth exits right → landing re-enters from left
+
+**Transition choreography:**
+
+```
+Landing exit:
+  - Logo: x → +150vw, opacity → 0, blur → 20px (200ms)
+  - Tagline + chips: opacity → 0, y → -20 (150ms, staggered)
+  
+Auth enter:
+  - Full panel: x from +30px → 0, opacity 0 → 1, blur 8px → 0 (300ms ease-out)
+  - Form elements stagger in from bottom (0.04s each)
+  
+Auth exit (back):
+  - Panel: x → +30px, opacity → 0 (200ms)
+  
+Landing re-enter:
+  - Logo: x from -50px → 0, opacity → 1 (300ms spring)
 ```
 
 ---
 
-### Fix Plan (5 changes)
+### Files to Edit
+
+**1. `src/components/LegendaryLandingPage.tsx`** — Full rewrite of the component:
+- Add `view: 'landing' | 'auth'` state
+- Inline the auth form content (same logic from AuthDialog) 
+- Remove `<AuthDialog>` import
+- Proper AnimatePresence page swap
+- Fix swipe: no snap-back, velocity-aware trigger, momentum enabled
+- Swipe hint arrow under the logo (subtle, animated left→right bounce)
+
+**2. `src/components/AuthDialog.tsx`** — No changes needed (it's still used elsewhere in the app — e.g. from owner flow). We just won't use it on the landing page anymore.
 
 ---
 
-**Fix 1: Replace the flame loader with a clean, minimal logo-based splash**
-**File:** `index.html`
+### Swipe Physics Fix
 
-Replace the flickering flame CSS animation in `#initial-loader` with:
-- Black `#050505` background (matching app background)
-- The Swipess logo image (`/icons/s-logo-app.png`) centered
-- A clean, ultra-subtle fade-in animation
-- No more flickering flame shapes or "Loading..." text
-
-The CSS will be replaced from:
-```css
-.flame-container, .flame, @keyframes flame-flicker → removed
-```
-To:
-```css
-Simple logo fade-in, no animation complexity
-```
-
----
-
-**Fix 2: Replace all gray spinner screens in Index.tsx with invisible transparent fallback**
-**File:** `src/pages/Index.tsx`
-
-There are **4 places** in Index.tsx that show `bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950` with an orange spinner:
-- Line 166 (auth not initialized)
-- Line 178 (role timeout error)
-- Line 197 (role loading)
-- Line 217 (redirecting)
-
-All 4 will be replaced with a completely **transparent div** that shows nothing (`bg-transparent`), so the app background (dark `#050505` from body CSS) shows through cleanly instead of the jarring gray gradient. The spinner will be removed entirely — the `ProtectedRoute` already shows a proper skeleton for authenticated users.
-
----
-
-**Fix 3: Stop the reload loop from `useAutomaticUpdates`**
-**File:** `src/hooks/useAutomaticUpdates.tsx`
-
-The `useForceUpdateOnVersionChange` hook calls `forceAppUpdate()` which immediately reloads the page when it detects a version mismatch. This is too aggressive and causes the reload loop seen in the console every 2-3 seconds.
-
-Fix: Add a **minimum time guard** — only trigger a forced reload if the user has been on the app for more than 30 seconds (not on fresh load). This prevents the loop where every fresh page load triggers a reload.
-
-Also add a **session-level cooldown** using `sessionStorage` — if a reload was already triggered this session, don't trigger another one.
-
----
-
-**Fix 4: Remove the `VisualEngine` background from interfering with the loading state**
-**File:** `src/visual/VisualEngine.tsx`
-
-The `VisualEngine` renders a `from-slate-900 via-slate-950 to-black` gradient as the fixed background layer with `-z-10`. This is a secondary "loading page look" during the Suspense lazy-load phase. This is fine when the app is loaded, but during loading it can look like a separate design. No change needed here — this is actually the correct behavior and looks good once the flame/spinner are fixed.
-
----
-
-**Fix 5: Make the `#initial-loader` removal synchronous (not delayed)**
-**File:** `src/main.tsx`
-
-The current code removes the `#initial-loader` with a 150ms fade and `setTimeout`. This means the flame loader stays visible for 150ms after React mounts. Change to immediate removal (no fade, no delay) since the app background matches perfectly.
-
----
-
-### Summary of Changes
-
-| File | What Changes |
-|---|---|
-| `index.html` | Replace flame animation with a clean centered logo + simple dot loader |
-| `src/pages/Index.tsx` | Replace all 4 gray spinner instances with `bg-transparent` (no spinner) |
-| `src/hooks/useAutomaticUpdates.tsx` | Add session cooldown to prevent reload loop |
-| `src/main.tsx` | Remove 150ms delay from loader removal (instant) |
-
----
-
-### Visual Result After Fix
-
-```text
-User visits site
-     │
-     ▼
-index.html → Shows dark background + Swipess logo (clean, instant)
-     │
-     ▼  (~100ms)
-React mounts → logo instantly disappears, app takes over seamlessly
-     │
-     ▼
-Auth checks silently in background → transparent screen
-     │
-     ▼
-If logged in → redirect to dashboard (ProtectedRoute shows card skeleton)
-If not logged in → LegendaryLandingPage appears
+Current (broken):
+```ts
+dragMomentum={false}         // kills natural feel
+dragElastic={0.9}            // too elastic, causes snap-back perception
+x.set(0)                     // fires immediately → visible snap
 ```
 
-No more flame. No more gray gradient. No more reload loop.
+Fixed:
+```ts
+dragMomentum={true}          // natural throw feel
+dragElastic={0.15}           // tighter, less bounce
+// on drag end, if threshold met:
+//   animate x to +200vw THEN show auth view
+//   never call x.set(0) until landing view is already hidden
+```
+
+Trigger condition:
+```ts
+info.offset.x > 80 || info.velocity.x > 400
+```
+
+---
+
+### Visual Result
+
+The user will experience:
+
+1. **Swipe right** → logo flies off-screen to the right with blur trail
+2. **Auth panel** slides in smoothly from slight right offset, all form elements cascade in
+3. **Tap "Back"** → auth fades out, logo swoops back in from left
+4. **Tap the logo** → same instant transition (no swipe needed)
+
+Cinematic. Zero freeze. Zero snap-back. Premium flagship feel.
