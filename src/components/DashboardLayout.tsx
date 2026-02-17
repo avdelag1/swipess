@@ -557,11 +557,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum"
         style={{
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
-            ? 'var(--safe-top)'
+            ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute) ? 'var(--safe-bottom)' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          paddingLeft: 'max(var(--safe-left), 0px)',
-          paddingRight: 'max(var(--safe-right), 0px)',
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
+          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
