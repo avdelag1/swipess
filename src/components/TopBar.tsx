@@ -90,7 +90,7 @@ function TopBarComponent({
         .select('*')
         .eq('package_category', packageCategory)
         .eq('is_active', true)
-        .order('tokens', { ascending: true });
+        .order('message_activations', { ascending: true });
       if (error) throw error;
       return data;
     },
@@ -101,7 +101,7 @@ function TopBarComponent({
   const handleQuickPurchase = (pkg: any, tier: string) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
-      tokens: pkg.tokens,
+      tokens: pkg.message_activations,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
@@ -235,7 +235,8 @@ function TopBarComponent({
                       const config = tierConfig[tier];
                       const Icon = config.icon;
                       const isPopular = tier === 'standard';
-                      const pricePerToken = pkg.tokens > 0 ? pkg.price / pkg.tokens : 0;
+                      const tokens = pkg.message_activations || 0;
+                      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
 
                       return (
                         <motion.div
@@ -265,7 +266,7 @@ function TopBarComponent({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-1.5">
                                 <span className="font-bold text-white text-sm capitalize">{tier}</span>
-                                <span className="text-white/60 text-xs">{pkg.tokens} tokens</span>
+                                <span className="text-white/60 text-xs">{tokens} tokens</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
                                 <span className="font-bold text-white text-base">{formatPriceMXN(pkg.price)}</span>
