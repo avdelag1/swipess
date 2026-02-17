@@ -1,0 +1,73 @@
+<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Black background -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#000000"/>
+    </linearGradient>
+    <!-- Pink → orange gradient matching the uploaded icon -->
+    <linearGradient id="sGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%"   stop-color="#E91E8C"/>
+      <stop offset="40%"  stop-color="#F05A28"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+    <linearGradient id="sGradFlame" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%"   stop-color="#FF3CAC"/>
+      <stop offset="35%"  stop-color="#F05A28"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded black background -->
+  <rect width="1024" height="1024" rx="200" fill="url(#bgGrad)"/>
+
+  <!-- Bold Fire-S with pink-to-orange gradient -->
+  <path
+    d="M608 175
+       C586 158 550 142 518 136
+       C486 130 458 128 436 128
+       Q338 128 274 180
+       Q210 232 210 316
+       Q210 388 252 440
+       Q294 492 382 534
+       L510 588
+       Q604 626 652 682
+       Q700 738 700 812
+       Q700 894 642 944
+       Q584 994 502 994
+       Q428 994 370 958
+       Q312 922 284 866
+       L192 904
+       Q226 972 296 1012
+       Q366 1052 452 1052
+       Q454 1052 502 1052
+       Q612 1048 686 994
+       Q760 940 780 862
+       Q798 784 786 712
+       Q774 652 724 606
+       Q674 560 622 538
+       L494 484
+       Q406 450 368 412
+       Q330 374 330 324
+       Q330 266 376 230
+       Q422 194 484 194
+       Q534 194 576 220
+       Q602 236 622 258
+       C638 230 660 196 680 172
+       C700 148 722 130 740 122
+       C758 114 772 118 772 134
+       C772 150 756 172 734 196
+       C712 220 680 242 654 260
+       L622 258
+       L608 175
+       Z
+       M656 260
+       C682 220 714 176 738 150
+       C756 132 770 130 776 138
+       C782 146 776 162 762 182
+       C742 210 712 238 684 258
+       C668 268 658 266 656 260
+       Z"
+    fill="url(#sGradFlame)"
+    fill-rule="evenodd"
+  />
+</svg>
