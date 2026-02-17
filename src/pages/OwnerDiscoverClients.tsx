@@ -4,6 +4,7 @@
  */
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -98,6 +99,7 @@ function ClientCard({ client, onLike, onMessage }: { client: any; onLike: () => 
 
 export default function OwnerDiscoverClients() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -125,11 +127,48 @@ export default function OwnerDiscoverClients() {
   const handleRefresh = async () => { setIsRefreshing(true); await refetch(); setIsRefreshing(false); };
 
   const handleLike = (clientId: string) => {
+    // Find the full client profile for optimistic cache update
+    const clientProfile = clients.find((c: any) => c.user_id === clientId || c.id === clientId);
+
     swipeMutation.mutate(
       { targetId: clientId, direction: 'right', targetType: 'profile' },
       {
         onSuccess: () => {
           sonnerToast.success('❤️ Liked!', { description: 'Client added to your likes' });
+
+          // OPTIMISTIC: Add liked client to cache so it shows instantly on the liked clients page
+          if (user?.id && clientProfile) {
+            queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
+              const likedClient = {
+                id: clientProfile.user_id || clientId,
+                user_id: clientProfile.user_id || clientId,
+                full_name: clientProfile.full_name || clientProfile.name || 'Unknown',
+                name: clientProfile.full_name || clientProfile.name || 'Unknown',
+                age: clientProfile.age || 0,
+                bio: clientProfile.bio || '',
+                profile_images: clientProfile.profile_images || clientProfile.images || [],
+                images: clientProfile.profile_images || clientProfile.images || [],
+                location: clientProfile.location,
+                liked_at: new Date().toISOString(),
+                occupation: clientProfile.occupation,
+                nationality: clientProfile.nationality,
+                interests: clientProfile.interests,
+                monthly_income: clientProfile.monthly_income,
+                verified: clientProfile.verified,
+                property_types: clientProfile.preferred_property_types || [],
+                moto_types: [],
+                bicycle_types: [],
+              };
+              if (!oldData) {
+                return [likedClient];
+              }
+              const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
+              if (exists) {
+                return oldData;
+              }
+              return [likedClient, ...oldData];
+            });
+          }
         }
       }
     );
