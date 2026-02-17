@@ -87,7 +87,7 @@ function ClientCard({ client, onLike, onMessage }: { client: any; onLike: () => 
           <Button onClick={onLike} variant="outline" className="flex-1 border-white/20 hover:bg-white/10 h-12">
             <Heart className="w-5 h-5 mr-2" />Like
           </Button>
-          <Button onClick={onMessage} className="flex-1 bg-white text-black hover:bg-white/90 h-12 font-semibold">
+          <Button onClick={onMessage} className="flex-1 bg-white text-gray-900 hover:bg-white/90 h-12 font-semibold">
             <MessageCircle className="w-5 h-5 mr-2" />Message
           </Button>
         </div>
