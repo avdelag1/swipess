@@ -82,7 +82,7 @@ function LegendaryLandingPage() {
           whileTap={{ scale: 0.98 }}
           className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
         >
-          <img src={swipessLogo} alt="Swipess" className="w-[240px] sm:w-[320px] md:w-[400px] max-h-[25vh] object-contain h-auto drop-shadow-2xl mx-auto" />
+          <img src={swipessLogo} alt="Swipess" className="w-[55vw] max-w-[280px] sm:max-w-[340px] md:max-w-[400px] h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto" />
         </motion.div>
 
         {/* Tagline */}
