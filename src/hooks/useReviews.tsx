@@ -284,17 +284,19 @@ export function useUserRatingAggregate(userId: string | undefined) {
       if (!userId) return null;
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('average_rating, total_reviews')
-        .eq('id', userId)
-        .maybeSingle();
+        .from('reviews')
+        .select('rating')
+        .eq('reviewed_id', userId);
 
       if (error) {
         logger.error('Error fetching user rating aggregate:', error);
         return null;
       }
 
-      if (!data) {
+      const reviews = data || [];
+      const count = reviews.length;
+
+      if (count === 0) {
         return {
           average_rating: 5.0,
           total_reviews: 0,
@@ -307,15 +309,21 @@ export function useUserRatingAggregate(userId: string | undefined) {
         };
       }
 
-      const avgRating = Number(data.average_rating) || 5.0;
-      const count = data.total_reviews || 0;
+      const sum = reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
+      const avgRating = sum / count;
+      const distribution: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+      reviews.forEach(r => {
+        const key = String(Math.min(5, Math.max(1, Math.round(r.rating || 5))));
+        distribution[key] = (distribution[key] || 0) + 1;
+      });
+
       const trustLevel = count >= 5 && avgRating >= 4.0 ? 'trusted' as const : 
                          avgRating < 3.0 && count >= 3 ? 'needs_attention' as const : 'new' as const;
 
       return {
         average_rating: avgRating,
         total_reviews: count,
-        rating_distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+        rating_distribution: distribution,
         displayed_rating: avgRating,
         total_ratings: count,
         verified_ratings: 0,
