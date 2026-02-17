@@ -49,9 +49,9 @@ const LandingView = memo(({
   effectLabel: string;
 }) => {
   const x = useMotionValue(0);
-  const logoOpacity = useTransform(x, [0, 60, 180], [1, 0.7, 0]);
-  const logoScale  = useTransform(x, [0, 80, 180], [1, 0.97, 0.88]);
-  const logoBlur   = useTransform(x, [0, 60, 180], [0, 3, 14]);
+  const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
+  const logoScale  = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
+  const logoBlur   = useTransform(x, [0, 100, 220], [0, 2, 14]);
   const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
   const isDragging = useRef(false);
@@ -71,11 +71,11 @@ const LandingView = memo(({
   const handleDragStart = () => { isDragging.current = true; };
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    if (info.offset.x > 80 || info.velocity.x > 400) {
+    if (info.offset.x > 50 || info.velocity.x > 300) {
       flyAndOpen();
     } else {
-      // Gentle spring back — only when NOT triggering
-      animate(x, 0, { type: 'spring', stiffness: 400, damping: 32 });
+      // Soft spring back
+      animate(x, 0, { type: 'spring', stiffness: 260, damping: 22 });
     }
     setTimeout(() => { isDragging.current = false; }, 100);
   };
@@ -95,15 +95,15 @@ const LandingView = memo(({
     >
       {/* Swipable logo */}
       <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.12}
-        dragMomentum={false}
+      drag="x"
+        dragConstraints={{ left: -8, right: 8 }}
+        dragElastic={0.55}
+        dragMomentum={true}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onClick={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
-        whileTap={{ scale: 0.97 }}
+        whileTap={{ scale: 0.98 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
         <img
