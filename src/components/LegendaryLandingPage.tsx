@@ -83,12 +83,12 @@ function LegendaryLandingPage() {
           whileTap={{ scale: 0.98 }}
           className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
         >
-          <img src={swipessLogo} alt="Swipess" className="w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px] h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto" />
+          <img src={swipessLogo} alt="Swipess" className="w-[85vw] max-w-[420px] sm:max-w-[480px] md:max-w-[560px] max-h-[40vh] h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto" />
         </motion.div>
 
         {/* Tagline */}
         <motion.p
-          className="-mt-2 relative z-10"
+          className="-mt-4 relative z-10"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
@@ -113,7 +113,7 @@ function LegendaryLandingPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.5 }}
-          className="mt-6"
+          className="mt-3"
         >
           <div className="flex flex-wrap items-center justify-center gap-2">
             <div className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]">
