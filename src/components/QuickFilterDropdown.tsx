@@ -346,13 +346,19 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
       <motion.button
         ref={buttonRef}
         whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 md:px-5 h-9 sm:h-10 md:h-11 rounded-xl transition-all duration-200 touch-manipulation',
-          'bg-white/15 hover:bg-white/25',
-          hasActiveFilters && 'bg-gradient-to-r from-pink-500/20 to-rose-500/20'
+          hasActiveFilters && 'ring-1 ring-pink-500/30'
         )}
+        style={{
+          backgroundColor: hasActiveFilters ? 'rgba(236, 72, 153, 0.12)' : 'rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+        }}
       >
         <QuickFilterText hasActiveFilters={hasActiveFilters} />
         {/* Badge */}
