@@ -1,108 +1,130 @@
 
-## Bug Fixes & Stability Audit for SwipesS
+## Fix All Loading Screen Issues
 
-### Root Cause Analysis
+### What the User is Seeing
 
-After thorough code inspection, I found **4 critical bugs** causing profile saves and photo operations to silently fail, plus several secondary issues.
+Two separate ugly loading states appear every time the app opens:
 
----
+1. **The Flame Loader** — An animated flame CSS animation in `index.html` that flickers briefly before React mounts.
+2. **The Gray Spinner Screen** — A dark gray gradient background with an orange spinning circle, shown in `src/pages/Index.tsx` during auth initialization and role loading. This is the "another main page" described by the user.
 
-### Critical Bug #1: Wrong Column in `profiles` Table Sync (Silent Save Failure)
-
-**Files:** `src/hooks/useClientProfile.ts`, `src/hooks/useOwnerProfile.ts`, `src/utils/photoUpload.ts`, `src/hooks/useProfileSetup.tsx`
-
-The `profiles` table has two UUID columns:
-- `id` — auto-generated primary key (`gen_random_uuid()`)
-- `user_id` — the Supabase auth user's ID (the FK reference)
-
-**Every sync operation uses `.eq('id', uid)` where `uid` is `auth.user.id`** — this never matches any row because the auth UID lives in `user_id`, not `id`. The updates run silently with zero rows affected, so no error is thrown but nothing is saved.
-
-**Fixes required:**
-- `useClientProfile.ts` line 200: `.eq('id', uid)` → `.eq('user_id', uid)`
-- `useOwnerProfile.ts` line 125: `.eq('id', uid)` → `.eq('user_id', uid)`
-- `photoUpload.ts` line 79: `.eq('id', userId)` → `.eq('user_id', userId)`
-- `useProfileSetup.tsx` lines 159–161 (onboarding update): `.eq('id', user.id)` → `.eq('user_id', user.id)`
+Additionally, the console logs reveal a **reload loop** triggered by `useAutomaticUpdates` detecting a "stale JS" version mismatch, which calls `forceAppUpdate()` → reload → flame loader → gray spinner → repeat.
 
 ---
 
-### Critical Bug #2: `useProfileSetup.tsx` — Profile Existence Check Wrong Column
-
-**File:** `src/hooks/useProfileSetup.tsx`
-
-The profile existence check queries `.select('id').eq('id', user.id)` — again matching the `id` (PK) column not `user_id`. This means it always returns null, triggering a new profile creation on every sign-in, causing duplicate-key conflicts or wasted DB writes.
-
-**Fix:** `.eq('id', user.id)` → `.eq('user_id', user.id)` in the profile existence check, and all subsequent profile update calls.
-
----
-
-### Critical Bug #3: Owner Profile Dialog — `service_offerings` Blocks Save
-
-**File:** `src/components/OwnerProfileDialog.tsx`
-
-The save button is disabled when `serviceOfferings.length === 0`. For existing owners who haven't set service offerings yet, this blocks them from saving ANY profile update (even name, contact info, or photos). This is an unjustified hard block.
-
-**Fix:** Remove the `serviceOfferings.length === 0` condition from the button `disabled` prop, keeping only `saveMutation.isPending`. Add a non-blocking warning label instead.
-
----
-
-### Critical Bug #4: `photoUpload.ts` — `updateProfilePhoto` Uses Wrong Column
-
-**File:** `src/utils/photoUpload.ts`
-
-`updateProfilePhoto` calls `.eq('id', userId)` to update `avatar_url`. Since `userId` is the auth UID stored in `user_id`, not `id`, the `avatar_url` is never persisted.
-
-**Fix:** `.eq('id', userId)` → `.eq('user_id', userId)`
-
----
-
-### Secondary Bug #5: `useClientProfile.ts` sync — `syncPayload.length` check on `updated_at`
-
-The `syncPayload` always contains `updated_at`, so `Object.keys(syncPayload).length > 0` is always true even if nothing real changed. This causes spurious DB writes. Not a breaking bug, but wasteful. Will add a flag to only sync if real fields changed.
-
----
-
-### Secondary Bug #6: Listing Form — Image Upload `folder` Path
-
-**File:** `src/components/ImageUpload.tsx`
-
-The `folder` default is `'uploads'` but listing images are stored in `'listing-images'` bucket. The `UnifiedListingForm` uses a separate `uploadPhotoBatch` utility that correctly uses the `listing-images` bucket. The `ImageUpload` component is a separate UI component. No issue here, but worth noting that `ImageUpload` in listings context should be passed `bucket="listing-images"` and a proper folder path. Will verify usage.
-
----
-
-### Implementation Plan
-
-**Files to edit:**
-
-1. **`src/hooks/useClientProfile.ts`**
-   - Line 200: Fix `.eq('id', uid)` → `.eq('user_id', uid)` in profiles sync
-
-2. **`src/hooks/useOwnerProfile.ts`**
-   - Line 125: Fix `.eq('id', uid)` → `.eq('user_id', uid)` in profiles sync
-
-3. **`src/utils/photoUpload.ts`**
-   - Line 79: Fix `.eq('id', userId)` → `.eq('user_id', userId)` in `updateProfilePhoto`
-
-4. **`src/hooks/useProfileSetup.tsx`**
-   - Fix all `.eq('id', user.id)` → `.eq('user_id', user.id)` throughout the file
-   - Fix profile existence check column
-   - Fix onboarding update column
-
-5. **`src/components/OwnerProfileDialog.tsx`**
-   - Remove the `serviceOfferings.length === 0` from the Save button's `disabled` prop
-   - Keep the warning label as UI hint (not a hard block)
-
----
-
-### Technical Details
+### Root Cause Map
 
 ```text
-profiles table structure:
-  id         | uuid | PK | gen_random_uuid()   ← NOT the auth UID
-  user_id    | uuid | FK | auth.users.id        ← IS the auth UID
-
-All queries filtering by the logged-in user MUST use:
-  .eq('user_id', authUser.id)     ✅ correct
-  .eq('id', authUser.id)          ❌ wrong - never matches
+User visits site
+     │
+     ▼
+index.html renders → Shows FLAME LOADER (#initial-loader div)
+     │
+     ▼
+React mounts → main.tsx removes #initial-loader (fades it out)
+     │
+     ▼
+Index.tsx renders → auth.loading=true → Shows GRAY SPINNER SCREEN
+     │
+     ▼
+useForceUpdateOnVersionChange() runs → detects HTML vs JS version mismatch
+     │
+     ▼
+forceAppUpdate() called → reloads page → LOOP (flame → gray → reload)
 ```
 
-This single root-cause mistake (wrong column name) explains why profiles appear to save in the UI (no error thrown) but changes never persist after page reload.
+---
+
+### Fix Plan (5 changes)
+
+---
+
+**Fix 1: Replace the flame loader with a clean, minimal logo-based splash**
+**File:** `index.html`
+
+Replace the flickering flame CSS animation in `#initial-loader` with:
+- Black `#050505` background (matching app background)
+- The Swipess logo image (`/icons/s-logo-app.png`) centered
+- A clean, ultra-subtle fade-in animation
+- No more flickering flame shapes or "Loading..." text
+
+The CSS will be replaced from:
+```css
+.flame-container, .flame, @keyframes flame-flicker → removed
+```
+To:
+```css
+Simple logo fade-in, no animation complexity
+```
+
+---
+
+**Fix 2: Replace all gray spinner screens in Index.tsx with invisible transparent fallback**
+**File:** `src/pages/Index.tsx`
+
+There are **4 places** in Index.tsx that show `bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950` with an orange spinner:
+- Line 166 (auth not initialized)
+- Line 178 (role timeout error)
+- Line 197 (role loading)
+- Line 217 (redirecting)
+
+All 4 will be replaced with a completely **transparent div** that shows nothing (`bg-transparent`), so the app background (dark `#050505` from body CSS) shows through cleanly instead of the jarring gray gradient. The spinner will be removed entirely — the `ProtectedRoute` already shows a proper skeleton for authenticated users.
+
+---
+
+**Fix 3: Stop the reload loop from `useAutomaticUpdates`**
+**File:** `src/hooks/useAutomaticUpdates.tsx`
+
+The `useForceUpdateOnVersionChange` hook calls `forceAppUpdate()` which immediately reloads the page when it detects a version mismatch. This is too aggressive and causes the reload loop seen in the console every 2-3 seconds.
+
+Fix: Add a **minimum time guard** — only trigger a forced reload if the user has been on the app for more than 30 seconds (not on fresh load). This prevents the loop where every fresh page load triggers a reload.
+
+Also add a **session-level cooldown** using `sessionStorage` — if a reload was already triggered this session, don't trigger another one.
+
+---
+
+**Fix 4: Remove the `VisualEngine` background from interfering with the loading state**
+**File:** `src/visual/VisualEngine.tsx`
+
+The `VisualEngine` renders a `from-slate-900 via-slate-950 to-black` gradient as the fixed background layer with `-z-10`. This is a secondary "loading page look" during the Suspense lazy-load phase. This is fine when the app is loaded, but during loading it can look like a separate design. No change needed here — this is actually the correct behavior and looks good once the flame/spinner are fixed.
+
+---
+
+**Fix 5: Make the `#initial-loader` removal synchronous (not delayed)**
+**File:** `src/main.tsx`
+
+The current code removes the `#initial-loader` with a 150ms fade and `setTimeout`. This means the flame loader stays visible for 150ms after React mounts. Change to immediate removal (no fade, no delay) since the app background matches perfectly.
+
+---
+
+### Summary of Changes
+
+| File | What Changes |
+|---|---|
+| `index.html` | Replace flame animation with a clean centered logo + simple dot loader |
+| `src/pages/Index.tsx` | Replace all 4 gray spinner instances with `bg-transparent` (no spinner) |
+| `src/hooks/useAutomaticUpdates.tsx` | Add session cooldown to prevent reload loop |
+| `src/main.tsx` | Remove 150ms delay from loader removal (instant) |
+
+---
+
+### Visual Result After Fix
+
+```text
+User visits site
+     │
+     ▼
+index.html → Shows dark background + Swipess logo (clean, instant)
+     │
+     ▼  (~100ms)
+React mounts → logo instantly disappears, app takes over seamlessly
+     │
+     ▼
+Auth checks silently in background → transparent screen
+     │
+     ▼
+If logged in → redirect to dashboard (ProtectedRoute shows card skeleton)
+If not logged in → LegendaryLandingPage appears
+```
+
+No more flame. No more gray gradient. No more reload loop.
