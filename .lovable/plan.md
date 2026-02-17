@@ -1,62 +1,68 @@
 
 
-# Landing Page and Navigation Enhancement Plan
+# Fix Sign-In Errors, Add Flame Like Button, Enhance Button Feel, and Fix White Background Contrast
 
-## What's Being Fixed
+## Problem Summary
 
-Based on the screenshot, the logo appears small and off-center within a dark rectangle, the tagline sits too far below, and the info chips feel disconnected. The header/nav hide effect also needs a more premium vanish transition.
+1. **Error notification on sign-in**: The console shows `column profiles.average_rating does not exist` -- the `useUserRatingAggregate` hook queries `profiles.average_rating` and `profiles.total_reviews`, but these columns don't exist in the `profiles` table. This fires every time a dashboard loads and shows error toasts.
 
-## Changes Overview
+2. **Like button needs a flame icon**: The `SwipeActionButtonBar` currently uses a green Heart for the like button. User wants an orange-red flame instead, on both client and owner sides.
 
-### 1. Landing Page -- Logo and Layout Overhaul
+3. **Buttons should feel more "real"**: The current action buttons are transparent with no background frame. Adding subtle glass-pill backgrounds with depth (shadow, border, backdrop-blur) will make them feel tactile and premium.
 
-**Logo sizing:** Make it significantly larger so it dominates the screen and draws the eye. Change from `w-[55vw] max-w-[280px]` to `w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px]` -- roughly 35% larger. Remove `max-h-[25vh]` constraint so it breathes.
+4. **White background contrast**: Several pages (contracts, radio, discover clients) use white/light backgrounds with dark text that doesn't contrast well. Fonts need to match the background they sit on.
 
-**Tagline positioning:** Move the tagline BEHIND/overlapping the logo bottom edge using negative margin (`-mt-3`), so "swipe or tap to connect" feels integrated with the logo rather than floating below it. Increase text size for "to connect" to `text-3xl sm:text-4xl md:text-5xl`.
+---
 
-**Perfect centering:** The flex container is already centered, but we'll ensure the content block has no stray margins pushing it off-center.
+## Technical Plan
 
-### 2. Info Chips -- Real Button Shape with Depth
+### 1. Fix the `average_rating` Error
 
-Transform the flat chips into premium pill buttons with:
-- Stronger background: `bg-white/12` with `backdrop-blur-md`
-- Layered shadow: `shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]`
-- Slightly larger padding and text
-- Subtle inner highlight (inset border-top glow) for 3D realism
+**File: `src/hooks/useReviews.tsx`** (lines ~280-330)
 
-### 3. Header and Nav -- Enhanced Vanish Effect
+The `useUserRatingAggregate` function queries `profiles.average_rating` and `profiles.total_reviews` -- columns that don't exist. Instead of adding columns, rewrite this function to compute the aggregate from the `reviews` table directly (same approach as `useListingRatingAggregate`). This eliminates the error without requiring a database migration.
 
-Currently the hide animation is: translateY + opacity + blur(4px). We'll upgrade to a more cinematic vanish:
+- Query `reviews` table where `reviewed_id = userId`
+- Compute average rating and count client-side
+- Return the same `ReviewAggregate` shape
 
-**Header (`.app-header.header-hidden`):**
-- Add `scale(0.95)` for a subtle zoom-out shrink
-- Increase blur to `blur(8px)` for a dissolve feel
-- Slightly faster opacity fade with a delayed scale for a two-stage exit
+### 2. Add Flame Icon on Like Button
 
-**Bottom Nav (`.app-bottom-bar.nav-hidden`):**
-- Same treatment: `scale(0.95)` + `blur(8px)`
-- The combination of shrinking + blurring + fading creates a "melting away" effect
+**File: `src/components/SwipeActionButtonBar.tsx`**
 
-## Technical Details
+- Import `Flame` from `lucide-react` (already available in the project)
+- Replace `Heart` with `Flame` on the like button (line ~298)
+- Change the like variant color from green (`#22c55e`) to an orange-red gradient feel (`#ff6b35` or `#ef4444` blended with orange)
+- Update the variant config for `like` to use orange-red tones: icon `#ff6b35`, glow `rgba(255, 107, 53, 0.4)`, border `rgba(255, 107, 53, 0.35)`
 
-### Files to modify:
+### 3. Make Buttons Feel More Real (Tactile Premium)
 
-**`src/components/LegendaryLandingPage.tsx`**
-- Increase logo image classes to `w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px]`
-- Change tagline margin from `mt-5` to `-mt-2` (overlap effect)
-- Increase "to connect" text size
-- Upgrade chip styling with shadows and backdrop-blur
+**File: `src/components/SwipeActionButtonBar.tsx`**
 
-**`src/index.css`**
-- `.app-header.header-hidden`: add `scale(0.95)`, increase blur to `8px`
-- `.app-bottom-bar.nav-hidden`: add `scale(0.95)`, increase blur to `8px`
-- Add `scale(1)` to the base state of both for smooth transition baseline
+Currently buttons have `backgroundColor: 'transparent'` and `border: 'none'`. Update:
 
-### What stays untouched:
-- Swipe physics and drag logic
-- Auth dialog behavior
-- StarFieldBackground
-- Scroll direction hook logic
-- Routing and navigation paths
-- Bottom nav item layout and icons
+- Add a subtle glass-pill background: `rgba(255,255,255,0.06)` with `backdrop-blur(8px)`
+- Add a thin border: `1px solid rgba(255,255,255,0.12)`
+- Add a soft inset top glow via `box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)`
+- Round to full circle (`border-radius: 50%`)
+- On press, compress the shadow and darken slightly for a "pushed in" feel
+
+### 4. Fix White Background Font Contrast
+
+**Files affected:**
+- `src/pages/OwnerContracts.tsx` and `src/pages/ClientContracts.tsx` -- status badges use `bg-gray-100 text-gray-800` etc. These are fine on white, but ensure parent containers have proper dark theme support
+- `src/pages/RadioPlayer.tsx` -- white circles with black text are intentional design (vinyl/tape aesthetic), leave as-is
+- `src/pages/OwnerDiscoverClients.tsx` -- `bg-white text-black` button, ensure it has sufficient contrast
+- `src/components/ui/button.tsx` -- the `tinder` variant uses `bg-white/90 text-card-foreground`, verify `card-foreground` resolves to a dark color
+
+Primary fix: Scan for any `bg-white` or light background containers where text uses `text-white` or low-opacity white (invisible on white). Add explicit dark text colors (`text-gray-900`, `text-gray-700`) where backgrounds are white/light.
+
+---
+
+## Implementation Order
+
+1. Fix `useUserRatingAggregate` to query `reviews` table (eliminates error toasts)
+2. Replace Heart with Flame icon + orange-red color on like button
+3. Add glass-pill depth to all swipe action buttons
+4. Audit and fix white-background text contrast across affected pages
 
