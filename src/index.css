@@ -105,8 +105,8 @@ body {
   padding-bottom: 4px;
   padding-left: max(var(--safe-left), 8px);
   padding-right: max(var(--safe-right), 8px);
-  /* NO background - gradient masks handle the fade */
-  background: transparent;
+  /* Subtle dark fade behind header for readability */
+  background: linear-gradient(to bottom, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.4) 60%, transparent 100%);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: none;
