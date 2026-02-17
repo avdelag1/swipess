@@ -1,68 +1,108 @@
 
+## Bug Fixes & Stability Audit for SwipesS
 
-# Fix Sign-In Errors, Add Flame Like Button, Enhance Button Feel, and Fix White Background Contrast
+### Root Cause Analysis
 
-## Problem Summary
-
-1. **Error notification on sign-in**: The console shows `column profiles.average_rating does not exist` -- the `useUserRatingAggregate` hook queries `profiles.average_rating` and `profiles.total_reviews`, but these columns don't exist in the `profiles` table. This fires every time a dashboard loads and shows error toasts.
-
-2. **Like button needs a flame icon**: The `SwipeActionButtonBar` currently uses a green Heart for the like button. User wants an orange-red flame instead, on both client and owner sides.
-
-3. **Buttons should feel more "real"**: The current action buttons are transparent with no background frame. Adding subtle glass-pill backgrounds with depth (shadow, border, backdrop-blur) will make them feel tactile and premium.
-
-4. **White background contrast**: Several pages (contracts, radio, discover clients) use white/light backgrounds with dark text that doesn't contrast well. Fonts need to match the background they sit on.
+After thorough code inspection, I found **4 critical bugs** causing profile saves and photo operations to silently fail, plus several secondary issues.
 
 ---
 
-## Technical Plan
+### Critical Bug #1: Wrong Column in `profiles` Table Sync (Silent Save Failure)
 
-### 1. Fix the `average_rating` Error
+**Files:** `src/hooks/useClientProfile.ts`, `src/hooks/useOwnerProfile.ts`, `src/utils/photoUpload.ts`, `src/hooks/useProfileSetup.tsx`
 
-**File: `src/hooks/useReviews.tsx`** (lines ~280-330)
+The `profiles` table has two UUID columns:
+- `id` — auto-generated primary key (`gen_random_uuid()`)
+- `user_id` — the Supabase auth user's ID (the FK reference)
 
-The `useUserRatingAggregate` function queries `profiles.average_rating` and `profiles.total_reviews` -- columns that don't exist. Instead of adding columns, rewrite this function to compute the aggregate from the `reviews` table directly (same approach as `useListingRatingAggregate`). This eliminates the error without requiring a database migration.
+**Every sync operation uses `.eq('id', uid)` where `uid` is `auth.user.id`** — this never matches any row because the auth UID lives in `user_id`, not `id`. The updates run silently with zero rows affected, so no error is thrown but nothing is saved.
 
-- Query `reviews` table where `reviewed_id = userId`
-- Compute average rating and count client-side
-- Return the same `ReviewAggregate` shape
-
-### 2. Add Flame Icon on Like Button
-
-**File: `src/components/SwipeActionButtonBar.tsx`**
-
-- Import `Flame` from `lucide-react` (already available in the project)
-- Replace `Heart` with `Flame` on the like button (line ~298)
-- Change the like variant color from green (`#22c55e`) to an orange-red gradient feel (`#ff6b35` or `#ef4444` blended with orange)
-- Update the variant config for `like` to use orange-red tones: icon `#ff6b35`, glow `rgba(255, 107, 53, 0.4)`, border `rgba(255, 107, 53, 0.35)`
-
-### 3. Make Buttons Feel More Real (Tactile Premium)
-
-**File: `src/components/SwipeActionButtonBar.tsx`**
-
-Currently buttons have `backgroundColor: 'transparent'` and `border: 'none'`. Update:
-
-- Add a subtle glass-pill background: `rgba(255,255,255,0.06)` with `backdrop-blur(8px)`
-- Add a thin border: `1px solid rgba(255,255,255,0.12)`
-- Add a soft inset top glow via `box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)`
-- Round to full circle (`border-radius: 50%`)
-- On press, compress the shadow and darken slightly for a "pushed in" feel
-
-### 4. Fix White Background Font Contrast
-
-**Files affected:**
-- `src/pages/OwnerContracts.tsx` and `src/pages/ClientContracts.tsx` -- status badges use `bg-gray-100 text-gray-800` etc. These are fine on white, but ensure parent containers have proper dark theme support
-- `src/pages/RadioPlayer.tsx` -- white circles with black text are intentional design (vinyl/tape aesthetic), leave as-is
-- `src/pages/OwnerDiscoverClients.tsx` -- `bg-white text-black` button, ensure it has sufficient contrast
-- `src/components/ui/button.tsx` -- the `tinder` variant uses `bg-white/90 text-card-foreground`, verify `card-foreground` resolves to a dark color
-
-Primary fix: Scan for any `bg-white` or light background containers where text uses `text-white` or low-opacity white (invisible on white). Add explicit dark text colors (`text-gray-900`, `text-gray-700`) where backgrounds are white/light.
+**Fixes required:**
+- `useClientProfile.ts` line 200: `.eq('id', uid)` → `.eq('user_id', uid)`
+- `useOwnerProfile.ts` line 125: `.eq('id', uid)` → `.eq('user_id', uid)`
+- `photoUpload.ts` line 79: `.eq('id', userId)` → `.eq('user_id', userId)`
+- `useProfileSetup.tsx` lines 159–161 (onboarding update): `.eq('id', user.id)` → `.eq('user_id', user.id)`
 
 ---
 
-## Implementation Order
+### Critical Bug #2: `useProfileSetup.tsx` — Profile Existence Check Wrong Column
 
-1. Fix `useUserRatingAggregate` to query `reviews` table (eliminates error toasts)
-2. Replace Heart with Flame icon + orange-red color on like button
-3. Add glass-pill depth to all swipe action buttons
-4. Audit and fix white-background text contrast across affected pages
+**File:** `src/hooks/useProfileSetup.tsx`
 
+The profile existence check queries `.select('id').eq('id', user.id)` — again matching the `id` (PK) column not `user_id`. This means it always returns null, triggering a new profile creation on every sign-in, causing duplicate-key conflicts or wasted DB writes.
+
+**Fix:** `.eq('id', user.id)` → `.eq('user_id', user.id)` in the profile existence check, and all subsequent profile update calls.
+
+---
+
+### Critical Bug #3: Owner Profile Dialog — `service_offerings` Blocks Save
+
+**File:** `src/components/OwnerProfileDialog.tsx`
+
+The save button is disabled when `serviceOfferings.length === 0`. For existing owners who haven't set service offerings yet, this blocks them from saving ANY profile update (even name, contact info, or photos). This is an unjustified hard block.
+
+**Fix:** Remove the `serviceOfferings.length === 0` condition from the button `disabled` prop, keeping only `saveMutation.isPending`. Add a non-blocking warning label instead.
+
+---
+
+### Critical Bug #4: `photoUpload.ts` — `updateProfilePhoto` Uses Wrong Column
+
+**File:** `src/utils/photoUpload.ts`
+
+`updateProfilePhoto` calls `.eq('id', userId)` to update `avatar_url`. Since `userId` is the auth UID stored in `user_id`, not `id`, the `avatar_url` is never persisted.
+
+**Fix:** `.eq('id', userId)` → `.eq('user_id', userId)`
+
+---
+
+### Secondary Bug #5: `useClientProfile.ts` sync — `syncPayload.length` check on `updated_at`
+
+The `syncPayload` always contains `updated_at`, so `Object.keys(syncPayload).length > 0` is always true even if nothing real changed. This causes spurious DB writes. Not a breaking bug, but wasteful. Will add a flag to only sync if real fields changed.
+
+---
+
+### Secondary Bug #6: Listing Form — Image Upload `folder` Path
+
+**File:** `src/components/ImageUpload.tsx`
+
+The `folder` default is `'uploads'` but listing images are stored in `'listing-images'` bucket. The `UnifiedListingForm` uses a separate `uploadPhotoBatch` utility that correctly uses the `listing-images` bucket. The `ImageUpload` component is a separate UI component. No issue here, but worth noting that `ImageUpload` in listings context should be passed `bucket="listing-images"` and a proper folder path. Will verify usage.
+
+---
+
+### Implementation Plan
+
+**Files to edit:**
+
+1. **`src/hooks/useClientProfile.ts`**
+   - Line 200: Fix `.eq('id', uid)` → `.eq('user_id', uid)` in profiles sync
+
+2. **`src/hooks/useOwnerProfile.ts`**
+   - Line 125: Fix `.eq('id', uid)` → `.eq('user_id', uid)` in profiles sync
+
+3. **`src/utils/photoUpload.ts`**
+   - Line 79: Fix `.eq('id', userId)` → `.eq('user_id', userId)` in `updateProfilePhoto`
+
+4. **`src/hooks/useProfileSetup.tsx`**
+   - Fix all `.eq('id', user.id)` → `.eq('user_id', user.id)` throughout the file
+   - Fix profile existence check column
+   - Fix onboarding update column
+
+5. **`src/components/OwnerProfileDialog.tsx`**
+   - Remove the `serviceOfferings.length === 0` from the Save button's `disabled` prop
+   - Keep the warning label as UI hint (not a hard block)
+
+---
+
+### Technical Details
+
+```text
+profiles table structure:
+  id         | uuid | PK | gen_random_uuid()   ← NOT the auth UID
+  user_id    | uuid | FK | auth.users.id        ← IS the auth UID
+
+All queries filtering by the logged-in user MUST use:
+  .eq('user_id', authUser.id)     ✅ correct
+  .eq('id', authUser.id)          ❌ wrong - never matches
+```
+
+This single root-cause mistake (wrong column name) explains why profiles appear to save in the UI (no error thrown) but changes never persist after page reload.
