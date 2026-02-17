@@ -3,7 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useProfileSetup } from './useProfileSetup';
+import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
@@ -101,6 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Handle profile setup asynchronously on SIGNED_IN for ALL users
         if (event === 'SIGNED_IN' && session?.user) {
+          // Reset profile creation lock on every fresh sign-in to prevent
+          // stale lockouts from a previous failed attempt or old session
+          resetProfileCreationLock(session.user.id);
+
           const provider = session.user.app_metadata?.provider;
           const isOAuthUser = provider && provider !== 'email';
 
@@ -158,6 +162,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Non-blocking OAuth user setup
   const handleOAuthUserSetupAsync = async (user: User) => {
     try {
+      // CACHE RESET: Clear stale profile/role cache before OAuth profile setup
+      queryClient.removeQueries({ queryKey: ['user-role'] });
+      queryClient.removeQueries({ queryKey: ['profile'] });
+      queryClient.removeQueries({ queryKey: ['tokens'] });
+      queryClient.removeQueries({ queryKey: ['client-profile'] });
+      queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
       // Check localStorage first, then URL params
       const pendingRole = localStorage.getItem('pendingOAuthRole') as 'client' | 'owner' | null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -352,6 +363,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string, role: 'client' | 'owner') => {
     try {
+      // Reset profile creation lock to prevent stale lockouts from previous sessions
+      resetProfileCreationLock();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -363,6 +377,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.user) {
+        // CACHE RESET: Clear all stale profile/role data before doing anything.
+        // This prevents "profile creation" errors caused by stale React Query cache
+        // from a previous session or a previous app version.
+        queryClient.removeQueries({ queryKey: ['user-role'] });
+        queryClient.removeQueries({ queryKey: ['profile'] });
+        queryClient.removeQueries({ queryKey: ['tokens'] });
+        queryClient.removeQueries({ queryKey: ['client-profile'] });
+        queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
         // Quick role check to prevent dashboard flash (max 2 seconds)
         let actualRole: 'client' | 'owner' = role;
 
