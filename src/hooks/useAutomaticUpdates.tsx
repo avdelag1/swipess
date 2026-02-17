@@ -254,8 +254,29 @@ export function UpdateNotification() {
 }
 
 /**
+ * Check the HTML meta tag version against the running JS BUILD_TIMESTAMP.
+ * The HTML is always fresh (served with no-cache headers), but the JS may be
+ * stale due to service worker stale-while-revalidate caching.
+ * If they differ, the running JS is outdated — force a full cache clear + reload.
+ */
+function checkHtmlVersionMismatch(): boolean {
+  try {
+    const metaTag = document.querySelector('meta[name="app-version"]');
+    if (!metaTag) return false;
+    const htmlVersion = metaTag.getAttribute('content');
+    if (!htmlVersion) return false;
+    // The HTML version is the build timestamp injected by vite.config.ts.
+    // If it doesn't match the JS BUILD_TIMESTAMP, the SW served stale JS.
+    return htmlVersion !== BUILD_TIMESTAMP;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Force update on app mount - use when you want guaranteed updates
  * This clears all caches and reloads if version changed (based on BUILD_TIMESTAMP)
+ * Also detects stale JS served by service worker via HTML meta tag comparison.
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
@@ -264,10 +285,20 @@ export function useForceUpdateOnVersionChange() {
     if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
       // Version changed - force update
       forceAppUpdate();
-    } else {
-      // Mark current version as installed
-      markVersionAsInstalled();
+      return;
     }
+
+    // Even if stored version matches BUILD_TIMESTAMP, the JS itself may be stale.
+    // The HTML <meta app-version> is always fresh (no-cache headers).
+    // If the HTML version differs from the running JS version, we need to reload.
+    if (checkHtmlVersionMismatch()) {
+      console.log('[AutoUpdate] HTML version differs from JS — stale JS detected, forcing update');
+      forceAppUpdate();
+      return;
+    }
+
+    // Mark current version as installed
+    markVersionAsInstalled();
   }, []);
 }
 

@@ -18,6 +18,18 @@ interface CreateProfileData {
 // Track ongoing profile creation to prevent concurrent attempts
 const profileCreationInProgress = new Set<string>();
 
+/**
+ * Reset the profile creation lock for a given user.
+ * Call this on fresh sign-in to prevent stale lockouts from previous failed attempts.
+ */
+export function resetProfileCreationLock(userId?: string) {
+  if (userId) {
+    profileCreationInProgress.delete(userId);
+  } else {
+    profileCreationInProgress.clear();
+  }
+}
+
 export function useProfileSetup() {
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const queryClient = useQueryClient();
