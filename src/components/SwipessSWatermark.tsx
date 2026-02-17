@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface SwipessSWatermarkProps {
   className?: string;
-  /** Opacity of the watermark (0-1). Default 0.05 */
+  /** Opacity of the watermark (0-1). Default 0.05 for subtle branding */
   opacity?: number;
   /** Size in pixels or CSS value */
   size?: number | string;
@@ -12,13 +12,13 @@ interface SwipessSWatermarkProps {
 /**
  * SWIPESS S WATERMARK
  *
- * Renders the gradient S icon (pink→orange) as a watermark.
- * Uses the SVG icon file for crisp rendering at any scale.
+ * Uses the actual s-logo-app.png (the fire-S icon) as a watermark.
+ * Guaranteed visual consistency with the app icon/branding.
  *
- * Use cases:
+ * Designed for:
  * - Background watermark on landing page
  * - Subtle branding element across app sections
- * - Visual identity marker
+ * - Visual identity marker that users recognize as "Swipess"
  */
 function SwipessSWatermarkComponent({
   className,
@@ -29,7 +29,7 @@ function SwipessSWatermarkComponent({
 
   return (
     <img
-      src="/icons/s-icon-gradient.svg"
+      src="/icons/s-logo-app.png"
       alt=""
       aria-hidden="true"
       draggable={false}
@@ -49,7 +49,7 @@ export const SwipessSWatermark = memo(SwipessSWatermarkComponent);
 /**
  * SWIPESS S PATTERN
  *
- * Scattered gradient S marks across a section for branded background texture.
+ * Scattered fire-S marks across a section for branded background texture.
  * Each S is positioned at different locations with varied rotation and scale
  * to create an organic, non-repeating pattern.
  */

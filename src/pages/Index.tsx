@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import LegendaryLandingPage from "@/components/LegendaryLandingPage";
-import { SwipessGradientIcon } from "@/components/SwipessGradientIcon";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -165,10 +164,7 @@ const Index = () => {
   if (!initialized || loading) {
     return (
       <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-        <div className="flex flex-col items-center gap-4">
-          <SwipessGradientIcon size={64} withBackground />
-          <div className="w-8 h-8 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-        </div>
+        <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
       </div>
     );
   }
@@ -199,10 +195,9 @@ const Index = () => {
 
     return (
       <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-        <div className="flex flex-col items-center gap-4">
-          <SwipessGradientIcon size={64} withBackground />
-          <div className="w-8 h-8 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-          <p className="text-white/60 text-sm">Loading your dashboard...</p>
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 mx-auto border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
+          <p className="text-white/70 text-sm">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -220,10 +215,7 @@ const Index = () => {
   // Caso final (redirigiendo)
   return (
     <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      <div className="flex flex-col items-center gap-4">
-        <SwipessGradientIcon size={64} withBackground />
-        <div className="w-8 h-8 border-2 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-      </div>
+      <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
     </div>
   );
 };

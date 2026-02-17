@@ -18,7 +18,6 @@ import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
-import { SwipessGradientIcon } from './SwipessGradientIcon';
 
 // Tier styling for package cards
 const tierConfig = {
@@ -155,17 +154,15 @@ function TopBarComponent({
             )}
           </div>
 
-          {/* Center tap zone - navigates back to dashboard, shows gradient S brand icon */}
+          {/* Center tap zone - navigates back to dashboard */}
           <div
-            className="flex-1 h-full cursor-pointer flex items-center justify-center"
+            className="flex-1 h-full cursor-pointer"
             onClick={() => {
               const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
               navigate(dashboardPath);
             }}
             aria-label="Go to dashboard"
-          >
-            <SwipessGradientIcon size={28} withBackground={false} className="opacity-80 hover:opacity-100 transition-opacity duration-150" />
-          </div>
+          />
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">

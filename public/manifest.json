@@ -15,12 +15,6 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icons/s-icon-gradient.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
       "src": "/icons/s-logo-app.png",
       "sizes": "192x192",
       "type": "image/png",
