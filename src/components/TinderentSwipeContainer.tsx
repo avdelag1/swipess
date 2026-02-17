@@ -1383,19 +1383,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
           - Communicates "swipe marketplace" at first glance */}
       <AmbientSwipeBackground isPaused={swipeDirection !== null} />
 
-      {/* Dynamic page title - shows current category being browsed */}
-      <div className="absolute top-14 left-0 right-0 z-20 flex justify-center pointer-events-none">
-        <motion.div
-          key={activeCategoryLabel}
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 ${activeCategoryColor}`}
-        >
-          <ActiveCategoryIcon className="w-3.5 h-3.5" />
-          <span className="text-xs font-semibold text-white/90">{activeCategoryLabel}</span>
-        </motion.div>
-      </div>
+      {/* Category title removed - clean immersive card experience */}
 
       <div className="relative flex-1 w-full">
         {/* NEXT CARD - Visible behind current card (Tinder-style anticipation)

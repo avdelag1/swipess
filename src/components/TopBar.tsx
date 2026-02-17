@@ -174,11 +174,17 @@ function TopBarComponent({
                 className={cn(
                   "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
                   "active:scale-[0.95]",
-                  "bg-white/15 hover:bg-orange-500/40",
                   "touch-manipulation",
                   "-webkit-tap-highlight-color-transparent",
                   "group flex-shrink-0"
                 )}
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+                }}
                 onClick={() => setIsAISearchOpen(true)}
                 aria-label="AI Search"
               >
@@ -194,11 +200,17 @@ function TopBarComponent({
                   className={cn(
                     "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
-                    "bg-white/15 hover:bg-white/30",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
                     "flex items-center gap-1.5"
                   )}
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+                  }}
                   aria-label="Token Packages"
                 >
                   <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
@@ -327,11 +339,17 @@ function TopBarComponent({
               className={cn(
                 "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
-                "bg-white/15 hover:bg-white/30",
                 "group flex-shrink-0",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent"
               )}
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
               onClick={onNotificationsClick}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
