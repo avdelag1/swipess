@@ -57,31 +57,38 @@ const LandingView = memo(({
   const isDragging = useRef(false);
   const triggered  = useRef(false);
 
-  const flyAndOpen = () => {
-    if (triggered.current) return;
-    triggered.current = true;
-    // Fly the logo off to the right, THEN switch view
-    animate(x, window.innerWidth * 1.5, {
-      duration: 0.28,
-      ease: [0.4, 0, 0.8, 1],
-      onComplete: () => onEnterAuth(),
-    });
-  };
-
   const handleDragStart = () => { isDragging.current = true; };
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    if (info.offset.x > 50 || info.velocity.x > 300) {
-      flyAndOpen();
+    const shouldSwipe = info.offset.x > 100 || info.velocity.x > 400;
+    if (shouldSwipe) {
+      if (triggered.current) return;
+      triggered.current = true;
+      // Spring exit using real finger velocity — zero freeze
+      animate(x, window.innerWidth * 1.5, {
+        type: 'spring',
+        stiffness: 600,
+        damping: 30,
+        velocity: info.velocity.x,
+        onComplete: () => onEnterAuth(),
+      });
     } else {
-      // Soft spring back
-      animate(x, 0, { type: 'spring', stiffness: 260, damping: 22 });
+      // Snap back — same spring as swipe cards
+      animate(x, 0, { type: 'spring', stiffness: 400, damping: 28, mass: 1 });
     }
     setTimeout(() => { isDragging.current = false; }, 100);
   };
 
   const handleTap = () => {
-    if (!isDragging.current) flyAndOpen();
+    if (isDragging.current || triggered.current) return;
+    triggered.current = true;
+    animate(x, window.innerWidth * 1.5, {
+      type: 'spring',
+      stiffness: 600,
+      damping: 30,
+      velocity: 800,
+      onComplete: () => onEnterAuth(),
+    });
   };
 
   return (
@@ -96,9 +103,9 @@ const LandingView = memo(({
       {/* Swipable logo */}
       <motion.div
       drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={{ left: 0.08, right: 1 }}
-        dragMomentum={true}
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        dragElastic={0.9}
+        dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onClick={handleTap}
