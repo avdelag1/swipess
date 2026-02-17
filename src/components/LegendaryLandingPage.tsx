@@ -3,7 +3,7 @@ import { motion, useMotionValue, useTransform, PanInfo, AnimatePresence } from '
 import { Shield, Sparkles, Users, Star, Circle, X } from 'lucide-react';
 import { AuthDialog } from './AuthDialog';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+import swipessLogo from '@/assets/swipess-logo-new.png';
 
 const SWIPE_THRESHOLD = 120;
 
