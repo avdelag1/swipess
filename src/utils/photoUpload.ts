@@ -77,7 +77,7 @@ export const updateProfilePhoto = async (
       .update({
         avatar_url: photoUrl,
       })
-      .eq('id', userId),
+      .eq('user_id', userId),
     supabase.auth.updateUser({
       data: { avatar_url: photoUrl },
     })
