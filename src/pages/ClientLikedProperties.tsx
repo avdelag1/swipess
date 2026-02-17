@@ -6,21 +6,21 @@ import { PropertyDetails } from "@/components/PropertyDetails";
 import { PropertyImageGallery } from "@/components/PropertyImageGallery";
 import { PageHeader } from "@/components/PageHeader";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useUserSubscription } from "@/hooks/useSubscription";
 import { useStartConversation, useConversationStats } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, MessageCircle, MapPin, Bed, Bath, Square, Crown, ExternalLink, RefreshCw, ArrowLeft, Home, Bike, Briefcase, Trash2, MoreVertical } from "lucide-react";
+import { Flame, MessageCircle, MapPin, Bed, Bath, Square, Crown, RefreshCw, ArrowLeft, Home, Bike, Briefcase, Trash2, MoreVertical } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
 import { MessageQuotaDialog } from "@/components/MessageQuotaDialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -62,11 +62,11 @@ function MotorcycleIcon({ className }: { className?: string }) {
 
 // Category configuration with dynamic titles
 const categories = [
-  { id: 'all', label: 'all', icon: Flame, title: 'Your Likes', subtitle: '' },
-  { id: 'property', label: 'properties', icon: Home, title: 'Your Likes', subtitle: '' },
-  { id: 'motorcycle', label: 'motos', icon: MotorcycleIcon, title: 'Your Likes', subtitle: '' },
-  { id: 'bicycle', label: 'bikes', icon: Bike, title: 'Your Likes', subtitle: '' },
-  { id: 'worker', label: 'services', icon: Briefcase, title: 'Your Likes', subtitle: '' },
+  { id: 'all', label: 'All', icon: Flame, title: 'Your Likes', subtitle: '' },
+  { id: 'property', label: 'Homes', icon: Home, title: 'Your Likes', subtitle: '' },
+  { id: 'motorcycle', label: 'Motos', icon: MotorcycleIcon, title: 'Your Likes', subtitle: '' },
+  { id: 'bicycle', label: 'Bikes', icon: Bike, title: 'Your Likes', subtitle: '' },
+  { id: 'worker', label: 'Services', icon: Briefcase, title: 'Your Likes', subtitle: '' },
 ];
 
 const ClientLikedProperties = () => {
@@ -189,7 +189,7 @@ const ClientLikedProperties = () => {
         initialMessage: `Hi! I'm interested in your property: ${property.title}. Could you tell me more about it?`,
         canStartNewConversation: true // Always allow
       });
-      
+
 
       // Navigate to messages with the conversation ID to open it directly
       if (result?.conversationId) {
@@ -197,7 +197,7 @@ const ClientLikedProperties = () => {
       } else {
         navigate('/messages');
       }
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to start conversation';
       toast({
@@ -232,61 +232,102 @@ const ClientLikedProperties = () => {
       <div className="w-full pb-24 bg-background">
         <div className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-6xl mx-auto">
-            {/* Dynamic Title with PageHeader - only one back button */}
+            {/* Dynamic Title with PageHeader */}
             <PageHeader
               title={currentCategory.title}
               subtitle={currentCategory.subtitle}
               showBack={true}
               actions={
-                <Button
+                <button
                   onClick={() => {
-                    // Force a fresh fetch by invalidating the cache
                     queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
                     refreshLikedProperties();
                   }}
-                  variant="outline"
-                  size="sm"
                   disabled={isLoading || isFetching}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white/70 hover:text-white transition-all duration-150 active:scale-95 touch-manipulation disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))',
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.25)',
+                  }}
                 >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${(isLoading || isFetching) ? 'animate-spin' : ''}`} />
-                  refresh
-                </Button>
+                  <RefreshCw className={`w-4 h-4 ${(isLoading || isFetching) ? 'animate-spin' : ''}`} />
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
               }
             />
 
-            {/* Category Tabs */}
-            <Tabs value={selectedCategory} onValueChange={handleCategoryChange} className="w-full mb-6">
-              <TabsList className="grid w-full grid-cols-5 h-auto overflow-x-auto">
-                {categories.map(({ id, label, icon: Icon }) => (
-                  <TabsTrigger
+            {/* Category Tabs - premium pill style */}
+            <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1">
+              {categories.map(({ id, label, icon: Icon }) => {
+                const isActive = selectedCategory === id;
+                return (
+                  <motion.button
                     key={id}
-                    value={id}
-                    className="flex items-center gap-1 sm:gap-2 px-2 py-2 text-xs sm:text-sm"
+                    onClick={() => handleCategoryChange(id)}
+                    whileTap={{ scale: 0.94 }}
+                    className={cn(
+                      'flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all duration-200 touch-manipulation flex-shrink-0',
+                      isActive
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
+                        : 'text-white/60 hover:text-white'
+                    )}
+                    style={!isActive ? {
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                    } : undefined}
                   >
-                    <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span className="hidden sm:inline">{label}</span>
-                    <span className="sm:hidden">{label.substring(0, 4)}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+                    <Icon className="w-3.5 h-3.5" />
+                    {label}
+                  </motion.button>
+                );
+              })}
+            </div>
 
             {/* Count indicator */}
-            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-4">
-              <Flame className="w-4 h-4" />
+            <div className="flex items-center gap-2 text-white/40 text-sm mb-5">
+              <Flame className="w-4 h-4 text-orange-400" />
               <span>{filteredProperties.length} {selectedCategory === 'all' ? 'liked items' : `liked ${selectedCategory}`}</span>
             </div>
 
             {isLoading ? (
-              <Card className="bg-card border-border shadow-sm">
-                <CardContent className="flex items-center justify-center py-12">
-                  <p className="text-muted-foreground">Loading your liked properties...</p>
-                </CardContent>
-              </Card>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map(i => (
+                  <div
+                    key={i}
+                    className="rounded-2xl overflow-hidden animate-pulse"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}
+                  >
+                    <div className="h-48 bg-white/5" />
+                    <div className="p-4 space-y-3">
+                      <div className="h-4 bg-white/10 rounded-lg w-3/4" />
+                      <div className="h-3 bg-white/5 rounded-lg w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : filteredProperties.length > 0 ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredProperties.map((property) => (
-                  <Card key={property.id} className="bg-card border-border md:hover:bg-accent/50 transition-all duration-300 overflow-hidden shadow-sm cursor-pointer touch-manipulation" onClick={() => handlePropertyClick(property)}>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filteredProperties.map((property, idx) => (
+                  <motion.div
+                    key={property.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.04, duration: 0.3 }}
+                    className="rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.01] touch-manipulation"
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)',
+                    }}
+                    onClick={() => handlePropertyClick(property)}
+                  >
                     {/* Property Image */}
                     <div
                       className="relative h-48 overflow-hidden"
@@ -300,45 +341,48 @@ const ClientLikedProperties = () => {
                           <img
                             src={property.images[0]}
                             alt={property.title}
-                            className="w-full h-full object-cover md:hover:scale-105 transition-transform duration-300"
+                            className="w-full h-full object-cover transition-transform duration-300"
                           />
-                          {/* Image counter */}
                           {property.images.length > 1 && (
-                            <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2.5 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+                            <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-xs font-medium">
                               1 / {property.images.length}
                             </div>
                           )}
                         </>
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
-                          <Flame className="w-12 h-12 text-muted-foreground/50" />
+                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                          <Flame className="w-12 h-12 text-white/20" />
                         </div>
                       )}
+                      {/* Liked badge */}
                       <div className="absolute top-2 left-2">
-                        <Badge className="bg-red-500 hover:bg-red-600">
-                          <Flame className="w-3 h-3 mr-1 fill-current" />
+                        <span className="flex items-center gap-1 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                          <Flame className="w-3 h-3 fill-current" />
                           Liked
-                        </Badge>
+                        </span>
                       </div>
-                      <div className="absolute top-2 right-2 flex gap-1">
+                      {/* Menu button */}
+                      <div className="absolute top-2 right-2">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="bg-background hover:bg-accent text-foreground shadow-md"
+                            <button
+                              className="flex items-center justify-center w-8 h-8 rounded-xl backdrop-blur-sm transition-all touch-manipulation"
+                              style={{
+                                background: 'rgba(0,0,0,0.5)',
+                                border: '1px solid rgba(255,255,255,0.15)',
+                              }}
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <MoreVertical className="w-4 h-4" />
-                            </Button>
+                              <MoreVertical className="w-4 h-4 text-white" />
+                            </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuContent align="end" className="w-48 rounded-xl">
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRemoveLike(property);
                               }}
-                              className="text-destructive focus:text-destructive cursor-pointer"
+                              className="text-destructive focus:text-destructive cursor-pointer rounded-lg"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Remove from Likes
@@ -348,113 +392,128 @@ const ClientLikedProperties = () => {
                       </div>
                     </div>
 
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-foreground text-lg flex items-center justify-between">
-                        <span className="truncate">{property.title}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {property.property_type}
-                        </Badge>
-                      </CardTitle>
-                    </CardHeader>
+                    {/* Card Content */}
+                    <div className="p-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-white font-semibold text-base leading-tight truncate">{property.title}</h3>
+                        {property.property_type && (
+                          <span className="text-white/50 text-xs border border-white/15 px-2 py-0.5 rounded-lg flex-shrink-0">
+                            {property.property_type}
+                          </span>
+                        )}
+                      </div>
 
-                    <CardContent className="space-y-4">
                       {/* Location */}
-                      <div className="flex items-center text-muted-foreground">
-                        <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                        <span className="text-sm truncate">{property.address}</span>
+                      <div className="flex items-center gap-1.5 text-white/50 mb-3">
+                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="text-xs truncate">{property.address}</span>
                       </div>
 
                       {/* Property Details */}
-                      <div className="flex items-center gap-4 text-muted-foreground text-sm">
+                      <div className="flex items-center gap-3 text-white/60 text-xs mb-3">
                         {property.beds && (
                           <div className="flex items-center gap-1">
-                            <Bed className="w-4 h-4" />
+                            <Bed className="w-3.5 h-3.5" />
                             <span>{property.beds}</span>
                           </div>
                         )}
                         {property.baths && (
                           <div className="flex items-center gap-1">
-                            <Bath className="w-4 h-4" />
+                            <Bath className="w-3.5 h-3.5" />
                             <span>{property.baths}</span>
                           </div>
                         )}
                         {property.square_footage && (
                           <div className="flex items-center gap-1">
-                            <Square className="w-4 h-4" />
+                            <Square className="w-3.5 h-3.5" />
                             <span>{property.square_footage} ft²</span>
                           </div>
                         )}
                       </div>
 
                       {/* Price */}
-                      <div className="text-foreground font-bold text-xl">
-                        ${property.price?.toLocaleString()}/month
+                      <div className="text-white font-bold text-lg mb-3">
+                        ${property.price?.toLocaleString()}/mo
                       </div>
 
                       {/* Amenities */}
                       {property.amenities && property.amenities.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1.5 mb-3">
                           {property.amenities.slice(0, 3).map((amenity) => (
-                            <span key={`${property.id}-amenity-${amenity}`} className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">
+                            <span
+                              key={`${property.id}-amenity-${amenity}`}
+                              className="bg-orange-500/10 text-orange-300 px-2 py-0.5 rounded-lg text-xs border border-orange-500/20"
+                            >
                               {amenity}
                             </span>
                           ))}
                           {property.amenities.length > 3 && (
-                            <span className="text-muted-foreground text-xs">+{property.amenities.length - 3} more</span>
+                            <span className="text-white/30 text-xs">+{property.amenities.length - 3} more</span>
                           )}
                         </div>
                       )}
 
                       {/* Contact Button */}
-                      <div className="pt-2">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleContactOwner(property);
-                          }}
-                          disabled={startConversation.isPending}
-                          className="w-full"
-                        >
-                          {startConversation.isPending ? (
-                            <>
-                              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                              Connecting...
-                            </>
-                          ) : (
-                            <>
-                              <MessageCircle className="w-4 h-4 mr-2" />
-                              Contact Owner
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleContactOwner(property);
+                        }}
+                        disabled={startConversation.isPending}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-[0.98] touch-manipulation disabled:opacity-50"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(249,115,22,0.9), rgba(239,68,68,0.9))',
+                          boxShadow: '0 4px 12px rgba(249,115,22,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
+                        }}
+                      >
+                        {startConversation.isPending ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            Connecting...
+                          </>
+                        ) : (
+                          <>
+                            <MessageCircle className="w-4 h-4" />
+                            Contact Owner
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
             ) : (
-              <Card className="bg-card border-border shadow-sm">
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <Flame className="w-16 h-16 text-muted-foreground mb-4" />
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    {selectedCategory === 'all' ? 'No Liked Items' : `No Liked ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`}
-                  </h3>
-                  <p className="text-muted-foreground text-center">
-                    {selectedCategory === 'all'
-                      ? 'Items you like will appear here.'
-                      : `Swipe right on ${selectedCategory} listings to add them here.`}
-                  </p>
-                  {selectedCategory !== 'all' && likedProperties.length > 0 && (
-                    <Button
-                      variant="outline"
-                      className="mt-4"
-                      onClick={() => handleCategoryChange('all')}
-                    >
-                      View All Likes ({likedProperties.length})
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+              <div
+                className="rounded-2xl p-12 flex flex-col items-center justify-center text-center"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)',
+                }}
+              >
+                <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4">
+                  <Flame className="w-8 h-8 text-orange-400/60" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {selectedCategory === 'all' ? 'No Liked Items' : `No Liked ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`}
+                </h3>
+                <p className="text-white/40 text-sm">
+                  {selectedCategory === 'all'
+                    ? 'Items you like will appear here.'
+                    : `Swipe right on ${selectedCategory} listings to add them here.`}
+                </p>
+                {selectedCategory !== 'all' && likedProperties.length > 0 && (
+                  <button
+                    className="mt-5 px-5 py-2.5 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition-all touch-manipulation"
+                    style={{
+                      background: 'rgba(255,255,255,0.08)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                    }}
+                    onClick={() => handleCategoryChange('all')}
+                  >
+                    View All Likes ({likedProperties.length})
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -501,7 +560,7 @@ const ClientLikedProperties = () => {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="w-5 h-5 text-destructive" />
@@ -513,10 +572,10 @@ const ClientLikedProperties = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPropertyToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl" onClick={() => setPropertyToDelete(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmRemoveLike}
-              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
               disabled={removeLikeMutation.isPending}
             >
               {removeLikeMutation.isPending ? "Removing..." : "Remove"}

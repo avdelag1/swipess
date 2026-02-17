@@ -177,7 +177,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),340px)]">
+      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <span className="text-sm font-semibold text-foreground">Filter Clients</span>
@@ -245,7 +245,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {
     return (
-      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-2rem),400px)]">
+      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-border">
           <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
@@ -392,14 +392,14 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               }}
             />
 
-            {/* Main dropdown - FIXED centered on mobile, absolute on desktop */}
+            {/* Main dropdown - left-aligned on mobile, centered on larger screens */}
             <motion.div
               ref={dropdownRef}
               initial={{ opacity: 0, y: -10, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 600, damping: 25 }}
-              className="fixed left-1/2 -translate-x-1/2 top-14 z-[10002]"
+              className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
             </motion.div>
