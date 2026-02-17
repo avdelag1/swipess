@@ -1,130 +1,66 @@
 
-## Fix: Cinematic Swipe-to-Open Auth Flow
+## Fix: Copy Exact Swipe Card Physics to the Landing Logo
 
-### Root Cause of the Freeze/Snap-Back
+### What's Wrong Right Now
 
-The current implementation has **two bugs** that cause the jarring freeze and snap-back:
+The logo has mismatched drag settings compared to the swipe cards:
 
-1. **`x.set(0)` fires immediately in `handleDragEnd`** — before the auth dialog opens. This causes the logo to visibly snap back to center right before the dialog appears, creating the "freeze / comes back" effect the user sees.
+| Setting | Swipe Cards (good) | Landing Logo (broken) |
+|---|---|---|
+| `dragElastic` | `0.9` (uniform, very free) | `{ left: 0.08, right: 1 }` (asymmetric, left feels locked) |
+| `dragMomentum` | `false` (manual spring exit) | `true` (fights the `animate()` call on release) |
+| `dragConstraints` | `{ left: 0, right: 0, top: 0, bottom: 0 }` | `{ left: 0, right: 0 }` (missing top/bottom) |
+| Exit animation | `animate(x, exitX, { type: 'spring', stiffness: 600, damping: 30, velocity })` | `animate(x, width*1.5, { duration: 0.28, ease: [...] })` — no velocity, feels canned |
+| Snap-back | `animate(x, 0, { type: 'spring', stiffness: 400, damping: 28 })` | `animate(x, 0, { type: 'spring', stiffness: 260, damping: 22 })` — too soft |
 
-2. **AuthDialog is a Radix `Dialog` overlay** — it appears on top of the landing page. The landing page (with the logo) stays mounted underneath. So the swipe completes, the logo snaps to center, then the dialog fades in on top — which looks broken.
+The key culprit for the "delay/freeze" feeling: **`dragMomentum={true}` combined with a tween exit animation**. When the user releases, Framer Motion first applies its own momentum deceleration, THEN the `animate()` call starts — creating that brief freeze/stutter. The swipe cards use `dragMomentum={false}` and handle everything manually, which is instant and clean.
 
-3. **`dragMomentum={false}`** kills all natural feel. The card just stops dead, with no throw energy.
+### The Fix — One File Only
 
----
+**`src/components/LegendaryLandingPage.tsx`** — update the `LandingView` component's drag settings to exactly mirror `SimpleSwipeCard.tsx`:
 
-### The Vision: What It Should Look Like
-
-```text
-User swipes right →
-  Logo accelerates to the right, fading and shrinking →
-  The ENTIRE landing page vanishes (like turning a page) →
-  Auth screen slides in from the right seamlessly →
-  If user taps "Back", auth slides out and landing page returns
+**Drag props:**
+```tsx
+drag="x"
+dragConstraints={{ left: 0, right: 0 }}
+dragElastic={0.9}           // ← was { left: 0.08, right: 1 }
+dragMomentum={false}        // ← was true
 ```
 
-This is a **full-page transition**, NOT a dialog overlay on top of the landing page.
-
----
-
-### Solution: Replace AuthDialog popup with a full-page auth panel
-
-**The entire LegendaryLandingPage will be rebuilt** to handle two states:
-- `landing` — the swipeable logo screen
-- `auth` — the full auth form
-
-Both states live in the same component. The transition between them is an **AnimatePresence** page-swap animation.
-
-**No more Radix Dialog. No more overlay. Pure framer-motion page transition.**
-
----
-
-### Implementation Plan
-
-**File: `src/components/LegendaryLandingPage.tsx`**
-
-Replace the entire component with a two-state design:
-
-**State 1: Landing** — the logo page (current)  
-**State 2: Auth** — the full auth form rendered inline (not in a Dialog)
-
-The swipe mechanic:
-- `dragMomentum={true}` — re-enable natural throw physics
-- On drag end with `offset.x > 80` OR `velocity.x > 400` → trigger transition
-- **Do NOT snap back** — instead animate the logo **off-screen to the right** using `x.set(window.innerWidth)` then trigger state change
-- `AnimatePresence mode="wait"` controls the page swap: landing exits right → auth enters from right
-
-The auth form (extracted from `AuthDialog.tsx`):
-- Same form fields, Google OAuth button, everything
-- Rendered as a full-screen dark panel
-- "Back" button triggers reverse transition: auth exits right → landing re-enters from left
-
-**Transition choreography:**
-
-```
-Landing exit:
-  - Logo: x → +150vw, opacity → 0, blur → 20px (200ms)
-  - Tagline + chips: opacity → 0, y → -20 (150ms, staggered)
-  
-Auth enter:
-  - Full panel: x from +30px → 0, opacity 0 → 1, blur 8px → 0 (300ms ease-out)
-  - Form elements stagger in from bottom (0.04s each)
-  
-Auth exit (back):
-  - Panel: x → +30px, opacity → 0 (200ms)
-  
-Landing re-enter:
-  - Logo: x from -50px → 0, opacity → 1 (300ms spring)
+**Exit animation (when swipe threshold is met):**
+```tsx
+animate(x, window.innerWidth * 1.5, {
+  type: 'spring',
+  stiffness: 600,
+  damping: 30,
+  velocity: info.velocity.x,    // ← uses real finger velocity, feels instant
+  onComplete: () => onEnterAuth(),
+});
 ```
 
----
-
-### Files to Edit
-
-**1. `src/components/LegendaryLandingPage.tsx`** — Full rewrite of the component:
-- Add `view: 'landing' | 'auth'` state
-- Inline the auth form content (same logic from AuthDialog) 
-- Remove `<AuthDialog>` import
-- Proper AnimatePresence page swap
-- Fix swipe: no snap-back, velocity-aware trigger, momentum enabled
-- Swipe hint arrow under the logo (subtle, animated left→right bounce)
-
-**2. `src/components/AuthDialog.tsx`** — No changes needed (it's still used elsewhere in the app — e.g. from owner flow). We just won't use it on the landing page anymore.
-
----
-
-### Swipe Physics Fix
-
-Current (broken):
-```ts
-dragMomentum={false}         // kills natural feel
-dragElastic={0.9}            // too elastic, causes snap-back perception
-x.set(0)                     // fires immediately → visible snap
+**Snap-back (when threshold NOT met):**
+```tsx
+animate(x, 0, {
+  type: 'spring',
+  stiffness: 400,
+  damping: 28,
+  mass: 1,
+});
 ```
 
-Fixed:
-```ts
-dragMomentum={true}          // natural throw feel
-dragElastic={0.15}           // tighter, less bounce
-// on drag end, if threshold met:
-//   animate x to +200vw THEN show auth view
-//   never call x.set(0) until landing view is already hidden
-```
+**Trigger thresholds** (matching swipe cards exactly):
+- `info.offset.x > 100` (was 50) — matches `SWIPE_THRESHOLD = 100`
+- `info.velocity.x > 400` — matches `VELOCITY_THRESHOLD = 400`
 
-Trigger condition:
-```ts
-info.offset.x > 80 || info.velocity.x > 400
-```
+This gives the logo the exact same "finger-glued" feeling as the swipe cards, with an instant velocity-driven exit that has zero freeze.
 
----
+### Why This Works
 
-### Visual Result
+The swipe cards feel instant because:
+1. `dragElastic={0.9}` — the card follows the finger with almost no resistance in any direction
+2. `dragMomentum={false}` — Framer Motion does NOT add its own momentum on release, so the `animate()` spring fires immediately with the finger's real velocity
+3. Spring exit with `velocity: info.velocity.x` — the exit animation starts from the exact speed the finger was moving, so there's zero "catch up" delay
 
-The user will experience:
+### Only 1 File Changes
 
-1. **Swipe right** → logo flies off-screen to the right with blur trail
-2. **Auth panel** slides in smoothly from slight right offset, all form elements cascade in
-3. **Tap "Back"** → auth fades out, logo swoops back in from left
-4. **Tap the logo** → same instant transition (no swipe needed)
-
-Cinematic. Zero freeze. Zero snap-back. Premium flagship feel.
+- **`src/components/LegendaryLandingPage.tsx`** — update drag settings inside `LandingView` component (the motion.div wrapping the logo image)
