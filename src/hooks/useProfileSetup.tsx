@@ -155,7 +155,7 @@ export function useProfileSetup() {
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (existingProfile) {
@@ -203,7 +203,7 @@ export function useProfileSetup() {
             email: user.email || undefined,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', user.id)
+          .eq('user_id', user.id)
           .eq('onboarding_completed', false); // Only update if still false (idempotent)
 
         if (updateError && import.meta.env.DEV) {
