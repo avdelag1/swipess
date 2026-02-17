@@ -9,6 +9,7 @@ import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -138,6 +139,12 @@ function NotificationWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Silently re-registers push subscription for users who already granted permission
+function PushNotificationWrapper({ children }: { children: React.ReactNode }) {
+  usePushNotifications(); // hooks into service worker & re-syncs subscription if needed
+  return <>{children}</>;
+}
+
 // Wrapper for automatic update system
 function UpdateWrapper({ children }: { children: React.ReactNode }) {
   // Check for version changes and force update if needed
@@ -171,6 +178,7 @@ const App = () => (
             <UpdateWrapper>
             <ProfileSyncWrapper>
               <NotificationWrapper>
+              <PushNotificationWrapper>
                 {/* DISABLED: DepthParallaxBackground was causing performance issues */}
                 {/* <DepthParallaxBackground /> */}
                 
@@ -274,6 +282,7 @@ const App = () => (
                   </Routes>
                 </Suspense>
               </AppLayout>
+              </PushNotificationWrapper>
               </NotificationWrapper>
             </ProfileSyncWrapper>
             </UpdateWrapper>
