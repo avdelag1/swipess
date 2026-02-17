@@ -61,12 +61,10 @@ function LegendaryLandingPage() {
       {/* Live Star Timelapse Background */}
       <StarFieldBackground />
 
-      {/* Clean background - no S watermarks */}
-
       {/* Main Content */}
-      <div className="relative z-20 text-center space-y-4 sm:space-y-6 max-w-2xl w-full px-2 sm:px-4">
-        {/* Swipable Swipess Logo - Only the logo moves */}
-        <div className="space-y-3 text-center">
+      <div className="relative z-20 text-center flex flex-col items-center justify-center gap-4 sm:gap-5 max-w-2xl w-full px-2 sm:px-4">
+        {/* Swipable Swipess Logo - watermark style, crops black bg via mix-blend-mode */}
+        <div className="flex flex-col items-center gap-3">
           <motion.div
             data-swipe-logo
             drag="x"
@@ -83,9 +81,26 @@ function LegendaryLandingPage() {
               filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
             }}
             whileTap={{ scale: 0.98 }}
-            className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent"
+            className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none"
           >
-            <img src={swipessLogo} alt="Swipess" className="w-[280px] sm:w-[360px] md:w-[440px] h-auto drop-shadow-2xl" />
+            {/* Cropped container — shows only the center portion of the logo image */}
+            <div
+              className="overflow-hidden rounded-2xl mx-auto"
+              style={{ width: 'clamp(200px, 55vw, 320px)', height: 'clamp(100px, 22vw, 160px)' }}
+            >
+              <img
+                src={swipessLogo}
+                alt="Swipess"
+                style={{
+                  width: '100%',
+                  height: '200%',
+                  objectFit: 'cover',
+                  objectPosition: 'center 30%',
+                  mixBlendMode: 'screen',
+                  display: 'block',
+                }}
+              />
+            </div>
           </motion.div>
 
           <motion.p
@@ -97,23 +112,25 @@ function LegendaryLandingPage() {
             Swipe and find your perfect deal
           </motion.p>
 
-          {/* Swipe hint */}
-          <motion.p
-            className="text-white/60 text-sm font-medium"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          {/* CTA hint */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
+            className="flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/25 rounded-full backdrop-blur-sm"
           >
-            Swipe or tap Swipess to login or signup
-          </motion.p>
+            <span className="text-white text-sm sm:text-base font-semibold tracking-wide">
+              Swipe or tap to access
+            </span>
+          </motion.div>
         </div>
 
         {/* Bottom Info Section */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
-          className="pt-4 space-y-2"
+          transition={{ duration: 0.4, delay: 0.6 }}
+          className="space-y-2"
         >
           <div className="flex flex-wrap items-center justify-center gap-1.5">
             <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/10 rounded-full border border-white/20">
