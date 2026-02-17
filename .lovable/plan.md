@@ -1,59 +1,103 @@
 
-## Tagline Spacing & Position Fix
+## Fix: Eliminate the Breaking/Hesitation in the Landing-to-Auth Transition
 
-### What the User Wants
-1. **Move the tagline UP** — closer to the logo, not floating far below it
-2. **Visual separation** between "swipe or" and "tap to connect" — they feel crowded on one line
-3. **Slogan must fit** — no overflow, no cramping into the logo image
+### Diagnosed Root Causes
 
-### Current State (the problem)
-```
-Logo image (96vw wide, large)
-    ↕ -mt-4 gap  ← too much distance still
-"swipe or tap to connect"  ← all on one line, cramped
-    ↕ mt-3
-Info chips
-```
+There are 3 simultaneous bugs creating the "thinks a few times then opens" feeling:
 
-The `-mt-4` negative margin pulls the tagline up a little, but the logo image itself has no bottom padding restraint, so there's still visual distance. The text runs as one undifferentiated phrase.
+**Bug 1: Double-trigger race condition**
+`onClick={handleTap}` is attached to the same `motion.div` that has `drag="x"`. Framer Motion fires `onClick` after EVERY pointer-up — including after a drag. So when the user swipes, both `handleDragEnd` AND `handleTap` fire simultaneously. The `triggered.current` ref prevents both from completing, but there is still a brief moment of conflicting animation calls before the guard kicks in.
 
-### The Fix — One File Only: `src/components/LegendaryLandingPage.tsx`
+**Bug 2: `AnimatePresence mode="wait"` creates a dead zone**
+`mode="wait"` forces the landing view to fully complete its exit animation before the auth view can start entering. The exit transition is 320ms. During that window, the screen shows the landing page fading/blurring out with nothing incoming — a perceptible blank moment. The logo has already spring-animated off-screen, but the wrapper div is still playing its exit animation.
 
-**1. Tighten the gap between logo and tagline**
+**Bug 3: Double exit animation conflict**
+When the swipe threshold is met, the code does two things at once:
+1. Animates the logo `x` to `window.innerWidth * 1.5` (spring, takes ~200ms to leave view)
+2. After `onComplete` fires, calls `setView('auth')`, which triggers the `LandingView` wrapper's `exit` animation: `{ x: -60, filter: 'blur(6px)', duration: 0.32 }`
 
-Change the tagline wrapper from `-mt-4` to `-mt-6` (pull it closer up toward the bottom edge of the logo, without overlapping the image itself).
+This means: logo flies RIGHT, then the whole page exits LEFT with blur. Two conflicting directional animations playing sequentially = the "janky" feeling.
 
-**2. Break "swipe or tap to connect" into two visual lines**
+---
 
-Split it into a two-line layout:
-```
-swipe or
-tap to connect
-```
+### The Fix — One File: `src/components/LegendaryLandingPage.tsx`
 
-Using a `flex flex-col items-center gap-0.5` wrapper with each phrase as its own `<span>`:
-- First line: **"swipe or"** — slightly smaller, secondary weight, muted
-- Second line: **"tap to connect"** — full weight gradient, slightly larger
+**Fix 1: Remove `onClick={handleTap}` from the drag element**
+The tap handler should only be active on a true tap (no drag movement). Use `onPointerDown` + `onPointerUp` with a movement guard instead, OR add a separate invisible tap-target element that sits on top. Simplest approach: use `whileTap` feedback only on the logo and trigger the transition only from `handleDragEnd` for swipes, keeping the tap available but protected by a distance check.
 
-This creates a natural visual rhythm and breathing room between the two calls-to-action.
+Actually the cleanest fix matching SimpleSwipeCard's pattern: **remove `onClick` entirely from the draggable div**. Add a separate `onTap` using Framer Motion's `onTap` event (which only fires when no drag occurred):
 
-**3. Reduce font size slightly to guarantee fit**
-
-Current: `text-3xl sm:text-4xl md:text-5xl`
-New: `text-2xl sm:text-3xl md:text-4xl` — still bold and readable, avoids overflow on narrower screens.
-
-### Result
-
-```
-[  Logo image  ]
-  ↕ tight gap
-     swipe or
-  tap to connect
-  ↕ mt-3
-[ chips ]
+```tsx
+// Framer Motion's onTap only fires if the gesture was NOT a drag
+onTap={handleTap}
+// Remove onClick entirely
 ```
 
-Clean, hierarchical, cinematic — slogan reads top-to-bottom like a call-to-action funnel.
+**Fix 2: Change `AnimatePresence mode="wait"` to `mode="sync"`**
+`mode="sync"` allows the entering view to start appearing at the same time the exiting view is leaving. This eliminates the dead zone. Both the logo flying out and the auth form fading in happen in parallel.
 
-### Only 1 File Changes
-- **`src/components/LegendaryLandingPage.tsx`** — lines ~123–140 (tagline `<motion.p>` block)
+```tsx
+// Before (creates dead zone):
+<AnimatePresence mode="wait">
+
+// After (seamless overlap):
+<AnimatePresence mode="sync">
+```
+
+**Fix 3: Make the landing wrapper exit in the SAME direction as the logo**
+Currently the logo exits RIGHT but the wrapper exits LEFT. Unify them:
+
+```tsx
+// Landing wrapper exit:
+exit={{ opacity: 0, x: 60, filter: 'blur(4px)', transition: { duration: 0.22 } }}
+// Short duration so it clears quickly, exits RIGHT (same as logo)
+```
+
+And skip the logo spring animation entirely — let the wrapper animate everything, and just call `setView('auth')` immediately when threshold is met. The wrapper's exit animation IS the visual transition:
+
+```tsx
+// When swipe threshold met:
+triggered.current = true;
+setView('auth'); // Fire immediately — AnimatePresence handles the visual transition
+// No separate animate(x, ...) needed — the exit animation covers it
+```
+
+This is the key insight: **stop trying to manually animate the logo off-screen, then swap the view. Just swap the view — the exit animation does the work.**
+
+**Fix 4: Align all transition timings**
+
+Landing exit: `{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }` — fast, directional exit to right  
+Auth enter: `{ duration: 0.30, ease: [0.25, 0.46, 0.45, 0.94] }` — slightly longer, smooth entrance  
+Auth exit: `{ duration: 0.20, ease: [0.4, 0, 1, 1] }` — quick exit when going back  
+Landing re-enter: `{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }` — gentle re-entrance from left  
+
+---
+
+### Summary of Changes
+
+**`src/components/LegendaryLandingPage.tsx`**
+
+| Location | Change |
+|---|---|
+| `motion.div` (logo drag element) | Replace `onClick={handleTap}` with `onTap={handleTap}` |
+| `handleDragEnd` | Remove the `animate(x, ...)` spring call — replace with direct `setView('auth')` |
+| `handleTap` | Remove the `animate(x, ...)` call — replace with direct `setView('auth')` |
+| `LandingView` wrapper `exit` prop | Change to `exit={{ x: 80, opacity: 0, transition: { duration: 0.22 } }}` (exits RIGHT, fast) |
+| `LandingView` wrapper `initial`/`animate` | Keep as-is |
+| `AnimatePresence` in root | Change `mode="wait"` to `mode="sync"` |
+| `AuthView` `initial`/`animate`/`exit` | Simplify: enter from right (`x: 30 → 0`), exit right (`x: 30`), no blur needed |
+
+---
+
+### Why This Feels Instant After the Fix
+
+- `onTap` instead of `onClick` → no double-trigger, no race condition
+- `mode="sync"` → auth starts appearing the moment landing starts exiting — zero gap
+- No manual spring animation before view swap → `setView('auth')` fires in the same frame as the threshold being crossed
+- Exit direction unified → everything moves the same way, the eye reads it as one fluid gesture
+
+The result: **finger lifts → landing exits right → auth enters from right → both happening simultaneously → zero hesitation**
+
+### Files Changed
+
+- **`src/components/LegendaryLandingPage.tsx`** — targeted changes to `handleDragEnd`, `handleTap`, the drag `motion.div`, the `LandingView` wrapper exit, and the `AnimatePresence` mode
