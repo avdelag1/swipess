@@ -60,7 +60,13 @@ function LegendaryLandingPage() {
     >
       {/* Live Star Timelapse Background */}
       <StarFieldBackground />
-      
+
+      {/* Fade out gradient from TOP - vanishing effect */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none" />
+
+      {/* Fade out gradient from BOTTOM - vanishing effect */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none" />
+
       {/* Main Content */}
       <div className="relative z-20 text-center max-w-4xl w-full px-4 min-h-[400px] flex flex-col items-center justify-center">
         {/* Background slogan - BEHIND the logo (visible in background) */}
