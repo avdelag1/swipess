@@ -1,66 +1,59 @@
 
-## Fix: Copy Exact Swipe Card Physics to the Landing Logo
+## Tagline Spacing & Position Fix
 
-### What's Wrong Right Now
+### What the User Wants
+1. **Move the tagline UP** — closer to the logo, not floating far below it
+2. **Visual separation** between "swipe or" and "tap to connect" — they feel crowded on one line
+3. **Slogan must fit** — no overflow, no cramping into the logo image
 
-The logo has mismatched drag settings compared to the swipe cards:
-
-| Setting | Swipe Cards (good) | Landing Logo (broken) |
-|---|---|---|
-| `dragElastic` | `0.9` (uniform, very free) | `{ left: 0.08, right: 1 }` (asymmetric, left feels locked) |
-| `dragMomentum` | `false` (manual spring exit) | `true` (fights the `animate()` call on release) |
-| `dragConstraints` | `{ left: 0, right: 0, top: 0, bottom: 0 }` | `{ left: 0, right: 0 }` (missing top/bottom) |
-| Exit animation | `animate(x, exitX, { type: 'spring', stiffness: 600, damping: 30, velocity })` | `animate(x, width*1.5, { duration: 0.28, ease: [...] })` — no velocity, feels canned |
-| Snap-back | `animate(x, 0, { type: 'spring', stiffness: 400, damping: 28 })` | `animate(x, 0, { type: 'spring', stiffness: 260, damping: 22 })` — too soft |
-
-The key culprit for the "delay/freeze" feeling: **`dragMomentum={true}` combined with a tween exit animation**. When the user releases, Framer Motion first applies its own momentum deceleration, THEN the `animate()` call starts — creating that brief freeze/stutter. The swipe cards use `dragMomentum={false}` and handle everything manually, which is instant and clean.
-
-### The Fix — One File Only
-
-**`src/components/LegendaryLandingPage.tsx`** — update the `LandingView` component's drag settings to exactly mirror `SimpleSwipeCard.tsx`:
-
-**Drag props:**
-```tsx
-drag="x"
-dragConstraints={{ left: 0, right: 0 }}
-dragElastic={0.9}           // ← was { left: 0.08, right: 1 }
-dragMomentum={false}        // ← was true
+### Current State (the problem)
+```
+Logo image (96vw wide, large)
+    ↕ -mt-4 gap  ← too much distance still
+"swipe or tap to connect"  ← all on one line, cramped
+    ↕ mt-3
+Info chips
 ```
 
-**Exit animation (when swipe threshold is met):**
-```tsx
-animate(x, window.innerWidth * 1.5, {
-  type: 'spring',
-  stiffness: 600,
-  damping: 30,
-  velocity: info.velocity.x,    // ← uses real finger velocity, feels instant
-  onComplete: () => onEnterAuth(),
-});
+The `-mt-4` negative margin pulls the tagline up a little, but the logo image itself has no bottom padding restraint, so there's still visual distance. The text runs as one undifferentiated phrase.
+
+### The Fix — One File Only: `src/components/LegendaryLandingPage.tsx`
+
+**1. Tighten the gap between logo and tagline**
+
+Change the tagline wrapper from `-mt-4` to `-mt-6` (pull it closer up toward the bottom edge of the logo, without overlapping the image itself).
+
+**2. Break "swipe or tap to connect" into two visual lines**
+
+Split it into a two-line layout:
+```
+swipe or
+tap to connect
 ```
 
-**Snap-back (when threshold NOT met):**
-```tsx
-animate(x, 0, {
-  type: 'spring',
-  stiffness: 400,
-  damping: 28,
-  mass: 1,
-});
+Using a `flex flex-col items-center gap-0.5` wrapper with each phrase as its own `<span>`:
+- First line: **"swipe or"** — slightly smaller, secondary weight, muted
+- Second line: **"tap to connect"** — full weight gradient, slightly larger
+
+This creates a natural visual rhythm and breathing room between the two calls-to-action.
+
+**3. Reduce font size slightly to guarantee fit**
+
+Current: `text-3xl sm:text-4xl md:text-5xl`
+New: `text-2xl sm:text-3xl md:text-4xl` — still bold and readable, avoids overflow on narrower screens.
+
+### Result
+
+```
+[  Logo image  ]
+  ↕ tight gap
+     swipe or
+  tap to connect
+  ↕ mt-3
+[ chips ]
 ```
 
-**Trigger thresholds** (matching swipe cards exactly):
-- `info.offset.x > 100` (was 50) — matches `SWIPE_THRESHOLD = 100`
-- `info.velocity.x > 400` — matches `VELOCITY_THRESHOLD = 400`
-
-This gives the logo the exact same "finger-glued" feeling as the swipe cards, with an instant velocity-driven exit that has zero freeze.
-
-### Why This Works
-
-The swipe cards feel instant because:
-1. `dragElastic={0.9}` — the card follows the finger with almost no resistance in any direction
-2. `dragMomentum={false}` — Framer Motion does NOT add its own momentum on release, so the `animate()` spring fires immediately with the finger's real velocity
-3. Spring exit with `velocity: info.velocity.x` — the exit animation starts from the exact speed the finger was moving, so there's zero "catch up" delay
+Clean, hierarchical, cinematic — slogan reads top-to-bottom like a call-to-action funnel.
 
 ### Only 1 File Changes
-
-- **`src/components/LegendaryLandingPage.tsx`** — update drag settings inside `LandingView` component (the motion.div wrapping the logo image)
+- **`src/components/LegendaryLandingPage.tsx`** — lines ~123–140 (tagline `<motion.p>` block)
