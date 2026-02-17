@@ -503,9 +503,18 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         
         {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
         <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
-          {/* Rating Display - Bottom of card, above property info */}
+          {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
-            <div className="inline-flex bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5">
+            <div
+              className="inline-flex rounded-full px-3 py-1.5"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            >
               <CompactRatingDisplay
                 aggregate={ratingAggregate}
                 isLoading={isRatingLoading}
@@ -552,7 +561,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {/* Verified badge - now using TrustSignals component */}
         {(listing as any).has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
-            <div className="px-2.5 py-1.5 rounded-full bg-black/40 backdrop-blur-sm flex items-center gap-1.5">
+            <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.35)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+            }}>
               <VerifiedBadge size="sm" />
               <span className="text-xs font-medium text-white">Verified</span>
             </div>
