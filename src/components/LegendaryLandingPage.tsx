@@ -2,9 +2,8 @@ import { memo, useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { Shield, Sparkles, Users } from 'lucide-react';
 import { AuthDialog } from './AuthDialog';
-import { SwipessLogoWithOrb } from './SwipessLogoWithOrb';
-import { SwipessSWatermark } from './SwipessSWatermark';
 import StarFieldBackground from './StarFieldBackground';
+import swipessLogo from '@/assets/swipess-logo.jpg';
 
 const SWIPE_THRESHOLD = 120;
 
@@ -62,40 +61,7 @@ function LegendaryLandingPage() {
       {/* Live Star Timelapse Background */}
       <StarFieldBackground />
 
-      {/* Large S watermark - centered behind content with subtle glow */}
-      <div className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden pointer-events-none">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
-        >
-          <SwipessSWatermark
-            size="min(80vw, 500px)"
-            opacity={0.06}
-            className="blur-[1px]"
-          />
-        </motion.div>
-      </div>
-
-      {/* Smaller S marks scattered in corners for depth */}
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-10 -right-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2, delay: 0.5 }}
-        >
-          <SwipessSWatermark size={200} opacity={0.035} className="rotate-[15deg] blur-[0.5px]" />
-        </motion.div>
-        <motion.div
-          className="absolute -bottom-12 -left-8"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 2, delay: 0.8 }}
-        >
-          <SwipessSWatermark size={180} opacity={0.03} className="-rotate-[20deg] blur-[0.5px]" />
-        </motion.div>
-      </div>
+      {/* Clean background - no S watermarks */}
 
       {/* Main Content */}
       <div className="relative z-20 text-center space-y-4 sm:space-y-6 max-w-2xl w-full px-2 sm:px-4">
@@ -119,7 +85,7 @@ function LegendaryLandingPage() {
             whileTap={{ scale: 0.98 }}
             className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent"
           >
-            <SwipessLogoWithOrb size="4xl" className="drop-shadow-2xl" orbActive={true} />
+            <img src={swipessLogo} alt="Swipess" className="w-[280px] sm:w-[360px] md:w-[440px] h-auto drop-shadow-2xl" />
           </motion.div>
 
           <motion.p
