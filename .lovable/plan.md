@@ -1,86 +1,62 @@
 
 
-# Fix Multiple Issues: Bottom Nav, Token Packages, Swipe Cards, and Profile
+# Landing Page and Navigation Enhancement Plan
 
-This plan addresses several issues you've reported, organized by priority.
+## What's Being Fixed
 
----
+Based on the screenshot, the logo appears small and off-center within a dark rectangle, the tagline sits too far below, and the info chips feel disconnected. The header/nav hide effect also needs a more premium vanish transition.
 
-## 1. Remove Background/Frames from Bottom Navigation Buttons
+## Changes Overview
 
-**Problem**: Bottom navigation buttons have `bg-white/10 hover:bg-white/25` creating visible frames/squares around each icon.
+### 1. Landing Page -- Logo and Layout Overhaul
 
-**Fix**: Remove the background styling from nav buttons in `BottomNavigation.tsx` so they appear as clean floating icons without any box or frame behind them.
+**Logo sizing:** Make it significantly larger so it dominates the screen and draws the eye. Change from `w-[55vw] max-w-[280px]` to `w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px]` -- roughly 35% larger. Remove `max-h-[25vh]` constraint so it breathes.
 
----
+**Tagline positioning:** Move the tagline BEHIND/overlapping the logo bottom edge using negative margin (`-mt-3`), so "swipe or tap to connect" feels integrated with the logo rather than floating below it. Increase text size for "to connect" to `text-3xl sm:text-4xl md:text-5xl`.
 
-## 2. Fix Token Packages Display (Both Client and Owner)
+**Perfect centering:** The flex container is already centered, but we'll ensure the content block has no stray margins pushing it off-center.
 
-**Problem**: The `MessageActivationPackages` component references a `tokens` column that doesn't exist in the database. The actual column is `message_activations`. Additionally, the packages show "Loading..." because the query uses the wrong column name.
+### 2. Info Chips -- Real Button Shape with Depth
 
-**Fix**: Update the `convertPackages` function in `MessageActivationPackages.tsx` to use `message_activations` instead of `tokens`. The database already has 3 packages for each role (client: 5/10/25 tokens at $49/$89/$169, owner: 5/10/25 tokens at $59/$109/$199).
+Transform the flat chips into premium pill buttons with:
+- Stronger background: `bg-white/12` with `backdrop-blur-md`
+- Layered shadow: `shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]`
+- Slightly larger padding and text
+- Subtle inner highlight (inset border-top glow) for 3D realism
 
----
+### 3. Header and Nav -- Enhanced Vanish Effect
 
-## 3. Make Token Package Cards Smaller/More Compact
+Currently the hide animation is: translateY + opacity + blur(4px). We'll upgrade to a more cinematic vanish:
 
-**Problem**: The cards are oversized with large padding and spacing.
+**Header (`.app-header.header-hidden`):**
+- Add `scale(0.95)` for a subtle zoom-out shrink
+- Increase blur to `blur(8px)` for a dissolve feel
+- Slightly faster opacity fade with a delayed scale for a two-stage exit
 
-**Fix**: Reduce padding, font sizes, and icon sizes in the package cards. Make the token number display smaller, reduce card header spacing, and tighten the overall layout. Also make the header section smaller as requested.
-
----
-
-## 4. Add PayPal Button
-
-**Problem**: The current "Buy Now" button redirects to a PayPal link via `window.open()`, but there's no visible PayPal branding.
-
-**Fix**: Add a PayPal logo/icon to the purchase button and style it to look like an official PayPal button, making it clear this is a PayPal payment.
-
----
-
-## 5. Fix Build Error (StationDrawer)
-
-**Problem**: The `CityLocation` type includes `'italy'` but the `CITY_ICONS` map in `StationDrawer.tsx` is missing the `italy` entry.
-
-**Fix**: Add `'italy': 'IT'` to the `CITY_ICONS` Record in `StationDrawer.tsx`.
-
----
-
-## 6. Swipe Card Verification
-
-**Problem**: Potential issues with swipe left, right, top, photo scrolling, and tap interactions.
-
-**Current State Review**: The swipe system looks well-implemented with:
-- Left/right swipe with threshold detection
-- Diagonal movement with physics
-- Image tap zones (left third = prev photo, right third = next photo, middle = insights)
-- Press-and-hold magnifier with 350ms delay
-- Button-triggered swipes via ref
-
-**Potential Issues Identified**:
-- The `dragListener={false}` combined with manual `dragControls.start()` means drag only starts after 15px movement AND after the magnifier hold timer is checked. This could feel unresponsive.
-- The pointer event flow (unified handler) may conflict in some edge cases between magnifier, drag, and tap.
-
-**Fix**: Review and tighten the gesture coordination. Ensure the 15px movement threshold for distinguishing drag vs. hold-to-zoom is responsive enough. No major structural changes needed -- the architecture is solid.
-
----
-
-## 7. Profile Photo Upload Verification
-
-**Current State**: The `ClientProfileDialog` uses `PhotoUploadManager` component for photo uploads. The profile page (`ClientProfileNew`) shows profile images and links to the edit dialog.
-
-**Fix**: Verify the `PhotoUploadManager` component works correctly with the storage bucket. No code changes anticipated unless testing reveals issues.
-
----
+**Bottom Nav (`.app-bottom-bar.nav-hidden`):**
+- Same treatment: `scale(0.95)` + `blur(8px)`
+- The combination of shrinking + blurring + fading creates a "melting away" effect
 
 ## Technical Details
 
 ### Files to modify:
-1. **`src/components/BottomNavigation.tsx`** -- Remove `bg-white/10 hover:bg-white/25` from button className
-2. **`src/components/MessageActivationPackages.tsx`** -- Fix `tokens` to `message_activations`, reduce card sizes, add PayPal branding to button
-3. **`src/components/radio/retro/StationDrawer.tsx`** -- Add `'italy': 'IT'` to CITY_ICONS
-4. **`src/components/SimpleSwipeCard.tsx`** -- Minor gesture tuning if needed after testing
 
-### No database changes required
-All 6 token packages (3 client + 3 owner) already exist in the database with correct data.
+**`src/components/LegendaryLandingPage.tsx`**
+- Increase logo image classes to `w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px]`
+- Change tagline margin from `mt-5` to `-mt-2` (overlap effect)
+- Increase "to connect" text size
+- Upgrade chip styling with shadows and backdrop-blur
+
+**`src/index.css`**
+- `.app-header.header-hidden`: add `scale(0.95)`, increase blur to `8px`
+- `.app-bottom-bar.nav-hidden`: add `scale(0.95)`, increase blur to `8px`
+- Add `scale(1)` to the base state of both for smooth transition baseline
+
+### What stays untouched:
+- Swipe physics and drag logic
+- Auth dialog behavior
+- StarFieldBackground
+- Scroll direction hook logic
+- Routing and navigation paths
+- Bottom nav item layout and icons
 
