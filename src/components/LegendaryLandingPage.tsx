@@ -72,7 +72,7 @@ function LegendaryLandingPage() {
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[92vw] max-w-[520px] sm:max-w-[580px] md:max-w-[640px] max-h-[50vh] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+            className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
           />
         </motion.div>
 
