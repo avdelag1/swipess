@@ -62,20 +62,15 @@ function LegendaryLandingPage() {
       <StarFieldBackground />
       
       {/* Main Content */}
-      <div className="relative z-20 text-center max-w-4xl w-full px-4">
-        {/* Background slogan - behind the logo */}
-        <motion.div
-          className="absolute inset-0 flex items-center justify-center -z-10 pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.08 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white whitespace-nowrap tracking-tight truncate">
+      <div className="relative z-20 text-center max-w-4xl w-full px-4 min-h-[400px] flex flex-col items-center justify-center">
+        {/* Background slogan - BEHIND the logo (visible in background) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white/10 whitespace-nowrap tracking-tight truncate select-none">
             swipes or tap to connect
           </h1>
-        </motion.div>
+        </div>
 
-        {/* Swipable Swipess Logo - Bigger and centered */}
+        {/* Swipable Swipess Logo - On TOP of background slogan */}
         <motion.div
           data-swipe-logo
           drag="x"
@@ -92,21 +87,20 @@ function LegendaryLandingPage() {
             filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
           }}
           whileTap={{ scale: 0.95 }}
-          className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent py-8"
+          className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent z-10 relative"
         >
           <SwipessLogoWithOrb size="4xl" className="drop-shadow-2xl" orbActive={true} />
         </motion.div>
 
         {/* Main slogan below logo */}
         <motion.p
-          className="text-white/80 text-xl sm:text-2xl md:text-3xl font-medium text-center px-4 mt-4"
+          className="text-white/80 text-xl sm:text-2xl md:text-3xl font-medium text-center px-4 mt-6 z-10 relative"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
         >
           swipes or tap to connect
         </motion.p>
-      </div>
 
         {/* Bottom Info Section */}
         <motion.div
