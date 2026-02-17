@@ -25,6 +25,7 @@ const CITY_ICONS: Record<CityLocation, string> = {
   'texas': 'TX',
   'french': 'FR',
   'podcasts': 'PD',
+  'italy': 'IT',
 };
 
 /**

@@ -64,10 +64,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
       if (result) {
         const aiResponse = (result as any).suggestion || 'Search complete!';
-        
+
         // Add AI typing indicator first
         setMessages(prev => [...prev, { role: 'ai', content: '', timestamp: Date.now() }]);
-        
+
         // Animate the AI response
         setTimeout(() => {
           setMessages(prev => {
@@ -81,15 +81,27 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             navigateToFilters((result as any));
           }, 2000);
         }, 1000);
+      } else {
+        // Handle case when AI returns null (error occurred)
+        setMessages(prev => [...prev, {
+          role: 'ai',
+          content: 'Sorry, I had trouble processing your request. Please try again or contact support if the issue persists.',
+          timestamp: Date.now()
+        }]);
       }
     } catch (error) {
       setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: 'Sorry, I had trouble processing your request. Please try again.', 
-        timestamp: Date.now() 
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('AI search error:', errorMessage, error);
+
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: 'Sorry, I had trouble processing your request. Please try again or contact support if the issue persists.',
+        timestamp: Date.now()
       }]);
-      console.error('AI search error:', error);
+
+      // Show toast for better visibility
+      toast.error('AI request failed. Please try again.');
     } finally {
       setIsSearching(false);
     }

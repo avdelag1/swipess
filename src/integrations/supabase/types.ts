@@ -632,7 +632,7 @@ export type Database = {
           },
         ]
       }
-      tokens: {
+      message_activations: {
         Row: {
           activations_remaining: number
           created_at: string
@@ -1000,7 +1000,7 @@ export type Database = {
           legal_documents_included: number | null
           market_reports: boolean | null
           max_listings: number | null
-          tokens: number | null
+          message_activations: number | null
           name: string
           package_category: string
           paypal_link: string | null
@@ -1023,7 +1023,7 @@ export type Database = {
           legal_documents_included?: number | null
           market_reports?: boolean | null
           max_listings?: number | null
-          tokens?: number | null
+          message_activations?: number | null
           name: string
           package_category?: string
           paypal_link?: string | null
@@ -1046,7 +1046,7 @@ export type Database = {
           legal_documents_included?: number | null
           market_reports?: boolean | null
           max_listings?: number | null
-          tokens?: number | null
+          message_activations?: number | null
           name?: string
           package_category?: string
           paypal_link?: string | null

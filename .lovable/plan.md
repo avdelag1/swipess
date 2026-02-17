@@ -1,118 +1,62 @@
 
 
-## AI Orchestrator System -- Unified Multi-Task Intelligence
+# Landing Page and Navigation Enhancement Plan
 
-### What We're Building
+## What's Being Fixed
 
-A single `ai-orchestrator` edge function that replaces the current `ai-assistant` and `ai-conversation` functions, handling all AI tasks through one entry point with provider fallback support.
+Based on the screenshot, the logo appears small and off-center within a dark rectangle, the tagline sits too far below, and the info chips feel disconnected. The header/nav hide effect also needs a more premium vanish transition.
 
-### Current State
+## Changes Overview
 
-- `ai-assistant` handles: listing generation, profile enhancement, search
-- `ai-conversation` handles: conversational listing builder
-- Both use Lovable AI Gateway with `google/gemini-3-flash-preview`
-- Frontend hooks: `useAIGeneration` and `useConversationalAI`
-- MiniMax API key is stored but has no balance (fallback only)
+### 1. Landing Page -- Logo and Layout Overhaul
 
-### Architecture
+**Logo sizing:** Make it significantly larger so it dominates the screen and draws the eye. Change from `w-[55vw] max-w-[280px]` to `w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px]` -- roughly 35% larger. Remove `max-h-[25vh]` constraint so it breathes.
 
-```text
-[ Frontend ]
-     |
-     |-- useAIGeneration() -----> listing, profile, search, enhance
-     |-- useConversationalAI() -> conversation (listing builder)
-     |
-     v
-[ supabase.functions.invoke("ai-orchestrator") ]
-     |
-     |  task routing + provider selection
-     |
-     |---> Lovable AI Gateway (default, free)
-     |---> MiniMax (fallback, if key has balance)
-     |
-     v
-[ Normalized JSON Response ]
-     |
-     v
-[ Form Autofill / Search Filters / Enhanced Text ]
-```
+**Tagline positioning:** Move the tagline BEHIND/overlapping the logo bottom edge using negative margin (`-mt-3`), so "swipe or tap to connect" feels integrated with the logo rather than floating below it. Increase text size for "to connect" to `text-3xl sm:text-4xl md:text-5xl`.
 
-### Tasks Supported
+**Perfect centering:** The flex container is already centered, but we'll ensure the content block has no stray margins pushing it off-center.
 
-1. **listing** -- Generate structured listing data from description + category
-2. **profile** -- Enhance user bio and interests
-3. **search** -- Convert natural language query to structured filters (semantic search)
-4. **enhance** -- Improve existing listing/profile text
-5. **conversation** -- Multi-turn conversational listing builder with memory
+### 2. Info Chips -- Real Button Shape with Depth
 
-### Changes
+Transform the flat chips into premium pill buttons with:
+- Stronger background: `bg-white/12` with `backdrop-blur-md`
+- Layered shadow: `shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]`
+- Slightly larger padding and text
+- Subtle inner highlight (inset border-top glow) for 3D realism
 
-#### 1. New Edge Function: `supabase/functions/ai-orchestrator/index.ts`
+### 3. Header and Nav -- Enhanced Vanish Effect
 
-Single file that:
-- Accepts `{ task, data, context, messages }` payload
-- Routes to the correct prompt builder based on `task`
-- Calls Lovable AI Gateway (primary) with fallback to MiniMax if Lovable fails
-- Parses AI response into structured JSON
-- Handles rate limit errors (429) and payment errors (402) with clear messages
-- Returns normalized `{ result, provider_used }` response
+Currently the hide animation is: translateY + opacity + blur(4px). We'll upgrade to a more cinematic vanish:
 
-Provider logic is inline (no subfolders -- edge functions require single file). The orchestrator tries Lovable AI first; if it returns 429/500, it attempts MiniMax as fallback (if the key exists and has balance).
+**Header (`.app-header.header-hidden`):**
+- Add `scale(0.95)` for a subtle zoom-out shrink
+- Increase blur to `blur(8px)` for a dissolve feel
+- Slightly faster opacity fade with a delayed scale for a two-stage exit
 
-#### 2. Update `supabase/config.toml`
+**Bottom Nav (`.app-bottom-bar.nav-hidden`):**
+- Same treatment: `scale(0.95)` + `blur(8px)`
+- The combination of shrinking + blurring + fading creates a "melting away" effect
 
-Register `ai-orchestrator` with `verify_jwt = false`. Keep old functions registered for backward compatibility during transition.
+## Technical Details
 
-#### 3. Update Frontend Hooks
+### Files to modify:
 
-**`src/hooks/ai/useAIGeneration.ts`**
-- Change invoke target from `ai-assistant` to `ai-orchestrator`
-- Add `enhance` task type support
-- Surface rate limit / payment errors as toast messages
+**`src/components/LegendaryLandingPage.tsx`**
+- Increase logo image classes to `w-[75vw] max-w-[360px] sm:max-w-[420px] md:max-w-[500px]`
+- Change tagline margin from `mt-5` to `-mt-2` (overlap effect)
+- Increase "to connect" text size
+- Upgrade chip styling with shadows and backdrop-blur
 
-**`src/hooks/ai/useConversationalAI.ts`**
-- Change invoke target from `ai-conversation` to `ai-orchestrator`
-- Send `task: "conversation"` with messages array
+**`src/index.css`**
+- `.app-header.header-hidden`: add `scale(0.95)`, increase blur to `8px`
+- `.app-bottom-bar.nav-hidden`: add `scale(0.95)`, increase blur to `8px`
+- Add `scale(1)` to the base state of both for smooth transition baseline
 
-**`src/components/AIListingAssistant.tsx`**
-- Update the direct `supabase.functions.invoke('ai-assistant')` call to use `ai-orchestrator`
-
-#### 4. Add AI Enhance Capability
-
-New export in `useAIGeneration`:
-- `enhance(text, tone)` method that sends `task: "enhance"` to the orchestrator
-- Returns improved text that user must confirm before applying
-
-#### 5. AI Semantic Search
-
-The existing `search` task already converts natural language to structured filters. The orchestrator will improve the prompt to also detect language and return richer intent data:
-```text
-Input:  "clean lady near me under 1000"
-Output: { category: "worker", filters: { keywords: ["cleaning"], max_price: 1000 }, language: "en", suggestion: "..." }
-```
-
-No new database queries needed -- the AI only structures intent, and the existing frontend filter logic applies the result.
-
-### Files to Create/Modify
-
-1. **Create** `supabase/functions/ai-orchestrator/index.ts` -- unified orchestrator with all task routing and provider fallback
-2. **Modify** `supabase/config.toml` -- add orchestrator function registration
-3. **Modify** `src/hooks/ai/useAIGeneration.ts` -- point to orchestrator, add enhance task
-4. **Modify** `src/hooks/ai/useConversationalAI.ts` -- point to orchestrator
-5. **Modify** `src/components/AIListingAssistant.tsx` -- point to orchestrator
-
-### Provider Fallback Logic
-
-```text
-1. Try Lovable AI Gateway (free, fast)
-2. If 429/500 -> Try MiniMax (if MINIMAX_API_KEY exists)
-3. If both fail -> Return error with clear message
-```
-
-### What Stays the Same
-
-- All existing frontend UI components remain unchanged
-- The swipe mechanics, filters, and database schema are untouched
-- The conversational listing builder flow stays identical
-- All existing AI capabilities (listing, profile, search) work exactly as before, just routed through the new orchestrator
+### What stays untouched:
+- Swipe physics and drag logic
+- Auth dialog behavior
+- StarFieldBackground
+- Scroll direction hook logic
+- Routing and navigation paths
+- Bottom nav item layout and icons
 
