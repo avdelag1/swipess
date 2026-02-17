@@ -96,8 +96,8 @@ const LandingView = memo(({
       {/* Swipable logo */}
       <motion.div
       drag="x"
-        dragConstraints={{ left: -8, right: 8 }}
-        dragElastic={0.55}
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={{ left: 0.08, right: 1 }}
         dragMomentum={true}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
