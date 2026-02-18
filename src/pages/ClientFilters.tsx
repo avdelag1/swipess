@@ -123,14 +123,19 @@ export default function ClientFilters() {
       <header className="sticky top-0 z-10 bg-[#1C1C1E]/80 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={handleBack}
-              className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
+              className="flex items-center justify-center h-10 w-10 rounded-xl transition-all duration-150 active:scale-95 touch-manipulation"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
             >
               <ArrowLeft className="w-5 h-5 text-white" />
-            </Button>
+            </button>
             <div>
               <h1 className="text-lg font-semibold text-white">Filters</h1>
               <p className="text-xs text-white/50">

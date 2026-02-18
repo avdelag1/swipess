@@ -203,15 +203,20 @@ const OwnerInterestedClients = () => {
           className="mb-6 sm:mb-8"
         >
           {/* Back Button */}
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={() => navigate(-1)}
-            className="mb-4 text-muted-foreground hover:text-foreground"
+            className="mb-4 flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-95 touch-manipulation"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.25)',
+            }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4" />
             Back
-          </Button>
+          </button>
 
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 sm:mb-6">
             <div className="flex items-center gap-3 flex-1">
@@ -225,15 +230,19 @@ const OwnerInterestedClients = () => {
                 </p>
               </div>
             </div>
-            <Button
+            <button
               onClick={() => navigate('/owner/liked-clients')}
-              variant="outline"
-              className="gap-2 whitespace-nowrap"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white/80 hover:text-white whitespace-nowrap transition-all duration-150 active:scale-95 touch-manipulation"
+              style={{
+                background: 'rgba(255,255,255,0.07)',
+                border: '1px solid rgba(255,255,255,0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+              }}
             >
-              <Flame className="w-4 h-4" />
+              <Flame className="w-4 h-4 text-orange-400" />
               <span className="hidden sm:inline">My Liked Clients</span>
               <span className="sm:hidden">My Likes</span>
-            </Button>
+            </button>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
@@ -255,11 +264,11 @@ const OwnerInterestedClients = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
-              <Card key={i} className="p-4 animate-pulse">
-                <div className="h-32 bg-muted rounded mb-3"></div>
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-3 bg-muted rounded w-2/3"></div>
-              </Card>
+              <div key={i} className="p-4 rounded-2xl animate-pulse" style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.06)'}}>
+                <div className="h-16 w-16 rounded-full bg-white/10 mx-auto mb-3"></div>
+                <div className="h-4 bg-white/10 rounded-lg mb-2 mx-4"></div>
+                <div className="h-3 bg-white/5 rounded-lg w-2/3 mx-auto"></div>
+              </div>
             ))}
           </div>
         ) : filteredClients.length === 0 ? (
@@ -295,7 +304,7 @@ const OwnerInterestedClients = () => {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="p-4 hover:shadow-lg transition-all duration-300 relative overflow-hidden">
+                  <div className="p-4 rounded-2xl relative overflow-hidden transition-all duration-200 hover:scale-[1.01]" style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',boxShadow:'0 4px 16px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.06)'}}>
                     {/* Mutual Like Badge */}
                     {client.mutual && (
                       <div className="absolute top-2 right-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
@@ -348,23 +357,22 @@ const OwnerInterestedClients = () => {
 
                     {/* Actions */}
                     <div className="flex gap-2">
-                      <Button
+                      <button
                         onClick={() => handleOpenMessageDialog(client)}
                         disabled={isCreatingConversation}
-                        className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white"
-                        size="sm"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-[0.98] touch-manipulation disabled:opacity-50"
+                        style={{background:'linear-gradient(135deg, rgba(249,115,22,0.9), rgba(239,68,68,0.85))',boxShadow:'0 4px 12px rgba(249,115,22,0.2),inset 0 1px 0 rgba(255,255,255,0.15)'}}
                       >
-                        <MessageCircle className="w-4 h-4 mr-1" />
+                        <MessageCircle className="w-4 h-4" />
                         Message
-                      </Button>
-                      <Button
+                      </button>
+                      <button
                         onClick={() => handleOpenDeleteDialog(client)}
-                        variant="outline"
-                        size="sm"
-                        className="px-3"
+                        className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-150 active:scale-95 touch-manipulation"
+                        style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)'}}
                       >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                        <Trash2 className="w-4 h-4 text-red-400" />
+                      </button>
                     </div>
 
                     {/* Liked Date */}
@@ -373,7 +381,7 @@ const OwnerInterestedClients = () => {
                         Liked on {new Date(client.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                  </Card>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>

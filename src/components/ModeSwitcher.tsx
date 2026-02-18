@@ -48,13 +48,19 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'relative flex items-center justify-center rounded-xl',
           'transition-all duration-100 ease-out',
           'active:scale-[0.9]',
-          'bg-white/15 hover:bg-white/25',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
           size === 'sm' ? 'h-8 w-8' : size === 'md' ? 'h-9 w-9' : 'h-10 w-10',
           className
         )}
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+        }}
         aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
       >
         <AnimatePresence mode="wait">
@@ -158,7 +164,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       disabled={isSwitching || !canSwitchMode}
       className={cn(
         'relative flex items-center gap-1.5 rounded-xl px-2.5',
-        'bg-white/15 hover:bg-white/25',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -167,6 +172,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         sizeClasses[size],
         className
       )}
+      style={{
+        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        border: '1px solid rgba(255, 255, 255, 0.12)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+      }}
       aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
     >
       <AnimatePresence mode="wait">

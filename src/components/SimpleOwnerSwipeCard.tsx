@@ -660,9 +660,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         
         {/* Content overlay - Positioned higher for Tinder style (above button area) */}
         <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
-          {/* Rating Display - Bottom of card, above profile info (same as client side) */}
+          {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
-            <div className="inline-flex bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5">
+            <div
+              className="inline-flex rounded-full px-3 py-1.5"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            >
               <CompactRatingDisplay
                 aggregate={ratingAggregate}
                 isLoading={isRatingLoading}
@@ -705,7 +714,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 </>
               )}
               {!budgetText && profile.work_schedule && (
-                <div className="flex items-center gap-1 bg-white/20 px-3 py-2 rounded-full w-fit">
+                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+                }}>
                   <Briefcase className="w-4 h-4 text-white" />
                   <span className="text-base font-medium text-white">{profile.work_schedule}</span>
                 </div>
@@ -725,7 +740,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 </div>
               )}
               {profile.work_schedule && (
-                <div className="flex items-center gap-1 bg-white/20 px-3 py-2 rounded-full w-fit">
+                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+                }}>
                   <Briefcase className="w-4 h-4 text-white" />
                   <span className="text-base font-medium text-white">{profile.work_schedule}</span>
                 </div>
@@ -754,12 +775,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
               <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
                 {budgetText && (
-                  <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}>
                     <DollarSign className="w-3 h-3" /> {budgetText}
                   </span>
                 )}
                 {profile.work_schedule && (
-                  <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}>
                     <Briefcase className="w-3 h-3" /> {profile.work_schedule}
                   </span>
                 )}

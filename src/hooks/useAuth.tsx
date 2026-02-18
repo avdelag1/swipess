@@ -3,7 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { useProfileSetup } from './useProfileSetup';
+import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
@@ -101,6 +101,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Handle profile setup asynchronously on SIGNED_IN for ALL users
         if (event === 'SIGNED_IN' && session?.user) {
+          // Reset profile creation lock on every fresh sign-in to prevent
+          // stale lockouts from a previous failed attempt or old session
+          resetProfileCreationLock(session.user.id);
+
           const provider = session.user.app_metadata?.provider;
           const isOAuthUser = provider && provider !== 'email';
 
@@ -158,6 +162,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Non-blocking OAuth user setup
   const handleOAuthUserSetupAsync = async (user: User) => {
     try {
+      // CACHE RESET: Clear stale profile/role cache before OAuth profile setup
+      queryClient.removeQueries({ queryKey: ['user-role'] });
+      queryClient.removeQueries({ queryKey: ['profile'] });
+      queryClient.removeQueries({ queryKey: ['tokens'] });
+      queryClient.removeQueries({ queryKey: ['client-profile'] });
+      queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
       // Check localStorage first, then URL params
       const pendingRole = localStorage.getItem('pendingOAuthRole') as 'client' | 'owner' | null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -278,12 +289,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           logger.error('[Auth] Background profile setup failed:', err);
         });
 
-        if (!data.user.email_confirmed_at) {
-          toast({
-            title: "Check Your Email",
-            description: "Please check your email to verify your account.",
+        // If the signup returned a session, the user is already signed in
+        // (email confirmation is disabled or auto-confirmed).
+        // If no session, auto-sign in with the same credentials.
+        if (!data.session) {
+          logger.log('[Auth] No session after signup, attempting auto sign-in...');
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password
           });
-          return { error: null };
+
+          if (signInError) {
+            // If auto sign-in fails (e.g. email confirmation still required on server),
+            // show a helpful message but don't block the flow
+            logger.warn('[Auth] Auto sign-in after signup failed:', signInError.message);
+            toast({
+              title: "Account Created!",
+              description: "Your account has been created. Please sign in to continue.",
+            });
+            return { error: null };
+          }
+
+          // Auto sign-in succeeded - update local state
+          if (signInData.user) {
+            setUser(signInData.user);
+            setSession(signInData.session);
+          }
         }
 
         // Invalidate role query cache to ensure fresh data
@@ -292,13 +323,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Brief wait for cache invalidation to propagate
         await new Promise(resolve => setTimeout(resolve, 200));
 
+        // Determine dashboard path from role
+        const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
+
+        // AUTO-REFRESH: Invalidate all queries to force fresh data
+        queryClient.invalidateQueries();
+
         toast({
           title: "Account Created!",
           description: "Loading your dashboard...",
         });
 
-        // Navigation will be handled by Index.tsx using metadata role
-        // This ensures a single navigation point and prevents race conditions
+        navigate(targetPath, { replace: true });
       }
 
       return { error: null };
@@ -327,6 +363,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string, role: 'client' | 'owner') => {
     try {
+      // Reset profile creation lock to prevent stale lockouts from previous sessions
+      resetProfileCreationLock();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -338,6 +377,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.user) {
+        // CACHE RESET: Clear all stale profile/role data before doing anything.
+        // This prevents "profile creation" errors caused by stale React Query cache
+        // from a previous session or a previous app version.
+        queryClient.removeQueries({ queryKey: ['user-role'] });
+        queryClient.removeQueries({ queryKey: ['profile'] });
+        queryClient.removeQueries({ queryKey: ['tokens'] });
+        queryClient.removeQueries({ queryKey: ['client-profile'] });
+        queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
         // Quick role check to prevent dashboard flash (max 2 seconds)
         let actualRole: 'client' | 'owner' = role;
 

@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect, memo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
 import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
@@ -93,6 +94,7 @@ const ClientSwipeContainerComponent = ({
   filters
 }: ClientSwipeContainerProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
@@ -424,6 +426,41 @@ const ClientSwipeContainerComponent = ({
       }).then(() => {
         // SUCCESS: Like saved successfully
         logger.info('[ClientSwipeContainer] Swipe saved successfully:', { direction, profileId: profile.user_id });
+
+        // OPTIMISTIC: Add liked client to cache AFTER DB write succeeds (same pattern as TinderentSwipeContainer)
+        if (direction === 'right' && user?.id) {
+          queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
+            const likedClient = {
+              id: profile.user_id,
+              user_id: profile.user_id,
+              full_name: profile.full_name || profile.name || 'Unknown',
+              name: profile.full_name || profile.name || 'Unknown',
+              age: profile.age || 0,
+              bio: profile.bio || '',
+              profile_images: profile.profile_images || profile.images || [],
+              images: profile.profile_images || profile.images || [],
+              location: profile.location,
+              liked_at: new Date().toISOString(),
+              occupation: profile.occupation,
+              nationality: profile.nationality,
+              interests: profile.interests,
+              monthly_income: profile.monthly_income,
+              verified: profile.verified,
+              property_types: profile.preferred_property_types || [],
+              moto_types: [],
+              bicycle_types: [],
+            };
+            if (!oldData) {
+              return [likedClient];
+            }
+            // Check if already in the list to avoid duplicates
+            const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
+            if (exists) {
+              return oldData;
+            }
+            return [likedClient, ...oldData];
+          });
+        }
       }).catch((err) => {
         // ERROR: Save failed - log and handle appropriately
         logger.error('[ClientSwipeContainer] Swipe save error:', err);

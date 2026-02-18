@@ -1,6 +1,7 @@
 // @ts-nocheck
 
 import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
@@ -557,11 +558,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum"
         style={{
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
-            ? 'var(--safe-top)'
+            ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute) ? 'var(--safe-bottom)' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          paddingLeft: 'max(var(--safe-left), 0px)',
-          paddingRight: 'max(var(--safe-right), 0px)',
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
+          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
@@ -571,7 +572,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           willChange: 'contents',
         }}
       >
-        {enhancedChildren}
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
+          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
+        >
+          {enhancedChildren}
+        </motion.div>
         {/* Fade-out gradient at bottom of content - hide on fullscreen routes */}
         {!isCameraRoute && !isRadioRoute && (
           <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]"
