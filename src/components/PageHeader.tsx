@@ -36,9 +36,15 @@ export function PageHeader({
         {showBack && (
           <motion.button
             onClick={handleBack}
-            whileTap={{ scale: 0.8 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white bg-white/15 hover:bg-white/25 hover:text-orange-200 transition-all duration-150 active:text-orange-300"
+            whileTap={{ scale: 0.9, transition: { type: 'spring', stiffness: 400, damping: 17 } }}
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-95 touch-manipulation"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06))',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+            }}
           >
             <ArrowLeft className="w-4 h-4" />
             Back

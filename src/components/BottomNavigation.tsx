@@ -170,7 +170,6 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
-                'bg-white/10 hover:bg-white/25',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent'
               )}
@@ -178,6 +177,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 minWidth: TOUCH_TARGET_SIZE,
                 minHeight: TOUCH_TARGET_SIZE,
                 padding: '8px 4px',
+                backgroundColor: active ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.04)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                borderRadius: '14px',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
               }}
             >
               {/* Active indicator dot */}

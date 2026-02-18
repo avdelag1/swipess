@@ -48,18 +48,28 @@ export function useAIGeneration() {
       if (fnError) {
         // Check for rate limit / payment errors
         const msg = fnError.message || 'AI request failed';
+        console.error('[useAI] Supabase function error:', fnError);
+
         if (msg.includes('429') || msg.includes('rate limit')) {
           toast.error('AI rate limit reached. Please try again in a moment.');
         } else if (msg.includes('402') || msg.includes('credits')) {
           toast.error('AI credits exhausted. Please add funds to continue.');
+        } else if (msg.includes('LOVABLE_API_KEY') || msg.includes('not configured')) {
+          toast.error('AI service is not configured. Please contact support.');
+        } else {
+          toast.error('AI service temporarily unavailable. Please try again.');
         }
         throw new Error(msg);
       }
       if (fnData?.error) {
+        console.error('[useAI] Function returned error:', fnData.error);
+
         if (fnData.error.includes('rate limit') || fnData.error.includes('429')) {
           toast.error(fnData.error);
         } else if (fnData.error.includes('credits') || fnData.error.includes('402')) {
           toast.error(fnData.error);
+        } else if (fnData.error.includes('LOVABLE_API_KEY') || fnData.error.includes('not configured')) {
+          toast.error('AI service is not configured. Please contact support.');
         }
         throw new Error(fnData.error);
       }

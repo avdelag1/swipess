@@ -43,12 +43,12 @@ export function ProfilePhotoUpload({
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('avatar_url, profile_photo_url')
+        .select('avatar_url')
         .eq('id', user.id)
         .maybeSingle();
       
       if (data && !error) {
-        const url = data.avatar_url || data.profile_photo_url;
+        const url = data.avatar_url;
         if (url) {
           setPhotoUrl(url);
           onPhotoUpdate?.(url);
@@ -97,7 +97,6 @@ export function ProfilePhotoUpload({
         .from('profiles')
         .update({ 
           avatar_url: publicUrl,
-          profile_photo_url: publicUrl 
         })
         .eq('id', user.id);
 
@@ -109,7 +108,6 @@ export function ProfilePhotoUpload({
       const { error: metadataError } = await supabase.auth.updateUser({
         data: {
           avatar_url: publicUrl,
-          profile_photo_url: publicUrl
         }
       });
 
