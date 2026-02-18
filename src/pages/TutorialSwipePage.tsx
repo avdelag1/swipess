@@ -15,7 +15,7 @@ import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-m
 import {
   Home, Wrench, Bike, Car, User, Users,
   Heart, X, Info, Star, MapPin, CheckCircle,
-  Sparkles, ArrowRight, BadgeCheck, DollarSign, Eye, RotateCcw,
+  Sparkles, ArrowRight, BadgeCheck, DollarSign, Eye, RotateCcw, ChevronLeft,
 } from 'lucide-react';
 import {
   tutorialListings,
@@ -545,14 +545,23 @@ export default function TutorialSwipePage() {
       {/* ── HEADER ─────────────────────────────────────── */}
       <div style={{ flexShrink: 0, padding: '16px 16px 10px' }}>
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              <span className="text-lg font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-                How It Works
-              </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center rounded-full"
+              style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', flexShrink: 0 }}
+            >
+              <ChevronLeft className="w-5 h-5 text-white/70" />
+            </button>
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span className="text-lg font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
+                  How It Works
+                </span>
+              </div>
+              <p className="text-xs text-white/30 mt-0.5">Tutorial · Swipe to explore</p>
             </div>
-            <p className="text-xs text-white/30 mt-0.5">Tutorial · Swipe to explore</p>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-center">
