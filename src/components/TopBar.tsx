@@ -157,10 +157,12 @@ function TopBarComponent({
           {/* Center tap zone - navigates back to dashboard */}
           <div
             className="flex-1 h-full cursor-pointer"
-            onClick={() => {
+            onPointerDown={(e) => {
+              e.preventDefault();
               const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
               navigate(dashboardPath);
             }}
+            onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
           />
 
@@ -212,6 +214,8 @@ function TopBarComponent({
                     border: '1px solid rgba(245,158,11,0.35)',
                     boxShadow: 'inset 0 1px 0 rgba(245,158,11,0.25), 0 4px 14px rgba(249,115,22,0.2)',
                   }}
+                  onPointerDown={(e) => { e.preventDefault(); setTokensOpen(true); }}
+                  onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
                   <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />

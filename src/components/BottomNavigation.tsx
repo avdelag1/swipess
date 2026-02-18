@@ -187,10 +187,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               {active && (
                 <motion.div
                   layoutId="activeIndicator"
-                  className={cn(
-                    'absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full',
-                    'bg-orange-500'
-                  )}
+                  className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                 />
               )}
 
@@ -201,10 +199,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className={cn(
-                      "absolute top-0.5 right-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white px-1 z-10",
-                      "bg-orange-500"
-                    )}
+                    className="absolute top-0.5 right-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white px-1 z-10"
+                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                   >
                     {item.badge > 99 ? '99+' : item.badge}
                   </motion.span>
@@ -212,20 +208,18 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               </AnimatePresence>
 
               <Icon
-                className={cn(
-                  'transition-colors duration-150',
-                  active ? 'text-orange-300' : 'text-white'
-                )}
+                className="transition-colors duration-150"
                 style={{
                   width: ICON_SIZE - 4,
                   height: ICON_SIZE - 4,
+                  color: active ? '#f97316' : 'white',
                 }}
                 strokeWidth={active ? 2.5 : 2.2}
               />
-              <span className={cn(
-                'text-[10px] leading-tight font-medium transition-colors duration-150',
-                active ? 'text-orange-300' : 'text-white'
-              )}>
+              <span
+                className="text-[10px] leading-tight font-medium transition-colors duration-150"
+                style={{ color: active ? '#f97316' : 'white' }}
+              >
                 {item.label}
               </span>
             </button>

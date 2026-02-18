@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -85,7 +85,7 @@ const OwnerBicycleClientDiscovery = lazy(() => import("./pages/OwnerBicycleClien
 const OwnerViewClientProfile = lazy(() => import("./pages/OwnerViewClientProfile"));
 const OwnerFiltersExplore = lazy(() => import("./pages/OwnerFiltersExplore"));
 const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
-const OwnerDashboardNew = lazy(() => import("./pages/OwnerDashboardNew"));
+// REMOVED: OwnerDashboardNew was imported but never routed - dead code causing bundle bloat
 
 // Filter pages - lazy loaded
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
@@ -119,6 +119,14 @@ const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      // Global error logger for uncaught query errors (non-disruptive, dev-visible)
+      if (import.meta.env.DEV) {
+        console.warn('[QueryCache] Uncaught query error:', error);
+      }
+    }
+  }),
   defaultOptions: {
     queries: {
       retry: 1,
