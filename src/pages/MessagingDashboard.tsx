@@ -211,8 +211,18 @@ export function MessagingDashboard() {
         // Conversation not in cache - fetch it directly from database
         const fetchedConversation = await fetchSingleConversation(conversationId);
 
-        if (fetchedConversation && fetchedConversation.other_user) {
-          setDirectlyFetchedConversation(fetchedConversation);
+        if (fetchedConversation) {
+          // Conversation found — use it even if other_user is undefined (show anonymous fallback)
+          const conversationWithFallback = {
+            ...fetchedConversation,
+            other_user: fetchedConversation.other_user || {
+              id: fetchedConversation.client_id !== user?.id ? fetchedConversation.client_id : fetchedConversation.owner_id,
+              full_name: 'User',
+              avatar_url: undefined,
+              role: fetchedConversation.client_id === user?.id ? 'owner' : 'client',
+            }
+          };
+          setDirectlyFetchedConversation(conversationWithFallback);
           setSelectedConversationId(conversationId);
           setSearchParams({});
           toast({
@@ -220,7 +230,7 @@ export function MessagingDashboard() {
             description: 'You can now send messages!',
           });
         } else {
-          // Still couldn't find it - show error
+          // Conversation genuinely doesn't exist
           toast({
             title: '❌ Could not open conversation',
             description: 'The conversation may not exist. Try refreshing the page.',

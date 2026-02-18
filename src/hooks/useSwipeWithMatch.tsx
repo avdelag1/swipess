@@ -63,8 +63,8 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // This prevents FK violations from stale cached profile data
           const { data: clientExists, error: verifyError } = await supabase
             .from('profiles')
-            .select('id, full_name, city')
-            .eq('id', targetId)
+            .select('user_id, full_name, city, is_active')
+            .eq('user_id', targetId)
             .maybeSingle();
 
           if (verifyError) {
@@ -182,7 +182,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           const { data: ownerProfile } = await supabase
             .from('profiles')
             .select('full_name, avatar_url')
-            .eq('id', user.id)
+            .eq('user_id', user.id)
             .maybeSingle();
 
           const ownerName = ownerProfile?.full_name || 'Someone';
@@ -260,7 +260,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // Get listing owner and client info for notification
           const [listingResult, clientResult] = await Promise.all([
             supabase.from('listings').select('owner_id, title').eq('id', targetId).maybeSingle(),
-            supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+            supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
           ]);
 
           if (listingResult.data?.owner_id) {
