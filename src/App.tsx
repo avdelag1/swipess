@@ -123,7 +123,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 1,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
-      refetchOnWindowFocus: true,  // AUTO-SYNC: Refresh data when user returns to app
+      refetchOnWindowFocus: false, // Prevents flash/reloads when switching apps (critical for iOS)
       refetchOnMount: true,        // Only refetch if data is stale (respects staleTime)
       refetchOnReconnect: true,
       staleTime: 5 * 60 * 1000, // 5 minutes - reduce unnecessary refetches
