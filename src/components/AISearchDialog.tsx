@@ -214,7 +214,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: clientProfile } = useClientProfile();
-  const userAvatar = clientProfile?.profile_images?.[0] ?? null;
+  // Fix: Fallback chain for avatar - client profile images → avatar_url → null
+  const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
   // Auto-focus input when dialog opens
   useEffect(() => {
@@ -271,13 +272,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [query, isSearching, userRole]);
 
 
-  const handleAction = useCallback((route?: string) => {
-    if (route) {
-      navigate(route);
-      handleClose();
-    }
-  }, [navigate]);
-
+  // Fix: Declare handleClose before handleAction to avoid reference-before-declaration
   const handleClose = useCallback(() => {
     onClose();
     setQuery('');
@@ -285,6 +280,13 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsSearching(false);
     setIsTyping(false);
   }, [onClose]);
+
+  const handleAction = useCallback((route?: string) => {
+    if (route) {
+      navigate(route);
+      handleClose();
+    }
+  }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
     { icon: Home, label: 'Browse', text: 'Show me apartments to rent' },
@@ -352,7 +354,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   <button
                     key={index}
                     onClick={() => applyQuickPrompt(prompt.text)}
-                    className="flex items-center gap-2 px-3 py-2.5 text-xs bg-white/5 hover:bg-white/8 border border-white/8 rounded-2xl text-white/70 hover:text-white transition-all text-left"
+                    className="flex items-center gap-2 px-3 py-2.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/70 hover:text-white transition-all text-left"
                   >
                     <prompt.icon className="w-4 h-4" style={{ color: '#f97316' }} />
                     <span className="flex-1">{prompt.label}</span>
@@ -362,7 +364,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </motion.div>
           )}
 
-          <AnimatePresence>
+          <AnimatePresence key={messages.length}>
             {messages.map((message) => (
               <motion.div
                 key={message.timestamp}

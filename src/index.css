@@ -67,7 +67,7 @@ body {
   max-width: 100vw;
   min-height: 100vh;
   min-height: 100dvh;
-  overflow-x: hidden;
+  /* overflow-x: hidden removed - already set on html and body */
   /* Prevent layout shifts during navigation */
   position: relative;
   box-sizing: border-box;
