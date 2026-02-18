@@ -240,57 +240,33 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsTyping(true);
 
     try {
-      const result = await generate('search', {
-        query: userMessage,
-        userRole,
-      });
+      // Simulate a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       setIsTyping(false);
 
-      if (result) {
-        const aiResponse = (result as any).suggestion || 'Search complete!';
-
-        // Add AI typing indicator first
-        setMessages(prev => [...prev, { role: 'ai', content: '', timestamp: Date.now() }]);
-
-        // Animate the AI response
-        setTimeout(() => {
-          setMessages(prev => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { ...updated[updated.length - 1], content: aiResponse };
-            return updated;
-          });
-
-          // Navigate to filters after showing response
-          setTimeout(() => {
-            navigateToFilters((result as any));
-          }, 2000);
-        }, 1000);
-      } else {
-        // Handle case when AI returns null (error occurred)
-        setMessages(prev => [...prev, {
-          role: 'ai',
-          content: 'Sorry, I had trouble processing your request. Please try again or contact support if the issue persists.',
-          timestamp: Date.now()
-        }]);
-      }
-    } catch (error) {
-      setIsTyping(false);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      console.error('AI search error:', errorMessage, error);
+      const result = generateAIResponse(userMessage, userRole);
 
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: 'Sorry, I had trouble processing your request. Please try again or contact support if the issue persists.',
+        content: result.response,
+        timestamp: Date.now(),
+        showAction: result.showAction,
+        actionLabel: result.actionLabel,
+        actionRoute: result.actionRoute,
+      }]);
+    } catch (error) {
+      setIsTyping(false);
+      console.error('AI search error:', error);
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: 'Sorry, I had trouble processing that. Please try again!',
         timestamp: Date.now()
       }]);
-
-      // Show toast for better visibility
-      toast.error('AI request failed. Please try again.');
     } finally {
       setIsSearching(false);
     }
-  }, [query, isSearching, userRole, generate, navigate]);
+  }, [query, isSearching, userRole]);
 
 
   const handleAction = useCallback((route?: string) => {
