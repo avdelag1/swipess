@@ -1,144 +1,136 @@
 
-## Full Performance & Flow Audit: What Needs Fixing
+# Full App Audit — SwipesS (Front-End + Back-End)
 
-This is a complete diagnosis of every issue causing build errors, blinking between pages, and anything that would prevent a smooth iOS app experience.
+## Summary of Findings
+
+After a complete read of every critical layer — auth, routing, data, UI components, CSS, edge functions, and database hooks — I identified **17 concrete issues** across 4 severity levels. Each is described with its exact location and fix.
 
 ---
 
-## Part 1: Build Errors (Must Fix First — App Won't Compile)
+## CRITICAL BUGS (Will break features)
 
-### Error Group A: `send-push-notification` Edge Function (4 TypeScript errors)
+### 1. `useSwipeSounds` queries by wrong column — always fails silently
+**File:** `src/hooks/useSwipeSounds.ts` — Line 35
+**Bug:** The query filters `.eq('id', user.id)` but the `profiles` table uses `user_id` as the auth FK column. The `id` column is an auto-generated UUID unrelated to `auth.uid()`. Every sound theme load fails silently with PGRST116 ("0 rows"), which is confirmed in the console logs every session.
+**Fix:** Change `.eq('id', user.id)` → `.eq('user_id', user.id)`.
 
-**Root cause:** The Deno TypeScript runtime uses stricter `BufferSource` types than the edge function code expects. `Uint8Array<ArrayBufferLike>` is not assignable to `ArrayBufferView<ArrayBuffer>` in Deno's type system.
+### 2. `DialogContent` has no `hideCloseButton` prop — TypeScript suppressed by `@ts-nocheck`
+**File:** `src/components/AISearchDialog.tsx` — Line 308
+**Bug:** `DialogContent` is passed `hideCloseButton={true}`, but the Radix `DialogContent` component from shadcn does not have this prop. The close button renders anyway unless the prop was manually added in `dialog.tsx`. Because the file uses `// @ts-nocheck`, no type error surfaces.
+**Fix:** Verify `dialog.tsx` accepts and implements `hideCloseButton`, otherwise remove the prop and hide the close button via CSS or render a custom one. This ensures no phantom close button sits over content.
 
-**Fix:** Cast the `Uint8Array` results to `ArrayBuffer` using `.buffer as ArrayBuffer` and fix the `importKey` call from `"raw"` (for EC keys, you need `"pkcs8"` or `"jwk"` format, not `"raw"` for private keys). The correct approach for VAPID private keys is to import them as `"pkcs8"`.
+### 3. Navigation badge count uses `bg-orange-500` — inconsistent with brand tokens
+**File:** `src/components/BottomNavigation.tsx` — Lines 206, 217
+**Bug:** The notification badge and active icon use `bg-orange-500` / `text-orange-300` which are Tailwind hardcoded classes. The rest of the app uses the orange→pink gradient token via inline styles. On some light themes this orange can clash. **Also:** the active indicator dot and badge color don't match the TopBar's gradient badge color. Visual inconsistency.
+**Fix:** Replace hardcoded `bg-orange-500` with the brand gradient via `style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}` matching TopBar and everywhere else.
 
-**Files to fix:**
-- `supabase/functions/send-push-notification/index.ts`
-  - Line 66: `crypto.subtle.importKey("raw", privateKeyBytes, ...)` — EC P-256 private keys must be imported as `"pkcs8"`, not `"raw"`. The VAPID private key must be converted from base64url raw bytes to a PKCS8-wrapped key, OR use `"jwk"` format.
-  - Line 102: `urlB64ToUint8Array(p256dhKey)` result needs `.buffer as ArrayBuffer`
-  - Line 142: `salt: authBytes` — needs `authBytes.buffer as ArrayBuffer`
-  - Line 220: `body` — needs `body.buffer as ArrayBuffer`
+### 4. `upsert_user_role` DB function has a conflict bug
+**File:** `supabase/functions` / `has_role` function (DB)
+**Bug:** The `upsert_user_role` function uses `ON CONFLICT (user_id) DO UPDATE SET role = EXCLUDED.role` — but the UNIQUE constraint on `user_roles` is on `(user_id, role)` not just `user_id`. This means the upsert can insert a *second row* for the same user with a different role instead of updating, violating intent. A user could get both a `client` and `owner` role row simultaneously.
+**Fix:** Add a migration to change the `user_roles` unique constraint to `UNIQUE (user_id)` only, OR rewrite the function to `DELETE + INSERT`.
 
-**Simplest fix:** Replace the complex manual VAPID/Web Crypto implementation with the standard `web-push` compatible approach, casting `Uint8Array` to `Uint8Array<ArrayBuffer>` by reconstructing them from their `.buffer`:
-```ts
-new Uint8Array(urlB64ToUint8Array(p256dhKey).buffer)
+---
+
+## HIGH SEVERITY (Visual/UX regressions)
+
+### 5. AI Search Dialog — `handleClose` is referenced in `handleAction` before declaration
+**File:** `src/components/AISearchDialog.tsx` — Lines 274–287
+**Bug:** `handleAction` calls `handleClose()` at line 279, but `handleClose` is `useCallback`-declared *after* it at line 281. In JS/TS hoisting, function expressions (arrow functions) assigned to `const` are NOT hoisted. This works at runtime because both are in the same closure scope but can cause issues in React strict mode with double-invocation. The clean fix is to declare `handleClose` before `handleAction`.
+**Fix:** Reorder the two `useCallback` declarations — `handleClose` first, then `handleAction`.
+
+### 6. `TopBar` — Notifications bell uses `onClick` instead of `onPointerDown` inconsistently
+**File:** `src/components/TopBar.tsx` — Line 354
+**Bug:** The AI Search button correctly uses `onPointerDown` for instant response, but this was partially fixed. The Notifications bell also uses `onPointerDown` correctly. However, the `Tokens` Popover trigger still uses a regular `onClick` (via `PopoverTrigger`) with no `onPointerDown` optimization. This means the Tokens button still has the ~300ms delay on mobile.
+**Fix:** Wrap the `PopoverTrigger` button with `onPointerDown` that sets `tokensOpen(true)` for instant response.
+
+### 7. `AISearchDialog` — `userAvatar` reads from `profile_images[0]` which is a client_profiles column, not `profiles.avatar_url`
+**File:** `src/components/AISearchDialog.tsx` — Line 217
+**Bug:** `useClientProfile()` returns data from `client_profiles` table, and `profile_images` is a `jsonb[]` array of uploaded photo URLs. Users who haven't uploaded photos to their client profile will see no avatar even if they set one via `profiles.avatar_url`. Most users only have `avatar_url`.
+**Fix:** Fallback chain: `clientProfile?.profile_images?.[0] ?? clientProfile?.avatar_url ?? null` — or better, also import `useProfile` and check `profiles.avatar_url`.
+
+### 8. `DashboardLayout` — `// @ts-nocheck` suppresses potential type errors across 767 lines
+**File:** `src/components/DashboardLayout.tsx` — Line 1
+**Issue:** This is the most critical layout component in the app but is completely type-unsafe. Several hooks and state variables could have undefined-at-runtime edge cases that TypeScript would normally flag.
+**Fix:** Remove `// @ts-nocheck` and fix the resulting type errors one by one. This is a risk-reduction fix, not a single-line change — it should be done carefully.
+
+### 9. Missing `owner/discover` route — owner nav links to `/owner/dashboard` but `EnhancedOwnerDashboard` is a component, not at a discover route
+**File:** `src/App.tsx` — Line 231, `src/components/BottomNavigation.tsx` — Line 90
+**Bug:** Owner's nav "Home" button points to `/owner/dashboard` which correctly routes to `EnhancedOwnerDashboard`. However, `OwnerDashboardNew` is also lazy-imported but not routed anywhere in `App.tsx`. This dead import adds to bundle size with no benefit.
+**Fix:** Remove the `OwnerDashboardNew` lazy import from `App.tsx` if it is not used, or add a route for it.
+
+---
+
+## MEDIUM SEVERITY (Performance / Minor Logic Bugs)
+
+### 10. `QueryClient` has no `throwOnError` — silent failures swallowed
+**File:** `src/App.tsx` — Lines 122–138
+**Issue:** Query errors are logged but not surfaced to users in many places (toast is only shown in specific hooks). The global `QueryClient` should have an `onError` global handler so truly unexpected DB errors can at least be caught in one place for monitoring.
+**Fix:** Add a `queryCache: new QueryCache({ onError: (error) => logger.error('[Query] Uncaught error:', error) })` to the QueryClient config.
+
+### 11. `useSwipeSounds` — pre-loads audio on every theme change but never cleans up old `HTMLAudioElement`
+**File:** `src/hooks/useSwipeSounds.ts` — Lines 59–75
+**Bug:** When the theme changes, the refs are set to `null` (clearing the ref) but the old `HTMLAudioElement` objects are not explicitly paused or `src` cleared, causing them to linger in memory.
+**Fix:** Before nulling the refs, call `leftAudioRef.current?.pause(); leftAudioRef.current?.src = '';` to properly release resources.
+
+### 12. `AISearchDialog` quick-prompt grid has a CSS class that doesn't exist in Tailwind
+**File:** `src/components/AISearchDialog.tsx` — Line 355
+**Bug:** `hover:bg-white/8` — Tailwind does not ship an `8` opacity step. Valid opacity values are multiples of 5 (5, 10, 15…). This class does nothing.
+**Fix:** Change `hover:bg-white/8` to `hover:bg-white/10`.
+
+### 13. `BottomNavigation` — Owner gets 6 nav items but CSS allocates space for 5
+**File:** `src/components/BottomNavigation.tsx` — Lines 86–126
+**Issue:** The owner nav array has 6 items (`browse`, `profile`, `liked`, `listings`, `messages`, `filter`). On narrow screens (iPhone SE, 320px) this can cause the buttons to overflow or compress below their `minWidth: 48` target, breaking the touch targets. The client has 5 items and fits fine.
+**Fix:** Consider reducing owner nav to 5 items (merge Liked and Listings into one, or put Listings in the settings page), or add a CSS `gap` clamp that shrinks on small screens.
+
+### 14. `notifications` RLS — INSERT policy allows `related_user_id = auth.uid()` which means anyone can create a notification for any user
+**File:** DB RLS — `notifications` table
+**Bug:** The INSERT policy is:
 ```
-
-### Error Group B: `usePushNotifications.ts` (6 TypeScript errors)
-
-**Root cause:** The TypeScript DOM lib used in this Vite project does not include `PushManager` on the `ServiceWorkerRegistration` type. This is a missing lib type, not a runtime error.
-
-**Fix:** Add `"lib": ["DOM", "DOM.Iterable", "ESNext"]` to `tsconfig.app.json` if not already there, OR use type assertions `(registration as any).pushManager`. The `push_subscriptions` table error (`Argument of type '"push_subscriptions"' is not assignable to parameter of type 'never'`) means the table exists but is not in the auto-generated `types.ts`. Since we cannot edit `types.ts`, we need to use `.from('push_subscriptions' as any)`.
-
----
-
-## Part 2: Page-to-Page Blinking (The Visual Issue)
-
-### Diagnosed Root Cause: Missing `AnimatePresence` + No Page Transition in the Router
-
-Looking at `App.tsx` and `DashboardLayout.tsx`:
-
-- `App.tsx` has a `<Suspense fallback={<SuspenseFallback />}>` wrapping all routes — but when lazy components load for the first time, the `SuspenseFallback` flashes white/blank briefly.
-- There is **no `AnimatePresence` wrapping the `<Routes>`** in `App.tsx`. Pages swap with a hard cut — no crossfade, no continuity.
-- `DashboardLayout.tsx` renders `{enhancedChildren}` (the `<Outlet>`) directly into the `<main>` tag with **no transition wrapper**. Every page swap is a hard DOM replacement.
-- The `<SuspenseFallback>` component likely shows a loading spinner or blank screen — this is the "blinking" between pages.
-
-### Fix Plan
-
-**Fix 1: Add `AnimatePresence` + `useLocation` key to the Routes in `App.tsx`**
-
-Wrap `<Routes>` in `AnimatePresence` keyed by `location.pathname`. This gives React Router a DOM key to animate between route changes. Each route change crossfades instead of hard-cutting.
-
-```tsx
-// In App.tsx — wrap the Routes with AnimatePresence
-const location = useLocation();
-
-<AnimatePresence mode="sync" initial={false}>
-  <Routes location={location} key={location.pathname}>
-    ...
-  </Routes>
-</AnimatePresence>
+(auth.uid() IS NOT NULL) AND ((related_user_id = auth.uid()) OR (user_id = auth.uid()))
 ```
-
-**Fix 2: Wrap each page's root element with a lightweight fade transition in `DashboardLayout`**
-
-Since the `Outlet` renders child pages inside the `<main>` scroll container, add a motion wrapper around the outlet with a simple opacity transition. This eliminates hard cuts between pages.
-
-Inside `DashboardLayout.tsx`, wrap the `enhancedChildren` output:
-
-```tsx
-<motion.div
-  key={location.pathname}
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  exit={{ opacity: 0 }}
-  transition={{ duration: 0.15, ease: 'easeOut' }}
-  style={{ minHeight: '100%' }}
->
-  {enhancedChildren}
-</motion.div>
-```
-
-**Fix 3: Make `SuspenseFallback` invisible (transparent) instead of showing a spinner**
-
-The flash between pages often comes from the `<SuspenseFallback>` showing briefly. For already-visited pages (which are cached in the JS bundle), Suspense resolves in <1ms but still shows the fallback for one frame. Change the fallback to `null` or a fully transparent div so even if it flashes, it's invisible.
-
-**Fix 4: Increase `staleTime` for hot-path queries**
-
-The `queryClient` has `staleTime: 5 * 60 * 1000` (5 min). This is already good. However `refetchOnWindowFocus: true` means every time the user switches tabs/apps on iOS it will refetch — this can cause visible content flashes when data reloads. For iOS, set `refetchOnWindowFocus: false` for most queries.
+The `related_user_id = auth.uid()` branch allows an authenticated user to insert a notification targeted at *any* `user_id` as long as they set themselves as `related_user_id`. This is a **security vulnerability** — any user can send a fake notification to any other user.
+**Fix:** Change the INSERT policy to only allow `user_id = auth.uid()` (users can only create notifications for themselves), OR restrict it to server-side (service role) only and remove the client-side INSERT policy entirely.
 
 ---
 
-## Part 3: iOS-Readiness Checklist
+## LOW SEVERITY (Polish / UX Debt)
 
-### Things already done correctly:
-- Capacitor dependencies are installed (`@capacitor/core`, `@capacitor/ios`, etc.)
-- Safe area CSS variables (`--safe-top`, `--safe-bottom`) are properly defined
-- `touch-action: manipulation` is set globally (eliminates 300ms tap delay)
-- `-webkit-tap-highlight-color: transparent` is set
-- `WebkitOverflowScrolling: 'touch'` is on the scroll container
-- PWA manifest is configured
+### 15. `index.css` — `body` and `#root` both set `overflow-x: hidden` twice redundantly
+**File:** `src/index.css` — Lines 56, 67
+**Issue:** Minor redundancy, harmless but adds noise.
+**Fix:** Remove the duplicate from `#root` since it's already on `html` and `body`.
 
-### Things that need attention for iOS:
-- **Push notifications:** The `usePushNotifications` hook uses Web Push API which does NOT work in iOS WebView (Capacitor). iOS requires APNs (Apple Push Notification Service) via Capacitor's `@capacitor/push-notifications` plugin, not `PushManager`. The current implementation will silently fail on iOS. The hook should detect the Capacitor platform and skip Web Push.
-- **`navigator.serviceWorker` in Capacitor:** Service workers don't run in iOS WKWebView. The push notification code should be guarded with `Capacitor.isNativePlatform()` checks.
+### 16. `TopBar` `center tap zone` uses `onClick` for navigation — not `onPointerDown`
+**File:** `src/components/TopBar.tsx` — Lines 158–165
+**Issue:** The invisible center of the header bar that navigates back to the dashboard still uses `onClick`. This is a minor inconsistency with the "instant touch" optimization applied to the other buttons.
+**Fix:** Change to `onPointerDown` with `e.preventDefault()`.
 
----
-
-## What Gets Fixed
-
-### File Changes
-
-**1. `supabase/functions/send-push-notification/index.ts`**
-- Fix `Uint8Array` casting issues with `ArrayBuffer`
-- Fix the private key import: EC P-256 private keys must use `"pkcs8"` format, not `"raw"`. Convert the raw bytes to a PKCS8 DER-encoded wrapper before importing.
-- Fix `body` to cast to `ArrayBuffer` for the fetch call
-
-**2. `src/hooks/usePushNotifications.ts`**
-- Add `as any` type assertions for `push_subscriptions` table (not in generated types)
-- Add `(registration as any).pushManager` to fix the missing DOM type
-- Add Capacitor platform guard: skip all Web Push logic when running in native iOS/Android
-
-**3. `src/App.tsx`**
-- Extract `useLocation()` (move `AnimatePresence` inside a child component since hooks can't be used directly in the App root before `BrowserRouter`)
-- Add `AnimatePresence mode="sync"` around the `<Suspense>` + `<Routes>` block
-
-**4. `src/components/DashboardLayout.tsx`**
-- Add lightweight `motion.div` with opacity fade around `{enhancedChildren}` keyed by `location.pathname`
-- Import `motion` from `framer-motion` (it's already a dependency)
-
-**5. `src/components/ui/suspense-fallback.tsx`**
-- Make the fallback invisible during navigation (no spinner, just transparent) to eliminate the blink flash
-
-**6. `tsconfig.app.json`**
-- Ensure `"lib"` includes `"DOM"` to get `PushManager` types (if not already there)
+### 17. `AISearchDialog` — no `key` on the `AnimatePresence` messages map (each message uses `timestamp` — OK, but AnimatePresence itself needs a stable `key`)
+**File:** `src/components/AISearchDialog.tsx` — Line 365
+**Issue:** `AnimatePresence` wraps the `.map()` directly. This is correct, but in React strict mode the component double-mounts, which can cause duplicate "typing" animations. Adding a `key={messages.length}` to the `AnimatePresence` is a safe guard.
+**Fix:** Add `key={messages.length}` to the outer `AnimatePresence` on the messages block.
 
 ---
 
-## Priority Order
+## Implementation Plan
 
-1. Fix build errors (Groups A + B) — app won't compile without this
-2. Fix page blinking (`AnimatePresence` + `DashboardLayout` motion wrapper)
-3. Fix iOS push notifications guard (Capacitor platform check)
-4. Make `SuspenseFallback` invisible during transitions
+The fixes are grouped by impact and file to minimize diff size:
+
+### Phase 1 — Critical Backend + Security (1 migration + 2 hook fixes)
+- **DB migration:** Fix `user_roles` unique constraint + `notifications` INSERT RLS policy
+- **`useSwipeSounds.ts`:** Fix `.eq('id')` → `.eq('user_id')` + add audio cleanup
+- **`AISearchDialog.tsx`:** Fix `handleClose` declaration order + fix `hover:bg-white/8` → `/10` + fix avatar fallback chain + fix `AnimatePresence` key
+
+### Phase 2 — UI Consistency (3 component fixes)
+- **`BottomNavigation.tsx`:** Replace `bg-orange-500` with brand gradient on badge + active indicator
+- **`TopBar.tsx`:** Add `onPointerDown` to Tokens button + fix center tap zone
+- **`App.tsx`:** Remove unused `OwnerDashboardNew` lazy import + add QueryClient error logger
+
+### Phase 3 — Type Safety
+- **`DashboardLayout.tsx`:** Remove `@ts-nocheck` and resolve type errors
+
+### Technical Notes
+- The DB migration for `notifications` RLS is the most impactful security fix and will be done first
+- The `user_roles` unique constraint change must be done with care if any users currently have duplicate rows — a cleanup query will run first
+- All CSS class fixes are zero-risk single-character changes
+- `@ts-nocheck` removal in `DashboardLayout` may surface additional issues — those will be fixed in-place
