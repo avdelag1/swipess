@@ -126,15 +126,13 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
 
-  const handleNavClick = (event: React.MouseEvent, item: NavItem) => {
-    // Prevent event bubbling to avoid accidental triggers of other buttons
+  const handleNavPress = (event: React.PointerEvent, item: NavItem) => {
     event.stopPropagation();
+    event.preventDefault();
 
     if (item.onClick) {
       item.onClick();
     } else if (item.path) {
-      // INSTANT NAVIGATION: Use startTransition to keep current UI responsive
-      // while React prepares the new route - feels like native app
       startTransition(() => {
         navigate(item.path!);
       });
@@ -163,9 +161,9 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
           return (
             <button
               key={item.id}
-              onClick={(e) => handleNavClick(e, item)}
-              onPointerDown={(e) => { e.stopPropagation(); if (item.path) prefetchRoute(item.path); }}
-              onTouchStart={(e) => { e.stopPropagation(); if (item.path) prefetchRoute(item.path); }}
+              onPointerDown={(e) => { handleNavPress(e, item); if (item.path) prefetchRoute(item.path); }}
+              onTouchStart={(e) => { e.stopPropagation(); }}
+              onClick={(e) => e.preventDefault()}
               className={cn(
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',
