@@ -1,13 +1,12 @@
 // @ts-nocheck
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Loader2, X, Send, Circle } from 'lucide-react';
+import { Sparkles, Loader2, X, Send, Circle, Zap, Home, User, MessageCircle, Flame, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { useAIGeneration } from '@/hooks/ai/useAIGeneration';
 import { toast } from 'sonner';
 
 interface AISearchDialogProps {
@@ -22,6 +21,114 @@ interface Message {
   timestamp: number;
 }
 
+// Knowledge base about Swipess app
+const SWIPESS_KNOWLEDGE = {
+  routes: {
+    '/client/dashboard': 'Main page where you browse listings by swiping right to like or left to pass.',
+    '/client/liked-properties': 'Shows all properties you have liked. When there\'s a mutual match, you can start chatting.',
+    '/client/who-liked-you': 'Shows people who liked your profile (for owners) or listings that liked you.',
+    '/client/filters': 'Filter settings to narrow down your search by price, location, amenities, etc.',
+    '/owner/dashboard': 'Owner dashboard to discover clients who match your preferences.',
+    '/owner/liked-clients': 'Clients you have liked. When mutual, you can connect.',
+    '/owner/properties': 'Manage your property listings.',
+    '/messages': 'Chat with matches - your connections after mutual likes.',
+    '/notifications': 'View all notifications about likes, matches, and updates.',
+  },
+  features: [
+    { name: 'Swipe Matching', description: 'Swipe right to like, left to pass. Mutual likes create matches!' },
+    { name: 'AI Search', description: 'Describe what you want in natural language and AI finds matches.' },
+    { name: 'Instant Connect', description: 'Chat immediately after matching with no delays.' },
+    { name: 'Verified Profiles', description: 'All users and listings can be verified for safety.' },
+    { name: 'Token System', description: 'Use tokens to unlock premium features and messaging.' },
+  ],
+  categories: {
+    'property': 'Apartments, houses, rooms for rent',
+    'vehicle': 'Motorcycles, bicycles, cars',
+    'services': 'Workers, professionals, service providers',
+  },
+  general: [
+    'Swipess is a matching platform for rentals, vehicles, and services.',
+    'You can swipe on listings as a client, or swipe on clients as an owner.',
+    'Mutual likes create matches and unlock the chat feature.',
+    'Use filters to find exactly what you\'re looking for.',
+    'The AI can help you search and filter listings faster.',
+    'Your profile helps others know more about you before matching.',
+  ]
+};
+
+// Generate AI response based on user query
+function generateAIResponse(query: string, userRole: string): string {
+  const lowerQuery = query.toLowerCase();
+  
+  // Check for route-related questions
+  if (lowerQuery.includes('where') || lowerQuery.includes('how do i') || lowerQuery.includes('navigate')) {
+    for (const [route, description] of Object.entries(SWIPESS_KNOWLEDGE.routes)) {
+      if (lowerQuery.includes(route.replace('/', '').replace('client', '').replace('owner', '').replace('dashboard', '').replace('liked', '').replace('filter', '').replace('message', ''))) {
+        return description;
+      }
+    }
+  }
+  
+  // Check for feature questions
+  if (lowerQuery.includes('what is') || lowerQuery.includes('how does') || lowerQuery.includes('what can')) {
+    for (const feature of SWIPESS_KNOWLEDGE.features) {
+      if (lowerQuery.includes(feature.name.toLowerCase())) {
+        return feature.description;
+      }
+    }
+  }
+  
+  // Check for category questions
+  if (lowerQuery.includes('category') || lowerQuery.includes('types') || lowerQuery.includes('what can i')) {
+    const categories = Object.entries(SWIPESS_KNOWLEDGE.categories)
+      .map(([key, desc]) => `• **${key}**: ${desc}`)
+      .join('\n');
+    return `Here are the categories available:\n\n${categories}`;
+  }
+  
+  // General questions about the app
+  if (lowerQuery.includes('what is swipess') || lowerQuery.includes('what does swipess do')) {
+    return 'Swipess is a swipe-based matching platform for rentals, vehicles, and services. You can find properties to rent, discover clients as an owner, or hire services - all through a fun swipe interface!';
+  }
+  
+  if (lowerQuery.includes('how to use') || lowerQuery.includes('how does it work')) {
+    return `Here's how Swipess works:\n\n` +
+      `1. **Browse**: Swipe right on items you like, left to pass\n` +
+      `2. **Match**: When someone likes you back, you\'re matched!\n` +
+      `3. **Connect**: Chat instantly with your matches\n` +
+      `4. **AI Helper**: Use the AI button to find things faster`;
+  }
+  
+  if (lowerQuery.includes('match') || lowerQuery.includes('like')) {
+    return 'A match happens when two people like each other! When you swipe right on someone and they swipe right on you, it\'s a match. This unlocks the chat feature so you can connect.';
+  }
+  
+  if (lowerQuery.includes('token') || lowerQuery.includes('credit')) {
+    return 'Tokens are used for premium features like extra super likes, AI searches, and message boosts. You can get them through subscription packages.';
+  }
+  
+  if (lowerQuery.includes('filter') || lowerQuery.includes('search')) {
+    return 'Filters help you narrow down what you\'re looking for. You can filter by price, location, amenities, property type, and more. Or just ask the AI to find something for you!';
+  }
+  
+  if (lowerQuery.includes('verify') || lowerQuery.includes('verified')) {
+    return 'Verification confirms that users and listings are real. Verified items have a checkmark badge, making the community safer.';
+  }
+  
+  if (lowerQuery.includes('chat') || lowerQuery.includes('message')) {
+    return 'You can only chat with your matches! When you and another person both swipe right on each other, a match is created and you can start messaging.';
+  }
+  
+  // Default helpful response
+  return `I can help you with questions about Swipess! Try asking:\n\n` +
+    `• "How does matching work?"\n` +
+    `• "What are the categories?"\n` +
+    `• "Where are my matches?"\n` +
+    `• "What are tokens?"\n` +
+    `• "How do I use filters?"\n\n` +
+    `Or describe what you\'re looking for and I\'ll help you find it!`;
+}
+
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -31,12 +138,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { generate } = useAIGeneration();
-
   // Auto-focus input when dialog opens
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      // Reset when closed
+      setMessages([]);
+      setQuery('');
     }
   }, [isOpen]);
 
@@ -45,7 +154,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleSearch = useCallback(async () => {
+  const handleSend = useCallback(async () => {
     if (!query.trim() || isSearching) return;
 
     const userMessage = query.trim();
@@ -54,61 +163,17 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsSearching(true);
     setIsTyping(true);
 
-    try {
-      const result = await generate('search', {
-        query: userMessage,
-        userRole,
-      });
+    // Simulate AI thinking time
+    await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 600));
 
-      setIsTyping(false);
-
-      if (result) {
-        const aiResponse = (result as any).suggestion || 'Search complete!';
-        
-        // Add AI typing indicator first
-        setMessages(prev => [...prev, { role: 'ai', content: '', timestamp: Date.now() }]);
-        
-        // Animate the AI response
-        setTimeout(() => {
-          setMessages(prev => {
-            const updated = [...prev];
-            updated[updated.length - 1] = { ...updated[updated.length - 1], content: aiResponse };
-            return updated;
-          });
-
-          // Navigate to filters after showing response
-          setTimeout(() => {
-            navigateToFilters((result as any));
-          }, 2000);
-        }, 1000);
-      }
-    } catch (error) {
-      setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        role: 'ai', 
-        content: 'Sorry, I had trouble processing your request. Please try again.', 
-        timestamp: Date.now() 
-      }]);
-      console.error('AI search error:', error);
-    } finally {
-      setIsSearching(false);
-    }
-  }, [query, isSearching, userRole, generate, navigate]);
-
-  const navigateToFilters = (result: Record<string, any>) => {
-    const params = new URLSearchParams();
+    setIsTyping(false);
     
-    if (result.category) params.set('category', result.category);
-    if (result.priceMin) params.set('priceMin', result.priceMin.toString());
-    if (result.priceMax) params.set('priceMax', result.priceMax.toString());
-    if (result.keywords && result.keywords.length > 0) {
-      params.set('keywords', result.keywords.join(','));
-    }
-
-    const filterPath = userRole === 'owner' ? '/owner/filters' : '/client/filters';
-    navigate(`${filterPath}?${params.toString()}`);
-    handleClose();
-  };
+    // Generate AI response
+    const aiResponse = generateAIResponse(userMessage, userRole);
+    setMessages(prev => [...prev, { role: 'ai', content: aiResponse, timestamp: Date.now() }]);
+    
+    setIsSearching(false);
+  }, [query, isSearching, userRole]);
 
   const handleClose = () => {
     onClose();
@@ -118,22 +183,27 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsTyping(false);
   };
 
-  const quickPrompts = [
-    "Apartments under $5000",
-    "Red motorcycle in Cancun",
-    "Mountain bike for rent",
-    "Electrician near downtown",
-  ];
+  const quickPrompts = useMemo(() => [
+    { icon: Home, label: 'Browse', text: 'How do I browse listings?' },
+    { icon: Flame, label: 'Match', text: 'How do matches work?' },
+    { icon: Filter, label: 'Search', text: 'How do I filter search?' },
+    { icon: Zap, label: 'Tokens', text: 'What are tokens?' },
+  ], []);
 
-  const applyQuickPrompt = (prompt: string) => {
-    setQuery(prompt);
+  const applyQuickPrompt = (text: string) => {
+    setQuery(text);
     if (inputRef.current) {
       inputRef.current.focus();
     }
   };
 
+  const navigateToRoute = (route: string) => {
+    navigate(route);
+    handleClose();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent 
         className="sm:max-w-md bg-[#1C1C1E]/95 backdrop-blur-2xl border border-white/10 p-0 overflow-hidden"
         hideCloseButton={true}
@@ -154,15 +224,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </div>
             
             <div>
-              <h2 className="text-white font-semibold text-sm">AI Search</h2>
+              <h2 className="text-white font-semibold text-sm">Swipess AI</h2>
               <div className="flex items-center gap-1">
                 <Circle className="w-1.5 h-1.5 fill-green-500 text-green-500" />
-                <span className="text-xs text-white/50">Online</span>
+                <span className="text-xs text-white/50">Online - Ask me anything!</span>
               </div>
             </div>
           </div>
 
-          {/* Single Close Button */}
           <Button
             variant="ghost"
             size="icon"
@@ -179,14 +248,28 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-3"
+              className="text-center space-y-4"
             >
-              <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
-                <Sparkles className="w-7 h-7 text-orange-400" />
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
+                <Sparkles className="w-8 h-8 text-orange-400" />
               </div>
               <div>
-                <h3 className="text-white font-medium text-sm">What are you looking for?</h3>
-                <p className="text-white/50 text-xs mt-1">Tell me in your own words</p>
+                <h3 className="text-white font-medium text-base">Swipess Expert</h3>
+                <p className="text-white/50 text-xs mt-1">I know everything about this app!</p>
+              </div>
+              
+              {/* Quick navigation buttons */}
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                {quickPrompts.map((prompt, index) => (
+                  <button
+                    key={index}
+                    onClick={() => applyQuickPrompt(prompt.text)}
+                    className="flex items-center gap-2 px-3 py-2 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-all text-left"
+                  >
+                    <prompt.icon className="w-4 h-4 text-orange-400" />
+                    {prompt.label}
+                  </button>
+                ))}
               </div>
             </motion.div>
           )}
@@ -209,7 +292,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 )}
                 
                 <div className={cn(
-                  "max-w-[75%] px-3 py-2 rounded-2xl text-sm",
+                  "max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap",
                   message.role === 'user' 
                     ? "bg-orange-500 text-white rounded-br-md" 
                     : "bg-white/10 text-white/90 rounded-bl-md",
@@ -244,24 +327,24 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               className="flex items-center gap-2 text-white/50 text-xs pl-8"
             >
               <Loader2 className="w-3 h-3 animate-spin" />
-              Processing...
+              AI is thinking...
             </motion.div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Prompts */}
-        {messages.length === 0 && (
+        {/* Quick action buttons (appear after first message) */}
+        {messages.length > 0 && (
           <div className="px-4 pb-2">
             <div className="flex flex-wrap gap-2">
-              {quickPrompts.map((prompt, index) => (
+              {quickPrompts.slice(0, 2).map((prompt, index) => (
                 <button
                   key={index}
-                  onClick={() => applyQuickPrompt(prompt)}
-                  className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white transition-all active:scale-95"
+                  onClick={() => applyQuickPrompt(prompt.text)}
+                  className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white transition-all"
                 >
-                  {prompt}
+                  {prompt.label}
                 </button>
               ))}
             </div>
@@ -274,17 +357,17 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Describe what you're looking for..."
+              placeholder="Ask me anything about Swipess..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               className="pr-20 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-xl focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
               disabled={isSearching}
             />
             
             <Button
               size="sm"
-              onClick={handleSearch}
+              onClick={handleSend}
               disabled={!query.trim() || isSearching}
               className={cn(
                 "absolute right-1 top-1 bottom-1 rounded-lg px-4 h-auto",
