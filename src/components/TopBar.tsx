@@ -185,7 +185,8 @@ function TopBarComponent({
                   border: '1px solid rgba(99,102,241,0.35)',
                   boxShadow: 'inset 0 1px 0 rgba(99,102,241,0.25), 0 4px 14px rgba(59,130,246,0.25)',
                 }}
-                onClick={() => setIsAISearchOpen(true)}
+                onPointerDown={(e) => { e.preventDefault(); setIsAISearchOpen(true); }}
+                onClick={(e) => e.preventDefault()}
                 aria-label="AI Search"
               >
                 <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
@@ -350,7 +351,8 @@ function TopBarComponent({
                 border: '1px solid rgba(239,68,68,0.35)',
                 boxShadow: 'inset 0 1px 0 rgba(239,68,68,0.25), 0 4px 14px rgba(239,68,68,0.2)',
               }}
-              onClick={onNotificationsClick}
+              onPointerDown={(e) => { e.preventDefault(); onNotificationsClick?.(); }}
+              onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
