@@ -165,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // CACHE RESET: Clear stale profile/role cache before OAuth profile setup
       queryClient.removeQueries({ queryKey: ['user-role'] });
       queryClient.removeQueries({ queryKey: ['profile'] });
-      queryClient.removeQueries({ queryKey: ['tokens'] });
+      queryClient.removeQueries({ queryKey: ['message_activations'] });
       queryClient.removeQueries({ queryKey: ['client-profile'] });
       queryClient.removeQueries({ queryKey: ['owner-profile'] });
 
@@ -382,7 +382,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // from a previous session or a previous app version.
         queryClient.removeQueries({ queryKey: ['user-role'] });
         queryClient.removeQueries({ queryKey: ['profile'] });
-        queryClient.removeQueries({ queryKey: ['tokens'] });
+        queryClient.removeQueries({ queryKey: ['message_activations'] });
         queryClient.removeQueries({ queryKey: ['client-profile'] });
         queryClient.removeQueries({ queryKey: ['owner-profile'] });
 
