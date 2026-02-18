@@ -5,8 +5,11 @@
  *   1. Check browser support
  *   2. Request permission from the user (only when explicitly called)
  *   3. Subscribe via PushManager using the VAPID public key
- *   4. Persist the subscription in Supabase (push_subscriptions table)
+ *   4. Persist the subscription in the database (push_subscriptions table)
  *   5. Unsubscribe and remove the record when the user opts out
+ *
+ * NOTE: On native iOS/Android (Capacitor), Web Push is NOT supported.
+ * This hook silently skips all logic when running in a native platform.
  *
  * Usage:
  *   const { isSupported, isSubscribed, permission, subscribe, unsubscribe } = usePushNotifications();
@@ -18,7 +21,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 
 // VAPID public key from environment variables
-const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
+
+// Detect Capacitor native platform (iOS/Android) — Web Push doesn't work there
+function isNativePlatform(): boolean {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { Capacitor } = (window as any);
+    return Capacitor?.isNativePlatform?.() === true;
+  } catch {
+    return false;
+  }
+}
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -28,12 +42,19 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 }
 
 function isPushSupported(): boolean {
+  if (isNativePlatform()) return false; // Native iOS/Android — skip Web Push
   return (
     typeof window !== 'undefined' &&
     'serviceWorker' in navigator &&
     'PushManager' in window &&
     'Notification' in window
   );
+}
+
+// Typed accessor for pushManager to avoid DOM lib gaps
+function getPushManager(registration: ServiceWorkerRegistration): PushManager | null {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (registration as any).pushManager ?? null;
 }
 
 export function usePushNotifications() {
@@ -55,7 +76,8 @@ export function usePushNotifications() {
     const checkSubscription = async () => {
       try {
         const registration = await navigator.serviceWorker.ready;
-        const existing = await registration.pushManager.getSubscription();
+        const pm = getPushManager(registration);
+        const existing = await pm?.getSubscription();
         if (existing) {
           setIsSubscribed(true);
         }
@@ -88,7 +110,7 @@ export function usePushNotifications() {
    */
   const subscribe = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
-      logger.warn('[PushNotifications] Push not supported in this browser');
+      logger.warn('[PushNotifications] Push not supported in this browser/platform');
       return false;
     }
     if (!user?.id) {
@@ -112,17 +134,24 @@ export function usePushNotifications() {
 
       // 2. Get service worker registration
       const registration = await navigator.serviceWorker.ready;
+      const pm = getPushManager(registration);
+      if (!pm) {
+        logger.error('[PushNotifications] PushManager not available');
+        return false;
+      }
 
       // 3. Unsubscribe from any existing subscription first to get a fresh one
-      const existing = await registration.pushManager.getSubscription();
+      const existing = await pm.getSubscription();
       if (existing) {
         await existing.unsubscribe();
       }
 
       // 4. Create new push subscription
-      const subscription = await registration.pushManager.subscribe({
+      // Cast to ArrayBuffer to satisfy strict TypeScript DOM lib types
+      const appServerKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      const subscription = await pm.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        applicationServerKey: new Uint8Array(appServerKey.buffer as ArrayBuffer),
       });
 
       const subJSON = subscription.toJSON();
@@ -130,8 +159,9 @@ export function usePushNotifications() {
       const p256dh = (subJSON.keys as { p256dh: string; auth: string }).p256dh;
       const auth = (subJSON.keys as { p256dh: string; auth: string }).auth;
 
-      // 5. Save to Supabase (upsert so re-subscribing updates the record)
-      const { error } = await supabase
+      // 5. Save to database (upsert so re-subscribing updates the record)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase as any)
         .from('push_subscriptions')
         .upsert(
           {
@@ -167,18 +197,23 @@ export function usePushNotifications() {
 
     try {
       const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
+      const pm = getPushManager(registration);
 
-      if (subscription) {
-        const endpoint = subscription.endpoint;
-        await subscription.unsubscribe();
+      if (pm) {
+        const subscription = await pm.getSubscription();
 
-        // Remove from DB
-        await supabase
-          .from('push_subscriptions')
-          .delete()
-          .eq('user_id', user.id)
-          .eq('endpoint', endpoint);
+        if (subscription) {
+          const endpoint = subscription.endpoint;
+          await subscription.unsubscribe();
+
+          // Remove from DB
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          await (supabase as any)
+            .from('push_subscriptions')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('endpoint', endpoint);
+        }
       }
 
       setIsSubscribed(false);
