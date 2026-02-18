@@ -159,7 +159,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('radio_skin, radio_current_city, radio_current_station_id, radio_volume, radio_shuffle_mode, radio_favorite_stations')
+        .select('radio_current_station_id')
         .eq('id', user.id)
         .single();
 
@@ -169,23 +169,17 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
-        const city = (data.radio_current_city as CityLocation) || 'tulum';
         const currentStationId = data.radio_current_station_id;
         let currentStation = currentStationId ? getStationById(currentStationId) : null;
 
         if (!currentStation) {
-          const stations = getStationsByCity(city);
+          const stations = getStationsByCity('tulum');
           currentStation = stations.length > 0 ? stations[0] : null;
         }
 
         setState(prev => ({
           ...prev,
-          skin: (data.radio_skin as RadioSkin) || 'modern',
-          currentCity: city,
           currentStation: currentStation || defaultStation,
-          volume: data.radio_volume || 0.7,
-          isShuffle: data.radio_shuffle_mode || false,
-          favorites: data.radio_favorite_stations || []
         }));
       }
     } catch (err) {
@@ -199,12 +193,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (!user?.id) return;
     try {
       const dbUpdates: any = {};
-      if (updates.skin !== undefined) dbUpdates.radio_skin = updates.skin;
-      if (updates.currentCity !== undefined) dbUpdates.radio_current_city = updates.currentCity;
+      // Only persist the station column that exists in the schema
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
-      if (updates.volume !== undefined) dbUpdates.radio_volume = updates.volume;
-      if (updates.isShuffle !== undefined) dbUpdates.radio_shuffle_mode = updates.isShuffle;
-      if (updates.favorites !== undefined) dbUpdates.radio_favorite_stations = updates.favorites;
 
       await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
     } catch (err) {

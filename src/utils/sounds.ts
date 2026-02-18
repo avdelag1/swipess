@@ -125,10 +125,14 @@ export function getSoundForTheme(
   theme: SwipeTheme,
   direction: 'left' | 'right'
 ): string | null {
-  if (theme === 'none' || theme === 'randomZen') {
+  if (!theme || theme === 'none' || theme === 'randomZen') {
     return null;
   }
 
-  const themeMap = soundMap[theme] as { left: string; right: string };
-  return themeMap[direction];
+  const themeMap = soundMap[theme as keyof typeof soundMap];
+  if (!themeMap || !('left' in themeMap)) {
+    return null;
+  }
+
+  return (themeMap as { left: string | null; right: string | null })[direction];
 }
