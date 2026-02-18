@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Loader2, X, Send, Circle, Zap, Home, User, MessageCircle, Flame, Filter } from 'lucide-react';
+import { Sparkles, Loader2, X, Send, Circle, Zap, Home, User, MessageCircle, Flame, Filter, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -19,6 +19,9 @@ interface Message {
   role: 'user' | 'ai';
   content: string;
   timestamp: number;
+  showAction?: boolean;
+  actionLabel?: string;
+  actionRoute?: string;
 }
 
 // Knowledge base about Swipess app
@@ -46,6 +49,28 @@ const SWIPESS_KNOWLEDGE = {
     'vehicle': 'Motorcycles, bicycles, cars',
     'services': 'Workers, professionals, service providers',
   },
+  filterKeywords: {
+    'cheap': { priceMax: 500 },
+    'expensive': { priceMin: 5000 },
+    'affordable': { priceMax: 2000 },
+    'luxury': { priceMin: 5000 },
+    'apartment': { category: 'property' },
+    'house': { category: 'property' },
+    'room': { category: 'property' },
+    'motorcycle': { category: 'vehicle' },
+    'moto': { category: 'vehicle' },
+    'bike': { category: 'bicycle' },
+    'bicycle': { category: 'bicycle' },
+    'service': { category: 'worker' },
+    'worker': { category: 'worker' },
+    'near': { location: true },
+    'nearby': { location: true },
+    'verified': { verified: true },
+    'furnished': { furnished: true },
+    'pet': { petFriendly: true },
+    'pool': { amenities: ['pool'] },
+    'parking': { amenities: ['parking'] },
+  },
   general: [
     'Swipess is a matching platform for rentals, vehicles, and services.',
     'You can swipe on listings as a client, or swipe on clients as an owner.',
@@ -57,14 +82,54 @@ const SWIPESS_KNOWLEDGE = {
 };
 
 // Generate AI response based on user query
-function generateAIResponse(query: string, userRole: string): string {
+function generateAIResponse(query: string, userRole: string): { response: string; showAction?: boolean; actionLabel?: string; actionRoute?: string } {
   const lowerQuery = query.toLowerCase();
+  
+  // Check for filter-related requests
+  const filterKeywords = SWIPESS_KNOWLEDGE.filterKeywords;
+  let detectedFilters: Record<string, any> = {};
+  
+  for (const [keyword, filters] of Object.entries(filterKeywords)) {
+    if (lowerQuery.includes(keyword)) {
+      for (const [filterKey, filterValue] of Object.entries(filters)) {
+        detectedFilters[filterKey] = filterValue;
+      }
+    }
+  }
+  
+  // If user is asking to filter, show action to apply filters
+  const filterTriggers = ['find', 'show me', 'search for', 'i want', 'looking for', 'need', 'filter'];
+  const isFilterRequest = filterTriggers.some(trigger => lowerQuery.includes(trigger));
+  
+  if (isFilterRequest && Object.keys(detectedFilters).length > 0) {
+    // Build filter description
+    const filterParts = [];
+    if (detectedFilters.category) filterParts.push(detectedFilters.category);
+    if (detectedFilters.priceMax) filterParts.push(`under $${detectedFilters.priceMax}`);
+    if (detectedFilters.priceMin) filterParts.push(`over $${detectedFilters.priceMin}`);
+    if (detectedFilters.verified) filterParts.push('verified');
+    if (detectedFilters.furnished) filterParts.push('furnished');
+    
+    const filterDesc = filterParts.join(', ') || 'your filters';
+    
+    return {
+      response: `I'll help you find ${filterDesc}! Let me apply these filters to your dashboard.\n\nTap "View Results" to see your filtered listings!`,
+      showAction: true,
+      actionLabel: 'View Results',
+      actionRoute: '/client/dashboard'
+    };
+  }
   
   // Check for route-related questions
   if (lowerQuery.includes('where') || lowerQuery.includes('how do i') || lowerQuery.includes('navigate')) {
     for (const [route, description] of Object.entries(SWIPESS_KNOWLEDGE.routes)) {
-      if (lowerQuery.includes(route.replace('/', '').replace('client', '').replace('owner', '').replace('dashboard', '').replace('liked', '').replace('filter', '').replace('message', ''))) {
-        return description;
+      if (lowerQuery.includes(route.split('/').pop() || '')) {
+        return {
+          response: description + '\n\nTap "Go There" to navigate directly!',
+          showAction: true,
+          actionLabel: 'Go There',
+          actionRoute: route
+        };
       }
     }
   }
@@ -73,7 +138,7 @@ function generateAIResponse(query: string, userRole: string): string {
   if (lowerQuery.includes('what is') || lowerQuery.includes('how does') || lowerQuery.includes('what can')) {
     for (const feature of SWIPESS_KNOWLEDGE.features) {
       if (lowerQuery.includes(feature.name.toLowerCase())) {
-        return feature.description;
+        return { response: feature.description };
       }
     }
   }
@@ -83,50 +148,61 @@ function generateAIResponse(query: string, userRole: string): string {
     const categories = Object.entries(SWIPESS_KNOWLEDGE.categories)
       .map(([key, desc]) => `• **${key}**: ${desc}`)
       .join('\n');
-    return `Here are the categories available:\n\n${categories}`;
+    return { response: `Here are the categories available:\n\n${categories}` };
   }
   
   // General questions about the app
   if (lowerQuery.includes('what is swipess') || lowerQuery.includes('what does swipess do')) {
-    return 'Swipess is a swipe-based matching platform for rentals, vehicles, and services. You can find properties to rent, discover clients as an owner, or hire services - all through a fun swipe interface!';
+    return { response: 'Swipess is a swipe-based matching platform for rentals, vehicles, and services. You can find properties to rent, discover clients as an owner, or hire services - all through a fun swipe interface!' };
   }
   
   if (lowerQuery.includes('how to use') || lowerQuery.includes('how does it work')) {
-    return `Here's how Swipess works:\n\n` +
-      `1. **Browse**: Swipe right on items you like, left to pass\n` +
-      `2. **Match**: When someone likes you back, you\'re matched!\n` +
-      `3. **Connect**: Chat instantly with your matches\n` +
-      `4. **AI Helper**: Use the AI button to find things faster`;
+    return {
+      response: `Here's how Swipess works:\n\n` +
+        `1. **Browse**: Swipe right on items you like, left to pass\n` +
+        `2. **Match**: When someone likes you back, you\'re matched!\n` +
+        `3. **Connect**: Chat instantly with your matches\n` +
+        `4. **AI Helper**: Use the AI button to find things faster`,
+      showAction: true,
+      actionLabel: 'Start Swiping',
+      actionRoute: '/client/dashboard'
+    };
   }
   
   if (lowerQuery.includes('match') || lowerQuery.includes('like')) {
-    return 'A match happens when two people like each other! When you swipe right on someone and they swipe right on you, it\'s a match. This unlocks the chat feature so you can connect.';
+    return { response: 'A match happens when two people like each other! When you swipe right on someone and they swipe right on you, it\'s a match. This unlocks the chat feature so you can connect.' };
   }
   
   if (lowerQuery.includes('token') || lowerQuery.includes('credit')) {
-    return 'Tokens are used for premium features like extra super likes, AI searches, and message boosts. You can get them through subscription packages.';
-  }
-  
-  if (lowerQuery.includes('filter') || lowerQuery.includes('search')) {
-    return 'Filters help you narrow down what you\'re looking for. You can filter by price, location, amenities, property type, and more. Or just ask the AI to find something for you!';
+    return { response: 'Tokens are used for premium features like extra super likes, AI searches, and message boosts. You can get them through subscription packages.' };
   }
   
   if (lowerQuery.includes('verify') || lowerQuery.includes('verified')) {
-    return 'Verification confirms that users and listings are real. Verified items have a checkmark badge, making the community safer.';
+    return { response: 'Verification confirms that users and listings are real. Verified items have a checkmark badge, making the community safer.' };
   }
   
   if (lowerQuery.includes('chat') || lowerQuery.includes('message')) {
-    return 'You can only chat with your matches! When you and another person both swipe right on each other, a match is created and you can start messaging.';
+    return { response: 'You can only chat with your matches! When you and another person both swipe right on each other, a match is created and you can start messaging.' };
+  }
+  
+  if (lowerQuery.includes('time') || lowerQuery.includes('hour')) {
+    return { response: 'It\'s currently ' + new Date().toLocaleTimeString() + '. Want to find something to do?' };
+  }
+  
+  if (lowerQuery.includes('hi') || lowerQuery.includes('hello') || lowerQuery.includes('hey')) {
+    return { response: 'Hey there! 👋 I\'m Swipess AI! I can help you:\n\n• Find listings by describing what you want\n• Navigate to different pages\n• Answer questions about how Swipess works\n• Explain features like matching, tokens, and more!\n\nWhat would you like to know?' };
   }
   
   // Default helpful response
-  return `I can help you with questions about Swipess! Try asking:\n\n` +
-    `• "How does matching work?"\n` +
-    `• "What are the categories?"\n` +
-    `• "Where are my matches?"\n` +
-    `• "What are tokens?"\n` +
-    `• "How do I use filters?"\n\n` +
-    `Or describe what you\'re looking for and I\'ll help you find it!`;
+  return { 
+    response: `I can help you with questions about Swipess! Try asking:\n\n` +
+      `• "Find apartments under $1000"\n` +
+      `• "How do matches work?"\n` +
+      `• "Show me motorcycles"\n` +
+      `• "What are tokens?"\n` +
+      `• "Where are my matches?"\n\n` +
+      `Or just describe what you\'re looking for and I\'ll help you find it!`
+  };
 }
 
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
@@ -219,25 +295,39 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsTyping(false);
     
     // Generate AI response
-    const aiResponse = generateAIResponse(userMessage, userRole);
-    setMessages(prev => [...prev, { role: 'ai', content: aiResponse, timestamp: Date.now() }]);
+    const { response, showAction, actionLabel, actionRoute } = generateAIResponse(userMessage, userRole);
+    setMessages(prev => [...prev, { 
+      role: 'ai', 
+      content: response, 
+      timestamp: Date.now(),
+      showAction,
+      actionLabel,
+      actionRoute
+    }]);
     
     setIsSearching(false);
   }, [query, isSearching, userRole]);
 
-  const handleClose = () => {
+  const handleAction = useCallback((route?: string) => {
+    if (route) {
+      navigate(route);
+      handleClose();
+    }
+  }, [navigate]);
+
+  const handleClose = useCallback(() => {
     onClose();
     setQuery('');
     setMessages([]);
     setIsSearching(false);
     setIsTyping(false);
-  };
+  }, [onClose]);
 
   const quickPrompts = useMemo(() => [
-    { icon: Home, label: 'Browse', text: 'How do I browse listings?' },
-    { icon: Flame, label: 'Match', text: 'How do matches work?' },
-    { icon: Filter, label: 'Search', text: 'How do I filter search?' },
+    { icon: Home, label: 'Browse', text: 'Show me apartments to rent' },
+    { icon: Flame, label: 'Matches', text: 'Where are my matches?' },
     { icon: Zap, label: 'Tokens', text: 'What are tokens?' },
+    { icon: MessageCircle, label: 'Help', text: 'How does Swipess work?' },
   ], []);
 
   const applyQuickPrompt = (text: string) => {
@@ -245,11 +335,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  };
-
-  const navigateToRoute = (route: string) => {
-    navigate(route);
-    handleClose();
   };
 
   return (
@@ -304,20 +389,20 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <Sparkles className="w-8 h-8 text-orange-400" />
               </div>
               <div>
-                <h3 className="text-white font-medium text-base">Swipess Expert</h3>
-                <p className="text-white/50 text-xs mt-1">I know everything about this app!</p>
+                <h3 className="text-white font-medium text-base">Swipess AI</h3>
+                <p className="text-white/50 text-xs mt-1">Your personal app assistant</p>
               </div>
               
-              {/* Quick navigation buttons */}
+              {/* Quick prompts */}
               <div className="grid grid-cols-2 gap-2 pt-2">
                 {quickPrompts.map((prompt, index) => (
                   <button
                     key={index}
                     onClick={() => applyQuickPrompt(prompt.text)}
-                    className="flex items-center gap-2 px-3 py-2 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white/70 hover:text-white transition-all text-left"
+                    className="flex items-center gap-2 px-3 py-2.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/70 hover:text-white transition-all text-left"
                   >
                     <prompt.icon className="w-4 h-4 text-orange-400" />
-                    {prompt.label}
+                    <span className="flex-1">{prompt.label}</span>
                   </button>
                 ))}
               </div>
@@ -331,40 +416,61 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={cn(
-                  "flex gap-2",
-                  message.role === 'user' && "justify-end"
+                  "flex flex-col gap-2",
+                  message.role === 'user' && "items-end"
                 )}
               >
-                {message.role === 'ai' && (
-                  <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Sparkles className="w-3 h-3 text-white" />
-                  </div>
-                )}
-                
                 <div className={cn(
-                  "max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap",
-                  message.role === 'user' 
-                    ? "bg-orange-500 text-white rounded-br-md" 
-                    : "bg-white/10 text-white/90 rounded-bl-md",
-                  isTyping && message.role === 'ai' && message.content === ''
-                    ? "animate-pulse"
-                    : ""
+                  "flex gap-2",
+                  message.role === 'user' && "justify-end"
                 )}>
-                  {message.role === 'ai' && message.content === '' ? (
-                    <div className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  {message.role === 'ai' && (
+                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center flex-shrink-0 mt-1">
+                      <Sparkles className="w-3 h-3 text-white" />
                     </div>
-                  ) : (
-                    message.content
+                  )}
+                  
+                  <div className={cn(
+                    "max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap",
+                    message.role === 'user' 
+                      ? "bg-orange-500 text-white rounded-br-md" 
+                      : "bg-white/10 text-white/90 rounded-bl-md",
+                    isTyping && message.role === 'ai' && message.content === ''
+                      ? "animate-pulse"
+                      : ""
+                  )}>
+                    {message.role === 'ai' && message.content === '' ? (
+                      <div className="flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    ) : (
+                      message.content
+                    )}
+                  </div>
+
+                  {message.role === 'user' && (
+                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-white text-[10px] font-medium">You</span>
+                    </div>
                   )}
                 </div>
 
-                {message.role === 'user' && (
-                  <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-[10px] font-medium">You</span>
-                  </div>
+                {/* Action button if available */}
+                {message.role === 'ai' && message.showAction && message.actionRoute && (
+                  <button
+                    onClick={() => handleAction(message.actionRoute)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-full",
+                      "bg-gradient-to-r from-orange-500 to-red-500 text-white",
+                      "hover:from-orange-400 hover:to-red-400 transition-all",
+                      "ml-8"
+                    )}
+                  >
+                    {message.actionLabel || 'View'}
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
                 )}
               </motion.div>
             ))}
@@ -385,15 +491,16 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         </div>
 
         {/* Quick action buttons (appear after first message) */}
-        {messages.length > 0 && (
+        {messages.length > 0 && messages[messages.length - 1].role === 'ai' && (
           <div className="px-4 pb-2">
             <div className="flex flex-wrap gap-2">
               {quickPrompts.slice(0, 2).map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white transition-all"
                 >
+                  <prompt.icon className="w-3 h-3 text-orange-400" />
                   {prompt.label}
                 </button>
               ))}
@@ -407,7 +514,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Ask me anything about Swipess..."
+              placeholder="Ask me anything..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
