@@ -44,6 +44,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
           .from('profiles')
           .select(`
             id,
+            user_id,
             full_name,
             avatar_url,
             age,
@@ -59,7 +60,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
             bio,
             created_at
           `)
-          .neq('id', user.id)
+          .neq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(100);
 
@@ -87,7 +88,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
 
         // Transform profiles to ClientProfile interface with enrichment
         const transformed: ClientProfile[] = profiles.map((profile: any, index: number) => {
-          const cpData = clientProfileMap.get(profile.id);
+          const cpData = clientProfileMap.get(profile.user_id);
           const name = profile.full_name || cpData?.name || 'New User';
           const profileImages = (profile.images && (profile.images as any[]).length > 0)
             ? profile.images
@@ -97,7 +98,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
 
           return {
             id: index + 1,
-            user_id: profile.id,
+            user_id: profile.user_id,
             name,
             age: profile.age || cpData?.age || 0,
             gender: profile.gender || cpData?.gender || '',

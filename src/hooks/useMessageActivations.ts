@@ -9,7 +9,7 @@ export function useMessageActivations() {
 
   // Fetch available tokens from actual table schema
   const { data: tokens, isLoading } = useQuery({
-    queryKey: ['tokens', user?.id],
+    queryKey: ['message_activations', user?.id],
     queryFn: async () => {
       if (!user?.id) return { totalRemaining: 999 };
 
