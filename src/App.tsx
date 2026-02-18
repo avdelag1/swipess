@@ -115,6 +115,9 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 
+// Tutorial page - public onboarding experience
+const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -276,6 +279,9 @@ const App = () => (
 
                     {/* Test Pages */}
                     <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
+
+                    {/* Tutorial / Onboarding - Public Access */}
+                    <Route path="/tutorial" element={<TutorialSwipePage />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
