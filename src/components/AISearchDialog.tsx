@@ -457,7 +457,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/8 border border-white/8 rounded-full text-white/70 hover:text-white transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white transition-all"
                 >
                   <prompt.icon className="w-3 h-3" style={{ color: '#f97316' }} />
                   {prompt.label}
@@ -477,7 +477,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="pr-20 h-11 bg-white/5 border-white/8 text-white placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40"
+              className="pr-20 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40"
               disabled={isSearching}
             />
             

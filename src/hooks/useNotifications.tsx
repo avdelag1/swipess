@@ -49,7 +49,7 @@ export function useNotifications() {
               const { data: senderProfile, error: profileError } = await supabase
                 .from('profiles')
                 .select('full_name, avatar_url')
-                .eq('id', newMessage.sender_id)
+                .eq('user_id', newMessage.sender_id)
                 .maybeSingle();
 
               if (profileError) {
