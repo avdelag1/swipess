@@ -86,14 +86,14 @@ export function useConversations() {
 
         // Batch fetch profiles and listings
         const [profilesResult, listingsResult] = await Promise.all([
-          supabase.from('profiles').select('id, full_name, avatar_url').in('id', Array.from(userIds)),
+          supabase.from('profiles').select('user_id, full_name, avatar_url').in('user_id', Array.from(userIds)),
           data.some((c: any) => c.listing_id)
             ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').in('id', data.filter((c: any) => c.listing_id).map((c: any) => c.listing_id))
             : Promise.resolve({ data: [] as any[], error: null })
         ]);
 
         const profilesMap = new Map<string, any>();
-        (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.id, p));
+        (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, p));
         const listingsMap = new Map<string, any>();
         ((listingsResult as any).data || []).forEach((l: any) => listingsMap.set(l.id, l));
 

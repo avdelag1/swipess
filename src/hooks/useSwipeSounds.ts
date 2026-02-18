@@ -32,7 +32,7 @@ export function useSwipeSounds() {
           .from('profiles')
           .select('swipe_sound_theme')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.warn('Failed to load swipe sound theme:', error);
