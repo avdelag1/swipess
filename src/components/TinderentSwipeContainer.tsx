@@ -1208,7 +1208,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const { title, description, cta } = getCaughtUpMessage();
     
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 pt-14 pb-20">
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1262,7 +1262,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     // FIX: Ensure categoryLabel is always a string, never an object
     const categoryLabel = String(categoryInfo?.plural || 'listings');
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 pt-14 pb-20">
         <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
           <div className="text-6xl mb-4">:(</div>
           <h3 className="text-xl font-bold mb-2">Oops! Something went wrong</h3>
@@ -1320,7 +1320,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const { title, description } = getEmptyMessage();
     
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 pt-14 pb-20">
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}

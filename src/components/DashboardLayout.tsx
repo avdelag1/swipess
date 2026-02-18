@@ -577,7 +577,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.12, ease: 'easeOut' }}
-          style={{ minHeight: '100%', width: '100%' }}
+          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
         >
           {enhancedChildren}
         </motion.div>
