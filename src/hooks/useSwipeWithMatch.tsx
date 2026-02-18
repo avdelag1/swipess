@@ -521,13 +521,13 @@ async function detectAndCreateMatch({
           supabase
             .from('profiles')
             .select('*')
-            .eq('id', match.client_id)
-            .single(),
+            .eq('user_id', match.client_id)
+            .maybeSingle(),
           supabase
             .from('profiles')
             .select('*')
-            .eq('id', match.owner_id)
-            .single()
+            .eq('user_id', match.owner_id)
+            .maybeSingle()
         ]);
 
         // Trigger match celebration
