@@ -31,7 +31,7 @@ import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase } from 'lucide-react';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles } from 'lucide-react';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -1357,6 +1357,18 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
                 <RefreshCw className="w-4 h-4" />
               )}
               {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
+            </Button>
+          </motion.div>
+
+          {/* Tutorial shortcut — lets new users explore demo cards while waiting */}
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/tutorial')}
+              className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+            >
+              <Sparkles className="w-4 h-4" />
+              Try Tutorial Cards
             </Button>
           </motion.div>
         </motion.div>
