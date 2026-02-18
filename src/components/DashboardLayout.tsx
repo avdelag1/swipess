@@ -572,18 +572,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           willChange: 'contents',
         }}
       >
-        <AnimatePresence mode="sync" initial={false}>
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12, ease: 'easeOut' }}
-            style={{ minHeight: '100%' }}
-          >
-            {enhancedChildren}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
+          style={{ minHeight: '100%', width: '100%' }}
+        >
+          {enhancedChildren}
+        </motion.div>
         {/* Fade-out gradient at bottom of content - hide on fullscreen routes */}
         {!isCameraRoute && !isRadioRoute && (
           <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]"
