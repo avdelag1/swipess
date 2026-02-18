@@ -247,6 +247,7 @@ const workerListings: TutorialListing[] = [
     images: [
       `${UNS}/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop`,
       `${UNS}/photo-1558618047-f4e60cef26b2?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1504328345606-18bbc8c9d7d1?w=800&h=600&fit=crop`,
     ],
     description:
       'CFE-certified electrician specializing in residential and commercial installations. Fault diagnosis, panel upgrades, solar pre-wiring, EV charger installation, and emergency callouts. Fully insured with 3-month work guarantee.',
@@ -302,6 +303,7 @@ const workerListings: TutorialListing[] = [
     images: [
       `${UNS}/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop`,
       `${UNS}/photo-1466637574441-749b8f19452f?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop`,
     ],
     description:
       'Private chef with 8 years in top Tulum restaurants. Specializes in Mexican fusion, raw vegan, and Mediterranean cuisine. Available for intimate dinners, villa events, weekly meal prep, and private cooking classes.',
@@ -357,6 +359,7 @@ const workerListings: TutorialListing[] = [
     images: [
       `${UNS}/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop`,
       `${UNS}/photo-1517836357463-d25dfeac3438?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1540497077202-7c8a3999166f?w=800&h=600&fit=crop`,
     ],
     description:
       'NASM-certified personal trainer specializing in strength training, HIIT, and outdoor beach workouts. Offers personalized nutrition plans and can train at your home, beach, or a local gym. Online sessions available.',
@@ -474,6 +477,7 @@ const motorcycleListings: TutorialListing[] = [
     images: [
       `${UNS}/photo-1609630875171-b1321377ee65?w=800&h=600&fit=crop`,
       `${UNS}/photo-1558981359-219d6364c9c8?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop`,
     ],
     description:
       'Nearly new 2023 Kawasaki Z400 — perfect beginner to intermediate bike. Sharp styling, light chassis, and punchy 400cc twin. Ideal for city commuting and weekend fun. Selling due to upgrade.',
@@ -529,6 +533,7 @@ const motorcycleListings: TutorialListing[] = [
     images: [
       `${UNS}/photo-1591637333184-19aa84b3e01f?w=800&h=600&fit=crop`,
       `${UNS}/photo-1615197449578-f0a384f96e36?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1558981403-c5f9899a28bc?w=800&h=600&fit=crop`,
     ],
     description:
       'Royal Enfield Meteor 350 in Supernova Bronze — the most comfortable 350cc cruiser you can ride. Upright posture, smooth torque, and classic styling. Great for long hauls on the Yucatan peninsula. Like new.',
@@ -590,6 +595,7 @@ const bicycleListings: TutorialListing[] = [
     images: [
       `${UNS}/photo-1507035895480-08acdf9b909d?w=800&h=600&fit=crop`,
       `${UNS}/photo-1576435728678-68d0fbf94e91?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1502744688674-c619d1586c9e?w=800&h=600&fit=crop`,
     ],
     description:
       'Trek FX 3 Disc in matte black — the perfect city speedster. Hydraulic disc brakes, Shimano Deore groupset, and Bontrager tires. Includes rear rack, fenders and Bontrager Ion light set. Barely used, showroom condition.',
@@ -644,7 +650,8 @@ const bicycleListings: TutorialListing[] = [
     country: 'Mexico',
     images: [
       `${UNS}/photo-1485965120184-e224f721d03e?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1571068316344-75bc76f77890?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1534787238916-9ba6764efd4f?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1541625602538-5f5f44cc779b?w=800&h=600&fit=crop`,
     ],
     description:
       'Cannondale Synapse Carbon with Shimano 105 Di2 electronic shifting. Endurance geometry for long rides with compliance. Light and fast — 8.2 kg complete. Carbon wheels upgraded. Perfect for gran fondos and century rides.',
@@ -699,7 +706,8 @@ const bicycleListings: TutorialListing[] = [
     country: 'Mexico',
     images: [
       `${UNS}/photo-1526178613658-3f1622045557?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1571068316344-75bc76f77890?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop`,
+      `${UNS}/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop`,
     ],
     description:
       'Giant Escape E+ 1 — the perfect electric commuter. SyncDrive Sport motor with 80km real-world range, Shimano hydraulic disc brakes, and integrated lights. Arrives fully charged. Barely 600 km on the odometer.',
@@ -760,6 +768,7 @@ const maleClients: TutorialClientProfile[] = [
     profile_images: [
       `${UNS}/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop&crop=face`,
       `${UNS}/photo-1500648767791-00dcc994a43e?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1552374196-c4e7ffc6e126?w=600&h=800&fit=crop&crop=face`,
     ],
     interests: ['Remote Work', 'Surfing', 'Photography', 'Coffee', 'Cycling'],
     verified: true,
@@ -811,6 +820,7 @@ const maleClients: TutorialClientProfile[] = [
     profile_images: [
       `${UNS}/photo-1568602471122-7832951cc4c5?w=600&h=800&fit=crop&crop=face`,
       `${UNS}/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1519085360753-af0119f7cbe7?w=600&h=800&fit=crop&crop=face`,
     ],
     interests: ['Motorcycles', 'Entrepreneurship', 'Travel', 'MotoGP', 'Gym'],
     verified: true,
@@ -862,6 +872,7 @@ const maleClients: TutorialClientProfile[] = [
     profile_images: [
       `${UNS}/photo-1506794778202-cad84cf45f1d?w=600&h=800&fit=crop&crop=face`,
       `${UNS}/photo-1566492031773-4f4e44671857?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1537368910025-700350fe46c7?w=600&h=800&fit=crop&crop=face`,
     ],
     interests: ['Family Life', 'Golf', 'Real Estate', 'Travel', 'Fine Dining'],
     verified: true,
@@ -919,6 +930,7 @@ const femaleClients: TutorialClientProfile[] = [
     profile_images: [
       `${UNS}/photo-1494790108377-be9c29b29330?w=600&h=800&fit=crop&crop=face`,
       `${UNS}/photo-1544005313-94ddf0286df2?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1508214751196-bcfd4ca60f91?w=600&h=800&fit=crop&crop=face`,
     ],
     interests: ['Content Creation', 'Yoga', 'Travel', 'Sustainability', 'Art'],
     verified: true,
@@ -970,6 +982,7 @@ const femaleClients: TutorialClientProfile[] = [
     profile_images: [
       `${UNS}/photo-1438761681033-6461ffad8d80?w=600&h=800&fit=crop&crop=face`,
       `${UNS}/photo-1487412720507-e7ab37603c6f?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1531746020798-e6953c6e8e04?w=600&h=800&fit=crop&crop=face`,
     ],
     interests: ['Yoga', 'Cycling', 'Nutrition', 'Nature', 'Mindfulness'],
     verified: true,
@@ -1019,8 +1032,9 @@ const femaleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Architect and studio owner looking for a rental property that doubles as home + client meeting space. Need a spacious, modern property with at least one area I can use as a studio/office. Design-forward aesthetic preferred.',
     profile_images: [
-      `${UNS}/photo-1487412720507-e7ab37603c6f?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1494790108377-be9c29b29330?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1573496359142-b8d87734a5a2?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1580489944761-15a19d654956?w=600&h=800&fit=crop&crop=face`,
+      `${UNS}/photo-1567532939604-b6b5b0db2604?w=600&h=800&fit=crop&crop=face`,
     ],
     interests: ['Architecture', 'Interior Design', 'Art', 'Photography', 'Cooking'],
     verified: true,
