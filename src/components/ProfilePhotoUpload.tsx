@@ -44,7 +44,7 @@ export function ProfilePhotoUpload({
       const { data, error } = await supabase
         .from('profiles')
         .select('avatar_url')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
       
       if (data && !error) {
@@ -98,7 +98,7 @@ export function ProfilePhotoUpload({
         .update({ 
           avatar_url: publicUrl,
         })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
 
       if (updateError) {
         throw updateError;
