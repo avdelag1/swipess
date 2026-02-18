@@ -1,103 +1,144 @@
 
-## Fix: Eliminate the Breaking/Hesitation in the Landing-to-Auth Transition
+## Full Performance & Flow Audit: What Needs Fixing
 
-### Diagnosed Root Causes
-
-There are 3 simultaneous bugs creating the "thinks a few times then opens" feeling:
-
-**Bug 1: Double-trigger race condition**
-`onClick={handleTap}` is attached to the same `motion.div` that has `drag="x"`. Framer Motion fires `onClick` after EVERY pointer-up — including after a drag. So when the user swipes, both `handleDragEnd` AND `handleTap` fire simultaneously. The `triggered.current` ref prevents both from completing, but there is still a brief moment of conflicting animation calls before the guard kicks in.
-
-**Bug 2: `AnimatePresence mode="wait"` creates a dead zone**
-`mode="wait"` forces the landing view to fully complete its exit animation before the auth view can start entering. The exit transition is 320ms. During that window, the screen shows the landing page fading/blurring out with nothing incoming — a perceptible blank moment. The logo has already spring-animated off-screen, but the wrapper div is still playing its exit animation.
-
-**Bug 3: Double exit animation conflict**
-When the swipe threshold is met, the code does two things at once:
-1. Animates the logo `x` to `window.innerWidth * 1.5` (spring, takes ~200ms to leave view)
-2. After `onComplete` fires, calls `setView('auth')`, which triggers the `LandingView` wrapper's `exit` animation: `{ x: -60, filter: 'blur(6px)', duration: 0.32 }`
-
-This means: logo flies RIGHT, then the whole page exits LEFT with blur. Two conflicting directional animations playing sequentially = the "janky" feeling.
+This is a complete diagnosis of every issue causing build errors, blinking between pages, and anything that would prevent a smooth iOS app experience.
 
 ---
 
-### The Fix — One File: `src/components/LegendaryLandingPage.tsx`
+## Part 1: Build Errors (Must Fix First — App Won't Compile)
 
-**Fix 1: Remove `onClick={handleTap}` from the drag element**
-The tap handler should only be active on a true tap (no drag movement). Use `onPointerDown` + `onPointerUp` with a movement guard instead, OR add a separate invisible tap-target element that sits on top. Simplest approach: use `whileTap` feedback only on the logo and trigger the transition only from `handleDragEnd` for swipes, keeping the tap available but protected by a distance check.
+### Error Group A: `send-push-notification` Edge Function (4 TypeScript errors)
 
-Actually the cleanest fix matching SimpleSwipeCard's pattern: **remove `onClick` entirely from the draggable div**. Add a separate `onTap` using Framer Motion's `onTap` event (which only fires when no drag occurred):
+**Root cause:** The Deno TypeScript runtime uses stricter `BufferSource` types than the edge function code expects. `Uint8Array<ArrayBufferLike>` is not assignable to `ArrayBufferView<ArrayBuffer>` in Deno's type system.
 
-```tsx
-// Framer Motion's onTap only fires if the gesture was NOT a drag
-onTap={handleTap}
-// Remove onClick entirely
+**Fix:** Cast the `Uint8Array` results to `ArrayBuffer` using `.buffer as ArrayBuffer` and fix the `importKey` call from `"raw"` (for EC keys, you need `"pkcs8"` or `"jwk"` format, not `"raw"` for private keys). The correct approach for VAPID private keys is to import them as `"pkcs8"`.
+
+**Files to fix:**
+- `supabase/functions/send-push-notification/index.ts`
+  - Line 66: `crypto.subtle.importKey("raw", privateKeyBytes, ...)` — EC P-256 private keys must be imported as `"pkcs8"`, not `"raw"`. The VAPID private key must be converted from base64url raw bytes to a PKCS8-wrapped key, OR use `"jwk"` format.
+  - Line 102: `urlB64ToUint8Array(p256dhKey)` result needs `.buffer as ArrayBuffer`
+  - Line 142: `salt: authBytes` — needs `authBytes.buffer as ArrayBuffer`
+  - Line 220: `body` — needs `body.buffer as ArrayBuffer`
+
+**Simplest fix:** Replace the complex manual VAPID/Web Crypto implementation with the standard `web-push` compatible approach, casting `Uint8Array` to `Uint8Array<ArrayBuffer>` by reconstructing them from their `.buffer`:
+```ts
+new Uint8Array(urlB64ToUint8Array(p256dhKey).buffer)
 ```
 
-**Fix 2: Change `AnimatePresence mode="wait"` to `mode="sync"`**
-`mode="sync"` allows the entering view to start appearing at the same time the exiting view is leaving. This eliminates the dead zone. Both the logo flying out and the auth form fading in happen in parallel.
+### Error Group B: `usePushNotifications.ts` (6 TypeScript errors)
 
-```tsx
-// Before (creates dead zone):
-<AnimatePresence mode="wait">
+**Root cause:** The TypeScript DOM lib used in this Vite project does not include `PushManager` on the `ServiceWorkerRegistration` type. This is a missing lib type, not a runtime error.
 
-// After (seamless overlap):
-<AnimatePresence mode="sync">
-```
-
-**Fix 3: Make the landing wrapper exit in the SAME direction as the logo**
-Currently the logo exits RIGHT but the wrapper exits LEFT. Unify them:
-
-```tsx
-// Landing wrapper exit:
-exit={{ opacity: 0, x: 60, filter: 'blur(4px)', transition: { duration: 0.22 } }}
-// Short duration so it clears quickly, exits RIGHT (same as logo)
-```
-
-And skip the logo spring animation entirely — let the wrapper animate everything, and just call `setView('auth')` immediately when threshold is met. The wrapper's exit animation IS the visual transition:
-
-```tsx
-// When swipe threshold met:
-triggered.current = true;
-setView('auth'); // Fire immediately — AnimatePresence handles the visual transition
-// No separate animate(x, ...) needed — the exit animation covers it
-```
-
-This is the key insight: **stop trying to manually animate the logo off-screen, then swap the view. Just swap the view — the exit animation does the work.**
-
-**Fix 4: Align all transition timings**
-
-Landing exit: `{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }` — fast, directional exit to right  
-Auth enter: `{ duration: 0.30, ease: [0.25, 0.46, 0.45, 0.94] }` — slightly longer, smooth entrance  
-Auth exit: `{ duration: 0.20, ease: [0.4, 0, 1, 1] }` — quick exit when going back  
-Landing re-enter: `{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }` — gentle re-entrance from left  
+**Fix:** Add `"lib": ["DOM", "DOM.Iterable", "ESNext"]` to `tsconfig.app.json` if not already there, OR use type assertions `(registration as any).pushManager`. The `push_subscriptions` table error (`Argument of type '"push_subscriptions"' is not assignable to parameter of type 'never'`) means the table exists but is not in the auto-generated `types.ts`. Since we cannot edit `types.ts`, we need to use `.from('push_subscriptions' as any)`.
 
 ---
 
-### Summary of Changes
+## Part 2: Page-to-Page Blinking (The Visual Issue)
 
-**`src/components/LegendaryLandingPage.tsx`**
+### Diagnosed Root Cause: Missing `AnimatePresence` + No Page Transition in the Router
 
-| Location | Change |
-|---|---|
-| `motion.div` (logo drag element) | Replace `onClick={handleTap}` with `onTap={handleTap}` |
-| `handleDragEnd` | Remove the `animate(x, ...)` spring call — replace with direct `setView('auth')` |
-| `handleTap` | Remove the `animate(x, ...)` call — replace with direct `setView('auth')` |
-| `LandingView` wrapper `exit` prop | Change to `exit={{ x: 80, opacity: 0, transition: { duration: 0.22 } }}` (exits RIGHT, fast) |
-| `LandingView` wrapper `initial`/`animate` | Keep as-is |
-| `AnimatePresence` in root | Change `mode="wait"` to `mode="sync"` |
-| `AuthView` `initial`/`animate`/`exit` | Simplify: enter from right (`x: 30 → 0`), exit right (`x: 30`), no blur needed |
+Looking at `App.tsx` and `DashboardLayout.tsx`:
+
+- `App.tsx` has a `<Suspense fallback={<SuspenseFallback />}>` wrapping all routes — but when lazy components load for the first time, the `SuspenseFallback` flashes white/blank briefly.
+- There is **no `AnimatePresence` wrapping the `<Routes>`** in `App.tsx`. Pages swap with a hard cut — no crossfade, no continuity.
+- `DashboardLayout.tsx` renders `{enhancedChildren}` (the `<Outlet>`) directly into the `<main>` tag with **no transition wrapper**. Every page swap is a hard DOM replacement.
+- The `<SuspenseFallback>` component likely shows a loading spinner or blank screen — this is the "blinking" between pages.
+
+### Fix Plan
+
+**Fix 1: Add `AnimatePresence` + `useLocation` key to the Routes in `App.tsx`**
+
+Wrap `<Routes>` in `AnimatePresence` keyed by `location.pathname`. This gives React Router a DOM key to animate between route changes. Each route change crossfades instead of hard-cutting.
+
+```tsx
+// In App.tsx — wrap the Routes with AnimatePresence
+const location = useLocation();
+
+<AnimatePresence mode="sync" initial={false}>
+  <Routes location={location} key={location.pathname}>
+    ...
+  </Routes>
+</AnimatePresence>
+```
+
+**Fix 2: Wrap each page's root element with a lightweight fade transition in `DashboardLayout`**
+
+Since the `Outlet` renders child pages inside the `<main>` scroll container, add a motion wrapper around the outlet with a simple opacity transition. This eliminates hard cuts between pages.
+
+Inside `DashboardLayout.tsx`, wrap the `enhancedChildren` output:
+
+```tsx
+<motion.div
+  key={location.pathname}
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  exit={{ opacity: 0 }}
+  transition={{ duration: 0.15, ease: 'easeOut' }}
+  style={{ minHeight: '100%' }}
+>
+  {enhancedChildren}
+</motion.div>
+```
+
+**Fix 3: Make `SuspenseFallback` invisible (transparent) instead of showing a spinner**
+
+The flash between pages often comes from the `<SuspenseFallback>` showing briefly. For already-visited pages (which are cached in the JS bundle), Suspense resolves in <1ms but still shows the fallback for one frame. Change the fallback to `null` or a fully transparent div so even if it flashes, it's invisible.
+
+**Fix 4: Increase `staleTime` for hot-path queries**
+
+The `queryClient` has `staleTime: 5 * 60 * 1000` (5 min). This is already good. However `refetchOnWindowFocus: true` means every time the user switches tabs/apps on iOS it will refetch — this can cause visible content flashes when data reloads. For iOS, set `refetchOnWindowFocus: false` for most queries.
 
 ---
 
-### Why This Feels Instant After the Fix
+## Part 3: iOS-Readiness Checklist
 
-- `onTap` instead of `onClick` → no double-trigger, no race condition
-- `mode="sync"` → auth starts appearing the moment landing starts exiting — zero gap
-- No manual spring animation before view swap → `setView('auth')` fires in the same frame as the threshold being crossed
-- Exit direction unified → everything moves the same way, the eye reads it as one fluid gesture
+### Things already done correctly:
+- Capacitor dependencies are installed (`@capacitor/core`, `@capacitor/ios`, etc.)
+- Safe area CSS variables (`--safe-top`, `--safe-bottom`) are properly defined
+- `touch-action: manipulation` is set globally (eliminates 300ms tap delay)
+- `-webkit-tap-highlight-color: transparent` is set
+- `WebkitOverflowScrolling: 'touch'` is on the scroll container
+- PWA manifest is configured
 
-The result: **finger lifts → landing exits right → auth enters from right → both happening simultaneously → zero hesitation**
+### Things that need attention for iOS:
+- **Push notifications:** The `usePushNotifications` hook uses Web Push API which does NOT work in iOS WebView (Capacitor). iOS requires APNs (Apple Push Notification Service) via Capacitor's `@capacitor/push-notifications` plugin, not `PushManager`. The current implementation will silently fail on iOS. The hook should detect the Capacitor platform and skip Web Push.
+- **`navigator.serviceWorker` in Capacitor:** Service workers don't run in iOS WKWebView. The push notification code should be guarded with `Capacitor.isNativePlatform()` checks.
 
-### Files Changed
+---
 
-- **`src/components/LegendaryLandingPage.tsx`** — targeted changes to `handleDragEnd`, `handleTap`, the drag `motion.div`, the `LandingView` wrapper exit, and the `AnimatePresence` mode
+## What Gets Fixed
+
+### File Changes
+
+**1. `supabase/functions/send-push-notification/index.ts`**
+- Fix `Uint8Array` casting issues with `ArrayBuffer`
+- Fix the private key import: EC P-256 private keys must use `"pkcs8"` format, not `"raw"`. Convert the raw bytes to a PKCS8 DER-encoded wrapper before importing.
+- Fix `body` to cast to `ArrayBuffer` for the fetch call
+
+**2. `src/hooks/usePushNotifications.ts`**
+- Add `as any` type assertions for `push_subscriptions` table (not in generated types)
+- Add `(registration as any).pushManager` to fix the missing DOM type
+- Add Capacitor platform guard: skip all Web Push logic when running in native iOS/Android
+
+**3. `src/App.tsx`**
+- Extract `useLocation()` (move `AnimatePresence` inside a child component since hooks can't be used directly in the App root before `BrowserRouter`)
+- Add `AnimatePresence mode="sync"` around the `<Suspense>` + `<Routes>` block
+
+**4. `src/components/DashboardLayout.tsx`**
+- Add lightweight `motion.div` with opacity fade around `{enhancedChildren}` keyed by `location.pathname`
+- Import `motion` from `framer-motion` (it's already a dependency)
+
+**5. `src/components/ui/suspense-fallback.tsx`**
+- Make the fallback invisible during navigation (no spinner, just transparent) to eliminate the blink flash
+
+**6. `tsconfig.app.json`**
+- Ensure `"lib"` includes `"DOM"` to get `PushManager` types (if not already there)
+
+---
+
+## Priority Order
+
+1. Fix build errors (Groups A + B) — app won't compile without this
+2. Fix page blinking (`AnimatePresence` + `DashboardLayout` motion wrapper)
+3. Fix iOS push notifications guard (Capacitor platform check)
+4. Make `SuspenseFallback` invisible during transitions
