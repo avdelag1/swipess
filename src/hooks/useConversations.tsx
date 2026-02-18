@@ -209,7 +209,7 @@ export function useConversations() {
       const isClient = data.client_id === user.id;
 
       const [profileResult, listingResult, messagesResult] = await Promise.all([
-        otherUserId ? supabase.from('profiles').select('id, full_name, avatar_url').eq('id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
+        otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
         supabase.from('conversation_messages').select('conversation_id, message_text, created_at, sender_id').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);

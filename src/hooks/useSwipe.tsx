@@ -83,6 +83,9 @@ export function useSwipe() {
         queryClient.invalidateQueries({ queryKey: key }).catch(() => {});
       });
       
+      // CRITICAL: Also invalidate listings deck so swiped cards disappear immediately
+      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(() => {});
+      
       // Also invalidate any queries that start with these prefixes
       queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(() => {});
       queryClient.invalidateQueries({ queryKey: ['match'] }).catch(() => {});
