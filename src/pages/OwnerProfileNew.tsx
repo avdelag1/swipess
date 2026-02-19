@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Palette, Heart
+  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Palette, Heart, Settings
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -183,6 +183,23 @@ const OwnerProfileNew = () => {
             >
               <Crown className="w-5 h-5" />
               Upgrade Subscription
+            </motion.button>
+          </motion.div>
+
+          {/* Settings button */}
+          <motion.div variants={childVariant}>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              onClick={() => navigate('/owner/settings')}
+              className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-medium text-base transition-colors"
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                color: 'rgba(255,255,255,0.85)',
+              }}
+            >
+              <Settings className="w-5 h-5" />
+              Settings
             </motion.button>
           </motion.div>
 
