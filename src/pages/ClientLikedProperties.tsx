@@ -294,95 +294,118 @@ const ClientLikedProperties = () => {
             </div>
 
             {isLoading ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {[1, 2, 3].map(i => (
-                  <div
-                    key={i}
-                    className="rounded-2xl overflow-hidden animate-pulse"
-                    style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.06)',
-                    }}
-                  >
-                    <div className="h-48 bg-white/5" />
+              <div className="grid gap-4 md:grid-cols-2">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <div className="h-56 bg-white/5" />
                     <div className="p-4 space-y-3">
-                      <div className="h-4 bg-white/10 rounded-lg w-3/4" />
-                      <div className="h-3 bg-white/5 rounded-lg w-1/2" />
+                      <div className="h-4 bg-white/10 rounded-xl w-3/4" />
+                      <div className="h-3 bg-white/5 rounded-xl w-1/2" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : filteredProperties.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2">
                 {filteredProperties.map((property, idx) => (
                   <motion.div
                     key={property.id}
                     initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.04, duration: 0.3 }}
-                    className="rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.01] touch-manipulation"
+                    className="rounded-3xl overflow-hidden cursor-pointer touch-manipulation group"
                     style={{
-                      background: 'rgba(255,255,255,0.05)',
+                      background: 'rgba(255,255,255,0.04)',
                       border: '1px solid rgba(255,255,255,0.08)',
-                      boxShadow: '0 4px 16px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.06)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
                     }}
                     onClick={() => handlePropertyClick(property)}
+                    whileHover={{ y: -2, boxShadow: '0 12px 40px rgba(0,0,0,0.45)' }}
                   >
-                    {/* Property Image */}
+                    {/* Cinematic Image */}
                     <div
-                      className="relative h-48 overflow-hidden"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleImageClick(property, 0);
-                      }}
+                      className="relative overflow-hidden"
+                      style={{ height: '220px' }}
+                      onClick={(e) => { e.stopPropagation(); handleImageClick(property, 0); }}
                     >
                       {property.images && property.images.length > 0 ? (
-                        <>
-                          <img
-                            src={property.images[0]}
-                            alt={property.title}
-                            className="w-full h-full object-cover transition-transform duration-300"
-                          />
-                          {property.images.length > 1 && (
-                            <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-full text-xs font-medium">
-                              1 / {property.images.length}
-                            </div>
-                          )}
-                        </>
+                        <img
+                          src={property.images[0]}
+                          alt={property.title}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
                       ) : (
-                        <div className="w-full h-full bg-white/5 flex items-center justify-center">
-                          <Flame className="w-12 h-12 text-white/20" />
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                          <Flame className="w-12 h-12" style={{ color: 'rgba(255,255,255,0.15)' }} />
                         </div>
                       )}
-                      {/* Liked badge */}
-                      <div className="absolute top-2 left-2">
-                        <span className="flex items-center gap-1 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-                          <Flame className="w-3 h-3 fill-current" />
-                          Liked
+
+                      {/* Cinematic bottom gradient */}
+                      <div
+                        className="absolute inset-0"
+                        style={{ background: 'linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.85) 100%)' }}
+                      />
+
+                      {/* Floating price + title on image */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <div className="flex items-end justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-white font-bold text-base leading-tight truncate drop-shadow-lg">
+                              {property.title}
+                            </h3>
+                            {property.address && (
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <MapPin className="w-3 h-3 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.6)' }} />
+                                <span className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.6)' }}>{property.address}</span>
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            className="px-3 py-1.5 rounded-2xl flex-shrink-0"
+                            style={{
+                              background: 'rgba(0,0,0,0.6)',
+                              backdropFilter: 'blur(12px)',
+                              border: '1px solid rgba(255,255,255,0.15)',
+                            }}
+                          >
+                            <span className="text-white font-bold text-sm">${property.price?.toLocaleString()}</span>
+                            <span className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.55)' }}>/mo</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Category badge top-left */}
+                      <div className="absolute top-3 left-3">
+                        <span
+                          className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(236,72,153,0.85), rgba(249,115,22,0.85))',
+                            backdropFilter: 'blur(8px)',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
+                          }}
+                        >
+                          {property.category || 'Property'}
                         </span>
                       </div>
-                      {/* Menu button */}
-                      <div className="absolute top-2 right-2">
+
+                      {/* Menu top-right */}
+                      <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button
-                              className="flex items-center justify-center w-8 h-8 rounded-xl backdrop-blur-sm transition-all touch-manipulation"
+                              className="flex items-center justify-center w-8 h-8 rounded-2xl backdrop-blur-md touch-manipulation"
                               style={{
-                                background: 'rgba(0,0,0,0.5)',
+                                background: 'rgba(0,0,0,0.55)',
                                 border: '1px solid rgba(255,255,255,0.15)',
                               }}
-                              onClick={(e) => e.stopPropagation()}
                             >
                               <MoreVertical className="w-4 h-4 text-white" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                          <DropdownMenuContent align="end" className="w-48 rounded-2xl">
                             <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveLike(property);
-                              }}
-                              className="text-destructive focus:text-destructive cursor-pointer rounded-lg"
+                              onClick={(e) => { e.stopPropagation(); handleRemoveLike(property); }}
+                              className="text-destructive focus:text-destructive cursor-pointer rounded-xl"
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Remove from Likes
@@ -390,92 +413,89 @@ const ClientLikedProperties = () => {
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
+
+                      {/* Image count */}
+                      {property.images && property.images.length > 1 && (
+                        <div
+                          className="absolute bottom-16 right-3 px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
+                        >
+                          1/{property.images.length}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Card Content */}
-                    <div className="p-4">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="text-white font-semibold text-base leading-tight truncate">{property.title}</h3>
-                        {property.property_type && (
-                          <span className="text-white/50 text-xs border border-white/15 px-2 py-0.5 rounded-lg flex-shrink-0">
-                            {property.property_type}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Location */}
-                      <div className="flex items-center gap-1.5 text-white/50 mb-3">
-                        <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="text-xs truncate">{property.address}</span>
-                      </div>
-
-                      {/* Property Details */}
-                      <div className="flex items-center gap-3 text-white/60 text-xs mb-3">
-                        {property.beds && (
-                          <div className="flex items-center gap-1">
-                            <Bed className="w-3.5 h-3.5" />
-                            <span>{property.beds}</span>
-                          </div>
-                        )}
-                        {property.baths && (
-                          <div className="flex items-center gap-1">
-                            <Bath className="w-3.5 h-3.5" />
-                            <span>{property.baths}</span>
-                          </div>
-                        )}
-                        {property.square_footage && (
-                          <div className="flex items-center gap-1">
-                            <Square className="w-3.5 h-3.5" />
-                            <span>{property.square_footage} ft²</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Price */}
-                      <div className="text-white font-bold text-lg mb-3">
-                        ${property.price?.toLocaleString()}/mo
-                      </div>
+                    {/* Card body */}
+                    <div className="p-4 space-y-3">
+                      {/* Metadata pills */}
+                      {(property.beds || property.baths || property.square_footage) && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {property.beds && (
+                            <div
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
+                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                            >
+                              <Bed className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                              <span className="text-xs font-semibold text-white">{property.beds} bed</span>
+                            </div>
+                          )}
+                          {property.baths && (
+                            <div
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
+                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                            >
+                              <Bath className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                              <span className="text-xs font-semibold text-white">{property.baths} bath</span>
+                            </div>
+                          )}
+                          {property.square_footage && (
+                            <div
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
+                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                            >
+                              <Square className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                              <span className="text-xs font-semibold text-white">{property.square_footage} ft²</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Amenities */}
                       {property.amenities && property.amenities.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mb-3">
+                        <div className="flex flex-wrap gap-1.5">
                           {property.amenities.slice(0, 3).map((amenity) => (
                             <span
                               key={`${property.id}-amenity-${amenity}`}
-                              className="bg-orange-500/10 text-orange-300 px-2 py-0.5 rounded-lg text-xs border border-orange-500/20"
+                              className="px-2 py-0.5 rounded-xl text-xs font-medium"
+                              style={{
+                                background: 'rgba(249,115,22,0.1)',
+                                border: '1px solid rgba(249,115,22,0.2)',
+                                color: '#fb923c',
+                              }}
                             >
                               {amenity}
                             </span>
                           ))}
                           {property.amenities.length > 3 && (
-                            <span className="text-white/30 text-xs">+{property.amenities.length - 3} more</span>
+                            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>+{property.amenities.length - 3}</span>
                           )}
                         </div>
                       )}
 
                       {/* Contact Button */}
                       <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleContactOwner(property);
-                        }}
+                        onClick={(e) => { e.stopPropagation(); handleContactOwner(property); }}
                         disabled={startConversation.isPending}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-[0.98] touch-manipulation disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold text-white transition-all duration-150 active:scale-[0.97] touch-manipulation disabled:opacity-50"
                         style={{
-                          background: 'linear-gradient(135deg, rgba(249,115,22,0.9), rgba(239,68,68,0.9))',
-                          boxShadow: '0 4px 12px rgba(249,115,22,0.25), inset 0 1px 0 rgba(255,255,255,0.2)',
+                          background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+                          boxShadow: '0 4px 16px rgba(236,72,153,0.35), inset 0 1px 0 rgba(255,255,255,0.25)',
                         }}
                       >
                         {startConversation.isPending ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                            Connecting...
-                          </>
+                          <><RefreshCw className="w-4 h-4 animate-spin" />Connecting...</>
                         ) : (
-                          <>
-                            <MessageCircle className="w-4 h-4" />
-                            Contact Owner
-                          </>
+                          <><MessageCircle className="w-4 h-4" />Contact Owner</>
                         )}
                       </button>
                     </div>
