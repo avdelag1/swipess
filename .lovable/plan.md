@@ -1,179 +1,151 @@
 
-# Round 5 Complete Audit — What's Still Broken & Timeline to Perfect
+# Premium UI Redesign — Filter Pages, Liked Pages & Global Button System
 
-## Executive Summary
+## What the User Wants
 
-Four rounds of fixes have resolved the most severe bugs. There are **11 remaining issues** across 3 severity levels. The root cause for most is the same `id` vs `user_id` column confusion — found in 5 more files. After this round, the app will be structurally sound and functionally correct.
+A full visual upgrade across:
+1. **Client Filter page** (`/filters`) — replace the plain flat tiles with vibrant, 4K-feeling cards
+2. **Owner Filter page** (`/owner/filters`) — same premium treatment
+3. **Client Liked Properties page** — cards, layout, action buttons look cheap now
+4. **Owner Liked Clients page** (`LikedClients.tsx`) — the most outdated, using plain `Card` components and generic button styling
+5. **Global button system** — all non-swipe action buttons across all pages to match the tactile 3D-glass "shadow-depth" style of the swipe deck buttons — rounded pill/capsule shapes, glow on interaction, vibrant accent colors
 
----
+**Design Reference (from uploaded images):**
+- Clean dark backgrounds with full-bleed imagery cards
+- Bold rounded pill buttons (not just rounded rectangles — true pill shapes)
+- Strong typography hierarchy — large name, small metadata
+- Category tabs as floating pills, not bordered boxes
+- Action buttons that feel 3D: subtle inset shadow top + drop shadow bottom
+- Vibrant color accents (pink-to-orange gradient — matching brand identity)
+- Spacious breathing room between elements
+- Cards with image-first dominance, text floating on a gradient overlay at bottom
 
-## Confirmed Fixed from Round 4
+## Scope & Constraints
 
-- `useSwipeWithMatch.tsx` lines 66, 185, 263 — all 3 profile lookups now use `user_id` ✓
-- `useConversations.tsx` fetchSingleConversation — `user_id` ✓
-- `useListings.tsx` — UUID format fixed, 24h lookback removed ✓
-- `useSwipe.tsx` — `['listings']` invalidation added ✓
-- `PropertyDetails.tsx` — two-step owner profile fetch ✓
-- `EnhancedPropertyCard.tsx` — price label derived from `rental_duration_type` ✓
-- `MessagingDashboard.tsx` — anonymous user fallback added ✓
+**DO NOT touch:**
+- Dashboard pages (user explicitly said skip dashboard)
+- The swipe card buttons (Like/Dislike/Undo/Share/Message in `SwipeActionButtonBar.tsx`) — user said they are fine
+- Swipe physics / routing logic
+- Any backend logic
 
----
+**DO redesign:**
+- `src/pages/ClientFilters.tsx` — full page overhaul
+- `src/pages/OwnerFilters.tsx` — full page overhaul
+- `src/pages/ClientLikedProperties.tsx` — card layout + action buttons
+- `src/components/LikedClients.tsx` — card layout + action buttons (currently uses plain Card + generic buttons)
+- `src/components/ui/button.tsx` — elevate the default button to have tactile 3D shadow depth
 
-## NEW ISSUES FOUND (Round 5) — 11 Bugs
+## Design System Being Applied
 
----
+### Button System (Global)
+Current: flat gradient rectangles with `rounded-2xl`
 
-### CRITICAL — Direct silent failures
+New system — **Tactile Glass Pill** — same language as the swipe deck action buttons:
+- `rounded-full` or `rounded-3xl` for primary actions
+- `inset 0 1px 0 rgba(255,255,255,0.15)` top highlight
+- `0 4px 14px rgba(0,0,0,0.35)` bottom drop shadow
+- Vibrant gradient fill for primary: `from-[#ec4899] to-[#f97316]` (pink → orange, brand identity)
+- Active/pressed: `inset 0 2px 4px rgba(0,0,0,0.3)` (pushes in)
+- `active:scale-[0.96]` for tactile press feel
+- Ghost/outline variants: glass-pill `bg-white/8`, `border border-white/12`, top highlight `inset 0 1px 0 rgba(255,255,255,0.1)`
 
-**BUG A: `NotificationSystem.tsx` — sender profile lookup uses `.eq('id', newMessage.sender_id)` — wrong column**
-- File: `src/components/NotificationSystem.tsx` — Line 65
-- Bug: The global notification system (mounted in every page via `App.tsx`) fetches the sender's name with `.eq('id', newMessage.sender_id)`. The `sender_id` is an auth UID, but `profiles.id` is an internal UUID. Returns 0 rows. Every single in-app toast notification that says "Someone: message text" — this is where it comes from. There are two parallel systems (`useNotifications` hook and `NotificationSystem` component) and both had this bug. `useNotifications` was fixed in Round 2, but `NotificationSystem.tsx` was missed.
-- Also: Line 164 has the identical bug for likes: `.eq('id', newLike.user_id)` — the liker's name is always "Someone" in the "🔥 New Flame" like notification toast.
-- Fix: Line 65: `.eq('id', newMessage.sender_id)` → `.eq('user_id', newMessage.sender_id)`. Line 164: `.eq('id', newLike.user_id)` → `.eq('user_id', newLike.user_id)`.
+### Filter Pages
+Current: flat dark tiles with thin borders
 
-**BUG B: `useTheme.tsx` — load and save theme both use `.eq('id', user.id)` — wrong column**
-- File: `src/hooks/useTheme.tsx` — Lines 27 and 100
-- Bug: When a user logs in, the theme preference is loaded from the DB with `.eq('id', user.id)`. When the user changes theme, it's saved with `.eq('id', user.id)`. Both queries hit 0 rows. Effect: the theme preference is **never loaded and never saved** — every user always gets the default black-matte theme at login, and changing theme in settings does nothing persistently.
-- Fix: Line 27: `.eq('id', user.id)` → `.eq('user_id', user.id)`. Line 100: `.eq('id', user.id)` → `.eq('user_id', user.id)`.
+New system — **4K Vibrant Filter Cards**:
+- Category tiles: Large, image-icon backed, with **vibrant gradient backgrounds** per category (blue for Property, orange for Moto, green for Bicycle, purple for Services)
+- Full-width tiles with icon on left, label + description on right
+- Selected state: **full gradient fill** + white text + checkmark with glow
+- Unselected state: dark glass `bg-white/5` with colored icon only
+- Section headers: pill-shaped label chips (e.g. `● CATEGORIES`) not just plain text
+- Bottom apply button: full-width gradient pill, bold, glowing shadow
 
-**BUG C: `ProfilePhotoUpload.tsx` — avatar fetch and save both use `.eq('id', user.id)` — wrong column**
-- File: `src/components/ProfilePhotoUpload.tsx` — Lines 47 and 101
-- Bug: On mount, `fetchPhoto()` loads the current avatar with `.eq('id', user.id)` — returns null. On upload, it saves the new avatar with `.eq('id', user.id)` — updates 0 rows. The uploaded photo URL is never persisted to the `profiles` table. The photo appears temporarily via state, then vanishes on reload.
-- Fix: Line 47: `.eq('id', user.id)` → `.eq('user_id', user.id)`. Line 101: `.eq('id', user.id)` → `.eq('user_id', user.id)`.
-
-**BUG D: `OnboardingFlow.tsx` — onboarding completion update uses `.eq('id', user?.id)` — wrong column**
-- File: `src/components/OnboardingFlow.tsx` — Lines 163 and 450
-- Bug: When a new user completes onboarding, the completion status is saved with `.eq('id', user?.id)`. This updates 0 rows. The `onboarding_completed` flag is never set to `true`. Every time the user opens the app, the onboarding flow re-opens because the DB still shows `onboarding_completed = false`. This is a **new user retention killer** — users are forced through onboarding repeatedly.
-- Fix: Line 163: `.eq('id', user?.id)` → `.eq('user_id', user?.id)`. Line 450 (mid-onboarding step save): `.eq('id', user?.id)` → `.eq('user_id', user?.id)`.
-
-**BUG E: `useSwipeWithMatch.tsx` — match celebration profile fetch uses `.eq('id', match.client_id)` and `.eq('id', match.owner_id)` — wrong column**
-- File: `src/hooks/useSwipeWithMatch.tsx` — Lines 524 and 528
-- Bug: After a match is created, the code fetches both profiles for the match celebration modal with `.eq('id', match.client_id)` and `.eq('id', match.owner_id)`. `match.client_id` and `match.owner_id` are auth UIDs. Returns 0 rows for both. The `onMatch` callback is never triggered, so the match celebration animation never fires — users just swipe right and nothing exciting happens on a mutual match.
-- Fix: Lines 524 and 528: `.eq('id', match.client_id)` → `.eq('user_id', match.client_id)` and `.eq('id', match.owner_id)` → `.eq('user_id', match.owner_id)`. Change `.single()` to `.maybeSingle()` for safety.
-
-**BUG F: `useRealtimeChat.tsx` — sender profile ID stored as wrong field**
-- File: `src/hooks/useRealtimeChat.tsx` — Line 152
-- Bug: When a real-time message arrives, the sender profile is fetched via `getProfile(newMessage.sender_id)` (now fixed to use `user_id`). The result is then used to build the message object with `id: senderProfile.id`. But `senderProfile.id` is the internal PK (from `useProfileCache` which now stores `user_id` in the `id` field after Round 3 fix). This is actually dependent on whether `CachedProfile.id` was updated — reading Round 3 fixes: `useProfileCache` now stores `profile.user_id` in the `CachedProfile` interface. So `senderProfile.id` is now the auth UID. This is actually correct after Round 3. **No fix needed.**
-
-**BUG G: `PublicProfilePreview.tsx` — fallback profile fetch uses `.eq('id', id)` where `id` is the route param**
-- File: `src/pages/PublicProfilePreview.tsx` — Lines 51 and 59
-- Bug: The public profile page fetches via route param `id`. On line 51, it tries `profiles_public` table (which doesn't exist — PGRST116). On line 59, the fallback uses `.eq('id', id)` on the `profiles` table — but `id` is the user's auth UID (passed in the share URL as `/profile/:userId`), not the internal PK. Returns 0 rows. Public profile links always show "Profile not found".
-- Fix: Line 59: `.eq('id', id)` → `.eq('user_id', id)`. Also add `user_id` to the select: `'user_id, full_name, city, avatar_url, bio'`.
-
----
-
-### HIGH SEVERITY — Data logic errors
-
-**BUG H: `useOwnerStats.tsx` — `interestedClientsCount` query uses `direction: 'like'` but correct value is `'right'`**
-- File: `src/hooks/useOwnerStats.tsx` — Line 85
-- Bug: `.eq('direction', 'like')` is used to count clients who liked the owner's listings. But `useSwipeWithMatch` inserts `direction: 'right'` for right swipes. The direction value `'like'` was never used in any insert — only `'right'` is. This means `interestedClientsCount` is always 0 on the owner dashboard stats panel, even when clients have liked their listings.
-- Fix: `.eq('direction', 'like')` → `.eq('direction', 'right')`.
-
-**BUG I: `useClientStats.tsx` — `likesReceived` query uses `direction: 'like'` but correct value is `'right'`**
-- File: `src/hooks/useClientStats.tsx` — Line 37
-- Bug: Same bug as H. The client stats panel counts how many times owners liked their profile with `.eq('direction', 'like')`. But owner right-swipes are stored as `direction: 'right'`. Result: clients always see 0 likes received on their dashboard, even when owners have liked them.
-- Fix: `.eq('direction', 'like')` → `.eq('direction', 'right')`.
-
----
-
-### MEDIUM SEVERITY — Logic issues
-
-**BUG J: `useOwnerStats.tsx` — `totalViews` and `totalLikes` count non-existent columns `views` and `likes` on listings**
-- File: `src/hooks/useOwnerStats.tsx` — Lines 70–71
-- Bug: The query fetches `listings.views` and `listings.likes` columns for the owner stats. Looking at the `listings` table schema — there are NO `views` or `likes` columns. The schema has `id, title, price, images, status, category, ...` but no view counter or like counter column. These values are always 0 and `.reduce()` operates on undefined fields. The owner dashboard always shows "0 Views" and "0 Likes" even if there's data in the `likes` table.
-- Fix: Replace the `views`/`likes` column approach with actual queries:
-  - `totalLikes`: Count from `likes` table where `target_id IN (owner's listing IDs)` and `direction = 'right'`
-  - `totalViews`: Remove the metric or use a placeholder (no view tracking table exists in schema)
-
-**BUG K: `useRealtimeChat` — global notifications listener uses no filter on `conversation_messages`**
-- File: `src/components/NotificationSystem.tsx` — Line 35-40
-- Issue: The realtime subscription on `conversation_messages` has NO filter — it listens to ALL inserts on the entire table. Every message sent by anyone in the system triggers the callback. The code then does a secondary DB query to check if the current user is involved. This is wasteful (N secondary queries per message system-wide) and at scale would cause excessive DB reads.
-- This is a design issue, not a crash bug. The current behavior is correct (it filters correctly in the callback), but it's architecturally inefficient. The filter should use `filter: 'conversation_id=in.(conv1,conv2,...)'` but that requires knowing the user's conversation IDs upfront.
-- Fix: Add the user's conversation IDs to the realtime filter. Fetch user's conversation IDs once on mount, then subscribe with a filtered channel. This can be done by pre-fetching conversations on mount and using the IDs as a filter.
-
----
-
-## Root Cause Summary — Round 5
-
-```text
-NotificationSystem.tsx   — lines 65, 164: .eq('id', ...) for sender/liker lookup on profiles
-useTheme.tsx             — lines 27, 100: .eq('id', user.id) for theme load/save
-ProfilePhotoUpload.tsx   — lines 47, 101: .eq('id', user.id) for avatar fetch/save
-OnboardingFlow.tsx       — lines 163, 450: .eq('id', user?.id) for onboarding completion
-useSwipeWithMatch.tsx    — lines 524, 528: .eq('id', ...) for match celebration profiles
-PublicProfilePreview.tsx — line 59: .eq('id', id) where id is auth UID
-useOwnerStats.tsx        — direction:'like' filter + non-existent columns
-useClientStats.tsx       — direction:'like' filter (always returns 0)
+### Filter Page Category Cards (Client side)
 ```
-
----
-
-## Implementation Plan
-
-### Phase 1 — Critical: 5 files, 10 one-line fixes (same root cause)
-All are `profiles.id` vs `profiles.user_id` — zero-risk surgical changes.
-
-1. `NotificationSystem.tsx` line 65: `.eq('id', newMessage.sender_id)` → `.eq('user_id', newMessage.sender_id)`
-2. `NotificationSystem.tsx` line 164: `.eq('id', newLike.user_id)` → `.eq('user_id', newLike.user_id)`
-3. `useTheme.tsx` line 27: `.eq('id', user.id)` → `.eq('user_id', user.id)`
-4. `useTheme.tsx` line 100: `.eq('id', user.id)` → `.eq('user_id', user.id)`
-5. `ProfilePhotoUpload.tsx` line 47: `.eq('id', user.id)` → `.eq('user_id', user.id)`
-6. `ProfilePhotoUpload.tsx` line 101: `.eq('id', user.id)` → `.eq('user_id', user.id)`
-7. `OnboardingFlow.tsx` line 163: `.eq('id', user?.id)` → `.eq('user_id', user?.id)`
-8. `OnboardingFlow.tsx` line 450: `.eq('id', user?.id)` → `.eq('user_id', user?.id)`
-9. `useSwipeWithMatch.tsx` line 524: `.eq('id', match.client_id)` → `.eq('user_id', match.client_id)`, `.single()` → `.maybeSingle()`
-10. `useSwipeWithMatch.tsx` line 528: `.eq('id', match.owner_id)` → `.eq('user_id', match.owner_id)`, `.single()` → `.maybeSingle()`
-11. `PublicProfilePreview.tsx` line 59: `.eq('id', id)` → `.eq('user_id', id)`, add `user_id` to SELECT
-
-### Phase 2 — Data Direction Fix (2 one-liners, high impact)
-12. `useOwnerStats.tsx` line 85: `.eq('direction', 'like')` → `.eq('direction', 'right')`
-13. `useClientStats.tsx` line 37: `.eq('direction', 'like')` → `.eq('direction', 'right')`
-
-### Phase 3 — Owner Stats Column Fix
-14. `useOwnerStats.tsx` lines 70–71: Replace `listing.views` / `listing.likes` (non-existent columns) with a real count query against the `likes` table. This makes the "Total Likes" stat on the owner dashboard accurate.
-
-### Phase 4 — Realtime Efficiency (Optional — non-breaking)
-15. `NotificationSystem.tsx`: Pre-fetch user's conversation IDs on mount, filter the realtime subscription to only those conversations. This reduces unnecessary DB queries.
-
----
-
-## Completion Timeline Estimate
-
-Here is an honest breakdown of what remains after Round 5:
-
-### After Round 5 (this implementation):
-- All `id` vs `user_id` bugs eliminated across the entire codebase
-- Onboarding completes and stays complete (no more re-onboarding)
-- Theme preferences load and save correctly
-- Profile photos persist after upload
-- Match celebration fires correctly
-- Public profile sharing links work
-- Owner and client dashboard stats show accurate numbers
-- Notification names show real sender names (not "Someone")
-
-### What remains after Round 5 (not bugs, but improvements):
-- `@ts-nocheck` removal from 8 remaining files — adds type safety but no behavioral changes
-- `NotificationSystem.tsx` realtime filter optimization — performance improvement, not a bug
-- `useOwnerStats.tsx` — "Total Views" metric has no data source (no view tracking table); could be added as a future feature
-
-### Realistic Estimate:
-
+Property    → gradient bg: linear-gradient(135deg, #1e3a8a, #3b82f6) — blue deep
+Motorcycle  → gradient bg: linear-gradient(135deg, #7c2d12, #f97316) — amber/orange
+Bicycle     → linear-gradient(135deg, #064e3b, #10b981) — emerald
+Services    → linear-gradient(135deg, #4c1d95, #a855f7) — purple
 ```
-Round 1 (complete): Critical UI/logic fixes
-Round 2 (complete): Core profiles id/user_id fixes × 4 files
-Round 3 (complete): Extended id/user_id fixes × 6 files
-Round 4 (complete): Swipe mechanics, messaging, listings × 10 files
-Round 5 (this):     Final id/user_id sweep × 5 files + stats direction fix
+Each tile: 2-column grid, tall card (100px), icon top-left, category name, selection glow border.
 
-Total bugs resolved across all rounds: ~45 issues
-Remaining structural issues after Round 5: 0 crash bugs, 0 silent data bugs
-```
+### Liked Pages — Card Redesign
 
-**The app will be in production-ready, fully functional condition after Round 5 is implemented.** All core user flows — sign up, onboard, swipe, match, message, notifications, theme, photo upload, public profiles — will work correctly end to end.
+**ClientLikedProperties cards** (currently: plain rounded box with flat content):
+- Image takes full card width, 56% of card height (cinematic ratio)
+- Bottom of image: gradient overlay `from-transparent to-black/80`
+- Property name + price float ON the image at bottom (like Airbnb)
+- Metadata (beds/baths/sqft) in a glassmorphic pill row below image
+- "Contact Owner" button: full-width, brand gradient pill with glow
+- Category badge: top-left pill on image
 
-The remaining work after that is quality improvements:
-- Type safety (`@ts-nocheck` removal) — 1-2 additional sessions
-- Realtime subscription optimization — 1 session
-- View tracking feature (if desired) — 1 session
+**OwnerLikedClients cards** (currently: plain `Card` with blue/purple/gray buttons):
+- Portrait-ratio image (3:4) — full card width
+- Name + age float on image with bottom gradient
+- 3 action buttons below image in a glassmorphic pill row:
+  - View Profile (purple pill icon button)  
+  - Message (brand gradient pill icon button)
+  - More (glass icon button)
+- Remove the generic `<Card>` wrapper — use custom styled div with `rounded-3xl overflow-hidden`
 
-**Estimated total: 1 more implementation session (Round 5) to reach fully working state.**
+### Layout Rhythm
+- Page padding: `px-4` with `py-6`
+- Card grid: `grid-cols-1 sm:grid-cols-2` — no 3+ columns on mobile
+- Card gap: `gap-4`
+- Section spacing: `space-y-8` between filter sections
+- Typography scale: title `text-2xl font-bold`, section header `text-xs uppercase tracking-widest text-white/40`, item label `text-sm font-semibold`
+
+## Files to Change
+
+### 1. `src/components/ui/button.tsx`
+- Update `default` variant: add `inset` top-highlight + stronger drop shadow
+- Update `outline` variant: glass-pill style
+- Update `ghost` variant: subtle glass-pill
+- Update `size`: `default` → `h-11 px-6`, `sm` → `h-9 px-4`, `lg` → `h-13 px-8`
+- Add new `brand` variant: pink-to-orange gradient with glow shadow (for primary CTAs)
+
+### 2. `src/pages/ClientFilters.tsx`
+Full redesign:
+- Category section: 2-col grid with **tall gradient cards** (not flat tiles) — ~130px height
+- Each category card has: gradient background, centered icon (32px), label, description
+- Selected: full gradient + white border glow + animated check
+- Unselected: dark glass + dimmed icon
+- Listing Type section: horizontal pill row instead of vertical list
+- Bottom apply button: brand gradient full-width pill
+
+### 3. `src/pages/OwnerFilters.tsx`
+Full redesign:
+- Gender section: horizontal 2-col pill grid (not a vertical list)
+- Client Type section: scrollable horizontal chips row
+- Better visual hierarchy with gradient section markers
+- Bottom apply button: brand gradient full-width pill
+
+### 4. `src/pages/ClientLikedProperties.tsx`
+Card redesign:
+- Remove the flat `bg-white/5 border` wrapper style
+- New: `rounded-3xl overflow-hidden` with cinematic card
+- Image: `h-52` full bleed with bottom gradient overlay
+- Price + name float on image
+- Metadata row below as glassmorphic chips
+- "Contact Owner" button: brand gradient pill, full width, shadow
+- Category filter tabs: floating pills (keep current style, just improve active state with brand gradient)
+
+### 5. `src/components/LikedClients.tsx`
+Card redesign (lines 650-820 area):
+- Replace `<Card className="p-6">` wrapper with custom `rounded-3xl overflow-hidden` glass card
+- Portrait image: `h-64` full bleed
+- Name + age: floating text over bottom gradient of image
+- Action button row: 3 glass-pill icon buttons (View, Message, More) in a row below image
+- Search bar: glass-pill input with icon inside
+- Category tabs: floating pills to match ClientLikedProperties style
+- Header section: simplify to title + count badge
+- Safety toggle: glass-pill button instead of generic Button variant
+
+## Technical Notes
+- All changes are purely visual/CSS — zero logic changes
+- `LikedClients.tsx` has `@ts-nocheck` so TypeScript errors won't block compilation
+- The button.tsx change will cascade to all pages except dashboard (which is fine — user said skip dashboard but this makes everything else consistent)
+- All new color values align with the existing brand memory: `#ec4899` (pink) → `#f97316` (orange) gradient as primary accent
+- Use `will-change-transform`, `transform-gpu` on interactive buttons to maintain 60fps
+- Framer Motion `whileTap` stays the same — `scale(0.96)` on all buttons
+- No new dependencies needed — framer-motion and tailwind already installed
