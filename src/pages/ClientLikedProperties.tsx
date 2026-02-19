@@ -402,7 +402,7 @@ const ClientLikedProperties = () => {
                               <MoreVertical className="w-4 h-4 text-white" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-2xl">
+                          <DropdownMenuContent align="end" className="w-48 rounded-2xl bg-[#1c1c1e] border border-white/10 shadow-2xl z-50">
                             <DropdownMenuItem
                               onClick={(e) => { e.stopPropagation(); handleRemoveLike(property); }}
                               className="text-destructive focus:text-destructive cursor-pointer rounded-xl"

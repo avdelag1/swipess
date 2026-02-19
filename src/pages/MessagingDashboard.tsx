@@ -410,27 +410,40 @@ export function MessagingDashboard() {
         variant="conversation-limit"
       />
 
-      <div className="w-full pb-24 bg-[#0a0a0a] min-h-screen min-h-dvh">
-        <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
-          {/* Clean Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="text-foreground hover:bg-muted rounded-full shrink-0"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Messages</h1>
+      <div className="w-full pb-24 min-h-screen min-h-dvh" style={{ background: '#080808' }}>
+        <div className="w-full max-w-4xl mx-auto px-4 pt-6 sm:px-6">
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight">Messages</h1>
+              {filteredConversations.length > 0 && (
+                <p className="text-[13px] text-white/40 mt-0.5">
+                  {filteredConversations.length} active conversation{filteredConversations.length !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
+            {stats?.unreadCount > 0 && (
+              <div
+                className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+              >
+                {stats.unreadCount} new
+              </div>
+            )}
           </div>
 
           {/* Search */}
           <div className="relative mb-5">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+            <input
               placeholder="Search conversations..."
-              className="pl-10 h-11 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground rounded-2xl focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-white placeholder:text-white/30 outline-none transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.10)',
+                backdropFilter: 'blur(12px)',
+              }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
