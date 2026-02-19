@@ -81,9 +81,16 @@ const ClientProfileNew = () => {
           {/* Back Button */}
           <motion.button
             variants={childVariant}
-            onClick={() => navigate(-1)}
-            whileTap={{ scale: 0.8 }}
-            className="flex items-center gap-1.5 text-sm font-medium text-white/50 hover:text-white/90 transition-colors mb-2 px-1"
+            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/client/dashboard')}
+            whileTap={{ scale: 0.94 }}
+            className="flex items-center gap-1.5 text-sm font-semibold text-white mb-2 px-3 py-2 rounded-xl transition-all active:scale-95"
+            style={{
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.14)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3)',
+            }}
           >
             <ArrowLeft className="w-4 h-4" />
             Back
