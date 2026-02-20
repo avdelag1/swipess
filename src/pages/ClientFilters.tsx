@@ -1,7 +1,7 @@
 /**
- * CLIENT FILTERS PAGE - Premium glass design
+ * CLIENT FILTERS PAGE - Clean design
  * 
- * Full-screen filter page with smooth rounded corners and clean save button.
+ * Full-screen filter page with solid colors for visibility on all themes.
  */
 
 import { useState, useCallback } from 'react';
@@ -118,16 +118,16 @@ export default function ClientFilters() {
   }, [navigate]);
 
   return (
-    <div className="min-h-full bg-[#1C1C1E]">
+    <div className="min-h-full bg-zinc-900">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-[#1C1C1E]/80 backdrop-blur-xl border-b border-white/5">
+      <header className="sticky top-0 z-10 bg-zinc-900 border-b border-zinc-800">
         <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleBack}
-              className="h-10 w-10 rounded-full bg-white/5 hover:bg-white/10 border border-white/10"
+              className="h-10 w-10 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700"
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </Button>
@@ -144,7 +144,7 @@ export default function ClientFilters() {
               variant="ghost"
               size="sm"
               onClick={handleReset}
-              className="text-white/60 hover:text-white text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10"
+              className="text-zinc-400 hover:text-white text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset
@@ -160,7 +160,7 @@ export default function ClientFilters() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 rounded-2xl bg-gradient-to-r from-orange-500/10 to-red-500/10 border border-orange-500/20"
+              className="p-4 rounded-2xl bg-orange-500/20 border border-orange-500/50"
             >
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-orange-400" />
@@ -168,12 +168,12 @@ export default function ClientFilters() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {aiCategory && (
-                  <span className="px-2 py-1 text-xs rounded-lg bg-white/10 text-white/80">
+                  <span className="px-2 py-1 text-xs rounded-lg bg-zinc-800 text-zinc-300">
                     Category: {aiCategory}
                   </span>
                 )}
                 {(aiPriceMin || aiPriceMax) && (
-                  <span className="px-2 py-1 text-xs rounded-lg bg-white/10 text-white/80">
+                  <span className="px-2 py-1 text-xs rounded-lg bg-zinc-800 text-zinc-300">
                     Price: ${aiPriceMin || '0'} - ${aiPriceMax || '∞'}
                   </span>
                 )}
@@ -193,10 +193,10 @@ export default function ClientFilters() {
                     onClick={() => handleCategoryToggle(category.id)}
                     whileTap={{ scale: 0.95 }}
                     className={cn(
-                      "relative p-4 rounded-2xl border transition-all duration-200 overflow-hidden",
+                      "relative p-4 rounded-2xl border transition-all duration-200",
                       isSelected
-                        ? "bg-white/10 border-orange-500/50"
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        ? "bg-orange-500/20 border-orange-500"
+                        : "bg-zinc-800 border-zinc-700 hover:bg-zinc-700"
                     )}
                   >
                     {/* Selection indicator */}
@@ -239,8 +239,8 @@ export default function ClientFilters() {
                     className={cn(
                       "w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200",
                       isSelected
-                        ? "bg-orange-500/10 border-orange-500/50"
-                        : "bg-white/5 border-white/10 hover:bg-white/10"
+                        ? "bg-orange-500/20 border-orange-500"
+                        : "bg-zinc-800 border-zinc-700 hover:bg-zinc-700"
                     )}
                   >
                     <div className="text-left">
@@ -269,15 +269,15 @@ export default function ClientFilters() {
       </ScrollArea>
 
       {/* Bottom Fixed Save Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#1C1C1E]/95 backdrop-blur-xl border-t border-white/5">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
         <div className="max-w-md mx-auto">
           <Button
             onClick={handleApply}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-semibold transition-all duration-200",
               hasChanges
-                ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white shadow-lg shadow-orange-500/25"
-                : "bg-white/10 text-white/40 cursor-not-allowed"
+                ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white shadow-lg"
+                : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
             )}
             disabled={!hasChanges}
           >
