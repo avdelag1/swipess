@@ -2,7 +2,7 @@
  * BOTTOM NAVIGATION BAR
  *
  * Full-width, ergonomic bottom navigation optimized for one-handed use.
- * DARK MODE: Clean dark background with white icons for premium look.
+ * TRANSPARENT: Floating design that works on any theme.
  */
 
 import { startTransition } from 'react';
@@ -170,7 +170,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
-                'bg-white/10 hover:bg-white/25',
+                'bg-transparent hover:bg-white/10',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent'
               )}
