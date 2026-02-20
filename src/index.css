@@ -94,20 +94,20 @@ body {
   backface-visibility: hidden;
 }
 
-/* App Header - Fully transparent, buttons float over gradient masks */
-.app-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000;
-  padding-top: calc(var(--safe-top) + 4px);
-  padding-bottom: 4px;
-  padding-left: max(var(--safe-left), 8px);
-  padding-right: max(var(--safe-right), 8px);
-  /* Subtle dark fade behind header for readability */
-  background: linear-gradient(to bottom, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.4) 60%, transparent 100%);
-  backdrop-filter: none;
+  /* App Header - Fully transparent, buttons float over gradient masks */
+  .app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10000;
+    padding-top: calc(var(--safe-top) + 4px);
+    padding-bottom: 4px;
+    padding-left: max(var(--safe-left), 8px);
+    padding-right: max(var(--safe-right), 8px);
+    /* Subtle dark fade behind header for readability */
+    background: linear-gradient(to bottom, rgba(5,5,5,0.7) 0%, rgba(5,5,5,0.4) 60%, transparent 100%);
+    backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: none;
   /* GPU acceleration */
@@ -193,6 +193,15 @@ body {
   opacity: 0;
   filter: blur(8px);
   pointer-events: none;
+}
+
+/* WHITE-MATTE THEME OVERRIDES for header/nav backgrounds */
+.white-matte .app-header {
+  background: linear-gradient(to bottom, rgba(245,245,245,0.9) 0%, rgba(245,245,245,0.6) 60%, transparent 100%);
+}
+
+.white-matte .app-bottom-bar {
+  background: linear-gradient(to top, rgba(245,245,245,0.9) 0%, rgba(245,245,245,0.6) 60%, transparent 100%);
 }
 
 /* Utility Classes for Safe Area Padding */
@@ -581,6 +590,13 @@ body {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.18);
     --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.25);
     --overlay: rgba(0, 0, 0, 0.5);
+
+    /* White-matte specific UI surface colors for glass elements */
+    --glass-bg: 0 0% 0% / 0.04;
+    --glass-border: 0 0% 0% / 0.08;
+    --glass-hover: 0 0% 0% / 0.06;
+    --nav-icon-color: 0 0% 15%;
+    --nav-icon-active: 0 100% 45%;
   }
 
   /* THEME 4: RED MATTE (Bold Mexican spirit) */

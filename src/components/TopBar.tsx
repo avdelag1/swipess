@@ -137,7 +137,7 @@ function TopBarComponent({
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
             {title && (
-              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-white whitespace-nowrap">
+              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-foreground whitespace-nowrap">
                 {title}
               </div>
             )}
@@ -219,7 +219,7 @@ function TopBarComponent({
                   aria-label="Token Packages"
                 >
                   <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
-                  <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
+                   <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
                     Tokens
                   </span>
                 </Button>

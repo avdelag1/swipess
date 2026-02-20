@@ -410,15 +410,15 @@ export function MessagingDashboard() {
         variant="conversation-limit"
       />
 
-      <div className="w-full pb-24 min-h-screen min-h-dvh" style={{ background: '#080808' }}>
+      <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-6 sm:px-6">
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-white tracking-tight">Messages</h1>
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Messages</h1>
               {filteredConversations.length > 0 && (
-                <p className="text-[13px] text-white/40 mt-0.5">
+                <p className="text-[13px] text-muted-foreground mt-0.5">
                   {filteredConversations.length} active conversation{filteredConversations.length !== 1 ? 's' : ''}
                 </p>
               )}
@@ -435,15 +435,10 @@ export function MessagingDashboard() {
 
           {/* Search */}
           <div className="relative mb-5">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               placeholder="Search conversations..."
-              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-white placeholder:text-white/30 outline-none transition-all duration-200"
-              style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                backdropFilter: 'blur(12px)',
-              }}
+              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-muted border border-border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
