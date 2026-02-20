@@ -111,7 +111,7 @@ const OwnerSettingsNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => setActiveSection(null)}
-            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-white/50 hover:text-white/90 transition-colors px-1"
+            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Settings
@@ -120,7 +120,7 @@ const OwnerSettingsNew = () => {
           <PageHeader title="Account Security" subtitle="Manage your password and security settings" />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div className="rounded-2xl overflow-hidden bg-card border border-border">
               <CardContent className="p-6">
                 <AccountSecurity userRole="owner" />
               </CardContent>
@@ -145,7 +145,7 @@ const OwnerSettingsNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => setActiveSection(null)}
-            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-white/50 hover:text-white/90 transition-colors px-1"
+            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Settings
@@ -175,10 +175,10 @@ const OwnerSettingsNew = () => {
           {settingsGroups.map((group) => (
             <motion.div key={group.label} variants={itemVariant}>
               <div className="mb-2 px-1">
-                <span className="text-xs font-semibold uppercase tracking-widest text-white/40">{group.label}</span>
+                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{group.label}</span>
               </div>
 
-              <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
+              <div className="rounded-2xl overflow-hidden bg-card border border-border">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
@@ -187,7 +187,7 @@ const OwnerSettingsNew = () => {
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
-                      className="w-full flex items-center gap-4 py-4 px-5 hover:bg-white/[0.03] active:bg-white/[0.05] transition-colors text-left"
+                      className="w-full flex items-center gap-4 py-4 px-5 hover:bg-muted/50 active:bg-muted transition-colors text-left"
                     >
                       <div
                         className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -202,12 +202,12 @@ const OwnerSettingsNew = () => {
                       </div>
 
                       {item.section ? null : (
-                        <ChevronRight className="w-4 h-4 text-white/30 flex-shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                       )}
                     </motion.button>
 
                     {idx < group.items.length - 1 && (
-                      <div className="mx-5" style={{ height: '1px', background: 'rgba(255,255,255,0.06)' }} />
+                      <div className="mx-5 h-px bg-border" />
                     )}
                   </div>
                 ))}
