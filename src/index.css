@@ -1,9 +1,9 @@
+@import './styles/tokens.css';
+@import './styles/premium-polish.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './styles/tokens.css';
-@import './styles/premium-polish.css';
 
 
 /* Hide scrollbar for horizontal scrolling action buttons */
