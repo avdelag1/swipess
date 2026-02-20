@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Save } from 'lucide-react';
 import { useOwnerClientPreferences, OwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import { useSavedFilters } from '@/hooks/useSavedFilters';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/useToast';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface OwnerClientFilterDialogProps {

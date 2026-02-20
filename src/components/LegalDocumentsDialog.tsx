@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, File, Trash2, CheckCircle, Clock, XCircle, FileText } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { validateDocumentFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
 
 interface LegalDocument {

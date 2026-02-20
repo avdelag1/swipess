@@ -9,7 +9,7 @@ import { useOwnerListings } from '@/hooks/useListings';
 import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, Heart } from 'lucide-react';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';

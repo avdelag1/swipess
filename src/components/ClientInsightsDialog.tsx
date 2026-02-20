@@ -8,7 +8,7 @@ import { ClientProfile } from '@/hooks/useClientProfiles';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useState, memo, useMemo, useCallback } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';

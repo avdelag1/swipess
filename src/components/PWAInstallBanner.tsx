@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share, Plus, Share2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 
 interface BeforeInstallPromptEvent extends Event {

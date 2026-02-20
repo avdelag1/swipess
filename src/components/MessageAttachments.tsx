@@ -12,7 +12,7 @@ import {
   X 
 } from 'lucide-react';
 import { useMessageAttachments, useUploadAttachment, useDeleteAttachment, getAttachmentUrl } from '@/hooks/useMessageAttachments';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface MessageAttachmentsProps {
   messageId: string;

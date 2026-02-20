@@ -4,7 +4,7 @@ import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Susp
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'

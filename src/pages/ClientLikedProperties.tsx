@@ -14,7 +14,7 @@ import { useUserSubscription } from "@/hooks/useSubscription";
 import { useStartConversation, useConversationStats } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Flame, MessageCircle, MapPin, Bed, Bath, Square, Crown, ExternalLink, RefreshCw, ArrowLeft, Home, Bike, Briefcase, Trash2, MoreVertical } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
 import { MessageQuotaDialog } from "@/components/MessageQuotaDialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
