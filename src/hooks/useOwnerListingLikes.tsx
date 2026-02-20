@@ -96,14 +96,7 @@ export function useListingLikers(listingId: string | null) {
 
       const { data: likes, error } = await supabase
         .from('likes')
-        .select(`
-          created_at,
-          user_id,
-          profiles:user_id (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('created_at, user_id')
         .eq('target_id', listingId)
         .eq('target_type', 'listing')
         .eq('direction', 'right')
@@ -114,12 +107,26 @@ export function useListingLikers(listingId: string | null) {
         return [];
       }
 
-      return (likes || []).map((like: any) => ({
-        id: like.user_id,
-        fullName: like.profiles?.full_name || 'Anonymous',
-        avatarUrl: like.profiles?.avatar_url,
-        likedAt: like.created_at
-      }));
+      if (!likes || likes.length === 0) return [];
+
+      // Two-step: fetch profiles by user_id (no FK constraint on profiles.user_id)
+      const userIds = [...new Set(likes.map((l: any) => l.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, avatar_url')
+        .in('user_id', userIds);
+
+      const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+
+      return likes.map((like: any) => {
+        const profile = profileMap.get(like.user_id);
+        return {
+          id: like.user_id,
+          fullName: profile?.full_name || 'Anonymous',
+          avatarUrl: profile?.avatar_url,
+          likedAt: like.created_at
+        };
+      });
     },
     enabled: !!listingId,
     staleTime: 30000,

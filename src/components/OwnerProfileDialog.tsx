@@ -280,7 +280,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             </Button>
             <Button
               onClick={handleSave}
-              disabled={saveMutation.isPending || serviceOfferings.length === 0}
+              disabled={saveMutation.isPending}
               className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold shadow-lg disabled:opacity-50"
             >
               {saveMutation.isPending ? 'Saving...' : 'Save Profile'}

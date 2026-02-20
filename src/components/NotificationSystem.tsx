@@ -62,7 +62,7 @@ export function NotificationSystem() {
                 const { data: senderProfile } = await supabase
                   .from('profiles')
                   .select('full_name, avatar_url')
-                  .eq('id', newMessage.sender_id)
+                  .eq('user_id', newMessage.sender_id)
                   .maybeSingle();
 
                 const senderName = senderProfile?.full_name || 'Someone';
@@ -161,7 +161,7 @@ export function NotificationSystem() {
               const { data: likerProfile } = await supabase
                 .from('profiles')
                 .select('full_name, avatar_url')
-                .eq('id', newLike.user_id)
+                .eq('user_id', newLike.user_id)
                 .maybeSingle();
 
               const likerName = likerProfile?.full_name || 'Someone';

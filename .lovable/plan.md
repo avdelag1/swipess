@@ -1,118 +1,91 @@
 
+# Three Fixes + Premium Messages Redesign
 
-## AI Orchestrator System -- Unified Multi-Task Intelligence
+## Issues Identified
 
-### What We're Building
+### 1. "Remove from Likes" Button — Transparent/Invisible (screenshot shows it)
+The dropdown menu `DropdownMenuContent` in `ClientLikedProperties.tsx` uses the default Radix UI styles which inherit from the app's dark theme but the dropdown background is either transparent or very dark without a solid visible background. The `DropdownMenuItem` with "Remove from Likes" (red text) renders over the card image with no visible background panel.
 
-A single `ai-orchestrator` edge function that replaces the current `ai-assistant` and `ai-conversation` functions, handling all AI tasks through one entry point with provider fallback support.
+**Fix:** Add explicit background styling to the `DropdownMenuContent` and ensure it has a solid dark glass surface with proper border.
 
-### Current State
+### 2. Back Button on Profile — Not Working / Invisible
+In `ClientProfileNew.tsx` (line 82-90), the Back button has `text-white/50` color — it's nearly invisible. It also calls `navigate(-1)` but on a profile page that's the entry point, there may be no history to go back to.
 
-- `ai-assistant` handles: listing generation, profile enhancement, search
-- `ai-conversation` handles: conversational listing builder
-- Both use Lovable AI Gateway with `google/gemini-3-flash-preview`
-- Frontend hooks: `useAIGeneration` and `useConversationalAI`
-- MiniMax API key is stored but has no balance (fallback only)
+**Fix:** Make the back button visible with a proper glass-pill style (matching the rest of the app). Add a smart fallback that navigates to the dashboard if there's no history.
 
-### Architecture
+### 3. MessagingDashboard — Full Premium Redesign
+The current messages page is functional but uses plain ghost buttons, a flat search bar, and generic list rows. It needs to feel cinematic and immersive like the rest of the app.
 
-```text
-[ Frontend ]
-     |
-     |-- useAIGeneration() -----> listing, profile, search, enhance
-     |-- useConversationalAI() -> conversation (listing builder)
-     |
-     v
-[ supabase.functions.invoke("ai-orchestrator") ]
-     |
-     |  task routing + provider selection
-     |
-     |---> Lovable AI Gateway (default, free)
-     |---> MiniMax (fallback, if key has balance)
-     |
-     v
-[ Normalized JSON Response ]
-     |
-     v
-[ Form Autofill / Search Filters / Enhanced Text ]
-```
+---
 
-### Tasks Supported
+## Implementation Plan
 
-1. **listing** -- Generate structured listing data from description + category
-2. **profile** -- Enhance user bio and interests
-3. **search** -- Convert natural language query to structured filters (semantic search)
-4. **enhance** -- Improve existing listing/profile text
-5. **conversation** -- Multi-turn conversational listing builder with memory
+### Fix 1: "Remove from Likes" Dropdown — `ClientLikedProperties.tsx`
+The `DropdownMenuContent` at line ~405 needs an explicit solid background. Also, the whole "remove" action should be more premium — not hidden in a tiny dropdown but accessible while still clean.
 
-### Changes
+Changes:
+- Add `className` to `DropdownMenuContent`: solid dark glass background `bg-[#1a1a1a] border-white/10`
+- Ensure the `DropdownMenuItem` for "Remove from Likes" has visible red styling
+- The ⋮ trigger button already has dark background (rgba 0,0,0,0.55) — keep that
 
-#### 1. New Edge Function: `supabase/functions/ai-orchestrator/index.ts`
+### Fix 2: Back Button Visibility — `ClientProfileNew.tsx` + `OwnerProfileNew.tsx`
+Current back button (line 82-90) is `text-white/50` — barely visible.
 
-Single file that:
-- Accepts `{ task, data, context, messages }` payload
-- Routes to the correct prompt builder based on `task`
-- Calls Lovable AI Gateway (primary) with fallback to MiniMax if Lovable fails
-- Parses AI response into structured JSON
-- Handles rate limit errors (429) and payment errors (402) with clear messages
-- Returns normalized `{ result, provider_used }` response
+New style — glass-pill back button matching the `PageHeader` component style:
+- `px-4 py-2 rounded-xl bg-white/8 border border-white/12 text-white/90`
+- Icon + "Back" text
+- `navigate(-1)` with fallback to dashboard
 
-Provider logic is inline (no subfolders -- edge functions require single file). The orchestrator tries Lovable AI first; if it returns 429/500, it attempts MiniMax as fallback (if the key exists and has balance).
+### Fix 3: MessagingDashboard — Premium Redesign (`MessagingDashboard.tsx` + `MessagingInterface.tsx`)
 
-#### 2. Update `supabase/config.toml`
+#### Conversation List Page (MessagingDashboard.tsx):
+Current: flat ghost button rows, plain search, generic header
 
-Register `ai-orchestrator` with `verify_jwt = false`. Keep old functions registered for backward compatibility during transition.
+New Design:
+- **Header:** Large `text-3xl font-bold` "Messages" title with unread count badge in brand gradient pill. No back arrow (messages is a main nav tab — keep it as a page title)
+- **Search bar:** Premium glass-pill — `bg-white/6 border border-white/10 backdrop-blur-md rounded-2xl` with animated focus glow
+- **Conversation rows:** Elevated glass card rows instead of ghost buttons:
+  - `bg-white/4 border border-white/8 rounded-2xl px-4 py-3.5` per row
+  - `hover:bg-white/6 active:scale-[0.99]`
+  - Gradient avatar ring (existing — keep)
+  - Bold name `text-[15px] font-semibold`
+  - Last message preview in `text-muted-foreground`
+  - Unread indicator: brand gradient dot `bg-gradient-to-r from-[#ec4899] to-[#f97316]`
+  - Time stamp right-aligned in `text-[11px] text-white/30`
+  - Category icon badge for the listing type (Home/Bike/Moto) shown as tiny pill
+- **Empty state:** Centered with large gradient icon circle and descriptive text
+- **Stats row:** At the top below search, show `X active conversations` as a small pill
 
-#### 3. Update Frontend Hooks
+#### Individual Chat View (MessagingInterface.tsx):
+Current: plain Card wrapper, generic input
 
-**`src/hooks/ai/useAIGeneration.ts`**
-- Change invoke target from `ai-assistant` to `ai-orchestrator`
-- Add `enhance` task type support
-- Surface rate limit / payment errors as toast messages
+New Design:
+- **Chat header:** Deeper glassmorphic bar `bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/8`
+  - Back chevron button gets a visible glass-pill: `bg-white/8 border border-white/12 rounded-xl`
+  - Avatar stays with gradient ring (existing — good)
+  - Name larger `text-[15px] font-semibold`
+  - Status indicator: "Online" in emerald with pulsing dot
+  - Right actions: Rating star + Info button in glass-pill circles
+- **Message bubbles:** Keep existing gradient colors (they're great) — slightly increase max-width to `80%`
+- **Empty state:** Premium centered card with gradient icon and "Start the conversation" copy
+- **Input area:** More immersive — `bg-[#111]/90 backdrop-blur-xl border-t border-white/8 px-4 py-3`
+  - Input field: pill shape `rounded-full bg-white/8 border border-white/12 text-white placeholder:text-white/40`
+  - Send button: brand gradient circle when active, glass-muted when inactive
 
-**`src/hooks/ai/useConversationalAI.ts`**
-- Change invoke target from `ai-conversation` to `ai-orchestrator`
-- Send `task: "conversation"` with messages array
+---
 
-**`src/components/AIListingAssistant.tsx`**
-- Update the direct `supabase.functions.invoke('ai-assistant')` call to use `ai-orchestrator`
+## Files to Change
 
-#### 4. Add AI Enhance Capability
+1. **`src/pages/ClientLikedProperties.tsx`** — Fix DropdownMenuContent background (1 small change)
+2. **`src/pages/ClientProfileNew.tsx`** — Fix back button visibility + style  
+3. **`src/pages/OwnerProfileNew.tsx`** — Same back button fix
+4. **`src/pages/MessagingDashboard.tsx`** — Full premium redesign of conversation list
+5. **`src/components/MessagingInterface.tsx`** — Premium header + input area redesign
 
-New export in `useAIGeneration`:
-- `enhance(text, tone)` method that sends `task: "enhance"` to the orchestrator
-- Returns improved text that user must confirm before applying
-
-#### 5. AI Semantic Search
-
-The existing `search` task already converts natural language to structured filters. The orchestrator will improve the prompt to also detect language and return richer intent data:
-```text
-Input:  "clean lady near me under 1000"
-Output: { category: "worker", filters: { keywords: ["cleaning"], max_price: 1000 }, language: "en", suggestion: "..." }
-```
-
-No new database queries needed -- the AI only structures intent, and the existing frontend filter logic applies the result.
-
-### Files to Create/Modify
-
-1. **Create** `supabase/functions/ai-orchestrator/index.ts` -- unified orchestrator with all task routing and provider fallback
-2. **Modify** `supabase/config.toml` -- add orchestrator function registration
-3. **Modify** `src/hooks/ai/useAIGeneration.ts` -- point to orchestrator, add enhance task
-4. **Modify** `src/hooks/ai/useConversationalAI.ts` -- point to orchestrator
-5. **Modify** `src/components/AIListingAssistant.tsx` -- point to orchestrator
-
-### Provider Fallback Logic
-
-```text
-1. Try Lovable AI Gateway (free, fast)
-2. If 429/500 -> Try MiniMax (if MINIMAX_API_KEY exists)
-3. If both fail -> Return error with clear message
-```
-
-### What Stays the Same
-
-- All existing frontend UI components remain unchanged
-- The swipe mechanics, filters, and database schema are untouched
-- The conversational listing builder flow stays identical
-- All existing AI capabilities (listing, profile, search) work exactly as before, just routed through the new orchestrator
-
+## What Stays Unchanged
+- All conversation logic, real-time subscriptions, message sending
+- Message bubble colors and shapes (they already look great)
+- Routing and back navigation logic
+- `@ts-nocheck` pragma (files already have it where needed)
+- VirtualizedMessageList component (performance-critical, keep as-is)
+- All upgrade dialogs and MessageActivation flows

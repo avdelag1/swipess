@@ -31,8 +31,8 @@ export function useSwipeSounds() {
         const { data, error } = await supabase
           .from('profiles')
           .select('swipe_sound_theme')
-          .eq('id', user.id)
-          .single();
+          .eq('user_id', user.id)
+          .maybeSingle();
 
         if (error) {
           console.warn('Failed to load swipe sound theme:', error);
@@ -57,9 +57,17 @@ export function useSwipeSounds() {
 
   // Preload audio files when theme changes
   useEffect(() => {
-    // Clean up previous audio elements
-    leftAudioRef.current = null;
-    rightAudioRef.current = null;
+    // Clean up previous audio elements to release memory
+    if (leftAudioRef.current) {
+      leftAudioRef.current.pause();
+      leftAudioRef.current.src = '';
+      leftAudioRef.current = null;
+    }
+    if (rightAudioRef.current) {
+      rightAudioRef.current.pause();
+      rightAudioRef.current.src = '';
+      rightAudioRef.current = null;
+    }
 
     // Don't preload for 'none' or 'randomZen' themes
     if (theme === 'none' || theme === 'randomZen') {

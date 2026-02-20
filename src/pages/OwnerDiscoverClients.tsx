@@ -4,6 +4,7 @@
  */
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -87,7 +88,7 @@ function ClientCard({ client, onLike, onMessage }: { client: any; onLike: () => 
           <Button onClick={onLike} variant="outline" className="flex-1 border-white/20 hover:bg-white/10 h-12">
             <Heart className="w-5 h-5 mr-2" />Like
           </Button>
-          <Button onClick={onMessage} className="flex-1 bg-white text-black hover:bg-white/90 h-12 font-semibold">
+          <Button onClick={onMessage} className="flex-1 bg-white text-gray-900 hover:bg-white/90 h-12 font-semibold">
             <MessageCircle className="w-5 h-5 mr-2" />Message
           </Button>
         </div>
@@ -98,6 +99,7 @@ function ClientCard({ client, onLike, onMessage }: { client: any; onLike: () => 
 
 export default function OwnerDiscoverClients() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -125,11 +127,48 @@ export default function OwnerDiscoverClients() {
   const handleRefresh = async () => { setIsRefreshing(true); await refetch(); setIsRefreshing(false); };
 
   const handleLike = (clientId: string) => {
+    // Find the full client profile for optimistic cache update
+    const clientProfile = clients.find((c: any) => c.user_id === clientId || c.id === clientId);
+
     swipeMutation.mutate(
       { targetId: clientId, direction: 'right', targetType: 'profile' },
       {
         onSuccess: () => {
           sonnerToast.success('❤️ Liked!', { description: 'Client added to your likes' });
+
+          // OPTIMISTIC: Add liked client to cache so it shows instantly on the liked clients page
+          if (user?.id && clientProfile) {
+            queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
+              const likedClient = {
+                id: (clientProfile as any).user_id || clientId,
+                user_id: (clientProfile as any).user_id || clientId,
+                full_name: (clientProfile as any).full_name || (clientProfile as any).name || 'Unknown',
+                name: (clientProfile as any).full_name || (clientProfile as any).name || 'Unknown',
+                age: (clientProfile as any).age || 0,
+                bio: (clientProfile as any).bio || '',
+                profile_images: (clientProfile as any).profile_images || (clientProfile as any).images || [],
+                images: (clientProfile as any).profile_images || (clientProfile as any).images || [],
+                location: (clientProfile as any).location,
+                liked_at: new Date().toISOString(),
+                occupation: (clientProfile as any).occupation,
+                nationality: (clientProfile as any).nationality,
+                interests: (clientProfile as any).interests,
+                monthly_income: (clientProfile as any).monthly_income,
+                verified: (clientProfile as any).verified,
+                property_types: (clientProfile as any).preferred_property_types || [],
+                moto_types: [],
+                bicycle_types: [],
+              };
+              if (!oldData) {
+                return [likedClient];
+              }
+              const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
+              if (exists) {
+                return oldData;
+              }
+              return [likedClient, ...oldData];
+            });
+          }
         }
       }
     );

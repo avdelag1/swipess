@@ -31,7 +31,7 @@ import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase } from 'lucide-react';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles } from 'lucide-react';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -1208,7 +1208,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const { title, description, cta } = getCaughtUpMessage();
     
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4">
+      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1262,7 +1262,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     // FIX: Ensure categoryLabel is always a string, never an object
     const categoryLabel = String(categoryInfo?.plural || 'listings');
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center">
+      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
           <div className="text-6xl mb-4">:(</div>
           <h3 className="text-xl font-bold mb-2">Oops! Something went wrong</h3>
@@ -1320,7 +1320,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const { title, description } = getEmptyMessage();
     
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4">
+      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1359,6 +1359,18 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
               {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
             </Button>
           </motion.div>
+
+          {/* Tutorial shortcut — lets new users explore demo cards while waiting */}
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/tutorial')}
+              className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+            >
+              <Sparkles className="w-4 h-4" />
+              Try Tutorial Cards
+            </Button>
+          </motion.div>
         </motion.div>
       </div>
     );
@@ -1373,7 +1385,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
   // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
   return (
     <div
-      className="relative w-full h-full flex-1 flex flex-col"
+      className="relative w-full flex flex-col"
+      style={{ minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
       {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
@@ -1383,19 +1396,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
           - Communicates "swipe marketplace" at first glance */}
       <AmbientSwipeBackground isPaused={swipeDirection !== null} />
 
-      {/* Dynamic page title - shows current category being browsed */}
-      <div className="absolute top-14 left-0 right-0 z-20 flex justify-center pointer-events-none">
-        <motion.div
-          key={activeCategoryLabel}
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 ${activeCategoryColor}`}
-        >
-          <ActiveCategoryIcon className="w-3.5 h-3.5" />
-          <span className="text-xs font-semibold text-white/90">{activeCategoryLabel}</span>
-        </motion.div>
-      </div>
+      {/* Category title removed - clean immersive card experience */}
 
       <div className="relative flex-1 w-full">
         {/* NEXT CARD - Visible behind current card (Tinder-style anticipation)
@@ -1445,7 +1446,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center z-30">
+          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
