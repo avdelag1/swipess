@@ -1446,7 +1446,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute bottom-20 left-0 right-0 flex justify-center z-30">
+          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
