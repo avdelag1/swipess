@@ -11,24 +11,17 @@ interface SuspenseFallbackProps {
 }
 
 export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {
-  // Always use minimal fallback - routes should be preloaded
-  // This only shows briefly if route wasn't prefetched
+  // Invisible fallback — pages should already be prefetched.
+  // Returning a transparent placeholder avoids the white-flash blink
+  // that would otherwise occur during the brief Suspense resolution frame.
   return (
     <div
       className={cn(
-        'flex items-center justify-center',
         minimal ? 'p-2' : 'min-h-[100px]',
         className
       )}
-    >
-      {/* Tiny, subtle spinner - barely visible */}
-      <div
-        className="w-5 h-5 border-2 border-primary/20 border-t-primary/60 rounded-full animate-spin"
-        style={{
-          animationDuration: '0.6s',
-        }}
-      />
-    </div>
+      aria-hidden="true"
+    />
   );
 }
 

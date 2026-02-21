@@ -49,7 +49,7 @@ export function useNotifications() {
               const { data: senderProfile, error: profileError } = await supabase
                 .from('profiles')
                 .select('full_name, avatar_url')
-                .eq('id', newMessage.sender_id)
+                .eq('user_id', newMessage.sender_id)
                 .maybeSingle();
 
               if (profileError) {
@@ -65,15 +65,37 @@ export function useNotifications() {
                 duration: 4000,
               });
 
-              // Show browser notification if permission granted
-              if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+              // Show browser notification when app is not in the foreground
+              if (
+                typeof window !== 'undefined' &&
+                'Notification' in window &&
+                Notification.permission === 'granted' &&
+                document.visibilityState !== 'visible'
+              ) {
                 new Notification(`Message from ${senderName}`, {
                   body: newMessage.message_text.slice(0, 100),
                   icon: senderProfile?.avatar_url || '/placeholder.svg',
-                  tag: `message-${newMessage.id}`, // Prevent duplicate notifications
+                  tag: `message-${newMessage.id}`,
                   requireInteraction: false,
                 });
               }
+
+              // Fire push notification to reach other devices / closed browser tabs
+              supabase.functions.invoke('send-push-notification', {
+                body: {
+                  user_id: user.id,
+                  title: `Message from ${senderName}`,
+                  body: newMessage.message_text.slice(0, 100),
+                  url: '/messages',
+                  data: {
+                    type: 'message',
+                    conversation_id: newMessage.conversation_id,
+                    sender_id: newMessage.sender_id,
+                  },
+                },
+              }).catch((err) => {
+                if (import.meta.env.DEV) logger.error('[useNotifications] Push failed:', err);
+              });
             }
           }
         }

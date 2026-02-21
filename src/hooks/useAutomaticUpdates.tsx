@@ -254,20 +254,78 @@ export function UpdateNotification() {
 }
 
 /**
+ * Check the HTML meta tag version against the running JS BUILD_TIMESTAMP.
+ * The HTML is always fresh (served with no-cache headers), but the JS may be
+ * stale due to service worker stale-while-revalidate caching.
+ * If they differ, the running JS is outdated — force a full cache clear + reload.
+ */
+function checkHtmlVersionMismatch(): boolean {
+  try {
+    const metaTag = document.querySelector('meta[name="app-version"]');
+    if (!metaTag) return false;
+    const htmlVersion = metaTag.getAttribute('content');
+    if (!htmlVersion) return false;
+    // The HTML version is the build timestamp injected by vite.config.ts.
+    // If it doesn't match the JS BUILD_TIMESTAMP, the SW served stale JS.
+    return htmlVersion !== BUILD_TIMESTAMP;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Force update on app mount - use when you want guaranteed updates
  * This clears all caches and reloads if version changed (based on BUILD_TIMESTAMP)
+ * Also detects stale JS served by service worker via HTML meta tag comparison.
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
-    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+    // GUARD 1: Session-level cooldown — only trigger one reload per session
+    const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
+    if (alreadyReloaded) return;
 
-    if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
-      // Version changed - force update
-      forceAppUpdate();
-    } else {
-      // Mark current version as installed
-      markVersionAsInstalled();
+    // GUARD 2: Minimum time on page — don't reload within the first 30s of a fresh load
+    // This prevents the infinite reload loop on initial page visits
+    const pageLoadTime = performance.now();
+    if (pageLoadTime < 30000) {
+      // Only silently mark the version as installed on fresh load
+      // and skip the forced update — user just arrived
+      const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+      if (!storedVersion) {
+        markVersionAsInstalled();
+      }
+
+      // Schedule a deferred check after the user has been on the page for 30s
+      const timer = setTimeout(() => {
+        const stillMismatch = checkHtmlVersionMismatch();
+        const versionChanged = localStorage.getItem(VERSION_STORAGE_KEY) !== BUILD_TIMESTAMP;
+        if (stillMismatch || versionChanged) {
+          sessionStorage.setItem('swipes_reload_triggered', '1');
+          forceAppUpdate();
+        } else {
+          markVersionAsInstalled();
+        }
+      }, 30000);
+
+      return () => clearTimeout(timer);
     }
+
+    // If already been on page 30s+ (e.g. focus regain), do the normal check
+    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+    if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
+      sessionStorage.setItem('swipes_reload_triggered', '1');
+      forceAppUpdate();
+      return;
+    }
+
+    if (checkHtmlVersionMismatch()) {
+      console.log('[AutoUpdate] HTML version differs from JS — stale JS detected, forcing update');
+      sessionStorage.setItem('swipes_reload_triggered', '1');
+      forceAppUpdate();
+      return;
+    }
+
+    markVersionAsInstalled();
   }, []);
 }
 

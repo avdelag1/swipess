@@ -1,13 +1,13 @@
 // @ts-nocheck
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Loader2, X, Send, Circle, Zap, Home, User, MessageCircle, Flame, Filter, ArrowRight } from 'lucide-react';
+import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useClientProfile } from '@/hooks/useClientProfile';
 
 interface AISearchDialogProps {
   isOpen: boolean;
@@ -213,6 +213,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { data: clientProfile } = useClientProfile();
+  // Fix: Fallback chain for avatar - client profile images → avatar_url → null
+  const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
   // Auto-focus input when dialog opens
   useEffect(() => {
@@ -239,32 +242,37 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsSearching(true);
     setIsTyping(true);
 
-    // Simulate AI thinking time
-    await new Promise(resolve => setTimeout(resolve, 600 + Math.random() * 400));
+    try {
+      // Simulate a small delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 600));
 
-    setIsTyping(false);
-    
-    // Generate AI response
-    const { response, showAction, actionLabel, actionRoute } = generateAIResponse(userMessage, userRole);
-    setMessages(prev => [...prev, { 
-      role: 'ai', 
-      content: response, 
-      timestamp: Date.now(),
-      showAction,
-      actionLabel,
-      actionRoute
-    }]);
-    
-    setIsSearching(false);
+      setIsTyping(false);
+
+      const result = generateAIResponse(userMessage, userRole);
+
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: result.response,
+        timestamp: Date.now(),
+        showAction: result.showAction,
+        actionLabel: result.actionLabel,
+        actionRoute: result.actionRoute,
+      }]);
+    } catch (error) {
+      setIsTyping(false);
+      console.error('AI search error:', error);
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: 'Sorry, I had trouble processing that. Please try again!',
+        timestamp: Date.now()
+      }]);
+    } finally {
+      setIsSearching(false);
+    }
   }, [query, isSearching, userRole]);
 
-  const handleAction = useCallback((route?: string) => {
-    if (route) {
-      navigate(route);
-      handleClose();
-    }
-  }, [navigate]);
 
+  // Fix: Declare handleClose before handleAction to avoid reference-before-declaration
   const handleClose = useCallback(() => {
     onClose();
     setQuery('');
@@ -272,6 +280,13 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsSearching(false);
     setIsTyping(false);
   }, [onClose]);
+
+  const handleAction = useCallback((route?: string) => {
+    if (route) {
+      navigate(route);
+      handleClose();
+    }
+  }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
     { icon: Home, label: 'Browse', text: 'Show me apartments to rent' },
@@ -290,30 +305,20 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent 
-        className="sm:max-w-md bg-[#1C1C1E]/95 backdrop-blur-2xl border border-white/10 p-0 overflow-hidden"
+        className="sm:max-w-md bg-[#1C1C1E]/97 backdrop-blur-2xl border border-white/8 p-0 overflow-hidden rounded-3xl"
         hideCloseButton={true}
-        style={{ 
-          '--modal-radius': '24px' 
-        } as React.CSSProperties}
       >
         {/* Header */}
-        <div className="relative bg-gradient-to-r from-orange-500/20 via-red-500/10 to-purple-500/10 px-4 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="relative px-4 py-3 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.12), rgba(249,115,22,0.08))' }}>
           <div className="flex items-center gap-3">
             {/* AI Avatar */}
-            <div className="relative">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              {/* Online indicator */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#1C1C1E]" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}>
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
             
             <div>
               <h2 className="text-white font-semibold text-sm">Swipess AI</h2>
-              <div className="flex items-center gap-1">
-                <Circle className="w-1.5 h-1.5 fill-green-500 text-green-500" />
-                <span className="text-xs text-white/50">Online - Ask me anything!</span>
-              </div>
+              <p className="text-xs text-white/40">Ask me anything!</p>
             </div>
           </div>
 
@@ -323,7 +328,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             onClick={handleClose}
             className="h-8 w-8 rounded-full hover:bg-white/10"
           >
-            <X className="w-4 h-4 text-white/70" />
+            <X className="w-4 h-4 text-white/60" />
           </Button>
         </div>
 
@@ -335,12 +340,12 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               animate={{ opacity: 1, y: 0 }}
               className="text-center space-y-4"
             >
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center">
-                <Sparkles className="w-8 h-8 text-orange-400" />
+              <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(249,115,22,0.12))' }}>
+                <Sparkles className="w-8 h-8" style={{ color: '#f97316' }} />
               </div>
               <div>
                 <h3 className="text-white font-medium text-base">Swipess AI</h3>
-                <p className="text-white/50 text-xs mt-1">Your personal app assistant</p>
+                <p className="text-white/40 text-xs mt-1">Your personal app assistant</p>
               </div>
               
               {/* Quick prompts */}
@@ -349,9 +354,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   <button
                     key={index}
                     onClick={() => applyQuickPrompt(prompt.text)}
-                    className="flex items-center gap-2 px-3 py-2.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/70 hover:text-white transition-all text-left"
+                    className="flex items-center gap-2 px-3 py-2.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/70 hover:text-white transition-all text-left"
                   >
-                    <prompt.icon className="w-4 h-4 text-orange-400" />
+                    <prompt.icon className="w-4 h-4" style={{ color: '#f97316' }} />
                     <span className="flex-1">{prompt.label}</span>
                   </button>
                 ))}
@@ -359,7 +364,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </motion.div>
           )}
 
-          <AnimatePresence>
+          <AnimatePresence key={messages.length}>
             {messages.map((message) => (
               <motion.div
                 key={message.timestamp}
@@ -375,7 +380,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   message.role === 'user' && "justify-end"
                 )}>
                   {message.role === 'ai' && (
-                    <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center flex-shrink-0 mt-1">
+                    <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}>
                       <Sparkles className="w-3 h-3 text-white" />
                     </div>
                   )}
@@ -383,17 +388,19 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   <div className={cn(
                     "max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap",
                     message.role === 'user' 
-                      ? "bg-orange-500 text-white rounded-br-md" 
-                      : "bg-white/10 text-white/90 rounded-bl-md",
+                      ? "text-white rounded-br-sm" 
+                      : "bg-white/8 text-white/90 rounded-bl-sm",
                     isTyping && message.role === 'ai' && message.content === ''
                       ? "animate-pulse"
                       : ""
-                  )}>
+                  )}
+                  style={message.role === 'user' ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : {}}
+                  >
                     {message.role === 'ai' && message.content === '' ? (
                       <div className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#f97316', animationDelay: '0ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#f97316', animationDelay: '150ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#f97316', animationDelay: '300ms' }} />
                       </div>
                     ) : (
                       message.content
@@ -401,8 +408,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   </div>
 
                   {message.role === 'user' && (
-                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-white text-[10px] font-medium">You</span>
+                    <div className="w-7 h-7 rounded-full flex-shrink-0 mt-1 overflow-hidden border border-white/10">
+                      {userAvatar ? (
+                        <img src={userAvatar} alt="You" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                          <span className="text-white text-[9px] font-semibold">Me</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -411,12 +424,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 {message.role === 'ai' && message.showAction && message.actionRoute && (
                   <button
                     onClick={() => handleAction(message.actionRoute)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-full",
-                      "bg-gradient-to-r from-orange-500 to-red-500 text-white",
-                      "hover:from-orange-400 hover:to-red-400 transition-all",
-                      "ml-8"
-                    )}
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-full text-white hover:opacity-90 transition-all ml-8"
+                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                   >
                     {message.actionLabel || 'View'}
                     <ArrowRight className="w-3 h-3" />
@@ -450,7 +459,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   onClick={() => applyQuickPrompt(prompt.text)}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white transition-all"
                 >
-                  <prompt.icon className="w-3 h-3 text-orange-400" />
+                  <prompt.icon className="w-3 h-3" style={{ color: '#f97316' }} />
                   {prompt.label}
                 </button>
               ))}
@@ -459,7 +468,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         )}
 
         {/* Input Area */}
-        <div className="p-4 border-t border-white/5 bg-[#121214]/50">
+        <div className="p-4 border-t border-white/5 bg-[#0e0e10]/60">
           <div className="relative">
             <Input
               ref={inputRef}
@@ -468,7 +477,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="pr-20 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-xl focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50"
+              className="pr-20 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40"
               disabled={isSearching}
             />
             
@@ -476,12 +485,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               size="sm"
               onClick={handleSend}
               disabled={!query.trim() || isSearching}
-              className={cn(
-                "absolute right-1 top-1 bottom-1 rounded-lg px-4 h-auto",
-                query.trim() 
-                  ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400" 
-                  : "bg-white/10"
-              )}
+              className="absolute right-1 top-1 bottom-1 rounded-xl px-4 h-auto text-white"
+              style={query.trim() ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : { background: 'rgba(255,255,255,0.08)' }}
             >
               {isSearching ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

@@ -60,7 +60,7 @@ export function useProfileAutoSync() {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: `id=eq.${user.id}`,
+          filter: `user_id=eq.${user.id}`,
         },
         () => {
           logger.log('[ProfileAutoSync] profiles table changed, refreshing');

@@ -18,6 +18,18 @@ interface CreateProfileData {
 // Track ongoing profile creation to prevent concurrent attempts
 const profileCreationInProgress = new Set<string>();
 
+/**
+ * Reset the profile creation lock for a given user.
+ * Call this on fresh sign-in to prevent stale lockouts from previous failed attempts.
+ */
+export function resetProfileCreationLock(userId?: string) {
+  if (userId) {
+    profileCreationInProgress.delete(userId);
+  } else {
+    profileCreationInProgress.clear();
+  }
+}
+
 export function useProfileSetup() {
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
   const queryClient = useQueryClient();
@@ -143,7 +155,7 @@ export function useProfileSetup() {
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (existingProfile) {
@@ -191,7 +203,7 @@ export function useProfileSetup() {
             email: user.email || undefined,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', user.id)
+          .eq('user_id', user.id)
           .eq('onboarding_completed', false); // Only update if still false (idempotent)
 
         if (updateError && import.meta.env.DEV) {

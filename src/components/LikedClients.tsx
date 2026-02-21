@@ -499,306 +499,330 @@ export function LikedClients() {
   };
 
   return (
-    <div className="w-full bg-background">
-      <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 max-w-7xl pb-24 sm:pb-28">
+    <div className="w-full" style={{ background: '#070709', minHeight: '100vh' }}>
+      <div className="px-4 py-6 max-w-2xl mx-auto pb-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 sm:mb-8"
+          className="mb-6"
         >
-          {/* Back Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate(-1)}
-            className="mb-4 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4 sm:mb-6">
-            <div className="flex items-center gap-3 flex-1">
-              <div className="p-2 sm:p-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white flex-shrink-0">
-                <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6 pt-2">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center justify-center h-10 w-10 rounded-2xl active:scale-95 touch-manipulation transition-all duration-150"
+                style={{
+                  background: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.4)',
+                }}
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
               <div>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Your Likes</h1>
-                <p className="text-sm sm:text-base text-muted-foreground">Clients you've liked</p>
+                <h1 className="text-2xl font-bold text-white">Your Likes</h1>
+                <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  {filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''}
+                </p>
               </div>
             </div>
-            <Button
-              onClick={() => navigate('/owner/interested-clients')}
-              variant="outline"
-              className="gap-2 whitespace-nowrap"
-            >
-              <Heart className="w-4 h-4" />
-              <span className="hidden sm:inline">Who Liked You</span>
-              <span className="sm:hidden">Who Liked Me</span>
-            </Button>
-          </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 sm:w-5 sm:h-5" />
-              <Input
-                placeholder="Search clients..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 sm:pl-10 h-10 sm:h-11"
-              />
-            </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm sm:text-base">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="font-medium">{filteredClients.length} clients</span>
-              </div>
+              {/* Safety toggle */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant={filterSafeOnly ? "default" : "outline"}
+                    <button
                       onClick={() => setFilterSafeOnly(!filterSafeOnly)}
-                      className="gap-2"
+                      className="flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold active:scale-95 touch-manipulation transition-all duration-150"
+                      style={filterSafeOnly ? {
+                        background: 'linear-gradient(135deg, rgba(16,185,129,0.25), rgba(16,185,129,0.1))',
+                        border: '1px solid rgba(16,185,129,0.4)',
+                        color: '#10b981',
+                        boxShadow: '0 2px 8px rgba(16,185,129,0.2)',
+                      } : {
+                        background: 'rgba(255,255,255,0.06)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: 'rgba(255,255,255,0.5)',
+                      }}
                     >
-                      {filterSafeOnly ? (
-                        <ShieldCheck className="w-4 h-4" />
-                      ) : (
-                        <ShieldAlert className="w-4 h-4" />
-                      )}
-                      <span className="hidden sm:inline">{filterSafeOnly ? 'Safe Only' : 'Show All'}</span>
-                    </Button>
+                      {filterSafeOnly ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
+                      <span className="hidden sm:inline">{filterSafeOnly ? 'Safe' : 'All'}</span>
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs max-w-xs">
-                      {filterSafeOnly
-                        ? "Showing only clients with clean backgrounds (no criminal records, theft, fraud, etc.)"
-                        : "Showing all liked clients including those with background issues"}
+                      {filterSafeOnly ? "Showing verified clients only" : "Showing all liked clients"}
                     </p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  // Force a fresh fetch by invalidating the cache
-                  // FIXED: Include user ID in query key to match LikedClients query key
-                  queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] });
-                  refetch();
+
+              {/* Who liked you */}
+              <button
+                onClick={() => navigate('/owner/interested-clients')}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-semibold active:scale-95 touch-manipulation transition-all duration-150"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(249,115,22,0.2))',
+                  border: '1px solid rgba(236,72,153,0.3)',
+                  color: '#f472b6',
+                  boxShadow: '0 2px 8px rgba(236,72,153,0.15)',
                 }}
-                disabled={isLoading || isFetching}
-                className="gap-2"
               >
-                <RefreshCw className={`w-4 h-4 ${(isLoading || isFetching) ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Refresh</span>
-              </Button>
+                <Heart className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Liked Me</span>
+              </button>
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <Tabs value={selectedCategory} onValueChange={handleCategoryChange} className="w-full mb-6">
-            <TabsList className="grid w-full grid-cols-7 h-auto overflow-x-auto">
-              {categories.map(({ id, label, icon: Icon }) => (
-                <TabsTrigger
+          {/* Search bar */}
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.09)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+            }}
+          >
+            <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
+            <input
+              placeholder="Search clients..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
+            />
+          </div>
+
+          {/* Category Pills */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+            {categories.map(({ id, label, icon: Icon }) => {
+              const isActive = selectedCategory === id;
+              return (
+                <motion.button
                   key={id}
-                  value={id}
-                  className="flex items-center gap-1 sm:gap-2 px-2 py-2 text-xs sm:text-sm"
+                  onClick={() => handleCategoryChange(id)}
+                  whileTap={{ scale: 0.94 }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap flex-shrink-0 transition-all duration-200 touch-manipulation"
+                  style={isActive ? {
+                    background: 'linear-gradient(135deg, #ec4899, #f97316)',
+                    color: 'white',
+                    boxShadow: '0 4px 16px rgba(236,72,153,0.35)',
+                  } : {
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'rgba(255,255,255,0.5)',
+                  }}
                 >
-                  <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">{label}</span>
-                  <span className="sm:hidden">{label.substring(0, 4)}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </motion.button>
+              );
+            })}
+          </div>
         </motion.div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {[...Array(8)].map((_, i) => (
-              <Card key={i} className="p-4 sm:p-6 animate-pulse">
-                <div className="w-full aspect-[3/4] bg-muted rounded-lg mb-4"></div>
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-3 bg-muted rounded w-2/3"></div>
-              </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="h-64" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 rounded-xl w-3/4" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                  <div className="h-3 rounded-xl w-1/2" style={{ background: 'rgba(255,255,255,0.05)' }} />
+                </div>
+              </div>
             ))}
           </div>
         ) : filteredClients.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-12 sm:py-16 max-w-md mx-auto"
+            className="text-center py-16 max-w-sm mx-auto"
           >
-            <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto mb-4 sm:mb-6 rounded-full bg-muted flex items-center justify-center">
-              <Flame className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-muted-foreground" />
+            <div className="w-20 h-20 mx-auto mb-5 rounded-3xl flex items-center justify-center" style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
+              <Flame className="w-10 h-10" style={{ color: 'rgba(249,115,22,0.5)' }} />
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">No Liked Clients Yet</h2>
-            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 px-4">
-              {searchTerm ? 'No clients match your search.' : 'Start browsing client profiles and like the ones you\'re interested in working with'}
+            <h2 className="text-xl font-bold text-white mb-2">No Liked Clients</h2>
+            <p className="text-sm mb-5 px-4" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              {searchTerm ? 'No clients match your search.' : "Start browsing and like clients you're interested in working with"}
             </p>
             {!searchTerm && (
-              <Button 
+              <button
                 onClick={() => navigate('/owner/dashboard')}
-                className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-sm sm:text-base"
+                className="px-6 py-3 rounded-2xl text-sm font-bold text-white active:scale-95 touch-manipulation transition-all"
+                style={{
+                  background: 'linear-gradient(135deg, #ec4899, #f97316)',
+                  boxShadow: '0 4px 16px rgba(236,72,153,0.35)',
+                }}
               >
                 Browse Clients
-              </Button>
+              </button>
             )}
           </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredClients.map((client, index) => (
             <motion.div
               key={client.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="group"
+              transition={{ delay: index * 0.06 }}
+              className="group rounded-3xl overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+              }}
             >
-              <Card className="p-6 h-full hover:shadow-lg transition-all duration-300">
-                <div className="relative mb-4 cursor-pointer" onClick={() => handleViewClient(client)}>
-                  {client.images && client.images.length > 0 ? (
-                    <img
-                      src={client.images[0]}
-                      alt={client.name}
-                      className="w-full h-64 object-cover rounded-lg hover:opacity-90 transition-opacity"
-                    />
-                  ) : (
-                    <div className="w-full h-64 bg-muted rounded-lg flex items-center justify-center hover:bg-muted/80 transition-colors">
-                      <Users className="w-16 h-16 text-muted-foreground" />
+              {/* Portrait image */}
+              <div
+                className="relative overflow-hidden cursor-pointer"
+                style={{ height: '260px' }}
+                onClick={() => handleViewClient(client)}
+              >
+                {client.images && client.images.length > 0 ? (
+                  <img
+                    src={client.images[0]}
+                    alt={client.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    <Users className="w-16 h-16" style={{ color: 'rgba(255,255,255,0.15)' }} />
+                  </div>
+                )}
+
+                {/* Bottom gradient */}
+                <div
+                  className="absolute inset-0"
+                  style={{ background: 'linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.9) 100%)' }}
+                />
+
+                {/* Floating name + age */}
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-white font-bold text-lg leading-tight">
+                        {client.name}
+                        {client.verified && (
+                          <span className="ml-1.5 inline-flex w-4 h-4 rounded-full bg-blue-500 items-center justify-center text-white text-xs">✓</span>
+                        )}
+                      </h3>
+                      <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                        {client.age ? `${client.age} years` : 'Age unknown'}
+                        {client.occupation ? ` · ${client.occupation}` : ''}
+                      </p>
                     </div>
-                  )}
-                  
-                  <div className="absolute top-3 right-3 flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => navigate(`/owner/view-client/${client.user_id}`)}
-                      className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg border-0"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleMessage(client)}
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg border-0"
-                      disabled={isCreatingConversation}
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          size="sm"
-                          className="bg-gray-800 hover:bg-gray-700 text-white shadow-lg border-0"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="end"
-                        className="w-52 bg-gray-900 border border-gray-700 shadow-xl rounded-xl p-1"
+
+                    {/* Background check badge */}
+                    {client.background_check_status === 'passed' && (
+                      <div
+                        className="px-2 py-1 rounded-full flex items-center gap-1"
+                        style={{ background: 'rgba(16,185,129,0.3)', backdropFilter: 'blur(8px)', border: '1px solid rgba(16,185,129,0.4)' }}
                       >
-                        <DropdownMenuItem
-                          onClick={() => handleRemoveLike(client.user_id)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-800 focus:bg-gray-800 rounded-lg cursor-pointer transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-orange-500" />
-                          <span className="font-medium">Remove from Liked</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="my-1 bg-gray-700" />
-                        <DropdownMenuItem
-                          onClick={() => handleOpenReport(client)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-800 focus:bg-gray-800 rounded-lg cursor-pointer transition-colors"
-                        >
-                          <Flag className="w-4 h-4 text-yellow-500" />
-                          <span className="font-medium">Report Client</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleOpenBlock(client)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-gray-800 focus:bg-gray-800 rounded-lg cursor-pointer transition-colors"
-                        >
-                          <Ban className="w-4 h-4 text-red-500" />
-                          <span className="font-medium">Block Client</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="text-xl font-bold flex items-center gap-2">
-                      {client.name}
-                      {client.verified && (
-                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs">✓</span>
-                        </div>
-                      )}
-                    </h3>
-                    <p className="text-muted-foreground">Age: {client.age}</p>
-                    {client.occupation && (
-                      <p className="text-sm text-muted-foreground">{client.occupation}</p>
+                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                        <span className="text-xs font-semibold text-emerald-400">Verified</span>
+                      </div>
                     )}
-
-                    {/* Background Check Status Badge */}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {client.background_check_status === 'passed' && (
-                        <Badge className="bg-green-500/10 text-green-600 border-green-500/20 gap-1">
-                          <ShieldCheck className="w-3 h-3" />
-                          Background Verified
-                        </Badge>
-                      )}
-                      {client.background_check_status === 'failed' && (
-                        <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1">
-                          <ShieldAlert className="w-3 h-3" />
-                          Background Check Failed
-                        </Badge>
-                      )}
-                      {client.background_check_status === 'pending' && (
-                        <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20 gap-1">
-                          <Shield className="w-3 h-3" />
-                          Check Pending
-                        </Badge>
-                      )}
-                      {client.has_criminal_record && (
-                        <Badge className="bg-red-500/10 text-red-600 border-red-500/20 gap-1">
-                          <ShieldAlert className="w-3 h-3" />
-                          Criminal Record
-                          {client.criminal_record_type && `: ${client.criminal_record_type}`}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {client.bio && (
-                    <p className="text-sm line-clamp-3">{client.bio}</p>
-                  )}
-
-                  {client.interests && client.interests.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {client.interests.slice(0, 3).map((interest) => (
-                        <span
-                          key={`interest-${interest}`}
-                          className="px-2 py-1 bg-primary/10 text-primary text-xs rounded-full"
-                        >
-                          {interest}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <div className="pt-3 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      Liked on {new Date(client.liked_at).toLocaleDateString()}
-                    </p>
                   </div>
                 </div>
-              </Card>
-              </motion.div>
-            ))}
-          </div>
+
+                {/* More options top-right */}
+                <div className="absolute top-3 right-3" onClick={(e) => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="flex items-center justify-center w-8 h-8 rounded-2xl backdrop-blur-md touch-manipulation"
+                        style={{
+                          background: 'rgba(0,0,0,0.55)',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                        }}
+                      >
+                        <MoreVertical className="w-4 h-4 text-white" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52 rounded-2xl">
+                      <DropdownMenuItem
+                        onClick={() => handleRemoveLike(client.user_id)}
+                        className="flex items-center gap-3 px-3 py-2.5 text-destructive focus:text-destructive rounded-xl cursor-pointer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="font-medium">Remove from Liked</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => handleOpenReport(client)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer"
+                      >
+                        <Flag className="w-4 h-4 text-yellow-500" />
+                        <span className="font-medium">Report Client</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleOpenBlock(client)}
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer"
+                      >
+                        <Ban className="w-4 h-4 text-red-500" />
+                        <span className="font-medium">Block Client</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+
+              {/* Action button row */}
+              <div className="p-3 flex gap-2">
+                <button
+                  onClick={() => navigate(`/owner/view-client/${client.user_id}`)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-bold text-white active:scale-95 touch-manipulation transition-all duration-150"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(168,85,247,0.35), rgba(168,85,247,0.15))',
+                    border: '1px solid rgba(168,85,247,0.4)',
+                    boxShadow: '0 2px 8px rgba(168,85,247,0.2)',
+                    color: '#c084fc',
+                  }}
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  Profile
+                </button>
+
+                <button
+                  onClick={() => handleMessage(client)}
+                  disabled={isCreatingConversation}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-2xl text-xs font-bold text-white active:scale-95 touch-manipulation transition-all duration-150 disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
+                    boxShadow: '0 3px 12px rgba(236,72,153,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+                  }}
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  Message
+                </button>
+
+                <button
+                  onClick={() => handleViewClient(client)}
+                  className="flex items-center justify-center w-10 h-10 rounded-2xl active:scale-95 touch-manipulation transition-all duration-150 flex-shrink-0"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: 'rgba(255,255,255,0.5)',
+                  }}
+                >
+                  <Flame className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Liked date */}
+              {client.liked_at && (
+                <div className="px-4 pb-3">
+                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                    Liked {new Date(client.liked_at).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
         )}
       </div>
 

@@ -1,5 +1,5 @@
-import { lazy, Suspense, useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
+import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -9,13 +9,14 @@ import { ActiveModeProvider } from "@/hooks/useActiveMode";
 import { PWAProvider } from "@/hooks/usePWAMode";
 import { RadioProvider } from "@/contexts/RadioContext";
 import { useNotifications } from "@/hooks/useNotifications";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Automatic update system
 import { useForceUpdateOnVersionChange, UpdateNotification } from "@/hooks/useAutomaticUpdates";
@@ -49,53 +50,54 @@ const FAQClientPage = lazy(() => import("./pages/FAQClientPage"));
 const FAQOwnerPage = lazy(() => import("./pages/FAQOwnerPage"));
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// INSTANT NAVIGATION: ALL core routes are DIRECT IMPORTS
-// Lazy loading causes delay on first tap - we want INSTANT navigation
+// LAZY LOADED ROUTES: Only load the code for the page the user visits
+// This dramatically reduces initial bundle size and page load time.
+// Each page loads on-demand when navigated to (~50-200ms on first visit).
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Client routes - ALL direct imports for instant navigation
-import ClientDashboard from "./pages/ClientDashboard";
-import ClientProfile from "./pages/ClientProfileNew";
-import ClientSettings from "./pages/ClientSettingsNew";
-import ClientLikedProperties from "./pages/ClientLikedProperties";
-import ClientWhoLikedYou from "./pages/ClientWhoLikedYou";
-import ClientSavedSearches from "./pages/ClientSavedSearches";
-import ClientSecurity from "./pages/ClientSecurity";
-import ClientWorkerDiscovery from "./pages/ClientWorkerDiscovery";
-import ClientContracts from "./pages/ClientContracts";
-import ClientLawyerServices from "./pages/ClientLawyerServices";
+// Client routes - lazy loaded
+const ClientDashboard = lazy(() => import("./pages/ClientDashboard"));
+const ClientProfile = lazy(() => import("./pages/ClientProfileNew"));
+const ClientSettings = lazy(() => import("./pages/ClientSettingsNew"));
+const ClientLikedProperties = lazy(() => import("./pages/ClientLikedProperties"));
+const ClientWhoLikedYou = lazy(() => import("./pages/ClientWhoLikedYou"));
+const ClientSavedSearches = lazy(() => import("./pages/ClientSavedSearches"));
+const ClientSecurity = lazy(() => import("./pages/ClientSecurity"));
+const ClientWorkerDiscovery = lazy(() => import("./pages/ClientWorkerDiscovery"));
+const ClientContracts = lazy(() => import("./pages/ClientContracts"));
+const ClientLawyerServices = lazy(() => import("./pages/ClientLawyerServices"));
 
-// Owner routes - ALL direct imports for instant navigation
-import EnhancedOwnerDashboard from "./components/EnhancedOwnerDashboard";
-import OwnerProfile from "./pages/OwnerProfileNew";
-import OwnerSettings from "./pages/OwnerSettingsNew";
-import OwnerProperties from "./pages/OwnerProperties";
-import OwnerNewListing from "./pages/OwnerNewListing";
-import { ConversationalListingCreator } from "./components/ConversationalListingCreator";
-import OwnerLikedClients from "./pages/OwnerLikedClients";
-import OwnerInterestedClients from "./pages/OwnerInterestedClients";
-import OwnerContracts from "./pages/OwnerContracts";
-import OwnerSavedSearches from "./pages/OwnerSavedSearches";
-import OwnerSecurity from "./pages/OwnerSecurity";
-import OwnerPropertyClientDiscovery from "./pages/OwnerPropertyClientDiscovery";
-import OwnerMotoClientDiscovery from "./pages/OwnerMotoClientDiscovery";
-import OwnerBicycleClientDiscovery from "./pages/OwnerBicycleClientDiscovery";
-import OwnerViewClientProfile from "./pages/OwnerViewClientProfile";
-import OwnerFiltersExplore from "./pages/OwnerFiltersExplore";
-import OwnerLawyerServices from "./pages/OwnerLawyerServices";
-import OwnerDashboardNew from "./pages/OwnerDashboardNew";
+// Owner routes - lazy loaded
+const EnhancedOwnerDashboard = lazy(() => import("./components/EnhancedOwnerDashboard"));
+const OwnerProfile = lazy(() => import("./pages/OwnerProfileNew"));
+const OwnerSettings = lazy(() => import("./pages/OwnerSettingsNew"));
+const OwnerProperties = lazy(() => import("./pages/OwnerProperties"));
+const OwnerNewListing = lazy(() => import("./pages/OwnerNewListing"));
+const ConversationalListingCreator = lazy(() => import("./components/ConversationalListingCreator").then(m => ({ default: m.ConversationalListingCreator })));
+const OwnerLikedClients = lazy(() => import("./pages/OwnerLikedClients"));
+const OwnerInterestedClients = lazy(() => import("./pages/OwnerInterestedClients"));
+const OwnerContracts = lazy(() => import("./pages/OwnerContracts"));
+const OwnerSavedSearches = lazy(() => import("./pages/OwnerSavedSearches"));
+const OwnerSecurity = lazy(() => import("./pages/OwnerSecurity"));
+const OwnerPropertyClientDiscovery = lazy(() => import("./pages/OwnerPropertyClientDiscovery"));
+const OwnerMotoClientDiscovery = lazy(() => import("./pages/OwnerMotoClientDiscovery"));
+const OwnerBicycleClientDiscovery = lazy(() => import("./pages/OwnerBicycleClientDiscovery"));
+const OwnerViewClientProfile = lazy(() => import("./pages/OwnerViewClientProfile"));
+const OwnerFiltersExplore = lazy(() => import("./pages/OwnerFiltersExplore"));
+const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
+// REMOVED: OwnerDashboardNew was imported but never routed - dead code causing bundle bloat
 
-// Filter pages - direct imports for instant navigation
-import ClientFilters from "./pages/ClientFilters";
-import OwnerFilters from "./pages/OwnerFilters";
+// Filter pages - lazy loaded
+const ClientFilters = lazy(() => import("./pages/ClientFilters"));
+const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
-// Shared routes - direct imports for instant navigation
-import { MessagingDashboard } from "./pages/MessagingDashboard";
-import NotificationsPage from "./pages/NotificationsPage";
-import SubscriptionPackagesPage from "./pages/SubscriptionPackagesPage";
-import RetroRadioStation from "./pages/RetroRadioStation";
-import RadioPlaylists from "./pages/RadioPlaylists";
-import RadioFavorites from "./pages/RadioFavorites";
+// Shared routes - lazy loaded
+const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
+const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
+const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
+const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
+const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
 // Rare pages - lazy loaded (payment, camera, legal, public previews)
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
@@ -111,18 +113,29 @@ const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
 // Test pages
-import MockOwnersTestPage from "./pages/MockOwnersTestPage";
+const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
+
+// Tutorial page - public onboarding experience
+const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error) => {
+      // Global error logger for uncaught query errors (non-disruptive, dev-visible)
+      if (import.meta.env.DEV) {
+        console.warn('[QueryCache] Uncaught query error:', error);
+      }
+    }
+  }),
   defaultOptions: {
     queries: {
-      retry: 2,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      refetchOnWindowFocus: true,  // AUTO-SYNC: Refresh data when user returns to app
-      refetchOnMount: 'always',    // AUTO-SYNC: Always check for fresh data on mount
-      refetchOnReconnect: 'always',
-      staleTime: 2 * 60 * 1000, // 2 minutes - shorter so profiles stay fresh
-      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 1,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+      refetchOnWindowFocus: false, // Prevents flash/reloads when switching apps (critical for iOS)
+      refetchOnMount: true,        // Only refetch if data is stale (respects staleTime)
+      refetchOnReconnect: true,
+      staleTime: 5 * 60 * 1000, // 5 minutes - reduce unnecessary refetches
+      gcTime: 15 * 60 * 1000, // 15 minutes
       networkMode: 'offlineFirst', // Better offline support
     },
     mutations: {
@@ -134,6 +147,12 @@ const queryClient = new QueryClient({
 
 function NotificationWrapper({ children }: { children: React.ReactNode }) {
   useNotifications();
+  return <>{children}</>;
+}
+
+// Silently re-registers push subscription for users who already granted permission
+function PushNotificationWrapper({ children }: { children: React.ReactNode }) {
+  usePushNotifications(); // hooks into service worker & re-syncs subscription if needed
   return <>{children}</>;
 }
 
@@ -170,6 +189,7 @@ const App = () => (
             <UpdateWrapper>
             <ProfileSyncWrapper>
               <NotificationWrapper>
+              <PushNotificationWrapper>
                 {/* DISABLED: DepthParallaxBackground was causing performance issues */}
                 {/* <DepthParallaxBackground /> */}
                 
@@ -268,11 +288,15 @@ const App = () => (
                     {/* Test Pages */}
                     <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
 
+                    {/* Tutorial / Onboarding - Public Access */}
+                    <Route path="/tutorial" element={<TutorialSwipePage />} />
+
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
               </AppLayout>
+              </PushNotificationWrapper>
               </NotificationWrapper>
             </ProfileSyncWrapper>
             </UpdateWrapper>

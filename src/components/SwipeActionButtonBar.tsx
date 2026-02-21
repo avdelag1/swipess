@@ -24,7 +24,7 @@
 
 import { memo, useCallback, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Share2, RotateCcw, MessageCircle, Heart, ThumbsDown } from 'lucide-react';
+import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 
 interface SwipeActionButtonBarProps {
@@ -123,11 +123,11 @@ const ActionButton = memo(({
       borderColor: string;
     }> = {
       like: {
-        iconColor: '#22c55e',
-        bgColor: 'rgba(34, 197, 94, 0.08)',
-        pressedBg: 'rgba(34, 197, 94, 0.20)',
-        glowColor: 'rgba(34, 197, 94, 0.4)',
-        borderColor: 'rgba(34, 197, 94, 0.35)',
+        iconColor: '#ff6b35',
+        bgColor: 'rgba(255, 107, 53, 0.10)',
+        pressedBg: 'rgba(255, 107, 53, 0.25)',
+        glowColor: 'rgba(255, 107, 53, 0.5)',
+        borderColor: 'rgba(255, 107, 53, 0.35)',
       },
       dislike: {
         iconColor: '#ef4444',
@@ -182,9 +182,15 @@ const ActionButton = memo(({
       style={{
         width: buttonSize,
         height: buttonSize,
-        // NO FRAME: Just floating icons with subtle glow on press
-        backgroundColor: 'transparent',
-        border: 'none',
+        // Glass-pill background for tactile feel
+        backgroundColor: isPressed ? variantConfig.pressedBg : variantConfig.bgColor,
+        border: `1px solid ${variantConfig.borderColor}`,
+        borderRadius: '50%',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        boxShadow: isPressed
+          ? `inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)`
+          : `inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)`,
         // GPU acceleration
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
@@ -295,7 +301,7 @@ function SwipeActionButtonBarComponent({
           variant="like"
           ariaLabel="Like this listing"
         >
-          <Heart className="w-full h-full" fill="currentColor" />
+          <Flame className="w-full h-full" fill="currentColor" />
         </ActionButton>
 
         {/* 5. Message Button (Small) - Cyan */}
