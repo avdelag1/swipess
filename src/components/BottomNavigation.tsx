@@ -2,7 +2,7 @@
  * BOTTOM NAVIGATION BAR
  *
  * Full-width, ergonomic bottom navigation optimized for one-handed use.
- * DARK MODE: Clean dark background with white icons for premium look.
+ * TRANSPARENT: Floating design that works on any theme.
  */
 
 import { startTransition } from 'react';
@@ -170,7 +170,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
-                'hover:bg-white/10',
+                'bg-transparent hover:bg-white/10',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent'
               )}
@@ -211,17 +211,17 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               <Icon
                 className={cn(
                   'transition-colors duration-150',
-                  active ? 'text-orange-500' : 'text-white'
+                  active ? 'text-orange-300' : 'text-white'
                 )}
                 style={{
                   width: ICON_SIZE - 4,
                   height: ICON_SIZE - 4,
                 }}
-                strokeWidth={active ? 2.5 : 2}
+                strokeWidth={active ? 2.5 : 2.2}
               />
               <span className={cn(
                 'text-[10px] leading-tight font-medium transition-colors duration-150',
-                active ? 'text-orange-500' : 'text-white'
+                active ? 'text-orange-300' : 'text-white'
               )}>
                 {item.label}
               </span>

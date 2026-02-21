@@ -12,8 +12,8 @@ function buildVersionPlugin() {
     transformIndexHtml(html: string) {
       // Inject version, preconnect hints, and performance optimizations
       const preconnects = `
-    <link rel="preconnect" href="https://vxplzgwimqqimkpabvja.supabase.co" crossorigin>
-    <link rel="dns-prefetch" href="https://vxplzgwimqqimkpabvja.supabase.co">
+    <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
     <meta name="app-version" content="${buildTime}" />`;
       return html.replace('</head>', `${preconnects}\n</head>`);
     },

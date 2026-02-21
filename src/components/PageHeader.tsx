@@ -38,7 +38,7 @@ export function PageHeader({
             onClick={handleBack}
             whileTap={{ scale: 0.8 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            className="shrink-0 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 active:text-foreground"
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-white bg-white/15 hover:bg-white/25 hover:text-orange-200 transition-all duration-150 active:text-orange-300"
           >
             <ArrowLeft className="w-4 h-4" />
             Back

@@ -26,37 +26,11 @@ interface RadioContextType {
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
 
-// LocalStorage keys
-const RADIO_STATE_KEY = 'swipess_radio_state';
+export function RadioProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-function getInitialState(): RadioPlayerState {
-  try {
-    const saved = localStorage.getItem(RADIO_STATE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      // Restore currentStation with full object if we have the ID
-      if (parsed.currentStationId) {
-        const station = getStationById(parsed.currentStationId);
-        if (station) {
-          parsed.currentStation = station;
-        }
-      }
-      return {
-        isPlaying: false,
-        currentStation: null,
-        currentCity: 'tulum',
-        volume: 0.7,
-        isShuffle: false,
-        skin: 'modern',
-        favorites: [],
-        ...parsed,
-      };
-    }
-  } catch (e) {
-    logger.info('[RadioPlayer] Error loading state from localStorage:', e);
-  }
-  
-  return {
+  const [state, setState] = useState<RadioPlayerState>({
     isPlaying: false,
     currentStation: null,
     currentCity: 'tulum',
@@ -64,35 +38,13 @@ function getInitialState(): RadioPlayerState {
     isShuffle: false,
     skin: 'modern',
     favorites: []
-  };
-}
+  });
 
-export function RadioProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const mediaSessionRef = useRef<MediaSessionHandle | null>(null);
-  const [state, setState] = useState<RadioPlayerState>(getInitialState);
+  // Set loading to false immediately - don't block UI for preferences
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Save state to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      const toSave = {
-        currentCity: state.currentCity,
-        currentStationId: state.currentStation?.id || null,
-        volume: state.volume,
-        isShuffle: state.isShuffle,
-        skin: state.skin,
-        favorites: state.favorites,
-      };
-      localStorage.setItem(RADIO_STATE_KEY, JSON.stringify(toSave));
-    } catch (e) {
-      // localStorage might be full or unavailable
-    }
-  }, [state.currentCity, state.currentStation?.id, state.volume, state.isShuffle, state.skin, state.favorites]);
-
-  // Initialize audio element and Media Session API
+  // Initialize audio element once
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio();
@@ -100,26 +52,23 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current.preload = 'auto';
     }
 
-    // Initialize Media Session API for background playback
-    if ('mediaSession' in navigator) {
-      mediaSessionRef.current = new MediaSessionHandle(audioRef.current, state, setState);
-    }
-
+    // Cleanup on unmount
     return () => {
-      if (mediaSessionRef.current) {
-        mediaSessionRef.current.cleanup();
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
       }
     };
   }, []);
 
-  // Update audio volume
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = state.volume;
-    }
-  }, [state.volume]);
+  // Track failed stations to avoid infinite loops
+  const failedStationsRef = useRef<Set<string>>(new Set());
+  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle audio events
+  // Update listeners when state changes to have access to latest state
   useEffect(() => {
     if (!audioRef.current) return;
 
@@ -128,61 +77,80 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
 
     const handleAudioError = (e: Event) => {
-      logger.error('[RadioPlayer] Audio error:', e);
-      if (audioRef.current?.paused === false) {
-        setError('Stream unavailable');
-        setTimeout(() => {
-          changeStation('next');
-        }, 3000);
+      const currentStationId = state.currentStation?.id;
+      if (currentStationId) {
+        failedStationsRef.current.add(currentStationId);
+        logger.error(`[RadioPlayer] Station ${currentStationId} failed:`, e);
       }
+
+      setError('Station unavailable, switching...');
+
+      // Immediately cancel the current stream
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+
+      // Skip to next station immediately (reduced from 3000ms to 500ms)
+      setTimeout(() => {
+        setError(null);
+        changeStation('next');
+      }, 500);
     };
 
-    const handlePlay = () => {
-      setState(prev => ({ ...prev, isPlaying: true }));
+    const handleCanPlay = () => {
+      // Clear any loading timeout when stream successfully loads
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
       setError(null);
     };
 
-    const handlePause = () => {
-      setState(prev => ({ ...prev, isPlaying: false }));
+    const handleStalled = () => {
+      logger.warn('[RadioPlayer] Stream stalled');
+      setError('Buffering...');
     };
 
     audioRef.current.addEventListener('ended', handleTrackEnded);
     audioRef.current.addEventListener('error', handleAudioError);
-    audioRef.current.addEventListener('play', handlePlay);
-    audioRef.current.addEventListener('pause', handlePause);
+    audioRef.current.addEventListener('canplay', handleCanPlay);
+    audioRef.current.addEventListener('stalled', handleStalled);
 
     return () => {
       audioRef.current?.removeEventListener('ended', handleTrackEnded);
       audioRef.current?.removeEventListener('error', handleAudioError);
-      audioRef.current?.removeEventListener('play', handlePlay);
-      audioRef.current?.removeEventListener('pause', handlePause);
+      audioRef.current?.removeEventListener('canplay', handleCanPlay);
+      audioRef.current?.removeEventListener('stalled', handleStalled);
     };
-  }, []);
+  }, [state.isPlaying, state.currentStation, state.isShuffle, state.currentCity]);
 
   // Load user preferences from Supabase
   useEffect(() => {
     loadUserPreferences();
   }, [user?.id]);
 
-  // Update Media Session when state changes
+  // Update audio volume when state changes
   useEffect(() => {
-    if (mediaSessionRef.current) {
-      mediaSessionRef.current.update(state);
+    if (audioRef.current) {
+      audioRef.current.volume = state.volume;
     }
-  }, [state.currentStation, state.isPlaying]);
+  }, [state.volume]);
 
   const loadUserPreferences = async () => {
+    // Set default station immediately
     const defaultStations = getStationsByCity('tulum');
     const defaultStation = defaultStations.length > 0 ? defaultStations[0] : null;
     
     if (!user?.id) {
-      if (defaultStation && !state.currentStation) {
+      if (defaultStation) {
         setState(prev => ({ ...prev, currentStation: defaultStation }));
       }
       setLoading(false);
       return;
     }
 
+    // Set defaults immediately before fetching
     setState(prev => ({
       ...prev,
       currentStation: defaultStation || prev.currentStation
@@ -212,12 +180,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
         setState(prev => ({
           ...prev,
-          skin: (data.radio_skin as RadioSkin) || prev.skin,
+          skin: (data.radio_skin as RadioSkin) || 'modern',
           currentCity: city,
-          currentStation: currentStation || prev.currentStation,
-          volume: data.radio_volume ?? prev.volume,
-          isShuffle: data.radio_shuffle_mode ?? prev.isShuffle,
-          favorites: data.radio_favorite_stations || prev.favorites
+          currentStation: currentStation || defaultStation,
+          volume: data.radio_volume || 0.7,
+          isShuffle: data.radio_shuffle_mode || false,
+          favorites: data.radio_favorite_stations || []
         }));
       }
     } catch (err) {
@@ -248,19 +216,74 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     const targetStation = station || state.currentStation;
     if (!targetStation || !audioRef.current) return;
 
+    // Check if this station failed recently, if so skip it
+    if (failedStationsRef.current.has(targetStation.id)) {
+      logger.info(`[RadioPlayer] Skipping recently failed station: ${targetStation.id}`);
+      // Clear the failed status after some time
+      setTimeout(() => {
+        failedStationsRef.current.delete(targetStation.id);
+      }, 60000); // Allow retry after 1 minute
+      changeStation('next');
+      return;
+    }
+
     try {
+      // Clear any existing timeout
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+      }
+
       if (audioRef.current.src !== targetStation.streamUrl) {
         audioRef.current.src = targetStation.streamUrl;
         audioRef.current.load();
-        setState(prev => ({ ...prev, currentStation: targetStation }));
-        savePreferences({ currentStation: targetStation });
+
+        // Update station AND city (important for shuffle mode)
+        setState(prev => ({
+          ...prev,
+          currentStation: targetStation,
+          currentCity: targetStation.city // Update city to match the station
+        }));
+        savePreferences({
+          currentStation: targetStation,
+          currentCity: targetStation.city // Save the new city too
+        });
       }
 
+      // Set a timeout to detect if the stream takes too long to load
+      loadTimeoutRef.current = setTimeout(() => {
+        logger.warn(`[RadioPlayer] Station ${targetStation.id} took too long to load, skipping`);
+        failedStationsRef.current.add(targetStation.id);
+        setError('Station timeout, switching...');
+        setTimeout(() => {
+          setError(null);
+          changeStation('next');
+        }, 500);
+      }, 10000); // 10 second timeout
+
       await audioRef.current.play();
+      setState(prev => ({ ...prev, isPlaying: true }));
       setError(null);
+
+      // Clear timeout on successful play
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
     } catch (err) {
       logger.error('[RadioPlayer] Playback error:', err);
-      setError('Failed to play station');
+      failedStationsRef.current.add(targetStation.id);
+      setError('Failed to play station, switching...');
+
+      // Clear timeout on error
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+
+      setTimeout(() => {
+        setError(null);
+        changeStation('next');
+      }, 500);
     }
   }, [state.currentStation]);
 
@@ -372,85 +395,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   };
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
-}
-
-// Media Session API handler for background playback
-class MediaSessionHandle {
-  private audio: HTMLAudioElement;
-  private state: RadioPlayerState;
-  private setState: React.Dispatch<React.SetStateAction<RadioPlayerState>>;
-  private cleanup: () => void;
-
-  constructor(audio: HTMLAudioElement, state: RadioPlayerState, setState: React.Dispatch<React.SetStateAction<RadioPlayerState>>) {
-    this.audio = audio;
-    this.state = state;
-    this.setState = setState;
-    this.cleanup = () => {};
-
-    this.setupMediaSession();
-  }
-
-  private setupMediaSession() {
-    if (!('mediaSession' in navigator)) return;
-
-    const media = navigator.mediaSession as MediaSession;
-
-    // Set action handlers for lock screen controls
-    media.setActionHandler('play', () => {
-      this.audio.play().catch(() => {});
-    });
-
-    media.setActionHandler('pause', () => {
-      this.audio.pause();
-    });
-
-    media.setActionHandler('previoustrack', () => {
-      this.changeStation('prev');
-    });
-
-    media.setActionHandler('nexttrack', () => {
-      this.changeStation('next');
-    });
-
-    this.updateMetadata(this.state);
-  }
-
-  private changeStation(direction: 'next' | 'prev') {
-    // This will be handled by the context
-    const event = new CustomEvent('radio:changeStation', { detail: { direction } });
-    window.dispatchEvent(event);
-  }
-
-  private updateMetadata(state: RadioPlayerState) {
-    if (!('mediaSession' in navigator)) return;
-
-    const media = navigator.mediaSession as MediaSession;
-    
-    if (state.currentStation) {
-      media.metadata = new MediaMetadata({
-        title: state.currentStation.name,
-        artist: state.currentStation.genre,
-        artwork: [
-          { src: state.currentStation.logo || '/icons/icon-512.png', sizes: '512x512', type: 'image/png' }
-        ]
-      });
-    }
-  }
-
-  public update(state: RadioPlayerState) {
-    this.state = state;
-    this.updateMetadata(state);
-  }
-
-  public cleanup() {
-    if ('mediaSession' in navigator) {
-      const media = navigator.mediaSession as MediaSession;
-      media.setActionHandler('play', null);
-      media.setActionHandler('pause', null);
-      media.setActionHandler('previoustrack', null);
-      media.setActionHandler('nexttrack', null);
-    }
-  }
 }
 
 export function useRadio() {

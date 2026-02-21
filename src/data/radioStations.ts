@@ -67,6 +67,15 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
     gradient: 'linear-gradient(135deg, #001f3f 0%, #ffffff 50%, #ff4136 100%)',
     description: 'Parisian elegance'
   },
+  'italy': {
+    id: 'italy',
+    name: 'Italy',
+    primaryColor: '#009246',
+    secondaryColor: '#ffffff',
+    accentColor: '#ce2b37',
+    gradient: 'linear-gradient(135deg, #009246 0%, #ffffff 50%, #ce2b37 100%)',
+    description: 'Italian vibes and electronic energy'
+  },
   'podcasts': {
     id: 'podcasts',
     name: 'Podcasts',
@@ -178,15 +187,6 @@ export const radioStations: RadioStation[] = [
 
   // Ibiza - Electronic Paradise
   {
-    id: 'ibiza-global',
-    name: 'Ibiza Global Radio',
-    frequency: '97.6 FM',
-    streamUrl: 'https://s1.radio.co/s4e8c8c3d1/listen',
-    city: 'ibiza',
-    genre: 'Electronic',
-    description: 'The worlds most iconic electronic music station'
-  },
-  {
     id: 'ibiza-deep',
     name: 'Ibiza Deep House',
     frequency: '95.2 FM',
@@ -197,12 +197,12 @@ export const radioStations: RadioStation[] = [
   },
   {
     id: 'ibiza-club',
-    name: 'Ibiza Club Classics',
+    name: 'Ibiza Club Mix',
     frequency: '98.4 FM',
     streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'ibiza',
-    genre: 'Club Classics',
-    description: 'Iconic club tracks from the island legends'
+    genre: 'House/Techno',
+    description: 'Late night blend of deep house and electronic beats'
   },
   {
     id: 'ibiza-chill',
@@ -214,13 +214,13 @@ export const radioStations: RadioStation[] = [
     description: 'Sunset sounds for the beach clubs'
   },
   {
-    id: 'ibiza-trance',
-    name: 'Ibiza Trance',
+    id: 'ibiza-groove',
+    name: 'Ibiza Groove',
     frequency: '94.6 FM',
-    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'ibiza',
-    genre: 'Trance',
-    description: 'Progressive trance and melodic journeys'
+    genre: 'Downtempo',
+    description: 'Chilled ambient and downtempo grooves'
   },
   {
     id: 'ibiza-afterhours',
@@ -230,6 +230,15 @@ export const radioStations: RadioStation[] = [
     city: 'ibiza',
     genre: 'Ambient Electronic',
     description: 'Late night ambient for sunrise sessions'
+  },
+  {
+    id: 'ibiza-electronica',
+    name: 'Ibiza Electronica',
+    frequency: '97.6 FM',
+    streamUrl: 'https://ice1.somafm.com/tags-128-mp3',
+    city: 'ibiza',
+    genre: 'Electronic',
+    description: 'Experimental electronic and indie dance'
   },
 
   // Tulum/Playa del Carmen - Meditation, Chill, Ambient
@@ -420,16 +429,99 @@ export const radioStations: RadioStation[] = [
     description: 'New Music and World Sounds'
   },
 
-  // Talk Radio & Informational - News, Culture, Variety
+  // Italy - Electronic, Dance, and Italian Vibes
   {
-    id: 'talk-bbc-world',
-    name: 'BBC World Service',
-    frequency: 'Talk 1',
-    streamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',
-    city: 'podcasts',
-    genre: 'World News',
-    description: 'Global news, analysis and features from the BBC'
+    id: 'italy-m2o',
+    name: 'm2o',
+    frequency: '90.5 FM',
+    streamUrl: 'https://ice07.fluidstream.net/m2o.mp3',
+    city: 'italy',
+    genre: 'Dance/Electronic',
+    description: 'Italy\'s premier electronic dance music station'
   },
+  {
+    id: 'italy-deejay',
+    name: 'Radio DeeJay',
+    frequency: '102.7 FM',
+    streamUrl: 'https://radiodeejay-lh.akamaihd.net/i/RadioDeejay_Live_1@189857/master.m3u8',
+    city: 'italy',
+    genre: 'Dance/Pop',
+    description: 'Italy\'s legendary dance and entertainment station'
+  },
+  {
+    id: 'italy-105',
+    name: 'Radio 105',
+    frequency: '105.0 FM',
+    streamUrl: 'https://icy.unitedradio.it/Radio105.mp3',
+    city: 'italy',
+    genre: 'Pop/Rock',
+    description: 'Contemporary hits and Italian music'
+  },
+  {
+    id: 'italy-rds',
+    name: 'RDS 100% Grandi Successi',
+    frequency: '100.8 FM',
+    streamUrl: 'https://stream.rds.radio/audio/rds.stream_aac/playlist.m3u8',
+    city: 'italy',
+    genre: 'Hits',
+    description: 'Italy\'s greatest hits station'
+  },
+  {
+    id: 'italy-virgin',
+    name: 'Virgin Radio Italy',
+    frequency: '104.5 FM',
+    streamUrl: 'https://icestreaming.rai.it/5.mp3',
+    city: 'italy',
+    genre: 'Rock/Alternative',
+    description: 'Rock and alternative hits'
+  },
+  {
+    id: 'italy-capital',
+    name: 'Radio Capital',
+    frequency: '97.7 FM',
+    streamUrl: 'https://radiocapital-lh.akamaihd.net/i/RadioCapital_Live_1@196312/master.m3u8',
+    city: 'italy',
+    genre: 'Rock/Pop',
+    description: 'Italian rock and international hits'
+  },
+  {
+    id: 'italy-monte-carlo',
+    name: 'Radio Monte Carlo',
+    frequency: '93.5 FM',
+    streamUrl: 'https://icy.unitedradio.it/RMC.mp3',
+    city: 'italy',
+    genre: 'Easy Listening',
+    description: 'Smooth Italian music and international classics'
+  },
+  {
+    id: 'italy-rtl',
+    name: 'RTL 102.5',
+    frequency: '102.5 FM',
+    streamUrl: 'https://streamingv2.shoutcast.com/rtl-1025',
+    city: 'italy',
+    genre: 'Pop/Dance',
+    description: 'Very Normal People - Italy\'s most listened radio'
+  },
+  {
+    id: 'italy-kiss-kiss',
+    name: 'Radio Kiss Kiss',
+    frequency: '96.9 FM',
+    streamUrl: 'https://ice07.fluidstream.net/KissKiss.mp3',
+    city: 'italy',
+    genre: 'Pop/Dance',
+    description: 'Italian and international pop hits'
+  },
+  {
+    id: 'italy-italia',
+    name: 'Radio Italia',
+    frequency: '98.8 FM',
+    streamUrl: 'https://radioitalia.stream.laut.fm/radioitalia',
+    city: 'italy',
+    genre: 'Italian Pop',
+    description: 'Solo musica italiana - Only Italian music'
+  },
+
+  // Talk Radio & Informational - News, Culture, Variety
   {
     id: 'talk-fip',
     name: 'FIP',

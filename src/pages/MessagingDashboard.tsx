@@ -18,7 +18,7 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
@@ -400,7 +400,7 @@ export function MessagingDashboard() {
         variant="conversation-limit"
       />
 
-      <div className="w-full pb-24 min-h-screen bg-background">
+      <div className="w-full pb-24 bg-[#0a0a0a] min-h-screen min-h-dvh">
         <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
           {/* Clean Header */}
           <div className="flex items-center gap-3 mb-6">

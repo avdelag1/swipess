@@ -1003,6 +1003,7 @@ export type Database = {
           tokens: number | null
           name: string
           package_category: string
+          paypal_link: string | null
           price: number
           seeker_insights: boolean | null
           tier: string
@@ -1025,6 +1026,7 @@ export type Database = {
           tokens?: number | null
           name: string
           package_category?: string
+          paypal_link?: string | null
           price?: number
           seeker_insights?: boolean | null
           tier?: string
@@ -1047,6 +1049,7 @@ export type Database = {
           tokens?: number | null
           name?: string
           package_category?: string
+          paypal_link?: string | null
           price?: number
           seeker_insights?: boolean | null
           tier?: string

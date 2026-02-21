@@ -19,7 +19,7 @@ import {
   Grid3X3,
   Edit3,
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { CameraSettingsPanel } from '@/components/CameraSettingsPanel';
 import { CameraFiltersPanel } from '@/components/CameraFiltersPanel';
 import { PhotoEditor } from '@/components/PhotoEditor';

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Bell, BellRing, MessageSquare, Flame, Crown, X } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 
 const NOTIFICATION_PROMPT_KEY = 'notification_prompt_dismissed';

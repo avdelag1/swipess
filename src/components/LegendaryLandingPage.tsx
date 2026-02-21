@@ -60,51 +60,53 @@ function LegendaryLandingPage() {
     >
       {/* Live Star Timelapse Background */}
       <StarFieldBackground />
-      
+
+      {/* Fade out gradient from TOP - vanishing effect */}
+      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/80 to-transparent z-10 pointer-events-none" />
+
+      {/* Fade out gradient from BOTTOM - vanishing effect */}
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent z-10 pointer-events-none" />
+
       {/* Main Content */}
-      <div className="relative z-20 text-center space-y-4 sm:space-y-6 max-w-2xl w-full px-2 sm:px-4">
-        {/* Swipable Swipess Logo - Only the logo moves */}
-        <div className="space-y-3 text-center">
-          <motion.div
-            data-swipe-logo
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.9}
-            dragMomentum={false}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-            onClick={handleTap}
-            style={{
-              x,
-              opacity: logoOpacity,
-              scale: logoScale,
-              filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
-            }}
-            whileTap={{ scale: 0.98 }}
-            className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent"
-          >
-            <SwipessLogoWithOrb size="4xl" className="drop-shadow-2xl" orbActive={true} />
-          </motion.div>
-
-          <motion.p
-            className="text-white text-lg sm:text-xl md:text-2xl font-medium text-center px-2"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-          >
-            Swipe and find your perfect deal
-          </motion.p>
-
-          {/* Swipe hint */}
-          <motion.p
-            className="text-white/60 text-sm font-medium"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            Swipe or tap Swipess to login or signup
-          </motion.p>
+      <div className="relative z-20 text-center max-w-4xl w-full px-4 min-h-[400px] flex flex-col items-center justify-center">
+        {/* Background slogan - BEHIND the logo (visible in background) */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white/10 whitespace-nowrap tracking-tight truncate select-none">
+            swipes or tap to connect
+          </h1>
         </div>
+
+        {/* Swipable Swipess Logo - On TOP of background slogan */}
+        <motion.div
+          data-swipe-logo
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.9}
+          dragMomentum={false}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onClick={handleTap}
+          style={{
+            x,
+            opacity: logoOpacity,
+            scale: logoScale,
+            filter: useTransform(logoBlur, (v) => `blur(${v}px)`)
+          }}
+          whileTap={{ scale: 0.95 }}
+          className="cursor-grab active:cursor-grabbing focus:outline-none touch-none select-none bg-transparent z-10 relative"
+        >
+          <SwipessLogoWithOrb size="4xl" className="drop-shadow-2xl" orbActive={true} />
+        </motion.div>
+
+        {/* Main slogan below logo */}
+        <motion.p
+          className="text-white/80 text-xl sm:text-2xl md:text-3xl font-medium text-center px-4 mt-6 z-10 relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+        >
+          swipes or tap to connect
+        </motion.p>
 
         {/* Bottom Info Section */}
         <motion.div
