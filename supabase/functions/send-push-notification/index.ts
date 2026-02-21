@@ -65,7 +65,7 @@ async function buildVapidAuthHeader(
   // Import private key for signing
   const cryptoKey = await crypto.subtle.importKey(
     "raw",
-    privateKeyBytes,
+    privateKeyBytes as unknown as ArrayBuffer,
     { name: "ECDSA", namedCurve: "P-256" },
     false,
     ["sign"]
@@ -101,7 +101,7 @@ async function encryptPayload(
   // Import client's public key
   const clientPublicKey = await crypto.subtle.importKey(
     "raw",
-    urlB64ToUint8Array(p256dhKey),
+    urlB64ToUint8Array(p256dhKey) as unknown as ArrayBuffer,
     { name: "ECDH", namedCurve: "P-256" },
     false,
     []
@@ -136,7 +136,7 @@ async function encryptPayload(
 
   // Use Web Crypto HKDF
   const ikm = new Uint8Array([...new Uint8Array(sharedBits), ...authBytes]);
-  const baseKey = await crypto.subtle.importKey("raw", ikm, "HKDF", false, ["deriveBits"]);
+  const baseKey = await crypto.subtle.importKey("raw", ikm as unknown as ArrayBuffer, "HKDF", false, ["deriveBits"]);
 
   const prk = await crypto.subtle.deriveBits(
     { name: "HKDF", hash: "SHA-256", salt: authBytes, info: authInfo },
@@ -144,7 +144,7 @@ async function encryptPayload(
     256
   );
 
-  const prkKey = await crypto.subtle.importKey("raw", prk, "HKDF", false, ["deriveBits"]);
+  const prkKey = await crypto.subtle.importKey("raw", prk as unknown as ArrayBuffer, "HKDF", false, ["deriveBits"]);
 
   const contentEncryptionKey = await crypto.subtle.deriveBits(
     { name: "HKDF", hash: "SHA-256", salt, info: keyInfo },
@@ -159,7 +159,7 @@ async function encryptPayload(
   );
 
   // AES-GCM encrypt
-  const encKey = await crypto.subtle.importKey("raw", contentEncryptionKey, "AES-GCM", false, ["encrypt"]);
+  const encKey = await crypto.subtle.importKey("raw", contentEncryptionKey as unknown as ArrayBuffer, "AES-GCM", false, ["encrypt"]);
 
   // Pad payload to 2048 bytes
   const padded = new Uint8Array(2 + payloadBytes.length);
@@ -217,7 +217,7 @@ async function sendWebPush(
         TTL: "86400",
         Urgency: "normal",
       },
-      body,
+      body: body as unknown as BodyInit,
     });
 
     return { ok: response.ok || response.status === 201, status: response.status };
