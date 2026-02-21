@@ -1,91 +1,74 @@
 
-# Three Fixes + Premium Messages Redesign
 
-## Issues Identified
+# Fix Shade Line, Google Sign-In, Performance + Add MiniMax API Key
 
-### 1. "Remove from Likes" Button — Transparent/Invisible (screenshot shows it)
-The dropdown menu `DropdownMenuContent` in `ClientLikedProperties.tsx` uses the default Radix UI styles which inherit from the app's dark theme but the dropdown background is either transparent or very dark without a solid visible background. The `DropdownMenuItem` with "Remove from Likes" (red text) renders over the card image with no visible background panel.
+## 1. Remove the "Shade Line" (Black Gradient Overlay)
 
-**Fix:** Add explicit background styling to the `DropdownMenuContent` and ensure it has a solid dark glass surface with proper border.
+**The Problem:** In `DashboardLayout.tsx` (line 586), there's a fixed `div` with `bg-gradient-to-t from-black/90 via-black/40 to-transparent` that creates a dark gradient band above the bottom navigation. In the white-matte (light) theme, this looks like an ugly dark stripe across the page.
 
-### 2. Back Button on Profile — Not Working / Invisible
-In `ClientProfileNew.tsx` (line 82-90), the Back button has `text-white/50` color — it's nearly invisible. It also calls `navigate(-1)` but on a profile page that's the entry point, there may be no history to go back to.
+**The Fix:** Make this gradient theme-aware. In dark themes it stays dark; in white-matte theme it uses a light gradient (`from-white/90 via-white/40`). Alternatively, remove it entirely since the bottom navigation already has its own gradient background in both themes.
 
-**Fix:** Make the back button visible with a proper glass-pill style (matching the rest of the app). Add a smart fallback that navigates to the dashboard if there's no history.
-
-### 3. MessagingDashboard — Full Premium Redesign
-The current messages page is functional but uses plain ghost buttons, a flat search bar, and generic list rows. It needs to feel cinematic and immersive like the rest of the app.
+**Recommendation:** Remove it completely -- the bottom nav gradient already handles contrast.
 
 ---
 
-## Implementation Plan
+## 2. Fix Google Sign-In
 
-### Fix 1: "Remove from Likes" Dropdown — `ClientLikedProperties.tsx`
-The `DropdownMenuContent` at line ~405 needs an explicit solid background. Also, the whole "remove" action should be more premium — not hidden in a tiny dropdown but accessible while still clean.
+**The Problem:** The app currently calls `supabase.auth.signInWithOAuth()` directly (in `src/hooks/useAuth.tsx` line 477). Lovable Cloud requires using `lovable.auth.signInWithOAuth()` from the `@lovable.dev/cloud-auth-js` package instead.
 
-Changes:
-- Add `className` to `DropdownMenuContent`: solid dark glass background `bg-[#1a1a1a] border-white/10`
-- Ensure the `DropdownMenuItem` for "Remove from Likes" has visible red styling
-- The ⋮ trigger button already has dark background (rgba 0,0,0,0.55) — keep that
+**The Fix:**
+- Use the Configure Social Login tool to set up Google OAuth (this generates the `src/integrations/lovable` module automatically)
+- Update `useAuth.tsx` to import and use `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })` instead of `supabase.auth.signInWithOAuth()`
 
-### Fix 2: Back Button Visibility — `ClientProfileNew.tsx` + `OwnerProfileNew.tsx`
-Current back button (line 82-90) is `text-white/50` — barely visible.
+---
 
-New style — glass-pill back button matching the `PageHeader` component style:
-- `px-4 py-2 rounded-xl bg-white/8 border border-white/12 text-white/90`
-- Icon + "Back" text
-- `navigate(-1)` with fallback to dashboard
+## 3. Fix Slow Page Transitions / Landing Page Crash Feel
 
-### Fix 3: MessagingDashboard — Premium Redesign (`MessagingDashboard.tsx` + `MessagingInterface.tsx`)
+**The Problem:** When tapping the logo on the landing page, the `LegendaryLandingPage` component does a swipe/drag animation exit, then the `AuthView` mounts with its own entrance animation. Combined with heavy `framer-motion` animations (parallax, star fields, background effects), this creates a janky/crashing feel.
 
-#### Conversation List Page (MessagingDashboard.tsx):
-Current: flat ghost button rows, plain search, generic header
+**The Fix:**
+- Simplify the landing-to-auth transition in `LegendaryLandingPage.tsx` -- reduce exit animation duration and remove heavy visual effects during transition
+- In `DashboardLayout.tsx`, the `motion.div` with `key={location.pathname}` (line 576) causes a full re-mount + fade animation on every route change. Reduce the fade duration from 0.12s to near-instant for non-dashboard routes
+- Ensure `AnimatePresence` mode is set to `"wait"` to prevent two pages rendering simultaneously
 
-New Design:
-- **Header:** Large `text-3xl font-bold` "Messages" title with unread count badge in brand gradient pill. No back arrow (messages is a main nav tab — keep it as a page title)
-- **Search bar:** Premium glass-pill — `bg-white/6 border border-white/10 backdrop-blur-md rounded-2xl` with animated focus glow
-- **Conversation rows:** Elevated glass card rows instead of ghost buttons:
-  - `bg-white/4 border border-white/8 rounded-2xl px-4 py-3.5` per row
-  - `hover:bg-white/6 active:scale-[0.99]`
-  - Gradient avatar ring (existing — keep)
-  - Bold name `text-[15px] font-semibold`
-  - Last message preview in `text-muted-foreground`
-  - Unread indicator: brand gradient dot `bg-gradient-to-r from-[#ec4899] to-[#f97316]`
-  - Time stamp right-aligned in `text-[11px] text-white/30`
-  - Category icon badge for the listing type (Home/Bike/Moto) shown as tiny pill
-- **Empty state:** Centered with large gradient icon circle and descriptive text
-- **Stats row:** At the top below search, show `X active conversations` as a small pill
+---
 
-#### Individual Chat View (MessagingInterface.tsx):
-Current: plain Card wrapper, generic input
+## 4. Add MiniMax API Key
 
-New Design:
-- **Chat header:** Deeper glassmorphic bar `bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/8`
-  - Back chevron button gets a visible glass-pill: `bg-white/8 border border-white/12 rounded-xl`
-  - Avatar stays with gradient ring (existing — good)
-  - Name larger `text-[15px] font-semibold`
-  - Status indicator: "Online" in emerald with pulsing dot
-  - Right actions: Rating star + Info button in glass-pill circles
-- **Message bubbles:** Keep existing gradient colors (they're great) — slightly increase max-width to `80%`
-- **Empty state:** Premium centered card with gradient icon and "Start the conversation" copy
-- **Input area:** More immersive — `bg-[#111]/90 backdrop-blur-xl border-t border-white/8 px-4 py-3`
-  - Input field: pill shape `rounded-full bg-white/8 border border-white/12 text-white placeholder:text-white/40`
-  - Send button: brand gradient circle when active, glass-muted when inactive
+**The Problem:** The user wants to use MiniMax as the AI provider for the app's AI chat features. The `MINIMAX_API_KEY` secret already exists in the project but may need updating with the new key the user provided.
+
+**The Fix:**
+- Update the `MINIMAX_API_KEY` secret with the provided key: `sk-cp-57QWsEbXewjJGETRgCYfzLSj5DABY-Sf4JqROVk4OEeQ8smWWmy3Tax7kz8jtNKy-TfEdZzh3B57NX0PR-wDF4pq80k5LML90rhcSyEsH0vqYKn5AfQzPn0`
+- The `ai-orchestrator` edge function already has MiniMax as a fallback provider -- it can be promoted to primary or kept as fallback depending on preference
+- The Lovable AI Gateway (LOVABLE_API_KEY) is already configured as primary -- both can coexist
+
+---
+
+## 5. Fix Build Errors in `send-push-notification`
+
+**The Problem:** TypeScript errors with `Uint8Array` type incompatibility in the Deno edge function. The `crypto.subtle.importKey` calls fail because `Uint8Array<ArrayBufferLike>` isn't assignable to `BufferSource`.
+
+**The Fix:** Cast `Uint8Array` instances to `Uint8Array<ArrayBuffer>` using `.buffer` access, or use `new Uint8Array(array.buffer)` pattern to satisfy the Deno type checker. Specifically:
+- Line 68: Cast `privateKeyBytes` with `as unknown as BufferSource`
+- Line 104: Cast `urlB64ToUint8Array(p256dhKey)` similarly
+- Line 142: Cast `authBytes` and `authInfo` in HKDF params
+- Line 220: Cast `body` to `BodyInit`
 
 ---
 
 ## Files to Change
 
-1. **`src/pages/ClientLikedProperties.tsx`** — Fix DropdownMenuContent background (1 small change)
-2. **`src/pages/ClientProfileNew.tsx`** — Fix back button visibility + style  
-3. **`src/pages/OwnerProfileNew.tsx`** — Same back button fix
-4. **`src/pages/MessagingDashboard.tsx`** — Full premium redesign of conversation list
-5. **`src/components/MessagingInterface.tsx`** — Premium header + input area redesign
+| File | Change |
+|------|--------|
+| `src/components/DashboardLayout.tsx` | Remove the black gradient overlay div (line 584-589) |
+| `src/hooks/useAuth.tsx` | Update `signInWithOAuth` to use `lovable.auth.signInWithOAuth()` |
+| `src/components/LegendaryLandingPage.tsx` | Simplify exit animation timing for snappier transitions |
+| `supabase/functions/send-push-notification/index.ts` | Fix Uint8Array type casting for Deno compatibility |
+| `supabase/functions/ai-orchestrator/index.ts` | No changes needed -- MiniMax fallback already implemented |
 
 ## What Stays Unchanged
-- All conversation logic, real-time subscriptions, message sending
-- Message bubble colors and shapes (they already look great)
-- Routing and back navigation logic
-- `@ts-nocheck` pragma (files already have it where needed)
-- VirtualizedMessageList component (performance-critical, keep as-is)
-- All upgrade dialogs and MessageActivation flows
+- All swipe physics, routing logic, and component architecture
+- The AI orchestrator's dual-provider strategy (Gemini primary, MiniMax fallback)
+- All existing theme variables and CSS tokens
+- Database schema and RLS policies
+
