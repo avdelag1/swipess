@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, SlidersHorizontal, DollarSign, Calendar, Heart, Users, User, Check,
-  ChevronDown, Shield, Activity, Briefcase, UserCircle
+  ChevronDown, Shield, Activity, Briefcase, UserCircle, Sparkles, Home,
+  Bike, CircleDot, Wrench, Target, Clock, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -12,25 +13,37 @@ import { cn } from '@/lib/utils';
 
 /**
  * CINEMATIC OWNER FILTERS — Premium Bottom Sheet
- *
- * Focus: WHO the owner wants to attract
- * - Budget range slider
- * - Move-in timeframe segmented control
- * - Gender & client type pills
- * - Match score threshold
- * - Active-only toggle
- * - Expandable sections
- * - Glassmorphic 32px rounded sheet
+ * 
+ * Styled to match client filters:
+ * - Glassmorphic bottom sheet with blur backdrop
+ * - Category selection with emoji cards
+ * - Segmented controls
+ * - Expandable/collapsible filter sections
+ * - Animated pill toggles
+ * - Sticky apply button with active count
+ * - 32px rounded corners, premium shadows
  */
 
 interface OwnerFilters {
   budgetMin?: number;
   budgetMax?: number;
-  moveInTimeframe?: 'immediate' | '1-month' | '3-months' | 'flexible' | 'any';
+  moveInTimeframe?: 'immediate' | '1-month' | '3-month' | 'flexible' | 'any';
   clientGender?: 'all' | 'male' | 'female' | 'other';
   clientType?: 'all' | 'individual' | 'family' | 'business';
   matchScoreMin?: number;
   activeOnly?: boolean;
+  // New demographic filters
+  minAge?: number;
+  maxAge?: number;
+  nationality?: string;
+  languages?: string[];
+  lifestyleTags?: string[];
+  occupation?: string;
+  allowsPets?: boolean;
+  allowsChildren?: boolean;
+  smokingHabit?: string;
+  drinkingHabit?: string;
+  cleanlinessLevel?: string;
 }
 
 interface NewOwnerFiltersProps {
@@ -40,7 +53,35 @@ interface NewOwnerFiltersProps {
   currentFilters?: OwnerFilters;
 }
 
-// Expandable section
+// Client type categories with colors matching client side
+const clientTypes = [
+  { id: 'all', label: 'All Types', emoji: '👥', description: 'Show everyone' },
+  { id: 'individual', label: 'Individual', emoji: '👤', description: 'Single person' },
+  { id: 'family', label: 'Family', emoji: '👨‍👩‍👧', description: 'Family looking' },
+  { id: 'business', label: 'Business', emoji: '🏢', description: 'Company needs' },
+];
+
+// Gender options with emojis
+const genderOptions = [
+  { id: 'all', label: 'All', emoji: '🌍', description: 'Show everyone' },
+  { id: 'male', label: 'Men', emoji: '👨', description: 'Male clients' },
+  { id: 'female', label: 'Women', emoji: '👩', description: 'Female clients' },
+  { id: 'other', label: 'Other', emoji: '🧑', description: 'Non-binary' },
+];
+
+// Lifestyle tags
+const lifestyleTags = [
+  'Digital Nomad', 'Professional', 'Student', 'Family-Oriented',
+  'Party-Friendly', 'Quiet', 'Social', 'Health-Conscious', 'Pet Lover', 'Eco-Friendly'
+];
+
+// Occupations
+const occupations = [
+  'Remote Worker', 'Entrepreneur', 'Student', 'Teacher',
+  'Healthcare', 'Tech', 'Creative', 'Hospitality', 'Finance', 'Retired'
+];
+
+// Expandable section component (matching client style)
 function FilterSection({
   title,
   icon: Icon,
@@ -89,7 +130,7 @@ function FilterSection({
   );
 }
 
-// Segmented control
+// Segmented control (matching client style)
 function SegmentedControl<T extends string>({
   options,
   value,
@@ -122,24 +163,26 @@ function SegmentedControl<T extends string>({
   );
 }
 
-// Option card with icon
-function OptionCard({
+// Category card with emoji (matching client style)
+function CategoryCard({
   label,
-  icon: Icon,
+  emoji,
+  description,
   isActive,
   onClick,
 }: {
   label: string;
-  icon: typeof User;
+  emoji: string;
+  description?: string;
   isActive: boolean;
   onClick: () => void;
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.93 }}
       onClick={onClick}
       className={cn(
-        "relative flex flex-col items-center gap-1.5 py-3 px-3 rounded-2xl border transition-all duration-200",
+        "relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border transition-all duration-200",
         isActive
           ? "border-primary bg-primary/10 shadow-sm"
           : "border-border/40 bg-card/40 hover:border-primary/30"
@@ -154,14 +197,108 @@ function OptionCard({
           <Check className="h-2.5 w-2.5 text-primary-foreground" />
         </motion.div>
       )}
-      <Icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
-      <span className={cn("text-[11px] font-semibold", isActive ? "text-primary" : "text-foreground")}>{label}</span>
+      <span className="text-lg">{emoji}</span>
+      <span className="text-[10px] font-semibold text-foreground">{label}</span>
+      {description && (
+        <span className="text-[8px] text-muted-foreground text-center">{description}</span>
+      )}
+    </motion.button>
+  );
+}
+
+// Pill toggle (matching client style)
+function PillToggle({
+  label,
+  emoji,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  emoji?: string;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className={cn(
+        "py-2 px-3.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 border",
+        isActive
+          ? "bg-primary/15 border-primary/40 text-primary"
+          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30"
+      )}
+    >
+      {emoji && <span>{emoji}</span>}
+      {label}
+      {isActive && <X className="h-3 w-3 ml-0.5" />}
+    </motion.button>
+  );
+}
+
+// Toggle switch (matching client style)
+function ToggleSwitch({
+  label,
+  icon: Icon,
+  isActive,
+  onClick,
+}: {
+  label: string;
+  icon?: typeof User;
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={cn(
+        "w-full flex items-center justify-between p-3 rounded-xl border transition-all duration-200",
+        isActive
+          ? "border-primary bg-primary/10"
+          : "border-border/40 bg-card/40 hover:border-primary/30"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        {Icon && <Icon className="h-4 w-4 text-primary" />}
+        <span className="text-sm font-medium text-foreground">{label}</span>
+      </div>
+      <div
+        className={cn(
+          "w-10 h-6 rounded-full transition-colors duration-200 relative",
+          isActive ? "bg-primary" : "bg-muted"
+        )}
+      >
+        <motion.div
+          animate={{ x: isActive ? 16 : 2 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+          className="absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm"
+        />
+      </div>
     </motion.button>
   );
 }
 
 export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }: NewOwnerFiltersProps) {
   const [filters, setFilters] = useState<OwnerFilters>(currentFilters);
+  const activeLifestyleTags = new Set(filters.lifestyleTags || []);
+  const activeLanguages = new Set(filters.languages || []);
+
+  const handleLifestyleToggle = (tag: string) => {
+    setFilters(prev => {
+      const set = new Set(prev.lifestyleTags || []);
+      if (set.has(tag)) set.delete(tag); else set.add(tag);
+      return { ...prev, lifestyleTags: Array.from(set) };
+    });
+  };
+
+  const handleLanguageToggle = (lang: string) => {
+    setFilters(prev => {
+      const set = new Set(prev.languages || []);
+      if (set.has(lang)) set.delete(lang); else set.add(lang);
+      return { ...prev, languages: Array.from(set) };
+    });
+  };
 
   const handleApply = () => { onApply(filters); onClose(); };
   const handleReset = () => { setFilters({}); };
@@ -174,6 +311,16 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
     if (filters.clientType && filters.clientType !== 'all') c++;
     if (filters.matchScoreMin && filters.matchScoreMin > 0) c++;
     if (filters.activeOnly) c++;
+    if (filters.minAge || filters.maxAge) c++;
+    if (filters.nationality) c++;
+    if (filters.languages && filters.languages.length > 0) c++;
+    if (filters.lifestyleTags && filters.lifestyleTags.length > 0) c++;
+    if (filters.occupation) c++;
+    if (filters.allowsPets !== undefined && filters.allowsPets !== true) c++;
+    if (filters.allowsChildren !== undefined && filters.allowsChildren !== true) c++;
+    if (filters.smokingHabit && filters.smokingHabit !== 'any') c++;
+    if (filters.drinkingHabit && filters.drinkingHabit !== 'any') c++;
+    if (filters.cleanlinessLevel && filters.cleanlinessLevel !== 'any') c++;
     return c;
   }, [filters]);
 
@@ -205,7 +352,7 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
           <div className="flex items-center justify-between px-5 pb-4 pt-2">
             <div className="flex items-center gap-3">
               <div className="rounded-2xl bg-primary/10 p-2.5">
-                <SlidersHorizontal className="h-5 w-5 text-primary" />
+                <Filter className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <h2 className="text-base font-bold text-foreground">Client Filters</h2>
@@ -235,6 +382,40 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
           <ScrollArea className="max-h-[65vh]">
             <div className="px-5 pb-28 space-y-4">
 
+              {/* Client Type Selection — Emoji cards like client filters */}
+              <div className="space-y-2.5">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Client Type</span>
+                <div className="grid grid-cols-4 gap-2">
+                  {clientTypes.map((ct) => (
+                    <CategoryCard
+                      key={ct.id}
+                      label={ct.label}
+                      emoji={ct.emoji}
+                      description={ct.description}
+                      isActive={!filters.clientType || filters.clientType === 'all' ? ct.id === 'all' : filters.clientType === ct.id}
+                      onClick={() => setFilters({ ...filters, clientType: ct.id as any })}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Gender Selection — Emoji cards */}
+              <div className="space-y-2.5">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Gender</span>
+                <div className="grid grid-cols-4 gap-2">
+                  {genderOptions.map((g) => (
+                    <CategoryCard
+                      key={g.id}
+                      label={g.label}
+                      emoji={g.emoji}
+                      description={g.description}
+                      isActive={!filters.clientGender || filters.clientGender === 'all' ? g.id === 'all' : filters.clientGender === g.id}
+                      onClick={() => setFilters({ ...filters, clientGender: g.id as any })}
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* Budget Range */}
               <FilterSection title="Client Budget" icon={DollarSign} defaultOpen>
                 <Slider
@@ -256,13 +437,13 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
               </FilterSection>
 
               {/* Move-in Timeframe */}
-              <FilterSection title="Move-in Timeframe" icon={Calendar} defaultOpen>
+              <FilterSection title="Move-in Timeframe" icon={Clock} defaultOpen>
                 <SegmentedControl
                   options={[
                     { id: 'any' as const, label: 'Any' },
                     { id: 'immediate' as const, label: 'Now' },
                     { id: '1-month' as const, label: '1 Mo' },
-                    { id: '3-months' as const, label: '3 Mo' },
+                    { id: '3-month' as const, label: '3 Mo' },
                     { id: 'flexible' as const, label: 'Flex' },
                   ]}
                   value={filters.moveInTimeframe}
@@ -270,68 +451,58 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
                 />
               </FilterSection>
 
-              {/* Gender */}
-              <FilterSection title="Gender Preference" icon={Users}>
-                <div className="grid grid-cols-4 gap-2">
-                  <OptionCard
-                    label="All"
-                    icon={Users}
-                    isActive={!filters.clientGender || filters.clientGender === 'all'}
-                    onClick={() => setFilters({ ...filters, clientGender: 'all' })}
-                  />
-                  <OptionCard
-                    label="Men"
-                    icon={User}
-                    isActive={filters.clientGender === 'male'}
-                    onClick={() => setFilters({ ...filters, clientGender: 'male' })}
-                  />
-                  <OptionCard
-                    label="Women"
-                    icon={UserCircle}
-                    isActive={filters.clientGender === 'female'}
-                    onClick={() => setFilters({ ...filters, clientGender: 'female' })}
-                  />
-                  <OptionCard
-                    label="Other"
-                    icon={User}
-                    isActive={filters.clientGender === 'other'}
-                    onClick={() => setFilters({ ...filters, clientGender: 'other' })}
-                  />
-                </div>
-              </FilterSection>
-
-              {/* Client Type */}
-              <FilterSection title="Client Type" icon={Briefcase}>
-                <div className="grid grid-cols-4 gap-2">
-                  <OptionCard
-                    label="All"
-                    icon={Users}
-                    isActive={!filters.clientType || filters.clientType === 'all'}
-                    onClick={() => setFilters({ ...filters, clientType: 'all' })}
-                  />
-                  <OptionCard
-                    label="Individual"
-                    icon={User}
-                    isActive={filters.clientType === 'individual'}
-                    onClick={() => setFilters({ ...filters, clientType: 'individual' })}
-                  />
-                  <OptionCard
-                    label="Family"
-                    icon={Users}
-                    isActive={filters.clientType === 'family'}
-                    onClick={() => setFilters({ ...filters, clientType: 'family' })}
-                  />
-                  <OptionCard
-                    label="Business"
-                    icon={Briefcase}
-                    isActive={filters.clientType === 'business'}
-                    onClick={() => setFilters({ ...filters, clientType: 'business' })}
-                  />
+              {/* Age Range */}
+              <FilterSection title="Age Range" icon={User}>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground">Min Age</span>
+                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                      {[18, 21, 25, 30, 35, 40].map((age) => {
+                        const isActive = filters.minAge === age;
+                        return (
+                          <button
+                            key={age}
+                            onClick={() => setFilters({ ...filters, minAge: age })}
+                            className={cn(
+                              "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                              isActive
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {age}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground">Max Age</span>
+                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                      {[30, 35, 40, 50, 60, 65].map((age) => {
+                        const isActive = filters.maxAge === age;
+                        return (
+                          <button
+                            key={age}
+                            onClick={() => setFilters({ ...filters, maxAge: age })}
+                            className={cn(
+                              "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                              isActive
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {age}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </FilterSection>
 
               {/* Match Score */}
-              <FilterSection title="Minimum Match Score" icon={Heart}>
+              <FilterSection title="Minimum Match Score" icon={Target} defaultOpen>
                 <Slider
                   min={0}
                   max={100}
@@ -349,34 +520,109 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
                 </div>
               </FilterSection>
 
-              {/* Active Only Toggle */}
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setFilters({ ...filters, activeOnly: !filters.activeOnly })}
-                className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-200",
-                  filters.activeOnly
-                    ? "border-primary bg-primary/10"
-                    : "border-border/50 bg-card/30 hover:border-primary/30"
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-primary/10 p-2">
-                    <Activity className="h-4 w-4 text-primary" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">Active Clients Only</span>
+              {/* Lifestyle Tags */}
+              <FilterSection title="Lifestyle" icon={Sparkles}>
+                <div className="flex flex-wrap gap-2">
+                  {lifestyleTags.map((tag) => (
+                    <PillToggle
+                      key={tag}
+                      label={tag}
+                      isActive={activeLifestyleTags.has(tag)}
+                      onClick={() => handleLifestyleToggle(tag)}
+                    />
+                  ))}
                 </div>
-                <div className={cn(
-                  "w-10 h-6 rounded-full transition-colors duration-200 relative",
-                  filters.activeOnly ? "bg-primary" : "bg-muted"
-                )}>
-                  <motion.div
-                    animate={{ x: filters.activeOnly ? 16 : 2 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    className="absolute top-1 w-4 h-4 rounded-full bg-primary-foreground shadow-sm"
+              </FilterSection>
+
+              {/* Occupation */}
+              <FilterSection title="Preferred Occupation" icon={Briefcase}>
+                <div className="flex flex-wrap gap-2">
+                  {occupations.map((occ) => (
+                    <PillToggle
+                      key={occ}
+                      label={occ}
+                      isActive={filters.occupation === occ}
+                      onClick={() => setFilters({ ...filters, occupation: filters.occupation === occ ? undefined : occ })}
+                    />
+                  ))}
+                </div>
+              </FilterSection>
+
+              {/* Preferences Toggles */}
+              <FilterSection title="Preferences" icon={Heart}>
+                <div className="space-y-2">
+                  <ToggleSwitch
+                    label="Allows Pets"
+                    icon={User}
+                    isActive={filters.allowsPets !== false}
+                    onClick={() => setFilters({ ...filters, allowsPets: filters.allowsPets === false ? true : false })}
+                  />
+                  <ToggleSwitch
+                    label="Allows Children"
+                    icon={User}
+                    isActive={filters.allowsChildren !== false}
+                    onClick={() => setFilters({ ...filters, allowsChildren: filters.allowsChildren === false ? true : false })}
                   />
                 </div>
-              </motion.button>
+              </FilterSection>
+
+              {/* Habits */}
+              <FilterSection title="Habits" icon={Activity}>
+                <div className="space-y-4">
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground mb-2 block">Smoking</span>
+                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+                      {['any', 'non-smoker', 'occasional', 'regular'].map((s) => {
+                        const isActive = (filters.smokingHabit || 'any') === s;
+                        return (
+                          <button
+                            key={s}
+                            onClick={() => setFilters({ ...filters, smokingHabit: s })}
+                            className={cn(
+                              "flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all",
+                              isActive
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {s === 'any' ? 'Any' : s.replace('-', ' ')}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs font-medium text-muted-foreground mb-2 block">Drinking</span>
+                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+                      {['any', 'non-drinker', 'social', 'regular'].map((d) => {
+                        const isActive = (filters.drinkingHabit || 'any') === d;
+                        return (
+                          <button
+                            key={d}
+                            onClick={() => setFilters({ ...filters, drinkingHabit: d })}
+                            className={cn(
+                              "flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all",
+                              isActive
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {d === 'any' ? 'Any' : d.replace('-', ' ')}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </FilterSection>
+
+              {/* Active Only Toggle */}
+              <ToggleSwitch
+                label="Active Clients Only"
+                icon={Activity}
+                isActive={!!filters.activeOnly}
+                onClick={() => setFilters({ ...filters, activeOnly: !filters.activeOnly })}
+              />
             </div>
           </ScrollArea>
 

@@ -226,13 +226,13 @@ CREATE TABLE IF NOT EXISTS public.likes (
 -- Mutual matches
 CREATE TABLE IF NOT EXISTS public.matches (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id_1 uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  user_id_2 uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  client_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   listing_id uuid REFERENCES public.listings(id) ON DELETE SET NULL,
   matched_at timestamptz NOT NULL DEFAULT now(),
   is_active boolean DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
-  CHECK (user_id_1 != user_id_2)
+  CHECK (client_id != owner_id)
 );
 
 -- ============================================================
@@ -243,13 +243,13 @@ CREATE TABLE IF NOT EXISTS public.matches (
 CREATE TABLE IF NOT EXISTS public.conversations (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   match_id uuid REFERENCES public.matches(id) ON DELETE CASCADE,
-  participant_1_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  participant_2_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  client_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  owner_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   last_message_at timestamptz,
   is_active boolean DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  CHECK (participant_1_id != participant_2_id)
+  CHECK (client_id != owner_id)
 );
 
 -- Individual messages
@@ -507,16 +507,16 @@ CREATE INDEX IF NOT EXISTS idx_listings_category_status ON public.listings(categ
 CREATE INDEX IF NOT EXISTS idx_likes_user_id ON public.likes(user_id);
 CREATE INDEX IF NOT EXISTS idx_likes_target ON public.likes(target_id, target_type);
 CREATE INDEX IF NOT EXISTS idx_likes_user_target ON public.likes(user_id, target_id, target_type);
-CREATE INDEX IF NOT EXISTS idx_matches_user1 ON public.matches(user_id_1);
-CREATE INDEX IF NOT EXISTS idx_matches_user2 ON public.matches(user_id_2);
+CREATE INDEX IF NOT EXISTS idx_matches_client ON public.matches(client_id);
+CREATE INDEX IF NOT EXISTS idx_matches_owner ON public.matches(owner_id);
 CREATE INDEX IF NOT EXISTS idx_matches_listing ON public.matches(listing_id);
-CREATE INDEX IF NOT EXISTS idx_matches_participants ON public.matches(user_id_1, user_id_2);
+CREATE INDEX IF NOT EXISTS idx_matches_pair ON public.matches(client_id, owner_id);
 
 -- Messaging
 CREATE INDEX IF NOT EXISTS idx_conversations_match ON public.conversations(match_id);
-CREATE INDEX IF NOT EXISTS idx_conversations_participant1 ON public.conversations(participant_1_id);
-CREATE INDEX IF NOT EXISTS idx_conversations_participant2 ON public.conversations(participant_2_id);
-CREATE INDEX IF NOT EXISTS idx_conversations_participants ON public.conversations(participant_1_id, participant_2_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_client ON public.conversations(client_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_owner ON public.conversations(owner_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_pair ON public.conversations(client_id, owner_id);
 CREATE INDEX IF NOT EXISTS idx_messages_conversation ON public.conversation_messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender ON public.conversation_messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_created ON public.conversation_messages(created_at DESC);
@@ -575,7 +575,7 @@ BEGIN
   RETURN EXISTS (
     SELECT 1 FROM public.conversations
     WHERE id = conversation_id_input
-    AND (participant_1_id = user_id_input OR participant_2_id = user_id_input)
+    AND (client_id = user_id_input OR owner_id = user_id_input)
   );
 END;
 $$;
@@ -772,11 +772,11 @@ CREATE POLICY "Users can delete their own likes" ON public.likes FOR DELETE USIN
 
 -- Matches: Users can view matches they're part of
 CREATE POLICY "Users can view their matches" ON public.matches FOR SELECT
-  USING (auth.uid() = user_id_1 OR auth.uid() = user_id_2);
+  USING (auth.uid() = client_id OR auth.uid() = owner_id);
 
 -- Conversations: Users can view conversations they're part of
 CREATE POLICY "Users can view their conversations" ON public.conversations FOR SELECT
-  USING (auth.uid() = participant_1_id OR auth.uid() = participant_2_id);
+  USING (auth.uid() = client_id OR auth.uid() = owner_id);
 
 -- Messages: Users can view and send messages in their conversations
 CREATE POLICY "Users can view messages in their conversations" ON public.conversation_messages FOR SELECT
@@ -885,7 +885,7 @@ SELECT
   p.last_seen_at,
   ur.role,
   (SELECT COUNT(*) FROM public.listings WHERE owner_id = u.id) AS total_listings,
-  (SELECT COUNT(*) FROM public.matches WHERE user_id_1 = u.id OR user_id_2 = u.id) AS total_matches,
+  (SELECT COUNT(*) FROM public.matches WHERE client_id = u.id OR owner_id = u.id) AS total_matches,
   (SELECT COUNT(*) FROM public.reviews WHERE reviewed_id = u.id) AS reviews_received,
   (SELECT ROUND(AVG(rating)::numeric, 2) FROM public.reviews WHERE reviewed_id = u.id) AS avg_rating,
   (SELECT SUM(remaining_activations) FROM public.tokens WHERE user_id = u.id) AS tokens_remaining

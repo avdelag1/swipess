@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { Building2, Bike, CircleDot, Briefcase, Check } from 'lucide-react';

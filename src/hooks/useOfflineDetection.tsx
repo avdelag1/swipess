@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export function useOfflineDetection() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
