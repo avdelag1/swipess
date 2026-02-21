@@ -86,7 +86,7 @@ const LandingView = memo(({
       className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ opacity: 0, x: 80, transition: { duration: 0.22, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
     >
       {/* Swipable logo */}
       <motion.div
@@ -322,9 +322,9 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
       style={{ background: '#050505' }}
-      initial={{ x: 30, opacity: 0 }}
-      animate={{ x: 0, opacity: 1, transition: { duration: 0.30, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ x: 30, opacity: 0, transition: { duration: 0.20, ease: [0.4, 0, 1, 1] } }}
+      initial={{ x: 20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
+      exit={{ x: 20, opacity: 0, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
     >
       <StarFieldBackground />
 

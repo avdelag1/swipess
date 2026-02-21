@@ -581,12 +581,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         >
           {enhancedChildren}
         </motion.div>
-        {/* Fade-out gradient at bottom of content - hide on fullscreen routes */}
-        {!isCameraRoute && !isRadioRoute && (
-          <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]"
-            style={{ bottom: `calc(${bottomNavHeight}px + var(--safe-bottom))` }}
-          />
-        )}
       </main>
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera and radio routes for fullscreen UX */}
