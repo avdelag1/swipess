@@ -131,16 +131,9 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
         bicycle_is_electric: isElectricOnly || null,
         bicycle_battery_range_min: batteryRange || null,
       });
-      toast({
-        title: 'Filters applied!',
-        description: 'Your bicycle preferences have been saved.',
-      });
+      toast.success('Filters applied!', { description: 'Your bicycle preferences have been saved.' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save preferences.',
-        variant: 'destructive',
-      });
+      toast.error('Error', { description: 'Failed to save preferences.' });
     }
 
     onApply({
@@ -233,16 +226,9 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
         bicycle_is_electric: isElectricOnly || null,
         bicycle_battery_range_min: batteryRange > 0 ? batteryRange : null,
       });
-      toast({
-        title: 'Preferences saved!',
-        description: 'Your bicycle filter preferences have been saved successfully.',
-      });
+      toast.success('Preferences saved!', { description: 'Your bicycle filter preferences have been saved successfully.' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save preferences. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error('Error', { description: 'Failed to save preferences. Please try again.' });
     }
   };
 

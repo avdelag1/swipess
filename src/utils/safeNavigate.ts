@@ -1,6 +1,6 @@
 import { NavigateFunction } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 interface SafeNavigateOptions {
   requiresAuth?: boolean;

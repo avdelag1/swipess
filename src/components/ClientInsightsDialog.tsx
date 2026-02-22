@@ -185,10 +185,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
 
     setIsCreatingConversation(true);
     try {
-      toast({
-        title: 'Starting conversation',
-        description: 'Creating a new conversation...',
-      });
+      toast('Starting conversation', { description: 'Creating a new conversation...' });
 
       const result = await startConversation.mutateAsync({
         otherUserId: profile.user_id,
@@ -204,11 +201,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
       if (import.meta.env.DEV) {
         logger.error('Error starting conversation:', error);
       }
-      toast({
-        title: 'Could not start conversation',
-        description: error instanceof Error ? error.message : 'Please try again later.',
-        variant: 'destructive',
-      });
+      toast.error('Could not start conversation', { description: error instanceof Error ? error.message : 'Please try again later.' });
     } finally {
       setIsCreatingConversation(false);
     }

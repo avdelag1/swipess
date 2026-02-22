@@ -1,3 +1,2 @@
-// Unified toast system - re-exports from sonner for compatibility
-// Use "sonner" directly for new code: import { toast } from "sonner"
+// Unified toast system - re-exports from sonner compatibility wrapper
 export { Toaster, toast } from "./sonner"

@@ -1,4 +1,4 @@
-import { Toaster as Sonner, toast } from "sonner"
+import { Toaster as Sonner, toast as sonnerToast } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
@@ -29,5 +29,42 @@ const Toaster = ({ ...props }: ToasterProps) => {
     />
   )
 }
+
+// Compatibility wrapper: accepts both old shadcn {title,description,variant} and new sonner syntax
+type OldToastArgs = {
+  title?: string;
+  description?: string;
+  variant?: string;
+  duration?: number;
+};
+
+function isOldSyntax(arg: unknown): arg is OldToastArgs {
+  return typeof arg === 'object' && arg !== null && 'title' in arg;
+}
+
+const toast = Object.assign(
+  (messageOrOptions: any, data?: any) => {
+    if (isOldSyntax(messageOrOptions)) {
+      const { title, description, variant, duration } = messageOrOptions;
+      const opts: any = {};
+      if (description) opts.description = description;
+      if (duration) opts.duration = duration;
+      if (variant === 'destructive') return sonnerToast.error(title || 'Error', opts);
+      return sonnerToast(title || '', opts);
+    }
+    return sonnerToast(messageOrOptions, data);
+  },
+  {
+    success: sonnerToast.success,
+    error: sonnerToast.error,
+    warning: sonnerToast.warning,
+    info: sonnerToast.info,
+    loading: sonnerToast.loading,
+    promise: sonnerToast.promise,
+    dismiss: sonnerToast.dismiss,
+    message: sonnerToast.message,
+    custom: sonnerToast.custom,
+  }
+);
 
 export { Toaster, toast }

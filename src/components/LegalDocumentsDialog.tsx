@@ -119,10 +119,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       return data;
     },
     onSuccess: () => {
-      toast({
-        title: "Document Uploaded",
-        description: "Your legal document has been uploaded successfully and is pending verification.",
-      });
+      toast.success("Document Uploaded", { description: "Your legal document has been uploaded successfully and is pending verification." });
       setSelectedDocumentType('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -130,11 +127,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       refetch();
     },
     onError: (error) => {
-      toast({
-        title: "Upload Failed",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error("Upload Failed", { description: error.message });
     }
   });
 
@@ -160,18 +153,11 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       if (dbError) throw dbError;
     },
     onSuccess: () => {
-      toast({
-        title: "Document Deleted",
-        description: "The document has been removed successfully.",
-      });
+      toast.success("Document Deleted", { description: "The document has been removed successfully." });
       refetch();
     },
     onError: (error) => {
-      toast({
-        title: "Delete Failed",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast.error("Delete Failed", { description: error.message });
     }
   });
 
@@ -182,20 +168,12 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
     // Use centralized validation
     const validation = validateDocumentFile(file);
     if (!validation.isValid) {
-      toast({
-        title: "Invalid File",
-        description: validation.error,
-        variant: "destructive"
-      });
+      toast.error("Invalid File", { description: validation.error });
       return;
     }
 
     if (!selectedDocumentType) {
-      toast({
-        title: "Select Document Type",
-        description: "Please select the type of document you're uploading.",
-        variant: "destructive"
-      });
+      toast.error("Select Document Type", { description: "Please select the type of document you're uploading." });
       return;
     }
 

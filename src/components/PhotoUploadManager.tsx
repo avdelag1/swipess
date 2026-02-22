@@ -57,11 +57,7 @@ export function PhotoUploadManager({
 
     const remainingSlots = maxPhotos - currentPhotos.length;
     if (remainingSlots <= 0) {
-      toast({
-        title: "Photo Limit Reached",
-        description: `You can only upload ${maxPhotos} photos for ${uploadType}s.`,
-        variant: "destructive"
-      });
+      toast.error("Photo Limit Reached", { description: `You can only upload ${maxPhotos} photos for ${uploadType}s.` });
       return;
     }
 
@@ -77,11 +73,7 @@ export function PhotoUploadManager({
     const invalidFiles = validatedFiles.filter(f => !f.validation.isValid);
     if (invalidFiles.length > 0) {
       invalidFiles.forEach(({ file, validation }) => {
-        toast({
-          title: "Invalid File",
-          description: `${file.name}: ${validation.error}`,
-          variant: "destructive"
-        });
+        toast.error("Invalid File", { description: `${file.name}: ${validation.error}` });
       });
     }
 
@@ -139,32 +131,17 @@ export function PhotoUploadManager({
 
       // Show appropriate success/error message
       if (successCount > 0 && failCount === 0) {
-        toast({
-          title: "Photos Uploaded",
-          description: `${successCount} photo(s) uploaded successfully!`
-        });
+        toast.success("Photos Uploaded", { description: `${successCount} photo(s) uploaded successfully!` });
       } else if (successCount > 0 && failCount > 0) {
-        toast({
-          title: "Partial Upload",
-          description: `${successCount} photo(s) uploaded, ${failCount} failed. Please retry failed uploads.`,
-          variant: "default"
-        });
+        toast("Partial Upload", { description: `${successCount} photo(s) uploaded, ${failCount} failed. Please retry failed uploads.` });
       } else {
-        toast({
-          title: "Upload Failed",
-          description: "All photos failed to upload. Please check your connection and try again.",
-          variant: "destructive"
-        });
+        toast.error("Upload Failed", { description: "All photos failed to upload. Please check your connection and try again." });
       }
     } catch (error) {
       if (import.meta.env.DEV) {
         logger.error('Upload error:', error);
       }
-      toast({
-        title: "Upload Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Upload Error", { description: "An unexpected error occurred. Please try again." });
     } finally {
       setUploading(false);
     }

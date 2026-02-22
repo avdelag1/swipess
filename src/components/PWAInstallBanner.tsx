@@ -80,10 +80,7 @@ export function PWAInstallBanner() {
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-        toast({
-          title: "Link copied!",
-          description: "Share link copied to clipboard",
-        });
+        toast.success("Link copied!", { description: "Share link copied to clipboard" });
       }
     } catch (error) {
       // User cancelled or error - silently ignore

@@ -1,6 +1,8 @@
-// Unified toast hook - wraps sonner for compatibility with existing code
-import { toast } from 'sonner';
+// Unified toast hook - wraps sonner with backwards compatibility
+import { toast } from '@/components/ui/sonner';
 
 export function useToast() {
   return { toast };
 }
+
+export { toast };
