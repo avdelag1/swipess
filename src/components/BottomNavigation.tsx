@@ -147,9 +147,9 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   };
 
   return (
-    <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
+    <nav className={cn("app-bottom-bar pointer-events-none px-1 bg-background/80 backdrop-blur-xl border-t border-border/20", !isVisible && "nav-hidden")}>
       <div
-        // Transparent - no background, no rounded corners
+        // Theme-aware background
         className="flex items-center justify-between w-full max-w-xl mx-auto px-2 py-2 pointer-events-auto bg-transparent"
         style={{
           transform: 'translateZ(0)',
@@ -170,7 +170,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
-                'bg-transparent hover:bg-white/10',
+                'bg-transparent hover:bg-foreground/10',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent'
               )}
@@ -211,7 +211,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               <Icon
                 className={cn(
                   'transition-colors duration-150',
-                  active ? 'text-orange-300' : 'text-white'
+                  active ? 'text-primary' : 'text-foreground'
                 )}
                 style={{
                   width: ICON_SIZE - 4,
@@ -221,7 +221,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
               />
               <span className={cn(
                 'text-[10px] leading-tight font-medium transition-colors duration-150',
-                active ? 'text-orange-300' : 'text-white'
+                active ? 'text-primary' : 'text-foreground'
               )}>
                 {item.label}
               </span>

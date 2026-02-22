@@ -12,22 +12,22 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 
-// DARK MODE: White text on dark background
+// Theme-aware text colors
 const TokenText = () => (
   <>
-    <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
+    <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
       Tokens
     </span>
-    <Zap className="sm:hidden h-5 w-5 text-white" />
+    <Zap className="sm:hidden h-5 w-5 text-foreground" />
   </>
 );
 
 const MessageActivationText = () => (
   <>
-    <span className="hidden sm:inline font-bold text-sm tracking-tight text-white whitespace-nowrap">
+    <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
       Messages
     </span>
-    <Bell className="sm:hidden h-5 w-5 text-white" />
+    <Bell className="sm:hidden h-5 w-5 text-foreground" />
   </>
 );
 
@@ -68,7 +68,7 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          'bg-transparent border-transparent',
+          'bg-background/80 backdrop-blur-xl border-border/30',
           shouldHide && 'header-hidden',
           className
         )}
@@ -77,7 +77,7 @@ function TopBarComponent({
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
             {title && (
-              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-white whitespace-nowrap">
+              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-foreground whitespace-nowrap">
                 {title}
               </div>
             )}

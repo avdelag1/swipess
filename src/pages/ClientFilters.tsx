@@ -118,22 +118,22 @@ export default function ClientFilters() {
   }, [navigate]);
 
   return (
-    <div className="min-h-full bg-zinc-900">
+    <div className="min-h-full bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-zinc-900 border-b border-zinc-800">
+      <header className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleBack}
-              className="h-10 w-10 rounded-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700"
+              className="h-10 w-10 rounded-full bg-muted hover:bg-muted/80 border border-border"
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
+              <ArrowLeft className="w-5 h-5 text-foreground" />
             </Button>
             <div>
-              <h1 className="text-lg font-semibold text-white">Filters</h1>
-              <p className="text-xs text-white/50">
+              <h1 className="text-lg font-semibold text-foreground">Filters</h1>
+              <p className="text-xs text-muted-foreground">
                 {activeFilterCount > 0 ? `${activeFilterCount} active` : 'Customize your search'}
               </p>
             </div>
@@ -144,7 +144,7 @@ export default function ClientFilters() {
               variant="ghost"
               size="sm"
               onClick={handleReset}
-              className="text-zinc-400 hover:text-white text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700"
+              className="text-muted-foreground hover:text-foreground text-sm flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset
@@ -183,7 +183,7 @@ export default function ClientFilters() {
 
           {/* Categories Section */}
           <section className="space-y-3">
-            <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider">Categories</h2>
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Categories</h2>
             <div className="grid grid-cols-2 gap-3">
               {categories.map((category) => {
                 const isSelected = selectedCategories.includes(category.id);
@@ -195,8 +195,8 @@ export default function ClientFilters() {
                     className={cn(
                       "relative p-4 rounded-2xl border transition-all duration-200",
                       isSelected
-                        ? "bg-orange-500/20 border-orange-500"
-                        : "bg-zinc-800 border-zinc-700 hover:bg-zinc-700"
+                        ? "bg-primary/20 border-primary"
+                        : "bg-muted border-border hover:bg-muted/80"
                     )}
                   >
                     {/* Selection indicator */}
@@ -208,8 +208,8 @@ export default function ClientFilters() {
                           exit={{ scale: 0 }}
                           className="absolute top-2 right-2"
                         >
-                          <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center">
-                            <Check className="w-3 h-3 text-white" />
+                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-3 h-3 text-primary-foreground" />
                           </div>
                         </motion.div>
                       )}
@@ -227,7 +227,7 @@ export default function ClientFilters() {
 
           {/* Listing Type Section */}
           <section className="space-y-3">
-            <h2 className="text-sm font-medium text-white/60 uppercase tracking-wider">Listing Type</h2>
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Listing Type</h2>
             <div className="space-y-2">
               {listingTypes.map((type) => {
                 const isSelected = selectedListingType === type.id;
@@ -239,13 +239,13 @@ export default function ClientFilters() {
                     className={cn(
                       "w-full flex items-center justify-between p-4 rounded-xl border transition-all duration-200",
                       isSelected
-                        ? "bg-orange-500/20 border-orange-500"
-                        : "bg-zinc-800 border-zinc-700 hover:bg-zinc-700"
+                        ? "bg-primary/20 border-primary"
+                        : "bg-muted border-border hover:bg-muted/80"
                     )}
                   >
                     <div className="text-left">
-                      <span className="text-sm font-medium text-white block">{type.label}</span>
-                      <span className="text-xs text-white/50">{type.description}</span>
+                      <span className="text-sm font-medium text-foreground block">{type.label}</span>
+                      <span className="text-xs text-muted-foreground">{type.description}</span>
                     </div>
                     <AnimatePresence>
                       {isSelected && (
@@ -269,15 +269,15 @@ export default function ClientFilters() {
       </ScrollArea>
 
       {/* Bottom Fixed Save Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-zinc-900 border-t border-zinc-800">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
         <div className="max-w-md mx-auto">
           <Button
             onClick={handleApply}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-semibold transition-all duration-200",
               hasChanges
-                ? "bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-400 hover:to-red-400 text-white shadow-lg"
-                : "bg-zinc-800 text-zinc-500 cursor-not-allowed"
+                ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg"
+                : "bg-muted text-muted-foreground cursor-not-allowed"
             )}
             disabled={!hasChanges}
           >
