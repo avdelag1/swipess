@@ -137,16 +137,9 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         rental_duration: rentalDuration || null,
         location_zones: locationNeighborhoods.length > 0 ? locationNeighborhoods : null,
       });
-      toast({
-        title: 'Filters applied!',
-        description: 'Your preferences have been saved.',
-      });
+      toast.success('Filters applied!', { description: 'Your preferences have been saved.' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save preferences.',
-        variant: 'destructive',
-      });
+      toast.error('Error', { description: 'Failed to save preferences.' });
     }
 
     // Then notify parent
@@ -238,16 +231,9 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         pet_friendly_required: petFriendly,
         furnished_required: furnished,
       });
-      toast({
-        title: 'Preferences saved!',
-        description: 'Your property filter preferences have been saved.',
-      });
+      toast.success('Preferences saved!', { description: 'Your property filter preferences have been saved.' });
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save preferences.',
-        variant: 'destructive',
-      });
+      toast.error('Error', { description: 'Failed to save preferences.' });
     }
   };
 

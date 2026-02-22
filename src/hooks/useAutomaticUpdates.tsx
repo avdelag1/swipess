@@ -14,7 +14,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 // Get build timestamp from Vite injected environment variable
 // This changes EVERY deployment, ensuring all users get updates

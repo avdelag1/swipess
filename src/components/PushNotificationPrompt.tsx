@@ -29,11 +29,7 @@ export function PushNotificationPrompt() {
       const permission = await Notification.requestPermission();
 
       if (permission === 'granted') {
-        toast({
-          title: "Notifications Enabled!",
-          description: "You'll now receive real-time updates for messages, likes, and more.",
-          duration: 4000,
-        });
+        toast.success("Notifications Enabled!", { description: "You'll now receive real-time updates for messages, likes, and more.", duration: 4000 });
 
         // Show a test notification
         const notification = new Notification('Notifications Enabled!', {
@@ -44,12 +40,7 @@ export function PushNotificationPrompt() {
         });
         setTimeout(() => notification.close(), 5000);
       } else if (permission === 'denied') {
-        toast({
-          title: "Notifications Blocked",
-          description: "You can enable notifications later in your browser settings.",
-          variant: "destructive",
-          duration: 5000,
-        });
+        toast.error("Notifications Blocked", { description: "You can enable notifications later in your browser settings.", duration: 5000 });
       }
     } catch (error) {
       if (import.meta.env.DEV) {

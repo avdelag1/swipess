@@ -146,17 +146,10 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
   const handleSave = async () => {
     try {
       await updatePreferences(formData)
-      toast({
-        title: 'Preferences Updated',
-        description: 'Your filter preferences have been saved successfully.',
-      })
+      toast.success('Preferences Updated', { description: 'Your filter preferences have been saved successfully.' })
       onOpenChange(false)
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to update preferences. Please try again.',
-        variant: 'destructive',
-      })
+      toast.error('Error', { description: 'Failed to update preferences. Please try again.' })
     }
   }
 

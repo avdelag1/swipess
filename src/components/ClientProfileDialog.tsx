@@ -288,11 +288,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
       if (error) {
         logger.error('Storage upload error:', error);
-        toast({
-          title: 'Upload Failed',
-          description: error.message || 'Could not upload image. Please try again.',
-          variant: 'destructive'
-        });
+        toast.error('Upload Failed', { description: error.message || 'Could not upload image. Please try again.' });
         throw error;
       }
 
@@ -348,15 +344,11 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
     try {
       await saveMutation.mutateAsync(payload);
-      toast({ title: 'Profile saved', description: 'Your comprehensive profile has been updated.' });
+      toast.success('Profile saved', { description: 'Your comprehensive profile has been updated.' });
       onOpenChange(false);
     } catch (error) {
       logger.error('Error saving profile:', error);
-      toast({
-        title: 'Error saving profile',
-        description: error instanceof Error ? error.message : 'Please try again',
-        variant: 'destructive'
-      });
+      toast.error('Error saving profile', { description: error instanceof Error ? error.message : 'Please try again' });
     }
   };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { useNavigate } from 'react-router-dom';
 import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
@@ -124,11 +124,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             handleOAuthUserSetupAsync(session.user)
               .catch((error) => {
                 logger.error('[Auth] OAuth setup failed:', error);
-                toast({
-                  title: 'Profile Setup Issue',
-                  description: 'There was an issue setting up your profile. Please try refreshing the page.',
-                  variant: 'destructive',
-                });
+                toast.error('Profile Setup Issue', { description: 'There was an issue setting up your profile. Please try refreshing the page.' });
               })
               .finally(() => {
                 clearTimeout(oauthSetupTimeout);
@@ -213,11 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       logger.error('[Auth] OAuth setup error:', error);
-      toast({
-        title: 'Profile Setup Failed',
-        description: 'Failed to complete your profile setup. Please try signing in again.',
-        variant: 'destructive',
-      });
+      toast.error('Profile Setup Failed', { description: 'Failed to complete your profile setup. Please try signing in again.' });
     }
   };
 
@@ -245,19 +237,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const existingRole = existingProfile.role;
 
         if (existingRole && existingRole !== role) {
-          toast({
-            title: "Email Already Registered",
-            description: `This email is already registered as a ${existingRole.toUpperCase()} account. To use both roles, please create a separate account with a different email address.`,
-            variant: "destructive"
-          });
+          toast.error("Email Already Registered", { description: `This email is already registered as a ${existingRole.toUpperCase()} account. To use both roles, please create a separate account with a different email address.` });
           return { error: new Error(`Email already registered with ${existingRole} role`) };
         }
 
-        toast({
-          title: "Account Already Exists",
-          description: `An account with this email already exists. Please sign in instead.`,
-          variant: "destructive"
-        });
+        toast.error("Account Already Exists", { description: `An account with this email already exists. Please sign in instead.` });
         return { error: new Error('User already registered') };
       }
 
@@ -304,10 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // If auto sign-in fails (e.g. email confirmation still required on server),
             // show a helpful message but don't block the flow
             logger.warn('[Auth] Auto sign-in after signup failed:', signInError.message);
-            toast({
-              title: "Account Created!",
-              description: "Your account has been created. Please sign in to continue.",
-            });
+            toast.success("Account Created!", { description: "Your account has been created. Please sign in to continue." });
             return { error: null };
           }
 
@@ -330,10 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // AUTO-REFRESH: Invalidate all queries to force fresh data
         queryClient.invalidateQueries();
 
-        toast({
-          title: "Account Created!",
-          description: "Loading your dashboard...",
-        });
+        toast.success("Account Created!", { description: "Loading your dashboard..." });
 
         navigate(targetPath, { replace: true });
       }
@@ -353,11 +331,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errorMessage = error.message;
       }
 
-      toast({
-        title: "Sign Up Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("Sign Up Failed", { description: errorMessage });
       return { error };
     }
   };
@@ -417,10 +391,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // This ensures the swipe deck and other dashboard data is refreshed
         queryClient.invalidateQueries();
 
-        toast({
-          title: "Welcome back!",
-          description: "Loading your dashboard...",
-        });
+        toast.success("Welcome back!", { description: "Loading your dashboard..." });
 
         navigate(targetPath, { replace: true });
 
@@ -449,11 +420,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errorMessage = error.message;
       }
 
-      toast({
-        title: "Sign In Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("Sign In Failed", { description: errorMessage });
       return { error };
     }
   };
@@ -515,11 +482,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errorMessage = error.message;
       }
 
-      toast({
-        title: "OAuth Sign In Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("OAuth Sign In Failed", { description: errorMessage });
       return { error };
     }
   };
@@ -548,21 +511,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Still navigate to home even if there's an error
       }
 
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
+      toast.success("Signed out", { description: "You have been signed out successfully." });
 
       // Force navigation to landing page with full page refresh
       // This ensures a clean state and shows the landing page immediately
       window.location.href = '/';
     } catch (error) {
       logger.error('[Auth] Unexpected sign out error:', error);
-      toast({
-        title: "Sign Out Error",
-        description: "An unexpected error occurred during sign out.",
-        variant: "destructive"
-      });
+      toast.error("Sign Out Error", { description: "An unexpected error occurred during sign out." });
       // Even on error, try to redirect to home
       window.location.href = '/';
     }

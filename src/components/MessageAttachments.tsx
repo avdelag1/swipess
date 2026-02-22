@@ -38,11 +38,7 @@ export function MessageAttachments({
 
     // Validate file size (10MB limit)
     if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: 'File Too Large',
-        description: 'Please select a file smaller than 10MB.',
-        variant: 'destructive',
-      });
+      toast.error('File Too Large', { description: 'Please select a file smaller than 10MB.' });
       return;
     }
 
@@ -77,11 +73,7 @@ export function MessageAttachments({
     try {
       const url = await getAttachmentUrl(attachment.file_path);
       if (!url) {
-        toast({
-          title: 'Feature Not Available',
-          description: 'File attachments feature is not yet available.',
-          variant: 'destructive',
-        });
+        toast.error('Feature Not Available', { description: 'File attachments feature is not yet available.' });
         return;
       }
       const a = document.createElement('a');
@@ -91,11 +83,7 @@ export function MessageAttachments({
       a.click();
       document.body.removeChild(a);
     } catch (error) {
-      toast({
-        title: 'Download Failed',
-        description: 'Unable to download the file. Please try again.',
-        variant: 'destructive',
-      });
+      toast.error('Download Failed', { description: 'Unable to download the file. Please try again.' });
     }
   };
 

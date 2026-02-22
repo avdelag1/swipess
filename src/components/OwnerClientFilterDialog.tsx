@@ -257,10 +257,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     };
 
     await updatePreferences(completePreferences);
-    toast({
-      title: "Filters Applied",
-      description: "Client cards will refresh with your preferences.",
-    });
+    toast.success("Filters Applied", { description: "Client cards will refresh with your preferences." });
     onOpenChange(false);
   };
 
@@ -283,10 +280,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     });
 
     await updatePreferences({ ...formData, selected_genders: selectedGenders });
-    toast({
-      title: "Filter Saved!",
-      description: `"${filterName}" saved successfully.`,
-    });
+    toast.success("Filter Saved!", { description: `"${filterName}" saved successfully.` });
     setFilterName('');
     setShowSaveAs(false);
     onOpenChange(false);

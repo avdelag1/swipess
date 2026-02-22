@@ -54,11 +54,7 @@ export function ClientLocationSelector({
 
     // Check if Google Maps API is loaded
     if (!window.google) {
-      toast({
-        title: "Google Maps Not Ready",
-        description: "Google Maps is loading. Please wait a moment and try again.",
-        variant: "default"
-      });
+      toast("Google Maps Not Ready", { description: "Google Maps is loading. Please wait a moment and try again." });
       return;
     }
 
@@ -145,11 +141,7 @@ export function ClientLocationSelector({
     setIsLoading(true);
     try {
       if (!navigator.geolocation) {
-        toast({
-          title: "Geolocation Not Available",
-          description: "Your browser doesn't support location services.",
-          variant: "destructive"
-        });
+        toast.error("Geolocation Not Available", { description: "Your browser doesn't support location services." });
         setIsLoading(false);
         return;
       }
@@ -175,11 +167,7 @@ export function ClientLocationSelector({
           if (import.meta.env.DEV) {
             logger.error('Geolocation error:', error);
           }
-          toast({
-            title: "Location Access Denied",
-            description: "Please enable location services and try again.",
-            variant: "destructive"
-          });
+          toast.error("Location Access Denied", { description: "Please enable location services and try again." });
           setIsLoading(false);
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -188,11 +176,7 @@ export function ClientLocationSelector({
       if (import.meta.env.DEV) {
         logger.error('Error getting location:', error);
       }
-      toast({
-        title: "Error",
-        description: "Failed to get your location. Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Error", { description: "Failed to get your location. Please try again." });
       setIsLoading(false);
     }
   };
@@ -233,22 +217,14 @@ export function ClientLocationSelector({
 
   const handleSearch = async () => {
     if (!searchInput.trim()) {
-      toast({
-        title: "Enter an Address",
-        description: "Please type an address to search.",
-        variant: "destructive"
-      });
+      toast.error("Enter an Address", { description: "Please type an address to search." });
       return;
     }
 
     setIsLoading(true);
     try {
       if (!window.google) {
-        toast({
-          title: "Google Maps Not Ready",
-          description: "Please wait for Google Maps to load.",
-          variant: "default"
-        });
+        toast("Google Maps Not Ready", { description: "Please wait for Google Maps to load." });
         setIsLoading(false);
         return;
       }
@@ -275,34 +251,15 @@ export function ClientLocationSelector({
             locationType: selectedTab,
           });
 
-          toast({
-            title: "Location Found",
-            description: `Latitude: ${lat.toFixed(4)}, Longitude: ${lng.toFixed(4)}`,
-          });
+          toast.success("Location Found", { description: `Latitude: ${lat.toFixed(4)}, Longitude: ${lng.toFixed(4)}` });
         } else if (status === 'ZERO_RESULTS') {
-          toast({
-            title: "Location Not Found",
-            description: "No results found for this address. Please check the spelling and try again.",
-            variant: "destructive"
-          });
+          toast.error("Location Not Found", { description: "No results found for this address. Please check the spelling and try again." });
         } else if (status === 'OVER_QUERY_LIMIT') {
-          toast({
-            title: "Too Many Requests",
-            description: "Google Maps quota exceeded. Please wait a moment before trying again.",
-            variant: "destructive"
-          });
+          toast.error("Too Many Requests", { description: "Google Maps quota exceeded. Please wait a moment before trying again." });
         } else if (status === 'REQUEST_DENIED') {
-          toast({
-            title: "API Configuration Error",
-            description: "Google Maps API key issue. Please check the configuration.",
-            variant: "destructive"
-          });
+          toast.error("API Configuration Error", { description: "Google Maps API key issue. Please check the configuration." });
         } else {
-          toast({
-            title: "Search Error",
-            description: `Geocoding error (${status}). Please try again.`,
-            variant: "destructive"
-          });
+          toast.error("Search Error", { description: `Geocoding error (${status}). Please try again.` });
         }
         setIsLoading(false);
       });
@@ -310,11 +267,7 @@ export function ClientLocationSelector({
       if (import.meta.env.DEV) {
         logger.error('Search error:', error);
       }
-      toast({
-        title: "Search Failed",
-        description: "An error occurred during search.",
-        variant: "destructive"
-      });
+      toast.error("Search Failed", { description: "An error occurred during search." });
       setIsLoading(false);
     }
   };

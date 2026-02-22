@@ -139,7 +139,7 @@ async function encryptPayload(
   const baseKey = await crypto.subtle.importKey("raw", ikm as unknown as ArrayBuffer, "HKDF", false, ["deriveBits"]);
 
   const prk = await crypto.subtle.deriveBits(
-    { name: "HKDF", hash: "SHA-256", salt: authBytes, info: authInfo },
+    { name: "HKDF", hash: "SHA-256", salt: authBytes as unknown as ArrayBuffer, info: authInfo as unknown as ArrayBuffer },
     baseKey,
     256
   );
@@ -147,13 +147,13 @@ async function encryptPayload(
   const prkKey = await crypto.subtle.importKey("raw", prk as unknown as ArrayBuffer, "HKDF", false, ["deriveBits"]);
 
   const contentEncryptionKey = await crypto.subtle.deriveBits(
-    { name: "HKDF", hash: "SHA-256", salt, info: keyInfo },
+    { name: "HKDF", hash: "SHA-256", salt: salt as unknown as ArrayBuffer, info: keyInfo as unknown as ArrayBuffer },
     prkKey,
     128
   );
 
   const nonce = await crypto.subtle.deriveBits(
-    { name: "HKDF", hash: "SHA-256", salt, info: encoder.encode("Content-Encoding: nonce\0") },
+    { name: "HKDF", hash: "SHA-256", salt: salt as unknown as ArrayBuffer, info: encoder.encode("Content-Encoding: nonce\0") as unknown as ArrayBuffer },
     prkKey,
     96
   );
