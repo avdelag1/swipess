@@ -7,11 +7,11 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { Play, Pause, Volume2, GripVertical } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, GripVertical } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export function RadioMiniPlayer() {
-  const { state, togglePlayPause } = useRadio();
+  const { state, togglePlayPause, changeStation } = useRadio();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,6 +50,20 @@ export function RadioMiniPlayer() {
     }
   }, [togglePlayPause]);
 
+  const handlePrev = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isDraggingRef.current) {
+      changeStation('prev');
+    }
+  }, [changeStation]);
+
+  const handleNext = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isDraggingRef.current) {
+      changeStation('next');
+    }
+  }, [changeStation]);
+
   // Don't show if not playing or no station
   if (!state.isPlaying || !state.currentStation) return null;
 
@@ -87,7 +101,7 @@ export function RadioMiniPlayer() {
           className="fixed bottom-20 right-3 z-50 touch-none cursor-grab active:cursor-grabbing"
           style={{ touchAction: 'none' }}
         >
-          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-white/10 backdrop-blur-lg rounded-full shadow-lg border border-white/20 max-w-[180px]">
+          <div className="flex items-center gap-1.5 px-2 py-1.5 bg-white/10 backdrop-blur-lg rounded-full shadow-lg border border-white/20 max-w-[240px]">
             {/* Drag indicator */}
             <div className="flex items-center justify-center opacity-40">
               <GripVertical className="w-2.5 h-2.5 text-white" />
@@ -111,7 +125,15 @@ export function RadioMiniPlayer() {
               </span>
             </button>
 
-            {/* Play/Pause only */}
+            {/* Skip Prev */}
+            <button
+              onClick={handlePrev}
+              className="w-5 h-5 flex items-center justify-center flex-shrink-0 opacity-80 hover:opacity-100"
+            >
+              <SkipBack className="w-3 h-3 text-white" fill="currentColor" />
+            </button>
+
+            {/* Play/Pause */}
             <button
               onClick={handleTogglePlay}
               className="w-6 h-6 rounded-full bg-white flex items-center justify-center flex-shrink-0"
@@ -121,6 +143,14 @@ export function RadioMiniPlayer() {
               ) : (
                 <Play className="w-3 h-3 text-black ml-0.5" fill="currentColor" />
               )}
+            </button>
+
+            {/* Skip Next */}
+            <button
+              onClick={handleNext}
+              className="w-5 h-5 flex items-center justify-center flex-shrink-0 opacity-80 hover:opacity-100"
+            >
+              <SkipForward className="w-3 h-3 text-white" fill="currentColor" />
             </button>
           </div>
         </motion.div>

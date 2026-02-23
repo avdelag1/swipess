@@ -3,7 +3,7 @@
  * UnifiedListingForm - Creates listings for all categories
  * Updated to match new normalized schema with JSONB arrays
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { notifications } from '@/utils/notifications';
 import { Upload, X, Bike, CircleDot } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -50,6 +50,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [location, setLocation] = useState<{ lat?: number; lng?: number }>({});
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Use refs to track latest values for mutation (avoids closure staleness)
+  const imagesRef = useRef(images);
+  const imageFilesRef = useRef(imageFiles);
+  
+  // Keep refs in sync with state
+  useEffect(() => { imagesRef.current = images; }, [images]);
+  useEffect(() => { imageFilesRef.current = imageFiles; }, [imageFiles]);
 
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -102,16 +110,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      if (images.length + imageFiles.length < 1) {
+      // Use refs to get latest values (avoids stale closure)
+      const currentImages = imagesRef.current;
+      const currentImageFiles = imageFilesRef.current;
+
+      if (currentImages.length + currentImageFiles.length < 1) {
         throw new Error('At least 1 photo required');
       }
 
       let uploadedImageUrls: string[] = [];
-      if (imageFiles.length > 0) {
-        uploadedImageUrls = await uploadPhotoBatch(user.user.id, imageFiles, 'listing-images');
+      if (currentImageFiles.length > 0) {
+        uploadedImageUrls = await uploadPhotoBatch(user.user.id, currentImageFiles, 'listing-images');
       }
 
-      const allImages = [...images, ...uploadedImageUrls];
+      const allImages = [...currentImages, ...uploadedImageUrls];
 
       // Convert arrays to JSONB format
       const amenities = formData.amenities ? JSON.parse(JSON.stringify(formData.amenities)) : [];

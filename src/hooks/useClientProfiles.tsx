@@ -47,7 +47,6 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
             user_id,
             full_name,
             avatar_url,
-            role,
             age,
             gender,
             images,

@@ -40,26 +40,29 @@ export function PropertyDetails({ listingId, isOpen, onClose, onMessageClick }: 
     queryKey: ['listing', listingId],
     queryFn: async () => {
       if (!listingId) return null;
-      
+
+      // Step 1: Fetch the listing
       const { data, error } = await supabase
         .from('listings')
-        .select(`
-          *,
-          profiles!listings_owner_id_fkey (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('id', listingId)
         .single();
 
       if (error) throw error;
-      // Handle profiles as array or single object from join
-      const result = data as any;
-      if (result?.profiles && Array.isArray(result.profiles)) {
-        result.profiles = result.profiles[0] || { full_name: '', avatar_url: '' };
+      if (!data) return null;
+
+      // Step 2: Fetch the owner profile separately (no FK constraint exists)
+      let ownerProfile = null;
+      if (data.owner_id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('user_id', data.owner_id)
+          .maybeSingle();
+        ownerProfile = profileData;
       }
-      return result as Listing & { profiles: { full_name: string; avatar_url: string } };
+
+      return { ...data, profiles: ownerProfile || { full_name: '', avatar_url: '' } } as Listing & { profiles: { full_name: string; avatar_url: string } };
     },
     enabled: !!listingId && isOpen,
   });

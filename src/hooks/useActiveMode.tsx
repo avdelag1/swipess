@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
@@ -237,10 +237,10 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
 
     // 8. Show success toast
     toast({
-      title: `Switched to ${newMode === 'client' ? 'I Can Do' : 'I Need'} mode`,
+      title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
       description: newMode === 'client'
-        ? 'Now offering properties, bikes, motors & services'
-        : 'Now browsing deals, services and properties',
+        ? 'Browsing deals, services and properties'
+        : 'Managing listings and discovering clients',
     });
 
     // 8. Success haptic

@@ -1,22 +1,32 @@
-// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { toast as sonnerToast } from 'sonner';
+import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
-import { retryWithBackoff } from '@/utils/retryUtils';
 import { logger } from '@/utils/prodLogger';
 import { STORAGE, REFERRAL } from '@/constants/app';
 
 interface CreateProfileData {
   id: string;
+  user_id: string;
   full_name?: string;
   email?: string;
 }
 
 // Track ongoing profile creation to prevent concurrent attempts
 const profileCreationInProgress = new Set<string>();
+
+/**
+ * Reset the profile creation lock for a given user.
+ * Call this on fresh sign-in to prevent stale lockouts from previous failed attempts.
+ */
+export function resetProfileCreationLock(userId?: string) {
+  if (userId) {
+    profileCreationInProgress.delete(userId);
+  } else {
+    profileCreationInProgress.clear();
+  }
+}
 
 export function useProfileSetup() {
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
@@ -143,7 +153,7 @@ export function useProfileSetup() {
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (existingProfile) {
@@ -173,17 +183,80 @@ export function useProfileSetup() {
         
         if (!roleCreated) {
           if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to upsert role after 3 attempts:', lastRoleError);
-          toast({
-            title: "Role Update Failed",
+          toast.error("Role Update Failed", {
             description: "Could not update user role. Please refresh the page.",
-            variant: "destructive"
           });
         }
         
+        // CRITICAL FIX: The DB trigger creates profiles with onboarding_completed=false
+        // and may leave full_name/email empty. Update these fields so the user
+        // appears correctly in the backend and in swipe decks.
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            onboarding_completed: true,
+            full_name: user.user_metadata?.name || user.user_metadata?.full_name || undefined,
+            email: user.email || undefined,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id)
+          .eq('onboarding_completed', false); // Only update if still false (idempotent)
+
+        if (updateError && import.meta.env.DEV) {
+          logger.error('[ProfileSetup] Failed to update onboarding status:', updateError);
+        }
+
+        // Ensure specialized profile exists (client_profiles or owner_profiles)
+        try {
+          if (role === 'client') {
+            const { data: existingClientProfile } = await supabase
+              .from('client_profiles')
+              .select('id')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (!existingClientProfile) {
+              const { error: cpError } = await supabase
+                .from('client_profiles')
+                .insert([{
+                  user_id: user.id,
+                  name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+                  profile_images: [],
+                  interests: [],
+                }]);
+              if (cpError && cpError.code !== '23505') {
+                logger.error('[ProfileSetup] Failed to create client_profiles for existing user:', cpError);
+              }
+            }
+          } else if (role === 'owner') {
+            const { data: existingOwnerProfile } = await supabase
+              .from('owner_profiles')
+              .select('id')
+              .eq('user_id', user.id)
+              .maybeSingle();
+
+            if (!existingOwnerProfile) {
+              const { error: opError } = await supabase
+                .from('owner_profiles')
+                .insert([{
+                  user_id: user.id,
+                  business_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+                  contact_email: user.email || '',
+                  profile_images: [],
+                }]);
+              if (opError && opError.code !== '23505') {
+                logger.error('[ProfileSetup] Failed to create owner_profiles for existing user:', opError);
+              }
+            }
+          }
+        } catch (specializedProfileError) {
+          logger.error('[ProfileSetup] Error creating specialized profile for existing user:', specializedProfileError);
+        }
+
         // CRITICAL: Invalidate cache for existing profiles too!
         queryClient.invalidateQueries({ queryKey: ['user-role', user.id] });
         await new Promise(resolve => setTimeout(resolve, 100));
-        
+
         return existingProfile;
       }
 
@@ -194,6 +267,7 @@ export function useProfileSetup() {
       for (let attempt = 1; attempt <= 3; attempt++) {
         const profileData: CreateProfileData = {
           id: user.id,
+          user_id: user.id,
           full_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
           email: user.email || ''
         };
@@ -236,10 +310,8 @@ export function useProfileSetup() {
           : lastProfileError?.message || 'Unknown error';
 
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create profile after 3 attempts:', lastProfileError);
-        toast({
-          title: "Profile Creation Failed",
+        toast.error("Profile Creation Failed", {
           description: errorMsg,
-          variant: "destructive"
         });
         return null;
       }
@@ -310,10 +382,8 @@ export function useProfileSetup() {
 
       if (!roleCreated) {
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create role after 3 attempts:', lastRoleError);
-        toast({
-          title: "Role Setup Failed",
+        toast.error("Role Setup Failed", {
           description: "Profile created but role assignment failed. Please contact support.",
-          variant: "destructive"
         });
         return null;
       }
@@ -423,10 +493,8 @@ export function useProfileSetup() {
 
     } catch (error) {
       if (import.meta.env.DEV) logger.error('[ProfileSetup] Unexpected error in profile setup:', error);
-      toast({
-        title: "Setup Error",
+      toast.error("Setup Error", {
         description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
       });
       return null;
     } finally {

@@ -1,10 +1,11 @@
 // @ts-nocheck
 
 import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
@@ -39,7 +40,7 @@ const NotificationsDialog = lazy(() => import('@/components/NotificationsDialog'
 const OnboardingFlow = lazy(() => import('@/components/OnboardingFlow').then(m => ({ default: m.OnboardingFlow })))
 const CategorySelectionDialog = lazy(() => import('@/components/CategorySelectionDialog').then(m => ({ default: m.CategorySelectionDialog })))
 const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog').then(m => ({ default: m.SavedSearchesDialog })))
-const TokenPackages = lazy(() => import('@/components/TokenPackages').then(m => ({ default: m.TokenPackages })))
+const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
 
@@ -133,7 +134,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [onboardingChecked, setOnboardingChecked] = useState(false)
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
-  const [showTokens, setShowTokens] = useState(false)
+  const [showMessageActivations, setShowMessageActivations] = useState(false)
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
@@ -293,6 +294,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, restoreDrafts]);
 
+  // SCROLL-TO-TOP: Reset scroll position on every page navigation
+  // Uses 'instant' (not smooth) so the new page always starts at the top without any animated scroll
+  useEffect(() => {
+    const el = document.getElementById('dashboard-scroll-container');
+    if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [location.pathname]);
+
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
   // (survives localStorage clears from Lovable preview URLs)
@@ -342,8 +350,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowNotifications(true)
   }, [])
 
-  const handleTokensClick = useCallback(() => {
-    setShowTokens(true)
+  const handleMessageActivationsClick = useCallback(() => {
+    setShowMessageActivations(true)
   }, [])
 
   const handleMenuItemClick = useCallback((action: string) => {
@@ -541,7 +549,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {!isCameraRoute && !isRadioRoute && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
-          onTokensClick={handleTokensClick}
+          onMessageActivationsClick={handleMessageActivationsClick}
           showFilters={isOnDiscoveryPage}
           userRole={userRole === 'admin' ? 'client' : userRole}
           transparent={isImmersiveDashboard}
@@ -557,11 +565,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum"
         style={{
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
-            ? 'var(--safe-top)'
+            ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute) ? 'var(--safe-bottom)' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          paddingLeft: 'max(var(--safe-left), 0px)',
-          paddingRight: 'max(var(--safe-right), 0px)',
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
+          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
@@ -571,13 +579,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           willChange: 'contents',
         }}
       >
-        {enhancedChildren}
-        {/* Fade-out gradient at bottom of content - hide on fullscreen routes */}
-        {!isCameraRoute && !isRadioRoute && (
-          <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]"
-            style={{ bottom: `calc(${bottomNavHeight}px + var(--safe-bottom))` }}
-          />
-        )}
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
+        >
+          {enhancedChildren}
+        </motion.div>
       </main>
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera and radio routes for fullscreen UX */}
@@ -614,9 +624,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Token Packages */}
       <Suspense fallback={null}>
-        <TokenPackages
-          isOpen={showTokens}
-          onClose={() => setShowTokens(false)}
+        <MessageActivationPackages
+          isOpen={showMessageActivations}
+          onClose={() => setShowMessageActivations(false)}
           userRole={userRole === 'admin' ? 'client' : userRole}
         />
       </Suspense>

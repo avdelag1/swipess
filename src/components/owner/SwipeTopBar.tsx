@@ -22,15 +22,28 @@ export function SwipeTopBar({ currentIndex, totalCount, onBack, onFilters }: Swi
           variant="ghost"
           size="icon"
           onClick={onBack}
-          className="w-10 h-10 text-gray-200 hover:bg-white/10 transition-colors"
+          className="w-10 h-10 text-white hover:text-orange-200 transition-all active:scale-[0.95]"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.06)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 255, 255, 0.12)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+          }}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
 
         {/* Counter - Increased Contrast */}
-        <div className="text-gray-300 font-semibold text-sm">
+        <div className="text-white font-bold text-sm px-3 py-1.5 rounded-lg" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+        }}>
           <span>{currentIndex + 1}</span>
-          <span className="text-gray-500"> / {totalCount}</span>
+          <span className="text-gray-200"> / {totalCount}</span>
         </div>
 
         {/* Filter Button - Increased Brightness */}
@@ -39,7 +52,14 @@ export function SwipeTopBar({ currentIndex, totalCount, onBack, onFilters }: Swi
             variant="ghost"
             size="icon"
             onClick={onFilters}
-            className="w-10 h-10 text-gray-200 hover:bg-white/10 transition-colors"
+            className="w-10 h-10 text-white hover:text-orange-200 transition-all active:scale-[0.95]"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.06)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+            }}
           >
             <SlidersHorizontal className="w-5 h-5" />
           </Button>

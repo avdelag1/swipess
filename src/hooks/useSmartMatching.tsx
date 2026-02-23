@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Listing } from './useListings';
 import { ClientFilterPreferences } from './useClientFilterPreferences';
 import { logger } from '@/utils/prodLogger';
@@ -1058,7 +1058,6 @@ export function useSmartClientMatching(
         // PERF: Select only fields that exist in the profiles table
         // FIXED: Removed non-existent columns (budget_min, budget_max, verified, has_pets, party_friendly, is_active)
         const CLIENT_SWIPE_CARD_FIELDS = `
-          id,
           user_id,
           full_name,
           age,
@@ -1137,7 +1136,7 @@ export function useSmartClientMatching(
           count: profiles.length,
           page,
           userId,
-          firstProfileId: profiles[0]?.id,
+          firstProfileId: profiles[0]?.user_id,
           hasImages: profiles.filter(p => p.images && (p.images as any[]).length > 0).length,
           clientProfilesEnriched: clientProfileMap.size
         });

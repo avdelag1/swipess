@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
-import { toast } from './use-toast';
+import { toast } from 'sonner';
 
 export type DismissalTargetType = 'listing' | 'client';
 

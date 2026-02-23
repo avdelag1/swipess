@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { SwipessLogo } from './SwipessLogo';
 import { logger } from '@/utils/prodLogger';
 
@@ -160,7 +160,7 @@ const steps = [
           onboarding_step: 5,
           onboarding_completed_at: new Date().toISOString(),
         })
-        .eq('id', user?.id);
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 
@@ -447,7 +447,7 @@ const steps = [
           onboarding_completed: true,
           onboarding_step: currentStep,
         })
-        .eq('id', user?.id);
+        .eq('user_id', user?.id);
 
       onComplete();
     } catch (error) {

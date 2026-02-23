@@ -9,7 +9,7 @@ import {
   Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader,
   Check, X, Shield, Sparkles
 } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { notifications } from '@/utils/notifications';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -398,7 +398,14 @@ export function AuthDialog({ isOpen, onClose, role }: AuthDialogProps) {
                       onClick={(e) => handleOAuthSignIn(e, 'google')}
                       disabled={isLoading}
                       variant="outline"
-                      className="w-full h-11 border border-white/10 bg-white/[0.02] font-semibold text-sm text-white hover:bg-white/[0.05] hover:border-white/20 transition-all"
+                      className="w-full h-12 font-semibold text-sm text-white hover:border-white/20 transition-all active:scale-[0.97]"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+                      }}
                     >
                       {isLoading ? (
                         <>
@@ -566,7 +573,14 @@ export function AuthDialog({ isOpen, onClose, role }: AuthDialogProps) {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-11 text-sm font-bold bg-gradient-to-r from-orange-500 via-red-500 to-rose-500 text-white transition-all mt-2 hover:opacity-90"
+                    className="w-full h-12 text-sm font-bold text-white transition-all mt-2 hover:opacity-90 active:scale-[0.97]"
+                    style={{
+                      background: 'linear-gradient(135deg, #f97316, #ef4444, #e11d48)',
+                      backdropFilter: 'blur(8px)',
+                      WebkitBackdropFilter: 'blur(8px)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.15), 0 4px 16px rgba(239,68,68,0.35)',
+                    }}
                   >
                     {isLoading ? (
                       <>
