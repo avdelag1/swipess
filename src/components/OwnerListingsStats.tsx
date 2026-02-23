@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils';
 
 interface OwnerListingsStatsProps {
   listings: any[];
+  isLight?: boolean;
 }
 
-export function OwnerListingsStats({ listings }: OwnerListingsStatsProps) {
+export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsStatsProps) {
   // Calculate statistics
   const totalListings = listings.length;
   const activeListings = listings.filter(l => l.status === 'active' && l.is_active).length;
@@ -92,8 +93,10 @@ export function OwnerListingsStats({ listings }: OwnerListingsStatsProps) {
             transition={{ delay: index * 0.1, duration: 0.4 }}
           >
             <Card className={cn(
-              "relative border border-white/5 shadow-lg hover:shadow-xl transition-all duration-300",
-              "bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm"
+              "relative border shadow-lg hover:shadow-xl transition-all duration-300",
+              isLight
+                ? "bg-white border-gray-200"
+                : "border-white/5 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm"
             )}>
               {/* Background gradient effect */}
               <div className={cn(
@@ -104,18 +107,18 @@ export function OwnerListingsStats({ listings }: OwnerListingsStatsProps) {
               <CardContent className="relative p-3 sm:p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[10px] sm:text-xs font-medium text-gray-400 uppercase tracking-wider truncate">
+                    <p className={cn("text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate", isLight ? 'text-gray-500' : 'text-gray-400')}>
                       {stat.title}
                     </p>
                     <div className="flex items-baseline gap-1 mt-1">
-                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white truncate">
+                      <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
                         {stat.value}
                       </h3>
                       {stat.trend && (
                         <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
                       )}
                     </div>
-                    <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5 sm:mt-1">
+                    <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-gray-400' : 'text-gray-500')}>
                       {stat.description}
                     </p>
                   </div>
@@ -139,15 +142,15 @@ export function OwnerListingsStats({ listings }: OwnerListingsStatsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
         >
-          <Card className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border-0 shadow-lg">
+          <Card className={cn("border-0 shadow-lg", isLight ? "bg-white" : "bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm")}>
             <CardContent className="p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs sm:text-sm font-medium text-gray-400">Category Breakdown</h4>
-                <span className="text-[10px] sm:text-xs text-gray-500">{totalListings} total</span>
+                <h4 className={cn("text-xs sm:text-sm font-medium", isLight ? 'text-gray-500' : 'text-gray-400')}>Category Breakdown</h4>
+                <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-gray-400' : 'text-gray-500')}>{totalListings} total</span>
               </div>
 
               {/* Progress bar showing category distribution */}
-              <div className="h-2 sm:h-2.5 rounded-full bg-gray-700/50 overflow-hidden flex">
+              <div className={cn("h-2 sm:h-2.5 rounded-full overflow-hidden flex", isLight ? 'bg-gray-100' : 'bg-gray-700/50')}>
                 {categoryBreakdown.map((cat, i) => (
                   <motion.div
                     key={cat.name}
@@ -164,7 +167,7 @@ export function OwnerListingsStats({ listings }: OwnerListingsStatsProps) {
                 {categoryBreakdown.map((cat) => (
                   <div key={cat.name} className="flex items-center gap-1.5">
                     <div className={cn("w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full", cat.color)} />
-                    <span className="text-[10px] sm:text-xs text-gray-400">
+                    <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-gray-500' : 'text-gray-400')}>
                       {cat.name} ({cat.count})
                     </span>
                   </div>

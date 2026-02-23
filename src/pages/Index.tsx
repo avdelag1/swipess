@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import LegendaryLandingPage from "@/components/LegendaryLandingPage";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 
@@ -159,23 +159,16 @@ const Index = () => {
     }
   }, [user?.id]);
 
-  // CRITICAL: Show loading spinner while auth is initializing
-  // This prevents the landing page from flashing before redirecting to dashboard
   if (!initialized || loading) {
-    return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-        <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
-  // User exists but still loading role - show loading
-  // But if polling has timed out (user age > 30s) and still no role, show error
+  // User exists but still loading role - show transparent screen
   if (user && (isLoadingRole || (isNewUser && !userRole))) {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
             <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
@@ -193,14 +186,7 @@ const Index = () => {
       );
     }
 
-    return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-        <div className="text-center space-y-4">
-          <div className="w-12 h-12 mx-auto border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-          <p className="text-white/70 text-sm">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -213,11 +199,7 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      <div className="w-12 h-12 border-4 border-orange-500/30 border-t-orange-500 rounded-full animate-spin" />
-    </div>
-  );
+  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
 };
 
 export default Index;

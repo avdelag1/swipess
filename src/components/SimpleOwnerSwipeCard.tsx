@@ -17,7 +17,6 @@ import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { useMagnifier } from '@/hooks/useMagnifier';
-import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import { useParallaxStore } from '@/state/parallaxStore';
@@ -551,8 +550,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         }}
       >
         <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
-        {/* Bottom gradient for depth */}
-        <GradientMaskBottom intensity={0.6} zIndex={2} heightPercent={40} />
+        {/* No gradient - full-bleed cards */}
       </div>
     );
   }
@@ -603,9 +601,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
 
-          {/* TOP GRADIENT MASK - Creates visual contrast for header UI */}
-          <GradientMaskTop intensity={1} zIndex={15} heightPercent={28} />
-
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
             <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -617,9 +612,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               ))}
             </div>
           )}
-
-          {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
-          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
         </div>
         
         {/* YES! overlay */}
@@ -667,10 +659,19 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </motion.div>
         
         {/* Content overlay - Positioned higher for Tinder style (above button area) */}
-        <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
-          {/* Rating Display - Bottom of card, above profile info (same as client side) */}
+        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
+          {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
-            <div className="inline-flex bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5">
+            <div
+              className="inline-flex rounded-full px-3 py-1.5"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.35)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            >
               <CompactRatingDisplay
                 aggregate={ratingAggregate}
                 isLoading={isRatingLoading}
@@ -713,7 +714,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 </>
               )}
               {!budgetText && profile.work_schedule && (
-                <div className="flex items-center gap-1 bg-white/20 px-3 py-2 rounded-full w-fit">
+                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+                }}>
                   <Briefcase className="w-4 h-4 text-white" />
                   <span className="text-base font-medium text-white">{profile.work_schedule}</span>
                 </div>
@@ -733,7 +740,13 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 </div>
               )}
               {profile.work_schedule && (
-                <div className="flex items-center gap-1 bg-white/20 px-3 py-2 rounded-full w-fit">
+                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(255, 255, 255, 0.12)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+                }}>
                   <Briefcase className="w-4 h-4 text-white" />
                   <span className="text-base font-medium text-white">{profile.work_schedule}</span>
                 </div>
@@ -762,12 +775,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
               <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
                 {budgetText && (
-                  <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}>
                     <DollarSign className="w-3 h-3" /> {budgetText}
                   </span>
                 )}
                 {profile.work_schedule && (
-                  <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
+                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                  }}>
                     <Briefcase className="w-3 h-3" /> {profile.work_schedule}
                   </span>
                 )}
@@ -779,7 +798,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         {/* Action buttons INSIDE card - Tinder style */}
         {!hideActions && (
           <div
-            className="absolute bottom-4 left-0 right-0 flex justify-center z-30"
+            className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
             onClick={(e) => {
               // Prevent clicks in button area from bubbling to card handler
               e.stopPropagation();

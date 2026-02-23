@@ -9,13 +9,13 @@ export function useMessageActivations() {
 
   // Fetch available tokens from actual table schema
   const { data: tokens, isLoading } = useQuery({
-    queryKey: ['tokens', user?.id],
+    queryKey: ['message_activations', user?.id],
     queryFn: async () => {
       if (!user?.id) return { totalRemaining: 999 };
 
       try {
         const { data, error } = await supabase
-          .from('tokens')
+          .from('message_activations')
           .select('*')
           .eq('user_id', user.id);
 

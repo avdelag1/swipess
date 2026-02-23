@@ -81,6 +81,66 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// ─── Push Notification Handlers ──────────────────────────────────
+
+/**
+ * Handles incoming push messages from the server (VAPID web push).
+ * Works when the app is closed, in background, or in another tab.
+ */
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (_e) {
+    data = { title: 'Swipess', body: event.data ? event.data.text() : '' };
+  }
+
+  const title = data.title || 'Swipess';
+  const options = {
+    body: data.body || '',
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: data.badge || '/icons/badge-72x72.png',
+    vibrate: [100, 50, 100, 50, 100],
+    tag: `swipess-${(data.data && data.data.type) || 'general'}-${Date.now()}`,
+    requireInteraction: false,
+    silent: false,
+    data: Object.assign({ url: data.url || '/notifications' }, data.data || {}),
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+/**
+ * Handles clicks on push notifications.
+ * Opens or focuses the app and navigates to the relevant page.
+ */
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const notificationData = event.notification.data || {};
+  const targetUrl = notificationData.url || '/notifications';
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clientList) => {
+        // Focus existing window and post message to navigate
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            client.postMessage({ type: 'NOTIFICATION_CLICK', url: targetUrl, data: notificationData });
+            return client.focus();
+          }
+        }
+        // No open window - open a new one
+        if (self.clients.openWindow) {
+          return self.clients.openWindow(targetUrl);
+        }
+      })
+  );
+});
+
+// ─── Install / Fetch / Activate ──────────────────────────────────
+
 // Install service worker - AGGRESSIVE: skipWaiting immediately
 self.addEventListener('install', (event) => {
   // Skip waiting immediately to activate new SW right away

@@ -5,9 +5,68 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Google Gemini via Lovable Gateway
+// Google Gemini via Lovable Gateway (Primary)
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const GEMINI_MODEL = "google/gemini-3-flash-preview";
+const LOVABLE_MODEL = "google/gemini-3-flash-preview";
+
+// MiniMax (Fallback)
+const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2";
+const MINIMAX_MODEL = "MiniMax-M1";
+
+// ─── Provider Calls ───────────────────────────────────────────────
+
+async function callGemini(messages: Message[], maxTokens: number): Promise<ProviderResult> {
+  const key = Deno.env.get("LOVABLE_API_KEY");
+  if (!key) throw new Error("LOVABLE_API_KEY not configured");
+
+  const res = await fetch(LOVABLE_GATEWAY, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: LOVABLE_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: maxTokens,
+    }),
+  });
+
+  if (!res.ok) {
+    const status = res.status;
+    const body = await res.text();
+    console.error("Gemini error:", status, body);
+    throw new ProviderError(`Gemini AI error (${status})`, status);
+  }
+
+  const data = await res.json();
+  return { content: data.choices?.[0]?.message?.content || "", provider: "gemini" };
+}
+
+async function callMinimax(messages: Message[], maxTokens: number): Promise<ProviderResult> {
+  const key = Deno.env.get("MINIMAX_API_KEY");
+  if (!key) throw new Error("MINIMAX_API_KEY not available");
+
+  const res = await fetch(MINIMAX_ENDPOINT, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: MINIMAX_MODEL,
+      messages,
+      temperature: 0.7,
+      max_tokens: maxTokens,
+    }),
+  });
+
+  if (!res.ok) {
+    const status = res.status;
+    const body = await res.text();
+    console.error("MiniMax error:", status, body);
+    throw new ProviderError(`MiniMax error (${status})`, status);
+  }
+
+  const data = await res.json();
+  const content = data.choices?.[0]?.message?.content || "";
+  return { content, provider: "minimax" };
+}
 
 // ─── Types ───────────────────────────────────────────────────────
 
@@ -29,32 +88,24 @@ class ProviderError extends Error {
   }
 }
 
-// ─── AI Provider ───────────────────────────────────────────────
+// ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const key = Deno.env.get("LOVABLE_API_KEY");
-  if (!key) throw new Error("LOVABLE_API_KEY not configured");
+  try {
+    // Primary: Google Gemini
+    return await callGemini(messages, maxTokens);
+  } catch (err) {
+    const isRetryable = err instanceof ProviderError && (err.status === 429 || err.status >= 500);
+    if (!isRetryable) throw err;
 
-  const res = await fetch(LOVABLE_GATEWAY, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: GEMINI_MODEL,
-      messages,
-      temperature: 0.7,
-      max_tokens: maxTokens,
-    }),
-  });
-
-  if (!res.ok) {
-    const status = res.status;
-    const body = await res.text();
-    console.error("Gemini error:", status, body);
-    throw new ProviderError(`Gemini AI error (${status})`, status);
+    console.warn("Gemini failed, trying MiniMax fallback...");
+    try {
+      return await callMinimax(messages, maxTokens);
+    } catch (fallbackErr) {
+      console.error("MiniMax fallback also failed:", fallbackErr);
+      throw err; // throw original error
+    }
   }
-
-  const data = await res.json();
-  return { content: data.choices?.[0]?.message?.content || "", provider: "gemini" };
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
@@ -76,7 +127,7 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const location = (data.location as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
-  const system = `You are an expert marketplace listing creator. Generate compelling listings. Always respond with valid JSON only.`;
+  const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings. Always respond with valid JSON only.`;
 
   let userPrompt = "";
 
@@ -228,7 +279,7 @@ Respond with valid JSON:
   "nextSteps": "What's still needed"
 }
 
-Current extracted: ${JSON.stringify(extractedData, null 2)}
+Current extracted: ${JSON.stringify(extractedData, null, 2)}
 `;
 
   let categoryPrompt = "";
@@ -253,36 +304,6 @@ Current extracted: ${JSON.stringify(extractedData, null 2)}
   ];
 }
 
-function buildLegalPrompt(data: Record<string, unknown>): Message[] {
-  const query = (data.query as string) || "";
-  const userRole = (data.context?.userRole as string) || "client";
-
-  return [
-    { role: "system", content: `You are a knowledgeable legal assistant specializing in real estate, property law, and contracts in Mexico. 
-
-IMPORTANT: You are an AI assistant, NOT a lawyer. Always include a disclaimer that this is general information and users should consult a licensed attorney for specific legal advice.
-
-Your role:
-- Provide general legal information about Mexican real estate laws
-- Explain common real estate documents and their purposes
-- Describe typical processes for buying, selling, and renting property
-- Answer general legal questions about property disputes
-- Suggest what documents are typically needed for transactions
-- NEVER provide specific legal advice or create legally binding documents
-- Always recommend consulting with a licensed attorney for important transactions
-
-Language: Respond in the same language as the user's question. If the question is in Spanish, respond in Spanish.
-
-Respond with valid JSON:
-{
-  "answer": "Your helpful response",
-  "type": "general|document|advice|warning",
-  "disclaimer": "This is general information, consult a lawyer for specific advice"
-}` },
-    { role: "user", content: query },
-  ];
-}
-
 // ─── Main Handler ─────────────────────────────────────────────────
 
 serve(async (req) => {
@@ -291,6 +312,30 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !userData?.user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const body = await req.json();
     const task: string = body.task || body.type;
     const data: Record<string, unknown> = body.data || body;
@@ -314,10 +359,6 @@ serve(async (req) => {
       case "conversation":
         messages = buildConversationMessages(data);
         maxTokens = 1500;
-        break;
-      case "legal":
-        messages = buildLegalPrompt(data);
-        maxTokens = 2000;
         break;
       default:
         return new Response(

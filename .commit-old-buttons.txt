@@ -1,0 +1,6 @@
+Restored original button design with all 5 buttons:
+- Return/Undo (amber rotate)
+- Dislike (red thumbs down)
+- Share (purple)
+- Like (green heart)
+- Message (cyan)

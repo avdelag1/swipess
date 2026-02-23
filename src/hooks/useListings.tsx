@@ -137,7 +137,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
 
         // Exclude swiped properties - use array directly for parameterized query
         if (excludeSwipedIds.length > 0) {
-          query = query.not('id', 'in', `(${excludeSwipedIds.map(id => `"${id}"`).join(',')})`);
+          query = query.not('id', 'in', `(${excludeSwipedIds.join(',')})`);
         }
 
         query = query.limit(20);
@@ -252,16 +252,12 @@ export function useSwipedListings() {
         const { data: user } = await supabase.auth.getUser();
         if (!user.user) return [];
 
-        // Only exclude listings swiped within the last 1 day (reset after next day)
-        const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
-
-        // Use correct column name 'target_id' with target_type='listing'
+        // Fetch ALL-TIME swiped listings - permanent exclusion, no time limit
         const { data: likes, error } = await supabase
           .from('likes')
           .select('target_id')
           .eq('user_id', user.user.id)
-          .eq('target_type', 'listing')
-          .gte('created_at', oneDayAgo);
+          .eq('target_type', 'listing');
 
         if (error) {
           if (import.meta.env.DEV) logger.error('Swipes query error:', error);

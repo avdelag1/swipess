@@ -24,8 +24,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           const { data, error } = await supabase
             .from('profiles')
             .select('theme_preference')
-            .eq('id', user.id)
-            .maybeSingle();
+          .eq('user_id', user.id)
+          .maybeSingle();
 
           if (error) throw error;
 
@@ -97,7 +97,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase
           .from('profiles')
           .update({ theme_preference: newTheme })
-          .eq('id', user.id);
+          .eq('user_id', user.id);
 
         if (error) throw error;
       } catch (error) {

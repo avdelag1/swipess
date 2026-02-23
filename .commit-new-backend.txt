@@ -1,0 +1,5 @@
+Update to new Supabase backend and fix version detection
+
+- Updated Supabase project ID to vplgtcguxujxwrgguxqq
+- Updated Supabase URL and publishable key
+- Updated vite.config.ts with new project preconnect hints

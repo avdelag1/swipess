@@ -1,118 +1,95 @@
 
 
-## AI Orchestrator System -- Unified Multi-Task Intelligence
+# Fix White Theme on Owner Pages, Swipe Card Position, and Listing Upload
 
-### What We're Building
+## Overview
 
-A single `ai-orchestrator` edge function that replaces the current `ai-assistant` and `ai-conversation` functions, handling all AI tasks through one entry point with provider fallback support.
+Multiple issues need fixing:
+1. Several owner-side pages (PropertyManagement, LikedClients, ClientLikedProperties) have hardcoded dark backgrounds that don't adapt to white-matte theme
+2. Swipe card info (rating, name) overlaps with action buttons on mobile
+3. PropertyManagement still uses old `toast()` syntax causing build errors
+4. Email signup works correctly (confirmed 11 email users in database with profiles + roles) -- no backend fix needed
 
-### Current State
+---
 
-- `ai-assistant` handles: listing generation, profile enhancement, search
-- `ai-conversation` handles: conversational listing builder
-- Both use Lovable AI Gateway with `google/gemini-3-flash-preview`
-- Frontend hooks: `useAIGeneration` and `useConversationalAI`
-- MiniMax API key is stored but has no balance (fallback only)
+## Part 1: White Theme Fixes
 
-### Architecture
+### PropertyManagement.tsx (Owner Listings Page)
+The entire component uses hardcoded `bg-gray-900`, `bg-gray-800`, `text-white` classes. Needs theme-aware styling:
+- Import `useTheme` hook, create `isLight` flag
+- Replace `bg-gray-900` with `isLight ? 'bg-[#f5f5f5]' : 'bg-gray-900'`
+- Replace `bg-gray-800` cards with `isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'`
+- Replace `text-white` headings with `text-foreground`
+- Replace `text-white/60` subtitles with `text-muted-foreground`
+- Update search input, tabs, loading and error states
 
-```text
-[ Frontend ]
-     |
-     |-- useAIGeneration() -----> listing, profile, search, enhance
-     |-- useConversationalAI() -> conversation (listing builder)
-     |
-     v
-[ supabase.functions.invoke("ai-orchestrator") ]
-     |
-     |  task routing + provider selection
-     |
-     |---> Lovable AI Gateway (default, free)
-     |---> MiniMax (fallback, if key has balance)
-     |
-     v
-[ Normalized JSON Response ]
-     |
-     v
-[ Form Autofill / Search Filters / Enhanced Text ]
-```
+### OwnerListingsStats.tsx
+Uses `bg-gray-800/40`, `text-white`, `text-white/60` throughout. Needs:
+- Import `useTheme`, pass `isLight` to stat card rendering
+- Replace glass surfaces with theme-aware equivalents
 
-### Tasks Supported
+### LikedClients.tsx (Owner Liked Clients)
+Hardcoded `background: '#070709'` on the root div, plus `text-white`, `rgba(255,255,255,...)` everywhere. Needs:
+- Import `useTheme`, build theme-aware `colors` object (same pattern as OwnerFilters)
+- Update root background, header, search bar, category pills, client cards, empty state
 
-1. **listing** -- Generate structured listing data from description + category
-2. **profile** -- Enhance user bio and interests
-3. **search** -- Convert natural language query to structured filters (semantic search)
-4. **enhance** -- Improve existing listing/profile text
-5. **conversation** -- Multi-turn conversational listing builder with memory
+### ClientLikedProperties.tsx (Client Liked Properties)
+Hardcoded `rgba(255,255,255,...)` patterns in refresh button, category tabs, count indicator, card body, empty state. Needs:
+- Import `useTheme`, add `isLight` conditional styling
+- Update tab pills: inactive state uses `text-white/60` and `rgba(255,255,255,0.06)` -- swap to dark equivalents in light theme
+- Update card body metadata pills, amenity badges, empty state
 
-### Changes
+---
 
-#### 1. New Edge Function: `supabase/functions/ai-orchestrator/index.ts`
+## Part 2: Swipe Card Info Position Fix
 
-Single file that:
-- Accepts `{ task, data, context, messages }` payload
-- Routes to the correct prompt builder based on `task`
-- Calls Lovable AI Gateway (primary) with fallback to MiniMax if Lovable fails
-- Parses AI response into structured JSON
-- Handles rate limit errors (429) and payment errors (402) with clear messages
-- Returns normalized `{ result, provider_used }` response
+### Problem
+On the owner swipe deck (`/owner/liked-clients` screenshot), the rating badge + name "New User" sits at `bottom-24` which puts it right behind the action buttons (Like, Dislike, Share, etc.) on mobile phones.
 
-Provider logic is inline (no subfolders -- edge functions require single file). The orchestrator tries Lovable AI first; if it returns 429/500, it attempts MiniMax as fallback (if the key exists and has balance).
+### Fix (SimpleSwipeCard.tsx + SimpleOwnerSwipeCard.tsx)
+Both files have the content overlay positioned at `bottom-24` (line 505 in SimpleSwipeCard, line 662 in SimpleOwnerSwipeCard). Change to `bottom-32` to push the info section higher, creating comfortable clearance above the floating action buttons.
 
-#### 2. Update `supabase/config.toml`
+This is a single class change per file -- no layout restructuring needed.
 
-Register `ai-orchestrator` with `verify_jwt = false`. Keep old functions registered for backward compatibility during transition.
+---
 
-#### 3. Update Frontend Hooks
+## Part 3: Fix Toast Syntax in PropertyManagement.tsx
 
-**`src/hooks/ai/useAIGeneration.ts`**
-- Change invoke target from `ai-assistant` to `ai-orchestrator`
-- Add `enhance` task type support
-- Surface rate limit / payment errors as toast messages
+Lines 157, 170, 180, 193, 209, 219 still use the old `toast({ title, description, variant })` syntax. Convert to sonner syntax:
+- `toast({ title: 'Deleting...', description: '...' })` becomes `toast('Deleting...', { description: '...' })`
+- `toast({ title: 'Error', variant: 'destructive' })` becomes `toast.error('Error', { description: '...' })`
 
-**`src/hooks/ai/useConversationalAI.ts`**
-- Change invoke target from `ai-conversation` to `ai-orchestrator`
-- Send `task: "conversation"` with messages array
+---
 
-**`src/components/AIListingAssistant.tsx`**
-- Update the direct `supabase.functions.invoke('ai-assistant')` call to use `ai-orchestrator`
+## Part 4: Email Signup Backend Verification
 
-#### 4. Add AI Enhance Capability
+After checking the database, email signups ARE working correctly:
+- 11 email-provider users exist in `auth.users`
+- All have matching `profiles` records (via `handle_new_user` trigger)
+- All have `user_roles` entries (role: client)
+- The `signUp` function in `useAuth.tsx` correctly calls `supabase.auth.signUp()` and `createProfileIfMissing()`
 
-New export in `useAIGeneration`:
-- `enhance(text, tone)` method that sends `task: "enhance"` to the orchestrator
-- Returns improved text that user must confirm before applying
+No backend changes needed -- the user might have been checking a different database or the data wasn't visible due to the backend UI.
 
-#### 5. AI Semantic Search
+---
 
-The existing `search` task already converts natural language to structured filters. The orchestrator will improve the prompt to also detect language and return richer intent data:
-```text
-Input:  "clean lady near me under 1000"
-Output: { category: "worker", filters: { keywords: ["cleaning"], max_price: 1000 }, language: "en", suggestion: "..." }
-```
+## Files to Change
 
-No new database queries needed -- the AI only structures intent, and the existing frontend filter logic applies the result.
+| File | Change |
+|------|--------|
+| `src/components/PropertyManagement.tsx` | Theme-aware colors + fix toast syntax |
+| `src/components/OwnerListingsStats.tsx` | Theme-aware colors |
+| `src/components/LikedClients.tsx` | Theme-aware colors (full page) |
+| `src/pages/ClientLikedProperties.tsx` | Theme-aware colors |
+| `src/components/SimpleSwipeCard.tsx` | Move content overlay from `bottom-24` to `bottom-32` |
+| `src/components/SimpleOwnerSwipeCard.tsx` | Move content overlay from `bottom-24` to `bottom-32` |
 
-### Files to Create/Modify
-
-1. **Create** `supabase/functions/ai-orchestrator/index.ts` -- unified orchestrator with all task routing and provider fallback
-2. **Modify** `supabase/config.toml` -- add orchestrator function registration
-3. **Modify** `src/hooks/ai/useAIGeneration.ts` -- point to orchestrator, add enhance task
-4. **Modify** `src/hooks/ai/useConversationalAI.ts` -- point to orchestrator
-5. **Modify** `src/components/AIListingAssistant.tsx` -- point to orchestrator
-
-### Provider Fallback Logic
-
-```text
-1. Try Lovable AI Gateway (free, fast)
-2. If 429/500 -> Try MiniMax (if MINIMAX_API_KEY exists)
-3. If both fail -> Return error with clear message
-```
-
-### What Stays the Same
-
-- All existing frontend UI components remain unchanged
-- The swipe mechanics, filters, and database schema are untouched
-- The conversational listing builder flow stays identical
-- All existing AI capabilities (listing, profile, search) work exactly as before, just routed through the new orchestrator
+## What Stays Unchanged
+- All swipe physics and card interaction logic
+- Authentication flow (signup, signin, OAuth)
+- Database schema and RLS policies
+- Routing architecture
+- Owner Filters page (already has full theme support)
+- Owner Profile page (already has theme support)
+- Client Profile page (already has theme support)
 

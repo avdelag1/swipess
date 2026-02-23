@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
@@ -152,12 +152,34 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   }, [user?.id, queryClient]);
 
   // Get target path for navigation
-  // Get target path for navigation - SIMPLIFIED: always go to dashboard
+  // Get target path for navigation
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
-    // Always switch to the dashboard of the new mode
-    // This is more reliable than trying to map specific pages
-    return newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
-  }, []);
+    const currentPath = location.pathname;
+    
+    // Default paths
+    const defaultPaths = {
+      client: '/client/dashboard',
+      owner: '/owner/dashboard'
+    };
+
+    if (currentPath.includes('/client/') || currentPath.includes('/owner/')) {
+      // Extract the page type from path - handle both /client/page and /client/page/
+      const pathParts = currentPath.split('/').filter(Boolean);
+      const currentPageType = pathParts[1] === 'client' || pathParts[1] === 'owner' 
+        ? pathParts[2] || 'dashboard' 
+        : 'dashboard';
+      const fromMode = currentPath.includes('/client/') ? 'client' : 'owner';
+
+      // Try to get mapped path, fallback to default
+      const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
+      if (mappedPath) {
+        return mappedPath;
+      }
+    }
+
+    // Default fallback
+    return newMode === 'client' ? defaultPaths.client : defaultPaths.owner;
+  }, [location.pathname]);
 
   // FAST mode switch - everything happens synchronously
   const switchMode = useCallback((newMode: ActiveMode) => {
@@ -215,10 +237,10 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
 
     // 8. Show success toast
     toast({
-      title: `Switched to ${newMode === 'client' ? 'I Can Do' : 'I Need'} mode`,
+      title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
       description: newMode === 'client'
-        ? 'Now offering properties, bikes, motors & services'
-        : 'Now browsing deals, services and properties',
+        ? 'Browsing deals, services and properties'
+        : 'Managing listings and discovering clients',
     });
 
     // 8. Success haptic

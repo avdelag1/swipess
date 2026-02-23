@@ -1,19 +1,19 @@
 // @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { PageTransition } from '@/components/PageTransition';
+import { Button } from '@/components/ui/button';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MessageCircle, Flame, Home, Bike, Ship, Car } from 'lucide-react';
+import { Home, Bike, Ship, Car } from 'lucide-react';
 import { ClientProfilePreview } from '@/components/ClientProfilePreview';
 import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useState as useReactState } from 'react';
 import { logger } from '@/utils/prodLogger';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 export default function OwnerViewClientProfile() {
   const { clientId } = useParams();
@@ -151,7 +151,7 @@ export default function OwnerViewClientProfile() {
         </div>
 
         {/* Profile Content */}
-        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl pb-28 sm:pb-8">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 max-w-4xl pb-28 sm:pb-24">
           {/* Use the shared ClientProfilePreview component */}
           <ClientProfilePreview mode="owner-view" clientId={clientId} />
 
@@ -622,16 +622,16 @@ export default function OwnerViewClientProfile() {
             </>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex gap-2 sm:gap-3 sticky bottom-20 sm:bottom-6 bg-background/98 py-3 -mx-3 sm:-mx-4 px-3 sm:px-4 border-t border-border/50">
-            <Button onClick={handleConnect} className="flex-1 text-sm sm:text-base" size="lg">
-              <MessageCircle className="mr-1.5 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-              <span className="hidden sm:inline">Start Conversation</span>
-              <span className="sm:hidden">Message</span>
-            </Button>
-            <Button variant="outline" size="lg">
-              <Flame className="h-4 w-4 sm:h-5 sm:w-5" />
-            </Button>
+          {/* Action Buttons - Same style as swipe cards */}
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center z-30 px-4">
+            <SwipeActionButtonBar
+              onLike={handleConnect}
+              onDislike={() => {}}
+              onShare={() => {}}
+              onUndo={() => {}}
+              onMessage={handleConnect}
+              canUndo={false}
+            />
           </div>
         </div>
       </div>
