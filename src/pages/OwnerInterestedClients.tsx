@@ -56,7 +56,8 @@ const OwnerInterestedClients = () => {
   const [selectedClient, setSelectedClient] = useState<ExtendedInterestedClient | null>(null);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
-  const { canStartNewConversation, tokenBalance } = useMessagingQuota();
+  const { canStartNewConversation, tokenBalance: tb } = useMessagingQuota();
+  const tokenBalance = typeof tb === 'number' ? tb : 0;
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'owner';
