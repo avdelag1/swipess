@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
 const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
@@ -27,6 +28,8 @@ const OwnerProfileNew = () => {
   const { data: stats, isLoading: statsLoading } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
 
   const isLoading = statsLoading || profileLoading;
 
@@ -62,13 +65,13 @@ const OwnerProfileNew = () => {
             variants={childVariant}
             onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/owner/dashboard')}
             whileTap={{ scale: 0.94 }}
-            className="flex items-center gap-1.5 text-sm font-semibold text-white mb-2 px-3 py-2 rounded-xl transition-all active:scale-95"
+            className={`flex items-center gap-1.5 text-sm font-semibold ${isLight ? 'text-gray-800' : 'text-white'} mb-2 px-3 py-2 rounded-xl transition-all active:scale-95`}
             style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
+              background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.14)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3)',
+              boxShadow: isLight ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.06)' : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -163,7 +166,7 @@ const OwnerProfileNew = () => {
 
           {/* Filter Colors / Theme */}
           <motion.div variants={childVariant}>
-            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
+            <div className="rounded-2xl p-4" style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4c1d95, #a855f7)' }}>
                   <Palette className="w-4 h-4 text-white" />
@@ -200,9 +203,9 @@ const OwnerProfileNew = () => {
               onClick={() => navigate('/owner/settings')}
               className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-medium text-base transition-colors"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                color: 'rgba(255,255,255,0.85)',
+                background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+                border: isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
+                color: isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.85)',
               }}
             >
               <Settings className="w-5 h-5" />
