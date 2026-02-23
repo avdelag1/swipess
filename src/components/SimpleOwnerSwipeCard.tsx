@@ -659,7 +659,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </motion.div>
         
         {/* Content overlay - Positioned higher for Tinder style (above button area) */}
-        <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
+        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
             <div
