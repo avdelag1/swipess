@@ -13,7 +13,8 @@ import { useUserSubscription } from "@/hooks/useSubscription";
 import { useStartConversation, useConversationStats } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Flame, MessageCircle, MapPin, Bed, Bath, Square, Crown, RefreshCw, ArrowLeft, Home, Bike, Briefcase, Trash2, MoreVertical } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/components/ui/sonner";
+import { useTheme } from "@/hooks/useTheme";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
 import { MessageQuotaDialog } from "@/components/MessageQuotaDialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -70,6 +71,8 @@ const categories = [
 ];
 
 const ClientLikedProperties = () => {
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
   const [showLikedDialog, setShowLikedDialog] = useState(false);
   const [showPropertyDetails, setShowPropertyDetails] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
@@ -244,13 +247,15 @@ const ClientLikedProperties = () => {
                     refreshLikedProperties();
                   }}
                   disabled={isLoading || isFetching}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-white/70 hover:text-white transition-all duration-150 active:scale-95 touch-manipulation disabled:opacity-50"
+                  className={cn("flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 active:scale-95 touch-manipulation disabled:opacity-50",
+                    isLight ? 'text-gray-500 hover:text-gray-900' : 'text-white/70 hover:text-white'
+                  )}
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))',
+                    background: isLight ? 'rgba(0,0,0,0.04)' : 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))',
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(255,255,255,0.12)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.25)',
+                    border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.12)',
+                    boxShadow: isLight ? '0 2px 6px rgba(0,0,0,0.06)' : 'inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 12px rgba(0,0,0,0.25)',
                   }}
                 >
                   <RefreshCw className={`w-4 h-4 ${(isLoading || isFetching) ? 'animate-spin' : ''}`} />
@@ -272,12 +277,12 @@ const ClientLikedProperties = () => {
                       'flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all duration-200 touch-manipulation flex-shrink-0',
                       isActive
                         ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
-                        : 'text-white/60 hover:text-white'
+                        : isLight ? 'text-gray-500 hover:text-gray-900' : 'text-white/60 hover:text-white'
                     )}
                     style={!isActive ? {
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+                      background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                      border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.1)',
+                      boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.06)',
                     } : undefined}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -288,7 +293,7 @@ const ClientLikedProperties = () => {
             </div>
 
             {/* Count indicator */}
-            <div className="flex items-center gap-2 text-white/40 text-sm mb-5">
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mb-5">
               <Flame className="w-4 h-4 text-orange-400" />
               <span>{filteredProperties.length} {selectedCategory === 'all' ? 'liked items' : `liked ${selectedCategory}`}</span>
             </div>
@@ -296,11 +301,11 @@ const ClientLikedProperties = () => {
             {isLoading ? (
               <div className="grid gap-4 md:grid-cols-2">
                 {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                    <div className="h-56 bg-white/5" />
+                  <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)' }}>
+                    <div className={cn("h-56", isLight ? 'bg-gray-100' : 'bg-white/5')} />
                     <div className="p-4 space-y-3">
-                      <div className="h-4 bg-white/10 rounded-xl w-3/4" />
-                      <div className="h-3 bg-white/5 rounded-xl w-1/2" />
+                      <div className={cn("h-4 rounded-xl w-3/4", isLight ? 'bg-gray-200' : 'bg-white/10')} />
+                      <div className={cn("h-3 rounded-xl w-1/2", isLight ? 'bg-gray-100' : 'bg-white/5')} />
                     </div>
                   </div>
                 ))}
@@ -315,9 +320,9 @@ const ClientLikedProperties = () => {
                     transition={{ delay: idx * 0.04, duration: 0.3 }}
                     className="rounded-3xl overflow-hidden cursor-pointer touch-manipulation group"
                     style={{
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.08)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+                      background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.04)',
+                      border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)',
+                      boxShadow: isLight ? '0 4px 16px rgba(0,0,0,0.06)' : '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
                     }}
                     onClick={() => handlePropertyClick(property)}
                     whileHover={{ y: -2, boxShadow: '0 12px 40px rgba(0,0,0,0.45)' }}
@@ -335,7 +340,7 @@ const ClientLikedProperties = () => {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+                        <div className="w-full h-full flex items-center justify-center" style={{ background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)' }}>
                           <Flame className="w-12 h-12" style={{ color: 'rgba(255,255,255,0.15)' }} />
                         </div>
                       )}
@@ -433,28 +438,28 @@ const ClientLikedProperties = () => {
                           {property.beds && (
                             <div
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
-                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                              style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)' }}
                             >
-                              <Bed className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
-                              <span className="text-xs font-semibold text-white">{property.beds} bed</span>
+                              <Bed className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-xs font-semibold text-foreground">{property.beds} bed</span>
                             </div>
                           )}
                           {property.baths && (
                             <div
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
-                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                              style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)' }}
                             >
-                              <Bath className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
-                              <span className="text-xs font-semibold text-white">{property.baths} bath</span>
+                              <Bath className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-xs font-semibold text-foreground">{property.baths} bath</span>
                             </div>
                           )}
                           {property.square_footage && (
                             <div
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl"
-                              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+                              style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)', border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)' }}
                             >
-                              <Square className="w-3.5 h-3.5" style={{ color: 'rgba(255,255,255,0.5)' }} />
-                              <span className="text-xs font-semibold text-white">{property.square_footage} ft²</span>
+                              <Square className="w-3.5 h-3.5 text-muted-foreground" />
+                              <span className="text-xs font-semibold text-foreground">{property.square_footage} ft²</span>
                             </div>
                           )}
                         </div>
@@ -477,7 +482,7 @@ const ClientLikedProperties = () => {
                             </span>
                           ))}
                           {property.amenities.length > 3 && (
-                            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>+{property.amenities.length - 3}</span>
+                            <span className="text-xs text-muted-foreground">+{property.amenities.length - 3}</span>
                           )}
                         </div>
                       )}
@@ -506,27 +511,27 @@ const ClientLikedProperties = () => {
               <div
                 className="rounded-2xl p-12 flex flex-col items-center justify-center text-center"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.06)',
+                  background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+                  border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
                 <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center mb-4">
                   <Flame className="w-8 h-8 text-orange-400/60" />
                 </div>
-                <h3 className="text-xl font-semibold text-white mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {selectedCategory === 'all' ? 'No Liked Items' : `No Liked ${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}`}
                 </h3>
-                <p className="text-white/40 text-sm">
+                <p className="text-muted-foreground text-sm">
                   {selectedCategory === 'all'
                     ? 'Items you like will appear here.'
                     : `Swipe right on ${selectedCategory} listings to add them here.`}
                 </p>
                 {selectedCategory !== 'all' && likedProperties.length > 0 && (
                   <button
-                    className="mt-5 px-5 py-2.5 rounded-xl text-sm font-semibold text-white/70 hover:text-white transition-all touch-manipulation"
+                    className="mt-5 px-5 py-2.5 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground transition-all touch-manipulation"
                     style={{
-                      background: 'rgba(255,255,255,0.08)',
-                      border: '1px solid rgba(255,255,255,0.12)',
+                      background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.08)',
+                      border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.12)',
                     }}
                     onClick={() => handleCategoryChange('all')}
                   >

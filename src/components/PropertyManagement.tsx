@@ -8,8 +8,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useOwnerListings } from '@/hooks/useListings';
 import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, Heart } from 'lucide-react';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
@@ -38,6 +39,8 @@ const getCategoryColor = (category: string) => {
 
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
   const { data: listings = [], isLoading, error } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');
@@ -78,14 +81,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       listing.city?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
       listing.neighborhood?.toLowerCase()?.includes(searchTerm.toLowerCase());
 
-    // Filter by category
     let matchesCategory = true;
     if (activeTab === 'property') matchesCategory = !listing.category || listing.category === 'property';
     else if (activeTab === 'motorcycle') matchesCategory = listing.category === 'motorcycle';
     else if (activeTab === 'bicycle') matchesCategory = listing.category === 'bicycle';
     else if (activeTab === 'worker') matchesCategory = listing.category === 'worker' || listing.category === 'services';
     else if (activeTab === 'liked') {
-      // For liked tab, check if listing has any likes
       const likedListing = listingsWithLikes.find(l => l.id === listing.id);
       matchesCategory = likedListing && likedListing.likeCount > 0;
     }
@@ -148,18 +149,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
   const handleDeleteProperty = async (listing: any) => {
     try {
-      // Optimistic update
       queryClient.setQueryData(['owner-listings'], (oldData: any[]) => {
         if (!oldData) return oldData;
         return oldData.filter(item => item.id !== listing.id);
       });
 
-      toast({
-        title: 'Deleting...',
-        description: `Removing ${listing.title}`,
-      });
+      toast('Deleting...', { description: `Removing ${listing.title}` });
 
-      // Delete from database
       const { error } = await supabase
         .from('listings')
         .delete()
@@ -167,35 +163,23 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
       if (error) throw error;
 
-      toast({
-        title: 'Deleted',
-        description: `${listing.title} has been deleted`,
-      });
+      toast('Deleted', { description: `${listing.title} has been deleted` });
 
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
     } catch (error: any) {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-      toast({
-        title: 'Error',
-        description: 'Failed to delete property',
-        variant: 'destructive',
-      });
+      toast.error('Error', { description: 'Failed to delete property' });
     }
   };
 
   const handleAvailabilityChange = async (listing: any, newStatus: string) => {
     try {
-      // Optimistic update
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: newStatus }));
 
-      toast({
-        title: 'Updating...',
-        description: `Marking ${listing.title} as ${newStatus}`,
-      });
+      toast('Updating...', { description: `Marking ${listing.title} as ${newStatus}` });
 
-      // Update in database
       const { error } = await supabase
         .from('listings')
         .update({ 
@@ -206,21 +190,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
       if (error) throw error;
 
-      toast({
-        title: 'Updated',
-        description: `${listing.title} is now ${newStatus}`,
-      });
+      toast('Updated', { description: `${listing.title} is now ${newStatus}` });
 
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
     } catch (error: any) {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: listing.status }));
-      toast({
-        title: 'Error',
-        description: 'Failed to update availability',
-        variant: 'destructive',
-      });
+      toast.error('Error', { description: 'Failed to update availability' });
     }
   };
 
@@ -256,10 +233,10 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
   if (isLoading) {
     return (
-      <div className="w-full bg-gray-900 p-4 sm:p-6">
+      <div className={cn("w-full p-4 sm:p-6", isLight ? 'bg-[#f5f5f5]' : 'bg-gray-900')}>
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
           <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-white/80">Loading your listings...</p>
+          <p className="text-muted-foreground">Loading your listings...</p>
         </div>
       </div>
     );
@@ -267,20 +244,20 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
   if (error) {
     return (
-      <div className="w-full bg-gray-900 p-4 sm:p-6">
+      <div className={cn("w-full p-4 sm:p-6", isLight ? 'bg-[#f5f5f5]' : 'bg-gray-900')}>
         <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
           <div className="p-4 rounded-full bg-red-500/20">
             <Home className="w-8 h-8 text-red-400" />
           </div>
-          <h1 className="text-xl font-bold text-white">Error Loading Listings</h1>
-          <p className="text-white/60 text-center">{error.message}</p>
+          <h1 className="text-xl font-bold text-foreground">Error Loading Listings</h1>
+          <p className="text-muted-foreground text-center">{error.message}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full bg-gray-900">
+    <div className={cn("w-full", isLight ? 'bg-[#f5f5f5]' : 'bg-gray-900')}>
       <div className="p-3 sm:p-6 pb-24 space-y-4 max-w-7xl mx-auto w-full">
         {/* Header */}
         <motion.div
@@ -293,8 +270,8 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               <LayoutGrid className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">My Listings</h1>
-              <p className="text-white/60 text-sm">Manage and track all your rental properties</p>
+              <h1 className="text-2xl font-bold text-foreground">My Listings</h1>
+              <p className="text-muted-foreground text-sm">Manage and track all your rental properties</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -317,7 +294,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </motion.div>
 
         {/* Statistics */}
-        <OwnerListingsStats listings={listings} />
+        <OwnerListingsStats listings={listings} isLight={isLight} />
 
         {/* Search Bar */}
         <motion.div
@@ -325,17 +302,17 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
           animate={{ opacity: 1, y: 0 }}
           className="relative"
         >
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search listings..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+            className={cn("pl-10", isLight ? 'bg-white border-gray-200 text-foreground placeholder:text-gray-400' : 'bg-gray-800 border-gray-700 text-white placeholder:text-gray-500')}
           />
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex flex-wrap gap-1 p-1 bg-gray-800/50 rounded-xl">
+        <div className={cn("flex flex-wrap gap-1 p-1 rounded-xl", isLight ? 'bg-gray-100' : 'bg-gray-800/50')}>
           {tabItems.map((tab) => (
             <button
               key={tab.id}
@@ -344,7 +321,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                 "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all flex-1 sm:flex-initial justify-center sm:justify-start",
                 activeTab === tab.id
                   ? "bg-primary text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                  : isLight ? "text-gray-500 hover:text-gray-900 hover:bg-gray-200/60" : "text-gray-400 hover:text-white hover:bg-gray-700/50"
               )}
             >
               <tab.icon className="w-4 h-4" />
@@ -371,9 +348,9 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className="bg-gray-800 border-gray-700 overflow-hidden hover:border-primary/30 transition-all">
+                  <Card className={cn("overflow-hidden transition-all hover:border-primary/30", isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700')}>
                     {/* Image */}
-                    <div className="relative aspect-[16/10] bg-gray-700">
+                    <div className={cn("relative aspect-[16/10]", isLight ? 'bg-gray-100' : 'bg-gray-700')}>
                       {listing.images && listing.images.length > 0 ? (
                         <img
                           src={listing.images[0]}
@@ -382,7 +359,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
-                          <ImageIcon className="w-10 h-10 text-gray-600" />
+                          <ImageIcon className={cn("w-10 h-10", isLight ? 'text-gray-300' : 'text-gray-600')} />
                         </div>
                       )}
                       
@@ -428,9 +405,9 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                     <CardContent className="p-4 space-y-3">
                       {/* Title */}
                       <div>
-                        <h3 className="font-semibold text-white line-clamp-1">{listing.title}</h3>
+                        <h3 className="font-semibold text-foreground line-clamp-1">{listing.title}</h3>
                         {(listing.address || listing.city) && (
-                          <div className="flex items-center gap-1 mt-1 text-gray-400 text-xs">
+                          <div className="flex items-center gap-1 mt-1 text-muted-foreground text-xs">
                             <MapPin className="w-3 h-3" />
                             <span className="truncate">
                               {listing.address || listing.city || listing.neighborhood}
@@ -441,13 +418,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
                       {/* Description */}
                       {listing.description && (
-                        <p className="text-xs text-gray-400 line-clamp-2">
+                        <p className="text-xs text-muted-foreground line-clamp-2">
                           {listing.description}
                         </p>
                       )}
 
                       {/* Details */}
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-muted-foreground">
                         {(!listing.category || listing.category === 'property') && listing.bedrooms && listing.bathrooms && (
                           <span>{listing.bedrooms} bed • {listing.bathrooms} bath</span>
                         )}
@@ -460,11 +437,11 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
 
                       {/* Availability Dropdown */}
-                      <div className="pt-2 border-t border-gray-700">
+                      <div className={cn("pt-2 border-t", isLight ? 'border-gray-200' : 'border-gray-700')}>
                         <select
                           value={availabilityStatus[listing.id] || listing.status || 'active'}
                           onChange={(e) => handleAvailabilityChange(listing, e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-primary"
+                          className={cn("w-full px-3 py-2 text-xs rounded-lg border focus:outline-none focus:border-primary", isLight ? 'bg-gray-50 text-foreground border-gray-200' : 'bg-gray-700 text-white border-gray-600')}
                         >
                           <option value="available">Available</option>
                           <option value="active">Active</option>
@@ -511,15 +488,15 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-gray-800 border-gray-700">
+                          <AlertDialogContent className={cn(isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700')}>
                             <AlertDialogHeader>
-                              <AlertDialogTitle className="text-white">Delete Listing</AlertDialogTitle>
-                              <AlertDialogDescription className="text-gray-400">
+                              <AlertDialogTitle className="text-foreground">Delete Listing</AlertDialogTitle>
+                              <AlertDialogDescription className="text-muted-foreground">
                                 Are you sure you want to delete "{listing.title}"?
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-gray-700 text-white border-gray-600">Cancel</AlertDialogCancel>
+                              <AlertDialogCancel className={cn(isLight ? 'bg-gray-100 text-foreground border-gray-200' : 'bg-gray-700 text-white border-gray-600')}>Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleDeleteProperty(listing)}
                                 className="bg-red-600 hover:bg-red-700 text-white"
@@ -542,19 +519,19 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               animate={{ opacity: 1, scale: 1 }}
               className="text-center py-16"
             >
-              <Card className="bg-gray-800/30 border-gray-700/30 border-dashed">
+              <Card className={cn("border-dashed", isLight ? 'bg-white/60 border-gray-300' : 'bg-gray-800/30 border-gray-700/30')}>
                 <CardContent className="flex flex-col items-center justify-center py-12">
-                  <div className="p-4 rounded-2xl bg-gray-700/30 mb-4">
+                  <div className={cn("p-4 rounded-2xl mb-4", isLight ? 'bg-gray-100' : 'bg-gray-700/30')}>
                     {searchTerm ? (
-                      <Search className="w-12 h-12 text-gray-500" />
+                      <Search className={cn("w-12 h-12", isLight ? 'text-gray-400' : 'text-gray-500')} />
                     ) : (
-                      <Sparkles className="w-12 h-12 text-gray-500" />
+                      <Sparkles className={cn("w-12 h-12", isLight ? 'text-gray-400' : 'text-gray-500')} />
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     {searchTerm ? 'No Results Found' : 'No Listings Yet'}
                   </h3>
-                  <p className="text-gray-400 mb-6 text-center max-w-md">
+                  <p className="text-muted-foreground mb-6 text-center max-w-md">
                     {searchTerm
                       ? 'Try adjusting your search terms.'
                       : 'Start by adding your first listing.'}

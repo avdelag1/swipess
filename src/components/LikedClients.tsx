@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
+import { useTheme } from "@/hooks/useTheme";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
 import { logger } from "@/utils/prodLogger";
@@ -82,6 +83,8 @@ interface LikedClient {
 
 export function LikedClients() {
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
@@ -499,7 +502,7 @@ export function LikedClients() {
   };
 
   return (
-    <div className="w-full" style={{ background: '#070709', minHeight: '100vh' }}>
+    <div className="w-full" style={{ background: isLight ? '#f5f5f5' : '#070709', minHeight: '100vh' }}>
       <div className="px-4 py-6 max-w-2xl mx-auto pb-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -513,16 +516,16 @@ export function LikedClients() {
                 onClick={() => navigate(-1)}
                 className="flex items-center justify-center h-10 w-10 rounded-2xl active:scale-95 touch-manipulation transition-all duration-150"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.4)',
+                  background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
+                  border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.12)',
+                  boxShadow: isLight ? '0 2px 8px rgba(0,0,0,0.08)' : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.4)',
                 }}
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className={cn("w-5 h-5", isLight ? 'text-gray-700' : 'text-white')} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-white">Your Likes</h1>
-                <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                <h1 className="text-2xl font-bold text-foreground">Your Likes</h1>
+                <p className="text-xs font-medium text-muted-foreground">
                   {filteredClients.length} client{filteredClients.length !== 1 ? 's' : ''}
                 </p>
               </div>
@@ -542,9 +545,9 @@ export function LikedClients() {
                         color: '#10b981',
                         boxShadow: '0 2px 8px rgba(16,185,129,0.2)',
                       } : {
-                        background: 'rgba(255,255,255,0.06)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: 'rgba(255,255,255,0.5)',
+                        background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                        border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
+                        color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
                       }}
                     >
                       {filterSafeOnly ? <ShieldCheck className="w-3.5 h-3.5" /> : <ShieldAlert className="w-3.5 h-3.5" />}
@@ -580,17 +583,17 @@ export function LikedClients() {
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.09)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
+              background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.05)',
+              border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.09)',
+              boxShadow: isLight ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.06)',
             }}
           >
-            <Search className="w-4 h-4 flex-shrink-0" style={{ color: 'rgba(255,255,255,0.35)' }} />
+            <Search className="w-4 h-4 flex-shrink-0 text-muted-foreground" />
             <input
               placeholder="Search clients..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
+              className={cn("flex-1 bg-transparent text-sm outline-none", isLight ? 'text-gray-900 placeholder-gray-400' : 'text-white placeholder-white/30')}
             />
           </div>
 
@@ -609,9 +612,9 @@ export function LikedClients() {
                     color: 'white',
                     boxShadow: '0 4px 16px rgba(236,72,153,0.35)',
                   } : {
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    color: 'rgba(255,255,255,0.5)',
+                    background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.05)',
+                    border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.08)',
+                    color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
                   }}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -625,7 +628,7 @@ export function LikedClients() {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div key={i} className="rounded-3xl overflow-hidden animate-pulse" style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="h-64" style={{ background: 'rgba(255,255,255,0.05)' }} />
                 <div className="p-4 space-y-2">
                   <div className="h-4 rounded-xl w-3/4" style={{ background: 'rgba(255,255,255,0.08)' }} />
@@ -643,8 +646,8 @@ export function LikedClients() {
             <div className="w-20 h-20 mx-auto mb-5 rounded-3xl flex items-center justify-center" style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
               <Flame className="w-10 h-10" style={{ color: 'rgba(249,115,22,0.5)' }} />
             </div>
-            <h2 className="text-xl font-bold text-white mb-2">No Liked Clients</h2>
-            <p className="text-sm mb-5 px-4" style={{ color: 'rgba(255,255,255,0.4)' }}>
+            <h2 className="text-xl font-bold text-foreground mb-2">No Liked Clients</h2>
+            <p className="text-sm mb-5 px-4 text-muted-foreground">
               {searchTerm ? 'No clients match your search.' : "Start browsing and like clients you're interested in working with"}
             </p>
             {!searchTerm && (
@@ -670,9 +673,9 @@ export function LikedClients() {
               transition={{ delay: index * 0.06 }}
               className="group rounded-3xl overflow-hidden"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
+                background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.04)',
+                border: isLight ? '1px solid rgba(0,0,0,0.06)' : '1px solid rgba(255,255,255,0.08)',
+                boxShadow: isLight ? '0 4px 16px rgba(0,0,0,0.06)' : '0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)',
               }}
             >
               {/* Portrait image */}
@@ -803,9 +806,9 @@ export function LikedClients() {
                   onClick={() => handleViewClient(client)}
                   className="flex items-center justify-center w-10 h-10 rounded-2xl active:scale-95 touch-manipulation transition-all duration-150 flex-shrink-0"
                   style={{
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'rgba(255,255,255,0.5)',
+                    background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                    border: isLight ? '1px solid rgba(0,0,0,0.08)' : '1px solid rgba(255,255,255,0.1)',
+                    color: isLight ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.5)',
                   }}
                 >
                   <Flame className="w-4 h-4" />
@@ -815,7 +818,7 @@ export function LikedClients() {
               {/* Liked date */}
               {client.liked_at && (
                 <div className="px-4 pb-3">
-                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  <p className="text-xs text-muted-foreground">
                     Liked {new Date(client.liked_at).toLocaleDateString()}
                   </p>
                 </div>

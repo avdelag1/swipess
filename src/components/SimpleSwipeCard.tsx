@@ -502,7 +502,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         </motion.div>
         
         {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
-        <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
+        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
             <div
