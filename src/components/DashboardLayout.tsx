@@ -294,6 +294,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, restoreDrafts]);
 
+  // SCROLL-TO-TOP: Reset scroll position on every page navigation
+  // Uses 'instant' (not smooth) so the new page always starts at the top without any animated scroll
+  useEffect(() => {
+    const el = document.getElementById('dashboard-scroll-container');
+    if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [location.pathname]);
+
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
   // (survives localStorage clears from Lovable preview URLs)
@@ -574,9 +581,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       >
         <motion.div
           key={location.pathname}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.12, ease: 'easeOut' }}
+          initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
           style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
         >
           {enhancedChildren}

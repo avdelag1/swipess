@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 interface PageHeaderProps {
   title: string;
@@ -12,15 +13,17 @@ interface PageHeaderProps {
   className?: string;
 }
 
-export function PageHeader({ 
-  title, 
-  subtitle, 
-  showBack = true, 
+export function PageHeader({
+  title,
+  subtitle,
+  showBack = true,
   onBack,
   actions,
   className = ""
 }: PageHeaderProps) {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
 
   const handleBack = () => {
     if (onBack) {
@@ -37,8 +40,16 @@ export function PageHeader({
           <motion.button
             onClick={handleBack}
             whileTap={{ scale: 0.9, transition: { type: 'spring', stiffness: 400, damping: 17 } }}
-            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-150 active:scale-95 touch-manipulation"
-            style={{
+            className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-95 touch-manipulation"
+            style={isLight ? {
+              color: 'hsl(0, 0%, 15%)',
+              background: 'rgba(0,0,0,0.06)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              border: '1px solid rgba(0,0,0,0.1)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.08)',
+            } : {
+              color: 'white',
               background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06))',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
@@ -51,7 +62,7 @@ export function PageHeader({
           </motion.button>
         )}
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{title}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">{title}</h1>
           {subtitle && (
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           )}

@@ -3215,3 +3215,32 @@ button:active,
     box-shadow: 0 4px 20px -4px hsl(var(--primary) / 0.08);
   }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  ACCESSIBILITY: Reduced Motion                                         */
+/*  Respect OS "Reduce Motion" preference — disable all heavy transitions */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (prefers-reduced-motion: reduce) {
+  /* Kill the cinematic blur/scale hide-on-scroll for header and nav */
+  .app-header,
+  .app-bottom-bar {
+    transition: opacity 0.15s linear !important;
+    will-change: auto !important;
+  }
+
+  /* Hidden states use only opacity (no transform, no blur) */
+  .app-header.header-hidden,
+  .app-bottom-bar.nav-hidden {
+    transform: none !important;
+    opacity: 0 !important;
+    filter: none !important;
+  }
+
+  /* Remove card hover lift */
+  .app-content .bg-card {
+    transition: none !important;
+  }
+  .app-content .bg-card:hover {
+    transform: none !important;
+  }
+}
