@@ -1,99 +1,95 @@
 
 
-# Fix Owner-Side White Theme + Build Errors
+# Fix White Theme on Owner Pages, Swipe Card Position, and Listing Upload
 
 ## Overview
 
-Two categories of issues need fixing:
-1. Owner-side pages have hardcoded dark colors that look broken in white-matte theme
-2. Build errors from incorrect `toast()` usage and edge function type casting
+Multiple issues need fixing:
+1. Several owner-side pages (PropertyManagement, LikedClients, ClientLikedProperties) have hardcoded dark backgrounds that don't adapt to white-matte theme
+2. Swipe card info (rating, name) overlaps with action buttons on mobile
+3. PropertyManagement still uses old `toast()` syntax causing build errors
+4. Email signup works correctly (confirmed 11 email users in database with profiles + roles) -- no backend fix needed
 
 ---
 
-## Part 1: White-Matte Theme Fixes (Owner Pages)
+## Part 1: White Theme Fixes
 
-The following owner pages use hardcoded `rgba(255,255,255,...)` backgrounds and `text-white` colors that become invisible on a white background. Each needs theme-aware styling using `useTheme()` hook.
+### PropertyManagement.tsx (Owner Listings Page)
+The entire component uses hardcoded `bg-gray-900`, `bg-gray-800`, `text-white` classes. Needs theme-aware styling:
+- Import `useTheme` hook, create `isLight` flag
+- Replace `bg-gray-900` with `isLight ? 'bg-[#f5f5f5]' : 'bg-gray-900'`
+- Replace `bg-gray-800` cards with `isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'`
+- Replace `text-white` headings with `text-foreground`
+- Replace `text-white/60` subtitles with `text-muted-foreground`
+- Update search input, tabs, loading and error states
 
-### Files to fix:
+### OwnerListingsStats.tsx
+Uses `bg-gray-800/40`, `text-white`, `text-white/60` throughout. Needs:
+- Import `useTheme`, pass `isLight` to stat card rendering
+- Replace glass surfaces with theme-aware equivalents
 
-**OwnerProfileNew.tsx** - Back button uses hardcoded white text, Settings button uses `rgba(255,255,255,0.05)` background and `rgba(255,255,255,0.85)` text color. Filter Colors card uses hardcoded dark glass surface.
+### LikedClients.tsx (Owner Liked Clients)
+Hardcoded `background: '#070709'` on the root div, plus `text-white`, `rgba(255,255,255,...)` everywhere. Needs:
+- Import `useTheme`, build theme-aware `colors` object (same pattern as OwnerFilters)
+- Update root background, header, search bar, category pills, client cards, empty state
 
-**OwnerFilters.tsx** - Entire page uses `#070709` background, all text is white, all surfaces use `rgba(255,255,255,...)` patterns. Needs full theme-aware color object (same approach used for ClientFilters).
-
-**OwnerProperties.tsx** - Back button uses `text-white/60 hover:text-white`.
-
-**ClientProfileNew.tsx** (also affected) - Back button, About/Interests sections, Settings button all use hardcoded white-on-dark colors.
-
-### Approach:
-For each file, import `useTheme` and create a `isLight` flag. Replace hardcoded inline `style` colors with conditional values. Use semantic classes (`text-foreground`, `text-muted-foreground`, `bg-card`, `border-border`) where possible, and theme-conditional inline styles where semantic classes aren't sufficient.
-
----
-
-## Part 2: Fix Toast Build Errors (11 files)
-
-The project uses `sonner` for toasts, but 11 components call `toast()` with the old shadcn/radix syntax: `toast({ title: '...', description: '...' })`. Sonner expects: `toast('Title', { description: '...' })` or `toast.error('Title', { description: '...' })`.
-
-### Files to fix:
-- `CameraCapture.tsx` (4 instances)
-- `ClientInsightsDialog.tsx` (2 instances)
-- `ClientPreferencesDialog.tsx` (2 instances)
-- `ClientProfileDialog.tsx` (3 instances)
-- `ContractUploadDialog.tsx` (6 instances)
-- `LegalDocumentsDialog.tsx` (6 instances)
-- `MessageAttachments.tsx` (3 instances)
-- `OwnerClientFilterDialog.tsx` (2 instances)
-- `OwnerSettingsDialog.tsx` (3 instances)
-- `PWAInstallBanner.tsx` (1 instance)
-- `PhotoUploadManager.tsx` (2+ instances)
-
-### Transformation pattern:
-```
-// BEFORE (broken):
-toast({ title: 'Error', description: 'Something failed', variant: 'destructive' });
-
-// AFTER (correct sonner syntax):
-toast.error('Error', { description: 'Something failed' });
-```
-
-- `variant: 'destructive'` maps to `toast.error()`
-- No variant maps to `toast()` or `toast.success()`
+### ClientLikedProperties.tsx (Client Liked Properties)
+Hardcoded `rgba(255,255,255,...)` patterns in refresh button, category tabs, count indicator, card body, empty state. Needs:
+- Import `useTheme`, add `isLight` conditional styling
+- Update tab pills: inactive state uses `text-white/60` and `rgba(255,255,255,0.06)` -- swap to dark equivalents in light theme
+- Update card body metadata pills, amenity badges, empty state
 
 ---
 
-## Part 3: Fix Edge Function Type Error
+## Part 2: Swipe Card Info Position Fix
 
-**File:** `supabase/functions/send-push-notification/index.ts`
+### Problem
+On the owner swipe deck (`/owner/liked-clients` screenshot), the rating badge + name "New User" sits at `bottom-24` which puts it right behind the action buttons (Like, Dislike, Share, etc.) on mobile phones.
 
-Line 142 still fails because `salt: authBytes` and `info: authInfo` are `Uint8Array<ArrayBufferLike>` but HKDF params need `BufferSource`. Cast these with `.buffer` property:
+### Fix (SimpleSwipeCard.tsx + SimpleOwnerSwipeCard.tsx)
+Both files have the content overlay positioned at `bottom-24` (line 505 in SimpleSwipeCard, line 662 in SimpleOwnerSwipeCard). Change to `bottom-32` to push the info section higher, creating comfortable clearance above the floating action buttons.
 
-```typescript
-{ name: "HKDF", hash: "SHA-256", 
-  salt: new Uint8Array(authBytes) as unknown as BufferSource, 
-  info: new Uint8Array(authInfo) as unknown as BufferSource }
-```
-
-Same fix needed for lines 150 and 156 where `salt` and `info` params appear.
+This is a single class change per file -- no layout restructuring needed.
 
 ---
 
-## Summary of All Files Changed
+## Part 3: Fix Toast Syntax in PropertyManagement.tsx
 
-| File | Change Type |
-|------|------------|
-| `src/pages/OwnerProfileNew.tsx` | Theme-aware colors |
-| `src/pages/OwnerFilters.tsx` | Theme-aware colors |
-| `src/pages/OwnerProperties.tsx` | Theme-aware colors |
-| `src/pages/ClientProfileNew.tsx` | Theme-aware colors |
-| `src/components/CameraCapture.tsx` | Fix toast syntax |
-| `src/components/ClientInsightsDialog.tsx` | Fix toast syntax |
-| `src/components/ClientPreferencesDialog.tsx` | Fix toast syntax |
-| `src/components/ClientProfileDialog.tsx` | Fix toast syntax |
-| `src/components/ContractUploadDialog.tsx` | Fix toast syntax |
-| `src/components/LegalDocumentsDialog.tsx` | Fix toast syntax |
-| `src/components/MessageAttachments.tsx` | Fix toast syntax |
-| `src/components/OwnerClientFilterDialog.tsx` | Fix toast syntax |
-| `src/components/OwnerSettingsDialog.tsx` | Fix toast syntax |
-| `src/components/PWAInstallBanner.tsx` | Fix toast syntax |
-| `src/components/PhotoUploadManager.tsx` | Fix toast syntax |
-| `supabase/functions/send-push-notification/index.ts` | Fix Uint8Array cast |
+Lines 157, 170, 180, 193, 209, 219 still use the old `toast({ title, description, variant })` syntax. Convert to sonner syntax:
+- `toast({ title: 'Deleting...', description: '...' })` becomes `toast('Deleting...', { description: '...' })`
+- `toast({ title: 'Error', variant: 'destructive' })` becomes `toast.error('Error', { description: '...' })`
+
+---
+
+## Part 4: Email Signup Backend Verification
+
+After checking the database, email signups ARE working correctly:
+- 11 email-provider users exist in `auth.users`
+- All have matching `profiles` records (via `handle_new_user` trigger)
+- All have `user_roles` entries (role: client)
+- The `signUp` function in `useAuth.tsx` correctly calls `supabase.auth.signUp()` and `createProfileIfMissing()`
+
+No backend changes needed -- the user might have been checking a different database or the data wasn't visible due to the backend UI.
+
+---
+
+## Files to Change
+
+| File | Change |
+|------|--------|
+| `src/components/PropertyManagement.tsx` | Theme-aware colors + fix toast syntax |
+| `src/components/OwnerListingsStats.tsx` | Theme-aware colors |
+| `src/components/LikedClients.tsx` | Theme-aware colors (full page) |
+| `src/pages/ClientLikedProperties.tsx` | Theme-aware colors |
+| `src/components/SimpleSwipeCard.tsx` | Move content overlay from `bottom-24` to `bottom-32` |
+| `src/components/SimpleOwnerSwipeCard.tsx` | Move content overlay from `bottom-24` to `bottom-32` |
+
+## What Stays Unchanged
+- All swipe physics and card interaction logic
+- Authentication flow (signup, signin, OAuth)
+- Database schema and RLS policies
+- Routing architecture
+- Owner Filters page (already has full theme support)
+- Owner Profile page (already has theme support)
+- Client Profile page (already has theme support)
 
