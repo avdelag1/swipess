@@ -100,7 +100,7 @@ const ClientLikedProperties = () => {
   const { data: conversationStats } = useConversationStats();
   const startConversation = useStartConversation();
   const navigate = useNavigate();
-  const { canStartNewConversation } = useMessagingQuota();
+  const { canStartNewConversation, tokenBalance } = useMessagingQuota();
   const [showQuotaDialog, setShowQuotaDialog] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
