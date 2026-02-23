@@ -725,7 +725,7 @@ const ClientSwipeContainerComponent = ({
   // "All Caught Up" - finished swiping through all cards
   if (isDeckFinished) {
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-black">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-background">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -740,8 +740,8 @@ const ClientSwipeContainerComponent = ({
           />
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-white">All Caught Up!</h3>
-            <p className="text-white/50 text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-semibold text-foreground">All Caught Up!</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
               You've seen all available {labels.plural.toLowerCase()}. Check back later or refresh for new listings.
             </p>
           </div>
@@ -760,7 +760,7 @@ const ClientSwipeContainerComponent = ({
                 {String(isRefreshing ? `Scanning for ${labels.plural}...` : 'Discover More')}
               </Button>
             </motion.div>
-            <p className="text-xs text-white/40">New {labels.plural.toLowerCase()} are added daily</p>
+            <p className="text-xs text-muted-foreground">New {labels.plural.toLowerCase()} are added daily</p>
           </div>
         </motion.div>
       </div>
@@ -770,14 +770,14 @@ const ClientSwipeContainerComponent = ({
   // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
   if (showInitialError) {
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black">
-        <div className="text-center bg-white/5 border border-white/10 rounded-xl p-8">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
+        <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
           <div className="text-6xl mb-4">😞</div>
-          <h3 className="text-xl font-bold text-white mb-2">Error</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
           <Button
             onClick={handleRefresh}
             variant="outline"
-            className="gap-2 border-white/20 text-white"
+            className="gap-2"
             size="lg"
           >
             <RefreshCw className="w-4 h-4" />
@@ -791,7 +791,7 @@ const ClientSwipeContainerComponent = ({
   // Empty state (no cards fetched yet)
   if (showEmptyState || !topCard) {
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-black">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-background">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -806,8 +806,8 @@ const ClientSwipeContainerComponent = ({
           />
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-white">No {labels.plural} Found</h3>
-            <p className="text-white/50 text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-semibold text-foreground">No {labels.plural} Found</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
               Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()}
             </p>
           </div>

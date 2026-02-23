@@ -55,6 +55,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 interface LikedClient {
   id: string;
@@ -502,7 +503,7 @@ export function LikedClients() {
   };
 
   return (
-    <div className="w-full" style={{ background: isLight ? '#f5f5f5' : '#070709', minHeight: '100vh' }}>
+    <div className="w-full bg-background" style={{ minHeight: '100vh' }}>
       <div className="px-4 py-6 max-w-2xl mx-auto pb-28">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
