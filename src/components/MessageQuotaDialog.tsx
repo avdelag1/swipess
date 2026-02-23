@@ -13,7 +13,9 @@ interface MessageQuotaDialogProps {
 }
 
 export function MessageQuotaDialog({ isOpen, onClose, onUpgrade, userRole, showTokenBalance = true }: MessageQuotaDialogProps) {
-  const { tokenBalance, tokenType } = useMessagingQuota();
+  const { tokenBalance: tb, tokenType: tt } = useMessagingQuota();
+  const tokenBalance = typeof tb === 'number' ? tb : 0;
+  const tokenType = typeof tt === 'string' ? tt : null;
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
