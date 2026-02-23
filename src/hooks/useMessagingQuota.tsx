@@ -30,6 +30,32 @@ export function useMessagingQuota() {
   const { data: subscription } = useUserSubscription();
   const queryClient = useQueryClient();
   
+  // Get token balance from tokens table
+  const { data: tokenData } = useQuery({
+    queryKey: ['user-tokens', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return { amount: 0, token_type: null };
+      
+      const { data, error } = await supabase
+        .from('tokens')
+        .select('amount, token_type, source')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (error) {
+        logger.error('[useMessagingQuota] Error fetching tokens:', error);
+        return { amount: 0, token_type: null };
+      }
+      
+      return data || { amount: 0, token_type: null };
+    },
+    enabled: !!user?.id,
+  });
+  
+  // Token balance - actual tokens from database
+  const tokenBalance = tokenData?.amount || 0;
+  const tokenType = tokenData?.token_type || null;
+  
   // Check if user has any free messaging matches
   const { data: freeMessagingMatches = [], isLoading: loadingMatches } = useQuery({
     queryKey: ['free-messaging-matches', user?.id],
@@ -152,6 +178,9 @@ export function useMessagingQuota() {
     hasFreeMessagingMatches: freeMessagingMatches.length > 0,
     freeMessagingMatchCount: freeMessagingMatches.length,
     decrementConversationCount,
-    refreshQuota
+    refreshQuota,
+    // Token balance from tokens table
+    tokenBalance,
+    tokenType,
   };
 }

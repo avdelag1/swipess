@@ -56,7 +56,7 @@ const OwnerInterestedClients = () => {
   const [selectedClient, setSelectedClient] = useState<ExtendedInterestedClient | null>(null);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
-  const { canStartNewConversation } = useMessagingQuota();
+  const { canStartNewConversation, tokenBalance } = useMessagingQuota();
 
   const { data: fetchedRole } = useUserRole(user?.id);
   const userRole = fetchedRole || 'owner';
@@ -356,6 +356,11 @@ const OwnerInterestedClients = () => {
                       >
                         <MessageCircle className="w-4 h-4 mr-1" />
                         Message
+                        {tokenBalance > 0 && (
+                          <span className="ml-1 text-xs bg-amber-500/20 text-amber-200 px-1.5 py-0.5 rounded-full">
+                            {tokenBalance}
+                          </span>
+                        )}
                       </Button>
                       <Button
                         onClick={() => handleOpenDeleteDialog(client)}

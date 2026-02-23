@@ -154,16 +154,30 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   // Get target path for navigation
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
     const currentPath = location.pathname;
+    
+    // Default paths
+    const defaultPaths = {
+      client: '/client/dashboard',
+      owner: '/owner/dashboard'
+    };
 
     if (currentPath.includes('/client/') || currentPath.includes('/owner/')) {
-      const currentPageType = currentPath.split('/').pop() || 'dashboard';
+      // Extract the page type from path - handle both /client/page and /client/page/
+      const pathParts = currentPath.split('/').filter(Boolean);
+      const currentPageType = pathParts[1] === 'client' || pathParts[1] === 'owner' 
+        ? pathParts[2] || 'dashboard' 
+        : 'dashboard';
       const fromMode = currentPath.includes('/client/') ? 'client' : 'owner';
 
-      return PAGE_MAPPING[fromMode]?.[currentPageType] ||
-             (newMode === 'client' ? '/client/dashboard' : '/owner/dashboard');
+      // Try to get mapped path, fallback to default
+      const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
+      if (mappedPath) {
+        return mappedPath;
+      }
     }
 
-    return newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
+    // Default fallback
+    return newMode === 'client' ? defaultPaths.client : defaultPaths.owner;
   }, [location.pathname]);
 
   // FAST mode switch - everything happens synchronously
@@ -206,9 +220,19 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       resetClientDeck();
     }
 
-    // 7. Navigate IMMEDIATELY
-    const targetPath = getTargetPath(newMode);
-    navigate(targetPath, { replace: true });
+    // 7. Navigate IMMEDIATELY with error handling
+    try {
+      const targetPath = getTargetPath(newMode);
+      navigate(targetPath, { replace: true });
+    } catch (navError) {
+      logger.error('[ActiveMode] Navigation failed:', navError);
+      // Fallback navigation
+      try {
+        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+      } catch (fallbackError) {
+        logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
+      }
+    }
 
     // 8. Show success toast
     toast({

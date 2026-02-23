@@ -97,7 +97,7 @@ const ClientLikedProperties = () => {
   const { data: conversationStats } = useConversationStats();
   const startConversation = useStartConversation();
   const navigate = useNavigate();
-  const { canStartNewConversation } = useMessagingQuota();
+  const { canStartNewConversation, tokenBalance } = useMessagingQuota();
   const [showQuotaDialog, setShowQuotaDialog] = useState(false);
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -405,7 +405,7 @@ const ClientLikedProperties = () => {
                         </div>
                       )}
 
-                      {/* Contact Button */}
+                      {/* Contact Button with Token Balance */}
                       <div className="pt-2">
                         <Button
                           onClick={(e) => {
@@ -424,6 +424,11 @@ const ClientLikedProperties = () => {
                             <>
                               <MessageCircle className="w-4 h-4 mr-2" />
                               Contact Owner
+                              {tokenBalance > 0 && (
+                                <span className="ml-2 text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">
+                                  {tokenBalance} tokens
+                                </span>
+                              )}
                             </>
                           )}
                         </Button>
