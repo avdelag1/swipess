@@ -160,7 +160,7 @@ const Index = () => {
   }, [user?.id]);
 
   if (!initialized || loading) {
-    return <div className="min-h-screen min-h-dvh bg-transparent" />;
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // User exists but still loading role - show transparent screen
@@ -186,7 +186,7 @@ const Index = () => {
       );
     }
 
-    return <div className="min-h-screen min-h-dvh bg-transparent" />;
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -199,7 +199,7 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return <div className="min-h-screen min-h-dvh bg-transparent" />;
+  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
 };
 
 export default Index;
