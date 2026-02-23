@@ -1,16 +1,14 @@
-// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { toast as sonnerToast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
-import { retryWithBackoff } from '@/utils/retryUtils';
 import { logger } from '@/utils/prodLogger';
 import { STORAGE, REFERRAL } from '@/constants/app';
 
 interface CreateProfileData {
   id: string;
+  user_id: string;
   full_name?: string;
   email?: string;
 }
@@ -185,10 +183,8 @@ export function useProfileSetup() {
         
         if (!roleCreated) {
           if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to upsert role after 3 attempts:', lastRoleError);
-          toast({
-            title: "Role Update Failed",
+          toast.error("Role Update Failed", {
             description: "Could not update user role. Please refresh the page.",
-            variant: "destructive"
           });
         }
         
@@ -271,6 +267,7 @@ export function useProfileSetup() {
       for (let attempt = 1; attempt <= 3; attempt++) {
         const profileData: CreateProfileData = {
           id: user.id,
+          user_id: user.id,
           full_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
           email: user.email || ''
         };
@@ -313,10 +310,8 @@ export function useProfileSetup() {
           : lastProfileError?.message || 'Unknown error';
 
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create profile after 3 attempts:', lastProfileError);
-        toast({
-          title: "Profile Creation Failed",
+        toast.error("Profile Creation Failed", {
           description: errorMsg,
-          variant: "destructive"
         });
         return null;
       }
@@ -387,10 +382,8 @@ export function useProfileSetup() {
 
       if (!roleCreated) {
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create role after 3 attempts:', lastRoleError);
-        toast({
-          title: "Role Setup Failed",
+        toast.error("Role Setup Failed", {
           description: "Profile created but role assignment failed. Please contact support.",
-          variant: "destructive"
         });
         return null;
       }
@@ -500,10 +493,8 @@ export function useProfileSetup() {
 
     } catch (error) {
       if (import.meta.env.DEV) logger.error('[ProfileSetup] Unexpected error in profile setup:', error);
-      toast({
-        title: "Setup Error",
+      toast.error("Setup Error", {
         description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
       });
       return null;
     } finally {
