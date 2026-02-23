@@ -152,19 +152,12 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   }, [user?.id, queryClient]);
 
   // Get target path for navigation
+  // Get target path for navigation - SIMPLIFIED: always go to dashboard
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
-    const currentPath = location.pathname;
-
-    if (currentPath.includes('/client/') || currentPath.includes('/owner/')) {
-      const currentPageType = currentPath.split('/').pop() || 'dashboard';
-      const fromMode = currentPath.includes('/client/') ? 'client' : 'owner';
-
-      return PAGE_MAPPING[fromMode]?.[currentPageType] ||
-             (newMode === 'client' ? '/client/dashboard' : '/owner/dashboard');
-    }
-
+    // Always switch to the dashboard of the new mode
+    // This is more reliable than trying to map specific pages
     return newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
-  }, [location.pathname]);
+  }, []);
 
   // FAST mode switch - everything happens synchronously
   const switchMode = useCallback((newMode: ActiveMode) => {
@@ -206,9 +199,19 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       resetClientDeck();
     }
 
-    // 7. Navigate IMMEDIATELY
-    const targetPath = getTargetPath(newMode);
-    navigate(targetPath, { replace: true });
+    // 7. Navigate with error handling
+    try {
+      const targetPath = getTargetPath(newMode);
+      navigate(targetPath, { replace: true });
+    } catch (navError) {
+      logger.error('[ActiveMode] Navigation failed:', navError);
+      // Fallback navigation
+      try {
+        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+      } catch (fallbackError) {
+        logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
+      }
+    }
 
     // 8. Show success toast
     toast({
