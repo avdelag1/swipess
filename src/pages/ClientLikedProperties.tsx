@@ -501,7 +501,7 @@ const ClientLikedProperties = () => {
                         {startConversation.isPending ? (
                           <><RefreshCw className="w-4 h-4 animate-spin" />Connecting...</>
                         ) : (
-                          <><MessageCircle className="w-4 h-4" />Contact Owner</>
+                          <><MessageCircle className="w-4 h-4" />Contact Owner{tokenBalance > 0 && <span className="ml-2 text-xs bg-amber-500/20 text-amber-600 px-2 py-0.5 rounded-full">{tokenBalance} tokens</span>}</>
                         )}
                       </button>
                     </div>

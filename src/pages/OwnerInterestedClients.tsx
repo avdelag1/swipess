@@ -365,7 +365,7 @@ const OwnerInterestedClients = () => {
                         style={{background:'linear-gradient(135deg, rgba(249,115,22,0.9), rgba(239,68,68,0.85))',boxShadow:'0 4px 12px rgba(249,115,22,0.2),inset 0 1px 0 rgba(255,255,255,0.15)'}}
                       >
                         <MessageCircle className="w-4 h-4" />
-                        Message
+                        Message{tokenBalance > 0 && <span className="ml-1 text-xs bg-amber-500/20 text-amber-200 px-1.5 py-0.5 rounded-full">{tokenBalance}</span>}
                       </button>
                       <button
                         onClick={() => handleOpenDeleteDialog(client)}
