@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 
@@ -31,6 +32,8 @@ const ClientProfileNew = () => {
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
 
   const handlePhotoClick = useCallback((index: number) => {
     setSelectedPhotoIndex(index);
@@ -83,13 +86,13 @@ const ClientProfileNew = () => {
             variants={childVariant}
             onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/client/dashboard')}
             whileTap={{ scale: 0.94 }}
-            className="flex items-center gap-1.5 text-sm font-semibold text-white mb-2 px-3 py-2 rounded-xl transition-all active:scale-95"
+            className={`flex items-center gap-1.5 text-sm font-semibold ${isLight ? 'text-gray-800' : 'text-white'} mb-2 px-3 py-2 rounded-xl transition-all active:scale-95`}
             style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.14)',
+              background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.14)',
               backdropFilter: 'blur(10px)',
               WebkitBackdropFilter: 'blur(10px)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3)',
+              boxShadow: isLight ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.06)' : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
@@ -149,7 +152,7 @@ const ClientProfileNew = () => {
             <motion.div variants={childVariant}>
               <div
                 className="rounded-2xl p-4 cursor-pointer"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(236,72,153,0.2)', backdropFilter: 'blur(12px)' }}
+                style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: '1px solid rgba(236,72,153,0.2)', backdropFilter: 'blur(12px)' }}
                 onClick={() => setShowEditDialog(true)}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -203,20 +206,20 @@ const ClientProfileNew = () => {
           {(profile?.bio || profile?.interests?.length > 0) && (
             <motion.div variants={childVariant} className="space-y-3">
               {profile?.bio && (
-                <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-2">About</h3>
+                <div className="rounded-2xl p-4" style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.08)' }}>
+                  <h3 className={`text-xs font-semibold uppercase tracking-widest ${isLight ? 'text-gray-400' : 'text-white/40'} mb-2`}>About</h3>
                   <p className="text-sm text-foreground leading-relaxed">{profile.bio}</p>
                 </div>
               )}
               {profile?.interests?.length > 0 && (
-                <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                  <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-3">Interests</h3>
+                <div className="rounded-2xl p-4" style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.08)' }}>
+                  <h3 className={`text-xs font-semibold uppercase tracking-widest ${isLight ? 'text-gray-400' : 'text-white/40'} mb-3`}>Interests</h3>
                   <div className="flex flex-wrap gap-2">
                     {profile.interests.map((interest) => (
                       <span
                         key={`interest-${interest}`}
                         className="px-3 py-1 rounded-full text-xs font-medium"
-                        style={{ background: 'rgba(236,72,153,0.15)', color: '#f9a8d4', border: '1px solid rgba(236,72,153,0.25)' }}
+                        style={isLight ? { background: 'rgba(236,72,153,0.1)', color: '#ec4899', border: '1px solid rgba(236,72,153,0.2)' } : { background: 'rgba(236,72,153,0.15)', color: '#f9a8d4', border: '1px solid rgba(236,72,153,0.25)' }}
                       >
                         {interest}
                       </span>
@@ -236,7 +239,7 @@ const ClientProfileNew = () => {
 
           {/* Filter Colors / Theme */}
           <motion.div variants={childVariant}>
-            <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
+            <div className="rounded-2xl p-4" style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4c1d95, #a855f7)' }}>
                   <Palette className="w-4 h-4 text-white" />
@@ -273,9 +276,9 @@ const ClientProfileNew = () => {
               onClick={() => navigate('/client/settings')}
               className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-medium text-base transition-colors"
               style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.10)',
-                color: 'rgba(255,255,255,0.85)',
+                background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+                border: isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
+                color: isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.85)',
               }}
             >
               <Settings className="w-5 h-5" />

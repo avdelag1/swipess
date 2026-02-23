@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { ClientGender, ClientType } from '@/types/filters';
 
 const genderOptions: {
@@ -85,6 +86,80 @@ const clientTypeOptions: {
 export default function OwnerFilters() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
+
+  const colors = isLight
+    ? {
+        pageBg: '#f5f5f5',
+        headerBg: 'rgba(245,245,245,0.92)',
+        headerBorder: 'rgba(0,0,0,0.08)',
+        textPrimary: '#1a1a1a',
+        textSecondary: 'rgba(0,0,0,0.5)',
+        textMuted: 'rgba(0,0,0,0.4)',
+        cardBg: 'rgba(0,0,0,0.04)',
+        cardBorder: 'rgba(0,0,0,0.1)',
+        cardShadow: '0 2px 12px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
+        pillBg: 'rgba(0,0,0,0.05)',
+        pillBorder: '1px solid rgba(0,0,0,0.08)',
+        pillText: 'rgba(0,0,0,0.55)',
+        backBtnBg: 'rgba(0,0,0,0.06)',
+        backBtnBorder: '1px solid rgba(0,0,0,0.1)',
+        backBtnShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.06)',
+        backBtnIcon: '#333',
+        resetBg: 'rgba(0,0,0,0.05)',
+        resetBorder: '1px solid rgba(0,0,0,0.1)',
+        resetColor: 'rgba(0,0,0,0.6)',
+        resetShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
+        bottomBg: 'rgba(245,245,245,0.95)',
+        bottomBorder: 'rgba(0,0,0,0.08)',
+        disabledBtnBg: 'rgba(0,0,0,0.06)',
+        disabledBtnBorder: '1px solid rgba(0,0,0,0.08)',
+        disabledBtnColor: 'rgba(0,0,0,0.3)',
+        iconUnselected: 'rgba(0,0,0,0.35)',
+        descUnselected: 'rgba(0,0,0,0.4)',
+        labelUnselected: '#1a1a1a',
+        checkBg: 'rgba(0,0,0,0.85)',
+        checkIcon: 'white',
+        unselectedCardBg: 'rgba(0,0,0,0.03)',
+        unselectedCardBorder: '1px solid rgba(0,0,0,0.07)',
+        unselectedCardShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)',
+      }
+    : {
+        pageBg: '#070709',
+        headerBg: 'rgba(7,7,9,0.85)',
+        headerBorder: 'rgba(255,255,255,0.06)',
+        textPrimary: 'white',
+        textSecondary: 'rgba(255,255,255,0.4)',
+        textMuted: 'rgba(255,255,255,0.5)',
+        cardBg: 'rgba(255,255,255,0.04)',
+        cardBorder: 'rgba(255,255,255,0.08)',
+        cardShadow: '0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+        pillBg: 'rgba(255,255,255,0.05)',
+        pillBorder: '1px solid rgba(255,255,255,0.08)',
+        pillText: 'rgba(255,255,255,0.5)',
+        backBtnBg: 'rgba(255,255,255,0.08)',
+        backBtnBorder: '1px solid rgba(255,255,255,0.12)',
+        backBtnShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.4)',
+        backBtnIcon: 'white',
+        resetBg: 'rgba(255,255,255,0.06)',
+        resetBorder: '1px solid rgba(255,255,255,0.1)',
+        resetColor: 'rgba(255,255,255,0.6)',
+        resetShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+        bottomBg: 'rgba(7,7,9,0.92)',
+        bottomBorder: 'rgba(255,255,255,0.06)',
+        disabledBtnBg: 'rgba(255,255,255,0.06)',
+        disabledBtnBorder: '1px solid rgba(255,255,255,0.08)',
+        disabledBtnColor: 'rgba(255,255,255,0.3)',
+        iconUnselected: 'rgba(255,255,255,0.4)',
+        descUnselected: 'rgba(255,255,255,0.35)',
+        labelUnselected: 'white',
+        checkBg: 'rgba(255,255,255,0.95)',
+        checkIcon: '#111827',
+        unselectedCardBg: 'rgba(255,255,255,0.03)',
+        unselectedCardBorder: '1px solid rgba(255,255,255,0.07)',
+        unselectedCardShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+      };
 
   const storeGender = useFilterStore((state) => state.clientGender);
   const storeClientType = useFilterStore((state) => state.clientType);
@@ -116,13 +191,13 @@ export default function OwnerFilters() {
   }, [resetOwnerFilters]);
 
   return (
-    <div className="min-h-full" style={{ background: '#070709' }}>
+    <div className="min-h-full" style={{ background: colors.pageBg }}>
       {/* Header */}
       <header
         className="sticky top-0 z-10 backdrop-blur-xl"
         style={{
-          background: 'rgba(7,7,9,0.85)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: colors.headerBg,
+          borderBottom: `1px solid ${colors.headerBorder}`,
         }}
       >
         <div className="flex items-center justify-between px-4 py-4 pt-12">
@@ -131,16 +206,16 @@ export default function OwnerFilters() {
               onClick={() => navigate(-1)}
               className="flex items-center justify-center h-10 w-10 rounded-2xl transition-all duration-150 active:scale-95 touch-manipulation"
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.4)',
+                background: colors.backBtnBg,
+                border: colors.backBtnBorder,
+                boxShadow: colors.backBtnShadow,
               }}
             >
-              <ArrowLeft className="w-5 h-5 text-white" />
+              <ArrowLeft className="w-5 h-5" style={{ color: colors.backBtnIcon }} />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">Client Filters</h1>
-              <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.4)' }}>
+              <h1 className="text-lg font-bold tracking-tight" style={{ color: colors.textPrimary }}>Client Filters</h1>
+              <p className="text-xs font-medium" style={{ color: colors.textSecondary }}>
                 {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'Refine client search'}
               </p>
             </div>
@@ -153,10 +228,10 @@ export default function OwnerFilters() {
               onClick={handleReset}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 active:scale-95 touch-manipulation"
               style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'rgba(255,255,255,0.6)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
+                background: colors.resetBg,
+                border: colors.resetBorder,
+                color: colors.resetColor,
+                boxShadow: colors.resetShadow,
               }}
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -174,12 +249,12 @@ export default function OwnerFilters() {
               <div
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: colors.pillBg,
+                  border: colors.pillBorder,
                 }}
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-pink-400" />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: colors.pillText }}>
                   Gender
                 </span>
               </div>
@@ -196,13 +271,13 @@ export default function OwnerFilters() {
                     className="relative overflow-hidden rounded-3xl text-left transition-all duration-200"
                     style={{
                       height: '110px',
-                      background: isSelected ? option.gradient : 'rgba(255,255,255,0.04)',
+                      background: isSelected ? option.gradient : colors.cardBg,
                       border: isSelected
                         ? '1.5px solid rgba(255,255,255,0.3)'
-                        : '1px solid rgba(255,255,255,0.08)',
+                        : `1px solid ${colors.cardBorder}`,
                       boxShadow: isSelected
                         ? `0 8px 32px ${option.glow}, inset 0 1px 0 rgba(255,255,255,0.2)`
-                        : '0 2px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.05)',
+                        : colors.cardShadow,
                     }}
                   >
                     {isSelected && (
@@ -216,15 +291,15 @@ export default function OwnerFilters() {
                       <div
                         className="w-10 h-10 rounded-2xl flex items-center justify-center"
                         style={{
-                          background: isSelected ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)',
-                          color: isSelected ? 'white' : 'rgba(255,255,255,0.4)',
+                          background: isSelected ? 'rgba(255,255,255,0.2)' : colors.cardBg,
+                          color: isSelected ? 'white' : colors.iconUnselected,
                         }}
                       >
                         {option.icon}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-white">{option.label}</p>
-                        <p className="text-xs mt-0.5" style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.35)' }}>
+                        <p className="text-sm font-bold" style={{ color: isSelected ? 'white' : colors.labelUnselected }}>{option.label}</p>
+                        <p className="text-xs mt-0.5" style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : colors.descUnselected }}>
                           {option.description}
                         </p>
                       </div>
@@ -237,9 +312,9 @@ export default function OwnerFilters() {
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
                           className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center"
-                          style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
+                          style={{ background: colors.checkBg, boxShadow: '0 2px 8px rgba(0,0,0,0.3)' }}
                         >
-                          <Check className="w-3.5 h-3.5 text-gray-900" />
+                          <Check className="w-3.5 h-3.5" style={{ color: colors.checkIcon }} />
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -255,12 +330,12 @@ export default function OwnerFilters() {
               <div
                 className="flex items-center gap-2 px-3 py-1.5 rounded-full"
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: colors.pillBg,
+                  border: colors.pillBorder,
                 }}
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: colors.pillText }}>
                   Client Type
                 </span>
               </div>
@@ -278,27 +353,27 @@ export default function OwnerFilters() {
                     style={{
                       background: isSelected
                         ? `linear-gradient(135deg, ${type.accentColor}18, ${type.accentColor}08)`
-                        : 'rgba(255,255,255,0.03)',
+                        : colors.unselectedCardBg,
                       border: isSelected
                         ? `1px solid ${type.accentColor}50`
-                        : '1px solid rgba(255,255,255,0.07)',
+                        : colors.unselectedCardBorder,
                       boxShadow: isSelected
                         ? `0 4px 16px ${type.accentColor}20, inset 0 1px 0 rgba(255,255,255,0.08)`
-                        : 'inset 0 1px 0 rgba(255,255,255,0.04)',
+                        : colors.unselectedCardShadow,
                     }}
                   >
                     <div
                       className="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: isSelected ? `${type.accentColor}25` : 'rgba(255,255,255,0.06)',
-                        color: isSelected ? type.accentColor : 'rgba(255,255,255,0.35)',
+                        background: isSelected ? `${type.accentColor}25` : colors.cardBg,
+                        color: isSelected ? type.accentColor : colors.iconUnselected,
                       }}
                     >
                       {type.icon}
                     </div>
                     <div className="flex-1">
-                      <span className="text-sm font-semibold text-white block">{type.label}</span>
-                      <span className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>{type.description}</span>
+                      <span className="text-sm font-semibold block" style={{ color: colors.labelUnselected }}>{type.label}</span>
+                      <span className="text-xs" style={{ color: colors.descUnselected }}>{type.description}</span>
                     </div>
                     <AnimatePresence>
                       {isSelected && (
@@ -325,8 +400,8 @@ export default function OwnerFilters() {
       <div
         className="fixed bottom-0 left-0 right-0 p-4 backdrop-blur-xl"
         style={{
-          background: 'rgba(7,7,9,0.92)',
-          borderTop: '1px solid rgba(255,255,255,0.06)',
+          background: colors.bottomBg,
+          borderTop: `1px solid ${colors.bottomBorder}`,
         }}
       >
         <div className="max-w-md mx-auto">
@@ -338,9 +413,9 @@ export default function OwnerFilters() {
               background: 'linear-gradient(135deg, #ec4899 0%, #f97316 100%)',
               boxShadow: '0 6px 28px rgba(236,72,153,0.45), inset 0 1px 0 rgba(255,255,255,0.25)',
             } : {
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: 'rgba(255,255,255,0.3)',
+              background: colors.disabledBtnBg,
+              border: colors.disabledBtnBorder,
+              color: colors.disabledBtnColor,
             }}
           >
             {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Select Filters'}
