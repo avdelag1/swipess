@@ -468,885 +468,77 @@ body {
     --overlay: rgba(220, 38, 38, 0.3);
   }
 
-
-
-  @layer base {
-    * {
-      @apply border-border;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      min-height: 100vh;
-      background: hsl(var(--background));
-      color: hsl(var(--foreground));
-      transition: all 0.2s ease;
-    }
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    /*  MOBILE PERFORMANCE OPTIMIZATIONS - Tinder-like Speed                 */
-    /*  Disable expensive effects on mobile for 60fps buttery smoothness     */
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-    /* INSTANT TOUCH - Global touch optimization */
-    * {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Reduce motion for users who prefer it */
-    @media (prefers-reduced-motion: reduce) {
-
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    /* MOBILE PERFORMANCE MODE - Disable blur effects on phones */
-    @media (max-width: 768px) {
-      /* Refined mobile blur — disabled blanket ban to preserve 'alive' feel on modern devices */
-      /* Only low-end devices without high resolution will have blur disabled via premium-polish.css */
-
-      /* Smooth transitions - no global overrides that cause blinking */
-      * {
-        transition-duration: 300ms;
-      }
-
-      /* Disable box-shadow animations (expensive repaints) */
-      .shadow-lg,
-      .shadow-xl,
-      .shadow-2xl {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-      }
-
-      /* Use simpler backgrounds for overlays */
-      [class*="bg-black/"] {
-        background-color: rgba(0, 0, 0, 0.5) !important;
-      }
-
-      /* Hardware acceleration for swipeable cards */
-      .swipe-card,
-      [data-swipeable="true"] {
-        transform: translateZ(0);
-        backface-visibility: hidden;
-        perspective: 1000px;
-        will-change: transform;
-      }
-    }
-
-    /* CSS Containment for layout stability */
-    .contain-layout {
-      contain: layout;
-    }
-
-    .contain-paint {
-      contain: paint;
-    }
-
-    .contain-strict {
-      contain: strict;
-    }
-
-    /* Hardware-accelerated scroll containers */
-    .scroll-area-momentum {
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      scroll-behavior: smooth;
-    }
-
-    @media (max-width: 768px) {
-      .scroll-area-momentum {
-        scroll-behavior: auto;
-        /* Faster on mobile */
-      }
-    }
-
-    /* Fast tap states for interactive elements */
-    button,
-    a,
-    [role="button"] {
-      touch-action: manipulation;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    /* Active state for instant feedback - spring-like press */
-    button:active,
-    a:active,
-    [role="button"]:active {
-      transform: scale(0.96);
-      opacity: 0.95;
-      transition: transform 50ms var(--ease-spring), opacity 50ms ease-out;
-    }
-
-    .brand-glow {
-      text-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.3),
-        0 4px 8px rgba(0, 0, 0, 0.2),
-        0 8px 16px rgba(0, 0, 0, 0.1);
-    }
-
-    .modern-text-shadow {
-      text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.2),
-        0 2px 4px rgba(0, 0, 0, 0.15);
-    }
-
-    .text-shadow {
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    /* GPU-Accelerated Animations - 60fps Performance */
-    @keyframes fast-fade-in {
-      from {
-        opacity: 0;
-        transform: translateY(10px) translateZ(0);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0) translateZ(0);
-      }
-    }
-
-    @keyframes quick-scale {
-      0% {
-        transform: scale(1) translateZ(0);
-      }
-
-      50% {
-        transform: scale(1.02) translateZ(0);
-      }
-
-      100% {
-        transform: scale(1) translateZ(0);
-      }
-    }
-
-    @keyframes smooth-slide {
-      from {
-        opacity: 0;
-        transform: translateX(-15px) translateZ(0);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateX(0) translateZ(0);
-      }
-    }
-
-    @keyframes minimal-bounce {
-      0% {
-        transform: scale(1) translateZ(0);
-      }
-
-      50% {
-        transform: scale(0.98) translateZ(0);
-      }
-
-      100% {
-        transform: scale(1) translateZ(0);
-      }
-    }
-
-    @keyframes shimmer {
-      0% {
-        transform: translateX(-100%);
-      }
-
-      100% {
-        transform: translateX(100%);
-      }
-    }
-
-    @keyframes pulse-subtle {
-
-      0%,
-      100% {
-        opacity: 0.4;
-      }
-
-      50% {
-        opacity: 0.7;
-      }
-    }
-
-    /* GPU-accelerated shimmer animation class */
-    .shimmer-animation {
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-      animation: shimmer 2.5s ease-in-out infinite;
-      will-change: transform;
-    }
-
-    /* Subtle pulse for hint arrows */
-    .animate-pulse-subtle {
-      animation: pulse-subtle 2s ease-in-out infinite;
-    }
-
-    @keyframes particle-burst {
-      0% {
-        transform: scale(0) translateZ(0);
-        opacity: 1;
-      }
-
-      100% {
-        transform: scale(2) translateZ(0);
-        opacity: 0;
-      }
-    }
-
-    @keyframes glow-pulse {
-
-      0%,
-      100% {
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-      }
-
-      50% {
-        box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
-      }
-    }
-
-    @keyframes float-subtle {
-
-      0%,
-      100% {
-        transform: translateY(0px) translateZ(0);
-      }
-
-      50% {
-        transform: translateY(-4px) translateZ(0);
-      }
-    }
-
-    @keyframes blur-in {
-      from {
-        filter: blur(20px);
-        opacity: 0;
-      }
-
-      to {
-        filter: blur(0);
-        opacity: 1;
-      }
-    }
-
-    .gradient-text {
-      background: linear-gradient(135deg, hsl(0, 100%, 55%), hsl(0, 100%, 45%));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .premium-glow {
-      box-shadow: var(--shadow-premium);
-    }
-
-    /* ===== SWIPESS LOGO STYLE (PREMIUM ENHANCED) ===== */
-    .swipess-logo {
-      font-family: 'Poppins', 'Quicksand', system-ui, sans-serif;
-      font-weight: 700;
-      font-style: italic;
-      letter-spacing: -0.02em;
-      /* Multi-layer gradient for depth */
-      background: linear-gradient(135deg,
-          #FF8C42 0%,
-          #FFB347 25%,
-          #FF6B35 50%,
-          #FF4D00 75%,
-          #FF8C42 100%);
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: inline-block;
-      /* Enhanced multi-layer glow */
-      filter:
-        drop-shadow(0 0 20px rgba(255, 77, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 107, 53, 0.3)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
-      /* Animated gradient shift (subtle) */
-      animation: gradient-shift 8s ease-in-out infinite;
-      /* Extra padding to prevent italic descenders (like 'p') from being clipped */
-      padding: 0.15em 0.2em 0.25em 0.1em;
-      overflow: visible;
-      white-space: nowrap;
-      line-height: 1.3;
-    }
-
-    /* Small variant for headers (PREMIUM ENHANCED) */
-    .swipess-logo-sm {
-      font-family: 'Poppins', 'Quicksand', system-ui, sans-serif;
-      font-weight: 700;
-      font-style: italic;
-      letter-spacing: -0.02em;
-      /* Multi-layer gradient for depth */
-      background: linear-gradient(135deg,
-          #FF8C42 0%,
-          #FFB347 25%,
-          #FF6B35 50%,
-          #FF4D00 75%,
-          #FF8C42 100%);
-      background-size: 200% 200%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      display: inline-block;
-      /* Enhanced glow (slightly subtler for small version) */
-      filter:
-        drop-shadow(0 0 12px rgba(255, 77, 0, 0.5)) drop-shadow(0 0 24px rgba(255, 107, 53, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
-      /* Animated gradient shift */
-      animation: gradient-shift 8s ease-in-out infinite;
-      /* Extra padding to prevent italic descenders from being clipped */
-      padding: 0.1em 0.15em 0.2em 0.05em;
-      overflow: visible;
-      white-space: nowrap;
-      line-height: 1.3;
-    }
-
-    /* Inline text variant */
-    .swipess-text {
-      font-family: 'Poppins', 'Quicksand', system-ui, sans-serif;
-      font-weight: 600;
-      font-style: italic;
-      background: linear-gradient(180deg, #f43f5e 0%, #f97316 50%, #fbbf24 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      /* Extra padding to prevent italic descenders from being clipped */
-      padding: 0.1em 0.15em 0.15em 0.05em;
-      display: inline-block;
-      overflow: visible;
-      line-height: 1.2;
-    }
-
-    /* ===== SWIPE GRADIENT MASK SYSTEM - Tinder-Style ===== */
-    /* UI elements float INSIDE gradient masks, not on transparent backgrounds */
-
-    /* Z-index hierarchy for swipe cards */
-    .z-1 {
-      z-index: 1;
-    }
-
-    /* Photo layer - lowest */
-    .z-15 {
-      z-index: 15;
-    }
-
-    /* Top gradient mask */
-    .z-18 {
-      z-index: 18;
-    }
-
-    /* Bottom gradient mask */
-    .z-20 {
-      z-index: 20;
-    }
-
-    /* Card info overlay */
-    .z-25 {
-      z-index: 25;
-    }
-
-    /* Floating UI inside gradients */
-    .z-30 {
-      z-index: 30;
-    }
-
-    /* Swipe overlays (YES!/NOPE) */
-
-    /* Full-bleed swipe card - covers 100% viewport */
-    .swipe-card-fullbleed {
-      position: absolute;
-      inset: 0;
-      overflow: hidden;
-      transform: translateZ(0);
-      will-change: transform, opacity;
-    }
-
-    /* Gradient mask base styles */
-    .gradient-mask-base {
-      pointer-events: none;
-      transform: translateZ(0);
-      will-change: opacity;
-      backface-visibility: hidden;
-    }
-
-    /* Radar animation keyframes */
-    @keyframes radar-sweep {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @keyframes radar-pulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-        opacity: 0.5;
-      }
-
-      50% {
-        transform: scale(1.1);
-        opacity: 0.3;
-      }
-    }
-
-    .animate-radar-sweep {
-      animation: radar-sweep 4s linear infinite;
-    }
-
-    .animate-radar-pulse {
-      animation: radar-pulse 2.5s ease-in-out infinite;
-    }
-
-    /* Optimized card interactions - GAME-LIKE INSTANT FEEL */
-    .fast-card {
-      transition: transform 0.1s ease-out;
-      will-change: transform;
-    }
-
-    .fast-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .fast-card:active {
-      transform: translateY(0) scale(0.95);
-    }
-
-    .swipe-card {
-      transition: transform 0.12s ease-out;
-      will-change: transform;
-    }
-
-    .swipe-card:active {
-      transform: scale(0.95);
-    }
-
-    .smooth-page {
-      animation: fast-fade-in 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-    }
-
-    .dynamic-card {
-      background: var(--gradient-surface);
-      /* backdrop-filter: blur(20px); REMOVED for Android performance */
-      border: 2px solid transparent;
-      background-clip: padding-box;
-      position: relative;
-    }
-
-    .dynamic-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-radius: inherit;
-      padding: 2px;
-      background: var(--gradient-primary);
-      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      mask-composite: exclude;
-      z-index: -1;
-    }
-
-    .match-glow {
-      box-shadow: var(--shadow-success);
-      border: 2px solid hsl(var(--success));
-    }
-
-    .super-glow {
-      box-shadow: var(--shadow-premium);
-      border: 2px solid hsl(280, 100%, 70%);
-    }
-
-    /* Modern ripple effect - FASTER for instant feedback */
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.4);
-      transform: scale(0);
-      animation: ripple-animation 0.4s ease-out;
-      pointer-events: none;
-    }
-
-    @keyframes ripple-animation {
-      to {
-        transform: scale(4);
-        opacity: 0;
-      }
-    }
-
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-    /*  iOS-GRADE TAP FEEDBACK SYSTEM                                       */
-    /*  Native iOS feel for all interactive elements                        */
-    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-    /* Base iOS tap - 50ms transition with subtle scale */
-    .ios-tap {
-      transition: transform 50ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity 50ms;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      user-select: none;
-      will-change: transform;
-      transform: translateZ(0);
-    }
-
-    .ios-tap:active {
-      transform: scale(0.97) translateZ(0);
-      opacity: 0.9;
-    }
-
-    /* iOS list item - subtle background highlight on tap */
-    .ios-list-item {
-      transition: background-color 50ms ease-out;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .ios-list-item:active {
-      background-color: hsl(var(--muted) / 0.5);
-    }
-
-    /* iOS card press - deeper press effect for cards */
-    .ios-card-press {
-      transition: transform 80ms cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 80ms;
-      -webkit-tap-highlight-color: transparent;
-      will-change: transform;
-    }
-
-    .ios-card-press:active {
-      transform: scale(0.98) translateZ(0);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    /* iOS button bounce - spring-like feedback */
-    .ios-bounce {
-      transition: transform 100ms cubic-bezier(0.34, 1.56, 0.64, 1);
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .ios-bounce:active {
-      transform: scale(0.95) translateZ(0);
-    }
-
-    /* Momentum scrolling for iOS-like scroll physics */
-    .scroll-area-momentum {
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
-      scroll-behavior: smooth;
-    }
-
-    /* Disable tap highlight universally for clean feel */
-    * {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Glassmorphism utilities - OPTIMIZED for Android performance */
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.97);
-      /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-      /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .glass-dark {
-      background: rgba(0, 0, 0, 0.85);
-      /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-      /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Performance optimizations */
-    .gpu-accelerated {
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      will-change: transform;
-    }
-
-    /* Smooth scroll */
-    .smooth-scroll {
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    /* Touch optimization */
-    .touch-optimized {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Animated mesh gradient */
-    .animated-gradient {
-      background: linear-gradient(135deg,
-          hsl(345, 85%, 55%) 0%,
-          hsl(12, 100%, 58%) 25%,
-          hsl(20, 100%, 62%) 50%,
-          hsl(30, 95%, 65%) 75%,
-          hsl(40, 90%, 70%) 100%);
-      background-size: 200% 200%;
-      animation: gradient-shift 15s ease infinite;
-    }
-
-    /* 3D card tilt (subtle professional) */
-    .card-tilt {
-      transform-style: preserve-3d;
-      transition: transform 0.3s ease;
-    }
-
-    .card-tilt:hover {
-      transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateZ(10px);
-    }
-
-    /* Smooth fade on scroll - OPTIMIZED (no blur for performance) */
-    .blur-on-scroll {
-      transition: background-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .blur-on-scroll.scrolled {
-      /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-      /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-      background-color: rgba(255, 255, 255, 0.95);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    }
-
-    .dark .blur-on-scroll.scrolled {
-      background-color: rgba(0, 0, 0, 0.8);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Progressive image loading */
-    .progressive-image {
-      animation: blur-in 0.5s ease;
-    }
-
-    /* Ripple effect container */
-    .ripple-container {
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Button press feedback */
-    .press-feedback {
-      transition: transform 0.1s ease, box-shadow 0.1s ease;
-    }
-
-    .press-feedback:active {
-      transform: scale(0.96) translateZ(0);
-    }
-
-    /* Smooth hover glow */
-    .hover-glow {
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-    }
-
-    .hover-glow:hover {
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-      transform: translateY(-2px) translateZ(0);
-    }
-
-    /* Floating animation for decorative elements */
-    .float-animate {
-      animation: float-subtle 6s ease-in-out infinite;
-    }
-
-    /* Scroll snap for cards */
-    .scroll-snap-x {
-      scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
-    }
-
-    .scroll-snap-item {
-      scroll-snap-align: center;
-    }
-
-    /* ===== MOBILE PERFORMANCE OPTIMIZATIONS ===== */
-
-    /* Remove 300ms tap delay on mobile - instant interaction */
-    button,
-    a,
-    [role="button"],
-    .cursor-pointer,
-    input[type="checkbox"],
-    input[type="radio"],
-    select {
-      touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* Instant visual feedback for clicks */
-    button:active,
-    a:active,
-    [role="button"]:active {
-      transform: scale(0.96) translateZ(0);
-      transition: transform 0.05s ease;
-    }
-
-    /* Prevent text selection on interactive elements during swipe */
-    button,
-    a,
-    [role="button"] {
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    /* Optimize for 60fps scrolling and animations */
-    .swipe-card,
-    [class*="card"],
-    .motion-element {
-      will-change: transform, opacity;
-      transform: translateZ(0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-    }
-
-    /* Prevent flickering on state changes */
-    .no-flicker {
-      transition: none;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
-
+}
+
+@layer base {
+  * {
+    @apply border-border;
   }
 
-  /* ===== GLOBAL SMOOTH SCROLL & PERFORMANCE ===== */
-  html {
-    scroll-behavior: smooth;
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    min-height: 100vh;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    transition: all 0.2s ease;
   }
 
-  /* GPU-accelerated elements */
-  .gpu-accelerate {
-    transform: translateZ(0);
-    will-change: transform;
-    backface-visibility: hidden;
-  }
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  /*  MOBILE PERFORMANCE OPTIMIZATIONS - Tinder-like Speed                 */
+  /*  Disable expensive effects on mobile for 60fps buttery smoothness     */
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-  /* Super fast button interactions */
-  button,
-  a,
-  [role="button"] {
-    -webkit-tap-highlight-color: transparent;
+  /* INSTANT TOUCH - Global touch optimization */
+  * {
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Smooth link transitions */
-  a {
-    transition: color 0.1s ease-out, opacity 0.1s ease-out;
-  }
-
-  /* Fast card hover/press states */
-  .fast-touch {
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-    will-change: transform;
-  }
-
-  .fast-touch:active {
-    transform: scale(0.97);
-  }
-
-  /* Optimized scrolling */
-  .smooth-scroll {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-  }
-
-  /* INSTANT modal/dialog animations */
-  [data-state="open"] {
-    animation: modal-in 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-  }
-
-  [data-state="closed"] {
-    animation: modal-out 0.2s cubic-bezier(0.4, 0, 1, 1);
-  }
-
-  @keyframes modal-in {
-    from {
-      opacity: 0;
-      transform: scale(0.96) translateZ(0);
-    }
-
-    to {
-      opacity: 1;
-      transform: scale(1) translateZ(0);
-    }
-  }
-
-  @keyframes modal-out {
-    from {
-      opacity: 1;
-      transform: scale(1) translateZ(0);
-    }
-
-    to {
-      opacity: 0;
-      transform: scale(0.96) translateZ(0);
-    }
-  }
-
-  /* ===== ANIMATED GRADIENT SHIFT FOR BRANDING ===== */
-  @keyframes gradient-shift {
-    0% {
-      background-position: 200% 50%;
-    }
-
-    100% {
-      background-position: 0% 50%;
-    }
-  }
-
-  .animate-gradient-shift {
-    animation: gradient-shift 600s linear infinite !important;
-    animation-play-state: running !important;
-    animation-delay: 0s !important;
-    will-change: background-position;
-  }
-
-  /* ===== PREFERS-REDUCED-MOTION ACCESSIBILITY ===== */
-  /* Reduce animation intensity for users who prefer reduced motion */
+  /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
 
-    *:not(.animate-gradient-shift),
+    *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
     }
   }
 
-  /* Class-based reduced motion (set via JS in index.html) */
-  .reduce-motion *:not(.animate-gradient-shift),
-  .reduce-motion *::before,
-  .reduce-motion *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  /* MOBILE PERFORMANCE MODE - Disable blur effects on phones */
+  @media (max-width: 768px) {
+    /* Refined mobile blur — disabled blanket ban to preserve 'alive' feel on modern devices */
+    /* Only low-end devices without high resolution will have blur disabled via premium-polish.css */
+
+    /* Smooth transitions - no global overrides that cause blinking */
+    * {
+      transition-duration: 300ms;
+    }
+
+    /* Disable box-shadow animations (expensive repaints) */
+    .shadow-lg,
+    .shadow-xl,
+    .shadow-2xl {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Use simpler backgrounds for overlays */
+    [class*="bg-black/"] {
+      background-color: rgba(0, 0, 0, 0.5) !important;
+    }
+
+    /* Hardware acceleration for swipeable cards */
+    .swipe-card,
+    [data-swipeable="true"] {
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      perspective: 1000px;
+      will-change: transform;
+    }
   }
 
-  /* Force gradient animation to always run */
-  .animate-gradient-shift {
-    animation: gradient-shift 600s linear infinite !important;
-    animation-play-state: running !important;
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  PREMIUM UX ENHANCEMENTS - Buttery Smooth Experience               */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  /* CSS Containment for better rendering performance */
+  /* CSS Containment for layout stability */
   .contain-layout {
     contain: layout;
   }
@@ -1359,1435 +551,2243 @@ body {
     contain: strict;
   }
 
-  /* ===== SKELETON LOADING ANIMATIONS ===== */
-  .skeleton {
-    background: linear-gradient(90deg,
-        hsl(var(--muted)) 0%,
-        hsl(var(--muted) / 0.5) 50%,
-        hsl(var(--muted)) 100%);
-    background-size: 200% 100%;
-    animation: skeleton-shimmer 1.5s ease-in-out infinite;
-    border-radius: var(--radius);
+  /* Hardware-accelerated scroll containers */
+  .scroll-area-momentum {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
   }
 
-  .skeleton-text {
-    height: 1em;
-    border-radius: 4px;
+  @media (max-width: 768px) {
+    .scroll-area-momentum {
+      scroll-behavior: auto;
+      /* Faster on mobile */
+    }
   }
 
-  .skeleton-avatar {
-    border-radius: 50%;
+  /* Fast tap states for interactive elements */
+  button,
+  a,
+  [role="button"] {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
   }
 
-  .skeleton-card {
-    border-radius: var(--radius);
+  /* Active state for instant feedback - spring-like press */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    transform: scale(0.96);
+    opacity: 0.95;
+    transition: transform 50ms var(--ease-spring), opacity 50ms ease-out;
   }
 
-  .skeleton-image {
-    aspect-ratio: 16/9;
-    border-radius: var(--radius);
+  .brand-glow {
+    text-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.3),
+      0 4px 8px rgba(0, 0, 0, 0.2),
+      0 8px 16px rgba(0, 0, 0, 0.1);
   }
 
-  @keyframes skeleton-shimmer {
+  .modern-text-shadow {
+    text-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.2),
+      0 2px 4px rgba(0, 0, 0, 0.15);
+  }
+
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  /* GPU-Accelerated Animations - 60fps Performance */
+  @keyframes fast-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) translateZ(0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) translateZ(0);
+    }
+  }
+
+  @keyframes quick-scale {
     0% {
-      background-position: 200% 0;
+      transform: scale(1) translateZ(0);
+    }
+
+    50% {
+      transform: scale(1.02) translateZ(0);
     }
 
     100% {
-      background-position: -200% 0;
+      transform: scale(1) translateZ(0);
     }
   }
 
-  /* Shimmer animation utility */
-  .animate-shimmer {
-    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  @keyframes smooth-slide {
+    from {
+      opacity: 0;
+      transform: translateX(-15px) translateZ(0);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0) translateZ(0);
+    }
   }
 
-  /* ===== IMAGE LAZY LOADING WITH BLUR PLACEHOLDER ===== */
-  .lazy-image {
-    opacity: 0;
-    transition: opacity 0.4s ease-out, filter 0.4s ease-out;
-    filter: blur(10px);
+  @keyframes minimal-bounce {
+    0% {
+      transform: scale(1) translateZ(0);
+    }
+
+    50% {
+      transform: scale(0.98) translateZ(0);
+    }
+
+    100% {
+      transform: scale(1) translateZ(0);
+    }
   }
 
-  .lazy-image.loaded {
-    opacity: 1;
-    filter: blur(0);
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(100%);
+    }
   }
 
-  .image-placeholder {
-    background: linear-gradient(135deg, hsl(var(--muted)), hsl(var(--muted) / 0.7));
+  @keyframes pulse-subtle {
+
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  /* GPU-accelerated shimmer animation class */
+  .shimmer-animation {
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+    animation: shimmer 2.5s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* Subtle pulse for hint arrows */
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  @keyframes particle-burst {
+    0% {
+      transform: scale(0) translateZ(0);
+      opacity: 1;
+    }
+
+    100% {
+      transform: scale(2) translateZ(0);
+      opacity: 0;
+    }
+  }
+
+  @keyframes glow-pulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+    }
+
+    50% {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+    }
+  }
+
+  @keyframes float-subtle {
+
+    0%,
+    100% {
+      transform: translateY(0px) translateZ(0);
+    }
+
+    50% {
+      transform: translateY(-4px) translateZ(0);
+    }
+  }
+
+  @keyframes blur-in {
+    from {
+      filter: blur(20px);
+      opacity: 0;
+    }
+
+    to {
+      filter: blur(0);
+      opacity: 1;
+    }
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(0, 100%, 55%), hsl(0, 100%, 45%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .premium-glow {
+    box-shadow: var(--shadow-premium);
+  }
+
+  /* ===== SWIPESS LOGO STYLE (PREMIUM ENHANCED) ===== */
+  .swipess-logo {
+    font-family: 'Poppins', 'Quicksand', system-ui, sans-serif;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    /* Multi-layer gradient for depth */
+    background: linear-gradient(135deg,
+        #FF8C42 0%,
+        #FFB347 25%,
+        #FF6B35 50%,
+        #FF4D00 75%,
+        #FF8C42 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    /* Enhanced multi-layer glow */
+    filter:
+      drop-shadow(0 0 20px rgba(255, 77, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 107, 53, 0.3)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    /* Animated gradient shift (subtle) */
+    animation: gradient-shift 8s ease-in-out infinite;
+    /* Extra padding to prevent italic descenders (like 'p') from being clipped */
+    padding: 0.15em 0.2em 0.25em 0.1em;
+    overflow: visible;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  /* Small variant for headers (PREMIUM ENHANCED) */
+  .swipess-logo-sm {
+    font-family: 'Poppins', 'Quicksand', system-ui, sans-serif;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: -0.02em;
+    /* Multi-layer gradient for depth */
+    background: linear-gradient(135deg,
+        #FF8C42 0%,
+        #FFB347 25%,
+        #FF6B35 50%,
+        #FF4D00 75%,
+        #FF8C42 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    /* Enhanced glow (slightly subtler for small version) */
+    filter:
+      drop-shadow(0 0 12px rgba(255, 77, 0, 0.5)) drop-shadow(0 0 24px rgba(255, 107, 53, 0.25)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+    /* Animated gradient shift */
+    animation: gradient-shift 8s ease-in-out infinite;
+    /* Extra padding to prevent italic descenders from being clipped */
+    padding: 0.1em 0.15em 0.2em 0.05em;
+    overflow: visible;
+    white-space: nowrap;
+    line-height: 1.3;
+  }
+
+  /* Inline text variant */
+  .swipess-text {
+    font-family: 'Poppins', 'Quicksand', system-ui, sans-serif;
+    font-weight: 600;
+    font-style: italic;
+    background: linear-gradient(180deg, #f43f5e 0%, #f97316 50%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Extra padding to prevent italic descenders from being clipped */
+    padding: 0.1em 0.15em 0.15em 0.05em;
+    display: inline-block;
+    overflow: visible;
+    line-height: 1.2;
+  }
+
+  /* ===== SWIPE GRADIENT MASK SYSTEM - Tinder-Style ===== */
+  /* UI elements float INSIDE gradient masks, not on transparent backgrounds */
+
+  /* Z-index hierarchy for swipe cards */
+  .z-1 {
+    z-index: 1;
+  }
+
+  /* Photo layer - lowest */
+  .z-15 {
+    z-index: 15;
+  }
+
+  /* Top gradient mask */
+  .z-18 {
+    z-index: 18;
+  }
+
+  /* Bottom gradient mask */
+  .z-20 {
+    z-index: 20;
+  }
+
+  /* Card info overlay */
+  .z-25 {
+    z-index: 25;
+  }
+
+  /* Floating UI inside gradients */
+  .z-30 {
+    z-index: 30;
+  }
+
+  /* Swipe overlays (YES!/NOPE) */
+
+  /* Full-bleed swipe card - covers 100% viewport */
+  .swipe-card-fullbleed {
     position: absolute;
     inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* ===== ENHANCED BUTTON INTERACTIONS ===== */
-  .btn-premium {
-    position: relative;
     overflow: hidden;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+    will-change: transform, opacity;
   }
 
-  .btn-premium::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg,
-        rgba(255, 255, 255, 0.15) 0%,
-        rgba(255, 255, 255, 0) 50%,
-        rgba(0, 0, 0, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
+  /* Gradient mask base styles */
+  .gradient-mask-base {
+    pointer-events: none;
+    transform: translateZ(0);
+    will-change: opacity;
+    backface-visibility: hidden;
   }
 
-  .btn-premium:hover::before {
-    opacity: 1;
-  }
-
-  .btn-premium:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .btn-premium:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  /* ===== INSTANT PAGE TRANSITIONS - Game-like speed ===== */
-  /* Using scale instead of translateX to prevent horizontal page shifts */
-  .page-enter {
-    opacity: 0;
-    transform: scale(0.98) translateZ(0);
-  }
-
-  .page-enter-active {
-    opacity: 1;
-    transform: scale(1) translateZ(0);
-    transition: opacity 0.35s var(--ease-out-expo), transform 0.35s var(--ease-out-expo);
-  }
-
-  .page-exit {
-    opacity: 1;
-    transform: scale(1) translateZ(0);
-  }
-
-  .page-exit-active {
-    opacity: 0;
-    transform: scale(1.02) translateZ(0);
-    transition: opacity 0.06s ease-in, transform 0.06s ease-in;
-  }
-
-  /* ===== FOCUS STATES - Accessibility ===== */
-  :focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  button:focus-visible,
-  a:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
-  }
-
-  /* ===== ENHANCED TYPOGRAPHY ===== */
-  body {
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
-
-  /* Improve text selection */
-  ::selection {
-    background: hsl(var(--primary) / 0.2);
-    color: hsl(var(--foreground));
-  }
-
-  /* ===== SMOOTH CARD HOVER EFFECTS ===== */
-  .card-hover-lift {
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-      box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .card-hover-lift:hover {
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  }
-
-  .card-hover-lift:active {
-    transform: translateY(-2px) scale(0.99);
-    transition-duration: 0.1s;
-  }
-
-  /* ===== ENHANCED SCROLL EXPERIENCE ===== */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
-  }
-
-  *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  *::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  *::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 3px;
-  }
-
-  *::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.5);
-  }
-
-  /* Hide scrollbar on touch devices */
-  @media (hover: none) {
-    * {
-      scrollbar-width: none;
-    }
-
-    *::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  /* ===== MICRO-INTERACTIONS ===== */
-  .interactive {
-    transition: transform 0.15s ease, opacity 0.15s ease;
-    cursor: pointer;
-  }
-
-  .interactive:hover {
-    transform: scale(1.02);
-  }
-
-  .interactive:active {
-    transform: scale(0.98);
-    opacity: 0.9;
-  }
-
-  /* Icon hover effect */
-  .icon-hover {
-    transition: transform 0.2s ease, color 0.2s ease;
-  }
-
-  .icon-hover:hover {
-    transform: scale(1.1);
-    color: hsl(var(--primary));
-  }
-
-  /* ===== SMOOTH INPUT TRANSITIONS ===== */
-  input,
-  textarea,
-  select {
-    transition: border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  input:focus,
-  textarea:focus,
-  select:focus {
-    border-color: hsl(var(--ring));
-    box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
-  }
-
-  /* ===== TOAST/NOTIFICATION ANIMATIONS ===== */
-  @keyframes toast-in {
+  /* Radar animation keyframes */
+  @keyframes radar-sweep {
     from {
-      opacity: 0;
-      transform: translateY(100%) scale(0.95);
+      transform: rotate(0deg);
     }
 
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  @keyframes toast-out {
-    from {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-
-    to {
-      opacity: 0;
-      transform: translateY(-20px) scale(0.95);
-    }
-  }
-
-  .toast-enter {
-    animation: toast-in 0.35s cubic-bezier(0.21, 1.02, 0.73, 1);
-  }
-
-  .toast-exit {
-    animation: toast-out 0.2s ease-in forwards;
-  }
-
-  /* ===== LOADING SPINNER ===== */
-  .spinner {
-    width: 24px;
-    height: 24px;
-    border: 2px solid hsl(var(--muted));
-    border-top-color: hsl(var(--primary));
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  .spinner-sm {
-    width: 16px;
-    height: 16px;
-  }
-
-  .spinner-lg {
-    width: 32px;
-    height: 32px;
-    border-width: 3px;
-  }
-
-  @keyframes spin {
     to {
       transform: rotate(360deg);
     }
   }
 
-  /* ===== PULSE ANIMATION FOR NOTIFICATIONS ===== */
-  .pulse-dot {
+  @keyframes radar-pulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+
+    50% {
+      transform: scale(1.1);
+      opacity: 0.3;
+    }
+  }
+
+  .animate-radar-sweep {
+    animation: radar-sweep 4s linear infinite;
+  }
+
+  .animate-radar-pulse {
+    animation: radar-pulse 2.5s ease-in-out infinite;
+  }
+
+  /* Optimized card interactions - GAME-LIKE INSTANT FEEL */
+  .fast-card {
+    transition: transform 0.1s ease-out;
+    will-change: transform;
+  }
+
+  .fast-card:hover {
+    transform: translateY(-2px);
+  }
+
+  .fast-card:active {
+    transform: translateY(0) scale(0.95);
+  }
+
+  .swipe-card {
+    transition: transform 0.12s ease-out;
+    will-change: transform;
+  }
+
+  .swipe-card:active {
+    transform: scale(0.95);
+  }
+
+  .smooth-page {
+    animation: fast-fade-in 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  }
+
+  .dynamic-card {
+    background: var(--gradient-surface);
+    /* backdrop-filter: blur(20px); REMOVED for Android performance */
+    border: 2px solid transparent;
+    background-clip: padding-box;
     position: relative;
   }
 
-  .pulse-dot::after {
+  .dynamic-card::before {
     content: '';
     position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 8px;
-    height: 8px;
-    background: hsl(var(--destructive));
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: var(--gradient-primary);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    z-index: -1;
+  }
+
+  .match-glow {
+    box-shadow: var(--shadow-success);
+    border: 2px solid hsl(var(--success));
+  }
+
+  .super-glow {
+    box-shadow: var(--shadow-premium);
+    border: 2px solid hsl(280, 100%, 70%);
+  }
+
+  /* Modern ripple effect - FASTER for instant feedback */
+  .ripple {
+    position: absolute;
     border-radius: 50%;
-    animation: pulse-ring 1.5s ease-out infinite;
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple-animation 0.4s ease-out;
+    pointer-events: none;
   }
 
-  @keyframes pulse-ring {
-    0% {
-      box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.7);
-    }
-
-    70% {
-      box-shadow: 0 0 0 6px hsl(var(--destructive) / 0);
-    }
-
-    100% {
-      box-shadow: 0 0 0 0 hsl(var(--destructive) / 0);
+  @keyframes ripple-animation {
+    to {
+      transform: scale(4);
+      opacity: 0;
     }
   }
 
-  /* ===== CONTENT FADE IN ON SCROLL ===== */
-  .fade-in-view {
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  /*  iOS-GRADE TAP FEEDBACK SYSTEM                                       */
+  /*  Native iOS feel for all interactive elements                        */
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+  /* Base iOS tap - 50ms transition with subtle scale */
+  .ios-tap {
+    transition: transform 50ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity 50ms;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  .ios-tap:active {
+    transform: scale(0.97) translateZ(0);
+    opacity: 0.9;
+  }
+
+  /* iOS list item - subtle background highlight on tap */
+  .ios-list-item {
+    transition: background-color 50ms ease-out;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ios-list-item:active {
+    background-color: hsl(var(--muted) / 0.5);
+  }
+
+  /* iOS card press - deeper press effect for cards */
+  .ios-card-press {
+    transition: transform 80ms cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 80ms;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform;
+  }
+
+  .ios-card-press:active {
+    transform: scale(0.98) translateZ(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* iOS button bounce - spring-like feedback */
+  .ios-bounce {
+    transition: transform 100ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ios-bounce:active {
+    transform: scale(0.95) translateZ(0);
+  }
+
+  /* Momentum scrolling for iOS-like scroll physics */
+  .scroll-area-momentum {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+  }
+
+  /* Disable tap highlight universally for clean feel */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Glassmorphism utilities - OPTIMIZED for Android performance */
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.97);
+    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
+    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.85);
+    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
+    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Performance optimizations */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    will-change: transform;
+  }
+
+  /* Smooth scroll */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Touch optimization */
+  .touch-optimized {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Animated mesh gradient */
+  .animated-gradient {
+    background: linear-gradient(135deg,
+        hsl(345, 85%, 55%) 0%,
+        hsl(12, 100%, 58%) 25%,
+        hsl(20, 100%, 62%) 50%,
+        hsl(30, 95%, 65%) 75%,
+        hsl(40, 90%, 70%) 100%);
+    background-size: 200% 200%;
+    animation: gradient-shift 15s ease infinite;
+  }
+
+  /* 3D card tilt (subtle professional) */
+  .card-tilt {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+  }
+
+  .card-tilt:hover {
+    transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateZ(10px);
+  }
+
+  /* Smooth fade on scroll - OPTIMIZED (no blur for performance) */
+  .blur-on-scroll {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .blur-on-scroll.scrolled {
+    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
+    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
+    background-color: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .blur-on-scroll.scrolled {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Progressive image loading */
+  .progressive-image {
+    animation: blur-in 0.5s ease;
+  }
+
+  /* Ripple effect container */
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Button press feedback */
+  .press-feedback {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+
+  .press-feedback:active {
+    transform: scale(0.96) translateZ(0);
+  }
+
+  /* Smooth hover glow */
+  .hover-glow {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px) translateZ(0);
+  }
+
+  /* Floating animation for decorative elements */
+  .float-animate {
+    animation: float-subtle 6s ease-in-out infinite;
+  }
+
+  /* Scroll snap for cards */
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+  }
+
+  .scroll-snap-item {
+    scroll-snap-align: center;
+  }
+
+  /* ===== MOBILE PERFORMANCE OPTIMIZATIONS ===== */
+
+  /* Remove 300ms tap delay on mobile - instant interaction */
+  button,
+  a,
+  [role="button"],
+  .cursor-pointer,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Instant visual feedback for clicks */
+  button:active,
+  a:active,
+  [role="button"]:active {
+    transform: scale(0.96) translateZ(0);
+    transition: transform 0.05s ease;
+  }
+
+  /* Prevent text selection on interactive elements during swipe */
+  button,
+  a,
+  [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Optimize for 60fps scrolling and animations */
+  .swipe-card,
+  [class*="card"],
+  .motion-element {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Prevent flickering on state changes */
+  .no-flicker {
+    transition: none;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+}
+
+/* ===== GLOBAL SMOOTH SCROLL & PERFORMANCE ===== */
+html {
+  scroll-behavior: smooth;
+}
+
+/* GPU-accelerated elements */
+.gpu-accelerate {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Super fast button interactions */
+button,
+a,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Smooth link transitions */
+a {
+  transition: color 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+/* Fast card hover/press states */
+.fast-touch {
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+  will-change: transform;
+}
+
+.fast-touch:active {
+  transform: scale(0.97);
+}
+
+/* Optimized scrolling */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* INSTANT modal/dialog animations */
+[data-state="open"] {
+  animation: modal-in 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+[data-state="closed"] {
+  animation: modal-out 0.2s cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes modal-in {
+  from {
     opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: scale(0.96) translateZ(0);
   }
 
-  .fade-in-view.visible {
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes modal-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateZ(0);
+  }
+}
+
+/* ===== ANIMATED GRADIENT SHIFT FOR BRANDING ===== */
+@keyframes gradient-shift {
+  0% {
+    background-position: 200% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-shift {
+  animation: gradient-shift 600s linear infinite !important;
+  animation-play-state: running !important;
+  animation-delay: 0s !important;
+  will-change: background-position;
+}
+
+/* ===== PREFERS-REDUCED-MOTION ACCESSIBILITY ===== */
+/* Reduce animation intensity for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  *:not(.animate-gradient-shift),
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Class-based reduced motion (set via JS in index.html) */
+.reduce-motion *:not(.animate-gradient-shift),
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Force gradient animation to always run */
+.animate-gradient-shift {
+  animation: gradient-shift 600s linear infinite !important;
+  animation-play-state: running !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  PREMIUM UX ENHANCEMENTS - Buttery Smooth Experience               */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* CSS Containment for better rendering performance */
+.contain-layout {
+  contain: layout;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+.contain-strict {
+  contain: strict;
+}
+
+/* ===== SKELETON LOADING ANIMATIONS ===== */
+.skeleton {
+  background: linear-gradient(90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted) / 0.5) 50%,
+      hsl(var(--muted)) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+.skeleton-text {
+  height: 1em;
+  border-radius: 4px;
+}
+
+.skeleton-avatar {
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  border-radius: var(--radius);
+}
+
+.skeleton-image {
+  aspect-ratio: 16/9;
+  border-radius: var(--radius);
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Shimmer animation utility */
+.animate-shimmer {
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ===== IMAGE LAZY LOADING WITH BLUR PLACEHOLDER ===== */
+.lazy-image {
+  opacity: 0;
+  transition: opacity 0.4s ease-out, filter 0.4s ease-out;
+  filter: blur(10px);
+}
+
+.lazy-image.loaded {
+  opacity: 1;
+  filter: blur(0);
+}
+
+.image-placeholder {
+  background: linear-gradient(135deg, hsl(var(--muted)), hsl(var(--muted) / 0.7));
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== ENHANCED BUTTON INTERACTIONS ===== */
+.btn-premium {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-premium::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(0, 0, 0, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.btn-premium:hover::before {
+  opacity: 1;
+}
+
+.btn-premium:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-premium:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== INSTANT PAGE TRANSITIONS - Game-like speed ===== */
+/* Using scale instead of translateX to prevent horizontal page shifts */
+.page-enter {
+  opacity: 0;
+  transform: scale(0.98) translateZ(0);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
+  transition: opacity 0.35s var(--ease-out-expo), transform 0.35s var(--ease-out-expo);
+}
+
+.page-exit {
+  opacity: 1;
+  transform: scale(1) translateZ(0);
+}
+
+.page-exit-active {
+  opacity: 0;
+  transform: scale(1.02) translateZ(0);
+  transition: opacity 0.06s ease-in, transform 0.06s ease-in;
+}
+
+/* ===== FOCUS STATES - Accessibility ===== */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
+}
+
+/* ===== ENHANCED TYPOGRAPHY ===== */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Improve text selection */
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* ===== SMOOTH CARD HOVER EFFECTS ===== */
+.card-hover-lift {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.card-hover-lift:active {
+  transform: translateY(-2px) scale(0.99);
+  transition-duration: 0.1s;
+}
+
+/* ===== ENHANCED SCROLL EXPERIENCE ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Hide scrollbar on touch devices */
+@media (hover: none) {
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ===== MICRO-INTERACTIONS ===== */
+.interactive {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  cursor: pointer;
+}
+
+.interactive:hover {
+  transform: scale(1.02);
+}
+
+.interactive:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* Icon hover effect */
+.icon-hover {
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.icon-hover:hover {
+  transform: scale(1.1);
+  color: hsl(var(--primary));
+}
+
+/* ===== SMOOTH INPUT TRANSITIONS ===== */
+input,
+textarea,
+select {
+  transition: border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+}
+
+/* ===== TOAST/NOTIFICATION ANIMATIONS ===== */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+}
+
+.toast-enter {
+  animation: toast-in 0.35s cubic-bezier(0.21, 1.02, 0.73, 1);
+}
+
+.toast-exit {
+  animation: toast-out 0.2s ease-in forwards;
+}
+
+/* ===== LOADING SPINNER ===== */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid hsl(var(--muted));
+  border-top-color: hsl(var(--primary));
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.spinner-lg {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== PULSE ANIMATION FOR NOTIFICATIONS ===== */
+.pulse-dot {
+  position: relative;
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background: hsl(var(--destructive));
+  border-radius: 50%;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--destructive) / 0.7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 6px hsl(var(--destructive) / 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--destructive) / 0);
+  }
+}
+
+/* ===== CONTENT FADE IN ON SCROLL ===== */
+.fade-in-view {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in-view.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== STAGGERED ANIMATION FOR LISTS ===== */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: stagger-in 0.4s ease forwards;
+}
+
+.stagger-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.stagger-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.stagger-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.stagger-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.stagger-item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.stagger-item:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+.stagger-item:nth-child(7) {
+  animation-delay: 0.35s;
+}
+
+.stagger-item:nth-child(8) {
+  animation-delay: 0.4s;
+}
+
+@keyframes stagger-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== SUCCESS/ERROR STATE ANIMATIONS ===== */
+.success-checkmark {
+  animation: checkmark-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes checkmark-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.error-shake {
+  animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-8px);
+  }
+
+  40% {
+    transform: translateX(8px);
+  }
+
+  60% {
+    transform: translateX(-4px);
+  }
+
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+/* ===== GAME-LIKE INSTANT TOUCH RESPONSE ===== */
+/* Remove ALL touch delays for Tinder/game feel */
+.swipe-card-container,
+[class*="TinderSwipeCard"],
+[class*="SwipeCard"] {
+  touch-action: pan-x !important;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  /* Force GPU acceleration for 0-latency transforms */
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Remove any transition delays during drag */
+  transition: none !important;
+}
+
+/* Ensure dragging feels instant - no transition interference */
+.swipe-card-container:active,
+[class*="TinderSwipeCard"]:active,
+[class*="SwipeCard"]:active {
+  transition: none !important;
+  cursor: grabbing !important;
+}
+
+/* Ultra-fast overlay appearance */
+.swipe-overlay {
+  will-change: opacity, transform;
+  transform: translateZ(0);
+  transition: none !important;
+}
+
+/* ===== SWIPE CARD ENHANCEMENTS ===== */
+.swipe-indicator {
+  position: absolute;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.25rem;
+  opacity: 0;
+  transform: scale(0.8) rotate(-15deg);
+  transition: opacity 0.1s ease, transform 0.1s ease;
+  pointer-events: none;
+}
+
+.swipe-indicator.like {
+  top: 40px;
+  left: 20px;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: 3px solid white;
+}
+
+.swipe-indicator.nope {
+  top: 40px;
+  right: 20px;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: 3px solid white;
+  transform: scale(0.8) rotate(15deg);
+}
+
+.swipe-indicator.visible {
+  opacity: 1;
+  transform: scale(1) rotate(-15deg);
+}
+
+.swipe-indicator.nope.visible {
+  transform: scale(1) rotate(15deg);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  VIEW TRANSITIONS API - Native Browser Page Transitions              */
+/*  Modern standard for smooth morphing between pages                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Enable view transitions for navigation */
+@view-transition {
+  navigation: auto;
+}
+
+/* Customize default cross-fade animation - INSTANT */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.1s;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+  mix-blend-mode: normal;
+}
+
+/* Forward navigation - use scale instead of x transforms to prevent shifting */
+html[data-navigation-direction="forward"] {
+  &::view-transition-old(root) {
+    animation-name: scale-fade-out;
+  }
+
+  &::view-transition-new(root) {
+    animation-name: scale-fade-in;
+  }
+}
+
+/* Backward navigation - use scale instead of x transforms to prevent shifting */
+html[data-navigation-direction="back"] {
+  &::view-transition-old(root) {
+    animation-name: scale-fade-out-back;
+  }
+
+  &::view-transition-new(root) {
+    animation-name: scale-fade-in-back;
+  }
+}
+
+/* Scale-based animations to prevent horizontal page shifts */
+@keyframes scale-fade-out {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(0.98);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-fade-in {
+  from {
+    transform: scale(1.02);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes scale-fade-out-back {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  to {
+    transform: scale(1.02);
+    opacity: 0;
+  }
+}
+
+@keyframes scale-fade-in-back {
+  from {
+    transform: scale(0.98);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Shared element transitions - for images and cards */
+.property-card-image,
+.listing-card-image {
+  view-transition-name: property-image;
+  contain: layout;
+}
+
+.profile-avatar {
+  view-transition-name: profile-avatar;
+  contain: layout;
+}
+
+/* Scale animation for modals and dialogs */
+::view-transition-old(modal),
+::view-transition-new(modal) {
+  animation-duration: 0.25s;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(modal),
+  ::view-transition-new(modal) {
+    animation-duration: 0.05s !important;
+    animation-delay: 0s !important;
+  }
+
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* Optimize for mobile performance - INSTANT */
+@media (max-width: 768px) {
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.08s;
+  }
+}
+
+/* Dark mode view transitions */
+@media (prefers-color-scheme: dark) {
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    /* Ensure smooth transitions in dark mode */
+    mix-blend-mode: normal;
+  }
+}
+
+/* Electric sign marquee animation */
+@keyframes electric-marquee {
+  0% {
+    background-position: 200% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.electric-text {
+  background: linear-gradient(90deg,
+      currentColor 0%,
+      currentColor 40%,
+      rgba(255, 255, 255, 1) 50%,
+      currentColor 60%,
+      currentColor 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: electric-marquee 2s linear infinite;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  SWIPE BUTTON EFFECTS - Clean Modern Professional Style              */
+/*  Muted colors with subtle feedback - like modern apps                */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Base swipe action button - Fully transparent like Tinder */
+.swipe-action-btn {
+  position: relative;
+  overflow: hidden;
+  background: transparent !important;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* Subtle highlight on top - disabled for transparency */
+.swipe-action-btn::before {
+  display: none;
+}
+
+/* No animated shine - cleaner look */
+.swipe-action-btn::after {
+  display: none;
+}
+
+/* Icon styling - enhanced shadow for visibility on photos */
+.swipe-action-btn svg {
+  position: relative;
+  z-index: 3;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* Dislike button - Red border only */
+.swipe-btn-dislike {
+  background: transparent !important;
+  border-color: #ef4444 !important;
+}
+
+.swipe-btn-dislike svg {
+  color: #ef4444;
+}
+
+/* Insights button - Purple border only */
+.swipe-btn-insights {
+  background: transparent !important;
+  border-color: #8b5cf6 !important;
+}
+
+.swipe-btn-insights svg {
+  color: #8b5cf6;
+}
+
+/* Share button - Blue border only */
+.swipe-btn-share {
+  background: transparent !important;
+  border-color: #3b82f6 !important;
+}
+
+.swipe-btn-share svg {
+  color: #3b82f6;
+}
+
+/* Heart/Like button - Green border only */
+.swipe-btn-heart {
+  background: transparent !important;
+  border-color: #22c55e !important;
+}
+
+.swipe-btn-heart svg {
+  color: #22c55e;
+}
+
+/* Undo button - Amber border only */
+.swipe-btn-undo {
+  background: transparent !important;
+  border-color: #f59e0b !important;
+}
+
+.swipe-btn-undo svg {
+  color: #f59e0b;
+}
+
+/* Like button - Orange border only */
+.swipe-btn-like {
+  background: transparent !important;
+  border-color: #f97316 !important;
+}
+
+.swipe-btn-like svg {
+  color: #f97316;
+}
+
+/* Message button - Cyan border only */
+.swipe-btn-message {
+  background: transparent !important;
+  border-color: #06b6d4 !important;
+}
+
+.swipe-btn-message svg {
+  color: #06b6d4;
+}
+
+/* Hover - subtle scale up with glow */
+.swipe-action-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.swipe-action-btn:hover svg {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
+}
+
+/* Active/pressed state */
+.swipe-action-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  PREMIUM SWIPE OVERLAY TEXT - Neon Glow Letters                      */
+/*  Modern, Premium Swipe Text - Subtle & Intentional                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* REDESIGNED: Removed flashy infinite animations and heavy glow layers.
+   Modern premium design uses single, subtle effects - not multiple layered
+   shadows running infinitely. Text should feel expensive, not neon-sign. */
+
+/* LIKE text - Premium Gold - Single subtle glow, no animation */
+.swipe-text-like {
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg,
+      #FFD700 0%,
+      #FFF5CC 50%,
+      #D4AF37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Single, subtle glow - premium feel */
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* LIKED text - Premium Gold - Static, refined */
+.swipe-text-liked {
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg,
+      #FFD700 0%,
+      #FFF5CC 50%,
+      #D4AF37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Single, subtle glow - premium feel */
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* PASS text - Premium Red - Single subtle glow, no animation */
+.swipe-text-pass {
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  background: linear-gradient(135deg,
+      #FF4D6D 0%,
+      #FF8FA3 50%,
+      #C9184A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  /* Single, subtle glow - premium feel */
+  filter: drop-shadow(0 0 20px rgba(196, 30, 58, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Overlay container enhancement - Chinese-inspired luxury feel */
+.swipe-overlay-container {
+  backdrop-filter: blur(6px);
+}
+
+/* LIKE overlay - Imperial Gold & Jade green inspired */
+.swipe-overlay-container.like-overlay {
+  background: radial-gradient(ellipse at center,
+      rgba(212, 175, 55, 0.5) 0%,
+      rgba(184, 134, 11, 0.4) 25%,
+      rgba(0, 128, 128, 0.25) 50%,
+      rgba(34, 139, 34, 0.15) 75%,
+      transparent 100%);
+}
+
+/* PASS overlay - Deep Crimson Chinese Red inspired */
+.swipe-overlay-container.pass-overlay {
+  background: radial-gradient(ellipse at center,
+      rgba(196, 30, 58, 0.55) 0%,
+      rgba(139, 0, 0, 0.45) 25%,
+      rgba(128, 0, 32, 0.35) 50%,
+      rgba(80, 0, 20, 0.2) 75%,
+      transparent 100%);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  LANTERN SWEEP ANIMATION - Subtle Light Glow Effect                   */
+/*  Instagram-like soft sweep for premium landing page buttons           */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@keyframes lantern-sweep {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+    opacity: 0;
+  }
+}
+
+/* Lantern sweep overlay for buttons */
+.lantern-sweep::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 25%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.08) 75%,
+      transparent 100%);
+  transform: skewX(-15deg);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Animation class - Button A (first, no delay) */
+.lantern-sweep-a::before {
+  animation: lantern-sweep 1.2s ease-in-out infinite;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
+}
+
+/* Animation class - Button B (1 second after A) */
+.lantern-sweep-b::before {
+  animation: lantern-sweep 1.2s ease-in-out infinite;
+  animation-delay: 1s;
+  animation-iteration-count: 1;
+}
+
+/* Staggered repeat animation - plays once then waits */
+.lantern-sweep-cycle-a::before {
+  animation: lantern-sweep 1.2s ease-in-out;
+}
+
+.lantern-sweep-cycle-b::before {
+  animation: lantern-sweep 1.2s ease-in-out;
+  animation-delay: 1s;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  WHITE/LIGHT THEME CONTRAST FIXES                                     */
+/*  Ensure text remains readable on light backgrounds                    */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Light theme specific text contrast improvements */
+.white-matte .insights-dialog-content,
+.white-matte [data-dialog-content] {
+  color: hsl(0 0% 10%);
+}
+
+.white-matte .insights-stat-value {
+  color: hsl(0 0% 5%) !important;
+  font-weight: 700;
+}
+
+.white-matte .insights-stat-label {
+  color: hsl(0 0% 30%) !important;
+}
+
+.white-matte .card-title,
+.white-matte h3,
+.white-matte h4 {
+  color: hsl(0 0% 8%);
+}
+
+.white-matte .card-description,
+.white-matte .text-muted-foreground {
+  color: hsl(0 0% 35%);
+}
+
+/* Swipe card text contrast on light theme */
+.white-matte .swipe-card-title {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.white-matte .swipe-card-price {
+  color: hsl(0 100% 45%);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge contrast on light theme */
+.white-matte .badge-stat {
+  background: hsl(0 0% 95%);
+  border: 1px solid hsl(0 0% 85%);
+  color: hsl(0 0% 15%);
+}
+
+/* Dialog content contrast */
+.white-matte [role="dialog"] {
+  --foreground: 0 0% 8%;
+  --muted-foreground: 0 0% 35%;
+}
+
+/* Insights dialog specific fixes */
+.white-matte .bg-gradient-to-br,
+.white-matte .bg-gradient-to-r {
+  color: hsl(0 0% 10%);
+}
+
+.white-matte .bg-muted\/50,
+.white-matte .bg-muted\/30 {
+  background: hsl(0 0% 88%);
+  color: hsl(0 0% 12%);
+}
+
+/* Stats cards on light theme */
+.white-matte .stats-card {
+  background: hsl(0 0% 98%);
+  border: 1px solid hsl(0 0% 88%);
+}
+
+.white-matte .stats-card-value {
+  color: hsl(0 0% 5%);
+  font-weight: 700;
+}
+
+/* Progress bars on light theme */
+.white-matte .progress-bar-bg {
+  background: hsl(0 0% 88%);
+}
+
+/* Ensure all text in dialog is dark on light theme */
+.white-matte [class*="Dialog"] p,
+.white-matte [class*="Dialog"] span,
+.white-matte [class*="Dialog"] div {
+  color: inherit;
+}
+
+/* Fix colored stat cards text on light theme */
+.white-matte .text-green-600,
+.white-matte .text-green-400 {
+  color: hsl(142 76% 30%) !important;
+}
+
+.white-matte .text-blue-600,
+.white-matte .text-blue-400 {
+  color: hsl(217 91% 35%) !important;
+}
+
+.white-matte .text-purple-600,
+.white-matte .text-purple-400 {
+  color: hsl(271 81% 40%) !important;
+}
+
+.white-matte .text-yellow-600,
+.white-matte .text-yellow-400 {
+  color: hsl(45 93% 35%) !important;
+}
+
+.white-matte .text-red-600,
+.white-matte .text-red-400 {
+  color: hsl(0 72% 45%) !important;
+}
+
+.white-matte .text-orange-600,
+.white-matte .text-orange-400 {
+  color: hsl(25 95% 45%) !important;
+}
+
+.white-matte .text-cyan-600,
+.white-matte .text-cyan-400 {
+  color: hsl(188 94% 35%) !important;
+}
+
+/* Dark text on light backgrounds in insight cards */
+.white-matte [class*="-500/10"],
+.white-matte [class*="-500/5"] {
+  color: hsl(0 0% 15%);
+}
+
+.white-matte [class*="-500/10"] .text-lg,
+.white-matte [class*="-500/10"] .text-xl,
+.white-matte [class*="-500/10"] .text-2xl,
+.white-matte [class*="-500/10"] .font-bold {
+  color: inherit;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  PREMIUM SWIPE CARD STYLES - Enhanced Shadows, Depth & Polish      */
+/*  Tinder/Instagram-like premium feel with subtle micro-animations   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Premium card shadow - multi-layer depth effect */
+.premium-card-shadow {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 10px 15px -3px rgba(0, 0, 0, 0.15),
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Elevated card on hover/active */
+.premium-card-elevated {
+  box-shadow:
+    0 8px 12px -2px rgba(0, 0, 0, 0.15),
+    0 16px 24px -4px rgba(0, 0, 0, 0.2),
+    0 32px 48px -8px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+/* Swipe card container - enhanced depth */
+.swipe-card-premium {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    0 16px 32px rgba(0, 0, 0, 0.08),
+    0 -2px 4px rgba(255, 255, 255, 0.02) inset;
+  /* Force GPU compositing for smooth transforms */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Subtle glow around active swipe card */
+.swipe-card-glow {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    0 16px 32px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(255, 165, 0, 0.08),
+    0 0 80px rgba(255, 100, 0, 0.04);
+}
+
+/* Card enter animation */
+@keyframes card-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-enter {
+  animation: card-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Card exit animation */
+@keyframes card-exit-left {
+  0% {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-150%) rotate(-20deg);
+  }
+}
+
+@keyframes card-exit-right {
+  0% {
+    opacity: 1;
+    transform: translateX(0) rotate(0deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(150%) rotate(20deg);
+  }
+}
+
+.card-exit-left {
+  animation: card-exit-left 0.4s cubic-bezier(0.32, 0, 0.67, 0) forwards;
+}
+
+.card-exit-right {
+  animation: card-exit-right 0.4s cubic-bezier(0.32, 0, 0.67, 0) forwards;
+}
+
+/* Micro-animation: Subtle pulse for interactive elements */
+@keyframes subtle-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.pulse-subtle {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* Micro-animation: Soft breathe effect for floating elements */
+@keyframes soft-breathe {
+
+  0%,
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 
-  /* ===== STAGGERED ANIMATION FOR LISTS ===== */
-  .stagger-item {
-    opacity: 0;
-    transform: translateY(10px);
-    animation: stagger-in 0.4s ease forwards;
+  50% {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+}
+
+.breathe-soft {
+  animation: soft-breathe 3s ease-in-out infinite;
+}
+
+/* Bottom sheet premium shadow */
+.bottom-sheet-premium {
+  box-shadow:
+    0 -4px 8px rgba(0, 0, 0, 0.04),
+    0 -8px 16px rgba(0, 0, 0, 0.08),
+    0 -16px 32px rgba(0, 0, 0, 0.04);
+}
+
+/* Mode switcher premium styling */
+.mode-switcher-premium {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.04) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.mode-switcher-premium:hover {
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.12) 0%,
+      rgba(255, 255, 255, 0.08) 100%);
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+}
+
+/* Prefers reduced motion - disable all animations */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 
-  .stagger-item:nth-child(1) {
-    animation-delay: 0.05s;
+  .card-enter,
+  .card-exit-left,
+  .card-exit-right,
+  .pulse-subtle,
+  .breathe-soft {
+    animation: none !important;
   }
 
-  .stagger-item:nth-child(2) {
-    animation-delay: 0.1s;
+  .skeleton-shimmer,
+  .animate-shimmer {
+    animation: none !important;
+    background-position: 0 0 !important;
+  }
+}
+
+/* GPU acceleration hints for smooth 60fps animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+}
+
+/* Prevent text selection during swipe */
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Touch action optimization for swipe gestures */
+.swipe-optimized {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  PWA STANDALONE MODE OPTIMIZATIONS                                           */
+/*  When app is installed as PWA, disable expensive effects for smooth swiping  */
+/*                                                                              */
+/*  PWAs have different runtime constraints:                                    */
+/*  - Different rendering pipeline than browser                                 */
+/*  - More memory limits                                                        */
+/*  - Less aggressive GPU acceleration                                          */
+/*  - Different gesture handling layer                                          */
+/*  - Throttled touchmove events                                                */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* PWA Mode Detection via CSS */
+@media (display-mode: standalone),
+(display-mode: minimal-ui) {
+
+  /* Disable expensive backdrop-blur in PWA mode */
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-3xl,
+  [class*="backdrop-blur"] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
-  .stagger-item:nth-child(3) {
-    animation-delay: 0.15s;
+  /* Disable expensive box shadows in swipe context */
+  .swipe-card,
+  .swipe-overlay-container,
+  [class*="shadow-2xl"] {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   }
 
-  .stagger-item:nth-child(4) {
-    animation-delay: 0.2s;
+  /* Disable continuous animations that hurt PWA performance */
+  .animate-ping,
+  .animate-pulse,
+  .animate-bounce {
+    animation: none !important;
   }
 
-  .stagger-item:nth-child(5) {
-    animation-delay: 0.25s;
+  /* Faster transitions in PWA mode */
+  .transition,
+  .transition-all,
+  .transition-opacity,
+  .transition-transform {
+    transition-duration: 150ms !important;
   }
 
-  .stagger-item:nth-child(6) {
-    animation-delay: 0.3s;
+  /* Lock card dimensions to prevent layout recalculations during swipe */
+  .swipe-card {
+    contain: layout style paint;
+    content-visibility: auto;
   }
 
-  .stagger-item:nth-child(7) {
-    animation-delay: 0.35s;
+  /* Reduce skeleton animation complexity */
+  .skeleton-shimmer,
+  [class*="skeleton"] {
+    animation-duration: 2s !important;
+    background-size: 100% 100% !important;
   }
 
-  .stagger-item:nth-child(8) {
-    animation-delay: 0.4s;
-  }
-
-  @keyframes stagger-in {
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* ===== SUCCESS/ERROR STATE ANIMATIONS ===== */
-  .success-checkmark {
-    animation: checkmark-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-
-  @keyframes checkmark-pop {
-    0% {
-      transform: scale(0);
-      opacity: 0;
-    }
-
-    50% {
-      transform: scale(1.2);
-    }
-
-    100% {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  .error-shake {
-    animation: shake 0.4s ease;
-  }
-
-  @keyframes shake {
-
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-
-    20% {
-      transform: translateX(-8px);
-    }
-
-    40% {
-      transform: translateX(8px);
-    }
-
-    60% {
-      transform: translateX(-4px);
-    }
-
-    80% {
-      transform: translateX(4px);
-    }
-  }
-
-  /* ===== GAME-LIKE INSTANT TOUCH RESPONSE ===== */
-  /* Remove ALL touch delays for Tinder/game feel */
-  .swipe-card-container,
-  [class*="TinderSwipeCard"],
-  [class*="SwipeCard"] {
-    touch-action: pan-x !important;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-    /* Force GPU acceleration for 0-latency transforms */
-    transform: translateZ(0);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    /* Remove any transition delays during drag */
-    transition: none !important;
-  }
-
-  /* Ensure dragging feels instant - no transition interference */
-  .swipe-card-container:active,
-  [class*="TinderSwipeCard"]:active,
-  [class*="SwipeCard"]:active {
-    transition: none !important;
-    cursor: grabbing !important;
-  }
-
-  /* Ultra-fast overlay appearance */
-  .swipe-overlay {
-    will-change: opacity, transform;
-    transform: translateZ(0);
-    transition: none !important;
-  }
-
-  /* ===== SWIPE CARD ENHANCEMENTS ===== */
-  .swipe-indicator {
-    position: absolute;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 1.25rem;
-    opacity: 0;
-    transform: scale(0.8) rotate(-15deg);
-    transition: opacity 0.1s ease, transform 0.1s ease;
-    pointer-events: none;
-  }
-
-  .swipe-indicator.like {
-    top: 40px;
-    left: 20px;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: white;
-    border: 3px solid white;
-  }
-
-  .swipe-indicator.nope {
-    top: 40px;
-    right: 20px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-    border: 3px solid white;
-    transform: scale(0.8) rotate(15deg);
-  }
-
-  .swipe-indicator.visible {
-    opacity: 1;
-    transform: scale(1) rotate(-15deg);
-  }
-
-  .swipe-indicator.nope.visible {
-    transform: scale(1) rotate(15deg);
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  VIEW TRANSITIONS API - Native Browser Page Transitions              */
-  /*  Modern standard for smooth morphing between pages                   */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  /* Enable view transitions for navigation */
-  @view-transition {
-    navigation: auto;
-  }
-
-  /* Customize default cross-fade animation - INSTANT */
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 0.1s;
-    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-    mix-blend-mode: normal;
-  }
-
-  /* Forward navigation - use scale instead of x transforms to prevent shifting */
-  html[data-navigation-direction="forward"] {
-    &::view-transition-old(root) {
-      animation-name: scale-fade-out;
-    }
-
-    &::view-transition-new(root) {
-      animation-name: scale-fade-in;
-    }
-  }
-
-  /* Backward navigation - use scale instead of x transforms to prevent shifting */
-  html[data-navigation-direction="back"] {
-    &::view-transition-old(root) {
-      animation-name: scale-fade-out-back;
-    }
-
-    &::view-transition-new(root) {
-      animation-name: scale-fade-in-back;
-    }
-  }
-
-  /* Scale-based animations to prevent horizontal page shifts */
-  @keyframes scale-fade-out {
-    from {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    to {
-      transform: scale(0.98);
-      opacity: 0;
-    }
-  }
-
-  @keyframes scale-fade-in {
-    from {
-      transform: scale(1.02);
-      opacity: 0;
-    }
-
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  @keyframes scale-fade-out-back {
-    from {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    to {
-      transform: scale(1.02);
-      opacity: 0;
-    }
-  }
-
-  @keyframes scale-fade-in-back {
-    from {
-      transform: scale(0.98);
-      opacity: 0;
-    }
-
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
-  }
-
-  /* Shared element transitions - for images and cards */
-  .property-card-image,
-  .listing-card-image {
-    view-transition-name: property-image;
-    contain: layout;
-  }
-
-  .profile-avatar {
-    view-transition-name: profile-avatar;
-    contain: layout;
-  }
-
-  /* Scale animation for modals and dialogs */
-  ::view-transition-old(modal),
-  ::view-transition-new(modal) {
-    animation-duration: 0.25s;
-    animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-  }
-
-  /* Respect reduced motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-
-    ::view-transition-old(root),
-    ::view-transition-new(root),
-    ::view-transition-old(modal),
-    ::view-transition-new(modal) {
-      animation-duration: 0.05s !important;
-      animation-delay: 0s !important;
-    }
-
-    @view-transition {
-      navigation: none;
-    }
-  }
-
-  /* Optimize for mobile performance - INSTANT */
-  @media (max-width: 768px) {
-
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      animation-duration: 0.08s;
-    }
-  }
-
-  /* Dark mode view transitions */
-  @media (prefers-color-scheme: dark) {
-
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-      /* Ensure smooth transitions in dark mode */
-      mix-blend-mode: normal;
-    }
-  }
-
-  /* Electric sign marquee animation */
-  @keyframes electric-marquee {
-    0% {
-      background-position: 200% center;
-    }
-
-    100% {
-      background-position: -200% center;
-    }
-  }
-
-  .electric-text {
-    background: linear-gradient(90deg,
-        currentColor 0%,
-        currentColor 40%,
-        rgba(255, 255, 255, 1) 50%,
-        currentColor 60%,
-        currentColor 100%);
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: electric-marquee 2s linear infinite;
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  SWIPE BUTTON EFFECTS - Clean Modern Professional Style              */
-  /*  Muted colors with subtle feedback - like modern apps                */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  /* Base swipe action button - Fully transparent like Tinder */
-  .swipe-action-btn {
-    position: relative;
-    overflow: hidden;
-    background: transparent !important;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-  }
-
-  /* Subtle highlight on top - disabled for transparency */
-  .swipe-action-btn::before {
-    display: none;
-  }
-
-  /* No animated shine - cleaner look */
-  .swipe-action-btn::after {
-    display: none;
-  }
-
-  /* Icon styling - enhanced shadow for visibility on photos */
-  .swipe-action-btn svg {
-    position: relative;
-    z-index: 3;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-  }
-
-  /* Dislike button - Red border only */
-  .swipe-btn-dislike {
-    background: transparent !important;
-    border-color: #ef4444 !important;
-  }
-
-  .swipe-btn-dislike svg {
-    color: #ef4444;
-  }
-
-  /* Insights button - Purple border only */
-  .swipe-btn-insights {
-    background: transparent !important;
-    border-color: #8b5cf6 !important;
-  }
-
-  .swipe-btn-insights svg {
-    color: #8b5cf6;
-  }
-
-  /* Share button - Blue border only */
-  .swipe-btn-share {
-    background: transparent !important;
-    border-color: #3b82f6 !important;
-  }
-
-  .swipe-btn-share svg {
-    color: #3b82f6;
-  }
-
-  /* Heart/Like button - Green border only */
-  .swipe-btn-heart {
-    background: transparent !important;
-    border-color: #22c55e !important;
-  }
-
-  .swipe-btn-heart svg {
-    color: #22c55e;
-  }
-
-  /* Undo button - Amber border only */
-  .swipe-btn-undo {
-    background: transparent !important;
-    border-color: #f59e0b !important;
-  }
-
-  .swipe-btn-undo svg {
-    color: #f59e0b;
-  }
-
-  /* Like button - Orange border only */
-  .swipe-btn-like {
-    background: transparent !important;
-    border-color: #f97316 !important;
-  }
-
-  .swipe-btn-like svg {
-    color: #f97316;
-  }
-
-  /* Message button - Cyan border only */
-  .swipe-btn-message {
-    background: transparent !important;
-    border-color: #06b6d4 !important;
-  }
-
-  .swipe-btn-message svg {
-    color: #06b6d4;
-  }
-
-  /* Hover - subtle scale up with glow */
-  .swipe-action-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.3);
-  }
-
-  .swipe-action-btn:hover svg {
-    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
-  }
-
-  /* Active/pressed state */
-  .swipe-action-btn:active {
-    transform: scale(0.92);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  PREMIUM SWIPE OVERLAY TEXT - Neon Glow Letters                      */
-  /*  Modern, Premium Swipe Text - Subtle & Intentional                   */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /* REDESIGNED: Removed flashy infinite animations and heavy glow layers.
-   Modern premium design uses single, subtle effects - not multiple layered
-   shadows running infinitely. Text should feel expensive, not neon-sign. */
-
-  /* LIKE text - Premium Gold - Single subtle glow, no animation */
-  .swipe-text-like {
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    background: linear-gradient(135deg,
-        #FFD700 0%,
-        #FFF5CC 50%,
-        #D4AF37 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* Single, subtle glow - premium feel */
-    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-
-  /* LIKED text - Premium Gold - Static, refined */
-  .swipe-text-liked {
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    background: linear-gradient(135deg,
-        #FFD700 0%,
-        #FFF5CC 50%,
-        #D4AF37 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* Single, subtle glow - premium feel */
-    filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.6)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-
-  /* PASS text - Premium Red - Single subtle glow, no animation */
+  /* Disable text shadows and glows */
+  .swipe-text-liked,
   .swipe-text-pass {
-    font-weight: 900;
-    letter-spacing: 0.12em;
-    background: linear-gradient(135deg,
-        #FF4D6D 0%,
-        #FF8FA3 50%,
-        #C9184A 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    /* Single, subtle glow - premium feel */
-    filter: drop-shadow(0 0 20px rgba(196, 30, 58, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    text-shadow: none !important;
+    filter: none !important;
   }
 
-  /* Overlay container enhancement - Chinese-inspired luxury feel */
-  .swipe-overlay-container {
-    backdrop-filter: blur(6px);
+  /* Simplify gradient backgrounds in overlays */
+  .like-overlay,
+  .pass-overlay {
+    background: rgba(0, 0, 0, 0.4) !important;
   }
 
-  /* LIKE overlay - Imperial Gold & Jade green inspired */
-  .swipe-overlay-container.like-overlay {
-    background: radial-gradient(ellipse at center,
-        rgba(212, 175, 55, 0.5) 0%,
-        rgba(184, 134, 11, 0.4) 25%,
-        rgba(0, 128, 128, 0.25) 50%,
-        rgba(34, 139, 34, 0.15) 75%,
-        transparent 100%);
-  }
-
-  /* PASS overlay - Deep Crimson Chinese Red inspired */
-  .swipe-overlay-container.pass-overlay {
-    background: radial-gradient(ellipse at center,
-        rgba(196, 30, 58, 0.55) 0%,
-        rgba(139, 0, 0, 0.45) 25%,
-        rgba(128, 0, 32, 0.35) 50%,
-        rgba(80, 0, 20, 0.2) 75%,
-        transparent 100%);
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  LANTERN SWEEP ANIMATION - Subtle Light Glow Effect                   */
-  /*  Instagram-like soft sweep for premium landing page buttons           */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  @keyframes lantern-sweep {
-    0% {
-      transform: translateX(-100%) skewX(-15deg);
-      opacity: 0;
-    }
-
-    10% {
-      opacity: 1;
-    }
-
-    90% {
-      opacity: 1;
-    }
-
-    100% {
-      transform: translateX(200%) skewX(-15deg);
-      opacity: 0;
-    }
-  }
-
-  /* Lantern sweep overlay for buttons */
-  .lantern-sweep::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.08) 25%,
-        rgba(255, 255, 255, 0.15) 50%,
-        rgba(255, 255, 255, 0.08) 75%,
-        transparent 100%);
-    transform: skewX(-15deg);
-    pointer-events: none;
-    z-index: 10;
-  }
-
-  /* Animation class - Button A (first, no delay) */
-  .lantern-sweep-a::before {
-    animation: lantern-sweep 1.2s ease-in-out infinite;
-    animation-delay: 0s;
-    animation-iteration-count: 1;
-  }
-
-  /* Animation class - Button B (1 second after A) */
-  .lantern-sweep-b::before {
-    animation: lantern-sweep 1.2s ease-in-out infinite;
-    animation-delay: 1s;
-    animation-iteration-count: 1;
-  }
-
-  /* Staggered repeat animation - plays once then waits */
-  .lantern-sweep-cycle-a::before {
-    animation: lantern-sweep 1.2s ease-in-out;
-  }
-
-  .lantern-sweep-cycle-b::before {
-    animation: lantern-sweep 1.2s ease-in-out;
-    animation-delay: 1s;
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  WHITE/LIGHT THEME CONTRAST FIXES                                     */
-  /*  Ensure text remains readable on light backgrounds                    */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  /* Light theme specific text contrast improvements */
-  .white-matte .insights-dialog-content,
-  .white-matte [data-dialog-content] {
-    color: hsl(0 0% 10%);
-  }
-
-  .white-matte .insights-stat-value {
-    color: hsl(0 0% 5%) !important;
-    font-weight: 700;
-  }
-
-  .white-matte .insights-stat-label {
-    color: hsl(0 0% 30%) !important;
-  }
-
-  .white-matte .card-title,
-  .white-matte h3,
-  .white-matte h4 {
-    color: hsl(0 0% 8%);
-  }
-
-  .white-matte .card-description,
-  .white-matte .text-muted-foreground {
-    color: hsl(0 0% 35%);
-  }
-
-  /* Swipe card text contrast on light theme */
-  .white-matte .swipe-card-title {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  }
-
-  .white-matte .swipe-card-price {
-    color: hsl(0 100% 45%);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Badge contrast on light theme */
-  .white-matte .badge-stat {
-    background: hsl(0 0% 95%);
-    border: 1px solid hsl(0 0% 85%);
-    color: hsl(0 0% 15%);
-  }
-
-  /* Dialog content contrast */
-  .white-matte [role="dialog"] {
-    --foreground: 0 0% 8%;
-    --muted-foreground: 0 0% 35%;
-  }
-
-  /* Insights dialog specific fixes */
-  .white-matte .bg-gradient-to-br,
-  .white-matte .bg-gradient-to-r {
-    color: hsl(0 0% 10%);
-  }
-
-  .white-matte .bg-muted\/50,
-  .white-matte .bg-muted\/30 {
-    background: hsl(0 0% 88%);
-    color: hsl(0 0% 12%);
-  }
-
-  /* Stats cards on light theme */
-  .white-matte .stats-card {
-    background: hsl(0 0% 98%);
-    border: 1px solid hsl(0 0% 88%);
-  }
-
-  .white-matte .stats-card-value {
-    color: hsl(0 0% 5%);
-    font-weight: 700;
-  }
-
-  /* Progress bars on light theme */
-  .white-matte .progress-bar-bg {
-    background: hsl(0 0% 88%);
-  }
-
-  /* Ensure all text in dialog is dark on light theme */
-  .white-matte [class*="Dialog"] p,
-  .white-matte [class*="Dialog"] span,
-  .white-matte [class*="Dialog"] div {
-    color: inherit;
-  }
-
-  /* Fix colored stat cards text on light theme */
-  .white-matte .text-green-600,
-  .white-matte .text-green-400 {
-    color: hsl(142 76% 30%) !important;
-  }
-
-  .white-matte .text-blue-600,
-  .white-matte .text-blue-400 {
-    color: hsl(217 91% 35%) !important;
-  }
-
-  .white-matte .text-purple-600,
-  .white-matte .text-purple-400 {
-    color: hsl(271 81% 40%) !important;
-  }
-
-  .white-matte .text-yellow-600,
-  .white-matte .text-yellow-400 {
-    color: hsl(45 93% 35%) !important;
-  }
-
-  .white-matte .text-red-600,
-  .white-matte .text-red-400 {
-    color: hsl(0 72% 45%) !important;
-  }
-
-  .white-matte .text-orange-600,
-  .white-matte .text-orange-400 {
-    color: hsl(25 95% 45%) !important;
-  }
-
-  .white-matte .text-cyan-600,
-  .white-matte .text-cyan-400 {
-    color: hsl(188 94% 35%) !important;
-  }
-
-  /* Dark text on light backgrounds in insight cards */
-  .white-matte [class*="-500/10"],
-  .white-matte [class*="-500/5"] {
-    color: hsl(0 0% 15%);
-  }
-
-  .white-matte [class*="-500/10"] .text-lg,
-  .white-matte [class*="-500/10"] .text-xl,
-  .white-matte [class*="-500/10"] .text-2xl,
-  .white-matte [class*="-500/10"] .font-bold {
-    color: inherit;
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  PREMIUM SWIPE CARD STYLES - Enhanced Shadows, Depth & Polish      */
-  /*  Tinder/Instagram-like premium feel with subtle micro-animations   */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  /* Premium card shadow - multi-layer depth effect */
-  .premium-card-shadow {
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 10px 15px -3px rgba(0, 0, 0, 0.15),
-      0 20px 25px -5px rgba(0, 0, 0, 0.1),
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  }
-
-  /* Elevated card on hover/active */
-  .premium-card-elevated {
-    box-shadow:
-      0 8px 12px -2px rgba(0, 0, 0, 0.15),
-      0 16px 24px -4px rgba(0, 0, 0, 0.2),
-      0 32px 48px -8px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  }
-
-  /* Swipe card container - enhanced depth */
-  .swipe-card-premium {
-    border-radius: 1.5rem;
-    overflow: hidden;
-    box-shadow:
-      0 4px 8px rgba(0, 0, 0, 0.08),
-      0 8px 16px rgba(0, 0, 0, 0.12),
-      0 16px 32px rgba(0, 0, 0, 0.08),
-      0 -2px 4px rgba(255, 255, 255, 0.02) inset;
-    /* Force GPU compositing for smooth transforms */
+  /* Force GPU compositing on all swipe-related elements */
+  .swipe-card,
+  .swipe-overlay-container,
+  .swipe-action-btn {
     transform: translateZ(0);
     will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
 
-  /* Subtle glow around active swipe card */
-  .swipe-card-glow {
-    box-shadow:
-      0 4px 8px rgba(0, 0, 0, 0.08),
-      0 8px 16px rgba(0, 0, 0, 0.12),
-      0 16px 32px rgba(0, 0, 0, 0.08),
-      0 0 40px rgba(255, 165, 0, 0.08),
-      0 0 80px rgba(255, 100, 0, 0.04);
+  /* Reduce image decode complexity by hinting to browser */
+  img {
+    image-rendering: auto;
+    content-visibility: auto;
   }
 
-  /* Card enter animation */
-  @keyframes card-enter {
-    0% {
-      opacity: 0;
-      transform: translateY(20px) scale(0.95);
-    }
-
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+  /* Disable drop-shadow filters which are expensive */
+  [class*="drop-shadow"] {
+    filter: none !important;
   }
+}
 
-  .card-enter {
-    animation: card-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  }
+/* iOS PWA specific optimizations (worst offender for PWA performance) */
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
 
-  /* Card exit animation */
-  @keyframes card-exit-left {
-    0% {
-      opacity: 1;
-      transform: translateX(0) rotate(0deg);
-    }
-
-    100% {
-      opacity: 0;
-      transform: translateX(-150%) rotate(-20deg);
-    }
-  }
-
-  @keyframes card-exit-right {
-    0% {
-      opacity: 1;
-      transform: translateX(0) rotate(0deg);
-    }
-
-    100% {
-      opacity: 0;
-      transform: translateX(150%) rotate(20deg);
-    }
-  }
-
-  .card-exit-left {
-    animation: card-exit-left 0.4s cubic-bezier(0.32, 0, 0.67, 0) forwards;
-  }
-
-  .card-exit-right {
-    animation: card-exit-right 0.4s cubic-bezier(0.32, 0, 0.67, 0) forwards;
-  }
-
-  /* Micro-animation: Subtle pulse for interactive elements */
-  @keyframes subtle-pulse {
-
-    0%,
-    100% {
-      transform: scale(1);
-    }
-
-    50% {
-      transform: scale(1.02);
-    }
-  }
-
-  .pulse-subtle {
-    animation: subtle-pulse 2s ease-in-out infinite;
-  }
-
-  /* Micro-animation: Soft breathe effect for floating elements */
-  @keyframes soft-breathe {
-
-    0%,
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    50% {
-      opacity: 0.9;
-      transform: translateY(-2px);
-    }
-  }
-
-  .breathe-soft {
-    animation: soft-breathe 3s ease-in-out infinite;
-  }
-
-  /* Bottom sheet premium shadow */
-  .bottom-sheet-premium {
-    box-shadow:
-      0 -4px 8px rgba(0, 0, 0, 0.04),
-      0 -8px 16px rgba(0, 0, 0, 0.08),
-      0 -16px 32px rgba(0, 0, 0, 0.04);
-  }
-
-  /* Mode switcher premium styling */
-  .mode-switcher-premium {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.08) 0%,
-        rgba(255, 255, 255, 0.04) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.1),
-      0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-  }
-
-  .mode-switcher-premium:hover {
-    background: linear-gradient(135deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(255, 255, 255, 0.08) 100%);
-    box-shadow:
-      0 4px 8px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-  }
-
-  /* Prefers reduced motion - disable all animations */
-  @media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-
-    .card-enter,
-    .card-exit-left,
-    .card-exit-right,
-    .pulse-subtle,
-    .breathe-soft {
-      animation: none !important;
-    }
-
-    .skeleton-shimmer,
-    .animate-shimmer {
-      animation: none !important;
-      background-position: 0 0 !important;
-    }
-  }
-
-  /* GPU acceleration hints for smooth 60fps animations */
-  .gpu-accelerated {
-    transform: translateZ(0);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
-  }
-
-  /* Prevent text selection during swipe */
-  .no-select {
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-  }
-
-  /* Touch action optimization for swipe gestures */
-  .swipe-optimized {
-    touch-action: pan-y;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-  /*  PWA STANDALONE MODE OPTIMIZATIONS                                           */
-  /*  When app is installed as PWA, disable expensive effects for smooth swiping  */
-  /*                                                                              */
-  /*  PWAs have different runtime constraints:                                    */
-  /*  - Different rendering pipeline than browser                                 */
-  /*  - More memory limits                                                        */
-  /*  - Less aggressive GPU acceleration                                          */
-  /*  - Different gesture handling layer                                          */
-  /*  - Throttled touchmove events                                                */
-  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-  /* PWA Mode Detection via CSS */
-  @media (display-mode: standalone),
-  (display-mode: minimal-ui) {
-
-    /* Disable expensive backdrop-blur in PWA mode */
-    .backdrop-blur,
-    .backdrop-blur-sm,
-    .backdrop-blur-md,
-    .backdrop-blur-lg,
+    /* iOS PWA: Even more aggressive optimization */
     .backdrop-blur-xl,
-    .backdrop-blur-2xl,
-    .backdrop-blur-3xl,
-    [class*="backdrop-blur"] {
+    .backdrop-blur-lg {
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
+      background-color: rgba(0, 0, 0, 0.85) !important;
     }
 
-    /* Disable expensive box shadows in swipe context */
-    .swipe-card,
-    .swipe-overlay-container,
-    [class*="shadow-2xl"] {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    }
-
-    /* Disable continuous animations that hurt PWA performance */
+    /* iOS PWA: Disable all non-essential animations */
+    .animate-spin:not(.loading-spinner),
     .animate-ping,
     .animate-pulse,
-    .animate-bounce {
+    .animate-bounce,
+    .animate-skeleton-glow {
       animation: none !important;
     }
 
-    /* Faster transitions in PWA mode */
-    .transition,
-    .transition-all,
-    .transition-opacity,
-    .transition-transform {
-      transition-duration: 150ms !important;
-    }
-
-    /* Lock card dimensions to prevent layout recalculations during swipe */
-    .swipe-card {
-      contain: layout style paint;
-      content-visibility: auto;
-    }
-
-    /* Reduce skeleton animation complexity */
-    .skeleton-shimmer,
-    [class*="skeleton"] {
-      animation-duration: 2s !important;
-      background-size: 100% 100% !important;
-    }
-
-    /* Disable text shadows and glows */
-    .swipe-text-liked,
-    .swipe-text-pass {
-      text-shadow: none !important;
-      filter: none !important;
-    }
-
-    /* Simplify gradient backgrounds in overlays */
-    .like-overlay,
-    .pass-overlay {
-      background: rgba(0, 0, 0, 0.4) !important;
-    }
-
-    /* Force GPU compositing on all swipe-related elements */
+    /* iOS PWA: Instant transitions for critical interactions */
     .swipe-card,
-    .swipe-overlay-container,
     .swipe-action-btn {
-      transform: translateZ(0);
-      will-change: transform;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      transition-duration: 0ms !important;
     }
 
-    /* Reduce image decode complexity by hinting to browser */
-    img {
-      image-rendering: auto;
-      content-visibility: auto;
-    }
-
-    /* Disable drop-shadow filters which are expensive */
-    [class*="drop-shadow"] {
-      filter: none !important;
+    /* iOS PWA: Simpler shadows */
+    [class*="shadow"] {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     }
   }
-
-  /* iOS PWA specific optimizations (worst offender for PWA performance) */
-  @supports (-webkit-touch-callout: none) {
-    @media (display-mode: standalone) {
-
-      /* iOS PWA: Even more aggressive optimization */
-      .backdrop-blur-xl,
-      .backdrop-blur-lg {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        background-color: rgba(0, 0, 0, 0.85) !important;
-      }
-
-      /* iOS PWA: Disable all non-essential animations */
-      .animate-spin:not(.loading-spinner),
-      .animate-ping,
-      .animate-pulse,
-      .animate-bounce,
-      .animate-skeleton-glow {
-        animation: none !important;
-      }
-
-      /* iOS PWA: Instant transitions for critical interactions */
-      .swipe-card,
-      .swipe-action-btn {
-        transition-duration: 0ms !important;
-      }
-
-      /* iOS PWA: Simpler shadows */
-      [class*="shadow"] {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-      }
-    }
-  }
+}

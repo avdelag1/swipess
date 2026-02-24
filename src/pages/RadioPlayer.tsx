@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { getStationsByCity, cityThemes, CityLocation } from '@/data/radioStations';
+import { getStationsByCity, cityThemes } from '@/data/radioStations';
+import { CityLocation } from '@/types/radio';
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic } from 'lucide-react';
 
 export default function RadioPlayer() {
@@ -64,24 +65,24 @@ export default function RadioPlayer() {
 
       {/* Center - Vinyl & Controls */}
       <div className="flex-1 flex flex-col items-center justify-center px-4">
-        
+
         {/* Quick Controls - Shuffle, Playlist, Favorites, Settings, Mic */}
         <div className="flex items-center justify-center gap-4 mb-4">
-          <button 
+          <button
             onClick={toggleShuffle}
             className={`p-2 rounded-full transition-colors ${state.isShuffle ? 'bg-white/20' : 'bg-white/5'}`}
           >
             <Shuffle className={`w-5 h-5 ${state.isShuffle ? 'text-white' : 'text-white/50'}`} />
           </button>
-          
-          <button 
+
+          <button
             onClick={() => setShowPlaylist(true)}
             className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
           >
             <ListMusic className="w-5 h-5 text-white/50" />
           </button>
-          
-          <button 
+
+          <button
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
             className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
           >
@@ -90,7 +91,7 @@ export default function RadioPlayer() {
           </button>
 
           {/* Skin Selector */}
-          <button 
+          <button
             onClick={() => {
               const skins: Array<'modern' | 'vinyl' | 'retro'> = ['modern', 'vinyl', 'retro'];
               const currentIndex = skins.indexOf(state.skin as any);
@@ -108,61 +109,72 @@ export default function RadioPlayer() {
 
         {/* Vinyl Record - Skin varies */}
         <motion.div
-          className={`relative mb-4 ${
-            state.skin === 'vinyl' ? 'w-36 h-36 rounded-full' :
-            state.skin === 'retro' ? 'w-40 h-28 rounded-lg' :
-            'w-32 h-32 rounded-3xl'
-          }`}
+          className={`relative mb-8 shadow-2xl ${state.skin === 'vinyl' ? 'w-48 h-48 rounded-full' :
+            state.skin === 'retro' ? 'w-52 h-36 rounded-xl' :
+              'w-44 h-44 rounded-3xl'
+            }`}
           style={{
-            background: state.skin === 'vinyl' 
-              ? 'linear-gradient(135deg, #222 0%, #111 50%, #222 100%)'
+            background: state.skin === 'vinyl'
+              ? 'radial-gradient(circle at center, #333 0%, #111 40%, #222 50%, #111 70%, #000 100%)'
               : state.skin === 'retro'
-              ? 'linear-gradient(135deg, #8B4513 0%, #5D3A1A 50%, #8B4513 100%)'
-              : 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%)',
-            border: state.skin === 'retro' ? '4px solid #D4A574' : '1px solid #333'
+                ? 'linear-gradient(135deg, #A0522D 0%, #6B4423 50%, #8B4513 100%)'
+                : 'linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 50%, #0a0a0a 100%)',
+            border: state.skin === 'retro' ? '6px solid #DEB887' : '1px solid rgba(255,255,255,0.1)',
+            boxShadow: state.isPlaying ? '0 0 30px rgba(255, 77, 0, 0.3)' : '0 10px 30px rgba(0,0,0,0.5)'
           }}
-          animate={{ rotate: state.isPlaying ? 360 : 0 }}
-          transition={{ duration: state.isPlaying ? (state.skin === 'retro' ? 6 : 4) : 0, repeat: Infinity, ease: "linear" }}
+          animate={{
+            rotate: state.isPlaying ? 360 : 0,
+            scale: state.isPlaying ? [1, 1.02, 1] : 1
+          }}
+          transition={{
+            rotate: { duration: state.isPlaying ? (state.skin === 'retro' ? 8 : 4) : 0, repeat: Infinity, ease: "linear" },
+            scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+          }}
         >
           {state.skin === 'vinyl' && (
             <>
-              <div className="absolute inset-1.5 rounded-full border border-white/10" />
-              <div className="absolute inset-3 rounded-full border border-white/5" />
-              <div className="absolute inset-5 rounded-full border border-white/5" />
+              {/* Vinyl grooves */}
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute inset-0 rounded-full border border-white/5"
+                  style={{ margin: `${(i + 1) * 6}px` }}
+                />
+              ))}
+              <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-30" />
             </>
           )}
-          
+
           {state.skin === 'retro' && (
             <>
-              {/* Cassette windows */}
-              <div className="absolute inset-4 bg-black/60 rounded-md flex items-center justify-center gap-2">
-                <div className="w-8 h-6 rounded-full bg-white/20" />
-                <div className="w-8 h-6 rounded-full bg-white/20" />
+              {/* Cassette details */}
+              <div className="absolute inset-x-6 top-4 bottom-4 bg-black/80 rounded flex items-center justify-center gap-6 border border-white/10">
+                <div className="w-10 h-10 rounded-full border-4 border-dashed border-white/20 animate-spin-slow" />
+                <div className="w-10 h-10 rounded-full border-4 border-dashed border-white/20 animate-spin-slow" />
               </div>
-              {/* Tape holes */}
-              <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-6 bg-white rounded-full" />
-              <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-6 bg-white rounded-full" />
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-1.5 bg-white/20 rounded-full" />
             </>
           )}
-          
+
           {state.skin === 'modern' && (
             <>
-              <div className="absolute inset-2 rounded-full border border-white/10" />
-              <div className="absolute inset-4 rounded-full border border-white/5" />
+              <div className="absolute inset-4 rounded-3xl border border-white/5" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/40 rounded-3xl" />
             </>
           )}
 
           {/* Center label - Station info */}
-          <div className={`absolute inset-10 rounded-full bg-white flex flex-col items-center justify-center ${
-            state.skin === 'retro' ? 'inset-8' : ''
-          }`}>
-            <span className="text-xs font-bold text-black">{state.currentStation?.frequency || '--.-'}</span>
-            <span className="text-[8px] text-black/60 uppercase">{state.currentStation?.genre || '---'}</span>
+          <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white flex flex-col items-center justify-center shadow-inner ${state.skin === 'vinyl' ? 'w-16 h-16' :
+            state.skin === 'retro' ? 'w-14 h-14' :
+              'w-16 h-16'
+            }`}>
+            <span className="text-sm font-black text-black leading-none">{state.currentStation?.frequency || '--.-'}</span>
+            <span className="text-[7px] text-black/40 font-bold uppercase tracking-tighter">{state.currentStation?.genre || '---'}</span>
           </div>
 
           {/* Center hole */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`rounded-full bg-black ${state.skin === 'retro' ? 'w-2 h-2' : 'w-1.5 h-1.5'}`} />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className={`rounded-full bg-black shadow-lg ${state.skin === 'retro' ? 'w-3 h-3' : 'w-2 h-2'}`} />
           </div>
         </motion.div>
 
@@ -190,9 +202,9 @@ export default function RadioPlayer() {
               setDialValue(val);
               handleDialChange(val);
             }}
-            className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer"
+            className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer radio-slider radio-dial"
             style={{
-              background: `linear-gradient(to right, white ${(dialValue / (cityStations.length - 1)) * 100}%, white/20 ${(dialValue / (cityStations.length - 1)) * 100}%)`
+              background: `linear-gradient(to right, #FF4D00 ${(dialValue / (cityStations.length - 1)) * 100}%, rgba(255,255,255,0.1) ${(dialValue / (cityStations.length - 1)) * 100}%)`
             }}
           />
           <div className="flex justify-between mt-1">
@@ -214,9 +226,9 @@ export default function RadioPlayer() {
             step="0.01"
             value={state.volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
-            className="flex-1 h-1 bg-white/20 rounded-full appearance-none cursor-pointer"
+            className="flex-1 h-1 bg-white/20 rounded-full appearance-none cursor-pointer radio-slider"
             style={{
-              background: `linear-gradient(to right, white ${state.volume * 100}%, white/20 ${state.volume * 100}%)`
+              background: `linear-gradient(to right, #fff ${state.volume * 100}%, rgba(255,255,255,0.1) ${state.volume * 100}%)`
             }}
           />
           <VolumeX className="w-4 h-4 text-white/40" />
