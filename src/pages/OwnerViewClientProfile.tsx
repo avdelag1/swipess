@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { Button } from '@/components/ui/button';
 import { useParams, useNavigate } from 'react-router-dom';

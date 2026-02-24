@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState, memo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight } from 'lucide-react';

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * UnifiedListingForm - Creates listings for all categories
  * Updated to match new normalized schema with JSONB arrays

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageTransition } from '@/components/PageTransition';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';

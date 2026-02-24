@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle, HelpCircle, X, Send, Bug, DollarSign, User, Home, Info } from 'lucide-react';

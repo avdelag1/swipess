@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useRef, memo, useCallback } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo, useAnimationControls } from 'framer-motion';
 import { Button } from '@/components/ui/button';

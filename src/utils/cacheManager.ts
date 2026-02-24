@@ -1,4 +1,3 @@
-// @ts-nocheck
 // Cache management utilities for immediate updates
 // Note: clearAllCaches is imported from useAutomaticUpdates for centralization
 

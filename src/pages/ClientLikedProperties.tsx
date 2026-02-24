@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { LikedPropertiesDialog } from "@/components/LikedPropertiesDialog";
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";

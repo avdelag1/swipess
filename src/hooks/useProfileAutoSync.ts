@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Profile Auto-Sync Hook
  *
