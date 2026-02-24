@@ -18,11 +18,11 @@ import { useTheme } from "@/hooks/useTheme";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 
-const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
-const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
+const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
+const stagger = { staggerChildren: 0.08, delayChildren: 0.15 };
 const childVariant = {
-  hidden: { opacity: 0, y: 18, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
+  hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
+  visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },
 };
 
 const ClientProfileNew = () => {
