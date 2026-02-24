@@ -286,7 +286,7 @@ export function LikedClients() {
       const { error } = await supabase
         .from('likes')
         .delete()
-        .eq('user_id', user?.id || '')
+        .eq('user_id', user?.id)
         .eq('target_id', clientId)
         .eq('target_type', 'profile');
 
@@ -305,7 +305,7 @@ export function LikedClients() {
   const reportClientMutation = useMutation({
     mutationFn: async ({ clientId, reason, details }: { clientId: string; reason: string; details: string }) => {
       // Insert report into user_reports table (correct schema table name)
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_reports')
         .insert({
           reporter_id: user?.id,
@@ -335,10 +335,10 @@ export function LikedClients() {
   const blockClientMutation = useMutation({
     mutationFn: async (clientId: string) => {
       // Insert block record into user_blocks table
-      const { error: blockError } = await (supabase as any)
+      const { error: blockError } = await supabase
         .from('user_blocks')
         .insert({
-          blocker_id: user?.id || '',
+          blocker_id: user?.id,
           blocked_id: clientId
         });
 
@@ -351,7 +351,7 @@ export function LikedClients() {
       await supabase
         .from('likes')
         .delete()
-        .eq('user_id', user?.id || '')
+        .eq('user_id', user?.id)
         .eq('target_id', clientId)
         .eq('target_type', 'profile');
     },

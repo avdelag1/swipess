@@ -1,5 +1,4 @@
-// @ts-ignore - direct module path to avoid Vite alias loop
-import { Toaster as Sonner, toast as sonnerToast } from "../../node_modules/sonner/dist/index.mjs"
+import { Toaster as Sonner, toast as sonnerToast } from "sonner"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 

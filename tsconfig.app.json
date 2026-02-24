@@ -1,33 +1,33 @@
 {
   "compilerOptions": {
-    "allowImportingTsExtensions": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
+    "target": "ES2020",
+    "useDefineForClassFields": true,
     "lib": [
       "ES2020",
       "DOM",
       "DOM.Iterable"
     ],
     "module": "ESNext",
-    "moduleDetection": "force",
+    "skipLibCheck": true,
+    /* Bundler mode */
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
     "noEmit": true,
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitAny": true,
+    "jsx": "react-jsx",
+    /* Linting */
+    "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
+    "noImplicitAny": true,
+    "noFallthroughCasesInSwitch": false,
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
-      ],
-      "sonner": [
-        "./src/components/ui/sonner.tsx"
       ]
-    },
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "ES2020",
-    "useDefineForClassFields": true
+    }
   },
   "include": [
     "src"

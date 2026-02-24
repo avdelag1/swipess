@@ -673,7 +673,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               }}
             >
               <CompactRatingDisplay
-                aggregate={ratingAggregate ?? null}
+                aggregate={ratingAggregate}
                 isLoading={isRatingLoading}
                 showReviews={false}
                 className="text-white"
