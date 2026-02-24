@@ -45,10 +45,10 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
-  
+
   // Hide on scroll down, show on scroll up - targets the dashboard scroll container
-  const { isVisible } = useScrollDirection({ 
-    threshold: 15, 
+  const { isVisible } = useScrollDirection({
+    threshold: 15,
     showAtTop: true,
     targetSelector: '#dashboard-scroll-container'
   });
@@ -222,24 +222,45 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 )}
               </AnimatePresence>
 
-              <Icon
-                className="transition-colors duration-150"
-                style={{
-                  width: ICON_SIZE - 4,
-                  height: ICON_SIZE - 4,
-                  color: active ? activeColor : iconColor,
-                }}
-                strokeWidth={active ? 2.5 : 2.2}
-              />
+              <div className="relative">
+                <Icon
+                  className="transition-all duration-300 ease-out"
+                  style={{
+                    width: ICON_SIZE,
+                    height: ICON_SIZE,
+                    color: active ? 'transparent' : iconColor,
+                    stroke: active ? 'url(#active-gradient)' : 'currentColor',
+                    fill: active ? 'url(#active-gradient)' : 'none',
+                    filter: active ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
+                  }}
+                  strokeWidth={active ? 2.5 : 2}
+                />
+              </div>
               <span
-                className="text-[10px] leading-tight font-medium transition-colors duration-150"
-                style={{ color: active ? activeColor : iconColor }}
+                className={cn(
+                  "text-[10px] tracking-wide transition-all duration-300",
+                  active ? "font-bold" : "font-medium"
+                )}
+                style={{
+                  color: active ? activeColor : iconColor,
+                  opacity: active ? 1 : 0.7
+                }}
               >
                 {item.label}
               </span>
             </button>
           );
         })}
+
+        {/* SVG Defs for Gradient Icons */}
+        <svg width="0" height="0" className="absolute">
+          <defs>
+            <linearGradient id="active-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop stopColor="#ec4899" offset="0%" />
+              <stop stopColor="#f97316" offset="100%" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
     </nav>
   );

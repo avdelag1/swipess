@@ -115,31 +115,33 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
       >
         <motion.div
-          className="absolute inset-y-1 rounded-full bg-gradient-to-r from-primary/30 to-primary/20"
+          className="absolute inset-y-1 rounded-full bg-gradient-to-r shadow-sm"
           initial={false}
           animate={{
             left: activeMode === 'client' ? '4px' : '50%',
             right: activeMode === 'client' ? '50%' : '4px',
+            backgroundColor: activeMode === 'client' ? 'rgba(45, 212, 191, 0.2)' : 'rgba(251, 146, 60, 0.2)',
+            boxShadow: activeMode === 'client' ? '0 0 10px rgba(45, 212, 191, 0.15)' : '0 0 10px rgba(251, 146, 60, 0.15)'
           }}
-          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          style={{ willChange: 'left, right' }}
+          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+          style={{ willChange: 'left, right, background-color' }}
         />
 
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
-          'relative z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-colors duration-200',
-          activeMode === 'client' ? 'text-teal-400 font-semibold' : 'text-white/60'
+          'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
+          activeMode === 'client' ? 'text-teal-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
           <Briefcase className="h-3.5 w-3.5" />
-          <span className="font-bold">Client Side</span>
+          <span className="text-xs uppercase tracking-wider">Client</span>
         </div>
 
         <div className={cn(
-          'relative z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-colors duration-200',
-          activeMode === 'owner' ? 'text-orange-400 font-semibold' : 'text-white/60'
+          'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
+          activeMode === 'owner' ? 'text-orange-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
           <Search className="h-3.5 w-3.5" />
-          <span className="font-bold">Owner Side</span>
+          <span className="text-xs uppercase tracking-wider">Owner</span>
         </div>
 
         <AnimatePresence>
