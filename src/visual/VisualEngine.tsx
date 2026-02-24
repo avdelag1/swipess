@@ -37,6 +37,9 @@ export const VisualEngine = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [shouldReduceMotion, mouseX, mouseY]);
 
+  const transformedX = useTransform(mouseX, (v) => v * -1.2);
+  const transformedY = useTransform(mouseY, (v) => v * -1.2);
+
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Base gradient - adapts to theme */}
@@ -72,8 +75,8 @@ export const VisualEngine = () => {
         style={{
           bottom: "-200px",
           right: "-150px",
-          x: shouldReduceMotion ? 0 : useTransform(mouseX, (v) => v * -1.2),
-          y: shouldReduceMotion ? 0 : useTransform(mouseY, (v) => v * -1.2),
+          x: shouldReduceMotion ? 0 : transformedX,
+          y: shouldReduceMotion ? 0 : transformedY,
           willChange: "transform"
         }}
         animate={shouldReduceMotion ? {} : {

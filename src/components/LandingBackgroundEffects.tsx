@@ -142,9 +142,9 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
       for (const star of starsRef.current) {
         // Physical forces
-        let dx = px - star.x;
-        let dy = py - star.y;
-        let dist = Math.sqrt(dx * dx + dy * dy);
+        const dx = px - star.x;
+        const dy = py - star.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < pullRadius && pointerRef.current.isActive) {
           // Pull towards finger

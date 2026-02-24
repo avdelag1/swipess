@@ -83,11 +83,11 @@ const SWIPESS_KNOWLEDGE = {
 // Generate AI response based on user query
 function generateAIResponse(query: string, userRole: string): { response: string; showAction?: boolean; actionLabel?: string; actionRoute?: string } {
   const lowerQuery = query.toLowerCase();
-  
+
   // Check for filter-related requests
   const filterKeywords = SWIPESS_KNOWLEDGE.filterKeywords;
-  let detectedFilters: Record<string, any> = {};
-  
+  const detectedFilters: Record<string, any> = {};
+
   for (const [keyword, filters] of Object.entries(filterKeywords)) {
     if (lowerQuery.includes(keyword)) {
       for (const [filterKey, filterValue] of Object.entries(filters)) {
@@ -95,11 +95,11 @@ function generateAIResponse(query: string, userRole: string): { response: string
       }
     }
   }
-  
+
   // If user is asking to filter, show action to apply filters
   const filterTriggers = ['find', 'show me', 'search for', 'i want', 'looking for', 'need', 'filter'];
   const isFilterRequest = filterTriggers.some(trigger => lowerQuery.includes(trigger));
-  
+
   if (isFilterRequest && Object.keys(detectedFilters).length > 0) {
     // Build filter description
     const filterParts = [];
@@ -108,9 +108,9 @@ function generateAIResponse(query: string, userRole: string): { response: string
     if (detectedFilters.priceMin) filterParts.push(`over $${detectedFilters.priceMin}`);
     if (detectedFilters.verified) filterParts.push('verified');
     if (detectedFilters.furnished) filterParts.push('furnished');
-    
+
     const filterDesc = filterParts.join(', ') || 'your filters';
-    
+
     return {
       response: `I'll help you find ${filterDesc}! Let me apply these filters to your dashboard.\n\nTap "View Results" to see your filtered listings!`,
       showAction: true,
@@ -118,7 +118,7 @@ function generateAIResponse(query: string, userRole: string): { response: string
       actionRoute: '/client/dashboard'
     };
   }
-  
+
   // Check for route-related questions
   if (lowerQuery.includes('where') || lowerQuery.includes('how do i') || lowerQuery.includes('navigate')) {
     for (const [route, description] of Object.entries(SWIPESS_KNOWLEDGE.routes)) {
@@ -132,7 +132,7 @@ function generateAIResponse(query: string, userRole: string): { response: string
       }
     }
   }
-  
+
   // Check for feature questions
   if (lowerQuery.includes('what is') || lowerQuery.includes('how does') || lowerQuery.includes('what can')) {
     for (const feature of SWIPESS_KNOWLEDGE.features) {
@@ -141,7 +141,7 @@ function generateAIResponse(query: string, userRole: string): { response: string
       }
     }
   }
-  
+
   // Check for category questions
   if (lowerQuery.includes('category') || lowerQuery.includes('types') || lowerQuery.includes('what can i')) {
     const categories = Object.entries(SWIPESS_KNOWLEDGE.categories)
@@ -149,12 +149,12 @@ function generateAIResponse(query: string, userRole: string): { response: string
       .join('\n');
     return { response: `Here are the categories available:\n\n${categories}` };
   }
-  
+
   // General questions about the app
   if (lowerQuery.includes('what is swipess') || lowerQuery.includes('what does swipess do')) {
     return { response: 'Swipess is a swipe-based matching platform for rentals, vehicles, and services. You can find properties to rent, discover clients as an owner, or hire services - all through a fun swipe interface!' };
   }
-  
+
   if (lowerQuery.includes('how to use') || lowerQuery.includes('how does it work')) {
     return {
       response: `Here's how Swipess works:\n\n` +
@@ -167,40 +167,40 @@ function generateAIResponse(query: string, userRole: string): { response: string
       actionRoute: '/client/dashboard'
     };
   }
-  
+
   if (lowerQuery.includes('match') || lowerQuery.includes('like')) {
     return { response: 'A match happens when two people like each other! When you swipe right on someone and they swipe right on you, it\'s a match. This unlocks the chat feature so you can connect.' };
   }
-  
+
   if (lowerQuery.includes('token') || lowerQuery.includes('credit')) {
     return { response: 'Tokens are used for premium features like extra super likes, AI searches, and message boosts. You can get them through subscription packages.' };
   }
-  
+
   if (lowerQuery.includes('verify') || lowerQuery.includes('verified')) {
     return { response: 'Verification confirms that users and listings are real. Verified items have a checkmark badge, making the community safer.' };
   }
-  
+
   if (lowerQuery.includes('chat') || lowerQuery.includes('message')) {
     return { response: 'You can only chat with your matches! When you and another person both swipe right on each other, a match is created and you can start messaging.' };
   }
-  
+
   if (lowerQuery.includes('time') || lowerQuery.includes('hour')) {
     return { response: 'It\'s currently ' + new Date().toLocaleTimeString() + '. Want to find something to do?' };
   }
-  
+
   if (lowerQuery.includes('hi') || lowerQuery.includes('hello') || lowerQuery.includes('hey')) {
     return { response: 'Hey there! 👋 I\'m Swipess AI! I can help you:\n\n• Find listings by describing what you want\n• Navigate to different pages\n• Answer questions about how Swipess works\n• Explain features like matching, tokens, and more!\n\nWhat would you like to know?' };
   }
-  
+
   // Default helpful response
-  return { 
+  return {
     response: `I can help you with questions about Swipess! Try asking:\n\n` +
       `• "Find apartments under $1000"\n` +
       `• "How do matches work?"\n` +
       `• "Show me motorcycles"\n` +
       `• "What are tokens?"\n` +
       `• "Where are my matches?"\n\n` +
-      `Or just describe what you\'re looking for and I\'ll help you find it!`
+      `Or just describe what you're looking for and I'll help you find it!`
   };
 }
 
@@ -303,7 +303,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent 
+      <DialogContent
         className="sm:max-w-md bg-[#1C1C1E]/97 backdrop-blur-2xl border border-white/8 p-0 overflow-hidden rounded-3xl"
         hideCloseButton={true}
       >
@@ -314,7 +314,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}>
               <Sparkles className="w-4 h-4 text-white" />
             </div>
-            
+
             <div>
               <h2 className="text-white font-semibold text-sm">Swipess AI</h2>
               <p className="text-xs text-white/40">Ask me anything!</p>
@@ -334,7 +334,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         {/* Messages Area */}
         <div className="h-80 overflow-y-auto px-4 py-4 space-y-4">
           {messages.length === 0 && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center space-y-4"
@@ -346,7 +346,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <h3 className="text-white font-medium text-base">Swipess AI</h3>
                 <p className="text-white/40 text-xs mt-1">Your personal app assistant</p>
               </div>
-              
+
               {/* Quick prompts */}
               <div className="grid grid-cols-2 gap-2 pt-2">
                 {quickPrompts.map((prompt, index) => (
@@ -383,17 +383,17 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                       <Sparkles className="w-3 h-3 text-white" />
                     </div>
                   )}
-                  
+
                   <div className={cn(
                     "max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap",
-                    message.role === 'user' 
-                      ? "text-white rounded-br-sm" 
+                    message.role === 'user'
+                      ? "text-white rounded-br-sm"
                       : "bg-white/8 text-white/90 rounded-bl-sm",
                     isTyping && message.role === 'ai' && message.content === ''
                       ? "animate-pulse"
                       : ""
                   )}
-                  style={message.role === 'user' ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : {}}
+                    style={message.role === 'user' ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : {}}
                   >
                     {message.role === 'ai' && message.content === '' ? (
                       <div className="flex items-center gap-1">
@@ -435,7 +435,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           </AnimatePresence>
 
           {isTyping && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex items-center gap-2 text-white/50 text-xs pl-8"
@@ -479,7 +479,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               className="pr-20 h-11 bg-white/5 border-white/10 text-white placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40"
               disabled={isSearching}
             />
-            
+
             <Button
               size="sm"
               onClick={handleSend}

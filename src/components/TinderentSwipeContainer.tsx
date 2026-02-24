@@ -89,7 +89,7 @@ const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string 
     // Check for categories array (from quick filters) - may be DB-mapped names
     const categories = filters?.categories;
     if (Array.isArray(categories) && categories.length > 0) {
-      const cat = categories[0];
+      const cat = categories[0] as any;
       if (typeof cat === 'string') {
         // Direct match
         if (categoryConfig[cat]) {
@@ -109,7 +109,7 @@ const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string 
           return categoryConfig['worker'];
         }
         // Map 'moto' <-> 'motorcycle'
-        if ((cat === 'moto' || cat === 'motorcycle') && categoryConfig['motorcycle']) {
+        if ((cat === 'moto' || cat === 'motorcycle')) {
           return categoryConfig['motorcycle'];
         }
       }
@@ -410,7 +410,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch {}
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
 
   // Cleanup on unmount
@@ -741,10 +741,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
           errorCode === '42501';   // RLS policy violation
 
         if (!isExpectedError) {
-          toast({
-            title: 'Failed to save like',
+          toast.error('Failed to save like', {
             description: 'Your like was not saved. Please try again.',
-            variant: 'destructive'
           });
         }
       });
@@ -792,7 +790,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
         profileId: listing.id,
         viewType: 'listing',
         action: direction === 'right' ? 'like' : 'pass'
-      }).catch(() => {});
+      }).catch(() => { });
     });
 
     // Clear direction for next swipe
@@ -926,15 +924,12 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
       await refetchSmart();
       const refreshCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
       const refreshLabel = String(refreshCategoryInfo?.plural || 'Listings').toLowerCase();
-      toast({
-        title: `${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`,
+      toast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, {
         description: `Showing ${refreshLabel} you passed on. Liked ones stay saved!`,
       });
     } catch (err) {
-      toast({
-        title: 'Refresh Failed',
+      toast.error('Refresh Failed', {
         description: 'Please try again.',
-        variant: 'destructive'
       });
     } finally {
       setIsRefreshing(false);
@@ -957,8 +952,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     if (!canNavigate()) return;
 
     if (!listing?.owner_id) {
-      toast({
-        title: 'Cannot Start Conversation',
+      toast.error('Cannot Start Conversation', {
         description: 'Owner information not available.',
       });
       return;
@@ -981,8 +975,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     if (needsUpgrade) {
       startNavigation();
       navigate('/client/settings#subscription');
-      toast({
-        title: 'Subscription Required',
+      toast('Subscription Required', {
         description: 'Upgrade to message property owners.',
       });
       setTimeout(endNavigation, 500);
@@ -1010,8 +1003,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     startNavigation();
 
     try {
-      toast({
-        title: 'Creating conversation...',
+      toast('Creating conversation...', {
         description: 'Please wait'
       });
 
@@ -1023,8 +1015,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
       });
 
       if (result?.conversationId) {
-        toast({
-          title: 'Conversation created!',
+        toast.success('Conversation created!', {
           description: 'Opening chat...'
         });
         setMessageDialogOpen(false);
@@ -1036,10 +1027,8 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
       if (import.meta.env.DEV) {
         logger.error('[TinderentSwipe] Error starting conversation:', err);
       }
-      toast({
-        title: 'Error',
-        description: err instanceof Error ? err.message : 'Could not start conversation',
-        variant: 'destructive'
+      toast.error('Error', {
+        description: err instanceof Error ? err.message : 'Could not start conversation'
       });
     } finally {
       setIsCreatingConversation(false);
@@ -1165,7 +1154,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const categoryLower = categoryLabel.toLowerCase();
     const CategoryIcon = categoryInfo?.icon || Home;
     const iconColor = categoryInfo?.color || 'text-primary';
-    
+
     // Generate specific message based on category
     const getCaughtUpMessage = () => {
       if (categoryLower === 'properties') {
@@ -1205,7 +1194,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     };
 
     const { title, description, cta } = getCaughtUpMessage();
-    
+
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
@@ -1282,7 +1271,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     const categoryLower = categoryLabel.toLowerCase();
     const CategoryIcon = categoryInfo?.icon || Home;
     const iconColor = categoryInfo?.color || 'text-primary';
-    
+
     // Generate specific empty message based on category - Action-oriented titles
     const getEmptyMessage = () => {
       if (categoryLower === 'properties') {
@@ -1317,7 +1306,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     };
 
     const { title, description } = getEmptyMessage();
-    
+
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
@@ -1409,7 +1398,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
             <div
               key={`next-${nextCard.id}`}
               className="w-full h-full absolute inset-0"
-              style={{ 
+              style={{
                 zIndex: 5,
                 transform: 'scale(0.95)',
                 opacity: 0.7,
@@ -1418,7 +1407,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
             >
               <SimpleSwipeCard
                 listing={nextCard}
-                onSwipe={() => {}}
+                onSwipe={() => { }}
                 isTop={false}
               />
             </div>
