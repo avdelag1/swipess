@@ -209,7 +209,7 @@ With Swipess, you can discover properties, vehicles, and services.">
     // Cache cleanup for legacy cache names (runs during idle time)
     const cleanupCaches = () => {
       try {
-        if (localStorage.getItem('swipes_last_clear') !== '2.0.0') {
+        if (localStorage.getItem('swipes_last_clear') !== '3.0.0') {
           if ('caches' in window) {
             caches.keys().then((names) => {
               names.forEach((name) => {
@@ -219,7 +219,7 @@ With Swipess, you can discover properties, vehicles, and services.">
               });
             });
           }
-          localStorage.setItem('swipes_last_clear', '2.0.0');
+          localStorage.setItem('swipes_last_clear', '3.0.0');
         }
       } catch { }
     };
