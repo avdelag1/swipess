@@ -151,25 +151,29 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   }, [user?.id, queryClient]);
 
   // Get target path for navigation
-  // Get target path for navigation
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
     const currentPath = location.pathname;
-    
+
     // Default paths
     const defaultPaths = {
       client: '/client/dashboard',
       owner: '/owner/dashboard'
     };
 
+    // If currently on a client/owner explicit route, try to map it
     if (currentPath.includes('/client/') || currentPath.includes('/owner/')) {
-      // Extract the page type from path - handle both /client/page and /client/page/
-      const pathParts = currentPath.split('/').filter(Boolean);
-      const currentPageType = pathParts[1] === 'client' || pathParts[1] === 'owner' 
-        ? pathParts[2] || 'dashboard' 
-        : 'dashboard';
       const fromMode = currentPath.includes('/client/') ? 'client' : 'owner';
 
-      // Try to get mapped path, fallback to default
+      // If we're already on the correct mode path due to some race condition, just return it
+      if (fromMode === newMode) return currentPath;
+
+      // Extract the specific page name after /client/ or /owner/
+      // E.g., /client/dashboard -> dashboard, /owner/settings -> settings
+      const pathParts = currentPath.split('/');
+      const modeIdx = pathParts.indexOf(fromMode);
+      const currentPageType = pathParts[modeIdx + 1] || 'dashboard';
+
+      // Look up where this page maps to in the OTHER mode
       const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
       if (mappedPath) {
         return mappedPath;

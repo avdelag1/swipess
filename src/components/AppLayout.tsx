@@ -3,7 +3,6 @@ import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
-import { useViewTransitions } from '@/hooks/useViewTransitions';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
 const VisualEngine = lazy(() =>
@@ -21,8 +20,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   useOfflineDetection();
   useErrorReporting();
 
-  // Enable View Transitions API
-  useViewTransitions();
+  // View Transitions API disabled in favor of Framer Motion AnimatedOutlet
 
   return (
     <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden">
