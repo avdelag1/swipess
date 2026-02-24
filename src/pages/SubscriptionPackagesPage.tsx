@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { STORAGE } from "@/constants/app";
 
 // Premium plans for owners

@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect } from 'react';
+import { memo, useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
