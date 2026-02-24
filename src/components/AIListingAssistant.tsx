@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { validateImageFile } from '@/utils/fileValidation';
 import {
@@ -540,16 +540,16 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
 
                       {/* Generated Details */}
                       <div className="space-y-2">
-                        <p className="font-semibold text-lg">{generatedData.title as string}</p>
+                        <p className="font-semibold text-lg">{String(generatedData.title)}</p>
                         {generatedData.price && (
                           <p className="text-primary font-bold">
-                            ${(generatedData.price as number).toLocaleString()}/month
+                            ${Number(generatedData.price).toLocaleString()}/month
                           </p>
                         )}
                         {generatedData.city && (
                           <p className="text-sm text-muted-foreground flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
-                            {generatedData.city as string}
+                            {String(generatedData.city)}
                           </p>
                         )}
                       </div>

@@ -47,7 +47,7 @@ export function SharedProfileSection({
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator.share === 'function') {
       await shareViaNavigator({
         title: profileName,
         text: shareText,

@@ -153,6 +153,8 @@ export default defineConfig(({ mode }) => ({
       // Force single React instance (prevents Invalid Hook Call)
       react: path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      // Redirect sonner toast imports to our compatibility wrapper
+      "sonner": path.resolve(__dirname, "./src/components/ui/sonner.tsx"),
     },
     // Prevent duplicate React instances (including jsx runtimes)
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-query'],

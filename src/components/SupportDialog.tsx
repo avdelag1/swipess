@@ -36,7 +36,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('support_tickets')
         .select('*')
         .eq('user_id', user.id)
@@ -54,7 +54,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('support_tickets')
         .insert({
           user_id: user.id,

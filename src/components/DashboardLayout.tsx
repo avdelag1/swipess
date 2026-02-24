@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from 'sonner'
+import { toast } from '@/components/ui/sonner'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
