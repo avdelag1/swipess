@@ -63,37 +63,42 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Track failed stations to avoid infinite loops
+  // Track failed stations to avoid infinite loops (bounded to max 20 entries)
   const failedStationsRef = useRef<Set<string>>(new Set());
   const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update listeners when state changes to have access to latest state
+  // Refs to hold latest callbacks for event handlers (avoids stale closures)
+  const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => {});
+
+  // Set up audio event listeners ONCE (use refs for latest callbacks)
   useEffect(() => {
     if (!audioRef.current) return;
 
     const handleTrackEnded = () => {
-      changeStation('next');
+      changeStationRef.current('next');
     };
 
     const handleAudioError = (e: Event) => {
-      const currentStationId = state.currentStation?.id;
-      if (currentStationId) {
-        failedStationsRef.current.add(currentStationId);
-        logger.error(`[RadioPlayer] Station ${currentStationId} failed:`, e);
+      // Read current station from the audio element's src to avoid stale closure
+      const audio = audioRef.current;
+      if (audio?.src) {
+        logger.error(`[RadioPlayer] Audio error on ${audio.src}:`, e);
       }
 
       setError('Station unavailable, switching...');
 
       // Immediately cancel the current stream
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
+      if (audio) {
+        audio.pause();
+        audio.src = '';
       }
 
-      // Skip to next station immediately (reduced from 3000ms to 500ms)
-      setTimeout(() => {
+      // Skip to next station immediately
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = setTimeout(() => {
         setError(null);
-        changeStation('next');
+        changeStationRef.current('next');
       }, 500);
     };
 
@@ -117,12 +122,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     audioRef.current.addEventListener('stalled', handleStalled);
 
     return () => {
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
       audioRef.current?.removeEventListener('ended', handleTrackEnded);
       audioRef.current?.removeEventListener('error', handleAudioError);
       audioRef.current?.removeEventListener('canplay', handleCanPlay);
       audioRef.current?.removeEventListener('stalled', handleStalled);
     };
-  }, [state.isPlaying, state.currentStation, state.isShuffle, state.currentCity]);
+  }, []); // Only run once - handlers use refs for latest state
 
   // Load user preferences from Supabase
   useEffect(() => {
@@ -212,6 +218,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       setTimeout(() => {
         failedStationsRef.current.delete(targetStation.id);
       }, 60000); // Allow retry after 1 minute
+      // Evict oldest entries if set grows too large (prevents memory leak)
+      if (failedStationsRef.current.size > 20) {
+        const first = failedStationsRef.current.values().next().value;
+        if (first) failedStationsRef.current.delete(first);
+      }
       changeStation('next');
       return;
     }
@@ -314,6 +325,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     play(stations[nextIndex]);
   }, [state.currentStation, state.currentCity, state.isShuffle, play]);
+
+  // Keep ref in sync with latest changeStation callback
+  changeStationRef.current = changeStation;
 
   const setCity = useCallback((city: CityLocation) => {
     if (city === state.currentCity) return;
