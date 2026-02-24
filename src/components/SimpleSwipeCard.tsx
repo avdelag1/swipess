@@ -37,7 +37,7 @@ const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 const FALLBACK_PLACEHOLDER = '/placeholder.svg';
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 12;
+const MAX_ROTATION = 18; // Increased from 12 for more dramatic swing
 
 // Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -50,11 +50,11 @@ const SPRING_CONFIGS = {
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
   // NATIVE: iOS-like balanced feel (DEFAULT)
   NATIVE: { stiffness: 400, damping: 28, mass: 1 },
-  // SOFT: Playful with bounce
-  SOFT: { stiffness: 300, damping: 22, mass: 1.2 },
+  // SOFT: Playful with bounce - EXTREMELY FUN FEEL
+  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE;
+const ACTIVE_SPRING = SPRING_CONFIGS.SOFT; // Changed to SOFT for purely fun swipe feedback
 
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;
@@ -238,7 +238,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
-    
+
     if (hasExited.current) return;
 
     const offsetX = info.offset.x;
@@ -259,7 +259,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       // Exit in the SAME direction of the swipe gesture (diagonal physics)
       const exitDistance = getExitDistance();
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
-      
+
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
@@ -275,7 +275,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onSwipe(direction);
         },
       });
-      
+
       // Animate Y in parallel
       animate(y, Math.min(Math.max(exitY, -300), 300), {
         type: 'spring',
@@ -357,7 +357,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       damping: 30,
       onComplete: fireSwipe,
     });
-    
+
     // Slight upward arc for button swipes
     animate(y, -50, {
       type: 'spring',
@@ -456,7 +456,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             </div>
           )}
         </div>
-        
+
         {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
@@ -500,7 +500,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             NOPE
           </div>
         </motion.div>
-        
+
         {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
         <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
           {/* Rating Display - Glass-pill tactile badge */}
@@ -516,7 +516,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               }}
             >
               <CompactRatingDisplay
-                aggregate={ratingAggregate}
+                aggregate={ratingAggregate as any}
                 isLoading={isRatingLoading}
                 showReviews={false}
                 className="text-white"
@@ -557,7 +557,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             />
           )}
         </div>
-        
+
         {/* Verified badge - now using TrustSignals component */}
         {(listing as any).has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
