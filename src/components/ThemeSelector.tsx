@@ -61,67 +61,74 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
   };
 
   if (compact) {
-    // iOS-style toggle switch
     return (
-      <motion.button
-        onClick={() => {
-          const newTheme = theme === 'black-matte' ? 'white-matte' : 'black-matte';
-          handleThemeChange(newTheme);
-        }}
-        className="relative inline-flex items-center h-10 w-16 rounded-full bg-muted border border-border/50 shadow-md transition-colors duration-300 hover:shadow-lg"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        title={`Switch to ${theme === 'black-matte' ? 'Light' : 'Dark'} mode`}
-      >
-        {/* Background gradient based on theme */}
-        <div
-          className="absolute inset-0 rounded-full transition-all duration-300"
-          style={{
-            background: theme === 'black-matte'
-              ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
-              : 'linear-gradient(135deg, rgba(255,200,0,0.1), rgba(255,200,0,0.05))'
+      <div className="relative">
+        <motion.button
+          onClick={() => {
+            const newTheme = theme === 'black-matte' ? 'white-matte' : 'black-matte';
+            handleThemeChange(newTheme);
           }}
-        />
-
-        {/* Animated toggle circle */}
-        <motion.div
-          className="absolute left-1 w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center transition-colors"
-          animate={{
-            left: theme === 'black-matte' ? 4 : 'calc(100% - 32px)'
-          }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          style={{
-            background: theme === 'black-matte'
-              ? 'linear-gradient(135deg, #1a1a1a, #0d0d0d)'
-              : 'linear-gradient(135deg, #ffffff, #f5f5f5)'
-          }}
+          className="relative inline-flex items-center h-10 w-16 rounded-full bg-muted border border-border/50 shadow-md transition-colors duration-300 hover:shadow-lg overflow-hidden"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.92 }}
+          title={`Switch to ${theme === 'black-matte' ? 'Light' : 'Dark'} mode`}
         >
-          {/* Icon inside toggle */}
-          <span className={`text-lg transition-transform duration-300 ${
-            theme === 'black-matte' ? 'text-white' : 'text-amber-400'
-          }`}>
-            {theme === 'black-matte' ? '🌙' : '☀️'}
-          </span>
-        </motion.div>
+          {/* Shimmer light effect when active */}
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: '200%' }}
+            transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 3 }}
+            className="absolute inset-0 z-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)'
+            }}
+          />
 
-        {/* Labels on sides */}
-        <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
-          <span className={`text-xs font-bold transition-opacity duration-300 ${
-            theme === 'black-matte'
-              ? 'text-foreground opacity-100'
-              : 'text-muted-foreground opacity-50'
-          }`}>
-            🌙
-          </span>
-          <span className={`text-xs font-bold transition-opacity duration-300 ${
-            theme === 'white-matte'
-              ? 'text-foreground opacity-100'
-              : 'text-muted-foreground opacity-50'
-          }`}>
-            ☀️
-          </span>
-        </div>
-      </motion.button>
+          {/* Background gradient based on theme */}
+          <div
+            className="absolute inset-0 rounded-full transition-all duration-300"
+            style={{
+              background: theme === 'black-matte'
+                ? 'linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1))'
+                : 'linear-gradient(135deg, rgba(255,183,77,0.2), rgba(255,152,0,0.1))'
+            }}
+          />
+
+          {/* Animated toggle circle */}
+          <motion.div
+            layout
+            className="absolute left-1 w-8 h-8 rounded-full shadow-lg flex items-center justify-center z-10"
+            animate={{
+              x: theme === 'black-matte' ? 0 : 24,
+              rotate: theme === 'black-matte' ? 0 : 180
+            }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            style={{
+              background: theme === 'black-matte'
+                ? 'linear-gradient(135deg, #1a1a1a, #0d0d0d)'
+                : 'linear-gradient(135deg, #ffffff, #f5f5f5)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}
+          >
+            {/* Icon inside toggle */}
+            <motion.span
+              initial={false}
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.3 }}
+              className={`text-lg transition-colors ${theme === 'black-matte' ? 'text-white' : 'text-amber-500'
+                }`}
+            >
+              {theme === 'black-matte' ? '🌙' : '☀️'}
+            </motion.span>
+          </motion.div>
+
+          {/* Labels on sides */}
+          <div className="absolute inset-0 flex items-center justify-between px-3.5 pointer-events-none opacity-40">
+            <span className="text-[10px]">🌙</span>
+            <span className="text-[10px]">☀️</span>
+          </div>
+        </motion.button>
+      </div>
     );
   }
 
@@ -171,15 +178,13 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
 
               {/* Labels and icons */}
               <div className="absolute inset-0 flex items-center justify-between px-6 pointer-events-none">
-                <div className={`flex items-center gap-3 transition-opacity duration-300 ${
-                  theme === 'black-matte' ? 'opacity-0' : 'opacity-100'
-                }`}>
+                <div className={`flex items-center gap-3 transition-opacity duration-300 ${theme === 'black-matte' ? 'opacity-0' : 'opacity-100'
+                  }`}>
                   <span className="text-2xl">🌙</span>
                   <span className="font-bold text-white">Dark</span>
                 </div>
-                <div className={`flex items-center gap-3 ml-auto transition-opacity duration-300 ${
-                  theme === 'white-matte' ? 'opacity-0' : 'opacity-100'
-                }`}>
+                <div className={`flex items-center gap-3 ml-auto transition-opacity duration-300 ${theme === 'white-matte' ? 'opacity-0' : 'opacity-100'
+                  }`}>
                   <span className="font-bold text-white">Light</span>
                   <span className="text-2xl">☀️</span>
                 </div>

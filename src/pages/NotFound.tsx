@@ -37,22 +37,32 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 overflow-hidden relative" style={{
       contain: 'layout style paint'
     }}>
+      {/* Cinematic Noise Overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03] z-[1]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
+
       {/* Animated background */}
-      <div className="absolute inset-0 opacity-20" style={{
+      <div className="absolute inset-0 opacity-30" style={{
         willChange: 'opacity',
         contain: 'layout style paint'
       }}>
         <motion.div
           className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse at 30% 40%, rgba(249, 115, 22, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, rgba(239, 68, 68, 0.1) 0%, transparent 50%)',
+            background: 'radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.15) 0%, transparent 70%), radial-gradient(circle at 20% 80%, rgba(239, 68, 68, 0.12) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%)',
           }}
           animate={{
-            opacity: [0.2, 0.4, 0.2],
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3],
           }}
           transition={{
-            duration: 4,
+            duration: 10,
             repeat: Infinity,
+            ease: "easeInOut",
           }}
         />
       </div>
