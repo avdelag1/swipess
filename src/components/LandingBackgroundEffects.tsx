@@ -29,15 +29,14 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const initializedRef = useRef<EffectMode | null>(null);
 
   const initStars = useCallback((w: number, h: number) => {
-    const count = Math.floor((w * h) / 1200);
-    starsRef.current = Array.from({ length: Math.min(count, 400) }, () => {
-      const isBlinker = Math.random() < 0.15; // 15% of stars blink
+    const count = Math.floor((w * h) / 1000);
+    starsRef.current = Array.from({ length: Math.min(count, 500) }, () => {
       return {
         x: Math.random() * w,
         y: Math.random() * h,
-        size: Math.random() * 1.2 + 0.3, // smaller, more realistic
-        opacity: Math.random() * 0.5 + 0.15,
-        twinkleSpeed: isBlinker ? Math.random() * 0.08 + 0.03 : Math.random() * 0.008 + 0.002,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.8 + 0.2,
+        twinkleSpeed: Math.random() * 0.1 + 0.02,
         twinklePhase: Math.random() * Math.PI * 2,
       };
     });
@@ -55,8 +54,8 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     orbsRef.current = Array.from({ length: 10 }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 0.8,
-      vy: (Math.random() - 0.5) * 0.8,
+      vx: (Math.random() - 0.5) * 3.5,
+      vy: (Math.random() - 0.5) * 3.5,
       radius: Math.random() * 120 + 80, // much bigger orbs
       color: colors[Math.floor(Math.random() * colors.length)],
       opacity: Math.random() * 0.3 + 0.12,
@@ -100,11 +99,9 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       ctx.clearRect(0, 0, w, h);
       time += 1;
       for (const star of starsRef.current) {
-        const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase);
-        // Fast blinkers fade to near-zero, slow ones stay subtle
-        const alpha = star.twinkleSpeed > 0.02
-          ? star.opacity * Math.max(0, twinkle) // blinkers: on/off feel
-          : star.opacity * (0.6 + 0.4 * twinkle); // steady with gentle shimmer
+        const noise = Math.random() * 0.2;
+        const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.5 + 0.5;
+        const alpha = star.opacity * (twinkle * 0.8 + noise);
         if (alpha < 0.01) continue;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);

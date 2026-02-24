@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { memo, useState, useRef, useMemo, useEffect } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate

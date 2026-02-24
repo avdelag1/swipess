@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PageHeader } from '@/components/PageHeader';

@@ -181,130 +181,132 @@ const App = () => (
       >
         <ErrorBoundary>
           <AuthProvider>
-          <ActiveModeProvider>
-          <ThemeProvider>
-            <PWAProvider>
-            <RadioProvider>
-            <ResponsiveProvider>
-            <UpdateWrapper>
-            <ProfileSyncWrapper>
-              <NotificationWrapper>
-              <PushNotificationWrapper>
-                {/* DISABLED: DepthParallaxBackground was causing performance issues */}
-                {/* <DepthParallaxBackground /> */}
-                
-                {/* Update notification banner */}
-                <UpdateNotification />
-                
-                <AppLayout>
-                  <TooltipProvider>
-                    <Sonner />
-                    <Toaster />
-                  </TooltipProvider>
-                  <Suspense fallback={<SuspenseFallback />}>
-                    <Routes>
-                    <Route path="/" element={
-                      <SignupErrorBoundary>
-                        <Index />
-                      </SignupErrorBoundary>
-                    } />
-                    <Route path="/reset-password" element={<ResetPassword />} />
+            <ActiveModeProvider>
+              <ThemeProvider>
+                <PWAProvider>
+                  <RadioProvider>
+                    <ResponsiveProvider>
+                      <UpdateWrapper>
+                        <ProfileSyncWrapper>
+                          <NotificationWrapper>
+                            <PushNotificationWrapper>
+                              {/* DISABLED: DepthParallaxBackground was causing performance issues */}
+                              {/* <DepthParallaxBackground /> */}
 
-                    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+                              {/* Update notification banner */}
+                              <UpdateNotification />
+
+                              <AppLayout>
+                                <TooltipProvider>
+                                  <Sonner />
+                                  <Toaster />
+                                </TooltipProvider>
+                                <Suspense fallback={<SuspenseFallback />}>
+                                  <Routes>
+                                    <Route path="/" element={
+                                      <SignupErrorBoundary>
+                                        <Index />
+                                      </SignupErrorBoundary>
+                                    } />
+                                    <Route path="/reset-password" element={<ResetPassword />} />
+
+                                    {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                         SPEED OF LIGHT: UNIFIED layout for ALL protected routes
                         Single PersistentDashboardLayout instance shared between modes
                         Prevents remount when switching between client/owner modes
                         Camera routes are INSIDE layout to prevent remount on navigation back
                         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-                    <Route element={
-                      <ProtectedRoute>
-                        <PersistentDashboardLayout />
-                      </ProtectedRoute>
-                    }>
-                      {/* Client routes */}
-                      <Route path="/client/dashboard" element={<ClientDashboard />} />
-                      <Route path="/client/profile" element={<ClientProfile />} />
-                      <Route path="/client/settings" element={<ClientSettings />} />
-                      <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
-                      <Route path="/client/who-liked-you" element={<ClientWhoLikedYou />} />
-                      <Route path="/client/saved-searches" element={<ClientSavedSearches />} />
-                      <Route path="/client/security" element={<ClientSecurity />} />
-                      <Route path="/client/services" element={<ClientWorkerDiscovery />} />
-                      <Route path="/client/contracts" element={<ClientContracts />} />
-                      <Route path="/client/legal-services" element={<ClientLawyerServices />} />
-                      <Route path="/client/camera" element={<ClientSelfieCamera />} />
-                      <Route path="/client/filters" element={<ClientFilters />} />
+                                    <Route element={
+                                      <ProtectedRoute>
+                                        <PersistentDashboardLayout />
+                                      </ProtectedRoute>
+                                    }>
+                                      {/* Client routes */}
+                                      <Route path="/client/dashboard" element={<ClientDashboard />} />
+                                      <Route path="/client/profile" element={<ClientProfile />} />
+                                      <Route path="/client/settings" element={<ClientSettings />} />
+                                      <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
+                                      <Route path="/client/who-liked-you" element={<ClientWhoLikedYou />} />
+                                      <Route path="/client/saved-searches" element={<ClientSavedSearches />} />
+                                      <Route path="/client/security" element={<ClientSecurity />} />
+                                      <Route path="/client/services" element={<ClientWorkerDiscovery />} />
+                                      <Route path="/client/contracts" element={<ClientContracts />} />
+                                      <Route path="/client/legal-services" element={<ClientLawyerServices />} />
+                                      <Route path="/client/camera" element={<ClientSelfieCamera />} />
+                                      <Route path="/client/filters" element={<ClientFilters />} />
 
-                      {/* Owner routes */}
-                      <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
-                      <Route path="/owner/profile" element={<OwnerProfile />} />
-                      <Route path="/owner/settings" element={<OwnerSettings />} />
-                      <Route path="/owner/properties" element={<OwnerProperties />} />
-                      <Route path="/owner/listings/new" element={<OwnerNewListing />} />
-                      <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
-                      <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
-                      <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
-                      <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
-                      <Route path="/owner/clients/moto" element={<OwnerMotoClientDiscovery />} />
-                      <Route path="/owner/clients/bicycle" element={<OwnerBicycleClientDiscovery />} />
-                      <Route path="/owner/view-client/:clientId" element={<OwnerViewClientProfile />} />
-                      <Route path="/owner/filters-explore" element={<OwnerFiltersExplore />} />
-                      <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
-                      <Route path="/owner/security" element={<OwnerSecurity />} />
-                      <Route path="/owner/contracts" element={<OwnerContracts />} />
-                      <Route path="/owner/legal-services" element={<OwnerLawyerServices />} />
-                      <Route path="/owner/camera" element={<OwnerProfileCamera />} />
-                      <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
-                      <Route path="/owner/filters" element={<OwnerFilters />} />
+                                      {/* Owner routes */}
+                                      <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
+                                      <Route path="/owner/profile" element={<OwnerProfile />} />
+                                      <Route path="/owner/settings" element={<OwnerSettings />} />
+                                      <Route path="/owner/properties" element={<OwnerProperties />} />
+                                      <Route path="/owner/listings/new" element={<OwnerNewListing />} />
+                                      <Route path="/owner/listings/new-ai" element={<ConversationalListingCreator />} />
+                                      <Route path="/owner/liked-clients" element={<OwnerLikedClients />} />
+                                      <Route path="/owner/interested-clients" element={<OwnerInterestedClients />} />
+                                      <Route path="/owner/clients/property" element={<OwnerPropertyClientDiscovery />} />
+                                      <Route path="/owner/clients/moto" element={<OwnerMotoClientDiscovery />} />
+                                      <Route path="/owner/clients/bicycle" element={<OwnerBicycleClientDiscovery />} />
+                                      <Route path="/owner/view-client/:clientId" element={<OwnerViewClientProfile />} />
+                                      <Route path="/owner/filters-explore" element={<OwnerFiltersExplore />} />
+                                      <Route path="/owner/saved-searches" element={<OwnerSavedSearches />} />
+                                      <Route path="/owner/security" element={<OwnerSecurity />} />
+                                      <Route path="/owner/contracts" element={<OwnerContracts />} />
+                                      <Route path="/owner/legal-services" element={<OwnerLawyerServices />} />
+                                      <Route path="/owner/camera" element={<OwnerProfileCamera />} />
+                                      <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
+                                      <Route path="/owner/filters" element={<OwnerFilters />} />
 
-                      {/* Shared routes (both roles) */}
-                      <Route path="/messages" element={<MessagingDashboard />} />
-                      <Route path="/notifications" element={<NotificationsPage />} />
-                      <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
-                      <Route path="/radio" element={<RetroRadioStation />} />
-                      <Route path="/radio/playlists" element={<RadioPlaylists />} />
-                      <Route path="/radio/favorites" element={<RadioFavorites />} />
-                    </Route>
+                                      {/* Shared routes (both roles) */}
+                                      <Route path="/messages" element={<MessagingDashboard />} />
+                                      <Route path="/notifications" element={<NotificationsPage />} />
+                                      <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
+                                      <Route path="/radio" element={<RetroRadioStation />} />
+                                      <Route path="/radio/playlists" element={<RadioPlaylists />} />
+                                      <Route path="/radio/favorites" element={<RadioFavorites />} />
+                                    </Route>
 
-                    {/* Payment routes - outside layout */}
-                    <Route path="/payment/success" element={<PaymentSuccess />} />
-                    <Route path="/payment/cancel" element={<PaymentCancel />} />
+                                    {/* Payment routes - outside layout */}
+                                    <Route path="/payment/success" element={<PaymentSuccess />} />
+                                    <Route path="/payment/cancel" element={<PaymentCancel />} />
 
-                    {/* Legal Pages - Public Access */}
-                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                    <Route path="/terms-of-service" element={<TermsOfService />} />
-                    <Route path="/agl" element={<AGLPage />} />
-                    <Route path="/legal" element={<LegalPage />} />
+                                    {/* Legal Pages - Public Access */}
+                                    <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                                    <Route path="/terms-of-service" element={<TermsOfService />} />
+                                    <Route path="/agl" element={<AGLPage />} />
+                                    <Route path="/legal" element={<LegalPage />} />
 
-                    {/* Info Pages - Public Access */}
-                    <Route path="/about" element={<AboutPage />} />
-                    <Route path="/faq/client" element={<FAQClientPage />} />
-                    <Route path="/faq/owner" element={<FAQOwnerPage />} />
+                                    {/* Info Pages - Public Access */}
+                                    <Route path="/about" element={<AboutPage />} />
+                                    <Route path="/faq/client" element={<FAQClientPage />} />
+                                    <Route path="/faq/owner" element={<FAQOwnerPage />} />
 
-                    {/* Public Preview Pages - Shareable Links */}
-                    <Route path="/profile/:id" element={<PublicProfilePreview />} />
-                    <Route path="/listing/:id" element={<PublicListingPreview />} />
+                                    {/* Public Preview Pages - Shareable Links */}
+                                    <Route path="/profile/:id" element={<PublicProfilePreview />} />
+                                    <Route path="/listing/:id" element={<PublicListingPreview />} />
 
-                    {/* Test Pages */}
-                    <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
+                                    {/* Test Pages — dev only */}
+                                    {import.meta.env.DEV && (
+                                      <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
+                                    )}
 
-                    {/* Tutorial / Onboarding - Public Access */}
-                    <Route path="/tutorial" element={<TutorialSwipePage />} />
+                                    {/* Tutorial / Onboarding - Public Access */}
+                                    <Route path="/tutorial" element={<TutorialSwipePage />} />
 
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </AppLayout>
-              </PushNotificationWrapper>
-              </NotificationWrapper>
-            </ProfileSyncWrapper>
-            </UpdateWrapper>
-            </ResponsiveProvider>
-            </RadioProvider>
-            </PWAProvider>
-          </ThemeProvider>
-          </ActiveModeProvider>
+                                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                                    <Route path="*" element={<NotFound />} />
+                                  </Routes>
+                                </Suspense>
+                              </AppLayout>
+                            </PushNotificationWrapper>
+                          </NotificationWrapper>
+                        </ProfileSyncWrapper>
+                      </UpdateWrapper>
+                    </ResponsiveProvider>
+                  </RadioProvider>
+                </PWAProvider>
+              </ThemeProvider>
+            </ActiveModeProvider>
           </AuthProvider>
         </ErrorBoundary>
       </BrowserRouter>

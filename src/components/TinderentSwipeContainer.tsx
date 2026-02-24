@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
