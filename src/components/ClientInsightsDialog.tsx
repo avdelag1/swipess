@@ -373,7 +373,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
             </motion.div>
 
             {/* Client Statistics */}
-            <div>
+            {clientStats && (<div>
               <h4 className="font-semibold mb-3 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-primary" />
                 Client Statistics
@@ -423,8 +423,9 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                   <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">Avg Response</div>
                 </motion.div>
               </div>
-            </div>
+            </div>)}
 
+            {renterInsights && (<>
             {/* Renter Readiness Score */}
             <div>
               <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -615,6 +616,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 </div>
               </div>
             )}
+            </>)}
 
             {/* Verification Status */}
             <div>
