@@ -17,27 +17,27 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { logger } from '@/utils/prodLogger';
 
-import { motion, AnimatePresence } from 'framer-motion';
-
-const fastSpring = { type: 'spring' as const, stiffness: 400, damping: 30, mass: 1 };
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05, delayChildren: 0.1 }
+// Helper to check free messaging eligibility - extracted to avoid TS deep instantiation
+async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
+  try {
+    // @ts-expect-error - Supabase types too deeply nested, using raw query
+    const result = await supabase
+      .from('listings')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .or('category.eq.motorcycle,category.eq.bicycle');
+    return (result?.count ?? 0) > 0;
+  } catch {
+    return false;
   }
-};
-const itemVariant = {
-  hidden: { opacity: 0, y: 15, scale: 0.98, filter: 'blur(4px)' },
-  visible: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: fastSpring }
-};
+}
 
 export function MessagingDashboard() {
   const navigate = useNavigate();
@@ -444,12 +444,7 @@ export function MessagingDashboard() {
           </div>
 
           {/* Conversations */}
-          <motion.div
-            className="space-y-1.5"
-            variants={staggerContainer}
-            initial="hidden"
-            animate="visible"
-          >
+          <div className="space-y-1.5">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center py-20">
                 <MessageCircle className="w-10 h-10 text-primary animate-pulse mb-3" />
@@ -458,30 +453,30 @@ export function MessagingDashboard() {
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation) => {
                 const isOwner = conversation.other_user?.role === 'owner';
-                const hasUnread = conversation.last_message?.sender_id !== user?.id &&
-                  conversation.last_message_at &&
+                const hasUnread = conversation.last_message?.sender_id !== user?.id && 
+                  conversation.last_message_at && 
                   new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
 
                 return (
-                  <motion.button
+                  <button
                     key={conversation.id}
-                    variants={itemVariant}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 text-left group"
+                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
                     onClick={() => setSelectedConversationId(conversation.id)}
                   >
                     {/* Avatar with gradient ring */}
                     <div className="relative shrink-0">
-                      <div className={`p-[2px] rounded-full ${isOwner
-                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                      <div className={`p-[2px] rounded-full ${
+                        isOwner 
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500' 
                           : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                        }`}>
+                      }`}>
                         <Avatar className="w-13 h-13 border-2 border-background">
                           <AvatarImage src={conversation.other_user?.avatar_url} />
-                          <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
+                          <AvatarFallback className={`text-sm font-semibold text-white ${
+                            isOwner
                               ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                               : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                            }`}>
+                          }`}>
                             {conversation.other_user?.full_name?.charAt(0) || '?'}
                           </AvatarFallback>
                         </Avatar>
@@ -497,10 +492,11 @@ export function MessagingDashboard() {
                           <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
                             {conversation.other_user?.full_name || 'Unknown'}
                           </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
-                              ? 'bg-purple-500/15 text-purple-400'
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                            isOwner 
+                              ? 'bg-purple-500/15 text-purple-400' 
                               : 'bg-blue-500/15 text-blue-400'
-                            }`}>
+                          }`}>
                             {isOwner ? 'Provider' : 'Explorer'}
                           </span>
                         </div>
@@ -520,7 +516,7 @@ export function MessagingDashboard() {
                         )}
                       </div>
                     </div>
-                  </motion.button>
+                  </button>
                 );
               })
             ) : (
@@ -536,7 +532,7 @@ export function MessagingDashboard() {
                 </p>
               </div>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
 

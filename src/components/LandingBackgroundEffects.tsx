@@ -179,38 +179,22 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
         if (alpha < 0.01) continue;
 
         ctx.beginPath();
-        if (speed > 1.5) {
-          // Warp effect trails
-          const tailX = star.x - star.vx * 2;
-          const tailY = star.y - star.vy * 2;
-
-          const gradient = ctx.createLinearGradient(star.x, star.y, tailX, tailY);
-          gradient.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
-          gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
-
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = star.size;
-          ctx.lineCap = 'round';
-          ctx.moveTo(star.x, star.y);
-          ctx.lineTo(tailX, tailY);
-          ctx.stroke();
-
-          // Small head point
-          ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size * 0.8, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-          ctx.fill();
+        // Slightly elongate based on velocity
+        if (speed > 1) {
+          const angle = Math.atan2(star.vy, star.vx);
+          ctx.ellipse(star.x, star.y, star.size + speed * 0.2, star.size, angle, 0, Math.PI * 2);
         } else {
           ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-          ctx.fill();
         }
 
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.fill();
+
         // Add subtle glow to fast moving stars near finger
-        if (speedGlow > 0.15) {
-          ctx.shadowBlur = isDown ? 15 : 8;
-          ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
-          ctx.stroke();
+        if (speedGlow > 0.2) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = 'white';
+          ctx.fill();
           ctx.shadowBlur = 0;
         }
       }

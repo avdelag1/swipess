@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { motion, useReducedMotion, useMotionValue, useTransform } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
 import { SwipessSPattern } from "@/components/SwipessSWatermark";
 
@@ -18,96 +17,86 @@ export const VisualEngine = () => {
   const isDark = theme === "black-matte";
   const shouldReduceMotion = useReducedMotion();
 
-  // Pointer tracking for subtle reactive depth
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  useEffect(() => {
-    if (shouldReduceMotion) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      // Normalize to -50 to 50
-      const x = (e.clientX / window.innerWidth - 0.5) * 60;
-      const y = (e.clientY / window.innerHeight - 0.5) * 60;
-      mouseX.set(x);
-      mouseY.set(y);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [shouldReduceMotion, mouseX, mouseY]);
-
-  const transformedX = useTransform(mouseX, (v) => v * -1.2);
-  const transformedY = useTransform(mouseY, (v) => v * -1.2);
-
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Base gradient - adapts to theme */}
       <div
-        className={`absolute inset-0 transition-colors duration-700 ${isDark
-          ? "bg-gradient-to-br from-slate-900 via-slate-950 to-black"
-          : "bg-gradient-to-br from-slate-50 via-white to-slate-100"
-          }`}
+        className={`absolute inset-0 transition-colors duration-500 ${
+          isDark
+            ? "bg-gradient-to-br from-slate-900 via-slate-950 to-black"
+            : "bg-gradient-to-br from-slate-50 via-white to-slate-100"
+        }`}
       />
 
       {/* Primary animated glow - soft purple (luxury accent) */}
-      <motion.div
-        className={`absolute w-[700px] h-[700px] rounded-full blur-[100px] transition-colors duration-700 ${isDark ? "bg-purple-600/10" : "bg-purple-400/5"
+      {shouldReduceMotion ? (
+        <div
+          className={`absolute w-[600px] h-[600px] rounded-full blur-3xl ${
+            isDark ? "bg-purple-600/20" : "bg-purple-400/10"
           }`}
-        style={{
-          top: "-250px",
-          left: "-150px",
-          x: shouldReduceMotion ? 0 : mouseX,
-          y: shouldReduceMotion ? 0 : mouseY,
-          willChange: "transform"
-        }}
-        animate={shouldReduceMotion ? {} : {
-          scale: [1, 1.05, 1],
-          opacity: [0.8, 1, 0.8]
-        }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
+          style={{ top: "-200px", left: "-100px" }}
+        />
+      ) : (
+        <motion.div
+          className={`absolute w-[600px] h-[600px] rounded-full blur-3xl ${
+            isDark ? "bg-purple-600/20" : "bg-purple-400/10"
+          }`}
+          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          style={{ top: "-200px", left: "-100px", willChange: "transform" }}
+        />
+      )}
 
-      {/* Secondary glow - soft orange/pink (warmth) */}
-      <motion.div
-        className={`absolute w-[600px] h-[600px] rounded-full blur-[100px] transition-colors duration-700 ${isDark ? "bg-orange-500/10" : "bg-orange-300/5"
+      {/* Secondary glow - soft blue (depth) */}
+      {shouldReduceMotion ? (
+        <div
+          className={`absolute w-[500px] h-[500px] rounded-full blur-3xl ${
+            isDark ? "bg-blue-500/15" : "bg-blue-300/8"
           }`}
-        style={{
-          bottom: "-200px",
-          right: "-150px",
-          x: shouldReduceMotion ? 0 : transformedX,
-          y: shouldReduceMotion ? 0 : transformedY,
-          willChange: "transform"
-        }}
-        animate={shouldReduceMotion ? {} : {
-          scale: [1, 1.1, 1],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-      />
+          style={{ bottom: "-150px", right: "-100px" }}
+        />
+      ) : (
+        <motion.div
+          className={`absolute w-[500px] h-[500px] rounded-full blur-3xl ${
+            isDark ? "bg-blue-500/15" : "bg-blue-300/8"
+          }`}
+          animate={{ x: [0, -40, 0], y: [0, -20, 0] }}
+          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          style={{ bottom: "-150px", right: "-100px", willChange: "transform" }}
+        />
+      )}
+
+      {/* Tertiary glow - soft indigo (cinematic touch) */}
+      {shouldReduceMotion ? (
+        <div
+          className={`absolute w-[400px] h-[400px] rounded-full blur-3xl ${
+            isDark ? "bg-indigo-500/10" : "bg-indigo-300/6"
+          }`}
+          style={{ top: "50%", right: "20%" }}
+        />
+      ) : (
+        <motion.div
+          className={`absolute w-[400px] h-[400px] rounded-full blur-3xl ${
+            isDark ? "bg-indigo-500/10" : "bg-indigo-300/6"
+          }`}
+          animate={{ x: [0, 30, 0], y: [0, 40, 0] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
+          style={{ top: "50%", right: "20%", willChange: "transform" }}
+        />
+      )}
 
       {/* Subtle noise overlay for texture (premium detail) */}
       <div
-        className="absolute inset-0 opacity-[0.02] mix-blend-overlay pointer-events-none"
+        className="absolute inset-0 opacity-[0.015]"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E")`,
         }}
       />
 
       {/* Branded S watermark pattern - subtle fire-S marks scattered across sections */}
       <SwipessSPattern
-        opacity={isDark ? 0.02 : 0.01}
-        count={6}
-      />
-
-      {/* Cinematic light ray - very subtle focus */}
-      <motion.div
-        className={`absolute w-full h-[1px] top-1/4 opacity-10 ${isDark ? "bg-white/10" : "bg-black/5"
-          }`}
-        style={{
-          boxShadow: isDark ? '0 0 100px 1px rgba(255,255,255,0.1)' : '0 0 100px 1px rgba(0,0,0,0.05)',
-          rotate: -15,
-          scaleX: 2
-        }}
+        opacity={isDark ? 0.025 : 0.015}
+        count={5}
       />
     </div>
   );

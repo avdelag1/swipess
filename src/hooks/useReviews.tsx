@@ -12,7 +12,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
 // ============================================================================
@@ -527,9 +527,9 @@ export function useMarkReviewHelpful() {
 
 /** @deprecated Use useListingReviews or useUserReviews instead */
 export const useReviews = (targetType: 'user' | 'property', targetId: string) => {
-  const listingReviews = useListingReviews(targetType === 'property' ? targetId : undefined);
-  const userReviews = useUserReviews(targetType === 'user' ? targetId : undefined);
-
+  // Both hooks must be called unconditionally to satisfy React's rules of hooks
+  const listingReviews = useListingReviews(targetId);
+  const userReviews = useUserReviews(targetId);
   return targetType === 'property' ? listingReviews : userReviews;
 };
 

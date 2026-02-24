@@ -15,11 +15,11 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 
-const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 32, mass: 1 };
-const stagger = { staggerChildren: 0.08, delayChildren: 0.05 };
+const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
+const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
 const childVariant = {
-  hidden: { opacity: 0, y: 25, scale: 0.95, filter: 'blur(8px)' },
-  visible: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)', transition: premiumSpring },
+  hidden: { opacity: 0, y: 18, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
 };
 
 const OwnerProfileNew = () => {

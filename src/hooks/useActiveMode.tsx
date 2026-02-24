@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
@@ -53,13 +53,8 @@ const PAGE_MAPPING: Record<string, Record<string, string>> = {
     settings: '/owner/settings',
     security: '/owner/security',
     contracts: '/owner/contracts',
-    'legal-services': '/owner/legal-services',
-    'liked-properties': '/owner/liked-clients',
-    'who-liked-you': '/owner/interested-clients',
-    'saved-searches': '/owner/saved-searches',
-    services: '/owner/dashboard',
-    filters: '/owner/filters',
-    camera: '/owner/camera',
+    'saved-searches': '/owner/dashboard',
+    'worker-discovery': '/owner/dashboard',
   },
   owner: {
     dashboard: '/client/dashboard',
@@ -67,14 +62,8 @@ const PAGE_MAPPING: Record<string, Record<string, string>> = {
     settings: '/client/settings',
     security: '/client/security',
     contracts: '/client/contracts',
-    'legal-services': '/client/legal-services',
-    'liked-clients': '/client/liked-properties',
-    'interested-clients': '/client/who-liked-you',
-    'saved-searches': '/client/saved-searches',
     listings: '/client/dashboard',
     'new-listing': '/client/dashboard',
-    filters: '/client/filters',
-    camera: '/client/camera',
   },
 };
 
@@ -250,7 +239,8 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     }
 
     // 8. Show success toast
-    toast.success(newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard', {
+    toast({
+      title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
       description: newMode === 'client'
         ? 'Browsing deals, services and properties'
         : 'Managing listings and discovering clients',
