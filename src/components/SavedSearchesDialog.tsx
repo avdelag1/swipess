@@ -75,7 +75,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     setFetchError(null);
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)

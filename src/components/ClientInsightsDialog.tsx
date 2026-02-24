@@ -8,7 +8,7 @@ import { ClientProfile } from '@/hooks/useClientProfiles';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { useState, memo, useMemo, useCallback } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';
@@ -72,7 +72,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
   // Calculate client statistics based on profile completeness
   // Must be called before any early returns to follow React hooks rules
   const clientStats = useMemo(() => {
-    if (!profile) return null;
+    if (!profile) return { profileViews: 0, ownerLikes: 0, responseRate: 0, averageResponseTime: 'N/A' };
     const completeness = getProfileCompleteness(profile);
     const interestCount = (profile.interests?.length || 0) + (profile.preferred_activities?.length || 0);
 
@@ -86,7 +86,13 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
 
   // Calculate renter readiness and activity insights
   const renterInsights = useMemo(() => {
-    if (!profile) return null;
+    if (!profile) return {
+      readinessScore: 0, activityLevel: 'new' as const, photoCount: 0, interestCount: 0,
+      wantsLongTerm: false, wantsShortTerm: false, needsPetFriendly: false, prefersFurnished: false,
+      isDigitalNomad: false, needsFamily: false, isStudent: false, needsQuiet: false,
+      isBeachLover: false, needsCityCenter: false, isFitnessOriented: false, isEcoConscious: false,
+      needsMotorcycle: false, needsBicycle: false, needsYacht: false, matchPotential: 0, isHotProspect: false
+    };
     const completeness = getProfileCompleteness(profile);
     const interestCount = (profile.interests?.length || 0) + (profile.preferred_activities?.length || 0);
     const hasPhotos = (profile.profile_images?.length || 0) > 0;

@@ -100,7 +100,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       if (!user.user || !listing?.owner_id) throw new Error('Not authenticated or no owner');
 
       // Insert block record
-      const { error: blockError } = await supabase
+      const { error: blockError } = await (supabase as any)
         .from('user_blocks')
         .insert({
           blocker_id: user.user.id,
@@ -144,7 +144,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !listing?.owner_id) throw new Error('Not authenticated');
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_reports')
         .insert({
           reporter_id: user.user.id,
@@ -338,7 +338,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                   {/* Thumbnail Strip */}
                   {images.length > 1 && (
                     <div className="absolute bottom-[-28px] left-0 right-0 flex justify-center gap-1.5 px-4 z-20">
-                      {images.slice(0, 8).map((_, idx) => (
+                      {images.slice(0, 8).map((_: any, idx: number) => (
                         <button
                           key={idx}
                           onClick={() => setCurrentImageIndex(idx)}

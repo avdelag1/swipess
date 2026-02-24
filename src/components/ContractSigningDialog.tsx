@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
 import { useSignContract } from '@/hooks/useContracts';
 import { FileText, Download } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
 interface ContractSigningDialogProps {
@@ -71,14 +71,14 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
     try {
       const { data, error } = await supabase.storage
         .from('contracts')
-        .download(contract.file_path);
+        .download((contract as any).file_path);
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
-      a.download = contract.file_name;
+      a.download = (contract as any).file_name;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -124,7 +124,7 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
               <div>
                 <h3 className="font-semibold">{contract.title}</h3>
                 <p className="text-sm text-gray-600">
-                  {contract.contract_type.replace('_', ' ').toUpperCase()}
+                  {((contract as any).contract_type || contract.template_type).replace('_', ' ').toUpperCase()}
                 </p>
               </div>
             </div>
@@ -136,11 +136,11 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
               </Button>
             </div>
 
-            {contract.terms_and_conditions && (
+            {(contract as any).terms_and_conditions && (
               <div className="mt-4">
                 <h4 className="font-medium mb-2">Additional Terms:</h4>
                 <p className="text-sm text-gray-700 bg-white p-3 rounded border">
-                  {contract.terms_and_conditions}
+                  {(contract as any).terms_and_conditions}
                 </p>
               </div>
             )}
