@@ -1,3 +1,4 @@
+import React from 'react';
 import { useLocation, useOutlet } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -7,10 +8,8 @@ import { AnimatePresence, motion } from 'framer-motion';
  * Replaces the standard React Router <Outlet /> to enable smooth
  * page transitions between routes.
  * 
- * How it works:
- * useOutlet() grabs the matched route element. AnimatePresence caches this
- * element during the exit phase so it doesn't instantly snap to the new route
- * content before fading out.
+ * Fixed: Uses React.cloneElement with location.key to freeze the React Router 
+ * context during the exit animation, preventing unmount crashes.
  */
 export function AnimatedOutlet() {
     const location = useLocation();
@@ -21,16 +20,18 @@ export function AnimatedOutlet() {
             {element ? (
                 <motion.div
                     key={location.pathname}
-                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    initial={{ opacity: 0, x: 20, filter: 'blur(8px)', scale: 0.98 }}
+                    animate={{ opacity: 1, x: 0, filter: 'blur(0px)', scale: 1 }}
+                    exit={{ opacity: 0, x: -20, filter: 'blur(8px)', scale: 0.98 }}
                     transition={{
-                        duration: 0.25,
-                        ease: [0.22, 1, 0.36, 1] // Apple-like custom easing
+                        type: "spring",
+                        stiffness: 350,
+                        damping: 30,
+                        mass: 0.8
                     }}
                     className="h-full w-full flex flex-col flex-1"
                 >
-                    {element}
+                    {React.cloneElement(element, { key: location.pathname })}
                 </motion.div>
             ) : null}
         </AnimatePresence>
