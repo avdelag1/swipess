@@ -5,10 +5,14 @@ type EffectMode = 'off' | 'stars' | 'orbs';
 interface Star {
   x: number;
   y: number;
+  baseX: number;
+  baseY: number;
   size: number;
   opacity: number;
   twinkleSpeed: number;
   twinklePhase: number;
+  vx: number;
+  vy: number;
 }
 
 interface Orb {
@@ -19,6 +23,7 @@ interface Orb {
   radius: number;
   color: [number, number, number];
   opacity: number;
+  mass: number;
 }
 
 function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
@@ -28,12 +33,21 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const orbsRef = useRef<Orb[]>([]);
   const initializedRef = useRef<EffectMode | null>(null);
 
+  // Track pointer for interactivity
+  const pointerRef = useRef({
+    x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
+    y: typeof window !== 'undefined' ? window.innerHeight / 2 : 0,
+    isDown: false,
+    isActive: false // true if actively moving/touching recently
+  });
+
   const initStars = useCallback((w: number, h: number) => {
     const count = Math.floor((w * h) / 1000);
     starsRef.current = Array.from({ length: Math.min(count, 500) }, () => {
+      const x = Math.random() * w;
+      const y = Math.random() * h;
       return {
-        x: Math.random() * w,
-        y: Math.random() * h,
+        x, y, baseX: x, baseY: y, vx: 0, vy: 0,
         size: Math.random() * 1.5 + 0.5,
         opacity: Math.random() * 0.8 + 0.2,
         twinkleSpeed: Math.random() * 0.1 + 0.02,
@@ -54,11 +68,12 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     orbsRef.current = Array.from({ length: 10 }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 3.5,
-      vy: (Math.random() - 0.5) * 3.5,
-      radius: Math.random() * 120 + 80, // much bigger orbs
+      vx: (Math.random() - 0.5) * 2,
+      vy: (Math.random() - 0.5) * 2,
+      radius: Math.random() * 120 + 80,
       color: colors[Math.floor(Math.random() * colors.length)],
       opacity: Math.random() * 0.3 + 0.12,
+      mass: Math.random() * 0.5 + 0.5,
     }));
   }, []);
 
@@ -95,37 +110,150 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
     let time = 0;
 
+    // Global pointer listeners to track mouse/touch anywhere
+    const handlePointerMove = (e: PointerEvent) => {
+      pointerRef.current.x = e.clientX;
+      pointerRef.current.y = e.clientY;
+      pointerRef.current.isActive = true;
+    };
+    const handlePointerDown = (e: PointerEvent) => {
+      pointerRef.current.isDown = true;
+      pointerRef.current.isActive = true;
+      pointerRef.current.x = e.clientX;
+      pointerRef.current.y = e.clientY;
+    };
+    const handlePointerUp = () => {
+      pointerRef.current.isDown = false;
+      setTimeout(() => { pointerRef.current.isActive = false; }, 2000);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);
-      time += 1;
+      time += 0.5;
+      const { x: px, y: py, isDown } = pointerRef.current;
+
+      const pullRadius = isDown ? 400 : 150;
+      const pullStrength = isDown ? 0.05 : 0.01;
+
       for (const star of starsRef.current) {
+        // Physical forces
+        let dx = px - star.x;
+        let dy = py - star.y;
+        let dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < pullRadius && pointerRef.current.isActive) {
+          // Pull towards finger
+          const force = (pullRadius - dist) / pullRadius;
+          star.vx += dx * force * pullStrength;
+          star.vy += dy * force * pullStrength;
+        } else {
+          // Return to base position softly
+          const bdx = star.baseX - star.x;
+          const bdy = star.baseY - star.y;
+          star.vx += bdx * 0.02;
+          star.vy += bdy * 0.02;
+        }
+
+        // Apply friction
+        star.vx *= 0.85;
+        star.vy *= 0.85;
+
+        // Apply velocities
+        star.x += star.vx;
+        star.y += star.vy;
+
         const noise = Math.random() * 0.2;
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.5 + 0.5;
-        const alpha = star.opacity * (twinkle * 0.8 + noise);
+
+        // Stars get brighter when moving fast
+        const speed = Math.sqrt(star.vx * star.vx + star.vy * star.vy);
+        const speedGlow = Math.min(speed * 0.5, 1);
+
+        const alpha = Math.min(star.opacity * (twinkle * 0.8 + noise) + speedGlow, 1);
+
         if (alpha < 0.01) continue;
+
         ctx.beginPath();
-        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        // Slightly elongate based on velocity
+        if (speed > 1) {
+          const angle = Math.atan2(star.vy, star.vx);
+          ctx.ellipse(star.x, star.y, star.size + speed * 0.2, star.size, angle, 0, Math.PI * 2);
+        } else {
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+        }
+
         ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
         ctx.fill();
+
+        // Add subtle glow to fast moving stars near finger
+        if (speedGlow > 0.2) {
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = 'white';
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
       }
     };
 
     const drawOrbs = () => {
       ctx.clearRect(0, 0, w, h);
+      const { x: px, y: py, isDown } = pointerRef.current;
+
       for (const orb of orbsRef.current) {
+        // Base random wander
         orb.x += orb.vx;
         orb.y += orb.vy;
-        // Bounce off edges
-        if (orb.x - orb.radius < 0 || orb.x + orb.radius > w) orb.vx *= -1;
-        if (orb.y - orb.radius < 0 || orb.y + orb.radius > h) orb.vy *= -1;
-        // Clamp
-        orb.x = Math.max(orb.radius, Math.min(w - orb.radius, orb.x));
-        orb.y = Math.max(orb.radius, Math.min(h - orb.radius, orb.y));
 
+        // Gravity towards pointer
+        if (pointerRef.current.isActive) {
+          const dx = px - orb.x;
+          const dy = py - orb.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist > 0) {
+            // Stronger pull if cursor is down
+            const pull = isDown ? 0.03 : 0.005;
+            orb.vx += (dx / dist) * pull * (1 / orb.mass);
+            orb.vy += (dy / dist) * pull * (1 / orb.mass);
+          }
+        } else {
+          // Gently return to random wander speed bounds
+          const currentSpeed = Math.sqrt(orb.vx * orb.vx + orb.vy * orb.vy);
+          if (currentSpeed > 2) {
+            orb.vx *= 0.98;
+            orb.vy *= 0.98;
+          }
+        }
+
+        // Apply friction to max speed cap
+        const maxSpeed = isDown ? 12 : 4;
+        const currentSpeed = Math.sqrt(orb.vx * orb.vx + orb.vy * orb.vy);
+        if (currentSpeed > maxSpeed) {
+          orb.vx = (orb.vx / currentSpeed) * maxSpeed;
+          orb.vy = (orb.vy / currentSpeed) * maxSpeed;
+        }
+
+        // Bounce off edges softly
+        const padding = orb.radius * 0.5;
+        if (orb.x - padding < 0) { orb.vx += 0.2; }
+        if (orb.x + padding > w) { orb.vx -= 0.2; }
+        if (orb.y - padding < 0) { orb.vy += 0.2; }
+        if (orb.y + padding > h) { orb.vy -= 0.2; }
+
+        // Draw the glowing orb
         const gradient = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, orb.radius);
         const [r, g, b] = orb.color;
-        gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${orb.opacity})`);
-        gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${orb.opacity * 0.4})`);
+
+        // Boost opacity when finger is down
+        const finalOpacity = isDown ? Math.min(orb.opacity * 1.5, 0.8) : orb.opacity;
+
+        gradient.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${finalOpacity})`);
+        gradient.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, ${finalOpacity * 0.4})`);
         gradient.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
         ctx.beginPath();
         ctx.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
@@ -142,10 +270,13 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
     animate();
 
-    window.addEventListener('resize', resize);
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
     };
   }, [mode, initStars, initOrbs]);
 
@@ -154,8 +285,8 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-10 pointer-events-none"
-      style={{ mixBlendMode: mode === 'orbs' ? 'screen' : 'normal' }}
+      className="absolute inset-0 z-0 pointer-events-none"
+      style={{ mixBlendMode: mode === 'orbs' ? 'screen' : 'screen' }}
     />
   );
 }
