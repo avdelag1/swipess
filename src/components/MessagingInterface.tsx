@@ -43,73 +43,8 @@ interface MessagingInterfaceProps {
   onBack: () => void;
 }
 
-// iOS-style message bubble colors based on conversation type
-const getBubbleColors = (otherUserRole: string, isMyMessage: boolean) => {
-  if (!isMyMessage) {
-    // Received messages - always gray/muted
-    return {
-      background: 'bg-[#3A3A3C]',
-      text: 'text-white',
-      timestamp: 'text-white/50'
-    };
-  }
-
-  // Sent messages - different colors based on who you're talking to
-  if (otherUserRole === 'owner') {
-    // Talking to Owner - Purple-Indigo gradient (modern & vibrant)
-    return {
-      background: 'bg-gradient-to-br from-[#8B5CF6] to-[#6366F1]',
-      text: 'text-white',
-      timestamp: 'text-white/60'
-    };
-  } else {
-    // Talking to Client - Blue gradient (iMessage style)
-    return {
-      background: 'bg-gradient-to-br from-[#007AFF] to-[#5856D6]',
-      text: 'text-white',
-      timestamp: 'text-white/60'
-    };
-  }
-};
-
-interface MessageType {
-  id: string;
-  conversation_id: string;
-  sender_id: string;
-  message_text: string;
-  message_type: string;
-  created_at: string;
-  is_read?: boolean;
-  sender?: {
-    id: string;
-    full_name: string;
-    avatar_url?: string;
-  };
-}
-
-// Memoized iOS-style message bubble component
-const MessageBubble = memo(({ message, isMyMessage, otherUserRole }: { message: MessageType; isMyMessage: boolean; otherUserRole: string }) => {
-  const colors = getBubbleColors(otherUserRole, isMyMessage);
-
-  return (
-    <div className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'} mb-1`}>
-      <div
-        className={`max-w-[75%] px-4 py-2.5 ${colors.background} ${colors.text} ${
-          isMyMessage
-            ? 'rounded-[20px] rounded-br-[6px]'
-            : 'rounded-[20px] rounded-bl-[6px]'
-        } shadow-sm`}
-      >
-        <p className="text-[15px] break-words whitespace-pre-wrap leading-[1.35]">{message.message_text}</p>
-        <p className={`text-[10px] mt-1 ${colors.timestamp} text-right`}>
-          {formatDistanceToNow(new Date(message.created_at), { addSuffix: false })}
-        </p>
-      </div>
-    </div>
-  );
-});
-
-MessageBubble.displayName = 'MessageBubble';
+import { motion } from 'framer-motion';
+import { MessageBubble, type MessageType } from './chat/MessageBubble';
 
 export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
@@ -269,29 +204,35 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         variant="activation-required"
       />
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: '#080808' }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex-1 flex flex-col h-full overflow-hidden"
+        style={{ background: 'transparent' }}
+      >
         {/* Premium Header */}
         <div
-          className="shrink-0 border-b px-3 py-2.5"
+          className="shrink-0 border-b px-3 py-2.5 z-10"
           style={{
-            background: 'rgba(8,8,8,0.97)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderColor: 'rgba(255,255,255,0.08)',
+            background: 'rgba(8,8,8,0.7)',
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
+            borderColor: 'rgba(255,255,255,0.1)',
           }}
         >
           <div className="flex items-center gap-2">
             {/* Visible glass-pill back button */}
-            <button
+            <motion.button
+              whileTap={{ scale: 0.92 }}
               onClick={onBack}
-              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all active:scale-90"
+              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all"
               style={{
-                background: 'rgba(255,255,255,0.09)',
-                border: '1px solid rgba(255,255,255,0.13)',
+                background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.12)',
               }}
             >
               <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
+            </motion.button>
 
             {/* Center: Avatar + Name */}
             <button
@@ -299,18 +240,16 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               className="flex-1 flex items-center gap-2.5 min-w-0 py-0.5 rounded-xl transition-colors active:scale-[0.98]"
             >
               <div className="relative shrink-0">
-                <div className={`p-[1.5px] rounded-full ${
-                  otherUser.role === 'owner'
-                    ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                    : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                }`}>
+                <div className={`p-[1.5px] rounded-full ${otherUser.role === 'owner'
+                  ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                  : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                  }`}>
                   <Avatar className="w-9 h-9 border-[1.5px] border-background">
                     <AvatarImage src={otherUser.avatar_url} />
-                    <AvatarFallback className={`font-semibold text-white text-xs ${
-                      otherUser.role === 'owner'
-                        ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                        : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                    }`}>
+                    <AvatarFallback className={`font-semibold text-white text-xs ${otherUser.role === 'owner'
+                      ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                      : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                      }`}>
                       {otherUser.full_name?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
@@ -331,7 +270,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowRatingDialog(true)}
-                className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-amber-400"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-amber-400 border border-white/5"
               >
                 <Star className="w-3.5 h-3.5" />
               </Button>
@@ -339,7 +278,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowPreviewSheet(true)}
-                className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 text-muted-foreground"
+                className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-muted-foreground border border-white/5"
               >
                 <Info className="w-3.5 h-3.5" />
               </Button>
@@ -349,124 +288,132 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
         {/* Connection Status */}
         {showConnecting && (
-          <div className="px-4 py-2 text-center" style={{ background: 'rgba(251,191,36,0.08)', borderBottom: '1px solid rgba(251,191,36,0.15)' }}>
+          <div className="px-4 py-2 text-center z-10" style={{ background: 'rgba(251,191,36,0.1)', backdropFilter: 'blur(8px)', borderBottom: '1px solid rgba(251,191,36,0.2)' }}>
             <p className="text-xs text-amber-400 flex items-center justify-center gap-2">
               <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
-              Connecting to chat...
+              Connecting to secure chat...
             </p>
           </div>
         )}
 
         {/* Messages */}
-        {messages.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.12), rgba(249,115,22,0.12))', border: '1px solid rgba(236,72,153,0.18)' }}>
-              <Send className="w-9 h-9" style={{ color: '#ec4899' }} />
-            </div>
-            <p className="text-base font-semibold text-white mb-1.5">
-              Start the conversation
-            </p>
-            <p className="text-sm text-white/35 max-w-[200px]">
-              Say hello to {otherUser.full_name?.split(' ')?.[0] || 'your match'}!
-            </p>
-          </div>
-        ) : (
-          <VirtualizedMessageList
-            messages={messages}
-            currentUserId={user?.id || ''}
-            otherUserRole={otherUser.role}
-            typingUsers={typingUsers}
-          />
-        )}
-        <div ref={messagesEndRef} />
-
-        {/* Limit Warning */}
-        {hasMonthlyLimit && isAtLimit && (
-          <div className="px-4 py-2.5" style={{ background: 'rgba(239,68,68,0.08)', borderTop: '1px solid rgba(239,68,68,0.15)' }}>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-              <p className="font-medium text-xs text-red-400 flex-1">Monthly limit reached</p>
-              <button
-                onClick={() => {
-                  setShowActivationBanner(true);
-                  setShowUpgradeDialog(true);
-                }}
-                className="shrink-0 h-7 px-3 rounded-full text-white text-[11px] font-semibold"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+        <div className="flex-1 min-h-0 relative">
+          {messages.length === 0 ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6"
+                style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.1), rgba(249,115,22,0.1))', border: '1px solid rgba(236,72,153,0.2)', backdropFilter: 'blur(20px)' }}
               >
-                Upgrade
-              </button>
+                <Send className="w-8 h-8" style={{ color: '#ec4899' }} />
+              </motion.div>
+              <h2 className="text-lg font-bold text-white mb-2">Message {otherUser.full_name?.split(' ')?.[0]}</h2>
+              <p className="text-sm text-white/40 max-w-[240px]">
+                Start your premium experience by sending a message!
+              </p>
             </div>
-          </div>
-        )}
+          ) : (
+            <VirtualizedMessageList
+              messages={messages}
+              currentUserId={user?.id || ''}
+              otherUserRole={otherUser.role}
+              typingUsers={typingUsers}
+            />
+          )}
+          <div ref={messagesEndRef} />
+        </div>
 
-        {/* Limit Info */}
-        {hasMonthlyLimit && !isAtLimit && (
-          <div className="px-4 py-2 flex items-center justify-center" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center gap-1.5 text-[11px] text-white/30">
-              <Zap className="w-3 h-3 text-amber-500" />
-              <span>{messagesRemaining} messages remaining</span>
+        {/* Bottom Panel Wrapper */}
+        <div className="shrink-0 z-10 overflow-hidden" style={{ background: 'rgba(8,8,8,0.7)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          {/* Limit Warnings */}
+          {hasMonthlyLimit && isAtLimit && (
+            <div className="px-4 py-2.5 bg-red-500/10 border-b border-red-500/20">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <p className="font-medium text-[11px] text-red-400 flex-1 uppercase tracking-wider">Monthly limit reached</p>
+                <button
+                  onClick={() => {
+                    setShowActivationBanner(true);
+                    setShowUpgradeDialog(true);
+                  }}
+                  className="shrink-0 h-7 px-3 rounded-full text-white text-[11px] font-bold"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                >
+                  UPGRADE
+                </button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Input Area */}
-        <form
-          onSubmit={handleSendMessage}
-          className="px-3 py-3 shrink-0"
-          style={{
-            background: 'rgba(12,12,12,0.95)',
-            backdropFilter: 'blur(20px)',
-            borderTop: '1px solid rgba(255,255,255,0.07)',
-          }}
-        >
-          <div className="flex gap-2 items-center">
-            <div className="flex-1 relative">
-              <input
-                value={newMessage}
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  if (e.target.value.trim()) startTyping();
-                  else stopTyping();
-                }}
-                placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
-                className="w-full text-[15px] px-4 py-2.5 rounded-full text-white placeholder:text-white/30 outline-none transition-all"
+          {hasMonthlyLimit && !isAtLimit && (
+            <div className="px-4 py-1.5 flex items-center justify-center border-b border-white/5">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold tracking-[0.1em] text-white/20">
+                <Zap className="w-2.5 h-2.5 text-amber-500/50" />
+                <span>{messagesRemaining} messages left</span>
+              </div>
+            </div>
+          )}
+
+          {/* Input Area */}
+          <form
+            onSubmit={handleSendMessage}
+            className="px-4 py-4"
+          >
+            <div className="flex gap-2.5 items-center">
+              <div className="flex-1 relative group">
+                <input
+                  value={newMessage}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                    if (e.target.value.trim()) startTyping();
+                    else stopTyping();
+                  }}
+                  placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
+                  className="w-full text-[15px] px-5 py-3 rounded-[22px] text-white placeholder:text-white/25 outline-none transition-all duration-300 focus:shadow-[0_0_20px_rgba(236,72,153,0.15)] group-focus-within:border-white/30"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                  }}
+                  disabled={sendMessage.isPending || isAtLimit}
+                  maxLength={1000}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e as any);
+                    }
+                  }}
+                />
+                <AnimatePresence>
+                  {newMessage.length > 800 && (
+                    <motion.span
+                      initial={{ opacity: 0, x: 5 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 5 }}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-white/20"
+                    >
+                      {1000 - newMessage.length}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
+              <motion.button
+                type="submit"
+                whileTap={{ scale: 0.9 }}
+                disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
+                className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-all shadow-lg"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.11)',
-                  minHeight: '42px',
+                  background: newMessage.trim() && !isAtLimit
+                    ? 'linear-gradient(135deg, #ec4899, #f97316)'
+                    : 'rgba(255,255,255,0.04)',
+                  border: newMessage.trim() && !isAtLimit ? 'none' : '1px solid rgba(255,255,255,0.1)',
                 }}
-                disabled={sendMessage.isPending || isAtLimit}
-                maxLength={1000}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e as any);
-                  }
-                }}
-              />
-              {newMessage.length > 800 && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/30">
-                  {1000 - newMessage.length}
-                </span>
-              )}
+              >
+                <Send className={`w-[18px] h-[18px] ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/20'}`} />
+              </motion.button>
             </div>
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{
-                background: newMessage.trim() && !isAtLimit
-                  ? 'linear-gradient(135deg, #ec4899, #f97316)'
-                  : 'rgba(255,255,255,0.07)',
-                border: newMessage.trim() && !isAtLimit ? 'none' : '1px solid rgba(255,255,255,0.10)',
-                boxShadow: newMessage.trim() && !isAtLimit ? '0 4px 16px rgba(236,72,153,0.4)' : 'none',
-              }}
-            >
-              <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
 
         {/* Upgrade Dialog */}
         <MessageActivationPackages
@@ -494,7 +441,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'}
           onSuccess={() => setShowRatingDialog(false)}
         />
-      </div>
+      </motion.div>
     </>
   );
 });
