@@ -69,7 +69,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Refs to hold latest callbacks for event handlers (avoids stale closures)
-  const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => {});
+  const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => { });
 
   // Set up audio event listeners ONCE (use refs for latest callbacks)
   useEffect(() => {
@@ -86,7 +86,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         logger.error(`[RadioPlayer] Audio error on ${audio.src}:`, e);
       }
 
-      setError('Station unavailable, switching...');
+      setError('Station unavailable - automatically skipping...');
 
       // Immediately cancel the current stream
       if (audio) {
@@ -146,7 +146,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     // Set default station immediately
     const defaultStations = getStationsByCity('tulum');
     const defaultStation = defaultStations.length > 0 ? defaultStations[0] : null;
-    
+
     if (!user?.id) {
       if (defaultStation) {
         setState(prev => ({ ...prev, currentStation: defaultStation }));
@@ -312,7 +312,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const currentIndex = state.currentStation 
+    const currentIndex = state.currentStation
       ? stations.findIndex(s => s.id === state.currentStation?.id)
       : -1;
 

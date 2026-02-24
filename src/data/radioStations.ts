@@ -434,7 +434,7 @@ export const radioStations: RadioStation[] = [
     id: 'italy-m2o',
     name: 'm2o',
     frequency: '90.5 FM',
-    streamUrl: 'https://ice07.fluidstream.net/m2o.mp3',
+    streamUrl: 'https://tmw.tmwradio.com/m2o.mp3',
     city: 'italy',
     genre: 'Dance/Electronic',
     description: 'Italy\'s premier electronic dance music station'
@@ -443,7 +443,7 @@ export const radioStations: RadioStation[] = [
     id: 'italy-deejay',
     name: 'Radio DeeJay',
     frequency: '102.7 FM',
-    streamUrl: 'https://radiodeejay-lh.akamaihd.net/i/RadioDeejay_Live_1@189857/master.m3u8',
+    streamUrl: 'https://tmw.tmwradio.com/deejay.mp3',
     city: 'italy',
     genre: 'Dance/Pop',
     description: 'Italy\'s legendary dance and entertainment station'
@@ -452,7 +452,7 @@ export const radioStations: RadioStation[] = [
     id: 'italy-105',
     name: 'Radio 105',
     frequency: '105.0 FM',
-    streamUrl: 'https://icy.unitedradio.it/Radio105.mp3',
+    streamUrl: 'http://icecast.unitedradio.it/Radio105.mp3',
     city: 'italy',
     genre: 'Pop/Rock',
     description: 'Contemporary hits and Italian music'
@@ -470,7 +470,7 @@ export const radioStations: RadioStation[] = [
     id: 'italy-virgin',
     name: 'Virgin Radio Italy',
     frequency: '104.5 FM',
-    streamUrl: 'https://icestreaming.rai.it/5.mp3',
+    streamUrl: 'https://icy.unitedradio.it/Virgin.mp3',
     city: 'italy',
     genre: 'Rock/Alternative',
     description: 'Rock and alternative hits'
