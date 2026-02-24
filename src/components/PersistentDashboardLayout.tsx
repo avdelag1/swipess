@@ -1,5 +1,6 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
 import { useMemo, useEffect } from 'react';
@@ -41,7 +42,7 @@ function getRoleFromPath(pathname: string): 'client' | 'owner' {
 export function PersistentDashboardLayout() {
   const location = useLocation();
   const { activeMode, syncMode } = useActiveMode();
-  
+
   // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
   useFilterPersistence();
 
@@ -71,7 +72,7 @@ export function PersistentDashboardLayout() {
 
   return (
     <DashboardLayout userRole={userRole}>
-      <Outlet />
+      <AnimatedOutlet />
     </DashboardLayout>
   );
 }
