@@ -77,7 +77,7 @@ function preloadPlugin(): import('vite').Plugin {
     name: 'preload-plugin',
     enforce: 'post',
     transformIndexHtml(html, ctx) {
-      if (!ctx.bundle || ctx.server) return html;
+      if (!ctx.bundle) return html;
 
       // Find critical chunks to preload - only the most essential
       const criticalChunks = ['react-vendor', 'react-router'];
@@ -89,6 +89,13 @@ function preloadPlugin(): import('vite').Plugin {
           if (isCritical) {
             preloadLinks.push(`<link rel="modulepreload" href="/${fileName}" fetchpriority="high">`);
           }
+        }
+      }
+
+      // Add CSS preload for critical stylesheet
+      for (const [fileName] of Object.entries(ctx.bundle)) {
+        if (fileName.endsWith('.css') && fileName.includes('index')) {
+          preloadLinks.push(`<link rel="preload" href="/${fileName}" as="style" fetchpriority="high">`);
         }
       }
 

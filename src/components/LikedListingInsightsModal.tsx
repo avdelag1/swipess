@@ -6,7 +6,7 @@ import { MapPin, Bed, Bath, Square, DollarSign, MessageCircle, Sparkles, Trash2,
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';

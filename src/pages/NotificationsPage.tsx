@@ -17,7 +17,7 @@ import { useUserRole } from '@/hooks/useUserRole';
 import { useLikedProperties } from '@/hooks/useLikedProperties';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';

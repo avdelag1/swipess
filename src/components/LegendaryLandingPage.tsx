@@ -49,30 +49,12 @@ const LandingView = memo(({
 }) => {
   const x = useMotionValue(0);
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
-  const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
-  const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
+  const logoScale  = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
+  const logoBlur   = useTransform(x, [0, 100, 220], [0, 2, 14]);
   const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    const { clientX, clientY } = e;
-    const centerX = window.innerWidth / 2;
-    const centerY = window.innerHeight / 2;
-
-    // Max tilt of 12 degrees
-    rotateX.set((clientY - centerY) / centerY * -12);
-    rotateY.set((clientX - centerX) / centerX * 12);
-  }, [rotateX, rotateY]);
-
-  const handlePointerLeave = useCallback(() => {
-    animate(rotateX, 0, { type: 'spring', stiffness: 300, damping: 20 });
-    animate(rotateY, 0, { type: 'spring', stiffness: 300, damping: 20 });
-  }, [rotateX, rotateY]);
-
   const isDragging = useRef(false);
-  const triggered = useRef(false);
+  const triggered  = useRef(false);
 
   const handleDragStart = () => { isDragging.current = true; };
 
@@ -100,10 +82,7 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      onPointerMove={handlePointerMove}
-      onPointerLeave={handlePointerLeave}
       className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
-      style={{ perspective: 1000 }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
@@ -117,32 +96,14 @@ const LandingView = memo(({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onTap={handleTap}
-        style={{
-          x,
-          opacity: logoOpacity,
-          scale: logoScale,
-          filter: logoFilter,
-          rotateX,
-          rotateY,
-          transformStyle: 'preserve-3d'
-        }}
+        style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative"
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
         <img
           src={swipessLogo}
           alt="Swipess"
           className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
-          style={{ transform: 'translateZ(20px)' }} // Add 3D "pop" to the image itself
-        />
-
-        {/* Subtle shine overlay that reacts to tilt */}
-        <motion.div
-          className="absolute inset-0 rounded-3xl pointer-events-none overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%)',
-            opacity: 0.5,
-          }}
         />
       </motion.div>
 
@@ -175,8 +136,8 @@ const LandingView = memo(({
         <div className="flex flex-wrap items-center justify-center gap-2">
           {[
             { icon: Sparkles, label: 'Perfect Deals' },
-            { icon: Shield, label: 'Secure Chat' },
-            { icon: Users, label: 'Instant Connect' },
+            { icon: Shield,   label: 'Secure Chat'   },
+            { icon: Users,    label: 'Instant Connect'},
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
@@ -351,7 +312,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
   };
   const itemVariants = {
-    hidden: { opacity: 0, y: 18 },
+    hidden:  { opacity: 0, y: 18 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] } },
   };
 
@@ -359,12 +320,12 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
-      style={{ background: 'transparent' }}
+      style={{ background: '#050505' }}
       initial={{ x: 20, opacity: 0 }}
       animate={{ x: 0, opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ x: 20, opacity: 0, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
     >
-
+      <StarFieldBackground />
 
       {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -477,10 +438,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                         <div className={`h-full ${passwordStrength.color} rounded-full transition-all duration-300`}
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
-                      <span className={`text-[10px] font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
+                      <span className={`text-[10px] font-medium ${
+                        passwordStrength.score <= 1 ? 'text-red-400' :
                         passwordStrength.score === 2 ? 'text-orange-400' :
-                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
-                        }`}>{passwordStrength.label}</span>
+                        passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                      }`}>{passwordStrength.label}</span>
                     </div>
                   )}
                 </motion.div>
@@ -614,7 +576,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
-  const [view, setView] = useState<View>('landing');
+  const [view, setView]         = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
   // Cycle: stars → orbs → off (dark)

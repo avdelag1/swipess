@@ -18,6 +18,9 @@
   <link rel="dns-prefetch" href="https://storage.googleapis.com">
   <link rel="preconnect" href="https://storage.googleapis.com" crossorigin>
 
+  <!-- HTTP/2 Resource Hints - Preload critical assets for instant render -->
+  <!-- These hint the browser to start loading before parsing JS -->
+  <link rel="preload" as="script" href="/src/main.tsx" crossorigin fetchpriority="high">
 
   <!-- CRITICAL CSS - Inlined for instant First Contentful Paint -->
   <style>
@@ -96,6 +99,9 @@
     }
   </style>
 
+  <!-- Defer font loading - not render blocking -->
+  <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KSvqNyU.woff2"
+    crossorigin type="font/woff2">
 
   <!-- Load fonts asynchronously - not render blocking -->
   <link rel="preload" as="style"

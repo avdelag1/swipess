@@ -8,7 +8,7 @@ import {
   Eye, EyeOff, Mail, Lock, User, ArrowLeft, Loader,
   Check, X, Shield, Sparkles
 } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from 'sonner';
 import { notifications } from '@/utils/notifications';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
