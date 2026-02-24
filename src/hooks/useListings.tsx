@@ -204,36 +204,42 @@ export function useOwnerListings() {
   // Set up real-time subscription for listing changes
   useEffect(() => {
     let subscription: ReturnType<typeof supabase.channel> | null = null;
+    let isMounted = true;
 
     const setupSubscription = async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) return;
+      try {
+        const { data: user } = await supabase.auth.getUser();
+        if (!user.user || !isMounted) return;
 
-      // Subscribe to changes on the listings table for this user
-      subscription = supabase
-        .channel('owner-listings-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
-            schema: 'public',
-            table: 'listings',
-            filter: `owner_id=eq.${user.user.id}`,
-          },
-          (payload) => {
-            if (import.meta.env.DEV) logger.log('Real-time listing change:', payload);
+        // Subscribe to changes on the listings table for this user
+        subscription = supabase
+          .channel('owner-listings-changes')
+          .on(
+            'postgres_changes',
+            {
+              event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+              schema: 'public',
+              table: 'listings',
+              filter: `owner_id=eq.${user.user.id}`,
+            },
+            (payload) => {
+              if (import.meta.env.DEV) logger.log('Real-time listing change:', payload);
 
-            // Invalidate and refetch the listings query
-            queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
-          }
-        )
-        .subscribe();
+              // Invalidate and refetch the listings query
+              queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
+            }
+          )
+          .subscribe();
+      } catch (err) {
+        logger.error('[useListings] Error setting up realtime subscription:', err);
+      }
     };
 
     setupSubscription();
 
     // Cleanup subscription on unmount
     return () => {
+      isMounted = false;
       if (subscription) {
         subscription.unsubscribe();
       }

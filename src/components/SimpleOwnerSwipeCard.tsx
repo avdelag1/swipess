@@ -128,17 +128,14 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
   // Show placeholder if no valid image
   const isPlaceholder = !src || src === FALLBACK_PLACEHOLDER || error;
 
-  if (isPlaceholder) {
-    return <PlaceholderImage name={name} />;
-  }
-
   // CRITICAL FIX: Check cache on every render, not just once
   // This ensures cached images show instantly when tapping between photos
+  // Hooks must be called unconditionally (before any early return)
   const wasInCache = useMemo(() => imageCache.has(src), [src]);
 
   // Preload image when card renders (for non-top cards)
   useEffect(() => {
-    if (!src || error) return;
+    if (!src || error || isPlaceholder) return;
 
     // If already in cache, mark as loaded immediately (no transition)
     if (imageCache.has(src)) {
@@ -153,7 +150,11 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
     };
     img.onerror = () => setError(true);
     img.src = src;
-  }, [src, error]);
+  }, [src, error, isPlaceholder]);
+
+  if (isPlaceholder) {
+    return <PlaceholderImage name={name} />;
+  }
 
   return (
     <div
