@@ -53,7 +53,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
   const imageFilesRef = useRef(imageFiles);
-  
+
   // Keep refs in sync with state
   useEffect(() => { imagesRef.current = images; }, [images]);
   useEffect(() => { imageFilesRef.current = imageFiles; }, [imageFiles]);
@@ -76,7 +76,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     if (editingProperty?.id) {
       setEditingId(editingProperty.id);
       setSelectedCategory(editingProperty.category || 'property');
@@ -235,7 +235,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           .eq('id', editingId)
           .select()
           .single();
-        
+
         if (error) throw error;
         listingResult = data;
       } else {
@@ -245,7 +245,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           .insert(listingData)
           .select()
           .single();
-        
+
         if (error) throw error;
         listingResult = data;
       }
@@ -265,10 +265,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description: error.message || 'Failed to save listing.',
-        variant: 'destructive'
       });
     }
   });
@@ -286,7 +284,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const handleImageAdd = () => {
     const totalImages = images.length + imageFiles.length;
     if (totalImages >= maxPhotos) {
-      toast({ title: 'Maximum Photos Reached', description: `You can upload up to ${maxPhotos} photos.`, variant: 'destructive' });
+      toast.error('Maximum Photos Reached', {
+        description: `You can upload up to ${maxPhotos} photos.`,
+      });
       return;
     }
 
@@ -301,14 +301,18 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       const availableSlots = maxPhotos - totalImages;
       if (files.length > availableSlots) {
-        toast({ title: 'Too Many Photos', description: `You can only add ${availableSlots} more.`, variant: 'destructive' });
+        toast.error('Too Many Photos', {
+          description: `You can only add ${availableSlots} more.`
+        });
         files.splice(availableSlots);
       }
 
       const validatedFiles = files.filter(file => {
         const validation = validateImageFile(file);
         if (!validation.isValid) {
-          toast({ title: 'Invalid File', description: `${file.name}: ${validation.error}`, variant: 'destructive' });
+          toast.error('Invalid File', {
+            description: `${file.name}: ${validation.error}`
+          });
         }
         return validation.isValid;
       });
@@ -329,7 +333,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   const handleSubmit = () => {
     if (images.length + imageFiles.length < 1) {
-      toast({ title: 'Photo Required', description: 'Please upload at least 1 photo.', variant: 'destructive' });
+      toast.error('Photo Required', {
+        description: 'Please upload at least 1 photo.'
+      });
       return;
     }
 
@@ -341,15 +347,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         latitude: location.lat,
         longitude: location.lng,
       });
-      
+
       sessionStorage.setItem('pending_auth_action', JSON.stringify({
         action: 'save_listing',
         category: selectedCategory,
         timestamp: Date.now(),
       }));
-      
-      toast({
-        title: 'Draft Saved!',
+
+      toast.success('Draft Saved!', {
         description: 'Create an account to publish your listing.',
         duration: 5000,
       });
@@ -382,11 +387,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
               <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
-                <div className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
-                  selectedCategory === 'motorcycle'
+                <div className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${selectedCategory === 'motorcycle'
                     ? 'text-orange-500 bg-orange-500/10'
                     : 'text-purple-500 bg-purple-500/10'
-                }`}>
+                  }`}>
                   {selectedCategory === 'motorcycle' ? (
                     <CircleDot className="w-6 h-6 sm:w-7 sm:h-7" />
                   ) : (
@@ -439,7 +443,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                     </div>
                   ))}
                 </div>
-                
+
                 {(images.length + imageFiles.length) < maxPhotos && (
                   <Button onClick={handleImageAdd} variant="outline" className="w-full">
                     <Upload className="mr-2 h-4 w-4" />
@@ -460,7 +464,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  {selectedCategory === 'bicycle' 
+                  {selectedCategory === 'bicycle'
                     ? '📋 Optional: Upload purchase receipt to earn a blue verification checkmark'
                     : '🛡️ Upload ownership documents to earn a blue verification star and build trust with clients'}
                 </p>

@@ -195,8 +195,8 @@ export function useListingRatingAggregate(listingId: string | undefined, _catego
       });
 
       const avgRating = sum / data.length;
-      const trustLevel = data.length >= 5 && avgRating >= 4.0 ? 'trusted' as const : 
-                         avgRating < 3.0 && data.length >= 3 ? 'needs_attention' as const : 'new' as const;
+      const trustLevel = data.length >= 5 && avgRating >= 4.0 ? 'trusted' as const :
+        avgRating < 3.0 && data.length >= 3 ? 'needs_attention' as const : 'new' as const;
 
       return {
         average_rating: avgRating,
@@ -316,8 +316,8 @@ export function useUserRatingAggregate(userId: string | undefined) {
         distribution[key] = (distribution[key] || 0) + 1;
       });
 
-      const trustLevel = count >= 5 && avgRating >= 4.0 ? 'trusted' as const : 
-                         avgRating < 3.0 && count >= 3 ? 'needs_attention' as const : 'new' as const;
+      const trustLevel = count >= 5 && avgRating >= 4.0 ? 'trusted' as const :
+        avgRating < 3.0 && count >= 3 ? 'needs_attention' as const : 'new' as const;
 
       return {
         average_rating: avgRating,
@@ -396,8 +396,7 @@ export function useCreateReview() {
         queryClient.invalidateQueries({ queryKey: ['review-aggregate', 'user', variables.reviewed_id] });
       }
 
-      toast({
-        title: 'Review submitted',
+      toast.success('Review submitted', {
         description: 'Thank you for your feedback!',
       });
     },
@@ -405,13 +404,11 @@ export function useCreateReview() {
       const message = error.message?.includes('Cannot review your own')
         ? "You can't review your own listing"
         : error.message?.includes('duplicate key')
-        ? 'You have already reviewed this item'
-        : 'Please try again later.';
+          ? 'You have already reviewed this item'
+          : 'Please try again later.';
 
-      toast({
-        title: 'Failed to submit review',
+      toast.error('Failed to submit review', {
         description: message,
-        variant: 'destructive',
       });
     },
   });
@@ -499,7 +496,7 @@ export function useMarkReviewHelpful() {
 
   return useMutation({
     mutationFn: async (reviewId: string) => {
-      const { error } = await supabase.rpc('increment_review_helpful', {
+      const { error } = await supabase.rpc('increment_review_helpful' as any, {
         p_review_id: reviewId,
       });
 
@@ -512,16 +509,13 @@ export function useMarkReviewHelpful() {
       // Invalidate review queries to show updated count
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
 
-      toast({
-        title: 'Thank you',
+      toast.success('Thank you', {
         description: 'Your feedback helps improve our community.',
       });
     },
     onError: () => {
-      toast({
-        title: 'Already voted',
+      toast('Already voted', {
         description: "You've already marked this review as helpful.",
-        variant: 'default',
       });
     },
   });

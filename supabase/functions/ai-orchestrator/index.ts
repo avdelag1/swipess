@@ -1,9 +1,46 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+// ─── Zod Schemas ──────────────────────────────────────────────────
+
+const ListingSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().min(1),
+  price: z.number().nullable().optional(),
+  city: z.string().optional(),
+  neighborhood: z.string().optional(),
+}).passthrough();
+
+const ProfileSchema = z.object({
+  bio: z.string().min(1),
+  lifestyle: z.string().optional(),
+  interests_enhanced: z.array(z.string()).optional(),
+}).passthrough();
+
+const SearchSchema = z.object({
+  category: z.string().nullable(),
+  priceMin: z.number().nullable().optional(),
+  priceMax: z.number().nullable().optional(),
+  keywords: z.array(z.string()).optional(),
+  language: z.string().optional(),
+  suggestion: z.string().optional(),
+}).passthrough();
+
+const EnhanceSchema = z.object({
+  text: z.string().min(1),
+}).passthrough();
+
+const ConversationSchema = z.object({
+  message: z.string().min(1),
+  extractedData: z.record(z.any()),
+  isComplete: z.boolean(),
+  nextSteps: z.string().optional(),
+}).passthrough();
 
 // Google Gemini via Lovable Gateway (Primary)
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
@@ -125,6 +162,8 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const desc = (data.description as string) || "";
   const price = (data.price as string) || "";
   const location = (data.location as string) || "";
+  const city = (data.city as string) || "";
+  const neighborhood = (data.neighborhood as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
   const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings. Always respond with valid JSON only.`;
@@ -135,7 +174,7 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
     userPrompt = `Create a property listing:
 Description: ${desc}
 Price: ${price}
-Location: ${location}
+Location: ${location || `${neighborhood}, ${city}`}
 Photos: ${imageCount}
 
 Return JSON:
@@ -148,7 +187,8 @@ Return JSON:
   "furnished": boolean,
   "pet_friendly": boolean,
   "price": number or null,
-  "city": "city name"
+  "city": "city name",
+  "neighborhood": "neighborhood name"
 }`;
   } else if (cat === "motorcycle") {
     userPrompt = `Create a motorcycle listing:
@@ -211,7 +251,8 @@ Return JSON:
 function buildProfilePrompt(data: Record<string, unknown>): Message[] {
   return [
     { role: "system", content: `You are a profile writing expert. Create warm, genuine profiles. Always respond with valid JSON only.` },
-    { role: "user", content: `Enhance this profile:
+    {
+      role: "user", content: `Enhance this profile:
 Name: ${data.name || ""}
 Age: ${data.age || ""}
 Bio: ${data.currentBio || ""}
@@ -229,7 +270,8 @@ Return JSON:
 function buildSearchPrompt(data: Record<string, unknown>): Message[] {
   return [
     { role: "system", content: `You are a smart search assistant for a marketplace (properties, motorcycles, bicycles, services). Convert natural language to filters. Always respond with valid JSON only.` },
-    { role: "user", content: `User is searching for: "${data.query}"
+    {
+      role: "user", content: `User is searching for: "${data.query}"
 
 Return JSON:
 {
@@ -248,7 +290,8 @@ function buildEnhancePrompt(data: Record<string, unknown>): Message[] {
   const text = (data.text as string) || "";
   return [
     { role: "system", content: `You are a premium copywriter. Enhance text to sound more ${tone}. Always respond with valid JSON only.` },
-    { role: "user", content: `Enhance: "${text}"
+    {
+      role: "user", content: `Enhance: "${text}"
 
 Return JSON:
 {
@@ -312,6 +355,18 @@ serve(async (req) => {
   }
 
   try {
+    // Validate required environment variables first
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("[AI Orchestrator] Missing core configuration: SUPABASE_URL or SUPABASE_ANON_KEY");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Authenticate the request
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -322,9 +377,7 @@ serve(async (req) => {
     }
 
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey,
       { global: { headers: { Authorization: authHeader } } }
     );
 
@@ -373,7 +426,32 @@ serve(async (req) => {
     const parsed = parseJSON(aiResult.content);
 
     if (parsed) {
-      result = parsed;
+      // Validate with Zod based on task to ensure structured output
+      try {
+        switch (task) {
+          case "listing":
+            result = ListingSchema.parse(parsed);
+            break;
+          case "profile":
+            result = ProfileSchema.parse(parsed);
+            break;
+          case "search":
+            result = SearchSchema.parse(parsed);
+            break;
+          case "enhance":
+            result = EnhanceSchema.parse(parsed);
+            break;
+          case "conversation":
+            result = ConversationSchema.parse(parsed);
+            break;
+          default:
+            result = parsed;
+        }
+      } catch (validationErr) {
+        console.error(`[AI Orchestrator] Validation failed for task "${task}":`, validationErr);
+        // Fallback to parsed if validation fails, but we've logged the error for debugging
+        result = parsed;
+      }
     } else if (task === "conversation") {
       result = {
         message: aiResult.content,
@@ -395,8 +473,8 @@ serve(async (req) => {
     const message = err instanceof ProviderError && err.status === 429
       ? "AI rate limit reached. Please try again."
       : err instanceof ProviderError && err.status === 402
-      ? "AI credits exhausted. Please add funds."
-      : err instanceof Error ? err.message : "Unknown error";
+        ? "AI credits exhausted. Please add funds."
+        : err instanceof Error ? err.message : "Unknown error";
 
     return new Response(
       JSON.stringify({ error: message }),

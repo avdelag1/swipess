@@ -253,7 +253,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem(`swipe-deck-owner-${category}`); } catch {}
+    try { sessionStorage.removeItem(`swipe-deck-owner-${category}`); } catch (err) { /* Ignore session storage errors */ }
   }, [category]);
 
   // ========================================
@@ -343,7 +343,7 @@ const ClientSwipeContainerComponent = ({
     if (clientProfiles.length > 0 && !isLoading) {
       const existingIds = new Set(deckQueueRef.current.map(p => p.user_id));
       const dismissedSet = new Set(dismissedIds);
-      
+
       // CRITICAL: Filter out current user's own profile AND dismissed/swiped profiles
       const newProfiles = clientProfiles.filter(p => {
         // NEVER show user their own profile (defense in depth)
@@ -511,7 +511,7 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Track dismissal on left swipe (dislike)
-      direction === 'left' ? dismissTarget(profile.user_id).catch(() => {}) : Promise.resolve(),
+      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { }) : Promise.resolve(),
 
       // Record for undo - pass category so deck can be properly restored
       Promise.resolve(recordSwipe(profile.user_id, 'profile', direction, category))
@@ -681,7 +681,7 @@ const ClientSwipeContainerComponent = ({
           <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
             <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
-                   style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
+                style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
             </div>
             <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
               {[1, 2, 3, 4].map((num) => (
@@ -848,7 +848,7 @@ const ClientSwipeContainerComponent = ({
           >
             <SimpleOwnerSwipeCard
               profile={nextCard}
-              onSwipe={() => {}}
+              onSwipe={() => { }}
               isTop={false}
               hideActions={true}
             />

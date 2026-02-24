@@ -18,7 +18,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
-import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
+import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { useParallaxStore } from '@/state/parallaxStore';
 
 // Exposed interface for parent to trigger swipe animations
@@ -156,6 +156,10 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
     return <PlaceholderImage name={name} />;
   }
 
+  if (isPlaceholder) {
+    return <PlaceholderImage name={name} />;
+  }
+
   return (
     <div
       className="absolute inset-0 w-full h-full rounded-[24px]"
@@ -260,7 +264,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
   // Fetch user rating aggregate for this client profile
-  const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(profile?.user_id);
+  const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -388,7 +392,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
-    
+
     if (hasExited.current) return;
 
     const offsetX = info.offset.x;
@@ -409,7 +413,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       // Exit in the SAME direction of the swipe gesture (diagonal physics)
       const exitDistance = getExitDistance();
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
-      
+
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
@@ -425,7 +429,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           onSwipe(direction);
         },
       });
-      
+
       // Animate Y in parallel
       animate(y, Math.min(Math.max(exitY, -300), 300), {
         type: 'spring',
@@ -510,7 +514,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       damping: 30,
       onComplete: fireSwipe,
     });
-    
+
     // Slight upward arc for button swipes
     animate(y, -50, {
       type: 'spring',
@@ -614,7 +618,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </div>
           )}
         </div>
-        
+
         {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
@@ -658,7 +662,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             NOPE
           </div>
         </motion.div>
-        
+
         {/* Content overlay - Positioned higher for Tinder style (above button area) */}
         <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
           {/* Rating Display - Glass-pill tactile badge */}
@@ -674,7 +678,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               }}
             >
               <CompactRatingDisplay
-                aggregate={ratingAggregate}
+                aggregate={ratingAggregate ?? null}
                 isLoading={isRatingLoading}
                 showReviews={false}
                 className="text-white"
@@ -795,7 +799,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </>
           )}
         </div>
-        
+
         {/* Action buttons INSIDE card - Tinder style */}
         {!hideActions && (
           <div

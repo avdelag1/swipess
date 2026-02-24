@@ -149,12 +149,13 @@ export function useProfileAutoSync() {
  * client_profiles/owner_profiles row, causing blank profile pages.
  */
 export function useEnsureSpecializedProfile() {
-  const { user } = useAuth();
+  const { user, initialized } = useAuth();
   const queryClient = useQueryClient();
   const hasCheckedRef = useRef(false);
 
   useEffect(() => {
-    if (!user?.id || hasCheckedRef.current) return;
+    // CRITICAL: Wait for auth to initialize and ensure user exists
+    if (!initialized || !user?.id || hasCheckedRef.current) return;
     hasCheckedRef.current = true;
 
     const ensureProfile = async () => {
@@ -201,8 +202,12 @@ export function useEnsureSpecializedProfile() {
                 nationality: universalProfile?.nationality || null,
                 languages: universalProfile?.languages_spoken || [],
                 profile_images: universalProfile?.images || [],
-                smoking_habit: universalProfile?.smoking ? 'Smoker' : null,
-                work_schedule: universalProfile?.work_schedule || null,
+                smoking_habit: universalProfile?.smoking ? 'regularly' : 'never',
+                work_schedule: (universalProfile?.work_schedule?.toLowerCase() === 'flexible' ||
+                  universalProfile?.work_schedule?.toLowerCase() === 'remote' ||
+                  universalProfile?.work_schedule?.toLowerCase() === 'shift')
+                  ? universalProfile.work_schedule.toLowerCase() as any
+                  : 'regular',
               }]);
 
             if (error) {
