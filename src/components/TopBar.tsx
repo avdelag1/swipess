@@ -77,6 +77,14 @@ function TopBarComponent({
   const { toast } = useToast();
 
   const shouldHide = hideOnScroll && !isVisible;
+  const { theme } = useTheme();
+  const isDark = theme === 'black-matte';
+
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const floatingShadow = isDark
+    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -180,11 +188,11 @@ function TopBarComponent({
                   "group flex-shrink-0"
                 )}
                 style={{
-                  background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.18))',
+                  backgroundColor: glassBg,
                   backdropFilter: 'blur(10px)',
                   WebkitBackdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(99,102,241,0.35)',
-                  boxShadow: 'inset 0 1px 0 rgba(99,102,241,0.25), 0 4px 14px rgba(59,130,246,0.25)',
+                  border: glassBorder,
+                  boxShadow: floatingShadow,
                 }}
                 onPointerDown={(e) => { e.preventDefault(); setIsAISearchOpen(true); }}
                 onClick={(e) => e.preventDefault()}
@@ -207,11 +215,11 @@ function TopBarComponent({
                     "flex items-center gap-1.5"
                   )}
                   style={{
-                    background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(249,115,22,0.18))',
+                    backgroundColor: glassBg,
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(245,158,11,0.35)',
-                    boxShadow: 'inset 0 1px 0 rgba(245,158,11,0.25), 0 4px 14px rgba(249,115,22,0.2)',
+                    border: glassBorder,
+                    boxShadow: floatingShadow,
                   }}
                   onPointerDown={(e) => { e.preventDefault(); setTokensOpen(true); }}
                   onClick={(e) => e.preventDefault()}
@@ -348,11 +356,11 @@ function TopBarComponent({
                 "-webkit-tap-highlight-color-transparent"
               )}
               style={{
-                background: 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(249,115,22,0.18))',
+                backgroundColor: glassBg,
                 backdropFilter: 'blur(10px)',
                 WebkitBackdropFilter: 'blur(10px)',
-                border: '1px solid rgba(239,68,68,0.35)',
-                boxShadow: 'inset 0 1px 0 rgba(239,68,68,0.25), 0 4px 14px rgba(239,68,68,0.2)',
+                border: glassBorder,
+                boxShadow: floatingShadow,
               }}
               onPointerDown={(e) => { e.preventDefault(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
