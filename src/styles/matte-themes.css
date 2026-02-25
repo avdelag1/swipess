@@ -89,28 +89,48 @@
         --overlay: rgba(0, 0, 0, 0.8);
     }
 
-    /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
+    /* THEME 3: WHITE MATTE — uses black-matte variables so the CSS
+       filter: invert(1) hue-rotate(180deg) on html.white-matte
+       cleanly flips everything from dark → bright white.            */
     .white-matte {
-        /* Background colors - Soft white palette with deeper depth */
-        --background: 210 20% 98%;
-        --foreground: 222 47% 11%;
+        /* Identical to black-matte — the invert filter does the work */
+        --background: 0 0% 5%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 96%;
+        --primary: 0 100% 60%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 15%;
+        --secondary-foreground: 0 0% 96%;
+        --muted: 0 0% 15%;
+        --muted-foreground: 0 0% 75%;
+        --accent: 0 100% 60%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 16%;
+        --input: 0 0% 16%;
+        --ring: 0 100% 60%;
 
-        /* M3 Tonal Elevation: Slightly tinted cards for better grouping */
-        --card: 0 0% 100%;
-        /* Shadows - More visible shadows for light theme */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
-        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.18);
-        --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.25);
-        --overlay: rgba(0, 0, 0, 0.5);
+        /* Modern theme variables */
+        --bg-primary: 0 0% 5%;
+        --bg-secondary: 0 0% 10%;
+        --bg-tertiary: 0 0% 15%;
+        --text-primary: 0 0% 96%;
+        --text-secondary: 0 0% 75%;
+        --text-tertiary: 0 0% 50%;
+        --border-primary: 0 0% 16%;
+        --border-secondary: 0 0% 20%;
+        --accent-primary: 0 100% 60%;
+        --accent-secondary: 0 100% 70%;
 
-        /* White-matte specific UI surface colors for glass elements */
-        --glass-bg: 0 0% 0% / 0.04;
-        --glass-border: 0 0% 0% / 0.08;
-        --glass-hover: 0 0% 0% / 0.06;
-        --nav-icon-color: 0 0% 15%;
-        --nav-icon-active: 0 100% 45%;
+        /* Shadows — same as black-matte */
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
+        --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
+        --overlay: rgba(0, 0, 0, 0.8);
     }
 
     /* THEME 4: RED MATTE (Bold Mexican spirit) */
