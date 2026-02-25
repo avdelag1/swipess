@@ -77,8 +77,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
       if (fnError) throw fnError;
 
-      // Extract the AI response content from the edge function response
-      const responseContent = data?.reply || data?.response || data?.content || data?.message || (typeof data === 'string' ? data : 'I received your message but couldn\'t generate a response. Please try again.');
+      const responseContent = data?.result?.text || data?.result?.message || String(data?.result || '');
 
       setIsTyping(false);
 
@@ -99,7 +98,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     } finally {
       setIsSearching(false);
     }
-  }, [query, isSearching, userRole]);
+  }, [query, isSearching, userRole, messages]);
 
 
   // Fix: Declare handleClose before handleAction to avoid reference-before-declaration

@@ -121,7 +121,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
-        overlayClassName={isMobile ? "bg-black/50" : "bg-transparent backdrop-blur-none"}
+        overlayClassName="bg-black/60"
         className={cn(
           "flex flex-col p-0 gap-0 overflow-hidden",
           isMobile

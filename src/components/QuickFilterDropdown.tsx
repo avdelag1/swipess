@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
+import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 
 // Custom motorcycle icon
@@ -65,13 +66,15 @@ const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.React
 ];
 
 // UPGRADED BRIGHTNESS: Text is a bright, glowing gradient
-const QuickFilterText = ({ hasActiveFilters }: { hasActiveFilters: boolean }) => (
+const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
   <>
     <span className={cn(
       "hidden sm:inline font-bold text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
-        : "bg-gradient-to-r from-white to-gray-300"
+        : isDark
+          ? "bg-gradient-to-r from-white to-gray-300"
+          : "bg-gradient-to-r from-gray-700 to-gray-500"
     )}>
       Quick Filter
     </span>
@@ -79,7 +82,9 @@ const QuickFilterText = ({ hasActiveFilters }: { hasActiveFilters: boolean }) =>
       "sm:hidden font-bold text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
-        : "bg-gradient-to-r from-white to-gray-300"
+        : isDark
+          ? "bg-gradient-to-r from-white to-gray-300"
+          : "bg-gradient-to-r from-gray-700 to-gray-500"
     )}>
       Filter
     </span>
@@ -91,6 +96,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const [clickedCategory, setClickedCategory] = useState<QuickFilterCategory | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const { theme } = useTheme();
+  const isDark = theme === 'black-matte';
 
   // ========== READ FROM ZUSTAND STORE ==========
   const categories = useFilterStore((state) => state.categories);
@@ -353,14 +360,20 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
           hasActiveFilters && 'ring-1 ring-pink-500/30'
         )}
         style={{
-          backgroundColor: hasActiveFilters ? 'rgba(236, 72, 153, 0.12)' : 'rgba(255, 255, 255, 0.06)',
+          backgroundColor: hasActiveFilters
+            ? 'rgba(236, 72, 153, 0.12)'
+            : isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+          border: isDark
+            ? '1px solid rgba(255, 255, 255, 0.12)'
+            : '1px solid rgba(0, 0, 0, 0.12)',
+          boxShadow: isDark
+            ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+            : 'inset 0 1px 0 rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.08)',
         }}
       >
-        <QuickFilterText hasActiveFilters={hasActiveFilters} />
+        <QuickFilterText hasActiveFilters={hasActiveFilters} isDark={isDark} />
         {/* Badge */}
         <AnimatePresence>
           {hasActiveFilters && (
