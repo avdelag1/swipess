@@ -249,7 +249,7 @@ const ClientProfileCardComponent = ({
         {/* Rating Display - Top Left Corner */}
         <div className="absolute top-6 left-4 z-30 bg-black/60 backdrop-blur-md rounded-lg px-3 py-2">
           <CompactRatingDisplay
-            aggregate={ratingAggregate}
+            aggregate={ratingAggregate as any}
             isLoading={isRatingLoading}
             showReviews={false}
             className="text-white"

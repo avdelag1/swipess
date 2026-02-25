@@ -57,7 +57,7 @@ export function useOwnerClientPreferences() {
       }
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('owner_client_preferences')
         .select('*')
         .eq('user_id', user.id)
@@ -77,7 +77,7 @@ export function useOwnerClientPreferences() {
       }
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('owner_client_preferences')
         .upsert({
           user_id: user.id,

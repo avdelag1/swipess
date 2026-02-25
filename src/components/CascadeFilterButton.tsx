@@ -81,12 +81,13 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
 
   // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
+      const target = event.target as Node;
       if (
         panelRef.current && 
-        !panelRef.current.contains(event.target as Node) &&
+        !panelRef.current.contains(target) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
+        !buttonRef.current.contains(target)
       ) {
         setIsOpen(false);
       }

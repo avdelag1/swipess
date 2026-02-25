@@ -12,7 +12,8 @@ import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferenc
 import { toast } from '@/components/ui/sonner';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
-import { SERVICE_CATEGORIES, WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS, COMMON_SKILLS } from '../WorkerListingForm';
+import { SERVICE_CATEGORIES, WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
+const COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];
 
 // Predefined hourly rate ranges for workers
 const WORKER_RATE_RANGES = [

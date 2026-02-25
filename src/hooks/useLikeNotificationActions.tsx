@@ -39,7 +39,7 @@ export function useLikeNotificationActions() {
       }
 
       // Create or update match
-      const { data: existingMatch } = await supabase
+      const { data: existingMatch } = await (supabase as any)
         .from('matches')
         .select('id, status')
         .eq('client_id', clientId)
@@ -48,7 +48,7 @@ export function useLikeNotificationActions() {
 
       if (existingMatch) {
         // Update existing match
-        const { error: updateError } = await supabase
+      const { error: updateError } = await (supabase as any)
           .from('matches')
           .update({
             status: 'active',
@@ -59,7 +59,7 @@ export function useLikeNotificationActions() {
         if (updateError) throw updateError;
       } else {
         // Create new match
-        const { error: insertError } = await supabase
+        const { error: insertError } = await (supabase as any)
           .from('matches')
           .insert([{
             client_id: clientId,

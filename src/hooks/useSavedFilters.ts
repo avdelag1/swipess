@@ -219,22 +219,22 @@ export function useSavedFilters() {
       // Also update owner_client_preferences with this filter
       const filter = savedFilters.find(f => f.id === filterId);
       if (filter) {
-        await supabase
+        await (supabase as any)
           .from('owner_client_preferences')
           .upsert({
             user_id: user.id,
-            min_budget: filter.min_budget,
-            max_budget: filter.max_budget,
-            min_age: filter.min_age,
-            max_age: filter.max_age,
-            compatible_lifestyle_tags: filter.lifestyle_tags,
-            preferred_occupations: filter.preferred_occupations,
-            allows_pets: filter.allows_pets,
-            allows_smoking: filter.allows_smoking,
-            allows_parties: filter.allows_parties,
-            requires_employment_proof: filter.requires_employment_proof,
-            requires_references: filter.requires_references,
-            min_monthly_income: filter.min_monthly_income,
+            min_budget: (filter as any).min_budget,
+            max_budget: (filter as any).max_budget,
+            min_age: (filter as any).min_age,
+            max_age: (filter as any).max_age,
+            compatible_lifestyle_tags: (filter as any).lifestyle_tags,
+            preferred_occupations: (filter as any).preferred_occupations,
+            allows_pets: (filter as any).allows_pets,
+            allows_smoking: (filter as any).allows_smoking,
+            allows_parties: (filter as any).allows_parties,
+            requires_employment_proof: (filter as any).requires_employment_proof,
+            requires_references: (filter as any).requires_references,
+            min_monthly_income: (filter as any).min_monthly_income,
           });
       }
 

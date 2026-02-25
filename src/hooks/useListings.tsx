@@ -113,8 +113,8 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
             if (import.meta.env.DEV) logger.error('Error fetching filter preferences:', prefError);
           }
 
-          if (preferences?.preferred_listing_types?.length) {
-            preferredListingTypes = preferences.preferred_listing_types;
+          if ((preferences?.preferred_listing_types as any)?.length) {
+            preferredListingTypes = (preferences as any).preferred_listing_types;
           }
         }
 
