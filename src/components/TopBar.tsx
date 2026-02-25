@@ -16,6 +16,7 @@ import { STORAGE } from '@/constants/app';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 
@@ -151,6 +152,7 @@ function TopBarComponent({
             )}
 
             <div className="flex items-center gap-2 flex-shrink-0">
+              <ThemeToggle />
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
               <ModeSwitcher variant="pill" size="md" className="hidden md:flex" />
             </div>
