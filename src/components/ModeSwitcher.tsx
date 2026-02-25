@@ -1,6 +1,6 @@
 import { memo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Briefcase, ArrowLeftRight, Loader2 } from 'lucide-react';
+import { User, UserCog, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
@@ -93,9 +93,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             >
               {/* HIGH CONTRAST: Clear icon colors */}
               {activeMode === 'client' ? (
-                <Briefcase strokeWidth={3} className="h-4 w-4 text-teal-400" />
+                <User strokeWidth={3} className="h-4 w-4 text-teal-400" />
               ) : (
-                <Search strokeWidth={3} className="h-4 w-4 text-orange-400" />
+                <UserCog strokeWidth={3} className="h-4 w-4 text-orange-400" />
               )}
             </motion.div>
           )}
@@ -141,7 +141,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
           activeMode === 'client' ? 'text-teal-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
-          <Briefcase strokeWidth={3} className="h-3.5 w-3.5" />
+          <User strokeWidth={3} className="h-3.5 w-3.5" />
           <span className="text-xs uppercase tracking-wider">Client</span>
         </div>
 
@@ -149,7 +149,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
           activeMode === 'owner' ? 'text-orange-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
-          <Search strokeWidth={3} className="h-3.5 w-3.5" />
+          <UserCog strokeWidth={3} className="h-3.5 w-3.5" />
           <span className="text-xs uppercase tracking-wider">Owner</span>
         </div>
 
@@ -206,12 +206,12 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
           ) : activeMode === 'client' ? (
             <>
-              <Briefcase strokeWidth={3} className="h-3.5 w-3.5 text-teal-400" />
+              <User strokeWidth={3} className="h-3.5 w-3.5 text-teal-400" />
               <span className="font-bold text-teal-400">Client Side</span>
             </>
           ) : (
             <>
-              <Search strokeWidth={3} className="h-3.5 w-3.5 text-orange-400" />
+              <UserCog strokeWidth={3} className="h-3.5 w-3.5 text-orange-400" />
               <span className="font-bold text-orange-400">Owner Side</span>
             </>
           )}
