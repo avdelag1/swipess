@@ -4,6 +4,7 @@ import { Search, Briefcase, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -13,7 +14,15 @@ interface ModeSwitcherProps {
 
 function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
+  const { theme } = useTheme();
+  const isDark = theme === 'black-matte';
   const lastClickTime = useRef(0);
+
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const floatingShadow = isDark
+    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
     const now = Date.now();
@@ -55,11 +64,11 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           className
         )}
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+          backgroundColor: glassBg,
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+          border: glassBorder,
+          boxShadow: floatingShadow,
         }}
         aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
       >
@@ -175,11 +184,11 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         className
       )}
       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+        backgroundColor: glassBg,
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+        border: glassBorder,
+        boxShadow: floatingShadow,
       }}
       aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
     >
