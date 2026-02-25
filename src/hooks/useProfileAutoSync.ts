@@ -51,50 +51,54 @@ export function useProfileAutoSync() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const channel = supabase
-      .channel(`profile-sync-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          logger.log('[ProfileAutoSync] profiles table changed, refreshing');
-          refreshAllProfiles();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'client_profiles',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          logger.log('[ProfileAutoSync] client_profiles changed, refreshing');
-          refreshAllProfiles();
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'owner_profiles',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          logger.log('[ProfileAutoSync] owner_profiles changed, refreshing');
-          refreshAllProfiles();
-        }
-      )
-      .subscribe();
+    try {
+      const channel = supabase
+        .channel(`profile-sync-${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'profiles',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            logger.log('[ProfileAutoSync] profiles table changed, refreshing');
+            refreshAllProfiles();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'client_profiles',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            logger.log('[ProfileAutoSync] client_profiles changed, refreshing');
+            refreshAllProfiles();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'owner_profiles',
+            filter: `user_id=eq.${user.id}`,
+          },
+          () => {
+            logger.log('[ProfileAutoSync] owner_profiles changed, refreshing');
+            refreshAllProfiles();
+          }
+        )
+        .subscribe();
 
-    channelRef.current = channel;
+      channelRef.current = channel;
+    } catch (error) {
+      logger.error('[ProfileAutoSync] Error setting up realtime sync:', error);
+    }
 
     return () => {
       if (channelRef.current) {

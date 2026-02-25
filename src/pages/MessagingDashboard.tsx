@@ -34,7 +34,8 @@ async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
       .eq('user_id', userId)
       .or('category.eq.motorcycle,category.eq.bicycle');
     return (result?.count ?? 0) > 0;
-  } catch {
+  } catch (error) {
+    logger.error('Error checking free messaging category:', error);
     return false;
   }
 }
@@ -453,8 +454,8 @@ export function MessagingDashboard() {
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation) => {
                 const isOwner = conversation.other_user?.role === 'owner';
-                const hasUnread = conversation.last_message?.sender_id !== user?.id && 
-                  conversation.last_message_at && 
+                const hasUnread = conversation.last_message?.sender_id !== user?.id &&
+                  conversation.last_message_at &&
                   new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
 
                 return (
@@ -465,18 +466,16 @@ export function MessagingDashboard() {
                   >
                     {/* Avatar with gradient ring */}
                     <div className="relative shrink-0">
-                      <div className={`p-[2px] rounded-full ${
-                        isOwner 
-                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500' 
+                      <div className={`p-[2px] rounded-full ${isOwner
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                           : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                      }`}>
+                        }`}>
                         <Avatar className="w-13 h-13 border-2 border-background">
                           <AvatarImage src={conversation.other_user?.avatar_url} />
-                          <AvatarFallback className={`text-sm font-semibold text-white ${
-                            isOwner
+                          <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
                               ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                               : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                          }`}>
+                            }`}>
                             {conversation.other_user?.full_name?.charAt(0) || '?'}
                           </AvatarFallback>
                         </Avatar>
@@ -492,11 +491,10 @@ export function MessagingDashboard() {
                           <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
                             {conversation.other_user?.full_name || 'Unknown'}
                           </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                            isOwner 
-                              ? 'bg-purple-500/15 text-purple-400' 
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
+                              ? 'bg-purple-500/15 text-purple-400'
                               : 'bg-blue-500/15 text-blue-400'
-                          }`}>
+                            }`}>
                             {isOwner ? 'Provider' : 'Explorer'}
                           </span>
                         </div>
