@@ -3,6 +3,7 @@ import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
+import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
 const VisualEngine = lazy(() =>
@@ -30,6 +31,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       <Suspense fallback={null}>
         <VisualEngine />
       </Suspense>
+
+      {/* Dark edge shading from top and bottom - cinematic screen feel */}
+      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} />
+      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} />
 
       <main
         id="main-content"
