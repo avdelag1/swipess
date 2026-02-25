@@ -5,8 +5,8 @@ import { logger } from '@/utils/prodLogger';
 /**
  * SPEED OF LIGHT: Welcome state with SERVER-SIDE persistence
  *
- * Problem: localStorage can be reset by Lovable preview URLs, causing
- * welcome to show on every login instead of just first signup.
+ * Problem: localStorage can be inconsistent across different subdomains or
+ * deployment environments, causing welcome to show multiple times.
  *
  * Solution: Use profiles.created_at to determine if user is new
  * - If created_at is within 2 minutes, user is new → show welcome once
@@ -77,10 +77,10 @@ export function useWelcomeState(userId: string | undefined) {
         // User is new - show welcome once
         // Mark as seen IMMEDIATELY (optimistic) to prevent double-showing
         localStorage.setItem(localKey, 'true');
-        
+
         // Save welcome notification to database for history
         await saveWelcomeNotification(userId);
-        
+
         setIsChecking(false);
         setShouldShowWelcome(true);
 

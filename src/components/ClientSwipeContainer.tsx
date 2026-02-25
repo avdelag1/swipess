@@ -222,7 +222,7 @@ const ClientSwipeContainerComponent = ({
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
-  // The images will be in cache when OwnerClientTinderCard renders, preventing any flash
+  // The images will be in cache when OwnerClientCard renders, preventing any flash
   // ALWAYS keep 2-3 cards preloaded to prevent swipe delays
   const eagerPreloadInitiatedRef = useRef(false);
   if (!eagerPreloadInitiatedRef.current && deckQueueRef.current.length > 0) {

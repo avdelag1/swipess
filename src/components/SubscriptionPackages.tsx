@@ -257,7 +257,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
           <div className="text-center text-xs sm:text-sm text-muted-foreground mt-6 sm:mt-8 space-y-1 pb-2 sm:pb-4">
             <p>✓ Cancel anytime · Secure payments powered by PayPal</p>
-            <p>Questions? Contact support at <span className="text-primary">support@tinderent.com</span></p>
+            <p>Questions? Contact support at <span className="text-primary">support@swipess.com</span></p>
           </div>
         </ScrollArea>
       </DialogContent>

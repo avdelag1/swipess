@@ -25,4 +25,4 @@ Disallow: /reset-password
 Disallow: /test/
 
 # Sitemap
-Sitemap: https://swipes.lovable.app/sitemap.xml
+Sitemap: https://swipess.com/sitemap.xml
