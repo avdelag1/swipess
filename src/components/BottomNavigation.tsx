@@ -157,8 +157,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const bgActive = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
   const borderColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 rgba(255,255,255,0.6), 0 2px 8px rgba(0,0,0,0.1)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)';
+    ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)';
 
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>

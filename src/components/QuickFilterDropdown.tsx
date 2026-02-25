@@ -99,6 +99,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const { theme } = useTheme();
   const isDark = theme === 'black-matte';
 
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const floatingShadow = isDark
+    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+
   // ========== READ FROM ZUSTAND STORE ==========
   const categories = useFilterStore((state) => state.categories);
   const listingType = useFilterStore((state) => state.listingType);
@@ -361,16 +367,14 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         )}
         style={{
           backgroundColor: hasActiveFilters
-            ? 'rgba(236, 72, 153, 0.12)'
-            : isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.05)',
+            ? (isDark ? 'rgba(236, 72, 153, 0.15)' : 'rgba(236, 72, 153, 0.08)')
+            : glassBg,
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          border: isDark
-            ? '1px solid rgba(255, 255, 255, 0.12)'
-            : '1px solid rgba(0, 0, 0, 0.12)',
-          boxShadow: isDark
-            ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-            : 'inset 0 1px 0 rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.08)',
+          border: hasActiveFilters
+            ? (isDark ? '1px solid rgba(236, 72, 153, 0.3)' : '1px solid rgba(236, 72, 153, 0.2)')
+            : glassBorder,
+          boxShadow: floatingShadow,
         }}
       >
         <QuickFilterText hasActiveFilters={hasActiveFilters} isDark={isDark} />

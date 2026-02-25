@@ -32,7 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // localStorage unavailable
     }
-    return 'white-matte';
+    return 'black-matte';
   });
 
   // Apply theme class to document and update status bar color
