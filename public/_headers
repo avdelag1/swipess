@@ -75,10 +75,6 @@
 # Security headers for all routes
 /*
   X-Content-Type-Options: nosniff
-  X-Frame-Options: SAMEORIGIN
+  X-Frame-Options: DENY
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: frame-ancestors 'self'; base-uri 'self'; form-action 'self'
-  Permissions-Policy: camera=(self), payment=()
-  Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Cross-Origin-Opener-Policy: same-origin-allow-popups

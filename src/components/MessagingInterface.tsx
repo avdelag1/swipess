@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from '
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Send, AlertCircle, Zap, ChevronLeft, User, Home, Info, ChevronRight, Heart, Star } from 'lucide-react';
@@ -246,22 +247,22 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center" style={{ background: '#080808' }}>
+      <Card className="flex-1 flex items-center justify-center border-0 shadow-none bg-background">
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-3">
-            <span className="w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
           </div>
-          <p className="text-white/40 text-sm">Loading conversation...</p>
+          <p className="text-muted-foreground text-sm">Loading conversation...</p>
         </div>
-      </div>
+      </Card>
     );
   }
 
   return (
     <>
-      {/* Activation Banner */}
+      {/* Activation Banner - shown when at message limit */}
       <MessageActivationBanner
         isVisible={showActivationBanner}
         onClose={() => setShowActivationBanner(false)}
@@ -269,29 +270,18 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         variant="activation-required"
       />
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: '#080808' }}>
-        {/* Premium Header */}
-        <div
-          className="shrink-0 border-b px-3 py-2.5"
-          style={{
-            background: 'rgba(8,8,8,0.97)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderColor: 'rgba(255,255,255,0.08)',
-          }}
-        >
-          <div className="flex items-center gap-2">
-            {/* Visible glass-pill back button */}
-            <button
+      <Card className="flex-1 flex flex-col h-full overflow-hidden border-0 shadow-none bg-background">
+        {/* Clean Header */}
+        <div className="border-b border-border/50 shrink-0 bg-background/95 backdrop-blur-xl">
+          <div className="flex items-center gap-2 px-3 py-2.5">
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onBack}
-              className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl transition-all active:scale-90"
-              style={{
-                background: 'rgba(255,255,255,0.09)',
-                border: '1px solid rgba(255,255,255,0.13)',
-              }}
+              className="shrink-0 text-primary hover:bg-transparent px-1 -ml-1"
             >
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
+              <ChevronLeft className="w-6 h-6" />
+            </Button>
 
             {/* Center: Avatar + Name */}
             <button
@@ -347,154 +337,146 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           </div>
         </div>
 
-        {/* Connection Status */}
-        {showConnecting && (
-          <div className="px-4 py-2 text-center" style={{ background: 'rgba(251,191,36,0.08)', borderBottom: '1px solid rgba(251,191,36,0.15)' }}>
-            <p className="text-xs text-amber-400 flex items-center justify-center gap-2">
-              <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
-              Connecting to chat...
-            </p>
-          </div>
-        )}
+      {/* iOS-style Connection Status */}
+      {showConnecting && (
+        <div className="px-4 py-2 bg-muted border-b border-border/50 text-center">
+          <p className="text-xs text-amber-500 flex items-center justify-center gap-2">
+            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse" />
+            Connecting to chat...
+          </p>
+        </div>
+      )}
 
-        {/* Messages */}
-        {messages.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-5" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.12), rgba(249,115,22,0.12))', border: '1px solid rgba(236,72,153,0.18)' }}>
-              <Send className="w-9 h-9" style={{ color: '#ec4899' }} />
-            </div>
-            <p className="text-base font-semibold text-white mb-1.5">
-              Start the conversation
-            </p>
-            <p className="text-sm text-white/35 max-w-[200px]">
-              Say hello to {otherUser.full_name?.split(' ')?.[0] || 'your match'}!
-            </p>
+      {/* Messages - iOS-style with Virtualization for 60fps */}
+      {messages.length === 0 ? (
+        <div className="flex-1 flex flex-col items-center justify-center py-12 text-center bg-background">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-primary/10">
+            <Send className="w-7 h-7 text-primary" />
           </div>
-        ) : (
-          <VirtualizedMessageList
-            messages={messages}
-            currentUserId={user?.id || ''}
-            otherUserRole={otherUser.role}
-            typingUsers={typingUsers}
-          />
-        )}
-        <div ref={messagesEndRef} />
+          <p className="text-sm font-medium text-foreground mb-1">
+            Start the conversation
+          </p>
+          <p className="text-xs text-muted-foreground max-w-[200px]">
+            Say hello to {otherUser.full_name?.split(' ')?.[0] || 'your match'}!
+          </p>
+        </div>
+      ) : (
+        <VirtualizedMessageList
+          messages={messages}
+          currentUserId={user?.id || ''}
+          otherUserRole={otherUser.role}
+          typingUsers={typingUsers}
+        />
+      )}
+      <div ref={messagesEndRef} />
 
-        {/* Limit Warning */}
-        {hasMonthlyLimit && isAtLimit && (
-          <div className="px-4 py-2.5" style={{ background: 'rgba(239,68,68,0.08)', borderTop: '1px solid rgba(239,68,68,0.15)' }}>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
-              <p className="font-medium text-xs text-red-400 flex-1">Monthly limit reached</p>
-              <button
-                onClick={() => {
-                  setShowActivationBanner(true);
-                  setShowUpgradeDialog(true);
-                }}
-                className="shrink-0 h-7 px-3 rounded-full text-white text-[11px] font-semibold"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-              >
-                Upgrade
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Limit Info */}
-        {hasMonthlyLimit && !isAtLimit && (
-          <div className="px-4 py-2 flex items-center justify-center" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex items-center gap-1.5 text-[11px] text-white/30">
-              <Zap className="w-3 h-3 text-amber-500" />
-              <span>{messagesRemaining} messages remaining</span>
-            </div>
-          </div>
-        )}
-
-        {/* Input Area */}
-        <form
-          onSubmit={handleSendMessage}
-          className="px-3 py-3 shrink-0"
-          style={{
-            background: 'rgba(12,12,12,0.95)',
-            backdropFilter: 'blur(20px)',
-            borderTop: '1px solid rgba(255,255,255,0.07)',
-          }}
-        >
-          <div className="flex gap-2 items-center">
-            <div className="flex-1 relative">
-              <input
-                value={newMessage}
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  if (e.target.value.trim()) startTyping();
-                  else stopTyping();
-                }}
-                placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
-                className="w-full text-[15px] px-4 py-2.5 rounded-full text-white placeholder:text-white/30 outline-none transition-all"
-                style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.11)',
-                  minHeight: '42px',
-                }}
-                disabled={sendMessage.isPending || isAtLimit}
-                maxLength={1000}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e as any);
-                  }
-                }}
-              />
-              {newMessage.length > 800 && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/30">
-                  {1000 - newMessage.length}
-                </span>
-              )}
-            </div>
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90"
-              style={{
-                background: newMessage.trim() && !isAtLimit
-                  ? 'linear-gradient(135deg, #ec4899, #f97316)'
-                  : 'rgba(255,255,255,0.07)',
-                border: newMessage.trim() && !isAtLimit ? 'none' : '1px solid rgba(255,255,255,0.10)',
-                boxShadow: newMessage.trim() && !isAtLimit ? '0 4px 16px rgba(236,72,153,0.4)' : 'none',
+      {/* Limit Warning */}
+      {hasMonthlyLimit && isAtLimit && (
+        <div className="px-3 py-2 bg-muted border-t border-border/50">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+            <p className="font-medium text-xs text-destructive flex-1">Limit reached</p>
+            <Button
+              size="sm"
+              onClick={() => {
+                setShowActivationBanner(true);
+                setShowUpgradeDialog(true);
               }}
+              className="shrink-0 h-6 bg-primary hover:bg-primary/90 text-primary-foreground border-0 rounded-full px-3 text-[10px]"
             >
-              <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
-            </button>
+              Upgrade
+            </Button>
           </div>
-        </form>
+        </div>
+      )}
 
-        {/* Upgrade Dialog */}
-        <MessageActivationPackages
-          isOpen={showUpgradeDialog}
-          onClose={() => setShowUpgradeDialog(false)}
-          userRole={otherUser.role === 'client' ? 'owner' : 'client'}
-        />
+      {/* Limit Info */}
+      {hasMonthlyLimit && !isAtLimit && (
+        <div className="px-3 py-1.5 bg-muted border-t border-border/50 flex items-center justify-center">
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <Zap className="w-3 h-3 text-amber-500" />
+            <span>{messagesRemaining} remaining</span>
+          </div>
+        </div>
+      )}
 
-        {/* Profile/Listing Preview Sheet */}
-        <ChatPreviewSheet
-          isOpen={showPreviewSheet}
-          onClose={() => setShowPreviewSheet(false)}
-          otherUser={otherUser}
-          listing={listing}
-          currentUserRole={currentUserRole}
-        />
+      {/* Input Area */}
+      <form onSubmit={handleSendMessage} className="px-3 py-2 border-t border-border/50 shrink-0 bg-background">
+        <div className="flex gap-2 items-end">
+          <div className="flex-1 relative">
+            <Input
+              value={newMessage}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+                if (e.target.value.trim()) {
+                  startTyping();
+                } else {
+                  stopTyping();
+                }
+              }}
+              placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
+              className="flex-1 text-[15px] min-h-[38px] px-4 py-2 rounded-full border-border/50 bg-muted/60 text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:ring-0 focus:ring-offset-0 transition-all"
+              disabled={sendMessage.isPending || isAtLimit}
+              maxLength={1000}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage(e as any);
+                }
+              }}
+            />
+            {newMessage.length > 800 && (
+              <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground">
+                {1000 - newMessage.length}
+              </span>
+            )}
+          </div>
+          <Button
+            type="submit"
+            disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
+            size="icon"
+            className={`shrink-0 h-9 w-9 rounded-full transition-all border-0 ${
+              newMessage.trim() && !isAtLimit
+                ? 'bg-primary hover:bg-primary/90'
+                : 'bg-muted opacity-50'
+            }`}
+            title={isAtLimit ? "Monthly message limit reached" : "Send message"}
+          >
+            <Send className="w-4 h-4 text-primary-foreground" />
+          </Button>
+        </div>
+      </form>
 
-        {/* Rating Submission Dialog */}
-        <RatingSubmissionDialog
-          open={showRatingDialog}
-          onOpenChange={setShowRatingDialog}
-          targetId={listing?.id || otherUser.id}
-          targetType={listing?.id ? 'listing' : 'user'}
-          targetName={listing?.title || otherUser.full_name}
-          categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'}
-          onSuccess={() => setShowRatingDialog(false)}
-        />
-      </div>
+      {/* Upgrade Dialog */}
+      <MessageActivationPackages
+        isOpen={showUpgradeDialog}
+        onClose={() => setShowUpgradeDialog(false)}
+        userRole={otherUser.role === 'client' ? 'owner' : 'client'}
+      />
+
+      {/* Profile/Listing Preview Sheet */}
+      <ChatPreviewSheet
+        isOpen={showPreviewSheet}
+        onClose={() => setShowPreviewSheet(false)}
+        otherUser={otherUser}
+        listing={listing}
+        currentUserRole={currentUserRole}
+      />
+
+      {/* Rating Submission Dialog */}
+      <RatingSubmissionDialog
+        open={showRatingDialog}
+        onOpenChange={setShowRatingDialog}
+        targetId={listing?.id || otherUser.id}
+        targetType={listing?.id ? 'listing' : 'user'}
+        targetName={listing?.title || otherUser.full_name}
+        categoryId={listing?.id ? (listing.category === 'vehicle' ? 'vehicle' : 'property') : 'client'}
+        onSuccess={() => {
+          setShowRatingDialog(false);
+          // Optionally refresh rating data
+        }}
+      />
+      </Card>
     </>
   );
 });

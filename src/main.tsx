@@ -37,7 +37,9 @@ if (urlParams.get('clear-cache') === '1') {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const initialLoader = document.getElementById("initial-loader");
 if (initialLoader) {
-  initialLoader.remove(); // Instant removal — no fade delay
+  initialLoader.style.opacity = "0";
+  initialLoader.style.transition = "opacity 150ms ease-out";
+  setTimeout(() => initialLoader.remove(), 150);
 }
 
 // Arranca la app normalmente

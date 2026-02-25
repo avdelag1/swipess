@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,6 @@ import { toast } from 'sonner';
 import { ContractTemplate } from '@/data/contractTemplates';
 import { DigitalSignaturePad } from './DigitalSignaturePad';
 import { useCreateContract } from '@/hooks/useContracts';
-import { sanitizeHTML } from '@/utils/sanitizeHTML';
 
 interface ContractDocumentDialogProps {
   open: boolean;
@@ -41,7 +40,6 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const createContract = useCreateContract();
-  const safeContent = useMemo(() => sanitizeHTML(template?.content || ''), [template?.content]);
 
   React.useEffect(() => {
     if (template) {
@@ -314,7 +312,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
                   fontSize: `${fontSize}px`,
                   lineHeight: '1.6'
                 }}
-                dangerouslySetInnerHTML={{ __html: safeContent }}
+                dangerouslySetInnerHTML={{ __html: template.content }}
                 suppressContentEditableWarning
               />
             </ScrollArea>

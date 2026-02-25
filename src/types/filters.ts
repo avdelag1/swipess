@@ -127,10 +127,7 @@ export const categoryToDatabase: Record<string, string> = {
  */
 export function normalizeCategoryName(category: string | undefined): string | undefined {
   if (!category) return undefined;
-  const normalized = category.toLowerCase().trim();
-  // Remove trailing 's' if not 'services' to handle plurals
-  const singular = normalized === 'services' ? normalized : normalized.replace(/s$/, '');
-  return categoryToDatabase[singular] || categoryToDatabase[normalized] || normalized;
+  return categoryToDatabase[category.toLowerCase()] || category;
 }
 
 /**
@@ -141,10 +138,10 @@ export interface ListingFilters {
   // Category filters
   category?: QuickFilterCategory | string;
   categories?: (QuickFilterCategory | string)[];
-
+  
   // Listing type
   listingType?: QuickFilterListingType;
-
+  
   // Property-specific filters
   propertyType?: string[];
   priceRange?: [number, number];
@@ -152,20 +149,20 @@ export interface ListingFilters {
   bathrooms?: number[];
   amenities?: string[];
   distance?: number;
-
+  
   // Boolean flags
   premiumOnly?: boolean;
   verified?: boolean;
   petFriendly?: boolean;
   furnished?: boolean;
-
+  
   // Lifestyle filters
   lifestyleTags?: string[];
   dietaryPreferences?: string[];
-
+  
   // Services/worker filter
   showHireServices?: boolean;
-
+  
   // Owner client filters
   clientGender?: ClientGender;
   clientType?: ClientType;

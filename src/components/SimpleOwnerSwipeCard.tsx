@@ -17,8 +17,9 @@ import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { useMagnifier } from '@/hooks/useMagnifier';
+import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
-import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
+import { useUserRatingAggregate } from '@/hooks/useRatingSystem';
 import { useParallaxStore } from '@/state/parallaxStore';
 
 // Exposed interface for parent to trigger swipe animations
@@ -128,14 +129,17 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
   // Show placeholder if no valid image
   const isPlaceholder = !src || src === FALLBACK_PLACEHOLDER || error;
 
+  if (isPlaceholder) {
+    return <PlaceholderImage name={name} />;
+  }
+
   // CRITICAL FIX: Check cache on every render, not just once
   // This ensures cached images show instantly when tapping between photos
-  // Hooks must be called unconditionally (before any early return)
   const wasInCache = useMemo(() => imageCache.has(src), [src]);
 
   // Preload image when card renders (for non-top cards)
   useEffect(() => {
-    if (!src || error || isPlaceholder) return;
+    if (!src || error) return;
 
     // If already in cache, mark as loaded immediately (no transition)
     if (imageCache.has(src)) {
@@ -150,15 +154,7 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
     };
     img.onerror = () => setError(true);
     img.src = src;
-  }, [src, error, isPlaceholder]);
-
-  if (isPlaceholder) {
-    return <PlaceholderImage name={name} />;
-  }
-
-  if (isPlaceholder) {
-    return <PlaceholderImage name={name} />;
-  }
+  }, [src, error]);
 
   return (
     <div
@@ -264,7 +260,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const passOpacity = useTransform(x, [-SWIPE_THRESHOLD, -SWIPE_THRESHOLD * 0.5, 0], [1, 0.5, 0]);
 
   // Fetch user rating aggregate for this client profile
-  const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregateEnhanced(profile?.user_id);
+  const { data: ratingAggregate, isLoading: isRatingLoading } = useUserRatingAggregate(profile?.user_id);
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -392,7 +388,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
-
+    
     if (hasExited.current) return;
 
     const offsetX = info.offset.x;
@@ -413,7 +409,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       // Exit in the SAME direction of the swipe gesture (diagonal physics)
       const exitDistance = getExitDistance();
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
-
+      
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
@@ -429,7 +425,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           onSwipe(direction);
         },
       });
-
+      
       // Animate Y in parallel
       animate(y, Math.min(Math.max(exitY, -300), 300), {
         type: 'spring',
@@ -514,7 +510,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       damping: 30,
       onComplete: fireSwipe,
     });
-
+    
     // Slight upward arc for button swipes
     animate(y, -50, {
       type: 'spring',
@@ -555,7 +551,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         }}
       >
         <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
-        {/* No gradient - full-bleed cards */}
+        {/* Bottom gradient for depth */}
+        <GradientMaskBottom intensity={0.6} zIndex={2} heightPercent={40} />
       </div>
     );
   }
@@ -606,6 +603,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
 
+          {/* TOP GRADIENT MASK - Creates visual contrast for header UI */}
+          <GradientMaskTop intensity={1} zIndex={15} heightPercent={28} />
+
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
             <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -617,8 +617,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               ))}
             </div>
           )}
-        </div>
 
+          {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
+          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
+        </div>
+        
         {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
@@ -662,23 +665,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             NOPE
           </div>
         </motion.div>
-
+        
         {/* Content overlay - Positioned higher for Tinder style (above button area) */}
-        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
-          {/* Rating Display - Glass-pill tactile badge */}
+        <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
+          {/* Rating Display - Bottom of card, above profile info (same as client side) */}
           <div className="mb-3">
-            <div
-              className="inline-flex rounded-full px-3 py-1.5"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-              }}
-            >
+            <div className="inline-flex bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5">
               <CompactRatingDisplay
-                aggregate={ratingAggregate ?? null}
+                aggregate={ratingAggregate}
                 isLoading={isRatingLoading}
                 showReviews={false}
                 className="text-white"
@@ -719,13 +713,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 </>
               )}
               {!budgetText && profile.work_schedule && (
-                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
-                }}>
+                <div className="flex items-center gap-1 bg-white/20 px-3 py-2 rounded-full w-fit">
                   <Briefcase className="w-4 h-4 text-white" />
                   <span className="text-base font-medium text-white">{profile.work_schedule}</span>
                 </div>
@@ -745,13 +733,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                 </div>
               )}
               {profile.work_schedule && (
-                <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(255, 255, 255, 0.12)',
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
-                }}>
+                <div className="flex items-center gap-1 bg-white/20 px-3 py-2 rounded-full w-fit">
                   <Briefcase className="w-4 h-4 text-white" />
                   <span className="text-base font-medium text-white">{profile.work_schedule}</span>
                 </div>
@@ -780,18 +762,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
               <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
                 {budgetText && (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                  }}>
+                  <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
                     <DollarSign className="w-3 h-3" /> {budgetText}
                   </span>
                 )}
                 {profile.work_schedule && (
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                  }}>
+                  <span className="flex items-center gap-1 bg-white/20 px-2 py-1 rounded-full">
                     <Briefcase className="w-3 h-3" /> {profile.work_schedule}
                   </span>
                 )}
@@ -799,11 +775,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </>
           )}
         </div>
-
+        
         {/* Action buttons INSIDE card - Tinder style */}
         {!hideActions && (
           <div
-            className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
+            className="absolute bottom-4 left-0 right-0 flex justify-center z-30"
             onClick={(e) => {
               // Prevent clicks in button area from bubbling to card handler
               e.stopPropagation();

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import { logger } from '@/utils/prodLogger';
 
 interface ErrorReport {

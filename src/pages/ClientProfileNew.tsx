@@ -1,46 +1,47 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { ClientProfileDialog } from "@/components/ClientProfileDialog";
 import { PhotoPreview } from "@/components/PhotoPreview";
+import { ShareDialog } from "@/components/ShareDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { SharedProfileSection } from "@/components/SharedProfileSection";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { useState, useCallback } from "react";
-import { CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { Separator } from "@/components/ui/separator";
 import {
   LogOut, User, Camera, Sparkles, Crown, ArrowLeft,
-  Flame, Palette, Heart, Settings
+  Share2, Flame, Radio,
+  Settings as SettingsIcon, Palette, Scale, FileText, Heart
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@/hooks/useTheme";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 
-const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = { staggerChildren: 0.08, delayChildren: 0.15 };
+const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
+const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
 const childVariant = {
-  hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
-  visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },
+  hidden: { opacity: 0, y: 18, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
 };
 
 const ClientProfileNew = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   const { data: profile, isLoading } = useClientProfile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
 
   const handlePhotoClick = useCallback((index: number) => {
     setSelectedPhotoIndex(index);
     setShowPhotoPreview(true);
   }, []);
 
+  // Calculate profile completion
   const calculateCompletion = () => {
     if (!profile) return 0;
     let completed = 0;
@@ -57,249 +58,303 @@ const ClientProfileNew = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full p-4 pb-32">
-        <div className="max-w-lg mx-auto space-y-4">
-          <div className="flex items-center gap-4 mb-6">
-            <Skeleton className="w-24 h-24 rounded-full" />
-            <div className="flex-1">
-              <Skeleton className="h-6 w-32 mb-2" />
-              <Skeleton className="h-4 w-48" />
+      <>
+        <div className="w-full p-4 pb-32">
+          <div className="max-w-lg mx-auto space-y-4">
+            <div className="flex items-center gap-4 mb-6">
+              <Skeleton className="w-20 h-20 rounded-full" />
+              <div className="flex-1">
+                <Skeleton className="h-6 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </div>
             </div>
+            <Skeleton className="h-24 rounded-xl" />
+            <Skeleton className="h-32 rounded-xl" />
           </div>
-          <Skeleton className="h-24 rounded-2xl" />
-          <Skeleton className="h-32 rounded-2xl" />
         </div>
-      </div>
+      </>
     );
   }
 
   return (
     <>
       <motion.div
+        className="w-full px-5 py-4 pb-24"
         initial="hidden"
         animate="visible"
-        variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pb-32 space-y-6"
+        variants={{ visible: { transition: stagger } }}
       >
-        {/* Back Button */}
-        <motion.div variants={childVariant}>
-          <button
+        <div className="max-w-lg mx-auto space-y-4">
+          {/* Back Button */}
+          <motion.button
+            variants={childVariant}
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(12px)',
-            }}
+            whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
+            className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150 mb-4 px-1"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
-          </button>
-        </motion.div>
+          </motion.button>
 
-        {/* Profile Header */}
-        <motion.div className="flex items-center gap-4" variants={childVariant}>
-          <div className="relative">
-            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
+          {/* Profile Header */}
+          <motion.div
+            className="flex items-center gap-4"
+            variants={childVariant}
+          >
+            <div className="relative">
               <div
-                className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
+                className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center overflow-hidden cursor-pointer"
                 onClick={() => profile?.profile_images?.length ? handlePhotoClick(0) : setShowEditDialog(true)}
               >
                 {profile?.profile_images?.[0] ? (
-                  <img src={profile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
+                  <img
+                    src={profile.profile_images[0]}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <User className="w-10 h-10 text-muted-foreground" />
+                  <User className="w-10 h-10 text-primary-foreground" />
                 )}
               </div>
+              <button
+                onClick={() => setShowEditDialog(true)}
+                className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-lg"
+              >
+                <Camera className="w-4 h-4 text-primary-foreground" />
+              </button>
             </div>
-            <button
-              onClick={() => setShowEditDialog(true)}
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
-              style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}
-            >
-              <Camera className="w-3.5 h-3.5 text-white" />
-            </button>
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-black text-foreground leading-tight tracking-tight">
-              {profile?.name || 'Set up your profile'}
-            </h1>
-            <p className="text-sm font-medium text-muted-foreground mt-0.5">{user?.email}</p>
-          </div>
-        </motion.div>
-
-        {/* Edit Profile Button */}
-        <motion.div variants={childVariant}>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setShowEditDialog(true)}
-            className="w-full h-14 flex items-center justify-center gap-2 rounded-2xl font-black text-base text-white relative overflow-hidden group shadow-lg"
-            style={{
-              background: 'linear-gradient(135deg, #E4007C, #D4006E)',
-            }}
-          >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <User className="w-6 h-6 relative z-10" />
-            <span className="relative z-10 tracking-tight">Edit Profile</span>
-          </motion.button>
-        </motion.div>
-
-        {/* Profile Completion */}
-        {profile && completionPercent < 100 && (
-          <motion.div variants={childVariant}>
-            <div
-              className="rounded-[2rem] p-5 cursor-pointer border-2 transition-all hover:bg-white/5"
-              style={{
-                background: isLight ? 'rgba(228,0,124,0.03)' : 'rgba(228,0,124,0.05)',
-                borderColor: 'rgba(228,0,124,0.15)',
-                backdropFilter: 'blur(12px)'
-              }}
-              onClick={() => setShowEditDialog(true)}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#E4007C]" />
-                  <span className="text-sm font-black uppercase tracking-widest text-foreground">Completion</span>
-                </div>
-                <span className="text-sm font-black" style={{ color: '#E4007C' }}>{completionPercent}%</span>
-              </div>
-              <Progress value={completionPercent} className="h-2 rounded-full" />
-              <p className="text-xs font-bold text-muted-foreground mt-3 leading-relaxed">
-                Complete profiles get 3x more interest! Tap to finish.
-              </p>
+            <div className="flex-1">
+              <h1 className="text-xl font-bold text-foreground">
+                {profile?.name || 'Set up your profile'}
+              </h1>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </motion.div>
-        )}
 
-        {/* Action Grid */}
-        <motion.div variants={childVariant} className="grid grid-cols-2 gap-4">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => navigate('/client/liked-properties')}
-            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
+          {/* Edit Profile Button - Always visible */}
+          <motion.div
+            variants={childVariant}
           >
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
-              <Flame className="w-6 h-6 text-[#E4007C]" />
-            </div>
-            <div className="relative z-10">
-              <div className="text-sm font-black tracking-tight text-white mt-1">Your Likes</div>
-              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Properties</div>
-            </div>
-          </motion.button>
-
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => navigate('/client/who-liked-you')}
-            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
-          >
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
-              <Heart className="w-6 h-6 text-[#E4007C]" />
-            </div>
-            <div className="relative z-10">
-              <div className="text-sm font-black tracking-tight text-white mt-1">Who Liked You</div>
-              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Interested</div>
-            </div>
-          </motion.button>
-        </motion.div>
-
-        {/* Bio Section */}
-        {profile?.bio && (
-          <motion.div variants={childVariant} className="rounded-[2.5rem] p-6 border-2"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'
-            }}>
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">About You</h3>
-            <p className="text-sm font-bold text-foreground leading-relaxed italic opacity-90">"{profile.bio}"</p>
+            <Button
+              onClick={() => setShowEditDialog(true)}
+              className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold text-base shadow-lg"
+            >
+              <User className="w-5 h-5" />
+              Edit Profile
+            </Button>
           </motion.div>
-        )}
 
-        {/* Interests Section */}
-        {profile?.interests && profile.interests.length > 0 && (
-          <motion.div variants={childVariant} className="rounded-[2.5rem] p-6 border-2"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'
-            }}>
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">Interests</h3>
-            <div className="flex flex-wrap gap-2">
-              {profile.interests.map((interest) => (
-                <span
-                  key={interest}
-                  className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
-                  style={{
-                    background: isLight ? 'rgba(228,0,124,0.08)' : 'rgba(228,0,124,0.15)',
-                    color: isLight ? '#E4007C' : 'white',
-                    border: '1px solid rgba(228,0,124,0.2)'
-                  }}
+          {/* Profile Completion */}
+          {completionPercent < 100 && (
+            <motion.div
+              variants={childVariant}
+            >
+              <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 cursor-pointer" onClick={() => setShowEditDialog(true)}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">Complete your profile</span>
+                    </div>
+                    <span className="text-sm font-bold text-primary">{completionPercent}%</span>
+                  </div>
+                  <Progress value={completionPercent} className="h-2" />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Complete profiles get more matches! Tap to edit.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Your Likes & Who Liked You */}
+          <motion.div
+            variants={childVariant}
+            className="space-y-3"
+          >
+            <Card className="bg-card border-border">
+              <CardContent className="p-4">
+                <button
+                  onClick={() => navigate('/client/liked-properties')}
+                  className="w-full flex items-center gap-3"
                 >
-                  {interest}
-                </span>
-              ))}
-            </div>
+                  <Flame className="w-5 h-5 text-orange-500" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-foreground">Your Likes</div>
+                    <div className="text-sm text-muted-foreground">Properties you've liked</div>
+                  </div>
+                </button>
+              </CardContent>
+            </Card>
+            <Card className="bg-card border-border">
+              <CardContent className="p-4">
+                <button
+                  onClick={() => navigate('/client/who-liked-you')}
+                  className="w-full flex items-center gap-3"
+                >
+                  <Heart className="w-5 h-5 text-pink-500" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium text-foreground">Who Liked You</div>
+                    <div className="text-sm text-muted-foreground">See who's interested in you</div>
+                  </div>
+                </button>
+              </CardContent>
+            </Card>
           </motion.div>
-        )}
 
-        {/* Share Profile */}
-        <motion.div variants={childVariant}>
+          {/* About & Interests Section */}
+          {(profile?.bio || profile?.interests?.length > 0) && (
+            <motion.div
+              variants={childVariant}
+              className="space-y-3"
+            >
+              {profile?.bio && (
+                <Card className="bg-card border-border">
+                  <CardContent className="p-4">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">About</h3>
+                    <p className="text-foreground">{profile.bio}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {profile?.interests?.length > 0 && (
+                <Card className="bg-card border-border">
+                  <CardContent className="p-4">
+                    <h3 className="text-sm font-medium text-muted-foreground mb-2">Interests</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.interests.map((interest) => (
+                        <span
+                          key={`interest-${interest}`}
+                          className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm"
+                        >
+                          {interest}
+                        </span>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          )}
+
+          {/* Share Profile Section - Earn Free Messages */}
           <SharedProfileSection
             profileId={user?.id}
             profileName={profile?.name || 'Your Profile'}
             isClient={true}
           />
-        </motion.div>
 
-
-
-        {/* Upgrade Button - Flagship Mexican Pink */}
-        <motion.div variants={childVariant}>
-          <button
-            onClick={() => navigate('/subscription-packages')}
-            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] mexican-pink-premium relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl"
+          {/* Filter Colors / Theme Section */}
+          <motion.div
+            variants={childVariant}
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
-            <Crown className="w-7 h-7 relative z-10 drop-shadow-lg animate-pulse" />
-            <span className="relative z-10 font-black tracking-tight text-lg">Premium Upgrade</span>
-          </button>
-        </motion.div>
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-primary" />
+                  <CardTitle>Filter Colors</CardTitle>
+                </div>
+                <CardDescription>
+                  Customize your app appearance
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ThemeSelector compact showTitle={false} />
+              </CardContent>
+            </Card>
+          </motion.div>
 
-        {/* Secondary Actions */}
-        <motion.div variants={childVariant} className="space-y-3">
-          <button
-            onClick={() => navigate('/client/settings')}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2"
-            style={{
-              background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
-              borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)',
-              color: 'var(--foreground)',
-              boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.03)' : 'none'
-            }}
+          <Separator className="my-4" />
+
+          {/* Quick Links */}
+          <motion.div
+            variants={childVariant}
           >
-            <Settings className="w-5 h-5 opacity-70" />
-            Settings
-          </button>
+            <Card className="bg-card border-border">
+              <CardContent className="p-0">
+                <button
+                  onClick={() => navigate('/radio')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
+                >
+                  <Radio className="w-5 h-5 text-emerald-500" />
+                  <span className="flex-1 text-left text-foreground">Radio Player</span>
+                </button>
+                <button
+                  onClick={() => navigate('/client/contracts')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
+                >
+                  <FileText className="w-5 h-5 text-blue-500" />
+                  <span className="flex-1 text-left text-foreground">My Contracts</span>
+                </button>
+                <button
+                  onClick={() => navigate('/client/legal-services')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
+                >
+                  <Scale className="w-5 h-5 text-indigo-500" />
+                  <span className="flex-1 text-left text-foreground">Legal Services</span>
+                </button>
+                <button
+                  onClick={() => setShowShareDialog(true)}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
+                >
+                  <Share2 className="w-5 h-5 text-purple-500" />
+                  <span className="flex-1 text-left text-foreground">Share Profile</span>
+                </button>
+                <button
+                  onClick={() => navigate('/subscription-packages')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
+                >
+                  <Crown className="w-5 h-5 text-amber-500" />
+                  <span className="flex-1 text-left text-foreground">Subscription</span>
+                </button>
+                <button
+                  onClick={() => navigate('/client/settings')}
+                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors"
+                >
+                  <SettingsIcon className="w-5 h-5 text-gray-500" />
+                  <span className="flex-1 text-left text-foreground">Settings</span>
+                </button>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <button
-            onClick={signOut}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
+          {/* Logout Button */}
+          <motion.div
+            variants={childVariant}
           >
-            <LogOut className="w-5 h-5" />
-            Sign Out
-          </button>
-        </motion.div>
+            <Button
+              onClick={signOut}
+              variant="outline"
+              className="w-full h-12 gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            >
+              <LogOut className="w-5 h-5" />
+              Sign Out
+            </Button>
+          </motion.div>
 
-        <div className="h-12" />
+          {/* Bottom spacing for navigation */}
+          <div className="h-8" />
+        </div>
       </motion.div>
 
-      <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
+      <ClientProfileDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+      />
 
       <PhotoPreview
         photos={profile?.profile_images || []}
         isOpen={showPhotoPreview}
         onClose={() => setShowPhotoPreview(false)}
         initialIndex={selectedPhotoIndex}
+      />
+
+      <ShareDialog
+        open={showShareDialog}
+        onOpenChange={setShowShareDialog}
+        profileId={user?.id}
+        title={profile?.name || 'My Profile'}
+        description={`Check out ${profile?.name || 'this profile'} on Zwipes! See their interests, lifestyle, and more.`}
       />
     </>
   );

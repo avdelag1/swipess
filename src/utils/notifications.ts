@@ -5,7 +5,7 @@
  * Use these helper functions instead of calling toast() directly for better consistency.
  */
 
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import { CheckCircle2, XCircle, AlertCircle, Info, Flame, MessageCircle, Upload } from 'lucide-react';
 
 export type NotificationType =

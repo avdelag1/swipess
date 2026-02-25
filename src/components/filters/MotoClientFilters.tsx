@@ -9,7 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, Save } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 
@@ -142,9 +142,16 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
         moto_features: features.length > 0 ? features : null,
         moto_is_electric: isElectricOnly || null,
       });
-      toast.success('Filters applied!', { description: 'Your motorcycle preferences have been saved.' });
+      toast({
+        title: 'Filters applied!',
+        description: 'Your motorcycle preferences have been saved.',
+      });
     } catch (error) {
-      toast.error('Error', { description: 'Failed to save preferences.' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save preferences.',
+        variant: 'destructive',
+      });
     }
 
     onApply({
@@ -247,9 +254,16 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
         moto_is_electric: isElectricOnly || null,
         moto_battery_capacity_min: batteryCapacity > 0 ? batteryCapacity : null,
       });
-      toast.success('Preferences saved!', { description: 'Your motorcycle filter preferences have been saved successfully.' });
+      toast({
+        title: 'Preferences saved!',
+        description: 'Your motorcycle filter preferences have been saved successfully.',
+      });
     } catch (error) {
-      toast.error('Error', { description: 'Failed to save preferences. Please try again.' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save preferences. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 

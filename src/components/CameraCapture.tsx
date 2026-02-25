@@ -19,7 +19,7 @@ import {
   Grid3X3,
   Edit3,
 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { CameraSettingsPanel } from '@/components/CameraSettingsPanel';
 import { CameraFiltersPanel } from '@/components/CameraFiltersPanel';
 import { PhotoEditor } from '@/components/PhotoEditor';
@@ -287,7 +287,11 @@ export function CameraCapture({
   // Handle timer countdown and capture
   const handleCapture = useCallback(async () => {
     if (capturedPhotos.length >= maxPhotos) {
-      toast.error('Photo Limit Reached', { description: `Maximum ${maxPhotos} photos allowed.` });
+      toast({
+        title: 'Photo Limit Reached',
+        description: `Maximum ${maxPhotos} photos allowed.`,
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -312,14 +316,21 @@ export function CameraCapture({
     if (photo) {
       // Add photo to the captured photos array
       addPhoto(photo);
-      toast.success('Photo Captured!', { description: `${capturedPhotos.length + 1}/${maxPhotos} photos taken` });
+      toast({
+        title: 'Photo Captured!',
+        description: `${capturedPhotos.length + 1}/${maxPhotos} photos taken`,
+      });
     }
   }, [timerSeconds, capturedPhotos.length, maxPhotos, captureWithEffects, flashMode, nightConfig.enabled, addPhoto]);
 
   // Handle complete
   const handleComplete = () => {
     if (capturedPhotos.length === 0) {
-      toast.error('No Photos', { description: 'Please take at least one photo.' });
+      toast({
+        title: 'No Photos',
+        description: 'Please take at least one photo.',
+        variant: 'destructive',
+      });
       return;
     }
     stopStream();
@@ -361,7 +372,10 @@ export function CameraCapture({
         ...capturedPhotos[editingPhotoIndex],
         dataUrl: editedDataUrl,
       });
-      toast.success('Photo Edited!', { description: 'Your changes have been applied.' });
+      toast({
+        title: 'Photo Edited!',
+        description: 'Your changes have been applied.',
+      });
     }
     setShowPhotoEditor(false);
     setEditingPhotoIndex(null);

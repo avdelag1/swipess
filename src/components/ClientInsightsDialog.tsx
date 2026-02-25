@@ -8,7 +8,7 @@ import { ClientProfile } from '@/hooks/useClientProfiles';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { useState, memo, useMemo, useCallback } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';
@@ -72,33 +72,21 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
   // Calculate client statistics based on profile completeness
   // Must be called before any early returns to follow React hooks rules
   const clientStats = useMemo(() => {
-    if (!profile) return {
-      profileViews: 0,
-      ownerLikes: 0,
-      responseRate: 0,
-      averageResponseTime: 'N/A'
-    };
+    if (!profile) return null;
     const completeness = getProfileCompleteness(profile);
     const interestCount = (profile.interests?.length || 0) + (profile.preferred_activities?.length || 0);
 
     return {
-      profileViews: Math.max(5, Math.round(completeness * 5)),
-      ownerLikes: Math.max(1, Math.round(interestCount * 2)),
-      responseRate: completeness >= 80 ? 95 : Math.round(completeness * 0.9),
-      averageResponseTime: '1-2 hours'
+      profileViews: Math.max(5, Math.round(completeness * 5)), // Scale: 5-500 based on completeness
+      ownerLikes: Math.max(1, Math.round(interestCount * 2)), // Scale: 1-50 based on interests
+      responseRate: completeness >= 80 ? 95 : Math.round(completeness * 0.9), // 0-95% based on completeness
+      averageResponseTime: '1-2 hours' // Standard response time
     };
   }, [profile]);
 
   // Calculate renter readiness and activity insights
   const renterInsights = useMemo(() => {
-    if (!profile) return {
-      readinessScore: 0, activityLevel: 'new' as const, photoCount: 0, interestCount: 0,
-      wantsLongTerm: false, wantsShortTerm: false, needsPetFriendly: false, prefersFurnished: false,
-      isDigitalNomad: false, needsFamily: false, isStudent: false, needsQuiet: false,
-      isBeachLover: false, needsCityCenter: false, isFitnessOriented: false, isEcoConscious: false,
-      needsMotorcycle: false, needsBicycle: false, needsYacht: false,
-      matchPotential: 0, isHotProspect: false, completeness: 0,
-    };
+    if (!profile) return null;
     const completeness = getProfileCompleteness(profile);
     const interestCount = (profile.interests?.length || 0) + (profile.preferred_activities?.length || 0);
     const hasPhotos = (profile.profile_images?.length || 0) > 0;
@@ -197,7 +185,10 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
 
     setIsCreatingConversation(true);
     try {
-      toast('Starting conversation', { description: 'Creating a new conversation...' });
+      toast({
+        title: 'Starting conversation',
+        description: 'Creating a new conversation...',
+      });
 
       const result = await startConversation.mutateAsync({
         otherUserId: profile.user_id,
@@ -213,7 +204,11 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
       if (import.meta.env.DEV) {
         logger.error('Error starting conversation:', error);
       }
-      toast.error('Could not start conversation', { description: error instanceof Error ? error.message : 'Please try again later.' });
+      toast({
+        title: 'Could not start conversation',
+        description: error instanceof Error ? error.message : 'Please try again later.',
+        variant: 'destructive',
+      });
     } finally {
       setIsCreatingConversation(false);
     }

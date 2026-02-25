@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Navigation, Loader2, AlertCircle, Search, Globe, Star, Building } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { logger } from '@/utils/prodLogger';
 import {
   getRegions,
@@ -262,7 +262,11 @@ export function GoogleLocationSelector({
     setIsLoading(true);
     try {
       if (!navigator.geolocation) {
-        toast.error("Geolocation Not Available", { description: "Your browser doesn't support location services." });
+        toast({
+          title: "Geolocation Not Available",
+          description: "Your browser doesn't support location services.",
+          variant: "destructive"
+        });
         setIsLoading(false);
         return;
       }
@@ -284,13 +288,20 @@ export function GoogleLocationSelector({
           await reverseGeocode(lat, lng);
           setIsLoading(false);
 
-          toast.success("Location Found", { description: "Your current location has been detected." });
+          toast({
+            title: "Location Found",
+            description: "Your current location has been detected.",
+          });
         },
         (error) => {
           if (import.meta.env.DEV) {
             logger.error('Geolocation error:', error);
           }
-          toast.error("Location Access Denied", { description: "Please enable location services and try again." });
+          toast({
+            title: "Location Access Denied",
+            description: "Please enable location services and try again.",
+            variant: "destructive"
+          });
           setIsLoading(false);
         },
         { enableHighAccuracy: true, timeout: 10000 }
@@ -299,7 +310,11 @@ export function GoogleLocationSelector({
       if (import.meta.env.DEV) {
         logger.error('Error getting location:', error);
       }
-      toast.error("Error", { description: "Failed to get your location. Please try again." });
+      toast({
+        title: "Error",
+        description: "Failed to get your location. Please try again.",
+        variant: "destructive"
+      });
       setIsLoading(false);
     }
   };
@@ -372,7 +387,10 @@ export function GoogleLocationSelector({
       locationType: selectedTab,
     });
 
-    toast.success("Location Selected", { description: `${cityData.name}, ${countryName}` });
+    toast({
+      title: "Location Selected",
+      description: `${cityData.name}, ${countryName}`,
+    });
   };
 
   // Handle neighborhood selection

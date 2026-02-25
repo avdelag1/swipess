@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Upload, X, Image, Star, Camera, MoveVertical } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { validateImageFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
 import { logger } from '@/utils/prodLogger';
 import { motion, Reorder } from 'framer-motion';
@@ -57,7 +57,11 @@ export function PhotoUploadManager({
 
     const remainingSlots = maxPhotos - currentPhotos.length;
     if (remainingSlots <= 0) {
-      toast.error("Photo Limit Reached", { description: `You can only upload ${maxPhotos} photos for ${uploadType}s.` });
+      toast({
+        title: "Photo Limit Reached",
+        description: `You can only upload ${maxPhotos} photos for ${uploadType}s.`,
+        variant: "destructive"
+      });
       return;
     }
 
@@ -73,7 +77,11 @@ export function PhotoUploadManager({
     const invalidFiles = validatedFiles.filter(f => !f.validation.isValid);
     if (invalidFiles.length > 0) {
       invalidFiles.forEach(({ file, validation }) => {
-        toast.error("Invalid File", { description: `${file.name}: ${validation.error}` });
+        toast({
+          title: "Invalid File",
+          description: `${file.name}: ${validation.error}`,
+          variant: "destructive"
+        });
       });
     }
 
@@ -131,17 +139,32 @@ export function PhotoUploadManager({
 
       // Show appropriate success/error message
       if (successCount > 0 && failCount === 0) {
-        toast.success("Photos Uploaded", { description: `${successCount} photo(s) uploaded successfully!` });
+        toast({
+          title: "Photos Uploaded",
+          description: `${successCount} photo(s) uploaded successfully!`
+        });
       } else if (successCount > 0 && failCount > 0) {
-        toast("Partial Upload", { description: `${successCount} photo(s) uploaded, ${failCount} failed. Please retry failed uploads.` });
+        toast({
+          title: "Partial Upload",
+          description: `${successCount} photo(s) uploaded, ${failCount} failed. Please retry failed uploads.`,
+          variant: "default"
+        });
       } else {
-        toast.error("Upload Failed", { description: "All photos failed to upload. Please check your connection and try again." });
+        toast({
+          title: "Upload Failed",
+          description: "All photos failed to upload. Please check your connection and try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       if (import.meta.env.DEV) {
         logger.error('Upload error:', error);
       }
-      toast.error("Upload Error", { description: "An unexpected error occurred. Please try again." });
+      toast({
+        title: "Upload Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setUploading(false);
     }

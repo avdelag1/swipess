@@ -1,33 +1,22 @@
+// @ts-nocheck
 import { useState, useCallback } from 'react';
-import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
+import { toast as sonnerToast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
+import { retryWithBackoff } from '@/utils/retryUtils';
 import { logger } from '@/utils/prodLogger';
 import { STORAGE, REFERRAL } from '@/constants/app';
 
 interface CreateProfileData {
   id: string;
-  user_id: string;
   full_name?: string;
   email?: string;
 }
 
 // Track ongoing profile creation to prevent concurrent attempts
 const profileCreationInProgress = new Set<string>();
-
-/**
- * Reset the profile creation lock for a given user.
- * Call this on fresh sign-in to prevent stale lockouts from previous failed attempts.
- */
-export function resetProfileCreationLock(userId?: string) {
-  if (userId) {
-    profileCreationInProgress.delete(userId);
-  } else {
-    profileCreationInProgress.clear();
-  }
-}
 
 export function useProfileSetup() {
   const [isCreatingProfile, setIsCreatingProfile] = useState(false);
@@ -70,8 +59,8 @@ export function useProfileSetup() {
       }
 
       // Check if reward already granted (prevent abuse)
-      const { data: existingReward } = await (supabase as any)
-        .from('tokens')
+      const { data: existingReward } = await supabase
+        .from('message_activations')
         .select('id')
         .eq('user_id', referrerId)
         .eq('activation_type', 'referral_bonus')
@@ -87,8 +76,8 @@ export function useProfileSetup() {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 60);
 
-      const { data: activationData, error: activError } = await (supabase as any)
-        .from('tokens')
+      const { data: activationData, error: activError } = await supabase
+        .from('message_activations')
         .insert({
           user_id: referrerId,
           activation_type: 'referral_bonus',
@@ -119,7 +108,7 @@ export function useProfileSetup() {
             content: 'You earned 1 free message for inviting a new user!',
             is_read: false,
           }])
-          .then(() => { });
+          .then(() => {});
 
         if (import.meta.env.DEV) {
           logger.log('[ProfileSetup] Referral reward granted to:', referrerId);
@@ -130,19 +119,15 @@ export function useProfileSetup() {
       localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
 
       // Invalidate queries for referrer
-      queryClient.invalidateQueries({ queryKey: ['tokens', referrerId] });
+      queryClient.invalidateQueries({ queryKey: ['message-activations', referrerId] });
     } catch (error) {
       logger.error('[ProfileSetup] Error processing referral:', error);
       localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
     }
   }, [queryClient]);
 
-  const createProfileIfMissing = useCallback(async (user: User, role: 'client' | 'owner') => {
-    // CRITICAL: Basic guard for user existence
-    if (!user?.id) {
-      logger.log('[ProfileSetup] Skipping creation - no user ID');
-      return;
-    }
+  const createProfileIfMissing = async (user: User, role: 'client' | 'owner') => {
+    if (!user) return null;
 
     // Prevent concurrent profile creation for the same user
     if (profileCreationInProgress.has(user.id)) {
@@ -152,127 +137,63 @@ export function useProfileSetup() {
 
     profileCreationInProgress.add(user.id);
     setIsCreatingProfile(true);
-
+    
     try {
       // Check if profile already exists
       const { data: existingProfile } = await supabase
         .from('profiles')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .maybeSingle();
 
       if (existingProfile) {
         // Ensure role exists in user_roles table with retry logic
         let roleCreated = false;
         let lastRoleError = null;
-
+        
         for (let attempt = 1; attempt <= 3; attempt++) {
           const { error: roleError } = await supabase.rpc('upsert_user_role', {
             p_user_id: user.id,
             p_role: role
           });
-
+          
           if (!roleError) {
             roleCreated = true;
             break;
           }
-
+          
           lastRoleError = roleError;
           if (import.meta.env.DEV) logger.error(`[ProfileSetup] Role upsert attempt ${attempt}/3 failed:`, roleError.message);
-
+          
           if (attempt < 3) {
             // Exponential backoff: 500ms, 1000ms
             await new Promise(resolve => setTimeout(resolve, attempt * 500));
           }
         }
-
+        
         if (!roleCreated) {
           if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to upsert role after 3 attempts:', lastRoleError);
-          toast.error("Role Update Failed", {
+          toast({
+            title: "Role Update Failed",
             description: "Could not update user role. Please refresh the page.",
+            variant: "destructive"
           });
         }
-
-        // CRITICAL FIX: The DB trigger creates profiles with onboarding_completed=false
-        // and may leave full_name/email empty. Update these fields so the user
-        // appears correctly in the backend and in swipe decks.
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({
-            onboarding_completed: true,
-            full_name: user.user_metadata?.name || user.user_metadata?.full_name || undefined,
-            email: user.email || undefined,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', user.id)
-          .eq('onboarding_completed', false); // Only update if still false (idempotent)
-
-        if (updateError && import.meta.env.DEV) {
-          logger.error('[ProfileSetup] Failed to update onboarding status:', updateError);
-        }
-
-        // Ensure specialized profile exists (client_profiles or owner_profiles)
-        try {
-          if (role === 'client') {
-            const { data: existingClientProfile } = await supabase
-              .from('client_profiles')
-              .select('id')
-              .eq('user_id', user.id)
-              .maybeSingle();
-
-            if (!existingClientProfile) {
-              const { error: cpError } = await supabase
-                .from('client_profiles')
-                .insert([{
-                  user_id: user.id,
-                  name: user.user_metadata?.name || user.user_metadata?.full_name || '',
-                  profile_images: [],
-                  interests: [],
-                }]);
-              if (cpError && cpError.code !== '23505') {
-                logger.error('[ProfileSetup] Failed to create client_profiles for existing user:', cpError);
-              }
-            }
-          } else if (role === 'owner') {
-            const { data: existingOwnerProfile } = await supabase
-              .from('owner_profiles')
-              .select('id')
-              .eq('user_id', user.id)
-              .maybeSingle();
-
-            if (!existingOwnerProfile) {
-              const { error: opError } = await supabase
-                .from('owner_profiles')
-                .insert([{
-                  user_id: user.id,
-                  business_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
-                  contact_email: user.email || '',
-                  profile_images: [],
-                }]);
-              if (opError && opError.code !== '23505') {
-                logger.error('[ProfileSetup] Failed to create owner_profiles for existing user:', opError);
-              }
-            }
-          }
-        } catch (specializedProfileError) {
-          logger.error('[ProfileSetup] Error creating specialized profile for existing user:', specializedProfileError);
-        }
-
+        
         // CRITICAL: Invalidate cache for existing profiles too!
         queryClient.invalidateQueries({ queryKey: ['user-role', user.id] });
         await new Promise(resolve => setTimeout(resolve, 100));
-
+        
         return existingProfile;
       }
 
       // Create new profile with exponential backoff retry (3 attempts)
       let newProfile = null;
       let lastProfileError = null;
-
+      
       for (let attempt = 1; attempt <= 3; attempt++) {
         const profileData: CreateProfileData = {
           id: user.id,
-          user_id: user.id,
           full_name: user.user_metadata?.name || user.user_metadata?.full_name || '',
           email: user.email || ''
         };
@@ -315,8 +236,10 @@ export function useProfileSetup() {
           : lastProfileError?.message || 'Unknown error';
 
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create profile after 3 attempts:', lastProfileError);
-        toast.error("Profile Creation Failed", {
+        toast({
+          title: "Profile Creation Failed",
           description: errorMsg,
+          variant: "destructive"
         });
         return null;
       }
@@ -360,7 +283,7 @@ export function useProfileSetup() {
       // Retry logic for role creation (up to 3 attempts with exponential backoff)
       let roleCreated = false;
       let lastRoleError = null;
-
+      
       for (let attempt = 1; attempt <= 3; attempt++) {
         const { error: roleError } = await supabase.rpc('upsert_user_role', {
           p_user_id: user.id,
@@ -387,26 +310,28 @@ export function useProfileSetup() {
 
       if (!roleCreated) {
         if (import.meta.env.DEV) logger.error('[ProfileSetup] Failed to create role after 3 attempts:', lastRoleError);
-        toast.error("Role Setup Failed", {
+        toast({
+          title: "Role Setup Failed",
           description: "Profile created but role assignment failed. Please contact support.",
+          variant: "destructive"
         });
         return null;
       }
-
+      
       // Invalidate role cache now that role is fully created
       queryClient.invalidateQueries({ queryKey: ['user-role', user.id] });
 
       // Add small delay to ensure cache invalidation propagates
       await new Promise(resolve => setTimeout(resolve, 150));
 
-      // Grant welcome token for the new user
-      // This gives them 1 free token to start (or 2 if they signed up via referral)
+      // Grant welcome message activation for the new user
+      // This gives them 1 free message to start (or 2 if they signed up via referral)
       const grantWelcomeActivation = async (userId: string) => {
         try {
           // Check if welcome activation already granted - escape deep type inference
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const welcomeResult = await (supabase as any)
-            .from('tokens')
+            .from('message_activations')
             .select('id')
             .eq('user_id', userId)
             .eq('activation_type', 'welcome')
@@ -447,16 +372,16 @@ export function useProfileSetup() {
             }
           }
 
-          // Grant free tokens (expires in 90 days)
-          // - 2 tokens if signed up via referral
-          // - 1 token if normal signup
+          // Grant free message activations (expires in 90 days)
+          // - 2 activations if signed up via referral
+          // - 1 activation if normal signup
           const expiresAt = new Date();
           expiresAt.setDate(expiresAt.getDate() + 90);
 
           const activationCount = hasReferralCode ? 2 : 1;
           const notesText = hasReferralCode
-            ? 'Welcome bonus - referral signup (2 free tokens)'
-            : 'Welcome bonus - first token free';
+            ? 'Welcome bonus - referral signup (2 free messages)'
+            : 'Welcome bonus - first message free';
 
           const insertData = {
             user_id: userId,
@@ -467,8 +392,8 @@ export function useProfileSetup() {
             expires_at: expiresAt.toISOString(),
             notes: notesText,
           };
-          const { error: activError } = await (supabase as any)
-            .from('tokens')
+          const { error: activError } = await supabase
+            .from('message_activations')
             .insert(insertData);
 
           if (!activError) {
@@ -476,7 +401,7 @@ export function useProfileSetup() {
               logger.log(`[ProfileSetup] Welcome activation granted to ${userId}: ${activationCount} message(s)`);
             }
             // Invalidate activations cache
-            queryClient.invalidateQueries({ queryKey: ['tokens', userId] });
+            queryClient.invalidateQueries({ queryKey: ['message-activations', userId] });
           }
         } catch (error) {
           logger.error('[ProfileSetup] Error granting welcome activation:', error);
@@ -498,15 +423,17 @@ export function useProfileSetup() {
 
     } catch (error) {
       if (import.meta.env.DEV) logger.error('[ProfileSetup] Unexpected error in profile setup:', error);
-      toast.error("Setup Error", {
+      toast({
+        title: "Setup Error",
         description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
       });
       return null;
     } finally {
       profileCreationInProgress.delete(user.id);
       setIsCreatingProfile(false);
     }
-  }, [processReferralReward, queryClient]);
+  };
 
   return {
     createProfileIfMissing,

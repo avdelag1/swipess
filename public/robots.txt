@@ -1,28 +1,14 @@
-# Swipess - Crawl Control
-# https://www.robotstxt.org/
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
 
 User-agent: *
 Allow: /
-Allow: /about
-Allow: /faq/client
-Allow: /faq/owner
-Allow: /privacy-policy
-Allow: /terms-of-service
-Allow: /legal
-Allow: /tutorial
-Allow: /profile/
-Allow: /listing/
-
-# Disallow internal app routes
-Disallow: /client/
-Disallow: /owner/
-Disallow: /messages
-Disallow: /notifications
-Disallow: /subscription-packages
-Disallow: /radio
-Disallow: /payment/
-Disallow: /reset-password
-Disallow: /test/
-
-# Sitemap
-Sitemap: https://swipess.com/sitemap.xml

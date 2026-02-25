@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import PhotoCamera from '@/components/PhotoCamera';
 import UploadProgress from '@/components/UploadProgress';
 import { usePhotoCamera } from '@/hooks/usePhotoCamera';
