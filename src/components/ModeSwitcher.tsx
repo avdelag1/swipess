@@ -70,7 +70,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           border: glassBorder,
           boxShadow: floatingShadow,
         }}
-        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
+        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
       >
         <AnimatePresence mode="wait">
           {isSwitching ? (
@@ -121,7 +121,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           sizeClasses[size],
           className
         )}
-        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
+        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
       >
         <motion.div
           className="absolute inset-y-1 rounded-full bg-gradient-to-r shadow-sm"
@@ -150,7 +150,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           activeMode === 'owner' ? 'text-orange-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
           <UserCog strokeWidth={3} className="h-3.5 w-3.5" />
-          <span className="text-xs uppercase tracking-wider">Owner</span>
+          <span className="text-xs uppercase tracking-wider">Business</span>
         </div>
 
         <AnimatePresence>
@@ -190,7 +190,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         border: glassBorder,
         boxShadow: floatingShadow,
       }}
-      aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
+      aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
     >
       <AnimatePresence mode="wait">
         <motion.div
@@ -212,7 +212,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           ) : (
             <>
               <UserCog strokeWidth={3} className="h-3.5 w-3.5 text-orange-400" />
-              <span className="font-bold text-orange-400">Owner Side</span>
+              <span className="font-bold text-orange-400">Business Side</span>
             </>
           )}
         </motion.div>
