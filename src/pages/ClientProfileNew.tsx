@@ -176,38 +176,30 @@ const ClientProfileNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => navigate('/client/liked-properties')}
-            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(20px)'
-            }}
+            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
           >
-            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]">
-              <Flame className="w-6 h-6 text-white" />
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
+              <Flame className="w-6 h-6 text-[#E4007C]" />
             </div>
-            <div>
-              <div className="text-sm font-black text-foreground">Your Likes</div>
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Properties</div>
+            <div className="relative z-10">
+              <div className="text-sm font-black tracking-tight text-white mt-1">Your Likes</div>
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Properties</div>
             </div>
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => navigate('/client/who-liked-you')}
-            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(20px)'
-            }}
+            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
           >
-            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#D4006E] to-[#E4007C]">
-              <Heart className="w-6 h-6 text-white" />
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
+              <Heart className="w-6 h-6 text-[#E4007C]" />
             </div>
-            <div>
-              <div className="text-sm font-black text-foreground">Who Liked You</div>
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Interested</div>
+            <div className="relative z-10">
+              <div className="text-sm font-black tracking-tight text-white mt-1">Who Liked You</div>
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Interested</div>
             </div>
           </motion.button>
         </motion.div>

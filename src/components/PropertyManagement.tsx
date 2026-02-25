@@ -28,7 +28,7 @@ interface PropertyManagementProps {
 
 const getCategoryColor = (category: string) => {
   switch (category) {
-    case 'worker': 
+    case 'worker':
     case 'services': return 'bg-blue-500 text-white';
     case 'motorcycle': return 'bg-orange-500 text-white';
     case 'bicycle': return 'bg-purple-500 text-white';
@@ -181,9 +181,9 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
       const { error } = await supabase
         .from('listings')
-        .update({ 
+        .update({
           status: newStatus,
-          availability_status: newStatus 
+          availability_status: newStatus
         })
         .eq('id', listing.id);
 
@@ -262,31 +262,31 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900/50 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-2xl"
         >
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-xl bg-primary/20 border border-primary/20">
-              <LayoutGrid className="w-6 h-6 text-primary" />
+          <div className="flex items-center gap-4">
+            <div className="p-4 rounded-full bg-[#E4007C]/10 border border-[#E4007C]/20 shadow-[0_0_15px_rgba(228,0,124,0.15)]">
+              <LayoutGrid className="w-7 h-7 text-[#E4007C]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">My Listings</h1>
-              <p className="text-muted-foreground text-sm">Manage and track all your rental properties</p>
+              <h1 className="text-2xl font-black tracking-tighter text-white">My Listings</h1>
+              <p className="text-zinc-500 text-sm font-bold">Manage and track all your rental properties</p>
             </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
+          <div className="flex gap-3 w-full sm:w-auto">
             <Button
               variant="outline"
-              className="gap-2 border-primary/30 text-primary hover:bg-primary/10 flex-1 sm:flex-initial"
+              className="gap-2 border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide"
               onClick={() => setShowAIAssistant(true)}
             >
               <Sparkles className="w-4 h-4" />
               <span>AI</span>
             </Button>
             <Button
-              className="gap-2 bg-primary hover:bg-primary/90 text-white font-semibold flex-1 sm:flex-initial"
+              className="gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95"
               onClick={handleAddProperty}
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               <span>Add Listing</span>
             </Button>
           </div>
@@ -361,13 +361,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           <ImageIcon className={cn("w-10 h-10", isLight ? 'text-gray-300' : 'text-gray-600')} />
                         </div>
                       )}
-                      
+
                       {/* Badges */}
                       <div className="absolute top-2 left-2 flex flex-col gap-1">
                         <Badge className={cn("text-[10px]", getCategoryColor(listing.category || 'property'))}>
                           {listing.category === 'worker' || listing.category === 'services' ? 'Service' :
-                           listing.category === 'motorcycle' ? 'Moto' :
-                           listing.category === 'bicycle' ? 'Bike' : 'Property'}
+                            listing.category === 'motorcycle' ? 'Moto' :
+                              listing.category === 'bicycle' ? 'Bike' : 'Property'}
                         </Badge>
                         {getStatusBadge(availabilityStatus[listing.id] || listing.status)}
                       </div>
