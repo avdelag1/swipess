@@ -275,13 +275,13 @@ body {
     --button-gradient: linear-gradient(135deg, hsl(0, 100%, 60%) 0%, hsl(0, 100%, 50%) 100%);
 
     /* Background Colors - HSL Format (dark-first) */
-    --bg-primary: 0 0% 5%;
-    --bg-secondary: 0 0% 8%;
-    --bg-tertiary: 0 0% 12%;
+    --bg-primary: 0 0% 0%;
+    --bg-secondary: 0 0% 3%;
+    --bg-tertiary: 0 0% 5%;
 
     /* Text Colors - HSL Format (dark-first) */
-    --text-primary: 0 0% 96%;
-    --text-secondary: 0 0% 75%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 0 0% 70%;
     --text-tertiary: 0 0% 50%;
     --text-white: 0 0% 100%;
     --text-gray: 0 0% 64%;
@@ -303,22 +303,22 @@ body {
     --overlay: rgba(0, 0, 0, 0.8);
 
     /* Shadcn compatibility colors - HSL Format (dark-first) */
-    --background: 0 0% 5%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 96%;
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 3%;
+    --card-foreground: 0 0% 100%;
     --primary: 0 100% 60%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 75%;
+    --secondary: 0 0% 5%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 5%;
+    --muted-foreground: 0 0% 70%;
     --accent: 0 100% 60%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
+    --border: 0 0% 8%;
+    --input: 0 0% 8%;
     --ring: 0 100% 60%;
     --radius: 1.25rem;
 
