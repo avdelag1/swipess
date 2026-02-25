@@ -2691,3 +2691,49 @@ html.white-matte iframe,
 html.white-matte .no-invert {
   filter: invert(1) hue-rotate(180deg);
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  WHITE THEME: Accent Color Correction               */
+/*  Pink/magenta (#E4007C) survives invert+hue-rotate  */
+/*  unchanged. Shift it to a clean blue accent.         */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Target elements with inline backgrounds containing the Mexican pink */
+html.white-matte [style*="E4007C"],
+html.white-matte [style*="e4007c"],
+html.white-matte [style*="D4006E"],
+html.white-matte [style*="C4006C"],
+html.white-matte [style*="FF1493"],
+html.white-matte [style*="ff009e"],
+html.white-matte [style*="F5DEB3"] {
+  filter: hue-rotate(90deg) saturate(0.7) !important;
+}
+
+/* Target Tailwind pink/rose utility classes */
+html.white-matte [class*="from-pink-"],
+html.white-matte [class*="to-pink-"],
+html.white-matte [class*="via-pink-"],
+html.white-matte [class*="bg-pink-"],
+html.white-matte [class*="text-pink-"],
+html.white-matte [class*="border-pink-"],
+html.white-matte [class*="ring-pink-"],
+html.white-matte [class*="from-rose-"],
+html.white-matte [class*="to-rose-"],
+html.white-matte [class*="via-rose-"],
+html.white-matte [class*="bg-rose-"],
+html.white-matte [class*="text-rose-"],
+html.white-matte [class*="border-rose-"],
+html.white-matte [class*="from-\\[\\#E4007C\\]"],
+html.white-matte [class*="bg-\\[\\#E4007C\\]"],
+html.white-matte [class*="text-\\[\\#E4007C\\]"],
+html.white-matte [class*="border-\\[\\#E4007C\\]"] {
+  filter: hue-rotate(90deg) saturate(0.7) !important;
+}
+
+/* Prevent double-filtering on nested elements */
+html.white-matte [style*="E4007C"] img,
+html.white-matte [style*="E4007C"] video,
+html.white-matte [class*="from-pink-"] img,
+html.white-matte [class*="from-pink-"] video {
+  filter: hue-rotate(-90deg) saturate(1.43) invert(1) hue-rotate(180deg) !important;
+}
