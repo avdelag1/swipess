@@ -124,10 +124,44 @@ export const GradientMaskBottom = memo(function GradientMaskBottom({
 });
 
 /**
+ * GLOBAL VIGNETTE - CINEMATIC SCREEN DEPTH
+ * 
+ * Recreates the filmic corner shading but with theme-awareness.
+ * In light theme, it uses extremely subtle grey tones to maintain depth without feeling "dirty".
+ */
+export const GlobalVignette = memo(function GlobalVignette({
+  intensity = 1,
+  className = '',
+  light = false,
+}: Omit<GradientMaskProps, 'zIndex' | 'heightPercent'>) {
+  const baseColor = light ? '100,100,100' : '0,0,0';
+  const alphaMultipiler = light ? 0.35 : 1;
+
+  const style: CSSProperties = {
+    position: 'fixed',
+    inset: 0,
+    pointerEvents: 'none',
+    zIndex: 1, // Above background, below all content
+    /* Intensified dark shade on all 4 corners + subtle top/bottom edge bands */
+    background: `
+      radial-gradient(ellipse 70% 35% at 0% 0%, rgba(${baseColor}, ${0.12 * intensity * alphaMultipiler}) 0%, transparent 100%),
+      radial-gradient(ellipse 70% 35% at 100% 0%, rgba(${baseColor}, ${0.12 * intensity * alphaMultipiler}) 0%, transparent 100%),
+      radial-gradient(ellipse 70% 35% at 0% 100%, rgba(${baseColor}, ${0.12 * intensity * alphaMultipiler}) 0%, transparent 100%),
+      radial-gradient(ellipse 70% 35% at 100% 100%, rgba(${baseColor}, ${0.12 * intensity * alphaMultipiler}) 0%, transparent 100%)
+    `,
+    /* Inner shadow for additional edge depth */
+    boxShadow: `inset 0 0 80px rgba(${baseColor}, ${0.08 * intensity * alphaMultipiler})`,
+    opacity: 1,
+    transform: 'translateZ(0)',
+  };
+
+  return <div className={className} style={style} aria-hidden="true" />;
+});
+
+/**
  * FULL GRADIENT OVERLAY
  *
- * Combines both top and bottom masks for a complete "vignette" effect.
- * Use this when you want both gradients as a single component.
+ * Combines top, bottom, and vignette for a complete flagship look.
  */
 export const GradientOverlay = memo(function GradientOverlay({
   intensity = 1,
@@ -135,9 +169,13 @@ export const GradientOverlay = memo(function GradientOverlay({
   light = false,
 }: Omit<GradientMaskProps, 'zIndex' | 'heightPercent'>) {
   return (
-    <div className={className} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-      <GradientMaskTop intensity={intensity} light={light} />
-      <GradientMaskBottom intensity={intensity} light={light} />
+    <div className={className} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 10 }}>
+      {/* Background vignette sits deeper */}
+      <GlobalVignette intensity={intensity} light={light} />
+
+      {/* Functional gradients for UI contrast sit higher */}
+      <GradientMaskTop intensity={intensity} light={light} zIndex={15} />
+      <GradientMaskBottom intensity={intensity} light={light} zIndex={20} />
     </div>
   );
 });
