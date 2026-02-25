@@ -3,7 +3,8 @@ import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
-import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
+import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
+import { useTheme } from '@/hooks/useTheme';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
 const VisualEngine = lazy(() =>
@@ -15,6 +16,9 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
+  const { theme } = useTheme();
+  const isLightTheme = theme === 'white-matte';
+
   // Initialize app features
   useKeyboardShortcuts();
   useFocusManagement();
@@ -32,9 +36,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <VisualEngine />
       </Suspense>
 
-      {/* Dark edge shading from top and bottom - cinematic screen feel */}
-      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} />
-      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} />
+      {/* Cinematic depth layers - react to theme (light/dark) */}
+      <GlobalVignette light={isLightTheme} intensity={0.8} />
+      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
+      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
 
       <main
         id="main-content"
