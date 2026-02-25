@@ -11,7 +11,7 @@ const FILTER_CATEGORIES = [
 ];
 
 const COLOR_OPTIONS = [
-  { name: 'Black', value: 'black', class: 'bg-black' },
+  { name: 'Black', value: 'black', class: 'bg-black ring-1 ring-foreground/25' },
   { name: 'White', value: 'white', class: 'bg-white border border-border' },
 ];
 
@@ -55,7 +55,7 @@ function CompactColorPreferences() {
                 >
                   {category.defaultColor === color.value && (
                     <svg
-                      className="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow-lg"
+                      className={`absolute inset-0 m-auto w-4 h-4 ${color.value === 'white' ? 'text-gray-800' : 'text-white'} drop-shadow-lg`}
                       fill="none"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -110,7 +110,7 @@ function FullColorPreferences() {
             className="space-y-3 p-4 bg-muted/20 rounded-xl border border-border/50"
           >
             <div className="flex items-center gap-2">
-              <div className={`w-3 h-3 rounded-full bg-${category.defaultColor}-500 shadow-md`}></div>
+              <div className={`w-3 h-3 rounded-full shadow-md ${category.defaultColor === 'black' ? 'bg-black ring-1 ring-foreground/25' : 'bg-white border border-border'}`}></div>
               <Label className="text-base font-semibold">{category.label}</Label>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -131,7 +131,7 @@ function FullColorPreferences() {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                      className="w-6 h-6 text-white drop-shadow-lg"
+                      className={`w-6 h-6 ${color.value === 'white' ? 'text-gray-800' : 'text-white'} drop-shadow-lg`}
                       fill="none"
                       strokeLinecap="round"
                       strokeLinejoin="round"
