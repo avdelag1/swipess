@@ -70,7 +70,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           task: 'chat',
           data: {
             query: userMessage,
-            messages: messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }))
+            messages: [
+              ...messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
+              { role: 'user', content: userMessage }
+            ]
           }
         }
       });
