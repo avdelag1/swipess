@@ -62,7 +62,7 @@ interface ThemeSelectorProps {
  *   compact = true  → Small pill for profile headers
  *   compact = false → Wider pill for settings pages
  */
-export function ThemeSelector({ compact = false }: ThemeSelectorProps) {
+export function ThemeSelector({ compact = false, showTitle = false }: ThemeSelectorProps) {
   const { theme, setTheme } = useTheme();
 
   const handleThemeChange = (newTheme: ThemeId) => {
@@ -192,7 +192,7 @@ export function ThemeSelector({ compact = false }: ThemeSelectorProps) {
           <Sparkles className="w-3.5 h-3.5" />
           <span>Theme applies instantly across the app</span>
         </div>
-      </div>
-    </motion.button>
+      </CardContent>
+    </Card>
   );
 }

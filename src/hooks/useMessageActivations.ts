@@ -6,33 +6,30 @@ export function useMessageActivations() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Fetch available tokens from actual table schema
+  // Fetch available tokens from tokens table (renamed from message_activations)
   const { data: tokens, isLoading } = useQuery({
     queryKey: ['message_activations', user?.id],
     queryFn: async () => {
       if (!user?.id) return { totalRemaining: 999 };
 
       try {
-        const { data, error } = await supabase
-          .from('message_activations')
+        const { data, error } = await (supabase as any)
+          .from('tokens')
           .select('*')
           .eq('user_id', user.id);
 
         if (error) {
-          // Table query failed - allow messaging anyway for testing
           return { totalRemaining: 999 };
         }
 
         if (!data || data.length === 0) {
-          // No token records - allow free messaging
           return { totalRemaining: 999 };
         }
 
-        const totalRemaining = data.reduce((sum, act) => sum + (act.activations_remaining || 0), 0);
+        const totalRemaining = data.reduce((sum: number, act: any) => sum + (act.activations_remaining || 0), 0);
 
         return { totalRemaining: totalRemaining > 0 ? totalRemaining : 999 };
       } catch {
-        // On any error, allow messaging
         return { totalRemaining: 999 };
       }
     },
