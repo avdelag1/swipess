@@ -137,13 +137,13 @@ export function useAnonymousDrafts() {
     // Restore listing draft
     if (listingDraft) {
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('listings')
           .insert({
             user_id: user.id,
             category: listingDraft.category,
             ...listingDraft.data,
-            status: 'published', // Auto-publish after signup
+            status: 'published',
           });
 
         if (!error) {
@@ -158,7 +158,7 @@ export function useAnonymousDrafts() {
     // Restore profile draft
     if (profileDraft) {
       try {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('profiles')
           .upsert({
             id: user.id,

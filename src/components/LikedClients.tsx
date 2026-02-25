@@ -92,7 +92,7 @@ export function LikedClients() {
       const { error } = await supabase
         .from('likes')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', user?.id ?? '')
         .eq('target_id', clientId)
         .eq('target_type', 'profile');
       if (error) throw error;
@@ -107,17 +107,67 @@ export function LikedClients() {
     }
   });
 
-  const handleAction = async (action: 'message' | 'view' | 'remove', client: any) => {
-    if (action === 'remove') {
-      setClientToDelete(client);
-      setShowDeleteDialog(true);
-      return;
+  const reportClientMutation = useMutation({
+    mutationFn: async ({ clientId, reason, details }: { clientId: string; reason: string; details: string }) => {
+      // Insert report into user_reports table (correct schema table name)
+      const { error } = await (supabase as any)
+        .from('user_reports')
+        .insert({
+          reporter_id: user?.id,
+          reported_user_id: clientId,
+          report_reason: reason,
+          report_details: details,
+          status: 'pending'
+        });
+
+      if (error) {
+        logger.error('Report submission error:', error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Report submitted. We'll review it shortly.");
+      setShowReportDialog(false);
+      setReportReason('');
+      setReportDetails('');
+      setSelectedClientForAction(null);
+    },
+    onError: () => {
+      toast.error("Failed to submit report. Please try again.");
     }
 
-    if (action === 'view') {
-      setSelectedClientForView(client);
-      setShowInsightsModal(true);
-      return;
+  const blockClientMutation = useMutation({
+    mutationFn: async (clientId: string) => {
+      // Insert block record into user_blocks table
+      const { error: blockError } = await (supabase as any)
+        .from('user_blocks')
+        .insert({
+          blocker_id: user?.id,
+          blocked_id: clientId
+        });
+
+      if (blockError && !blockError.message.includes('duplicate')) {
+        logger.error('Block error:', blockError);
+        throw blockError;
+      }
+
+      // Also remove from likes table
+      await supabase
+        .from('likes')
+        .delete()
+        .eq('user_id', user?.id ?? '')
+        .eq('target_id', clientId)
+        .eq('target_type', 'profile');
+    },
+    onSuccess: () => {
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] });
+      toast.success("Client blocked successfully");
+      setShowBlockDialog(false);
+      setSelectedClientForAction(null);
+    },
+    onError: () => {
+      toast.error("Failed to block client");
     }
 
     if (action === 'message') {

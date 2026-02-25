@@ -444,17 +444,21 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                           <img key={i} src={img} alt="" className="w-20 h-20 rounded-[1.2rem] object-cover shrink-0" />
                         ))}
                       </div>
-                      <div>
-                        <h4 className="font-bold text-lg leading-tight">{generatedData.title as string}</h4>
-                        <div className="flex items-center gap-4 mt-2 text-muted-foreground">
-                          {generatedData.price && <span className="text-primary font-black">${(generatedData.price as number).toLocaleString()}</span>}
-                          {generatedData.city && (
-                            <span className="flex items-center gap-1 text-[10px]">
-                              <MapPin className="w-3 h-3" />
-                              {generatedData.city as string}
-                            </span>
-                          )}
-                        </div>
+
+                      {/* Generated Details */}
+                      <div className="space-y-2">
+                        <p className="font-semibold text-lg">{generatedData.title as string}</p>
+                        {generatedData.price ? (
+                          <p className="text-primary font-bold">
+                            ${(generatedData.price as number).toLocaleString()}/month
+                          </p>
+                        ) : null}
+                        {generatedData.city ? (
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {generatedData.city as string}
+                          </p>
+                        ) : null}
                       </div>
                     </CardContent>
                   </Card>

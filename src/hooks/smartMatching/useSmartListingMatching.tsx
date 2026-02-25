@@ -215,7 +215,7 @@ export function useSmartListingMatching(
 
                 // Calculate match percentage for each listing
                 const matchedListings: MatchedListing[] = filteredListings.map(listing => {
-                    const match = calculateListingMatch(preferences, listing as Listing);
+                    const match = calculateListingMatch(preferences as any, listing as Listing);
                     return {
                         ...listing as Listing,
                         matchPercentage: match.percentage,

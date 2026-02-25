@@ -87,7 +87,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     else if (activeTab === 'worker') matchesCategory = listing.category === 'worker' || listing.category === 'services';
     else if (activeTab === 'liked') {
       const likedListing = listingsWithLikes.find(l => l.id === listing.id);
-      matchesCategory = likedListing && likedListing.likeCount > 0;
+      matchesCategory = !!(likedListing && likedListing.likeCount > 0);
     }
     else if (activeTab === 'active') matchesCategory = listing.status === 'active';
     else if (activeTab === 'rented') matchesCategory = listing.status === 'rented';
@@ -424,14 +424,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
                       {/* Details */}
                       <div className="text-xs text-muted-foreground">
-                        {(!listing.category || listing.category === 'property') && listing.bedrooms && listing.bathrooms && (
-                          <span>{listing.bedrooms} bed • {listing.bathrooms} bath</span>
+                        {(!listing.category || listing.category === 'property') && (listing as any).bedrooms && (listing as any).bathrooms && (
+                          <span>{(listing as any).bedrooms} bed • {(listing as any).bathrooms} bath</span>
                         )}
                         {listing.category === 'motorcycle' && (
-                          <span>{listing.vehicle_brand} {listing.vehicle_model}{listing.year && ` • ${listing.year}`}</span>
+                          <span>{(listing as any).vehicle_brand} {(listing as any).vehicle_model}{listing.year && ` • ${listing.year}`}</span>
                         )}
                         {listing.category === 'bicycle' && (
-                          <span>{listing.vehicle_brand} {listing.vehicle_model}{listing.electric_assist && ' • Electric'}</span>
+                          <span>{(listing as any).vehicle_brand} {(listing as any).vehicle_model}{listing.electric_assist && ' • Electric'}</span>
                         )}
                       </div>
 
