@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
-import { Badge } from "@/components/ui/badge";
+import { FilterColorPreferences } from "@/components/FilterColorPreferences";
 import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
@@ -170,6 +170,7 @@ const OwnerSettingsNew = () => {
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />
+            <FilterColorPreferences />
           </motion.div>
         </div>
       </div>
