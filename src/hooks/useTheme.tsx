@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'black-matte' | 'white-matte';
+type Theme = 'black-matte' | 'white-matte' | 'pure-black' | 'cheers';
 
 const THEME_STORAGE_KEY = 'swipess-theme';
 
@@ -26,7 +26,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Synchronous read from localStorage — prevents flash of wrong theme
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      if (stored === 'black-matte' || stored === 'white-matte') {
+      if (stored === 'black-matte' || stored === 'white-matte' || stored === 'pure-black' || stored === 'cheers') {
         return stored;
       }
     } catch {
@@ -40,7 +40,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
 
     // Remove all old theme classes
-    root.classList.remove('black-matte', 'white-matte', 'dark');
+    root.classList.remove(
+      'grey-matte', 'black-matte', 'white-matte',
+      'red-matte', 'amber-matte', 'pure-black', 'cheers',
+      'dark', 'amber', 'red'
+    );
 
     // Add current theme class
     root.classList.add(theme);
@@ -49,6 +53,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const themeColors: Record<string, string> = {
       'black-matte': '#000000',
       'white-matte': '#f5f5f5',
+      'pure-black': '#000000',
+      'cheers': '#150b02',
     };
 
     const color = themeColors[theme] || '#1a1a1a';
