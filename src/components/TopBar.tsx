@@ -22,10 +22,10 @@ import { AISearchDialog } from './AISearchDialog';
 const tierConfig = {
   starter: {
     icon: MessageCircle,
-    gradient: 'from-slate-500/30 to-slate-600/20',
-    border: 'border-slate-500/40',
-    iconBg: 'bg-slate-500/20 text-slate-300',
-    button: 'bg-slate-600 hover:bg-slate-500 text-white',
+    gradient: 'from-purple-500/30 to-purple-600/20',
+    border: 'border-purple-500/40',
+    iconBg: 'bg-purple-500/20 text-purple-300',
+    button: 'bg-purple-600 hover:bg-purple-500 text-white',
   },
   standard: {
     icon: Zap,
@@ -36,10 +36,10 @@ const tierConfig = {
   },
   premium: {
     icon: Crown,
-    gradient: 'from-amber-500/30 to-orange-500/20',
-    border: 'border-amber-500/40',
-    iconBg: 'bg-amber-500/20 text-amber-400',
-    button: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white',
+    gradient: 'from-[#E4007C]/30 to-[#B0005E]/20',
+    border: 'border-[#E4007C]/40',
+    iconBg: 'bg-[#E4007C]/20 text-pink-300',
+    button: 'bg-gradient-to-r from-[#E4007C] to-[#B0005E] hover:from-[#FF1A8B] hover:to-[#E4007C] text-white',
   },
 } as const;
 
@@ -166,7 +166,7 @@ function TopBarComponent({
           />
 
           {/* Right section: Actions */}
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
             {/* AI Search Button - Only show for clients */}
             {userRole === 'client' && (
               <Button
@@ -218,7 +218,7 @@ function TopBarComponent({
                   aria-label="Token Packages"
                 >
                   <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
-                   <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
+                  <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
                     Tokens
                   </span>
                 </Button>

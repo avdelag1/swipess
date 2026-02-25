@@ -33,8 +33,8 @@ interface MessageActivationPackagesProps {
   userRole?: 'client' | 'owner' | 'admin';
 }
 
-export function MessageActivationPackages({ 
-  isOpen = true, 
+export function MessageActivationPackages({
+  isOpen = true,
   onClose,
   showAsPage = false,
   userRole
@@ -59,7 +59,7 @@ export function MessageActivationPackages({
 
   const currentUserRole = userRole || userProfile?.role || 'client';
   const packageCategory = currentUserRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
-  
+
   const { data: packages, isLoading } = useQuery({
     queryKey: ['activation-packages', packageCategory],
     queryFn: async () => {
@@ -142,7 +142,7 @@ export function MessageActivationPackages({
           title: 'Tokens Selected!',
           message: `You selected the ${pkg.name} package with ${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}). Complete payment to activate!`,
           is_read: false
-        }]).then(() => {}, () => {});
+        }]).then(() => { }, () => { });
 
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           const notification = new Notification('Tokens Selected!', {
@@ -164,7 +164,7 @@ export function MessageActivationPackages({
   };
 
   const packagesUI = convertPackages(packages);
-  
+
   const roleLabel = currentUserRole === 'owner' ? 'Provider' : 'Explorer';
   const roleDescription = currentUserRole === 'owner'
     ? 'Connect with potential explorers interested in your listings'
@@ -174,27 +174,27 @@ export function MessageActivationPackages({
     switch (tier) {
       case 'starter':
         return {
-          gradient: 'from-slate-500/20 to-slate-600/10',
-          border: 'border-slate-500/30 hover:border-slate-400/50',
-          badge: 'bg-slate-500/20 text-slate-300',
-          button: 'bg-slate-600 hover:bg-slate-500',
+          gradient: 'from-purple-500/20 to-purple-600/10',
+          border: 'border-purple-500/30 hover:border-purple-400/50',
+          badge: 'bg-purple-500/20 text-purple-300',
+          button: 'bg-purple-600 hover:bg-purple-500',
           glow: '',
         };
       case 'standard':
         return {
-          gradient: 'from-primary/30 to-primary/10',
-          border: 'border-primary/50 hover:border-primary ring-2 ring-primary/30',
-          badge: 'bg-primary/20 text-primary',
-          button: 'bg-primary hover:bg-primary/90',
-          glow: 'shadow-lg shadow-primary/20',
+          gradient: 'from-blue-500/30 to-blue-600/10',
+          border: 'border-blue-500/50 hover:border-blue-400 ring-2 ring-blue-500/30',
+          badge: 'bg-blue-500/20 text-blue-400',
+          button: 'bg-blue-600 hover:bg-blue-500',
+          glow: 'shadow-lg shadow-blue-500/20',
         };
       case 'premium':
         return {
-          gradient: 'from-amber-500/20 to-orange-500/10',
-          border: 'border-amber-500/40 hover:border-amber-400/60',
-          badge: 'bg-amber-500/20 text-amber-400',
-          button: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400',
-          glow: 'shadow-lg shadow-amber-500/20',
+          gradient: 'from-[#E4007C]/20 to-[#B0005E]/10',
+          border: 'border-[#E4007C]/40 hover:border-[#FF1A8B]/60',
+          badge: 'bg-[#E4007C]/20 text-pink-300',
+          button: 'bg-gradient-to-r from-[#E4007C] to-[#B0005E] hover:from-[#FF1A8B] hover:to-[#E4007C]',
+          glow: 'shadow-lg shadow-[#E4007C]/30',
         };
       default:
         return {
@@ -210,7 +210,7 @@ export function MessageActivationPackages({
   const content = (
     <div className="space-y-4 p-3 sm:p-4">
       {/* Header - compact */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-2"
@@ -219,7 +219,7 @@ export function MessageActivationPackages({
           <MessageCircle className="w-4 h-4 text-primary" />
           <span className="text-xs font-semibold text-primary">{roleLabel} Packages</span>
         </div>
-        
+
         <h2 className="text-lg sm:text-xl font-bold text-foreground">
           Token Packages
         </h2>
@@ -251,7 +251,7 @@ export function MessageActivationPackages({
             const Icon = pkg.icon;
             const styles = getTierStyles(pkg.tier);
             const isPopular = pkg.tier === 'standard';
-            
+
             return (
               <motion.div
                 key={pkg.id}
@@ -259,7 +259,7 @@ export function MessageActivationPackages({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.08 }}
               >
-                <Card 
+                <Card
                   className={`relative h-full flex flex-col overflow-hidden bg-gradient-to-br ${styles.gradient} ${styles.border} ${styles.glow} transition-all duration-300`}
                 >
                   {isPopular && (
@@ -275,19 +275,19 @@ export function MessageActivationPackages({
                       <Badge className={`${styles.badge} text-[10px] px-1.5 py-0.5`}>{pkg.savings}</Badge>
                     </div>
                   )}
-                  
+
                   <CardHeader className={`text-center pb-1 ${isPopular ? 'pt-7' : 'pt-4'} px-3`}>
                     <div className={`mx-auto mb-2 p-2.5 rounded-xl ${styles.badge} w-fit`}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    
+
                     <h3 className="text-sm font-bold text-foreground">{pkg.name}</h3>
-                    
+
                     <div className="mt-1">
                       <span className="text-2xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
                       <span className="text-muted-foreground text-[10px] ml-1">MXN</span>
                     </div>
-                    
+
                     <p className="text-[10px] text-muted-foreground">
                       {formatPriceMXN(pkg.pricePerToken)} per token
                     </p>
@@ -320,7 +320,7 @@ export function MessageActivationPackages({
                     >
                       {/* PayPal branding */}
                       <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z"/>
+                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
                       </svg>
                       Pay with PayPal
                     </Button>
@@ -333,7 +333,7 @@ export function MessageActivationPackages({
       )}
 
       {/* Trust Badges */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
