@@ -4,6 +4,7 @@ import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
@@ -23,186 +24,7 @@ interface Message {
   actionRoute?: string;
 }
 
-// Knowledge base about Swipess app
-const SWIPESS_KNOWLEDGE = {
-  routes: {
-    '/client/dashboard': 'Main page where you browse listings by swiping right to like or left to pass.',
-    '/client/liked-properties': 'Shows all properties you have liked. When there\'s a mutual match, you can start chatting.',
-    '/client/who-liked-you': 'Shows people who liked your profile (for owners) or listings that liked you.',
-    '/client/filters': 'Filter settings to narrow down your search by price, location, amenities, etc.',
-    '/owner/dashboard': 'Owner dashboard to discover clients who match your preferences.',
-    '/owner/liked-clients': 'Clients you have liked. When mutual, you can connect.',
-    '/owner/properties': 'Manage your property listings.',
-    '/messages': 'Chat with matches - your connections after mutual likes.',
-    '/notifications': 'View all notifications about likes, matches, and updates.',
-  },
-  features: [
-    { name: 'Swipe Matching', description: 'Swipe right to like, left to pass. Mutual likes create matches!' },
-    { name: 'AI Search', description: 'Describe what you want in natural language and AI finds matches.' },
-    { name: 'Instant Connect', description: 'Chat immediately after matching with no delays.' },
-    { name: 'Verified Profiles', description: 'All users and listings can be verified for safety.' },
-    { name: 'Token System', description: 'Use tokens to unlock premium features and messaging.' },
-  ],
-  categories: {
-    'property': 'Apartments, houses, rooms for rent',
-    'vehicle': 'Motorcycles, bicycles, cars',
-    'services': 'Workers, professionals, service providers',
-  },
-  filterKeywords: {
-    'cheap': { priceMax: 500 },
-    'expensive': { priceMin: 5000 },
-    'affordable': { priceMax: 2000 },
-    'luxury': { priceMin: 5000 },
-    'apartment': { category: 'property' },
-    'house': { category: 'property' },
-    'room': { category: 'property' },
-    'motorcycle': { category: 'vehicle' },
-    'moto': { category: 'vehicle' },
-    'bike': { category: 'bicycle' },
-    'bicycle': { category: 'bicycle' },
-    'service': { category: 'worker' },
-    'worker': { category: 'worker' },
-    'near': { location: true },
-    'nearby': { location: true },
-    'verified': { verified: true },
-    'furnished': { furnished: true },
-    'pet': { petFriendly: true },
-    'pool': { amenities: ['pool'] },
-    'parking': { amenities: ['parking'] },
-  },
-  general: [
-    'Swipess is a matching platform for rentals, vehicles, and services.',
-    'You can swipe on listings as a client, or swipe on clients as an owner.',
-    'Mutual likes create matches and unlock the chat feature.',
-    'Use filters to find exactly what you\'re looking for.',
-    'The AI can help you search and filter listings faster.',
-    'Your profile helps others know more about you before matching.',
-  ]
-};
-
-// Generate AI response based on user query
-function generateAIResponse(query: string, userRole: string): { response: string; showAction?: boolean; actionLabel?: string; actionRoute?: string } {
-  const lowerQuery = query.toLowerCase();
-
-  // Check for filter-related requests
-  const filterKeywords = SWIPESS_KNOWLEDGE.filterKeywords;
-  const detectedFilters: Record<string, any> = {};
-
-  for (const [keyword, filters] of Object.entries(filterKeywords)) {
-    if (lowerQuery.includes(keyword)) {
-      for (const [filterKey, filterValue] of Object.entries(filters)) {
-        detectedFilters[filterKey] = filterValue;
-      }
-    }
-  }
-
-  // If user is asking to filter, show action to apply filters
-  const filterTriggers = ['find', 'show me', 'search for', 'i want', 'looking for', 'need', 'filter'];
-  const isFilterRequest = filterTriggers.some(trigger => lowerQuery.includes(trigger));
-
-  if (isFilterRequest && Object.keys(detectedFilters).length > 0) {
-    // Build filter description
-    const filterParts = [];
-    if (detectedFilters.category) filterParts.push(detectedFilters.category);
-    if (detectedFilters.priceMax) filterParts.push(`under $${detectedFilters.priceMax}`);
-    if (detectedFilters.priceMin) filterParts.push(`over $${detectedFilters.priceMin}`);
-    if (detectedFilters.verified) filterParts.push('verified');
-    if (detectedFilters.furnished) filterParts.push('furnished');
-
-    const filterDesc = filterParts.join(', ') || 'your filters';
-
-    return {
-      response: `I'll help you find ${filterDesc}! Let me apply these filters to your dashboard.\n\nTap "View Results" to see your filtered listings!`,
-      showAction: true,
-      actionLabel: 'View Results',
-      actionRoute: '/client/dashboard'
-    };
-  }
-
-  // Check for route-related questions
-  if (lowerQuery.includes('where') || lowerQuery.includes('how do i') || lowerQuery.includes('navigate')) {
-    for (const [route, description] of Object.entries(SWIPESS_KNOWLEDGE.routes)) {
-      if (lowerQuery.includes(route.split('/').pop() || '')) {
-        return {
-          response: description + '\n\nTap "Go There" to navigate directly!',
-          showAction: true,
-          actionLabel: 'Go There',
-          actionRoute: route
-        };
-      }
-    }
-  }
-
-  // Check for feature questions
-  if (lowerQuery.includes('what is') || lowerQuery.includes('how does') || lowerQuery.includes('what can')) {
-    for (const feature of SWIPESS_KNOWLEDGE.features) {
-      if (lowerQuery.includes(feature.name.toLowerCase())) {
-        return { response: feature.description };
-      }
-    }
-  }
-
-  // Check for category questions
-  if (lowerQuery.includes('category') || lowerQuery.includes('types') || lowerQuery.includes('what can i')) {
-    const categories = Object.entries(SWIPESS_KNOWLEDGE.categories)
-      .map(([key, desc]) => `• **${key}**: ${desc}`)
-      .join('\n');
-    return { response: `Here are the categories available:\n\n${categories}` };
-  }
-
-  // General questions about the app
-  if (lowerQuery.includes('what is swipess') || lowerQuery.includes('what does swipess do')) {
-    return { response: 'Swipess is a swipe-based matching platform for rentals, vehicles, and services. You can find properties to rent, discover clients as an owner, or hire services - all through a fun swipe interface!' };
-  }
-
-  if (lowerQuery.includes('how to use') || lowerQuery.includes('how does it work')) {
-    return {
-      response: `Here's how Swipess works:\n\n` +
-        `1. **Browse**: Swipe right on items you like, left to pass\n` +
-        `2. **Match**: When someone likes you back, you\'re matched!\n` +
-        `3. **Connect**: Chat instantly with your matches\n` +
-        `4. **AI Helper**: Use the AI button to find things faster`,
-      showAction: true,
-      actionLabel: 'Start Swiping',
-      actionRoute: '/client/dashboard'
-    };
-  }
-
-  if (lowerQuery.includes('match') || lowerQuery.includes('like')) {
-    return { response: 'A match happens when two people like each other! When you swipe right on someone and they swipe right on you, it\'s a match. This unlocks the chat feature so you can connect.' };
-  }
-
-  if (lowerQuery.includes('token') || lowerQuery.includes('credit')) {
-    return { response: 'Tokens are used for premium features like extra super likes, AI searches, and message boosts. You can get them through subscription packages.' };
-  }
-
-  if (lowerQuery.includes('verify') || lowerQuery.includes('verified')) {
-    return { response: 'Verification confirms that users and listings are real. Verified items have a checkmark badge, making the community safer.' };
-  }
-
-  if (lowerQuery.includes('chat') || lowerQuery.includes('message')) {
-    return { response: 'You can only chat with your matches! When you and another person both swipe right on each other, a match is created and you can start messaging.' };
-  }
-
-  if (lowerQuery.includes('time') || lowerQuery.includes('hour')) {
-    return { response: 'It\'s currently ' + new Date().toLocaleTimeString() + '. Want to find something to do?' };
-  }
-
-  if (lowerQuery.includes('hi') || lowerQuery.includes('hello') || lowerQuery.includes('hey')) {
-    return { response: 'Hey there! 👋 I\'m Swipess AI! I can help you:\n\n• Find listings by describing what you want\n• Navigate to different pages\n• Answer questions about how Swipess works\n• Explain features like matching, tokens, and more!\n\nWhat would you like to know?' };
-  }
-
-  // Default helpful response
-  return {
-    response: `I can help you with questions about Swipess! Try asking:\n\n` +
-      `• "Find apartments under $1000"\n` +
-      `• "How do matches work?"\n` +
-      `• "Show me motorcycles"\n` +
-      `• "What are tokens?"\n` +
-      `• "Where are my matches?"\n\n` +
-      `Or just describe what you're looking for and I'll help you find it!`
-  };
-}
+// Hardcoded response logic removed in favor of real Minimax AI integration.
 
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
   const navigate = useNavigate();
@@ -242,20 +64,29 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsTyping(true);
 
     try {
-      // Simulate a small delay for better UX
-      await new Promise(resolve => setTimeout(resolve, 600));
+      // Execute real AI call via Edge Function
+      const { data, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
+        body: {
+          task: 'chat',
+          data: {
+            query: userMessage,
+            messages: messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }))
+          }
+        }
+      });
+
+      if (fnError) throw fnError;
 
       setIsTyping(false);
 
-      const result = generateAIResponse(userMessage, userRole);
+      const responseContent = data.result?.message || data.result?.text || "I'm here to help! What's on your mind?";
 
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: result.response,
+        content: responseContent,
         timestamp: Date.now(),
-        showAction: result.showAction,
-        actionLabel: result.actionLabel,
-        actionRoute: result.actionRoute,
+        // We can extend the Edge Function later to return suggested actions if needed
+        showAction: false,
       }]);
     } catch (error) {
       setIsTyping(false);
@@ -304,7 +135,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md bg-background/80 backdrop-blur-3xl border border-white/10 p-0 overflow-hidden rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
+        className="sm:max-w-md bg-background/80 backdrop-blur-3xl border border-white/10 p-0 overflow-hidden rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] outline-none"
         hideCloseButton={true}
       >
         {/* Header */}
@@ -332,7 +163,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         </div>
 
         {/* Messages Area */}
-        <div className="h-[450px] overflow-y-auto px-6 py-6 space-y-6 scrollbar-none">
+        <div className="max-h-[60vh] min-h-[300px] overflow-y-auto px-8 py-8 space-y-8 scrollbar-none relative">
           {messages.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
@@ -343,8 +174,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <Sparkles className="w-10 h-10" style={{ color: '#E4007C' }} />
               </div>
               <div>
-                <h3 className="text-foreground font-black text-2xl tracking-tighter">Your AI Helper</h3>
-                <p className="text-muted-foreground text-sm font-bold mt-2">Find anything on Swipess instantly</p>
+                <h3 className="text-foreground font-black text-2xl tracking-tighter">Swipess Oracle</h3>
+                <p className="text-muted-foreground text-sm font-bold mt-2">The app expert is listening. What's on your mind?</p>
               </div>
 
               {/* Quick prompts */}

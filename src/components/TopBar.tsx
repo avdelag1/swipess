@@ -132,7 +132,7 @@ function TopBarComponent({
           className
         )}
       >
-        <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2">
+        <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
             {title && (
