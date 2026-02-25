@@ -20,7 +20,7 @@ import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, CircleDot, Wrench, User } from 'lucide-react';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -101,11 +101,11 @@ const ClientSwipeContainerComponent = ({
   // Dynamic labels based on category
   const getCategoryLabel = () => {
     switch (category) {
-      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties' };
-      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles' };
-      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles' };
-      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs' };
-      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings' };
+      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', icon: <MapPin className="w-5 h-5 opacity-70" /> };
+      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', icon: <Bike className="w-5 h-5 opacity-70" /> };
+      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', icon: <CircleDot className="w-5 h-5 opacity-70" /> };
+      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', icon: <Wrench className="w-5 h-5 opacity-70" /> };
+      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings', icon: <User className="w-5 h-5 opacity-70" /> };
     }
   };
 
@@ -735,8 +735,9 @@ const ClientSwipeContainerComponent = ({
           {/* RADAR SEARCH EFFECT - Premium futuristic scanning animation */}
           <RadarSearchEffect
             size={100}
-            color="#8B5CF6"
+            color="#E4007C"
             isActive={isRefreshing}
+            icon={labels.icon}
           />
 
           <div className="space-y-2">
@@ -801,8 +802,9 @@ const ClientSwipeContainerComponent = ({
           {/* RADAR SEARCH EFFECT - Calm futuristic scanning animation */}
           <RadarSearchEffect
             size={100}
-            color="#8B5CF6"
+            color="#E4007C"
             isActive={isRefreshing}
+            icon={labels.icon}
           />
 
           <div className="space-y-2">
