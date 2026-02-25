@@ -91,6 +91,15 @@ export function useConversations() {
             : Promise.resolve({ data: [] as any[], error: null })
         ]);
 
+        if (profilesResult.error) {
+          logger.error('Error fetching profiles in useConversations:', profilesResult.error);
+          throw profilesResult.error;
+        }
+        if ((listingsResult as any).error) {
+          logger.error('Error fetching listings in useConversations:', (listingsResult as any).error);
+          throw (listingsResult as any).error;
+        }
+
         const profilesMap = new Map<string, any>();
         (profilesResult.data || []).forEach((p: any) => profilesMap.set(p.user_id, p));
         const listingsMap = new Map<string, any>();
@@ -294,14 +303,14 @@ export function useStartConversation() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ 
-      otherUserId, 
-      listingId, 
+    mutationFn: async ({
+      otherUserId,
+      listingId,
       initialMessage,
       canStartNewConversation
-    }: { 
-      otherUserId: string; 
-      listingId?: string; 
+    }: {
+      otherUserId: string;
+      listingId?: string;
       initialMessage: string;
       canStartNewConversation: boolean;
     }) => {
@@ -323,7 +332,7 @@ export function useStartConversation() {
       const existingConversation = existingConversations?.[0];
 
       let conversationId = existingConversation?.id;
-      
+
       // If conversation doesn't exist, check quota
       if (!conversationId && !canStartNewConversation) {
         throw new Error('QUOTA_EXCEEDED');
@@ -471,11 +480,11 @@ export function useSendMessage() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({ 
-      conversationId, 
-      message 
-    }: { 
-      conversationId: string; 
+    mutationFn: async ({
+      conversationId,
+      message
+    }: {
+      conversationId: string;
       message: string;
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
@@ -549,7 +558,7 @@ export function useSendMessage() {
             : msg;
         });
       });
-      
+
       // Invalidate conversations to update last message
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
@@ -563,7 +572,7 @@ export function useSendMessage() {
           return !msg.id.toString().startsWith('temp-');
         });
       });
-      
+
       toast({
         title: 'Failed to Send Message',
         description: error.message,
