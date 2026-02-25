@@ -237,7 +237,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-background/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-white/10 bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
