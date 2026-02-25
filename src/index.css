@@ -388,6 +388,26 @@ body {
     --bg-tertiary: 0 0% 12%;
   }
 
+  /* When white-matte is active alongside dark, override with pure black
+     so invert(1) produces pure 100% white (not 95% grey).
+     Compound selector .dark.white-matte beats .dark in specificity. */
+  .dark.white-matte,
+  .white-matte {
+    --background: 0 0% 0% !important;
+    --foreground: 0 0% 100% !important;
+    --card: 0 0% 2% !important;
+    --card-foreground: 0 0% 100% !important;
+    --secondary: 0 0% 3% !important;
+    --secondary-foreground: 0 0% 100% !important;
+    --muted: 0 0% 3% !important;
+    --muted-foreground: 0 0% 70% !important;
+    --border: 0 0% 6% !important;
+    --input: 0 0% 6% !important;
+    --bg-primary: 0 0% 0% !important;
+    --bg-secondary: 0 0% 2% !important;
+    --bg-tertiary: 0 0% 4% !important;
+  }
+
   .amber {
     --background: 43 96% 97%;
     --foreground: 30 100% 15%;
