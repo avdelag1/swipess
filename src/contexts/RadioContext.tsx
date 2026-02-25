@@ -201,7 +201,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // Only persist the station column that exists in the schema
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
 
-      await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
+      await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }

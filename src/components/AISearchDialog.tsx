@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight } from 'lucide-react';
+import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -77,6 +77,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
       if (fnError) throw fnError;
 
+      const responseContent = data?.result?.text || data?.result?.message || String(data?.result || '');
+
       setIsTyping(false);
 
       setMessages(prev => [...prev, {
@@ -97,7 +99,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     } finally {
       setIsSearching(false);
     }
-  }, [query, isSearching, userRole]);
+  }, [query, isSearching, userRole, messages]);
 
 
   // Fix: Declare handleClose before handleAction to avoid reference-before-declaration

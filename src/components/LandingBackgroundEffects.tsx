@@ -280,13 +280,22 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     };
   }, [mode, initStars, initOrbs]);
 
-  if (mode === 'off') return null;
+  if (mode === 'off') {
+    return (
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 40%, rgba(10,10,20,0.7) 0%, rgba(0,0,0,0.97) 100%)',
+        }}
+      />
+    );
+  }
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 z-0 pointer-events-none"
-      style={{ mixBlendMode: mode === 'orbs' ? 'screen' : 'screen' }}
+      style={{ mixBlendMode: 'screen' }}
     />
   );
 }
