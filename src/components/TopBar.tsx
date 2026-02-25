@@ -201,7 +201,7 @@ function TopBarComponent({
                 onClick={(e) => e.preventDefault()}
                 aria-label="AI Search"
               >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
+                <Sparkles strokeWidth={2.5} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
               </Button>
             )}
 
@@ -228,7 +228,7 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
+                  <Zap strokeWidth={2.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
                   <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
                     Tokens
                   </span>
@@ -371,6 +371,7 @@ function TopBarComponent({
             >
               <div className="relative">
                 <Bell
+                  strokeWidth={2.5}
                   className={cn(
                     "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                     notificationCount > 0
