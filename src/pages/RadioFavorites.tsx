@@ -36,18 +36,18 @@ export default function RadioFavoritesPage() {
     .filter((s) => s !== undefined);
 
   return (
-    <div className="fixed inset-0 bg-black overflow-y-auto">
+    <div className="fixed inset-0 bg-background overflow-y-auto z-40">
       {/* Header */}
-      <div className="sticky top-0 bg-black/80 backdrop-blur-lg z-10 border-b border-white/10 px-4 py-4">
+      <div className="sticky top-0 bg-background/80 backdrop-blur-lg z-10 border-b border-border px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold text-white">Liked Stations</h1>
+            <h1 className="text-xl font-bold text-foreground">Liked Stations</h1>
           </div>
           <button
             onClick={handleShufflePlay}
@@ -64,9 +64,9 @@ export default function RadioFavoritesPage() {
       <div className="p-4 pb-24">
         {/* Empty State */}
         {favoriteStations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-white/30">
-            <Heart className="w-16 h-16 mb-4 opacity-20" />
-            <p className="text-xl font-medium mb-2">No Liked Stations</p>
+          <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
+            <Heart className="w-16 h-16 mb-4 opacity-30" />
+            <p className="text-xl font-medium mb-2 text-foreground">No Liked Stations</p>
             <p className="text-sm text-center max-w-xs">Heart your favorite stations while listening to add them here</p>
           </div>
         ) : (
@@ -78,7 +78,7 @@ export default function RadioFavoritesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={() => handlePlayStation(station!.id)}
-                className="group flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer"
+                className="group flex items-center gap-4 p-4 bg-muted/30 rounded-2xl border border-border hover:bg-muted/50 transition-all cursor-pointer"
               >
                 {/* Station Icon */}
                 <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
@@ -87,8 +87,8 @@ export default function RadioFavoritesPage() {
 
                 {/* Station Info */}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white truncate">{station!.name}</h3>
-                  <p className="text-sm text-white/40 truncate">{station!.genre} • {station!.frequency}</p>
+                  <h3 className="font-bold text-foreground truncate">{station!.name}</h3>
+                  <p className="text-sm text-muted-foreground truncate">{station!.genre} • {station!.frequency}</p>
                 </div>
 
                 {/* Actions */}
@@ -101,7 +101,7 @@ export default function RadioFavoritesPage() {
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handlePlayStation(station!.id); }}
-                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"
+                    className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
                   >
                     <Play className="w-4 h-4" fill="currentColor" />
                   </button>
