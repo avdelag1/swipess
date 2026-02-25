@@ -129,30 +129,32 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const isMinimaxForced = true; // Forcing Minimax as per USER request
+  const isMinimaxForced = true;
 
   if (isMinimaxForced) {
     try {
+      console.log("[AI Orchestrator] Attempting MiniMax...");
       return await callMinimax(messages, maxTokens);
     } catch (err) {
-      console.warn("MiniMax failed, trying Gemini fallback...");
-      return await callGemini(messages, maxTokens);
+      console.warn("[AI Orchestrator] MiniMax failed, trying Gemini fallback...", err);
+      try {
+        return await callGemini(messages, maxTokens);
+      } catch (geminiErr) {
+        console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
+        throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
+      }
     }
   }
 
   try {
-    // Primary: Google Gemini
     return await callGemini(messages, maxTokens);
   } catch (err) {
-    const isRetryable = err instanceof ProviderError && (err.status === 429 || err.status >= 500);
-    if (!isRetryable) throw err;
-
-    console.warn("Gemini failed, trying MiniMax fallback...");
+    console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
     try {
       return await callMinimax(messages, maxTokens);
     } catch (fallbackErr) {
-      console.error("MiniMax fallback also failed:", fallbackErr);
-      throw err; // throw original error
+      console.error("[AI Orchestrator] MiniMax fallback also failed:", fallbackErr);
+      throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
     }
   }
 }

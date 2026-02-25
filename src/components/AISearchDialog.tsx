@@ -79,8 +79,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
       setIsTyping(false);
 
-      const responseContent = data.result?.message || data.result?.text || "I'm here to help! What's on your mind?";
-
       setMessages(prev => [...prev, {
         role: 'ai',
         content: responseContent,
@@ -93,7 +91,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
       console.error('AI search error:', error);
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: 'Sorry, I had trouble processing that. Please try again!',
+        content: "The Swipess Oracle is currently meditating in the high mountains of Chiapas. 🌸✨\n\nPlease try again in a heartbeat, and I'll be back with my full wisdom.",
         timestamp: Date.now()
       }]);
     } finally {
@@ -135,7 +133,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md bg-background/80 backdrop-blur-3xl border border-white/10 p-0 overflow-hidden rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] outline-none"
+        className="sm:max-w-md bg-zinc-950/90 backdrop-blur-3xl border border-white/10 p-0 overflow-hidden rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] outline-none"
         hideCloseButton={true}
       >
         {/* Header */}
@@ -178,16 +176,16 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <p className="text-muted-foreground text-sm font-bold mt-2">The app expert is listening. What's on your mind?</p>
               </div>
 
-              {/* Quick prompts */}
-              <div className="grid grid-cols-2 gap-3 pt-4">
+              {/* Quick prompts - HIGH CONTRAST */}
+              <div className="grid grid-cols-1 gap-3 pt-4 px-4">
                 {quickPrompts.map((prompt, index) => (
                   <button
                     key={index}
                     onClick={() => applyQuickPrompt(prompt.text)}
-                    className="flex items-center gap-3 px-4 py-4 text-xs font-black bg-white/5 hover:bg-white/10 border border-white/8 rounded-[1.5rem] text-foreground/80 hover:text-foreground transition-all text-left shadow-sm group"
+                    className="flex items-center gap-4 px-5 py-4 text-sm font-bold bg-zinc-900/50 hover:bg-zinc-800 border border-white/5 rounded-2xl text-zinc-100 transition-all text-left shadow-lg group active:scale-95"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <prompt.icon className="w-4 h-4" style={{ color: '#E4007C' }} />
+                    <div className="w-10 h-10 rounded-xl bg-zinc-800/50 flex items-center justify-center group-hover:bg-[#E4007C]/20 transition-colors">
+                      <prompt.icon className="w-5 h-5 text-[#E4007C]" />
                     </div>
                     <span className="flex-1 leading-tight">{prompt.label}</span>
                   </button>
