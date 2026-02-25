@@ -239,3 +239,10 @@ export function getStationById(id: string): RadioStation | undefined {
 export function getAllCities(): CityLocation[] {
   return Object.keys(cityThemes) as CityLocation[];
 }
+
+/**
+ * Get random station from any city (for shuffle mode)
+ */
+export function getRandomStation(): RadioStation {
+  return radioStations[Math.floor(Math.random() * radioStations.length)];
+}
