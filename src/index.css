@@ -2832,3 +2832,15 @@ html[data-navigation-direction="back"] {
     }
   }
 }
+
+/* BLACK BACKGROUND FILTER REQUESTED BY USER */
+html, body, #root, .app-root, .app-content, main {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  background-image: none !important;
+}
+
+[data-theme='light'], .white-matte {
+  filter: invert(1) hue-rotate(180deg) !important;
+  background-color: #000000 !important;
+}
