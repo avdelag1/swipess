@@ -80,6 +80,7 @@ export default function FAQClientPage() {
           title="FAQ & Help"
           subtitle="Common questions for renters"
           showBack={true}
+          backTo="/client/settings"
         />
 
         <motion.div

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight } from 'lucide-react';
+import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -77,13 +77,15 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
       if (fnError) throw fnError;
 
+      // Extract the AI response content from the edge function response
+      const responseContent = data?.reply || data?.response || data?.content || data?.message || (typeof data === 'string' ? data : 'I received your message but couldn\'t generate a response. Please try again.');
+
       setIsTyping(false);
 
       setMessages(prev => [...prev, {
         role: 'ai',
         content: responseContent,
         timestamp: Date.now(),
-        // We can extend the Edge Function later to return suggested actions if needed
         showAction: false,
       }]);
     } catch (error) {
