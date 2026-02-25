@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
+import { logger } from '@/utils/prodLogger';
 
-type Theme = 'black-matte';
-
-const THEME_STORAGE_KEY = 'swipess-theme';
+type Theme = 'black-matte' | 'white-matte' | 'pure-black' | 'cheers';
 
 interface ThemeContextType {
   theme: Theme;
@@ -11,26 +12,49 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/**
- * ThemeProvider - App permanently locked to black-matte
- */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme] = useState<Theme>('black-matte');
+  const [theme, setThemeState] = useState<Theme>('black-matte');
+  const { user } = useAuth();
 
-  // Apply theme class to document and update status bar color
+  // Load theme from database when user logs in
+  useEffect(() => {
+    if (user?.id) {
+      const loadUserTheme = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('theme_preference')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          const validThemes = ['black-matte', 'white-matte', 'pure-black', 'cheers'];
+          if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
+            setThemeState(data.theme_preference as Theme);
+          }
+        } catch (error) {
+          logger.error('Failed to load theme preference:', error);
+          setThemeState('black-matte');
+        }
+      };
+      loadUserTheme();
+    } else {
+      setThemeState('black-matte');
+    }
+  }, [user?.id]);
+
+  // Apply theme class to document and update status bar
   useEffect(() => {
     const root = window.document.documentElement;
 
-    // Remove all old theme classes
-    root.classList.remove(
-      'grey-matte', 'white-matte', 'red-matte', 'amber-matte',
-      'pure-black', 'cheers', 'dark', 'amber', 'red'
-    );
+    // Remove all theme classes safely
+    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
 
-    // Add current theme class
-    root.classList.add('black-matte');
+    // Add current theme class + 'dark' variant to keep base components dark
+    root.classList.add(theme, 'dark');
 
-    // Update mobile status bar colour
+    // Default everything to black for the status bar, since white-matte is just an inverted black
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
 
     if (!metaThemeColor) {
@@ -40,15 +64,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
 
     metaThemeColor.setAttribute('content', '#000000');
-  }, []);
+  }, [theme]);
 
-  // Dummy setter so nothing crashes
-  const setTheme = (newTheme: Theme) => {
-    console.log("Theme permanently set to black-matte");
+  // Save theme to database and update state
+  const setTheme = async (newTheme: Theme) => {
+    setThemeState(newTheme);
+
+    if (user?.id) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ theme_preference: newTheme })
+          .eq('id', user.id);
+
+        if (error) throw error;
+      } catch (error) {
+        logger.error('Failed to save theme preference:', error);
+      }
+    }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme: 'black-matte', setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
