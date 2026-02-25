@@ -124,7 +124,7 @@ const OwnerInterestedClients = () => {
   );
 
   return (
-    <div className="w-full pb-32 bg-black min-h-screen">
+    <div className="w-full pb-32 bg-background min-h-screen">
       <div className="p-4 sm:p-8 max-w-7xl mx-auto">
         <PageHeader
           title="Interested Clients"
@@ -143,7 +143,7 @@ const OwnerInterestedClients = () => {
             placeholder="Filter interested clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-16 bg-zinc-900 border border-white/5 rounded-3xl pl-6 text-white font-bold outline-none focus:border-[#E4007C] transition-all"
+            className="w-full h-16 bg-muted border border-border rounded-3xl pl-6 text-foreground font-bold outline-none focus:border-[#E4007C] transition-all"
           />
         </div>
 
