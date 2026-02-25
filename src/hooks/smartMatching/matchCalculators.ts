@@ -44,9 +44,9 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
     if (preferences.min_bedrooms && preferences.max_bedrooms) {
         criteria.push({
             weight: 15,
-            matches: listing.beds >= preferences.min_bedrooms && listing.beds <= preferences.max_bedrooms,
-            reason: `${listing.beds} beds matches requirement (${preferences.min_bedrooms}-${preferences.max_bedrooms})`,
-            incompatibleReason: `${listing.beds} beds outside range (${preferences.min_bedrooms}-${preferences.max_bedrooms})`
+            matches: (listing.beds ?? 0) >= preferences.min_bedrooms && (listing.beds ?? 0) <= preferences.max_bedrooms,
+            reason: `${listing.beds ?? 0} beds matches requirement (${preferences.min_bedrooms}-${preferences.max_bedrooms})`,
+            incompatibleReason: `${listing.beds ?? 0} beds outside range (${preferences.min_bedrooms}-${preferences.max_bedrooms})`
         });
     }
 
@@ -54,9 +54,9 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
     if (preferences.min_bathrooms) {
         criteria.push({
             weight: 10,
-            matches: listing.baths >= preferences.min_bathrooms,
-            reason: `${listing.baths} baths meets minimum ${preferences.min_bathrooms}`,
-            incompatibleReason: `Only ${listing.baths} baths, need minimum ${preferences.min_bathrooms}`
+            matches: (listing.baths ?? 0) >= preferences.min_bathrooms,
+            reason: `${listing.baths ?? 0} baths meets minimum ${preferences.min_bathrooms}`,
+            incompatibleReason: `Only ${listing.baths ?? 0} baths, need minimum ${preferences.min_bathrooms}`
         });
     }
 
@@ -74,7 +74,7 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
     if (preferences.pet_friendly_required) {
         criteria.push({
             weight: 12,
-            matches: listing.pet_friendly,
+            matches: !!listing.pet_friendly,
             reason: 'Pet-friendly property',
             incompatibleReason: 'Not pet-friendly but pets required'
         });
@@ -84,7 +84,7 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
     if (preferences.furnished_required) {
         criteria.push({
             weight: 10,
-            matches: listing.furnished,
+            matches: !!listing.furnished,
             reason: 'Furnished property',
             incompatibleReason: 'Not furnished but furnished required'
         });

@@ -75,7 +75,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     setFetchError(null);
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)
@@ -149,7 +149,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
         city: city || null,
       };
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('saved_searches')
         .insert({
           user_id: user?.id,
@@ -186,7 +186,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
   const handleToggleAlerts = async (searchId: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('saved_searches')
         .update({ last_matched_at: new Date().toISOString() } as any)
         .eq('id', searchId);
@@ -217,7 +217,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     if (!deleteTarget) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('saved_searches')
         .delete()
         .eq('id', deleteTarget.id);

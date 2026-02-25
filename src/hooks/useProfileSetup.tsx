@@ -70,7 +70,7 @@ export function useProfileSetup() {
       }
 
       // Check if reward already granted (prevent abuse)
-      const { data: existingReward } = await supabase
+      const { data: existingReward } = await (supabase as any)
         .from('tokens')
         .select('id')
         .eq('user_id', referrerId)
@@ -87,7 +87,7 @@ export function useProfileSetup() {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 60);
 
-      const { data: activationData, error: activError } = await supabase
+      const { data: activationData, error: activError } = await (supabase as any)
         .from('tokens')
         .insert({
           user_id: referrerId,
@@ -467,7 +467,7 @@ export function useProfileSetup() {
             expires_at: expiresAt.toISOString(),
             notes: notesText,
           };
-          const { error: activError } = await supabase
+          const { error: activError } = await (supabase as any)
             .from('tokens')
             .insert(insertData);
 

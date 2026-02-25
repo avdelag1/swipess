@@ -541,17 +541,17 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                       {/* Generated Details */}
                       <div className="space-y-2">
                         <p className="font-semibold text-lg">{generatedData.title as string}</p>
-                        {generatedData.price && (
+                        {generatedData.price ? (
                           <p className="text-primary font-bold">
                             ${(generatedData.price as number).toLocaleString()}/month
                           </p>
-                        )}
-                        {generatedData.city && (
+                        ) : null}
+                        {generatedData.city ? (
                           <p className="text-sm text-muted-foreground flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {generatedData.city as string}
                           </p>
-                        )}
+                        ) : null}
                       </div>
 
                       <p className="text-sm text-muted-foreground">
