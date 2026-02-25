@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRadioPlaylists } from '@/hooks/useRadioPlaylists';
 import { useRadio } from '@/contexts/RadioContext';
 import { getStationById, getStationsByCity } from '@/data/radioStations';
@@ -58,7 +58,7 @@ export default function RadioPlaylistsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/radio')}
               className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
             >
               <ArrowLeft className="w-5 h-5" />

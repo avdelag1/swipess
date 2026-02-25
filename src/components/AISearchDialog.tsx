@@ -85,7 +85,6 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         role: 'ai',
         content: responseContent,
         timestamp: Date.now(),
-        // We can extend the Edge Function later to return suggested actions if needed
         showAction: false,
       }]);
     } catch (error) {

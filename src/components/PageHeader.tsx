@@ -9,6 +9,7 @@ interface PageHeaderProps {
   subtitle?: string;
   showBack?: boolean;
   onBack?: () => void;
+  backTo?: string;
   actions?: ReactNode;
   className?: string;
 }
@@ -18,6 +19,7 @@ export function PageHeader({
   subtitle,
   showBack = true,
   onBack,
+  backTo,
   actions,
   className = ""
 }: PageHeaderProps) {
@@ -28,6 +30,8 @@ export function PageHeader({
   const handleBack = () => {
     if (onBack) {
       onBack();
+    } else if (backTo) {
+      navigate(backTo);
     } else {
       navigate(-1);
     }

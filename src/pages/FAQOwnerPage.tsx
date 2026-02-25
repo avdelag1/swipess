@@ -88,6 +88,7 @@ export default function FAQOwnerPage() {
           title="FAQ & Help"
           subtitle="Common questions for property owners"
           showBack={true}
+          backTo="/owner/settings"
         />
 
         <motion.div

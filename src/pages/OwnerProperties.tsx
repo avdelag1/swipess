@@ -36,7 +36,7 @@ const OwnerProperties = () => {
     <>
       <div className="w-full overflow-x-hidden">
         <motion.button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/owner/settings')}
           whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
           className={`flex items-center gap-1.5 text-sm font-medium ${isLight ? 'text-gray-500 hover:text-gray-900' : 'text-white/60 hover:text-white'} transition-colors duration-150 mb-4 px-1`}
         >

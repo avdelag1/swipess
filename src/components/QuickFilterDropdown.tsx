@@ -104,7 +104,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const listingType = useFilterStore((state) => state.listingType);
   const clientGender = useFilterStore((state) => state.clientGender);
   const clientType = useFilterStore((state) => state.clientType);
-  
+
   // ========== DISPATCH ACTIONS TO STORE ==========
   const setCategories = useFilterStore((state) => state.setCategories);
   const setListingType = useFilterStore((state) => state.setListingType);
@@ -398,7 +398,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[10001]"
+              className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-md"
               onClick={() => {
                 setIsOpen(false);
                 setClickedCategory(null);
