@@ -55,12 +55,12 @@ const springConfig = {
 const LARGE_SIZE = 64;  // Primary actions (Like/Dislike) - touch targets
 const SMALL_SIZE = 48;  // Secondary actions
 
-// Icon sizes - BIGGER for floating icon style
-const LARGE_ICON_SIZE = 40;  // Primary icons - bold and visible
-const SMALL_ICON_SIZE = 28;  // Secondary icons - clear
+// Icon sizes - balanced proportions (~47% of button diameter)
+const LARGE_ICON_SIZE = 30;  // Primary icons - clear and prominent
+const SMALL_ICON_SIZE = 22;  // Secondary icons - proportional
 
-// Gap between buttons - tighter grouping
-const BUTTON_GAP = 6;
+// Gap between buttons - comfortable spacing
+const BUTTON_GAP = 10;
 
 // Tap animation - subtle premium press
 const TAP_SCALE = 0.88;
@@ -189,8 +189,8 @@ const ActionButton = memo(({
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
         boxShadow: isPressed
-          ? `inset 0 2px 4px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)`
-          : `inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)`,
+          ? `inset 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2)`
+          : `inset 0 1px 0 rgba(255,255,255,0.15), 0 ${isPrimary ? 8 : 5}px ${isPrimary ? 20 : 12}px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)`,
         // GPU acceleration
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
@@ -216,7 +216,7 @@ const ActionButton = memo(({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          filter: isPrimary ? `drop-shadow(0 0 4px ${variantConfig.glowColor})` : 'none',
+          filter: `drop-shadow(0 0 ${isPrimary ? 5 : 3}px ${variantConfig.glowColor})`,
         }}
       >
         {children}

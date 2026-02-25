@@ -96,7 +96,7 @@ export function useSaveOwnerProfile() {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 
-      if (updates.profile_images !== undefined && updates.profile_images.length > 0) {
+      if (updates.profile_images !== undefined && (updates.profile_images?.length ?? 0) > 0) {
         syncPayload.images = updates.profile_images;
       }
 

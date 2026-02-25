@@ -231,7 +231,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         // Update existing listing
         const { data, error } = await supabase
           .from('listings')
-          .update(listingData)
+          .update(listingData as any)
           .eq('id', editingId)
           .select()
           .single();
@@ -242,7 +242,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         // Insert new listing
         const { data, error } = await supabase
           .from('listings')
-          .insert(listingData)
+          .insert(listingData as any)
           .select()
           .single();
 

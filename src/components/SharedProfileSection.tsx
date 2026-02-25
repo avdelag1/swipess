@@ -47,7 +47,7 @@ export function SharedProfileSection({
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if (typeof navigator.share === 'function') {
       await shareViaNavigator({
         title: profileName,
         text: shareText,
@@ -134,7 +134,7 @@ export function SharedProfileSection({
 
           {/* Share Buttons - Responsive Grid */}
           <div className="grid grid-cols-3 gap-2">
-            {navigator.share && (
+            {typeof navigator.share === 'function' && (
               <Button
                 onClick={handleCopyLink}
                 variant="outline"

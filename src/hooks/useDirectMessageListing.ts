@@ -88,7 +88,7 @@ export function useDirectMessageListing() {
 
       // Create match record for tracking
       try {
-        await supabase
+        await (supabase as any)
           .from('matches')
           .insert({
             client_id: user.id,
