@@ -111,8 +111,10 @@ body {
   padding-bottom: 4px;
   padding-left: max(var(--safe-left), 8px);
   padding-right: max(var(--safe-right), 8px);
-  /* Subtle dark fade behind header for readability */
-  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.7) 0%, rgba(5, 5, 5, 0.4) 60%, transparent 100%);
+  /* Refined subtle dark fade behind header for a "vanishing" look */
+  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.1) 25%, transparent 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-bottom: none;
@@ -179,8 +181,8 @@ body {
   padding-top: 4px;
   padding-left: max(var(--safe-left), 12px);
   padding-right: max(var(--safe-right), 12px);
-  /* Subtle dark fade behind bottom nav for readability */
-  background: linear-gradient(to top, rgba(5, 5, 5, 0.7) 0%, rgba(5, 5, 5, 0.4) 60%, transparent 100%);
+  /* Refined subtle dark fade behind bottom nav for a "vanishing" look */
+  background: linear-gradient(to top, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.1) 25%, transparent 100%) !important;
   border-top: none;
   transform: translateZ(0) translateY(0) scale(1);
   opacity: 1;
@@ -744,6 +746,68 @@ body {
 
   .premium-glow {
     box-shadow: var(--shadow-premium);
+  }
+
+  /* ORGANIC PHONE-LIKE FRAME SHADE - Imperceptible vanish on edges */
+  .app-root::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999999;
+    /* Darker, more defined edge shade */
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4), inset 0 0 60px rgba(0, 0, 0, 0.2);
+    border-radius: 44px;
+    /* Simulates premium phone corners */
+    opacity: 1;
+    mask-image: radial-gradient(circle at center, transparent 70%, black 100%);
+    -webkit-mask-image: radial-gradient(circle at center, transparent 70%, black 100%);
+  }
+
+  /* HIGH CONTRAST TYPOGRAPHY - ENFORCING ACCESSIBILITY */
+  .white-matte {
+    --foreground: 10, 10, 10 !important;
+    --muted-foreground: 20, 20, 20 !important;
+    --primary-foreground: 255, 255, 255 !important;
+  }
+
+  .white-matte body,
+  .white-matte p,
+  .white-matte span:not(.no-force-contrast),
+  .white-matte h1,
+  .white-matte h2,
+  .white-matte h3,
+  .white-matte h4 {
+    color: #0a0a0a !important;
+    --tw-text-opacity: 1 !important;
+  }
+
+  .black-matte body,
+  .black-matte p,
+  .black-matte span:not(.no-force-contrast),
+  .black-matte h1,
+  .black-matte h2,
+  .black-matte h3,
+  .black-matte h4 {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+    --tw-text-opacity: 1 !important;
+  }
+
+  .app-header {
+    background: linear-gradient(to bottom, var(--background) 0%, transparent 100%) !important;
+    backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+    height: 70px !important;
+  }
+
+  /* ROYAL DIAMOND PREMIUM PALETTE - Overriding bronze defaults */
+  .royal-diamond-premium {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%) !important;
+    color: white !important;
+    font-weight: 900 !important;
+    box-shadow: 0 8px 25px rgba(168, 85, 247, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
   }
 
   /* ===== SWIPESS LOGO STYLE (PREMIUM ENHANCED) ===== */

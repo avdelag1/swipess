@@ -304,20 +304,20 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md bg-[#1C1C1E]/97 backdrop-blur-2xl border border-white/8 p-0 overflow-hidden rounded-3xl"
+        className="sm:max-w-md bg-background/80 backdrop-blur-3xl border border-white/10 p-0 overflow-hidden rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-4 py-3 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.12), rgba(249,115,22,0.08))' }}>
-          <div className="flex items-center gap-3">
+        <div className="relative px-6 py-6 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.15), rgba(245,222,179,0.05))' }}>
+          <div className="flex items-center gap-4">
             {/* AI Avatar */}
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}>
-              <Sparkles className="w-4 h-4 text-white" />
+            <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
+              <Sparkles className="w-6 h-6 text-white" />
             </div>
 
             <div>
-              <h2 className="text-white font-semibold text-sm">Swipess AI</h2>
-              <p className="text-xs text-white/40">Ask me anything!</p>
+              <h2 className="text-foreground font-black text-lg tracking-tight">Swipess AI</h2>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Assistant</p>
             </div>
           </div>
 
@@ -325,114 +325,106 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             variant="ghost"
             size="icon"
             onClick={handleClose}
-            className="h-8 w-8 rounded-full hover:bg-white/10"
+            className="h-10 w-10 rounded-full hover:bg-white/10 transition-colors"
           >
-            <X className="w-4 h-4 text-white/60" />
+            <X className="w-5 h-5 text-foreground/60" />
           </Button>
         </div>
 
         {/* Messages Area */}
-        <div className="h-80 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="h-[450px] overflow-y-auto px-6 py-6 space-y-6 scrollbar-none">
           {messages.length === 0 && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-4"
+              initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              className="text-center space-y-6 py-8"
             >
-              <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(236,72,153,0.2), rgba(249,115,22,0.12))' }}>
-                <Sparkles className="w-8 h-8" style={{ color: '#f97316' }} />
+              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.1), rgba(245,222,179,0.1))' }}>
+                <Sparkles className="w-10 h-10" style={{ color: '#E4007C' }} />
               </div>
               <div>
-                <h3 className="text-white font-medium text-base">Swipess AI</h3>
-                <p className="text-white/40 text-xs mt-1">Your personal app assistant</p>
+                <h3 className="text-foreground font-black text-2xl tracking-tighter">Your AI Helper</h3>
+                <p className="text-muted-foreground text-sm font-bold mt-2">Find anything on Swipess instantly</p>
               </div>
 
               {/* Quick prompts */}
-              <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="grid grid-cols-2 gap-3 pt-4">
                 {quickPrompts.map((prompt, index) => (
                   <button
                     key={index}
                     onClick={() => applyQuickPrompt(prompt.text)}
-                    className="flex items-center gap-2 px-3 py-2.5 text-xs bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/70 hover:text-white transition-all text-left"
+                    className="flex items-center gap-3 px-4 py-4 text-xs font-black bg-white/5 hover:bg-white/10 border border-white/8 rounded-[1.5rem] text-foreground/80 hover:text-foreground transition-all text-left shadow-sm group"
                   >
-                    <prompt.icon className="w-4 h-4" style={{ color: '#f97316' }} />
-                    <span className="flex-1">{prompt.label}</span>
+                    <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <prompt.icon className="w-4 h-4" style={{ color: '#E4007C' }} />
+                    </div>
+                    <span className="flex-1 leading-tight">{prompt.label}</span>
                   </button>
                 ))}
               </div>
             </motion.div>
           )}
 
-          <AnimatePresence key={messages.length}>
+          <AnimatePresence mode="popLayout">
             {messages.map((message) => (
               <motion.div
                 key={message.timestamp}
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
+                initial={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
                 className={cn(
                   "flex flex-col gap-2",
                   message.role === 'user' && "items-end"
                 )}
               >
                 <div className={cn(
-                  "flex gap-2",
-                  message.role === 'user' && "justify-end"
+                  "flex gap-3",
+                  message.role === 'user' && "flex-row-reverse"
                 )}>
-                  {message.role === 'ai' && (
-                    <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}>
-                      <Sparkles className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-
                   <div className={cn(
-                    "max-w-[80%] px-3 py-2 rounded-2xl text-sm whitespace-pre-wrap",
-                    message.role === 'user'
-                      ? "text-white rounded-br-sm"
-                      : "bg-white/8 text-white/90 rounded-bl-sm",
-                    isTyping && message.role === 'ai' && message.content === ''
-                      ? "animate-pulse"
-                      : ""
-                  )}
-                    style={message.role === 'user' ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : {}}
-                  >
-                    {message.role === 'ai' && message.content === '' ? (
-                      <div className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#f97316', animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#f97316', animationDelay: '150ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#f97316', animationDelay: '300ms' }} />
-                      </div>
+                    "w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1 shadow-md transition-transform duration-500",
+                    message.role === 'ai' ? "bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]" : "bg-white/10 border border-white/5"
+                  )}>
+                    {message.role === 'ai' ? (
+                      <Sparkles className="w-5 h-5 text-white" />
                     ) : (
-                      message.content
+                      userAvatar ? (
+                        <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-2xl" />
+                      ) : (
+                        <User className="w-5 h-5 text-white/40" />
+                      )
                     )}
                   </div>
 
-                  {message.role === 'user' && (
-                    <div className="w-7 h-7 rounded-full flex-shrink-0 mt-1 overflow-hidden border border-white/10">
-                      {userAvatar ? (
-                        <img src={userAvatar} alt="You" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                          <span className="text-white text-[9px] font-semibold">Me</span>
-                        </div>
-                      )}
-                    </div>
+                  <div className={cn(
+                    "max-w-[85%] px-5 py-4 rounded-[2rem] text-sm font-bold leading-relaxed shadow-sm",
+                    message.role === 'user'
+                      ? "bg-gradient-to-br from-[#E4007C] to-[#C4006C] text-white rounded-tr-sm"
+                      : "bg-white/10 text-foreground rounded-tl-sm border border-white/5 backdrop-blur-xl"
                   )}
+                  >
+                    {message.content}
+                  </div>
                 </div>
 
                 {/* Action button if available */}
                 {message.role === 'ai' && message.showAction && message.actionRoute && (
-                  <button
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleAction(message.actionRoute)}
-                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium rounded-full text-white hover:opacity-90 transition-all ml-8"
-                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                    className="flex items-center gap-2 px-6 py-3 text-xs font-black rounded-full text-white shadow-[0_10px_20px_rgba(228,0,124,0.3)] transition-all ml-12 uppercase tracking-widest"
+                    style={{ background: 'linear-gradient(135deg, #E4007C, #C4006C)' }}
                   >
                     {message.actionLabel || 'View'}
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
+                    <ArrowRight className="w-4 h-4" />
+                  </motion.button>
                 )}
               </motion.div>
             ))}
           </AnimatePresence>
+
 
           {isTyping && (
             <motion.div

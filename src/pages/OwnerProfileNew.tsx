@@ -15,11 +15,11 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 
-const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
-const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
+const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
+const stagger = { staggerChildren: 0.08, delayChildren: 0.15 };
 const childVariant = {
-  hidden: { opacity: 0, y: 18, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
+  hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
+  visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },
 };
 
 const OwnerProfileNew = () => {
@@ -54,184 +54,187 @@ const OwnerProfileNew = () => {
   return (
     <>
       <motion.div
-        className="w-full px-4 py-4 pb-28"
         initial="hidden"
         animate="visible"
-        variants={{ visible: { transition: stagger } }}
+        variants={stagger}
+        className="w-full max-w-lg mx-auto p-4 pb-32 space-y-6"
       >
-        <div className="max-w-lg mx-auto space-y-4">
-          {/* Back Button */}
-          <motion.button
-            variants={childVariant}
+        {/* Back Button */}
+        <motion.div variants={childVariant}>
+          <button
             onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/owner/dashboard')}
-            whileTap={{ scale: 0.94 }}
-            className={`flex items-center gap-1.5 text-sm font-semibold ${isLight ? 'text-gray-800' : 'text-white'} mb-2 px-3 py-2 rounded-xl transition-all active:scale-95`}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
             style={{
-              background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.08)',
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.14)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              boxShadow: isLight ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.06)' : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3)',
+              background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(12px)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />
             Back
+          </button>
+        </motion.div>
+
+        {/* Profile Header */}
+        <motion.div className="flex items-center gap-4" variants={childVariant}>
+          <div className="relative">
+            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
+              <div
+                className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
+                onClick={() => setShowEditDialog(true)}
+              >
+                {ownerProfile?.profile_images?.[0] ? (
+                  <img src={ownerProfile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 className="w-10 h-10 text-muted-foreground" />
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowEditDialog(true)}
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
+              style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}
+            >
+              <Camera className="w-3.5 h-3.5 text-white" />
+            </button>
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-black text-foreground leading-tight tracking-tight">
+              {ownerProfile?.business_name || 'Set up your business'}
+            </h1>
+            <p className="text-sm font-medium text-muted-foreground mt-0.5">{user?.email}</p>
+          </div>
+        </motion.div>
+
+        {/* Edit Profile Button */}
+        <motion.div variants={childVariant}>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setShowEditDialog(true)}
+            className="w-full h-14 flex items-center justify-center gap-2 rounded-2xl font-black text-base text-white relative overflow-hidden group shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #E4007C, #D4006E)',
+            }}
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <User className="w-6 h-6 relative z-10" />
+            <span className="relative z-10 tracking-tight">Edit Business Profile</span>
+          </motion.button>
+        </motion.div>
+
+        {/* Action Grid */}
+        <motion.div variants={childVariant} className="grid grid-cols-2 gap-4">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => navigate('/owner/liked-clients')}
+            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
+            style={{
+              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(20px)'
+            }}
+          >
+            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]">
+              <Flame className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="text-sm font-black text-foreground">Your Likes</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                {stats?.likedClientsCount ?? 0} Clients
+              </div>
+            </div>
           </motion.button>
 
-          {/* Profile Header — gradient ring */}
-          <motion.div className="flex items-center gap-4" variants={childVariant}>
-            <div className="relative">
-              <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}>
-                <div
-                  className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
-                  onClick={() => setShowEditDialog(true)}
-                >
-                  {ownerProfile?.profile_images?.[0] ? (
-                    <img src={ownerProfile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <Building2 className="w-10 h-10 text-muted-foreground" />
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={() => setShowEditDialog(true)}
-                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-              >
-                <Camera className="w-3.5 h-3.5 text-white" />
-              </button>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => navigate('/owner/interested-clients')}
+            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
+            style={{
+              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(20px)'
+            }}
+          >
+            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#D4006E] to-[#E4007C]">
+              <Heart className="w-6 h-6 text-white" />
             </div>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground leading-tight">
-                {ownerProfile?.business_name || 'Set up your business'}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
+            <div>
+              <div className="text-sm font-black text-foreground">Who Liked You</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                {stats?.interestedClientsCount ?? 0} Interested
+              </div>
             </div>
-          </motion.div>
+          </motion.button>
+        </motion.div>
 
-          {/* Edit Profile — brand gradient pill */}
-          <motion.div variants={childVariant}>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setShowEditDialog(true)}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-semibold text-base text-white"
-              style={{
-                background: 'linear-gradient(135deg, #ec4899, #f97316)',
-                boxShadow: '0 4px 20px rgba(236,72,153,0.35), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
-              <User className="w-5 h-5" />
-              Edit Business Profile
-            </motion.button>
-          </motion.div>
-
-          {/* Likes Row — horizontal 2-card */}
-          <motion.div variants={childVariant} className="grid grid-cols-2 gap-3">
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate('/owner/liked-clients')}
-              className="rounded-2xl p-4 flex flex-col gap-2 text-left"
-              style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)', backdropFilter: 'blur(12px)' }}
-            >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #7c2d12, #f97316)' }}>
-                <Flame className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-foreground">Your Likes</div>
-                <div className="text-xs text-muted-foreground">{stats?.likedClientsCount ?? 0} clients liked</div>
-              </div>
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate('/owner/interested-clients')}
-              className="rounded-2xl p-4 flex flex-col gap-2 text-left"
-              style={{ background: 'rgba(236,72,153,0.1)', border: '1px solid rgba(236,72,153,0.2)', backdropFilter: 'blur(12px)' }}
-            >
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #831843, #ec4899)' }}>
-                <Heart className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-foreground">Who Liked You</div>
-                <div className="text-xs text-muted-foreground">{stats?.interestedClientsCount ?? 0} interested</div>
-              </div>
-            </motion.button>
-          </motion.div>
-
-          {/* Share Profile Section */}
+        {/* Share Profile */}
+        <motion.div variants={childVariant}>
           <SharedProfileSection
             profileId={user?.id}
             profileName={ownerProfile?.business_name || 'Your Business'}
             isClient={false}
           />
+        </motion.div>
 
-          {/* Filter Colors / Theme */}
-          <motion.div variants={childVariant}>
-            <div className="rounded-2xl p-4" style={{ background: isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.04)', border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4c1d95, #a855f7)' }}>
-                  <Palette className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-foreground">Filter Colors</div>
-                  <div className="text-xs text-muted-foreground">Customize appearance</div>
-                </div>
+        {/* Theme Settings */}
+        <motion.div variants={childVariant}>
+          <div className="rounded-[2.5rem] p-6 border-2"
+            style={{
+              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(30px)'
+            }}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-[1.2rem] flex items-center justify-center bg-gradient-to-br from-[#E4007C] to-[#F5DEB3] shadow-md">
+                <Palette className="w-5 h-5 text-white" />
               </div>
-              <ThemeSelector compact showTitle={false} />
+              <div>
+                <div className="text-sm font-black text-foreground">Filter Colors</div>
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Customize UI</div>
+              </div>
             </div>
-          </motion.div>
+            <ThemeSelector compact showTitle={false} />
+          </div>
+        </motion.div>
 
-          {/* Subscription — amber/gold pill */}
-          <motion.div variants={childVariant}>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate('/subscription-packages')}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-semibold text-base text-white"
-              style={{
-                background: 'linear-gradient(135deg, #92400e, #f59e0b)',
-                boxShadow: '0 4px 20px rgba(245,158,11,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
-              <Crown className="w-5 h-5" />
-              Upgrade Subscription
-            </motion.button>
-          </motion.div>
+        {/* Upgrade Button - Flagship Mexican Pink */}
+        <motion.div variants={childVariant}>
+          <button
+            onClick={() => navigate('/subscription-packages')}
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] mexican-pink-premium relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
+            <Crown className="w-7 h-7 relative z-10 drop-shadow-lg animate-pulse" />
+            <span className="relative z-10 font-black tracking-tight text-lg">Premium Upgrade</span>
+          </button>
+        </motion.div>
 
-          {/* Settings button */}
-          <motion.div variants={childVariant}>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={() => navigate('/owner/settings')}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-medium text-base transition-colors"
-              style={{
-                background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-                border: isLight ? '1px solid rgba(0,0,0,0.10)' : '1px solid rgba(255,255,255,0.10)',
-                color: isLight ? 'rgba(0,0,0,0.75)' : 'rgba(255,255,255,0.85)',
-              }}
-            >
-              <Settings className="w-5 h-5" />
-              Settings
-            </motion.button>
-          </motion.div>
+        {/* Secondary Actions */}
+        <motion.div variants={childVariant} className="space-y-3">
+          <button
+            onClick={() => navigate('/owner/settings')}
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2"
+            style={{
+              background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
+              borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)',
+              color: 'var(--foreground)',
+              boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.03)' : 'none'
+            }}
+          >
+            <Settings className="w-5 h-5 opacity-70" />
+            Settings
+          </button>
 
-          {/* Sign Out — red outline pill */}
-          <motion.div variants={childVariant}>
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={signOut}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl font-medium text-base transition-colors"
-              style={{
-                background: 'rgba(239,68,68,0.08)',
-                border: '1px solid rgba(239,68,68,0.3)',
-                color: '#f87171',
-              }}
-            >
-              <LogOut className="w-5 h-5" />
-              Sign Out
-            </motion.button>
-          </motion.div>
+          <button
+            onClick={signOut}
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
+          >
+            <LogOut className="w-5 h-5" />
+            Sign Out
+          </button>
+        </motion.div>
 
-          <div className="h-8" />
-        </div>
+        <div className="h-12" />
       </motion.div>
 
       <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />

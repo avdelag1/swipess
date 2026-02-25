@@ -91,37 +91,12 @@
 
     /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
     .white-matte {
-        /* Background colors - Soft white palette with better contrast */
-        --background: 0 0% 98%;
-        --foreground: 0 0% 8%;
+        /* Background colors - Soft white palette with deeper depth */
+        --background: 210 20% 98%;
+        --foreground: 222 47% 11%;
+
+        /* M3 Tonal Elevation: Slightly tinted cards for better grouping */
         --card: 0 0% 100%;
-        --card-foreground: 0 0% 8%;
-        --primary: 0 100% 45%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 0 0% 90%;
-        --secondary-foreground: 0 0% 15%;
-        --muted: 0 0% 88%;
-        --muted-foreground: 0 0% 25%;
-        --accent: 0 100% 45%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 84% 55%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 82%;
-        --input: 0 0% 85%;
-        --ring: 0 100% 45%;
-
-        /* Modern theme variables */
-        --bg-primary: 0 0% 98%;
-        --bg-secondary: 0 0% 100%;
-        --bg-tertiary: 0 0% 90%;
-        --text-primary: 0 0% 8%;
-        --text-secondary: 0 0% 25%;
-        --text-tertiary: 0 0% 45%;
-        --border-primary: 0 0% 82%;
-        --border-secondary: 0 0% 75%;
-        --accent-primary: 0 100% 45%;
-        --accent-secondary: 0 100% 55%;
-
         /* Shadows - More visible shadows for light theme */
         --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
         --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);

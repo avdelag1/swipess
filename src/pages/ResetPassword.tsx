@@ -99,12 +99,10 @@ const ResetPassword = () => {
           style={{
             width: `${2 + Math.random() * 4}px`,
             height: `${4 + Math.random() * 8}px`,
-            background: `linear-gradient(45deg, ${
-              i % 3 === 0 ? '#f97316' : i % 3 === 1 ? '#fbbf24' : '#ea580c'
-            }, transparent)`,
-            boxShadow: `0 0 ${8 + Math.random() * 16}px ${
-              i % 3 === 0 ? '#f97316' : '#fbbf24'
-            }60`,
+            background: `linear-gradient(45deg, ${i % 3 === 0 ? '#f97316' : i % 3 === 1 ? '#fbbf24' : '#ea580c'
+              }, transparent)`,
+            boxShadow: `0 0 ${8 + Math.random() * 16}px ${i % 3 === 0 ? '#f97316' : '#fbbf24'
+              }60`,
             borderRadius: '50%',
             left: `${Math.random() * 100}%`,
             bottom: '-10px',
@@ -210,6 +208,8 @@ const ResetPassword = () => {
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/70 transition-colors" />
                 <Input
                   id="password"
+                  name="password"
+                  autocomplete="new-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -245,11 +245,10 @@ const ResetPassword = () => {
                         transition={{ duration: 0.3 }}
                       />
                     </div>
-                    <span className={`text-xs font-medium ${
-                      passwordStrength.score <= 1 ? 'text-red-400' :
-                      passwordStrength.score === 2 ? 'text-orange-400' :
-                      passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
-                    }`}>
+                    <span className={`text-xs font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
+                        passwordStrength.score === 2 ? 'text-orange-400' :
+                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                      }`}>
                       {passwordStrength.label}
                     </span>
                   </div>
@@ -264,11 +263,10 @@ const ResetPassword = () => {
                     ].map(({ key, label }) => (
                       <div
                         key={key}
-                        className={`flex items-center gap-2 text-xs ${
-                          passwordStrength.checks[key as keyof typeof passwordStrength.checks]
+                        className={`flex items-center gap-2 text-xs ${passwordStrength.checks[key as keyof typeof passwordStrength.checks]
                             ? 'text-green-400'
                             : 'text-white/40'
-                        }`}
+                          }`}
                       >
                         {passwordStrength.checks[key as keyof typeof passwordStrength.checks] ? (
                           <Check className="w-3.5 h-3.5" />
@@ -297,6 +295,8 @@ const ResetPassword = () => {
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/70 transition-colors" />
                 <Input
                   id="confirmPassword"
+                  name="confirmPassword"
+                  autocomplete="new-password"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -304,9 +304,8 @@ const ResetPassword = () => {
                   required
                   minLength={8}
                   disabled={loading}
-                  className={`pl-12 pr-12 h-14 text-base bg-white/5 border-white/20 text-white placeholder:text-white/30 ${
-                    confirmPassword && (passwordsMatch ? 'border-green-500/50' : 'border-red-500/50')
-                  }`}
+                  className={`pl-12 pr-12 h-14 text-base bg-white/5 border-white/20 text-white placeholder:text-white/30 ${confirmPassword && (passwordsMatch ? 'border-green-500/50' : 'border-red-500/50')
+                    }`}
                 />
                 <button
                   type="button"
