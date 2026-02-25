@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, Save, Home, DollarSign, Bed, Bath, Sparkles, PawPrint, Sofa, Building2, Eye, Compass, Car, Calendar } from 'lucide-react';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 
@@ -137,9 +137,16 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         rental_duration: rentalDuration || null,
         location_zones: locationNeighborhoods.length > 0 ? locationNeighborhoods : null,
       });
-      toast.success('Filters applied!', { description: 'Your preferences have been saved.' });
+      toast({
+        title: 'Filters applied!',
+        description: 'Your preferences have been saved.',
+      });
     } catch (error) {
-      toast.error('Error', { description: 'Failed to save preferences.' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save preferences.',
+        variant: 'destructive',
+      });
     }
 
     // Then notify parent
@@ -231,9 +238,16 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         pet_friendly_required: petFriendly,
         furnished_required: furnished,
       });
-      toast.success('Preferences saved!', { description: 'Your property filter preferences have been saved.' });
+      toast({
+        title: 'Preferences saved!',
+        description: 'Your property filter preferences have been saved.',
+      });
     } catch (error) {
-      toast.error('Error', { description: 'Failed to save preferences.' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save preferences.',
+        variant: 'destructive',
+      });
     }
   };
 

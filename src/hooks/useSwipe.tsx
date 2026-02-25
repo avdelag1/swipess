@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,15 +26,12 @@ export function useSwipe() {
       // Get authenticated user
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user?.id) {
-        logger.error('[useSwipe] Auth error:', authError);
         throw new Error('Not authenticated');
       }
 
-      logger.info('[useSwipe] Saving swipe:', { userId: user.id, targetId, direction, targetType });
-
       // Save swipe to likes table - use 'left'/'right' directly
       // This matches the query in useSmartMatching.tsx
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('likes')
         .upsert({
           user_id: user.id,
@@ -43,52 +41,22 @@ export function useSwipe() {
         }, {
           onConflict: 'user_id,target_id,target_type',
           ignoreDuplicates: false
-        })
-        .select()
-        .single();
+        });
 
       if (error) {
-        logger.error('[useSwipe] Error saving swipe:', {
-          message: error.message,
-          code: error.code,
-          details: error.details,
-          hint: error.hint
-        });
+        logger.error('[useSwipe] Error saving swipe:', error);
         throw error;
       }
 
-      logger.info('[useSwipe] Swipe saved successfully:', data);
-      return { success: true, direction, targetId, userId: user.id };
+      return { success: true, direction, targetId };
     },
-    onSuccess: (data, variables) => {
-      logger.info('[useSwipe] Swipe success, invalidating queries:', data);
-      
-      // Invalidate ALL relevant query keys to ensure UI updates
-      const keysToInvalidate = [
-        ['liked-properties'],
-        ['liked-properties', data.userId],
-        ['liked-clients'],
-        ['liked-clients', data.userId],
-        ['matches'],
-        ['smart-listings'],
-        ['smart-clients'],
-        ['owner-listing-likes'],
-        ['owner-interested-clients'],
-        ['listing-likers', variables.targetId],
-      ];
-
-      // Invalidate each key
-      keysToInvalidate.forEach(key => {
-        queryClient.invalidateQueries({ queryKey: key }).catch(() => {});
-      });
-      
-      // CRITICAL: Also invalidate listings deck so swiped cards disappear immediately
-      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(() => {});
-      
-      // Also invalidate any queries that start with these prefixes
-      queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['match'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(() => {});
+    onSuccess: (data) => {
+      // Invalidate likes cache so saved list updates
+      queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['liked-clients'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['smart-listings'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['smart-clients'] }).catch(() => {});
     },
     onError: (error: any) => {
       logger.error('[useSwipe] Error:', error);

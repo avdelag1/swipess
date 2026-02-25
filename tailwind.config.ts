@@ -21,8 +21,6 @@ export default {
 		'black-matte',
 		'white-matte',
 		'red-matte',
-		'pure-black',
-		'cheers',
 	],
 	prefix: "",
 	theme: {

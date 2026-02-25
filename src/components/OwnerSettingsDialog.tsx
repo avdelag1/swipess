@@ -7,7 +7,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { logger } from "@/utils/prodLogger";
 
 interface OwnerSettingsDialogProps {
@@ -23,7 +23,11 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        toast.error('Error', { description: 'You must be logged in to delete your account.' });
+        toast({
+          title: 'Error',
+          description: 'You must be logged in to delete your account.',
+          variant: 'destructive',
+        });
         return;
       }
 
@@ -35,14 +39,21 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
 
       if (error) throw error;
 
-      toast.success('Account Deleted', { description: 'Your account has been permanently deleted.' });
+      toast({
+        title: 'Account Deleted',
+        description: 'Your account has been permanently deleted.',
+      });
 
       // Sign out after successful deletion
       await supabase.auth.signOut();
       navigate('/', { replace: true });
     } catch (error: any) {
       logger.error('Delete account error:', error);
-      toast.error('Error', { description: error.message || 'Failed to delete account. Please try again.' });
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete account. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 

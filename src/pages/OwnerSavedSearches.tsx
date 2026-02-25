@@ -6,7 +6,7 @@ import { Settings, Users, ArrowLeft } from "lucide-react";
 import { OwnerClientFilterDialog } from "@/components/OwnerClientFilterDialog";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { toast } from '@/components/ui/sonner';
+import { toast } from "@/hooks/use-toast";
 
 const OwnerSavedSearches = () => {
   const [showFilterDialog, setShowFilterDialog] = useState(false);

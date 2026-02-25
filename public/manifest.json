@@ -7,7 +7,7 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "background_color": "#000000",
-  "theme_color": "#ff69b4",
+  "theme_color": "#f97316",
   "orientation": "portrait-primary",
   "lang": "en",
   "dir": "ltr",
@@ -15,40 +15,39 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-192.png",
+      "src": "/icons/s-logo-app.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/s-logo-app.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-1024.png",
+      "src": "/icons/s-logo-app.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/s-logo-app.png",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/maskable-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/icons/maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "src": "/icons/s-logo-app.png",
+      "sizes": "180x180",
+      "type": "image/png"
     }
   ],
   "categories": ["lifestyle", "business", "social"],
@@ -90,7 +89,7 @@
       "url": "/client/dashboard",
       "icons": [
         {
-          "src": "/icons/app-icon-s.png",
+          "src": "/icons/s-logo-app.png",
           "sizes": "192x192"
         }
       ]
@@ -102,7 +101,7 @@
       "url": "/owner/properties",
       "icons": [
         {
-          "src": "/icons/app-icon-s.png",
+          "src": "/icons/s-logo-app.png",
           "sizes": "192x192"
         }
       ]
@@ -114,7 +113,7 @@
       "url": "/messages",
       "icons": [
         {
-          "src": "/icons/app-icon-s.png",
+          "src": "/icons/s-logo-app.png",
           "sizes": "192x192"
         }
       ]

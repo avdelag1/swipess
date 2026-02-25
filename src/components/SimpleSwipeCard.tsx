@@ -22,6 +22,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
+import { GradientMaskTop, GradientMaskBottom } from '@/components/ui/GradientMasks';
 import { useParallaxStore } from '@/state/parallaxStore';
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -37,7 +38,7 @@ const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 const FALLBACK_PLACEHOLDER = '/placeholder.svg';
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 18; // Increased from 12 for more dramatic swing
+const MAX_ROTATION = 12;
 
 // Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -50,11 +51,11 @@ const SPRING_CONFIGS = {
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
   // NATIVE: iOS-like balanced feel (DEFAULT)
   NATIVE: { stiffness: 400, damping: 28, mass: 1 },
-  // SOFT: Playful with bounce - EXTREMELY FUN FEEL
-  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
+  // SOFT: Playful with bounce
+  SOFT: { stiffness: 300, damping: 22, mass: 1.2 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SOFT; // Changed to SOFT for purely fun swipe feedback
+const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE;
 
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;
@@ -154,7 +155,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // FULL-IMAGE ZOOM: Entire image zooms on press-and-hold, no lens/clipping
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 500, // Longer delay to prevent accidental zoom during swipe
+    holdDelay: 350, // Fast activation
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
@@ -201,9 +202,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
 
-      if (dx > 8 || dy > 8) {
-        // Any meaningful movement: cancel hold timer, start drag
-        magnifierPointerHandlers.onPointerUp(e); // Force cancel magnifier completely
+      if (dx > 15 || dy > 15) {
+        // Movement exceeds threshold: cancel hold timer, start drag
+        magnifierPointerHandlers.onPointerMove(e); // This cancels the hold timer internally
         if (!dragStartedRef.current && storedPointerEventRef.current) {
           dragStartedRef.current = true;
           isDragging.current = true;
@@ -211,6 +212,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           // Start framer-motion drag manually
           dragControls.start(e.nativeEvent);
         }
+      } else {
+        // Small movement: update position for magnifier, wait for hold
+        magnifierPointerHandlers.onPointerMove(e);
       }
       return;
     }
@@ -238,7 +242,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
-
+    
     if (hasExited.current) return;
 
     const offsetX = info.offset.x;
@@ -259,7 +263,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       // Exit in the SAME direction of the swipe gesture (diagonal physics)
       const exitDistance = getExitDistance();
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
-
+      
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
@@ -275,7 +279,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onSwipe(direction);
         },
       });
-
+      
       // Animate Y in parallel
       animate(y, Math.min(Math.max(exitY, -300), 300), {
         type: 'spring',
@@ -357,7 +361,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       damping: 30,
       onComplete: fireSwipe,
     });
-
+    
     // Slight upward arc for button swipes
     animate(y, -50, {
       type: 'spring',
@@ -392,7 +396,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         }}
       >
         <CardImage src={currentImage} alt={listing.title || 'Listing'} />
-        {/* No gradient - full-bleed cards */}
+        {/* Bottom gradient for depth */}
+        <GradientMaskBottom intensity={0.6} zIndex={2} heightPercent={40} />
       </div>
     );
   }
@@ -428,7 +433,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-xl"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -444,6 +449,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={listing.title || 'Listing'} />
 
+          {/* TOP GRADIENT MASK - Creates visual contrast for header UI */}
+          <GradientMaskTop intensity={1} zIndex={15} heightPercent={28} />
+
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
             <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -455,8 +463,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               ))}
             </div>
           )}
-        </div>
 
+          {/* BOTTOM GRADIENT MASK - Creates visual contrast for buttons & info */}
+          <GradientMaskBottom intensity={1} zIndex={18} heightPercent={55} />
+        </div>
+        
         {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
@@ -500,23 +511,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             NOPE
           </div>
         </motion.div>
-
+        
         {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
-        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
-          {/* Rating Display - Glass-pill tactile badge */}
+        <div className="absolute bottom-24 left-0 right-0 p-4 z-20 pointer-events-none">
+          {/* Rating Display - Bottom of card, above property info */}
           <div className="mb-3">
-            <div
-              className="inline-flex rounded-full px-3 py-1.5"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-              }}
-            >
+            <div className="inline-flex bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5">
               <CompactRatingDisplay
-                aggregate={ratingAggregate as any}
+                aggregate={ratingAggregate}
                 isLoading={isRatingLoading}
                 showReviews={false}
                 className="text-white"
@@ -557,17 +559,11 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             />
           )}
         </div>
-
+        
         {/* Verified badge - now using TrustSignals component */}
         {(listing as any).has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
-            <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-            }}>
+            <div className="px-2.5 py-1.5 rounded-full bg-black/40 backdrop-blur-sm flex items-center gap-1.5">
               <VerifiedBadge size="sm" />
               <span className="text-xs font-medium text-white">Verified</span>
             </div>

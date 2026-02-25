@@ -9,7 +9,7 @@ import { ChevronDown, Save } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 
@@ -131,9 +131,16 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
         bicycle_is_electric: isElectricOnly || null,
         bicycle_battery_range_min: batteryRange || null,
       });
-      toast.success('Filters applied!', { description: 'Your bicycle preferences have been saved.' });
+      toast({
+        title: 'Filters applied!',
+        description: 'Your bicycle preferences have been saved.',
+      });
     } catch (error) {
-      toast.error('Error', { description: 'Failed to save preferences.' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save preferences.',
+        variant: 'destructive',
+      });
     }
 
     onApply({
@@ -226,9 +233,16 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
         bicycle_is_electric: isElectricOnly || null,
         bicycle_battery_range_min: batteryRange > 0 ? batteryRange : null,
       });
-      toast.success('Preferences saved!', { description: 'Your bicycle filter preferences have been saved successfully.' });
+      toast({
+        title: 'Preferences saved!',
+        description: 'Your bicycle filter preferences have been saved successfully.',
+      });
     } catch (error) {
-      toast.error('Error', { description: 'Failed to save preferences. Please try again.' });
+      toast({
+        title: 'Error',
+        description: 'Failed to save preferences. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 

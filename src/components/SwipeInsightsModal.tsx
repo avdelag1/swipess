@@ -108,7 +108,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
         saves: Math.max(3, Math.round(amenityCount * 0.5)),
         shares: Math.max(1, Math.round(amenityCount * 0.2)),
         responseRate: 75,
-        avgResponseTime: 1,
+        avgResponseTime: 1, // hours
         popularityScore: Math.min(10, Math.round(5 + Math.round(imageCount * 0.5))),
         viewsLastWeek: Math.max(10, Math.round(completeness * 0.3)),
         demandLevel: (amenityCount + equipmentCount) > 5 ? 'high' : 'medium',
@@ -120,16 +120,21 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
         equipmentCount,
         imageCount,
         isHotListing: qualityScore >= 70 && listing.status === 'available',
-        readinessScore: 0,
-        photoCount: imageCount,
-        interestCount: 0,
       };
     }
 
     return {
-      views: 0, saves: 0, shares: 0, responseRate: 0, avgResponseTime: 0,
-      popularityScore: 0, viewsLastWeek: 0, demandLevel: 'medium', priceVsMarket: 0,
-      qualityScore: 0, readinessScore: 0, photoCount: 0, interestCount: 0,
+      views: 0,
+      saves: 0,
+      shares: 0,
+      responseRate: 0,
+      avgResponseTime: 0,
+      popularityScore: 0,
+      viewsLastWeek: 0,
+      demandLevel: 'medium',
+      priceVsMarket: 0,
+      qualityScore: 0,
+      readinessScore: 0,
     };
   }, [isClientProfile, profile, listing]);
 

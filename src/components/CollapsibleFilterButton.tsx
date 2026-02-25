@@ -130,7 +130,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
           'relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200',
           activeFilterCount > 0
             ? 'bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25'
-            : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
+            : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/10'
         )}
       >
         <Filter className="w-4 h-4" />
@@ -218,7 +218,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                                 'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
                                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25'
-                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
+                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/5'
                               )}
                             >
                               {category.icon}
@@ -245,7 +245,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                                 'flex-1 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
                                   ? 'bg-primary text-primary-foreground shadow-md'
-                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
+                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/5'
                               )}
                             >
                               {type.label}
@@ -273,7 +273,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                                 'flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
                                   ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/25'
-                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
+                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/5'
                               )}
                             >
                               {option.icon}
@@ -300,7 +300,7 @@ function CollapsibleFilterButtonComponent({ filters, onChange, userRole, classNa
                                 'flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
                                 isActive
                                   ? 'bg-primary text-primary-foreground shadow-md'
-                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-border'
+                                  : 'bg-muted/50 text-muted-foreground hover:bg-muted border border-white/5'
                               )}
                             >
                               <span>{option.label}</span>

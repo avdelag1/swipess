@@ -13,7 +13,6 @@ export type CityLocation =
   | 'california'
   | 'texas'
   | 'french'
-  | 'italy'
   | 'podcasts';
 
 export interface RadioStation {

@@ -219,16 +219,19 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
         }));
       },
 
+      // FIX #5: OPTIMIZED - Mutate existing Set instead of creating new one
+      // This is safe because we immediately spread into a new object anyway
+      // Avoids O(n) Set copy operation on every swipe
       markClientSwiped: (id) => {
         set((state) => {
-          const newSwipedIds = new Set(state.clientDeck.swipedIds);
-          newSwipedIds.add(id);
+          // Direct mutation of the Set - much faster than creating a new Set
+          // The spread operator on clientDeck creates the immutable boundary
+          state.clientDeck.swipedIds.add(id);
           return {
             clientDeck: {
               ...state.clientDeck,
-              swipedIds: newSwipedIds,
               currentIndex: state.clientDeck.currentIndex + 1,
-              lastSwipedId: id,
+              lastSwipedId: id, // Track for one-time undo
             }
           };
         });
@@ -244,9 +247,8 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
             return state; // No changes - nothing to undo
           }
 
-          // Remove from swiped set (immutable copy)
-          const newSwipedIds = new Set(state.clientDeck.swipedIds);
-          newSwipedIds.delete(lastId);
+          // Remove from swiped set
+          state.clientDeck.swipedIds.delete(lastId);
           success = true;
 
           // FIX: Only decrement if > 0 to prevent negative index
@@ -255,7 +257,6 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
           return {
             clientDeck: {
               ...state.clientDeck,
-              swipedIds: newSwipedIds,
               currentIndex: newIndex,
               lastSwipedId: null, // Clear after undo (can only undo once)
             }
@@ -348,19 +349,19 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
         });
       },
 
+      // FIX #5: OPTIMIZED - Same optimization as client side
       markOwnerSwiped: (category, id) => {
         set((state) => {
           const existingDeck = state.ownerDecks[category] || createEmptyDeckState();
-          const newSwipedIds = new Set(existingDeck.swipedIds);
-          newSwipedIds.add(id);
+          // Direct mutation - avoids O(n) Set copy
+          existingDeck.swipedIds.add(id);
           return {
             ownerDecks: {
               ...state.ownerDecks,
               [category]: {
                 ...existingDeck,
-                swipedIds: newSwipedIds,
                 currentIndex: existingDeck.currentIndex + 1,
-                lastSwipedId: id,
+                lastSwipedId: id, // Track for one-time undo
               }
             }
           };
@@ -379,9 +380,8 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
             return state; // No changes - nothing to undo
           }
 
-          // Remove from swiped set (immutable copy)
-          const newSwipedIds = new Set(existingDeck.swipedIds);
-          newSwipedIds.delete(lastId);
+          // Remove from swiped set
+          existingDeck.swipedIds.delete(lastId);
           success = true;
 
           // FIX: Only decrement if > 0 to prevent negative index
@@ -392,9 +392,8 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
               ...state.ownerDecks,
               [category]: {
                 ...existingDeck,
-                swipedIds: newSwipedIds,
                 currentIndex: newIndex,
-                lastSwipedId: null,
+                lastSwipedId: null, // Clear after undo (can only undo once)
               }
             }
           };

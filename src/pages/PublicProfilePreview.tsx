@@ -55,9 +55,9 @@ export default function PublicProfilePreview() {
         // If profiles_public doesn't exist, fall back to profiles table
         const { data: profile, error: profileError } = await (supabase as any)
           .from('profiles')
-          .select('user_id, full_name, city, avatar_url, bio')
-          .eq('user_id', id)
-          .maybeSingle();
+          .select('id, full_name, city, avatar_url, bio')
+          .eq('id', id)
+          .single();
 
         if (profileError) throw profileError;
         return profile;

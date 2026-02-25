@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Share, Plus, Share2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { logger } from '@/utils/prodLogger';
 
 interface BeforeInstallPromptEvent extends Event {
@@ -80,7 +80,10 @@ export function PWAInstallBanner() {
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`);
-        toast.success("Link copied!", { description: "Share link copied to clipboard" });
+        toast({
+          title: "Link copied!",
+          description: "Share link copied to clipboard",
+        });
       }
     } catch (error) {
       // User cancelled or error - silently ignore

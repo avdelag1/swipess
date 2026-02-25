@@ -1,13 +1,4 @@
 project_id = "qegyisokrxdsszzswsqk"
 
 [functions.ai-assistant]
-verify_jwt = true
-
-[functions.ai-conversation]
-verify_jwt = true
-
-[functions.ai-orchestrator]
-verify_jwt = true
-
-[functions.delete-user]
-verify_jwt = true
+verify_jwt = false

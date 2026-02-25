@@ -74,13 +74,12 @@ export default function FAQClientPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-3xl mx-auto px-4 py-8 pb-32">
         <PageHeader
           title="FAQ & Help"
           subtitle="Common questions for renters"
           showBack={true}
-          backTo="/client/settings"
         />
 
         <motion.div

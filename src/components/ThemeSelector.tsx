@@ -1,54 +1,47 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Palette, Sparkles } from 'lucide-react';
+import { Check, Palette, Sparkles, Eye } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-type ThemeId = 'black-matte' | 'white-matte' | 'pure-black' | 'cheers';
-
 interface ThemeOption {
-  id: ThemeId;
+  id: 'black-matte' | 'white-matte';
   name: string;
   description: string;
   icon: string;
   colors: {
-    bg: string;
-    card: string;
+    primary: string;
+    secondary: string;
     accent: string;
   };
 }
 
 const themeOptions: ThemeOption[] = [
   {
-    id: 'white-matte',
-    name: 'Light',
-    description: 'Clean & minimalist',
-    icon: '☀️',
-    colors: { bg: '#F5F7FA', card: '#FFFFFF', accent: '#C62828' },
-  },
-  {
     id: 'black-matte',
-    name: 'Dark',
+    name: 'Dark Mode',
     description: 'Deep & elegant',
     icon: '🌙',
-    colors: { bg: '#0D0D0D', card: '#1A1A1A', accent: '#E53935' },
+    colors: {
+      primary: '#0D0D0D',
+      secondary: '#1A1A1A',
+      accent: '#E53935'
+    }
   },
   {
-    id: 'pure-black',
-    name: 'Black',
-    description: 'AMOLED void black',
-    icon: '⬛',
-    colors: { bg: '#000000', card: '#0F0F0F', accent: '#EF5350' },
-  },
-  {
-    id: 'cheers',
-    name: 'Cheers',
-    description: 'Safari animal print',
-    icon: '🐆',
-    colors: { bg: '#1A0C03', card: '#261208', accent: '#D4960F' },
-  },
+    id: 'white-matte',
+    name: 'Light Mode',
+    description: 'Clean & minimalist',
+    icon: '☀️',
+    colors: {
+      primary: '#F8F8F8',
+      secondary: '#FFFFFF',
+      accent: '#C62828'
+    }
+  }
 ];
 
 interface ThemeSelectorProps {
@@ -59,41 +52,41 @@ interface ThemeSelectorProps {
 export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelectorProps) {
   const { theme, setTheme } = useTheme();
 
-  const handleThemeChange = (newTheme: ThemeId) => {
+  const handleThemeChange = (newTheme: 'black-matte' | 'white-matte') => {
     setTheme(newTheme);
     const themeName = themeOptions.find(t => t.id === newTheme)?.name || newTheme;
     toast.success(`Theme changed to ${themeName}`, {
-      description: 'Your preference has been saved',
+      description: "Your preference has been saved"
     });
   };
 
   if (compact) {
-    // Compact: row of small theme swatches
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex gap-2 p-2 bg-card/50 backdrop-blur-sm rounded-xl border border-border/50">
         {themeOptions.map((option) => (
           <motion.button
             key={option.id}
             onClick={() => handleThemeChange(option.id)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            title={option.name}
-            className="relative w-9 h-9 rounded-full border-2 transition-all duration-200 flex items-center justify-center text-sm"
-            style={{
-              background: option.colors.bg,
-              borderColor: theme === option.id ? option.colors.accent : 'transparent',
-              boxShadow: theme === option.id ? `0 0 0 2px ${option.colors.accent}55` : undefined,
-            }}
+            className={`
+              relative px-3 py-2 rounded-lg font-medium text-xs transition-all duration-200
+              ${theme === option.id
+                ? 'bg-primary text-primary-foreground shadow-md scale-105'
+                : 'bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-foreground'
+              }
+            `}
+            whileHover={{ scale: theme === option.id ? 1.05 : 1.02 }}
+            whileTap={{ scale: 0.95 }}
+            title={option.description}
           >
-            <span style={{ fontSize: '14px' }}>{option.icon}</span>
+            <span className="mr-1.5">{option.icon}</span>
+            <span className="hidden sm:inline">{option.name.split(' ')[0]}</span>
             {theme === option.id && (
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: option.colors.accent }}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="absolute -top-1 -right-1"
               >
-                <Check className="w-2 h-2 text-white" />
+                <div className="w-2 h-2 bg-primary rounded-full border-2 border-background" />
               </motion.div>
             )}
           </motion.button>
@@ -112,77 +105,147 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
           </CardTitle>
         </CardHeader>
       )}
-      <CardContent className="pt-6 space-y-5">
-        {/* Theme grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {themeOptions.map((option) => {
-            const isActive = theme === option.id;
-            return (
-              <motion.button
-                key={option.id}
+      <CardContent className="space-y-4 pt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {themeOptions.map((option) => (
+            <motion.div
+              key={option.id}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="relative"
+            >
+              <button
                 onClick={() => handleThemeChange(option.id)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="relative rounded-2xl overflow-hidden text-left transition-all duration-200 focus:outline-none"
-                style={{
-                  border: `2px solid ${isActive ? option.colors.accent : 'transparent'}`,
-                  boxShadow: isActive ? `0 0 16px ${option.colors.accent}40` : undefined,
-                }}
+                className={`
+                  w-full p-5 rounded-xl border-2 transition-all duration-300 text-left
+                  relative overflow-hidden group
+                  ${theme === option.id
+                    ? 'border-primary bg-primary/5 shadow-lg shadow-primary/20'
+                    : 'border-border hover:border-primary/50 hover:shadow-md bg-card/50'
+                  }
+                `}
               >
-                {/* Swatch preview */}
+                {/* Background gradient effect */}
                 <div
-                  className="h-20 flex items-end p-2"
-                  style={{ background: option.colors.bg }}
-                >
-                  {/* Mini card strip */}
-                  <div
-                    className="w-full h-8 rounded-lg"
-                    style={{ background: option.colors.card, opacity: 0.9 }}
-                  />
-                  {/* Accent dot */}
-                  <div
-                    className="absolute top-2 right-2 w-4 h-4 rounded-full"
-                    style={{ background: option.colors.accent }}
-                  />
-                </div>
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: `linear-gradient(135deg, ${option.colors.primary}05, ${option.colors.accent}05)`
+                  }}
+                />
 
-                {/* Label row */}
-                <div
-                  className="px-3 py-2 flex items-center justify-between"
-                  style={{ background: option.colors.card }}
-                >
+                {/* Content */}
+                <div className="relative z-10">
+                  {/* Color Preview */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex gap-1.5">
+                      {Object.values(option.colors).map((color, index) => (
+                        <motion.div
+                          key={`color-${color}-${index}`}
+                          className="w-5 h-5 rounded-full border-2 border-border/50 shadow-sm"
+                          style={{ backgroundColor: color }}
+                          whileHover={{ scale: 1.2 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                        />
+                      ))}
+                    </div>
+                    {theme === option.id && (
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="ml-auto"
+                        transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      >
+                        <Badge className="bg-primary text-primary-foreground shadow-sm">
+                          <Check className="w-3 h-3 mr-1" />
+                          Active
+                        </Badge>
+                      </motion.div>
+                    )}
+                  </div>
+
+                  {/* Theme Info */}
                   <div>
-                    <p className="text-xs font-bold leading-none" style={{ color: option.id === 'white-matte' ? '#1a1a1a' : '#f0f0f0' }}>
-                      <span className="mr-1">{option.icon}</span>{option.name}
-                    </p>
-                    <p className="text-[10px] mt-0.5 leading-none" style={{ color: option.id === 'white-matte' ? '#555' : '#aaa' }}>
+                    <h3 className="font-bold text-foreground mb-1.5 flex items-center gap-2">
+                      <span className="text-xl">{option.icon}</span>
+                      {option.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
                       {option.description}
                     </p>
                   </div>
-                  {isActive && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                    >
-                      <Badge
-                        className="text-[9px] px-1.5 py-0 font-black tracking-wider"
-                        style={{ background: option.colors.accent, color: option.id === 'cheers' ? '#1A0C03' : '#fff' }}
-                      >
-                        <Check className="w-2.5 h-2.5 mr-0.5" />
-                        ON
-                      </Badge>
-                    </motion.div>
-                  )}
                 </div>
-              </motion.button>
-            );
-          })}
+
+                {/* Selection indicator */}
+                {theme === option.id && (
+                  <motion.div
+                    className="absolute inset-0 rounded-xl border-2 border-primary"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.2 }}
+                  />
+                )}
+              </button>
+            </motion.div>
+          ))}
         </div>
 
-        <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground pt-1">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Theme applies instantly across the app</span>
+        {/* Live Preview Section */}
+        <div className="pt-4 border-t border-border/50">
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-foreground mb-3 flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              Live Preview
+            </h4>
+            <div
+              className="rounded-lg p-4 border transition-all duration-300"
+              style={{
+                backgroundColor: themeOptions.find(t => t.id === theme)?.colors.primary,
+                borderColor: themeOptions.find(t => t.id === theme)?.colors.accent,
+              }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-full"
+                    style={{ backgroundColor: themeOptions.find(t => t.id === theme)?.colors.accent }}
+                  />
+                  <div>
+                    <div
+                      className="h-3 w-20 rounded"
+                      style={{ backgroundColor: themeOptions.find(t => t.id === theme)?.colors.secondary }}
+                    />
+                    <div
+                      className="h-2 w-14 rounded mt-1 opacity-60"
+                      style={{ backgroundColor: themeOptions.find(t => t.id === theme)?.colors.secondary }}
+                    />
+                  </div>
+                </div>
+                <div
+                  className="px-3 py-1 rounded-full text-xs font-medium text-white"
+                  style={{ backgroundColor: themeOptions.find(t => t.id === theme)?.colors.accent }}
+                >
+                  Active
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <div
+                  className="flex-1 h-2 rounded"
+                  style={{ backgroundColor: themeOptions.find(t => t.id === theme)?.colors.secondary }}
+                />
+                <div
+                  className="w-8 h-2 rounded"
+                  style={{ backgroundColor: themeOptions.find(t => t.id === theme)?.colors.accent }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Sparkles className="w-4 h-4" />
+            <p>
+              Theme changes apply instantly across the entire app
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

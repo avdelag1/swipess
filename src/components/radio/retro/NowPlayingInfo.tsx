@@ -22,37 +22,66 @@ export function NowPlayingInfo({
   cityTheme,
 }: NowPlayingInfoProps) {
   return (
-    <div className="text-center w-full max-w-xs mx-auto px-2">
+    <div className="text-center w-full max-w-xs mx-auto">
       <AnimatePresence mode="wait">
         {station ? (
           <motion.div
             key={station.id}
-            initial={{ opacity: 0, y: 4 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
+            exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="space-y-0.5"
           >
+            {/* Live / status indicator */}
+            <div className="flex items-center justify-center gap-2 mb-2">
+              {isPlaying ? (
+                <motion.div
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full"
+                  style={{
+                    background: `${cityTheme.primaryColor}20`,
+                  }}
+                >
+                  <motion.div
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: cityTheme.accentColor }}
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+                  <span className="text-[10px] tracking-widest font-medium text-white/60 uppercase">
+                    Live
+                  </span>
+                  <Wifi className="w-3 h-3 text-white/40" />
+                </motion.div>
+              ) : (
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                  <span className="text-[10px] tracking-widest font-medium text-white/40 uppercase">
+                    Paused
+                  </span>
+                </div>
+              )}
+            </div>
+
             {/* Station name */}
-            <h2 className="text-white text-lg font-bold tracking-tight leading-tight">
+            <h2 className="text-white text-xl font-bold tracking-tight mb-1">
               {station.name}
             </h2>
 
             {/* City & genre */}
-            <p className="text-white/40 text-xs leading-tight">
+            <p className="text-white/40 text-sm mb-1">
               {cityTheme.name}
               {station.genre && (
                 <>
-                  <span className="mx-1 text-white/20">·</span>
+                  <span className="mx-1.5 text-white/20">·</span>
                   {station.genre}
                 </>
               )}
             </p>
 
             {/* Frequency */}
-            <div className="flex items-center justify-center gap-1 pt-0.5">
-              <Disc3 className="w-2.5 h-2.5 text-white/25" />
-              <span className="text-[9px] text-white/25 font-mono">
+            <div className="flex items-center justify-center gap-1.5">
+              <Disc3 className="w-3 h-3 text-white/25" />
+              <span className="text-xs text-white/25 font-mono">
                 {station.frequency}
               </span>
             </div>
@@ -61,9 +90,9 @@ export function NowPlayingInfo({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="py-2"
+            className="py-4"
           >
-            <p className="text-white/30 text-xs">No station selected</p>
+            <p className="text-white/30 text-sm">No station selected</p>
           </motion.div>
         )}
       </AnimatePresence>

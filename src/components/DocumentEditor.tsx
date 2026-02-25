@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,6 @@ import {
   Type, Minus, Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { sanitizeHTML } from '@/utils/sanitizeHTML';
 
 interface DocumentEditorProps {
   initialContent?: string;
@@ -29,7 +28,6 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   const [documentTitle, setDocumentTitle] = useState(initialTitle);
   const [fontSize, setFontSize] = useState(14);
   const editorRef = useRef<HTMLDivElement>(null);
-  const safeContent = useMemo(() => sanitizeHTML(initialContent), [initialContent]);
 
   const execCommand = useCallback((command: string, value?: string) => {
     document.execCommand(command, false, value);
@@ -256,7 +254,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
               fontSize: `${fontSize}px`,
               lineHeight: '1.6'
             }}
-            dangerouslySetInnerHTML={{ __html: safeContent }}
+            dangerouslySetInnerHTML={{ __html: initialContent }}
             suppressContentEditableWarning
           />
         </ScrollArea>

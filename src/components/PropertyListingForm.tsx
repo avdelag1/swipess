@@ -1,6 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
-import { z } from 'zod';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,26 +28,6 @@ interface PropertyFormData {
   house_rules?: string;
 }
 
-const propertyFormSchema = z.object({
-  title: z.string().optional(),
-  price: z.number().optional().nullable().transform(v => v ?? undefined),
-  country: z.string().optional(),
-  state: z.string().optional(),
-  city: z.string().optional(),
-  neighborhood: z.string().optional(),
-  address: z.string().optional(),
-  property_type: z.string().optional(),
-  beds: z.number().optional().nullable().transform(v => v ?? undefined),
-  baths: z.number().optional().nullable().transform(v => v ?? undefined),
-  square_footage: z.number().optional().nullable().transform(v => v ?? undefined),
-  furnished: z.boolean().optional(),
-  pet_friendly: z.boolean().optional(),
-  amenities: z.array(z.string()).optional(),
-  services_included: z.array(z.string()).optional(),
-  rental_duration_type: z.string().optional(),
-  house_rules: z.string().optional(),
-});
-
 interface PropertyListingFormProps {
   onDataChange: (data: Partial<PropertyFormData>) => void;
   initialData?: Partial<PropertyFormData>;
@@ -65,17 +44,13 @@ const SERVICES = ['Water', 'Electricity', 'Gas', 'Internet', 'Cleaning', 'Mainte
 const STATES = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Mexico City', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Mexico State', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'];
 
 export function PropertyListingForm({ onDataChange, initialData = {} }: PropertyListingFormProps) {
-  // Safe parsing of initial data to strip weird DB nulls
-  const parsedResult = propertyFormSchema.safeParse(initialData);
-  const safeInitialData = parsedResult.success ? parsedResult.data : {};
-
   const { register, control, watch, setValue, formState: { errors } } = useForm<PropertyFormData>({
-    defaultValues: {
-      amenities: [],
-      services_included: [],
+    defaultValues: { 
+      amenities: [], 
+      services_included: [], 
       furnished: false,
       pet_friendly: false,
-      ...safeInitialData
+      ...initialData 
     },
   });
 

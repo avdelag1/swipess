@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload, File, Trash2, CheckCircle, Clock, XCircle, FileText } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { validateDocumentFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
 
 interface LegalDocument {
@@ -119,7 +119,10 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       return data;
     },
     onSuccess: () => {
-      toast.success("Document Uploaded", { description: "Your legal document has been uploaded successfully and is pending verification." });
+      toast({
+        title: "Document Uploaded",
+        description: "Your legal document has been uploaded successfully and is pending verification.",
+      });
       setSelectedDocumentType('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -127,7 +130,11 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       refetch();
     },
     onError: (error) => {
-      toast.error("Upload Failed", { description: error.message });
+      toast({
+        title: "Upload Failed",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   });
 
@@ -153,11 +160,18 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
       if (dbError) throw dbError;
     },
     onSuccess: () => {
-      toast.success("Document Deleted", { description: "The document has been removed successfully." });
+      toast({
+        title: "Document Deleted",
+        description: "The document has been removed successfully.",
+      });
       refetch();
     },
     onError: (error) => {
-      toast.error("Delete Failed", { description: error.message });
+      toast({
+        title: "Delete Failed",
+        description: error.message,
+        variant: "destructive"
+      });
     }
   });
 
@@ -168,12 +182,20 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
     // Use centralized validation
     const validation = validateDocumentFile(file);
     if (!validation.isValid) {
-      toast.error("Invalid File", { description: validation.error });
+      toast({
+        title: "Invalid File",
+        description: validation.error,
+        variant: "destructive"
+      });
       return;
     }
 
     if (!selectedDocumentType) {
-      toast.error("Select Document Type", { description: "Please select the type of document you're uploading." });
+      toast({
+        title: "Select Document Type",
+        description: "Please select the type of document you're uploading.",
+        variant: "destructive"
+      });
       return;
     }
 

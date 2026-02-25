@@ -28,8 +28,6 @@ interface RadarSearchEffectProps {
   className?: string;
   /** Whether animation is active (default true) */
   isActive?: boolean;
-  /** Custom icon to display in the absolute center of the radar */
-  icon?: React.ReactNode;
 }
 
 /**
@@ -44,7 +42,6 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
   label,
   className = '',
   isActive = true,
-  icon,
 }: RadarSearchEffectProps) {
   const centerSize = size * 0.12;
   const ringGap = size * 0.18;
@@ -223,21 +220,13 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
           }}
           style={{
             position: 'absolute',
-            width: centerSize * (icon ? 2.5 : 1),
-            height: centerSize * (icon ? 2.5 : 1),
+            width: centerSize,
+            height: centerSize,
             borderRadius: '50%',
-            backgroundColor: icon ? `${color}20` : color,
-            border: icon ? `1px solid ${color}50` : 'none',
-            boxShadow: `0 0 15px ${color}40`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: color,
-            backdropFilter: 'blur(4px)',
+            backgroundColor: color,
+            boxShadow: `0 0 8px ${color}40`,
           }}
-        >
-          {icon}
-        </motion.div>
+        />
 
         {/* Gentle expanding ring from center */}
         <motion.div

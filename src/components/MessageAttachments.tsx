@@ -12,7 +12,7 @@ import {
   X 
 } from 'lucide-react';
 import { useMessageAttachments, useUploadAttachment, useDeleteAttachment, getAttachmentUrl } from '@/hooks/useMessageAttachments';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 
 interface MessageAttachmentsProps {
   messageId: string;
@@ -38,7 +38,11 @@ export function MessageAttachments({
 
     // Validate file size (10MB limit)
     if (file.size > 10 * 1024 * 1024) {
-      toast.error('File Too Large', { description: 'Please select a file smaller than 10MB.' });
+      toast({
+        title: 'File Too Large',
+        description: 'Please select a file smaller than 10MB.',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -73,7 +77,11 @@ export function MessageAttachments({
     try {
       const url = await getAttachmentUrl(attachment.file_path);
       if (!url) {
-        toast.error('Feature Not Available', { description: 'File attachments feature is not yet available.' });
+        toast({
+          title: 'Feature Not Available',
+          description: 'File attachments feature is not yet available.',
+          variant: 'destructive',
+        });
         return;
       }
       const a = document.createElement('a');
@@ -83,7 +91,11 @@ export function MessageAttachments({
       a.click();
       document.body.removeChild(a);
     } catch (error) {
-      toast.error('Download Failed', { description: 'Unable to download the file. Please try again.' });
+      toast({
+        title: 'Download Failed',
+        description: 'Unable to download the file. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
