@@ -40,10 +40,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
 
     // Remove all old theme classes
-    root.classList.remove(
-      'grey-matte', 'black-matte', 'white-matte',
-      'red-matte', 'amber-matte', 'dark', 'amber', 'red'
-    );
+    root.classList.remove('black-matte', 'white-matte', 'dark');
 
     // Add current theme class
     root.classList.add(theme);
