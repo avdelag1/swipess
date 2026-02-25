@@ -42,6 +42,11 @@ export function LikedClients() {
   const [clientToDelete, setClientToDelete] = useState<any>(null);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportDetails, setReportDetails] = useState('');
+  const [selectedClientForAction, setSelectedClientForAction] = useState<any>(null);
+  const [showBlockDialog, setShowBlockDialog] = useState(false);
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
@@ -135,10 +140,10 @@ export function LikedClients() {
     onError: () => {
       toast.error("Failed to submit report. Please try again.");
     }
+  });
 
   const blockClientMutation = useMutation({
     mutationFn: async (clientId: string) => {
-      // Insert block record into user_blocks table
       const { error: blockError } = await (supabase as any)
         .from('user_blocks')
         .insert({
@@ -151,7 +156,6 @@ export function LikedClients() {
         throw blockError;
       }
 
-      // Also remove from likes table
       await supabase
         .from('likes')
         .delete()
@@ -160,7 +164,6 @@ export function LikedClients() {
         .eq('target_type', 'profile');
     },
     onSuccess: () => {
-      // FIXED: Include user ID in query key to match LikedClients query key
       queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] });
       toast.success("Client blocked successfully");
       setShowBlockDialog(false);
@@ -168,6 +171,18 @@ export function LikedClients() {
     },
     onError: () => {
       toast.error("Failed to block client");
+    }
+  });
+
+  const handleAction = async (action: string, client: any) => {
+    if (action === 'view') {
+      setSelectedClientForView(client);
+      setShowInsightsModal(true);
+    }
+
+    if (action === 'delete') {
+      setClientToDelete(client);
+      setShowDeleteDialog(true);
     }
 
     if (action === 'message') {
