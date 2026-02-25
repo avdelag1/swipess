@@ -2,7 +2,6 @@
 import { useState, memo } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 import { ClientInsightsDialog } from '@/components/ClientInsightsDialog';
-import { MatchCelebration } from '@/components/MatchCelebration';
 import { NotificationBar } from '@/components/NotificationBar';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -21,11 +20,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [insightsOpen, setInsightsOpen] = useState(false);
 
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [matchCelebration, setMatchCelebration] = useState<{
-    isOpen: boolean;
-    clientProfile?: any;
-    ownerProfile?: any;
-  }>({ isOpen: false });
 
   const navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
@@ -54,10 +48,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     if (onClientInsights) {
       onClientInsights(clientId);
     }
-  };
-
-  const handleStartConversation = () => {
-    navigate('/messages');
   };
 
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
@@ -92,17 +82,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
           profile={selectedClient}
         />
       )}
-
-      <MatchCelebration
-        isOpen={matchCelebration.isOpen}
-        onClose={() => setMatchCelebration({ isOpen: false })}
-        matchedUser={{
-          name: matchCelebration.clientProfile?.name || 'User',
-          avatar: matchCelebration.clientProfile?.images?.[0],
-          role: 'client'
-        }}
-        onMessage={handleStartConversation}
-      />
 
       <CategorySelectionDialog
         open={showCategoryDialog}
