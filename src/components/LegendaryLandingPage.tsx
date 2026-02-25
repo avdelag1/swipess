@@ -582,11 +582,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const [effectMode, setEffectMode] = useState<EffectMode>('stars');
+  const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
 
-  // Cycle: stars → orbs → off (dark)
-  const cycleEffect = () => setEffectMode((p) => p === 'stars' ? 'orbs' : p === 'orbs' ? 'off' : 'stars');
-  const effectLabel = effectMode === 'stars' ? '✦' : effectMode === 'orbs' ? '◉' : 'FX';
+  // Cycle: orbs → stars → off (dark) → orbs
+  const cycleEffect = () => setEffectMode((p) => p === 'orbs' ? 'stars' : p === 'stars' ? 'off' : 'orbs');
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
