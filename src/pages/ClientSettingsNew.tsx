@@ -173,55 +173,63 @@ const ClientSettingsNew = () => {
   }
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-4 py-4 pb-32">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <PageHeader title="Settings" subtitle="App configuration & support" />
+    <div className="w-full min-h-full overflow-y-auto px-6 py-6 pb-40 scrollbar-hide">
+      <div className="max-w-3xl mx-auto space-y-10">
+        <PageHeader
+          title="Settings"
+          subtitle="Application configuration & global preferences"
+        />
 
         <motion.div
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: stagger } }}
-          className="space-y-6"
+          className="space-y-10"
         >
           {settingsGroups.map((group) => (
-            <motion.div key={group.label} variants={itemVariant}>
+            <motion.div key={group.label} variants={itemVariant} className="space-y-3">
               {/* Section pill label */}
-              <div className="mb-2 px-1">
-                <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">{group.label}</span>
+              <div className="px-1 flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500/80">{group.label}</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-zinc-500/20 to-transparent" />
               </div>
 
-              {/* Group card */}
-              <div className="rounded-3xl overflow-hidden bg-zinc-900/50 backdrop-blur-md border border-white/5 shadow-xl">
+              {/* Group card - Moscow style matte container */}
+              <div className="rounded-[32px] overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
-                      whileTap={{ scale: 0.99 }}
+                      whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                      whileTap={{ scale: 0.985 }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);
                         else if (item.route) navigate(item.route);
                       }}
-                      className="w-full flex items-center gap-4 py-4 px-5 hover:bg-muted/50 active:bg-muted transition-colors text-left"
+                      className="w-full flex items-center gap-5 py-5 px-6 transition-all text-left"
                     >
-                      {/* iOS-style colored icon badge */}
+                      {/* iOS-style colored icon badge with depth */}
                       <div
-                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                        className="w-11 h-11 rounded-[14px] flex items-center justify-center flex-shrink-0 shadow-lg border border-white/10"
                         style={{ background: item.bg }}
                       >
-                        <item.icon className="w-4.5 h-4.5 text-white w-[18px] h-[18px]" />
+                        <item.icon className="w-5 h-5 text-white shadow-sm" />
                       </div>
 
                       <div className="flex-1">
-                        <div className="text-sm font-semibold text-foreground">{item.label}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+                        <div className="text-[15px] font-bold text-foreground/95 tracking-tight">{item.label}</div>
+                        <div className="text-[12px] text-muted-foreground/70 font-medium mt-0.5 leading-relaxed">{item.description}</div>
                       </div>
 
-                      {item.section ? null : (
-                        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      )}
+                      <div className="flex items-center gap-2">
+                        {item.section && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
+                        )}
+                        <ChevronRight className="w-4 h-4 text-zinc-600 flex-shrink-0" />
+                      </div>
                     </motion.button>
 
                     {idx < group.items.length - 1 && (
-                      <div className="mx-5 h-px bg-border" />
+                      <div className="mx-6 h-px bg-white/5" />
                     )}
                   </div>
                 ))}
@@ -230,11 +238,20 @@ const ClientSettingsNew = () => {
           ))}
         </motion.div>
 
-        {/* App Version */}
-        <div className="text-center pb-4">
-          <p className="text-xs text-muted-foreground">
-            <span className="swipess-text text-sm">Swipess</span> <span className="opacity-40">v1.0</span>
-          </p>
+        {/* App Version - Elegant footer */}
+        <div className="text-center pt-10 pb-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="inline-flex flex-col items-center gap-1.5"
+          >
+            <div className="flex items-center gap-2">
+              <span className="swipess-text text-lg tracking-tighter text-foreground/40">Swipess</span>
+              <Badge variant="outline" className="text-[9px] font-black tracking-widest uppercase py-0 px-1.5 bg-white/5 border-white/10 text-zinc-500">v1.2.0</Badge>
+            </div>
+            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Moscow Experience Engine</p>
+          </motion.div>
         </div>
       </div>
     </div>
