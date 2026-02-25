@@ -1,7 +1,7 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { ThemeSelector } from "@/components/ThemeSelector";
+import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -176,26 +176,7 @@ const OwnerProfileNew = () => {
           />
         </motion.div>
 
-        {/* Theme Settings */}
-        <motion.div variants={childVariant}>
-          <div className="rounded-[2.5rem] p-6 border-2"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(30px)'
-            }}>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-[1.2rem] flex items-center justify-center bg-gradient-to-br from-[#E4007C] to-[#F5DEB3] shadow-md">
-                <Palette className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div className="text-sm font-black text-foreground">Filter Colors</div>
-                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Customize UI</div>
-              </div>
-            </div>
-            <ThemeSelector compact showTitle={false} />
-          </div>
-        </motion.div>
+
 
         {/* Upgrade Button - Flagship Mexican Pink */}
         <motion.div variants={childVariant}>

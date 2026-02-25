@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'black-matte' | 'white-matte' | 'pure-black' | 'cheers';
+type Theme = 'black-matte';
 
 const THEME_STORAGE_KEY = 'swipess-theme';
 
@@ -12,28 +12,10 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 /**
- * ThemeProvider - Manages black-matte / white-matte switching.
- *
- * Persistence strategy:
- *  1. Read from localStorage on mount (instant, synchronous, no flash).
- *  2. Write to localStorage on every change.
- *  3. Optionally sync to Supabase profiles table if the column exists.
- *
- * Default: 'white-matte' for new users.
+ * ThemeProvider - App permanently locked to black-matte
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Synchronous read from localStorage — prevents flash of wrong theme
-    try {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      if (stored === 'black-matte' || stored === 'white-matte' || stored === 'pure-black' || stored === 'cheers') {
-        return stored;
-      }
-    } catch {
-      // localStorage unavailable
-    }
-    return 'black-matte';
-  });
+  const [theme] = useState<Theme>('black-matte');
 
   // Apply theme class to document and update status bar color
   useEffect(() => {
@@ -41,23 +23,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Remove all old theme classes
     root.classList.remove(
-      'grey-matte', 'black-matte', 'white-matte',
-      'red-matte', 'amber-matte', 'pure-black', 'cheers',
-      'dark', 'amber', 'red'
+      'grey-matte', 'white-matte', 'red-matte', 'amber-matte',
+      'pure-black', 'cheers', 'dark', 'amber', 'red'
     );
 
     // Add current theme class
-    root.classList.add(theme);
+    root.classList.add('black-matte');
 
     // Update mobile status bar colour
-    const themeColors: Record<string, string> = {
-      'black-matte': '#000000',
-      'white-matte': '#f5f5f5',
-      'pure-black': '#000000',
-      'cheers': '#150b02',
-    };
-
-    const color = themeColors[theme] || '#1a1a1a';
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
 
     if (!metaThemeColor) {
@@ -66,22 +39,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.head.appendChild(metaThemeColor);
     }
 
-    metaThemeColor.setAttribute('content', color);
-  }, [theme]);
+    metaThemeColor.setAttribute('content', '#000000');
+  }, []);
 
-  // Public setter — persists to localStorage immediately
+  // Dummy setter so nothing crashes
   const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-    } catch {
-      // localStorage full or unavailable — theme still applies in-memory
-    }
+    console.log("Theme permanently set to black-matte");
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme: 'black-matte', setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
