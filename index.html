@@ -100,8 +100,6 @@
   </style>
 
   <!-- Defer font loading - not render blocking -->
-  <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v13/UcC73FwrK3iLTeHuS_fvQtMwCp50KSvqNyU.woff2"
-    crossorigin type="font/woff2">
 
   <!-- Load fonts asynchronously - not render blocking -->
   <link rel="preload" as="style"
@@ -161,7 +159,7 @@ With Swipess, you can discover properties, vehicles, and services.">
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://storage.googleapis.com; frame-src https://accounts.google.com;">
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com https://apis.google.com https://cdn.gpteng.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://storage.googleapis.com wss://*.lovableproject.com; frame-src https://accounts.google.com;">
   <link rel="icon" type="image/jpeg" sizes="32x32" href="/icons/s-icon.jpg">
 
   <!-- Reduced Motion: apply class when user prefers reduced motion -->
