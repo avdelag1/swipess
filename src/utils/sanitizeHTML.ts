@@ -1,41 +1,34 @@
 /**
- * Simple HTML sanitizer to strip dangerous tags/attributes from HTML strings.
+ * HTML sanitizer using DOMPurify to strip dangerous tags/attributes.
  * Used for contentEditable editors to prevent XSS when rendering user or template content.
  */
-
-// Tags that are never allowed in content
-const DANGEROUS_TAGS = ['script', 'iframe', 'object', 'embed', 'form', 'input', 'textarea', 'select', 'button', 'link', 'meta', 'base'];
-
-// Attributes that could execute code
-const DANGEROUS_ATTRS = ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onsubmit', 'onchange', 'oninput', 'onkeydown', 'onkeyup', 'onkeypress', 'onmousedown', 'onmouseup', 'oncontextmenu', 'ondblclick'];
+import DOMPurify from 'dompurify';
 
 /**
- * Sanitize an HTML string by removing dangerous tags and event handler attributes.
- * Preserves formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
+ * Sanitize an HTML string using DOMPurify.
+ * Preserves safe formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
  */
 export function sanitizeHTML(html: string): string {
-    if (!html) return '';
+  if (!html) return '';
 
-    let sanitized = html;
-
-    // Remove dangerous tags and their content
-    for (const tag of DANGEROUS_TAGS) {
-        const regex = new RegExp(`<${tag}[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi');
-        sanitized = sanitized.replace(regex, '');
-        // Also remove self-closing versions
-        const selfClosingRegex = new RegExp(`<${tag}[^>]*\\/?>`, 'gi');
-        sanitized = sanitized.replace(selfClosingRegex, '');
-    }
-
-    // Remove dangerous attributes (event handlers)
-    for (const attr of DANGEROUS_ATTRS) {
-        const regex = new RegExp(`\\s${attr}\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]*)`, 'gi');
-        sanitized = sanitized.replace(regex, '');
-    }
-
-    // Remove javascript: URLs
-    sanitized = sanitized.replace(/href\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, 'href=""');
-    sanitized = sanitized.replace(/src\s*=\s*(?:"javascript:[^"]*"|'javascript:[^']*')/gi, 'src=""');
-
-    return sanitized;
+  return DOMPurify.sanitize(html, {
+    // Allow common rich-text formatting tags
+    ALLOWED_TAGS: [
+      'b', 'i', 'u', 's', 'strong', 'em', 'mark', 'small', 'del', 'ins',
+      'p', 'br', 'hr', 'div', 'span', 'blockquote', 'pre', 'code',
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+      'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+      'table', 'thead', 'tbody', 'tr', 'th', 'td',
+      'a', 'img',
+    ],
+    // Allow safe attributes only
+    ALLOWED_ATTR: [
+      'href', 'src', 'alt', 'title', 'class', 'id',
+      'width', 'height', 'target', 'rel',
+      'colspan', 'rowspan',
+    ],
+    // Force all links to be safe
+    FORCE_BODY: false,
+    ALLOW_DATA_ATTR: false,
+  });
 }
