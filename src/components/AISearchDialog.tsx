@@ -92,7 +92,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
       console.error('AI search error:', error);
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: "The Swipess Oracle is currently meditating in the high mountains of Chiapas. 🌸✨\n\nPlease try again in a heartbeat, and I'll be back with my full wisdom.",
+        content: "I'm having a brief moment of silence while I reconnect with my data sources. 💎✨\n\nPlease try again in a moment, and I'll be back to assist you with your search.",
         timestamp: Date.now()
       }]);
     } finally {
@@ -134,15 +134,15 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md bg-background/90 dark:bg-zinc-950/90 backdrop-blur-3xl border border-border dark:border-white/10 p-0 overflow-hidden rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] dark:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] outline-none"
+        className="sm:max-w-md bg-background/80 dark:bg-zinc-950/90 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2.5rem] shadow-2xl outline-none"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-6 py-6 border-b border-border dark:border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.15), rgba(245,222,179,0.05))' }}>
+        <div className="relative px-6 py-6 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
           <div className="flex items-center gap-4">
             {/* AI Avatar */}
-            <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
-              <Sparkles className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10">
+              <Sparkles className="w-6 h-6 text-orange-400" />
             </div>
 
             <div>
@@ -169,8 +169,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
               className="text-center space-y-6 py-8"
             >
-              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.1), rgba(245,222,179,0.1))' }}>
-                <Sparkles className="w-10 h-10" style={{ color: '#E4007C' }} />
+              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl bg-zinc-900 border border-white/10">
+                <Sparkles className="w-10 h-10 text-orange-400" />
               </div>
               <div>
                 <h3 className="text-foreground font-black text-2xl tracking-tighter">Swipess Oracle</h3>
@@ -185,8 +185,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                     onClick={() => applyQuickPrompt(prompt.text)}
                     className="flex items-center gap-4 px-5 py-4 text-sm font-bold bg-muted/50 hover:bg-muted dark:bg-zinc-900/50 dark:hover:bg-zinc-800 border border-border dark:border-white/5 rounded-2xl text-foreground dark:text-zinc-100 transition-all text-left shadow-lg group active:scale-95"
                   >
-                    <div className="w-10 h-10 rounded-xl bg-background/50 dark:bg-zinc-800/50 flex items-center justify-center group-hover:bg-[#E4007C]/20 transition-colors">
-                      <prompt.icon className="w-5 h-5 text-[#E4007C]" />
+                    <div className="w-10 h-10 rounded-xl bg-background/50 dark:bg-zinc-800/50 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                      <prompt.icon className="w-5 h-5 text-orange-500" />
                     </div>
                     <span className="flex-1 leading-tight">{prompt.label}</span>
                   </button>
@@ -212,10 +212,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 )}>
                   <div className={cn(
                     "w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1 shadow-md transition-transform duration-500",
-                    message.role === 'ai' ? "bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
+                    message.role === 'ai' ? "bg-zinc-900 border border-white/10" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
                   )}>
                     {message.role === 'ai' ? (
-                      <Sparkles className="w-5 h-5 text-white" />
+                      <Sparkles className="w-5 h-5 text-orange-400" />
                     ) : (
                       userAvatar ? (
                         <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-2xl" />
@@ -228,7 +228,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   <div className={cn(
                     "max-w-[85%] px-5 py-4 rounded-[2rem] text-sm font-bold leading-relaxed shadow-sm",
                     message.role === 'user'
-                      ? "bg-gradient-to-br from-[#E4007C] to-[#C4006C] text-white rounded-tr-sm"
+                      ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
                       : "bg-muted/80 dark:bg-white/10 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
                   )}
                   >
