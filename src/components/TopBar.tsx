@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPriceMXN } from '@/utils/subscriptionPricing';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
