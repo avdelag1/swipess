@@ -55,35 +55,35 @@ interface Notification {
 }
 
 const NotificationIcon = ({ type, role = 'neutral', className = "w-5 h-5" }: { type: string; role?: 'client' | 'owner' | 'neutral'; className?: string }) => {
-  // Client uses cooler tones (blue, cyan, purple), Owner uses warmer tones (orange, red, amber)
+  // Client uses cooler/vibrant tones (blue, purple), Owner uses warmer flagship tones (pink, orange)
   switch (type) {
     case 'new_message':
     case 'message':
       return role === 'client'
-        ? <MessageSquare className={`${className} text-blue-500`} />
-        : <MessageSquare className={`${className} text-amber-500`} />;
+        ? <MessageSquare className={`${className} text-purple-400`} />
+        : <MessageSquare className={`${className} text-[#E4007C]`} />;
     case 'new_like':
     case 'like':
       return role === 'client'
-        ? <Flame className={`${className} text-cyan-500`} />
-        : <Flame className={`${className} text-orange-500`} />;
+        ? <Flame className={`${className} text-blue-400`} />
+        : <Flame className={`${className} text-orange-400`} />;
     case 'new_match':
     case 'match':
       return role === 'client'
-        ? <Sparkles className={`${className} text-purple-500`} />
-        : <Sparkles className={`${className} text-amber-500`} />;
+        ? <Sparkles className={`${className} text-cyan-400`} />
+        : <Sparkles className={`${className} text-[#E4007C] animate-pulse`} />;
     case 'super_like':
       return role === 'client'
-        ? <Star className={`${className} text-purple-500`} />
-        : <Star className={`${className} text-yellow-500`} />;
+        ? <Star className={`${className} text-purple-400`} />
+        : <Star className={`${className} text-pink-400`} />;
     case 'property':
-      return <Home className={`${className} text-emerald-500`} />;
+      return <Home className={`${className} text-emerald-400`} />;
     case 'yacht':
-      return <Ship className={`${className} text-cyan-500`} />;
+      return role === 'client' ? <Ship className={`${className} text-blue-400`} /> : <Ship className={`${className} text-[#E4007C]`} />;
     case 'bicycle':
-      return <Bike className={`${className} text-orange-500`} />;
+      return <Bike className={`${className} text-orange-400`} />;
     case 'vehicle':
-      return <Car className={`${className} text-purple-500`} />;
+      return <Car className={`${className} text-purple-400`} />;
     default:
       return <Bell className={`${className} text-muted-foreground`} />;
   }
@@ -108,32 +108,32 @@ const getBgGradient = (type: string, role: 'client' | 'owner' | 'neutral' = 'neu
     case 'new_message':
     case 'message':
       return role === 'client'
-        ? 'from-blue-500/20 to-cyan-500/10'
-        : 'from-amber-500/20 to-yellow-500/10';
+        ? 'from-purple-500/15 via-purple-500/5 to-transparent'
+        : 'from-[#E4007C]/15 via-[#E4007C]/5 to-transparent';
     case 'new_like':
     case 'like':
       return role === 'client'
-        ? 'from-cyan-500/20 to-blue-500/10'
-        : 'from-orange-500/20 to-amber-500/10';
+        ? 'from-blue-500/15 via-blue-500/5 to-transparent'
+        : 'from-orange-500/15 via-orange-500/5 to-transparent';
     case 'new_match':
     case 'match':
       return role === 'client'
-        ? 'from-purple-500/20 to-pink-500/10'
-        : 'from-amber-500/20 to-yellow-500/10';
+        ? 'from-cyan-500/15 via-cyan-500/5 to-transparent'
+        : 'from-[#E4007C]/20 via-[#B0005E]/5 to-transparent';
     case 'super_like':
       return role === 'client'
-        ? 'from-purple-500/20 to-pink-500/10'
-        : 'from-yellow-500/20 to-orange-500/10';
+        ? 'from-purple-500/15 via-purple-500/5 to-transparent'
+        : 'from-pink-500/15 via-[#E4007C]/5 to-transparent';
     case 'property':
-      return 'from-emerald-500/20 to-teal-500/10';
+      return 'from-emerald-500/15 via-emerald-500/5 to-transparent';
     case 'yacht':
-      return 'from-cyan-500/20 to-blue-500/10';
+      return 'from-blue-500/15 via-blue-500/5 to-transparent';
     case 'bicycle':
-      return 'from-orange-500/20 to-red-500/10';
+      return 'from-orange-500/15 via-orange-500/5 to-transparent';
     case 'vehicle':
-      return 'from-purple-500/20 to-pink-500/10';
+      return 'from-purple-500/15 via-purple-500/5 to-transparent';
     default:
-      return 'from-card/80 to-card/40';
+      return 'from-card/80 via-card/40 to-transparent';
   }
 };
 
@@ -174,9 +174,9 @@ export default function NotificationsPage() {
               id: n.id as string,
               type: (n.type as string) || 'system',
               title: n.type === 'new_like' || n.type === 'like' ? 'New Like' :
-                     n.type === 'new_match' || n.type === 'match' ? 'New Match!' :
-                     n.type === 'new_message' || n.type === 'message' ? 'New Message' :
-                     n.type === 'super_like' ? 'Super Like!' : 'Notification',
+                n.type === 'new_match' || n.type === 'match' ? 'New Match!' :
+                  n.type === 'new_message' || n.type === 'message' ? 'New Message' :
+                    n.type === 'super_like' ? 'Super Like!' : 'Notification',
               message: (n.message as string) || '',
               created_at: n.created_at as string,
               read: (n.read as boolean) || false,
@@ -233,9 +233,9 @@ export default function NotificationsPage() {
         id: n.id as string,
         type: (n.type as string) || 'system',
         title: n.type === 'new_like' || n.type === 'like' ? 'New Like' :
-               n.type === 'new_match' || n.type === 'match' ? 'New Match!' :
-               n.type === 'new_message' || n.type === 'message' ? 'New Message' :
-               n.type === 'super_like' ? 'Super Like!' : 'Notification',
+          n.type === 'new_match' || n.type === 'match' ? 'New Match!' :
+            n.type === 'new_message' || n.type === 'message' ? 'New Message' :
+              n.type === 'super_like' ? 'Super Like!' : 'Notification',
         message: (n.message as string) || '',
         created_at: n.created_at as string,
         read: (n.read as boolean) || false,
@@ -372,7 +372,7 @@ export default function NotificationsPage() {
 
   return (
     <>
-      <div className="min-h-screen min-h-dvh bg-[#0a0a0a] pb-20 sm:pb-24">
+      <div className="min-h-screen min-h-dvh bg-background pb-20 sm:pb-24">
         <div className="px-3 py-4 sm:p-6 lg:p-8">
           <div className="max-w-2xl mx-auto space-y-4 sm:space-y-6">
             {/* Header */}
@@ -491,36 +491,36 @@ export default function NotificationsPage() {
                                   <div className="p-2.5 rounded-xl bg-background/50 shadow-sm">
                                     <NotificationIcon type={notification.type} role={role} className="w-5 h-5" />
                                   </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1 min-w-0">
-                                      <p className="font-semibold text-foreground text-sm">
-                                        {notification.title}
-                                      </p>
-                                      <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
-                                        {notification.message}
-                                      </p>
-                                      <div className="flex items-center gap-2 mt-2">
-                                        <Clock className="w-3 h-3 text-muted-foreground" />
-                                        <span className="text-xs text-muted-foreground">
-                                          {formatDistanceToNow(notification.created_at)}
-                                        </span>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-foreground text-sm">
+                                          {notification.title}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-0.5">
+                                          {notification.message}
+                                        </p>
+                                        <div className="flex items-center gap-2 mt-2">
+                                          <Clock className="w-3 h-3 text-muted-foreground" />
+                                          <span className="text-xs text-muted-foreground">
+                                            {formatDistanceToNow(notification.created_at)}
+                                          </span>
+                                        </div>
                                       </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                                        onClick={() => deleteNotification(notification.id)}
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </Button>
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                                      onClick={() => deleteNotification(notification.id)}
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </Button>
                                   </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         );
                       })}
                     </AnimatePresence>

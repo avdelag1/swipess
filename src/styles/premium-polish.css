@@ -488,35 +488,36 @@
   appearance: none;
   height: 4px !important;
   background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 2px;
+  border-radius: 4px;
   outline: none;
   position: relative;
   z-index: 10;
+  display: block;
+  margin: 0 auto;
 }
 
 .radio-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px !important;
-  height: 16px !important;
+  width: 18px !important;
+  height: 18px !important;
   background: #fff !important;
   border-radius: 50% !important;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6) !important;
-  border: 3px solid rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
   /* Visual alignment fix */
-  margin-top: -6px;
-  transform: translateY(6px);
+  margin-top: -7px;
 }
 
 .radio-slider::-moz-range-thumb {
-  width: 16px !important;
-  height: 16px !important;
+  width: 18px !important;
+  height: 18px !important;
   background: #fff !important;
   border-radius: 50% !important;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.6) !important;
-  border: 3px solid rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
 }
 
 /* Dial variant */
@@ -526,10 +527,16 @@
 }
 
 .radio-dial::-webkit-slider-thumb {
-  width: 20px !important;
-  height: 20px !important;
-  background: #FF4D00 !important;
-  box-shadow: 0 0 18px rgba(255, 77, 0, 0.7) !important;
-  margin-top: -7px;
-  transform: translateY(7px);
+  width: 22px !important;
+  height: 22px !important;
+  background: #E4007C !important;
+  box-shadow: 0 0 20px rgba(228, 0, 124, 0.6), 0 0 0 4px rgba(228, 0, 124, 0.2) !important;
+  margin-top: -8px;
+}
+
+.radio-dial::-moz-range-thumb {
+  width: 22px !important;
+  height: 22px !important;
+  background: #E4007C !important;
+  box-shadow: 0 0 20px rgba(228, 0, 124, 0.6), 0 0 0 4px rgba(228, 0, 124, 0.2) !important;
 }

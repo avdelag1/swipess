@@ -123,27 +123,27 @@ const clientPremiumPlans = [
 const getPremiumTierStyles = (tier: string, highlight?: boolean) => {
   if (highlight || tier === 'unlimited') {
     return {
-      gradient: 'from-blue-500/20 to-cyan-500/10',
-      border: 'border-blue-500/50 hover:border-blue-400 ring-2 ring-blue-500/30',
-      badge: 'bg-blue-500/20 text-blue-400',
-      button: 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400',
-      glow: 'shadow-lg shadow-blue-500/20',
+      gradient: 'from-[#0070f3]/20 via-[#0070f3]/5 to-transparent',
+      border: 'border-[#0070f3]/40 shadow-[0_0_20px_rgba(0,112,243,0.1)]',
+      badge: 'bg-[#0070f3]/20 text-[#0070f3]',
+      button: 'bg-gradient-to-r from-[#0070f3] to-[#00a6ff] hover:opacity-90',
+      glow: 'shadow-[0_0_30px_rgba(0,112,243,0.2)]',
     };
   }
   if (tier === 'premium-max') {
     return {
-      gradient: 'from-purple-500/20 to-pink-500/10',
-      border: 'border-purple-500/40 hover:border-purple-400/60',
-      badge: 'bg-purple-500/20 text-purple-400',
-      button: 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400',
-      glow: 'shadow-lg shadow-purple-500/20',
+      gradient: 'from-[#E4007C]/20 via-[#E4007C]/5 to-transparent',
+      border: 'border-[#E4007C]/40 shadow-[0_0_20px_rgba(228,0,124,0.1)]',
+      badge: 'bg-[#E4007C]/20 text-[#E4007C]',
+      button: 'bg-gradient-to-r from-[#E4007C] to-[#ff009e] hover:opacity-90',
+      glow: 'shadow-[0_0_30px_rgba(228,0,124,0.2)]',
     };
   }
   return {
-    gradient: 'from-green-500/20 to-emerald-500/10',
-    border: 'border-green-500/40 hover:border-green-400/60',
-    badge: 'bg-green-500/20 text-green-400',
-    button: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-400 hover:to-emerald-400',
+    gradient: 'from-orange-500/20 via-orange-500/5 to-transparent',
+    border: 'border-orange-500/40',
+    badge: 'bg-orange-500/20 text-orange-400',
+    button: 'bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90',
     glow: '',
   };
 };
@@ -152,27 +152,27 @@ const getMessageTierStyles = (tier: string) => {
   switch (tier) {
     case 'starter':
       return {
-        gradient: 'from-slate-500/20 to-slate-600/10',
-        border: 'border-slate-500/30 hover:border-slate-400/50',
-        badge: 'bg-slate-500/20 text-slate-300',
-        button: 'bg-slate-600 hover:bg-slate-500',
+        gradient: 'from-purple-500/20 to-transparent',
+        border: 'border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.1)]',
+        badge: 'bg-purple-500/20 text-purple-300',
+        button: 'bg-purple-600 hover:bg-purple-500',
         glow: '',
       };
     case 'standard':
       return {
-        gradient: 'from-primary/30 to-primary/10',
-        border: 'border-primary/50 hover:border-primary ring-2 ring-primary/30',
-        badge: 'bg-primary/20 text-primary',
-        button: 'bg-primary hover:bg-primary/90',
-        glow: 'shadow-lg shadow-primary/20',
+        gradient: 'from-blue-500/30 to-transparent',
+        border: 'border-blue-500/40 shadow-[0_0_25px_rgba(59,130,246,0.15)]',
+        badge: 'bg-blue-500/20 text-blue-400',
+        button: 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:opacity-90',
+        glow: 'shadow-[0_0_30px_rgba(59,130,246,0.2)]',
       };
     case 'premium':
       return {
-        gradient: 'from-amber-500/20 to-orange-500/10',
-        border: 'border-amber-500/40 hover:border-amber-400/60',
-        badge: 'bg-amber-500/20 text-amber-400',
-        button: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400',
-        glow: 'shadow-lg shadow-amber-500/20',
+        gradient: 'from-[#E4007C]/20 to-transparent',
+        border: 'border-[#E4007C]/40 shadow-[0_0_25px_rgba(228,0,124,0.15)]',
+        badge: 'bg-[#E4007C]/20 text-pink-300',
+        button: 'bg-gradient-to-r from-[#E4007C] to-[#B0005E] hover:opacity-90',
+        glow: 'shadow-[0_0_35px_rgba(228,0,124,0.25)]',
       };
     default:
       return {
@@ -308,7 +308,7 @@ export default function SubscriptionPackagesPage() {
       </div>
 
       <div className="container mx-auto px-4 py-6 sm:py-8 space-y-12">
-        
+
         {/* TOKEN PACKAGES SECTION */}
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <div className="text-center space-y-4 mb-8">
@@ -340,14 +340,16 @@ export default function SubscriptionPackagesPage() {
                 const isPopular = pkg.tier === 'standard';
                 return (
                   <motion.div key={pkg.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                    <Card className={`relative h-full flex flex-col overflow-hidden bg-gradient-to-br ${styles.gradient} ${styles.border} ${styles.glow} transition-all duration-300`}>
+                    <Card className={`relative h-full flex flex-col overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
                       {isPopular && (
-                        <div className="absolute -top-0 left-0 right-0">
-                          <div className="bg-primary text-primary-foreground text-xs font-bold py-1.5 text-center">⭐ BEST VALUE</div>
+                        <div className="absolute top-0 left-0 right-0 z-10">
+                          <div className="bg-gradient-to-r from-[#E4007C] to-[#ff009e] text-white text-[10px] font-black py-1.5 text-center tracking-widest uppercase shadow-lg">⭐ BEST VALUE</div>
                         </div>
                       )}
                       {pkg.savings && !isPopular && (
-                        <div className="absolute top-3 right-3"><Badge className={styles.badge}>{pkg.savings}</Badge></div>
+                        <div className="absolute top-3 right-3 z-10">
+                          <Badge className={`${styles.badge} border-none font-bold`}>{pkg.savings}</Badge>
+                        </div>
                       )}
                       <CardHeader className={`text-center pb-2 ${isPopular ? 'pt-10' : 'pt-6'}`}>
                         <div className={`mx-auto mb-3 p-4 rounded-2xl ${styles.badge} w-fit`}><Icon className="w-8 h-8" /></div>
