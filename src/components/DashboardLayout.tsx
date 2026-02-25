@@ -302,7 +302,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
-  // (survives localStorage clears from Lovable preview URLs)
+  // (survives localStorage clears from external preview URLs)
 
   const selectedListing = selectedListingId ? listings.find(l => l.id === selectedListingId) : null;
   const selectedProfile = selectedProfileId ? profiles.find(p => p.user_id === selectedProfileId) : null;
@@ -382,8 +382,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       ...filters,
       propertyType: filters.propertyTypes, // propertyTypes -> propertyType
       listingType: filters.listingTypes?.length === 1 ? filters.listingTypes[0] :
-                   filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
-                   filters.listingTypes?.[0] || 'rent',
+        filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
+          filters.listingTypes?.[0] || 'rent',
       petFriendly: filters.petFriendly === 'yes' || filters.petFriendly === true,
       furnished: filters.furnished === 'yes' || filters.furnished === true,
       verified: filters.verified || false,
@@ -467,7 +467,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
-                            (userRole === 'owner' && location.pathname === '/owner/dashboard');
+    (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
   // FIX: Memoize cloned children to prevent infinite re-renders
   const enhancedChildren = useMemo(() => {
@@ -494,13 +494,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
     return path === '/client/dashboard' ||
-           path === '/owner/dashboard' ||
-           path.includes('discovery');
+      path === '/owner/dashboard' ||
+      path.includes('discovery');
   }, [location.pathname]);
 
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
-  
+
   const pageTitle = useMemo(() => {
     const path = location.pathname;
 
@@ -738,14 +738,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <Suspense fallback={null}>
         <OnboardingFlow
           open={showOnboarding}
-            onComplete={() => {
-              setShowOnboarding(false);
-              // Clear cache so we don't show onboarding again
-              clearOnboardingCache();
-              toast({
-                title: 'Profile Complete!',
-                description: 'Start exploring and find your perfect match!',
-              });
+          onComplete={() => {
+            setShowOnboarding(false);
+            // Clear cache so we don't show onboarding again
+            clearOnboardingCache();
+            toast({
+              title: 'Profile Complete!',
+              description: 'Start exploring and find your perfect match!',
+            });
           }}
         />
       </Suspense>

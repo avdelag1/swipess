@@ -49,12 +49,12 @@ const LandingView = memo(({
 }) => {
   const x = useMotionValue(0);
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
-  const logoScale  = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
-  const logoBlur   = useTransform(x, [0, 100, 220], [0, 2, 14]);
+  const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
+  const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
   const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
 
   const isDragging = useRef(false);
-  const triggered  = useRef(false);
+  const triggered = useRef(false);
 
   const handleDragStart = () => { isDragging.current = true; };
 
@@ -118,12 +118,12 @@ const LandingView = memo(({
         <span
           className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
           style={{
-            background: 'linear-gradient(to right, #ff69b4, #ffa500)',
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }}
         >
-          swipe or tap to connect
+          luxury meets precision
         </span>
       </motion.p>
 
@@ -136,9 +136,9 @@ const LandingView = memo(({
       >
         <div className="flex flex-wrap items-center justify-center gap-2">
           {[
-            { icon: Sparkles, label: 'Perfect Deals' },
-            { icon: Shield,   label: 'Secure Chat'   },
-            { icon: Users,    label: 'Instant Connect'},
+            { icon: Sparkles, label: 'Elite Assets' },
+            { icon: Shield, label: 'Encrypted Chat' },
+            { icon: Users, label: 'Global Network' },
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
@@ -313,7 +313,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
   };
   const itemVariants = {
-    hidden:  { opacity: 0, y: 18 },
+    hidden: { opacity: 0, y: 18 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] } },
   };
 
@@ -411,7 +411,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               <motion.div variants={itemVariants} className="relative group">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
                 <Input
-                  type="email" 
+                  type="email"
                   name="email"
                   autocomplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
@@ -444,11 +444,10 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                         <div className={`h-full ${passwordStrength.color} rounded-full transition-all duration-300`}
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
-                      <span className={`text-[10px] font-medium ${
-                        passwordStrength.score <= 1 ? 'text-red-400' :
-                        passwordStrength.score === 2 ? 'text-orange-400' :
-                        passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
-                      }`}>{passwordStrength.label}</span>
+                      <span className={`text-[10px] font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
+                          passwordStrength.score === 2 ? 'text-orange-400' :
+                            passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                        }`}>{passwordStrength.label}</span>
                     </div>
                   )}
                 </motion.div>
@@ -582,7 +581,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
-  const [view, setView]         = useState<View>('landing');
+  const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
   // Cycle: stars → orbs → off (dark)

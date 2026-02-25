@@ -1,10 +1,10 @@
 {
-  "name": "tinderent",
+  "name": "swipess",
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "Find your perfect rental property or tenant with Tinderent",
-  "author": "Tinderent Team",
+  "description": "Elite multi-vertical marketplace for properties, vehicles, and services",
+  "author": "Swipess Team",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

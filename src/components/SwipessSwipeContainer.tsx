@@ -124,7 +124,7 @@ const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string 
     // Default to properties (no category filter selected)
     return categoryConfig.property;
   } catch (error) {
-    logger.error('[TinderentSwipeContainer] Error in getActiveCategoryInfo:', error);
+    logger.error('[SwipessSwipeContainer] Error in getActiveCategoryInfo:', error);
     return categoryConfig.property;
   }
 };
@@ -218,7 +218,7 @@ class PrefetchScheduler {
   }
 }
 
-interface TinderentSwipeContainerProps {
+interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
   onInsights?: (listingId: string) => void;
   onMessageClick?: () => void;
@@ -231,7 +231,7 @@ interface TinderentSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageClick, locationFilter, filters }: TinderentSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageClick, locationFilter, filters }: SwipessSwipeContainerProps) => {
   const [page, setPage] = useState(0);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
@@ -339,7 +339,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
       !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange);
 
     if (filtersChanged) {
-      logger.info('[TinderentSwipeContainer] Filters changed, resetting deck');
+      logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');
 
       // Reset local state and refs
       currentIndexRef.current = 0;
@@ -447,7 +447,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
       // Reset undo state so this effect doesn't run again
       resetUndoState();
 
-      logger.info('[TinderentSwipeContainer] Synced local state after undo, new index:', newIndex);
+      logger.info('[SwipessSwipeContainer] Synced local state after undo, new index:', newIndex);
     }
   }, [undoSuccess, resetUndoState]);
   const recordProfileView = useRecordProfileView();
@@ -728,7 +728,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
         });
       }).catch((err) => {
         // ERROR: DB save failed - show error to user
-        logger.error('[TinderentSwipeContainer] Failed to save like:', err);
+        logger.error('[SwipessSwipeContainer] Failed to save like:', err);
 
         // Only show error for unexpected failures (not duplicates/RLS)
         const errorMessage = err?.message?.toLowerCase() || '';
@@ -754,7 +754,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
         targetType: 'listing'
       }).catch((err) => {
         // Non-critical - dislike not saved, but user can continue swiping
-        logger.error('[TinderentSwipeContainer] Failed to save dislike:', err);
+        logger.error('[SwipessSwipeContainer] Failed to save dislike:', err);
       });
     }
 
@@ -964,7 +964,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
 
     if (isDirectMessaging) {
       // Direct messaging for motorcycles and bicycles - no subscription required
-      logger.info('[TinderentSwipeContainer] Direct messaging category detected, opening direct message dialog');
+      logger.info('[SwipessSwipeContainer] Direct messaging category detected, opening direct message dialog');
       setSelectedListing(listing);
       setDirectMessageDialogOpen(true);
       triggerHaptic('light');
@@ -990,7 +990,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
     }
 
     // Open confirmation dialog with message quota info
-    logger.info('[TinderentSwipeContainer] Message icon clicked, opening confirmation dialog');
+    logger.info('[SwipessSwipeContainer] Message icon clicked, opening confirmation dialog');
     setSelectedListing(listing);
     setMessageDialogOpen(true);
     triggerHaptic('light');
@@ -1025,7 +1025,7 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
       }
     } catch (err) {
       if (import.meta.env.DEV) {
-        logger.error('[TinderentSwipe] Error starting conversation:', err);
+        logger.error('[SwipessSwipe] Error starting conversation:', err);
       }
       toast.error('Error', {
         description: err instanceof Error ? err.message : 'Could not start conversation'
@@ -1494,4 +1494,4 @@ const TinderentSwipeContainerComponent = ({ onListingTap, onInsights, onMessageC
   );
 };
 
-export const TinderentSwipeContainer = memo(TinderentSwipeContainerComponent);
+export const SwipessSwipeContainer = memo(SwipessSwipeContainerComponent);
