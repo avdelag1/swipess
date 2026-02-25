@@ -127,7 +127,7 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          'bg-transparent border-transparent',
+          'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent',
           shouldHide && 'header-hidden',
           className
         )}
@@ -226,17 +226,17 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-white/10 bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-background/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
               >
                 {/* Popover Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-white/10">
+                <div className="px-4 pt-4 pb-3 border-b border-border">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-white text-base">Token Packages</h3>
-                    <span className="text-xs text-white/50">
+                    <h3 className="font-bold text-foreground text-base">Token Packages</h3>
+                    <span className="text-xs text-muted-foreground">
                       {userRole === 'owner' ? 'Provider' : 'Explorer'}
                     </span>
                   </div>
-                  <p className="text-xs text-white/40 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {userRole === 'owner'
                       ? 'Connect with potential explorers'
                       : 'Start conversations with providers'}
@@ -313,18 +313,18 @@ function TopBarComponent({
                     <div className="py-6 text-center">
                       <div className="flex justify-center gap-2 mb-3">
                         {[0, 1, 2].map((i) => (
-                          <div key={i} className="h-12 w-full rounded-lg bg-white/5 animate-pulse" />
+                          <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
                         ))}
                       </div>
-                      <p className="text-white/40 text-xs">Loading packages...</p>
+                      <p className="text-muted-foreground text-xs">Loading packages...</p>
                     </div>
                   )}
                 </div>
 
                 {/* Footer: View All link */}
-                <div className="px-4 pb-3 pt-1 border-t border-white/10">
+                <div className="px-4 pb-3 pt-1 border-t border-border">
                   <button
-                    className="w-full text-center text-xs text-blue-400 hover:text-blue-300 font-medium py-1.5 transition-colors"
+                    className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
                     onClick={() => {
                       setTokensOpen(false);
                       onMessageActivationsClick?.();
