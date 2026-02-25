@@ -155,7 +155,91 @@
         --overlay: rgba(45, 10, 10, 0.7);
     }
 
-    /* THEME 5: AMBER MATTE (Warm & inviting) */
+    /* THEME 5: PURE BLACK (AMOLED void black) */
+    .pure-black {
+        /* Background colors - True AMOLED black palette */
+        --background: 0 0% 0%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 6%;
+        --card-foreground: 0 0% 95%;
+        --primary: 0 100% 58%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 10%;
+        --secondary-foreground: 0 0% 95%;
+        --muted: 0 0% 10%;
+        --muted-foreground: 0 0% 70%;
+        --accent: 0 100% 58%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 12%;
+        --input: 0 0% 12%;
+        --ring: 0 100% 58%;
+
+        /* Modern theme variables */
+        --bg-primary: 0 0% 0%;
+        --bg-secondary: 0 0% 6%;
+        --bg-tertiary: 0 0% 10%;
+        --text-primary: 0 0% 95%;
+        --text-secondary: 0 0% 70%;
+        --text-tertiary: 0 0% 45%;
+        --border-primary: 0 0% 12%;
+        --border-secondary: 0 0% 18%;
+        --accent-primary: 0 100% 58%;
+        --accent-secondary: 0 100% 68%;
+
+        /* Shadows - Maximum depth for AMOLED */
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
+        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.9);
+        --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.5);
+        --overlay: rgba(0, 0, 0, 0.9);
+    }
+
+    /* THEME 6: CHEERS (Animal print - Leopard safari) */
+    .cheers {
+        /* Background colors - Warm leopard/safari inspired */
+        --background: 25 60% 6%;
+        --foreground: 42 85% 88%;
+        --card: 25 55% 10%;
+        --card-foreground: 42 85% 88%;
+        --primary: 38 90% 52%;
+        --primary-foreground: 25 60% 6%;
+        --secondary: 25 50% 15%;
+        --secondary-foreground: 42 85% 88%;
+        --muted: 25 50% 15%;
+        --muted-foreground: 35 55% 60%;
+        --accent: 38 90% 52%;
+        --accent-foreground: 25 60% 6%;
+        --destructive: 0 84% 60%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 30 45% 18%;
+        --input: 30 45% 18%;
+        --ring: 38 90% 52%;
+
+        /* Modern theme variables */
+        --bg-primary: 25 60% 6%;
+        --bg-secondary: 25 55% 10%;
+        --bg-tertiary: 25 50% 15%;
+        --text-primary: 42 85% 88%;
+        --text-secondary: 35 55% 60%;
+        --text-tertiary: 30 40% 40%;
+        --border-primary: 30 45% 18%;
+        --border-secondary: 30 45% 24%;
+        --accent-primary: 38 90% 52%;
+        --accent-secondary: 40 85% 62%;
+
+        /* Shadows - Warm golden-brown shadows */
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+        --shadow-md: 0 4px 16px rgba(100, 60, 5, 0.25);
+        --shadow-lg: 0 8px 32px rgba(100, 60, 5, 0.35);
+        --shadow-card: 0 20px 40px rgba(100, 60, 5, 0.45);
+        --shadow-glow: 0 0 30px rgba(212, 158, 20, 0.55);
+        --overlay: rgba(18, 8, 0, 0.75);
+    }
+
+    /* THEME 7: AMBER MATTE (Warm & inviting) */
     .amber-matte {
         /* Background colors - Deep amber-black palette */
         --background: 35 65% 7%;
