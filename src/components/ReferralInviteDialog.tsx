@@ -213,7 +213,7 @@ export function ReferralInviteDialog({ open, onOpenChange }: ReferralInviteDialo
             <label className="text-sm font-medium">Share via</label>
             <div className="grid grid-cols-2 gap-3">
               {/* Native Share (if available) */}
-              {navigator.share && (
+              {typeof navigator.share === 'function' && (
                 <Button
                   onClick={handleNativeShare}
                   variant="outline"
