@@ -89,38 +89,40 @@
         --overlay: rgba(0, 0, 0, 0.8);
     }
 
-    /* THEME 3: WHITE MATTE — uses black-matte variables so the CSS
+    /* THEME 3: WHITE MATTE — uses PURE BLACK values so the CSS
        filter: invert(1) hue-rotate(180deg) on html.white-matte
-       cleanly flips everything from dark → bright white.            */
+       cleanly flips 0% → 100% pure white.
+       Math: invert maps lightness L → (100-L).
+       0% → 100% (pure white), 5% → 95% (grey-white).            */
     .white-matte {
-        /* Identical to black-matte — the invert filter does the work */
-        --background: 0 0% 5%;
-        --foreground: 0 0% 96%;
-        --card: 0 0% 10%;
-        --card-foreground: 0 0% 96%;
+        /* PURE BLACK backgrounds → invert to PURE WHITE */
+        --background: 0 0% 0%;
+        --foreground: 0 0% 100%;
+        --card: 0 0% 3%;
+        --card-foreground: 0 0% 100%;
         --primary: 0 100% 60%;
         --primary-foreground: 0 0% 100%;
-        --secondary: 0 0% 15%;
-        --secondary-foreground: 0 0% 96%;
-        --muted: 0 0% 15%;
-        --muted-foreground: 0 0% 75%;
+        --secondary: 0 0% 5%;
+        --secondary-foreground: 0 0% 100%;
+        --muted: 0 0% 5%;
+        --muted-foreground: 0 0% 70%;
         --accent: 0 100% 60%;
         --accent-foreground: 0 0% 100%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 16%;
-        --input: 0 0% 16%;
+        --border: 0 0% 8%;
+        --input: 0 0% 8%;
         --ring: 0 100% 60%;
 
-        /* Modern theme variables */
-        --bg-primary: 0 0% 5%;
-        --bg-secondary: 0 0% 10%;
-        --bg-tertiary: 0 0% 15%;
-        --text-primary: 0 0% 96%;
-        --text-secondary: 0 0% 75%;
+        /* Modern theme variables — pure black surfaces */
+        --bg-primary: 0 0% 0%;
+        --bg-secondary: 0 0% 3%;
+        --bg-tertiary: 0 0% 5%;
+        --text-primary: 0 0% 100%;
+        --text-secondary: 0 0% 70%;
         --text-tertiary: 0 0% 50%;
-        --border-primary: 0 0% 16%;
-        --border-secondary: 0 0% 20%;
+        --border-primary: 0 0% 8%;
+        --border-secondary: 0 0% 12%;
         --accent-primary: 0 100% 60%;
         --accent-secondary: 0 100% 70%;
 
