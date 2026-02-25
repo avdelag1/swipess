@@ -82,8 +82,18 @@ const OwnerInterestedClients = () => {
 
   const removeLikeMutation = useMutation({
     mutationFn: async (clientId: string) => {
-      // In a real app, this might archive or mark as rejected
-      const { error } = await supabase.from('likes').delete().eq('target_id', user?.id).eq('user_id', clientId);
+      // Fetch this owner's listing IDs so we can delete the correct like records
+      const { data: listings } = await supabase
+        .from('listings')
+        .select('id')
+        .eq('owner_id', user?.id);
+
+      const listingIds = listings?.map(l => l.id) || [];
+      if (listingIds.length === 0) return;
+
+      const { error } = await supabase.from('likes').delete()
+        .eq('user_id', clientId)
+        .in('target_id', listingIds);
       if (error) throw error;
     },
     onSuccess: () => {
