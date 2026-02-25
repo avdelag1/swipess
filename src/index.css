@@ -196,14 +196,7 @@ body {
   pointer-events: none;
 }
 
-/* WHITE-MATTE THEME OVERRIDES for header/nav backgrounds */
-.white-matte .app-header {
-  background: linear-gradient(to bottom, rgba(245, 245, 245, 0.9) 0%, rgba(245, 245, 245, 0.6) 60%, transparent 100%);
-}
 
-.white-matte .app-bottom-bar {
-  background: linear-gradient(to top, rgba(245, 245, 245, 0.9) 0%, rgba(245, 245, 245, 0.6) 60%, transparent 100%);
-}
 
 /* Utility Classes for Safe Area Padding */
 .safe-area-pt {
@@ -741,23 +734,7 @@ body {
     box-shadow: var(--shadow-premium);
   }
 
-  /* HIGH CONTRAST TYPOGRAPHY - ENFORCING ACCESSIBILITY */
-  .white-matte {
-    --foreground: 10, 10, 10 !important;
-    --muted-foreground: 20, 20, 20 !important;
-    --primary-foreground: 255, 255, 255 !important;
-  }
 
-  .white-matte body,
-  .white-matte p,
-  .white-matte span:not(.no-force-contrast),
-  .white-matte h1,
-  .white-matte h2,
-  .white-matte h3,
-  .white-matte h4 {
-    color: #0a0a0a !important;
-    --tw-text-opacity: 1 !important;
-  }
 
   .black-matte body,
   .black-matte p,
@@ -2348,143 +2325,6 @@ html[data-navigation-direction="back"] {
   animation-delay: 1s;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  WHITE/LIGHT THEME CONTRAST FIXES                                     */
-/*  Ensure text remains readable on light backgrounds                    */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* Light theme specific text contrast improvements */
-.white-matte .insights-dialog-content,
-.white-matte [data-dialog-content] {
-  color: hsl(0 0% 10%);
-}
-
-.white-matte .insights-stat-value {
-  color: hsl(0 0% 5%) !important;
-  font-weight: 700;
-}
-
-.white-matte .insights-stat-label {
-  color: hsl(0 0% 30%) !important;
-}
-
-.white-matte .card-title,
-.white-matte h3,
-.white-matte h4 {
-  color: hsl(0 0% 8%);
-}
-
-.white-matte .card-description,
-.white-matte .text-muted-foreground {
-  color: hsl(0 0% 35%);
-}
-
-/* Swipe card text contrast on light theme */
-.white-matte .swipe-card-title {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.white-matte .swipe-card-price {
-  color: hsl(0 100% 45%);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-/* Badge contrast on light theme */
-.white-matte .badge-stat {
-  background: hsl(0 0% 95%);
-  border: 1px solid hsl(0 0% 85%);
-  color: hsl(0 0% 15%);
-}
-
-/* Dialog content contrast */
-.white-matte [role="dialog"] {
-  --foreground: 0 0% 8%;
-  --muted-foreground: 0 0% 35%;
-}
-
-/* Insights dialog specific fixes */
-.white-matte .bg-gradient-to-br,
-.white-matte .bg-gradient-to-r {
-  color: hsl(0 0% 10%);
-}
-
-.white-matte .bg-muted\/50,
-.white-matte .bg-muted\/30 {
-  background: hsl(0 0% 88%);
-  color: hsl(0 0% 12%);
-}
-
-/* Stats cards on light theme */
-.white-matte .stats-card {
-  background: hsl(0 0% 98%);
-  border: 1px solid hsl(0 0% 88%);
-}
-
-.white-matte .stats-card-value {
-  color: hsl(0 0% 5%);
-  font-weight: 700;
-}
-
-/* Progress bars on light theme */
-.white-matte .progress-bar-bg {
-  background: hsl(0 0% 88%);
-}
-
-/* Ensure all text in dialog is dark on light theme */
-.white-matte [class*="Dialog"] p,
-.white-matte [class*="Dialog"] span,
-.white-matte [class*="Dialog"] div {
-  color: inherit;
-}
-
-/* Fix colored stat cards text on light theme */
-.white-matte .text-green-600,
-.white-matte .text-green-400 {
-  color: hsl(142 76% 30%) !important;
-}
-
-.white-matte .text-blue-600,
-.white-matte .text-blue-400 {
-  color: hsl(217 91% 35%) !important;
-}
-
-.white-matte .text-purple-600,
-.white-matte .text-purple-400 {
-  color: hsl(271 81% 40%) !important;
-}
-
-.white-matte .text-yellow-600,
-.white-matte .text-yellow-400 {
-  color: hsl(45 93% 35%) !important;
-}
-
-.white-matte .text-red-600,
-.white-matte .text-red-400 {
-  color: hsl(0 72% 45%) !important;
-}
-
-.white-matte .text-orange-600,
-.white-matte .text-orange-400 {
-  color: hsl(25 95% 45%) !important;
-}
-
-.white-matte .text-cyan-600,
-.white-matte .text-cyan-400 {
-  color: hsl(188 94% 35%) !important;
-}
-
-/* Dark text on light backgrounds in insight cards */
-.white-matte [class*="-500/10"],
-.white-matte [class*="-500/5"] {
-  color: hsl(0 0% 15%);
-}
-
-.white-matte [class*="-500/10"] .text-lg,
-.white-matte [class*="-500/10"] .text-xl,
-.white-matte [class*="-500/10"] .text-2xl,
-.white-matte [class*="-500/10"] .font-bold {
-  color: inherit;
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  PREMIUM SWIPE CARD STYLES - Enhanced Shadows, Depth & Polish      */
@@ -2831,4 +2671,23 @@ html[data-navigation-direction="back"] {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
     }
   }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  FILTER-BASED LIGHT THEME                                          */
+/*  Restores proper black design, inverting purely for "white-matte" */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+html.white-matte {
+  filter: invert(1) hue-rotate(180deg);
+  background-color: #000000;
+  /* Reverts to pure white */
+}
+
+/* Prevent images, videos, and media from being inverted */
+html.white-matte img,
+html.white-matte video,
+html.white-matte iframe,
+html.white-matte .no-invert {
+  filter: invert(1) hue-rotate(180deg);
 }
