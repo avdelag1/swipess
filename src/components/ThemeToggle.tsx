@@ -59,9 +59,9 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
                     {isDark ? (
-                        <Sun className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                        <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
                     ) : (
-                        <Moon className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
+                        <Moon strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
                     )}
                 </motion.div>
             </AnimatePresence>

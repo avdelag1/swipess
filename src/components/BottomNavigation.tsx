@@ -233,7 +233,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                     fill: active ? 'url(#active-gradient)' : 'none',
                     filter: active ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
                   }}
-                  strokeWidth={active ? 2.5 : 2}
+                  strokeWidth={active ? 3 : 2.5}
                 />
               </div>
               <span
