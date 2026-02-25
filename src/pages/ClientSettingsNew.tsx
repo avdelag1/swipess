@@ -20,8 +20,22 @@ const itemVariant = {
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
 };
 
+type SettingsItem = {
+  icon: any;
+  label: string;
+  description: string;
+  bg: string;
+  section?: string;
+  route?: string;
+};
+
+type SettingsGroup = {
+  label: string;
+  items: SettingsItem[];
+};
+
 // iOS-style icon badge configs
-const settingsGroups = [
+const settingsGroups: SettingsGroup[] = [
   {
     label: 'Account',
     items: [
@@ -171,11 +185,11 @@ const ClientSettingsNew = () => {
             <motion.div key={group.label} variants={itemVariant}>
               {/* Section pill label */}
               <div className="mb-2 px-1">
-                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{group.label}</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">{group.label}</span>
               </div>
 
               {/* Group card */}
-              <div className="rounded-2xl overflow-hidden bg-card border border-border">
+              <div className="rounded-3xl overflow-hidden bg-zinc-900/50 backdrop-blur-md border border-white/5 shadow-xl">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button

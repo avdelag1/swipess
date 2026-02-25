@@ -100,8 +100,8 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   };
 
   const toggleServiceOffering = (id: string) => {
-    setServiceOfferings(prev => 
-      prev.includes(id) 
+    setServiceOfferings(prev =>
+      prev.includes(id)
         ? prev.filter(item => item !== id)
         : [...prev, id]
     );
@@ -109,10 +109,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   const completionPercentage = Math.round(
     ((businessName ? 20 : 0) +
-     (serviceOfferings.length > 0 ? 30 : 0) +
-     (businessLocation ? 15 : 0) +
-     (contactEmail ? 15 : 0) +
-     (profileImages.length > 0 ? 20 : 0))
+      (serviceOfferings.length > 0 ? 30 : 0) +
+      (businessLocation ? 15 : 0) +
+      (contactEmail ? 15 : 0) +
+      (profileImages.length > 0 ? 20 : 0))
   );
 
   return (
@@ -138,7 +138,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   <Label className="text-white text-lg sm:text-xl font-bold">📸 Business Photo</Label>
                   <p className="text-white/60 text-xs sm:text-sm mt-1">Add 1 photo of your business</p>
                 </div>
-                <Badge variant="secondary" className="bg-red-500/20 text-red-400 border-red-400">
+                <Badge variant="secondary" className="bg-[#E4007C]/20 text-[#E4007C] border-[#E4007C]">
                   {profileImages.length}/1
                 </Badge>
               </div>
@@ -163,7 +163,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="Your business name"
-                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
+                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
                 />
               </div>
 
@@ -174,7 +174,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={businessLocation}
                   onChange={(e) => setBusinessLocation(e.target.value)}
                   placeholder="City, Country"
-                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
+                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
                 />
               </div>
             </div>
@@ -183,46 +183,46 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             <div className="space-y-4">
               <Label className="text-white text-lg sm:text-xl font-bold">💼 What Do You Offer?</Label>
               <p className="text-white/60 text-sm">Select all services your business provides • No free text needed</p>
-              
+
               <div className="grid grid-cols-1 gap-3">
                 {SERVICE_OFFERING_OPTIONS.map((option) => {
                   const Icon = option.icon;
                   const isSelected = serviceOfferings.includes(option.id);
-                  
+
                   return (
                     <button
                       key={option.id}
                       onClick={() => toggleServiceOffering(option.id)}
                       className={cn(
                         "flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
-                        isSelected 
-                          ? "bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/10" 
+                        isSelected
+                          ? "bg-[#E4007C]/10 border-[#E4007C]/50 shadow-lg shadow-[#E4007C]/10"
                           : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
                       )}
                     >
                       <div className={cn(
                         "p-2 rounded-lg shrink-0",
-                        isSelected ? "bg-red-500/20 text-red-400" : "bg-white/10 text-white/70"
+                        isSelected ? "bg-[#E4007C]/20 text-[#E4007C]" : "bg-white/10 text-white/70"
                       )}>
                         <Icon className="w-5 h-5" />
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-white">{option.label}</span>
+                          <span className="font-bold tracking-tight text-white">{option.label}</span>
                           {isSelected && (
-                            <Badge className="bg-red-500 text-white text-xs">
+                            <Badge className="bg-[#E4007C] text-white text-[10px] uppercase font-black tracking-widest px-2">
                               <Check className="w-3 h-3 mr-1" /> Selected
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-white/50 truncate">{option.description}</p>
+                        <p className="text-sm font-medium text-white/50 truncate mt-0.5">{option.description}</p>
                       </div>
 
                       <div className={cn(
                         "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
-                        isSelected 
-                          ? "border-red-500 bg-red-500 text-white" 
+                        isSelected
+                          ? "border-[#E4007C] bg-[#E4007C] text-white"
                           : "border-white/30"
                       )}>
                         {isSelected && <Check className="w-3 h-3" />}
@@ -231,9 +231,9 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   );
                 })}
               </div>
-              
+
               {serviceOfferings.length === 0 && (
-                <p className="text-orange-400 text-sm">Select at least one service to continue</p>
+                <p className="text-[#E4007C] text-sm font-bold">Select at least one service to continue</p>
               )}
             </div>
 
@@ -249,7 +249,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="business@example.com"
-                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
+                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
                 />
               </div>
 
@@ -261,26 +261,26 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
+                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
                 />
               </div>
             </div>
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-4 sm:px-6 py-4 border-t border-white/10 shrink-0 bg-slate-900/50">
+        <DialogFooter className="px-4 sm:px-6 py-4 border-t border-white/5 shrink-0 bg-zinc-950/80">
           <div className="flex flex-col sm:flex-row gap-3 w-full">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 border-white/20 text-white hover:bg-white/10"
+              className="flex-1 h-14 rounded-2xl border-white/10 bg-zinc-900 text-white hover:bg-zinc-800 font-bold tracking-wide"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="flex-1 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold shadow-lg disabled:opacity-50"
+              className="flex-1 h-14 rounded-2xl bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95 disabled:opacity-50"
             >
               {saveMutation.isPending ? 'Saving...' : 'Save Profile'}
             </Button>
