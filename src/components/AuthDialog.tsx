@@ -451,6 +451,8 @@ export function AuthDialog({ isOpen, onClose, role }: AuthDialogProps) {
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
                     <Input
                       id="email"
+                      name="email"
+                      autocomplete="username"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -467,6 +469,8 @@ export function AuthDialog({ isOpen, onClose, role }: AuthDialogProps) {
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
                         <Input
                           id="password"
+                          name="password"
+                          autocomplete={isLogin ? "current-password" : "new-password"}
                           type={showPassword ? "text" : "password"}
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
@@ -494,8 +498,8 @@ export function AuthDialog({ isOpen, onClose, role }: AuthDialogProps) {
                               />
                             </div>
                             <span className={`text-[10px] font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
-                                passwordStrength.score === 2 ? 'text-orange-400' :
-                                  passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                              passwordStrength.score === 2 ? 'text-orange-400' :
+                                passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
                               }`}>
                               {passwordStrength.label}
                             </span>

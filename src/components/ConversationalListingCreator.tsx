@@ -347,53 +347,61 @@ export function ConversationalListingCreator() {
 
   if (step === 'conversation') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-6">
         <div className="max-w-4xl mx-auto py-8">
-          <Button variant="ghost" onClick={() => setStep('photos')} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button variant="ghost" onClick={() => setStep('photos')} className="mb-6 rounded-full hover:bg-white/10 px-6 font-bold">
+            <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Photos
           </Button>
 
-          <Card className="h-[calc(100vh-200px)] flex flex-col">
-            <CardHeader>
+          <Card className="h-[calc(100vh-220px)] flex flex-col rounded-[3rem] border-white/10 bg-background/60 backdrop-blur-3xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+            <CardHeader className="border-b border-white/5 py-8 px-10">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-6 h-6" />
-                  <CardTitle>Chat with AI Assistant</CardTitle>
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shadow-inner">
+                    <MessageSquare className="w-7 h-7 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl font-black tracking-tight">AI Assistant</CardTitle>
+                    <CardDescription className="text-sm font-bold opacity-70">Tell us about your listing</CardDescription>
+                  </div>
                 </div>
-                <Badge variant={isComplete ? "default" : "secondary"}>
-                  {completionPercentage}% Complete
-                </Badge>
+                <div className="text-right">
+                  <Badge variant={isComplete ? "default" : "secondary"} className="rounded-full px-4 py-1 text-xs font-black uppercase tracking-widest shadow-lg">
+                    {completionPercentage}% Complete
+                  </Badge>
+                  <Progress value={completionPercentage} className="h-2 w-32 mt-3 rounded-full bg-white/10 transition-all duration-1000" />
+                </div>
               </div>
-              <Progress value={completionPercentage} className="mt-2" />
-              <CardDescription>
-                Tell the AI about your listing and it will ask follow-up questions
-              </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex-1 flex flex-col overflow-hidden">
-              <ScrollArea className="flex-1 pr-4">
-                <div className="space-y-4">
+            <CardContent className="flex-1 flex flex-col overflow-hidden p-8">
+              <ScrollArea className="flex-1 pr-6">
+                <div className="space-y-6">
                   {messages.map((message, index) => (
-                    <div
+                    <motion.div
                       key={index}
+                      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
                       className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       <div
-                        className={`max-w-[80%] rounded-lg p-3 ${
+                        className={cn(
+                          "max-w-[85%] px-6 py-4 rounded-[2.2rem] text-sm font-bold leading-relaxed shadow-sm",
                           message.role === 'user'
-                            ? 'bg-primary text-primary-foreground'
-                            : 'bg-muted'
-                        }`}
+                            ? "bg-gradient-to-br from-[#E4007C] to-[#C4006C] text-white rounded-tr-sm"
+                            : "bg-white/10 text-foreground rounded-tl-sm border border-white/5 backdrop-blur-xl"
+                        )}
                       >
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        <p className="whitespace-pre-wrap">{message.content}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                   {isLoading && (
                     <div className="flex justify-start">
-                      <div className="bg-muted rounded-lg p-3">
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                      <div className="bg-white/10 backdrop-blur-xl rounded-[1.5rem] px-6 py-4 flex items-center gap-3">
+                        <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                        <span className="text-xs font-black uppercase tracking-widest opacity-60">AI is thinking...</span>
                       </div>
                     </div>
                   )}
@@ -401,29 +409,39 @@ export function ConversationalListingCreator() {
                 </div>
               </ScrollArea>
 
-              <div className="mt-4 space-y-2">
+              <div className="mt-8 space-y-4">
                 {error && (
-                  <p className="text-sm text-destructive">{error}</p>
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs font-black text-destructive uppercase tracking-widest text-center">{error}</motion.p>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex gap-3 bg-white/5 p-2 rounded-[2.5rem] border border-white/10 focus-within:border-primary/50 transition-colors shadow-inner">
                   <Input
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Type your message..."
+                    placeholder="Describe your listing..."
+                    className="flex-1 bg-transparent border-none focus-visible:ring-0 h-14 px-6 text-base font-bold placeholder:text-muted-foreground/40"
                     disabled={isLoading}
                   />
-                  <Button onClick={handleSendMessage} disabled={isLoading || !messageInput.trim()}>
-                    <Send className="w-4 h-4" />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={isLoading || !messageInput.trim()}
+                    className="aspect-square h-14 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-2xl shadow-primary/20 transition-all hover:scale-105"
+                  >
+                    <Send className="w-6 h-6" />
                   </Button>
                 </div>
 
                 {isComplete && (
-                  <Button onClick={handleReview} className="w-full" size="lg">
-                    Review Listing
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                  >
+                    <Button onClick={handleReview} className="w-full h-16 rounded-[2.5rem] mexican-pink-premium" size="lg">
+                      Review Listing
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </motion.div>
                 )}
               </div>
             </CardContent>
@@ -432,6 +450,7 @@ export function ConversationalListingCreator() {
       </div>
     );
   }
+
 
   if (step === 'review') {
     return (

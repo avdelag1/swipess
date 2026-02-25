@@ -88,8 +88,9 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
     body: JSON.stringify({
       model: MINIMAX_MODEL,
       messages,
-      temperature: 0.7,
+      temperature: 0.82, // Higher temperature for "Free-Speaking" / Witty personality
       max_tokens: maxTokens,
+      presence_penalty: 0.6,
     }),
   });
 
@@ -128,6 +129,17 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
+  const isMinimaxForced = true; // Forcing Minimax as per USER request
+
+  if (isMinimaxForced) {
+    try {
+      return await callMinimax(messages, maxTokens);
+    } catch (err) {
+      console.warn("MiniMax failed, trying Gemini fallback...");
+      return await callGemini(messages, maxTokens);
+    }
+  }
+
   try {
     // Primary: Google Gemini
     return await callGemini(messages, maxTokens);
@@ -166,7 +178,11 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const neighborhood = (data.neighborhood as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
-  const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings. Always respond with valid JSON only.`;
+  const system = `You are a legendary real estate copywriter and luxury marketplace expert.
+Your goal is to transform basic user data into a high-converting, aspirational, and premium listing.
+Use vibrant, descriptive language that "sells the dream".
+Always respond in the language the user is speaking.
+ALWAYS respond with valid JSON ONLY.`;
 
   let userPrompt = "";
 
@@ -250,7 +266,12 @@ Return JSON:
 
 function buildProfilePrompt(data: Record<string, unknown>): Message[] {
   return [
-    { role: "system", content: `You are a profile writing expert. Create warm, genuine profiles. Always respond with valid JSON only.` },
+    {
+      role: "system", content: `You are a high-end personal branding expert and charisma coach. 
+Create warm, authentic, and magnetic profiles that make people want to connect instantly.
+Focus on "lived experiences" and "personal vibe" rather than just dry facts.
+Always respond in the user's language.
+ALWAYS respond with valid JSON ONLY.` },
     {
       role: "user", content: `Enhance this profile:
 Name: ${data.name || ""}
@@ -306,23 +327,29 @@ function buildConversationMessages(data: Record<string, unknown>): Message[] {
   const extractedData = (data.extractedData as Record<string, unknown>) || {};
   const messages = (data.messages as Message[]) || [];
 
-  const baseInstructions = `You are a friendly AI helping create a ${category} listing. You have ${imageCount} photos.
+  const baseInstructions = `You are a witty, ultra-competent, and friendly "Personal Listing Concierge".
+You are helping the user create a truly "Legendary" ${category} listing. You have ${imageCount} photos to work with.
 
-Job:
-1. Have a natural conversation
-2. Ask follow-up questions
-3. Extract structured data
-4. Be conversational and helpful
+PERSONALITY & VOICE:
+- Be "Alive": Use humor, empathy, and professional confidence.
+- Speak freely! Don't sound like a bot. If the user jokes, joke back.
+- If the user provides info, celebrate it or ask a smart follow-up.
+- Use emojis sparingly but effectively to feel modern.
 
-Respond with valid JSON:
+GOALS:
+1. Have a natural, flowing conversation (the user shouldn't feel like they're filling a form).
+2. Subtlely extract data: title, description, price, city, neighborhood, etc.
+3. Be genuinely helpful and aspirational.
+
+EXPECTED JSON FORMAT (STRICTLY REQUIRED):
 {
-  "message": "Your response or question",
-  "extractedData": { /* all fields extracted */ },
-  "isComplete": false or true,
-  "nextSteps": "What's still needed"
+  "message": "Your witty and helpful response",
+  "extractedData": { /* current key-value extraction */ },
+  "isComplete": boolean,
+  "nextSteps": "the ONE next thing we need"
 }
 
-Current extracted: ${JSON.stringify(extractedData, null, 2)}
+Current extracted state: ${JSON.stringify(extractedData, null, 2)}
 `;
 
   let categoryPrompt = "";
@@ -413,6 +440,15 @@ serve(async (req) => {
         messages = buildConversationMessages(data);
         maxTokens = 1500;
         break;
+      case "ping":
+        return new Response(
+          JSON.stringify({
+            status: "ready",
+            message: "Minimax Connection Verified",
+            key_configured: !!Deno.env.get("MINIMAX_API_KEY")
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       default:
         return new Response(
           JSON.stringify({ error: `Invalid task: ${task}` }),

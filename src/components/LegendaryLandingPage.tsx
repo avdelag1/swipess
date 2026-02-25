@@ -109,7 +109,8 @@ const LandingView = memo(({
 
       {/* Tagline */}
       <motion.p
-        className="-mt-4 relative z-10"
+        className="-mt-4 relative z-10 cursor-pointer"
+        onTap={handleTap}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
@@ -410,7 +411,10 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               <motion.div variants={itemVariants} className="relative group">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
                 <Input
-                  type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
+                  type="email" 
+                  name="email"
+                  autocomplete="username"
+                  value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
                   className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
                 />
@@ -423,6 +427,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
                     <Input
                       type={showPassword ? 'text' : 'password'}
+                      name="password"
+                      autocomplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
                       className="pl-10 pr-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
