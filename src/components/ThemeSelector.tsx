@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, Palette, Sparkles } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
@@ -56,7 +55,14 @@ interface ThemeSelectorProps {
   showTitle?: boolean;
 }
 
-export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelectorProps) {
+/**
+ * ThemeSelector — Minimal light/dark toggle.
+ *
+ * Two modes:
+ *   compact = true  → Small pill for profile headers
+ *   compact = false → Wider pill for settings pages
+ */
+export function ThemeSelector({ compact = false }: ThemeSelectorProps) {
   const { theme, setTheme } = useTheme();
 
   const handleThemeChange = (newTheme: ThemeId) => {
@@ -67,6 +73,7 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
     });
   };
 
+  /* ── Compact pill (for profile pages) ── */
   if (compact) {
     // Compact: row of small theme swatches
     return (
@@ -102,6 +109,7 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
     );
   }
 
+  /* ── Full-size pill (for settings) ── */
   return (
     <Card className="w-full bg-card/80 backdrop-blur-sm border-border/50">
       {showTitle && (
@@ -184,7 +192,7 @@ export function ThemeSelector({ compact = false, showTitle = true }: ThemeSelect
           <Sparkles className="w-3.5 h-3.5" />
           <span>Theme applies instantly across the app</span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </motion.button>
   );
 }
