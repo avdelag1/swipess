@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { useState, useCallback, useEffect, createContext, useContext, ReactNode, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
@@ -155,15 +154,34 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
     const currentPath = location.pathname;
 
+    // Default paths
+    const defaultPaths = {
+      client: '/client/dashboard',
+      owner: '/owner/dashboard'
+    };
+
+    // If currently on a client/owner explicit route, try to map it
     if (currentPath.includes('/client/') || currentPath.includes('/owner/')) {
-      const currentPageType = currentPath.split('/').pop() || 'dashboard';
       const fromMode = currentPath.includes('/client/') ? 'client' : 'owner';
 
-      return PAGE_MAPPING[fromMode]?.[currentPageType] ||
-             (newMode === 'client' ? '/client/dashboard' : '/owner/dashboard');
+      // If we're already on the correct mode path due to some race condition, just return it
+      if (fromMode === newMode) return currentPath;
+
+      // Extract the specific page name after /client/ or /owner/
+      // E.g., /client/dashboard -> dashboard, /owner/settings -> settings
+      const pathParts = currentPath.split('/');
+      const modeIdx = pathParts.indexOf(fromMode);
+      const currentPageType = pathParts[modeIdx + 1] || 'dashboard';
+
+      // Look up where this page maps to in the OTHER mode
+      const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
+      if (mappedPath) {
+        return mappedPath;
+      }
     }
 
-    return newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
+    // Default fallback
+    return newMode === 'client' ? defaultPaths.client : defaultPaths.owner;
   }, [location.pathname]);
 
   // FAST mode switch - everything happens synchronously
@@ -206,16 +224,26 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       resetClientDeck();
     }
 
-    // 7. Navigate IMMEDIATELY
-    const targetPath = getTargetPath(newMode);
-    navigate(targetPath, { replace: true });
+    // 7. Navigate with error handling
+    try {
+      const targetPath = getTargetPath(newMode);
+      navigate(targetPath, { replace: true });
+    } catch (navError) {
+      logger.error('[ActiveMode] Navigation failed:', navError);
+      // Fallback navigation
+      try {
+        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+      } catch (fallbackError) {
+        logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
+      }
+    }
 
     // 8. Show success toast
     toast({
-      title: `Switched to ${newMode === 'client' ? 'I Can Do' : 'I Need'} mode`,
+      title: newMode === 'client' ? 'Client Dashboard' : 'Owner Dashboard',
       description: newMode === 'client'
-        ? 'Now offering properties, bikes, motors & services'
-        : 'Now browsing deals, services and properties',
+        ? 'Browsing deals, services and properties'
+        : 'Managing listings and discovering clients',
     });
 
     // 8. Success haptic

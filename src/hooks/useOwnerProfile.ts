@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -97,7 +96,7 @@ export function useSaveOwnerProfile() {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 
-      if (updates.profile_images !== undefined && updates.profile_images.length > 0) {
+      if (updates.profile_images !== undefined && (updates.profile_images?.length ?? 0) > 0) {
         syncPayload.images = updates.profile_images;
       }
 
@@ -117,12 +116,13 @@ export function useSaveOwnerProfile() {
         syncPayload.phone = updates.contact_phone;
       }
 
-      // Only update if we have fields to sync
-      if (Object.keys(syncPayload).length > 0) {
+      // Only update if we have real fields to sync (not just updated_at)
+      const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
+      if (realSyncKeys.length > 0) {
         const { error: syncError } = await supabase
           .from('profiles')
           .update(syncPayload)
-          .eq('id', uid);
+          .eq('user_id', uid);
 
         if (syncError) {
           logger.error('[OWNER PROFILE SYNC] Error syncing to profiles:', syncError);

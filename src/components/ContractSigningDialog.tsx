@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -72,14 +71,14 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
     try {
       const { data, error } = await supabase.storage
         .from('contracts')
-        .download(contract.file_path);
+        .download((contract as any).file_path ?? contract.id);
 
       if (error) throw error;
 
       const url = URL.createObjectURL(data);
       const a = document.createElement('a');
       a.href = url;
-      a.download = contract.file_name;
+      a.download = (contract as any).file_name ?? `contract-${contract.id}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -125,7 +124,7 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
               <div>
                 <h3 className="font-semibold">{contract.title}</h3>
                 <p className="text-sm text-gray-600">
-                  {contract.contract_type.replace('_', ' ').toUpperCase()}
+                  {(contract.template_type || 'contract').replace('_', ' ').toUpperCase()}
                 </p>
               </div>
             </div>
@@ -137,11 +136,11 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
               </Button>
             </div>
 
-            {contract.terms_and_conditions && (
+            {contract.content && (
               <div className="mt-4">
                 <h4 className="font-medium mb-2">Additional Terms:</h4>
                 <p className="text-sm text-gray-700 bg-white p-3 rounded border">
-                  {contract.terms_and_conditions}
+                  {contract.content}
                 </p>
               </div>
             )}

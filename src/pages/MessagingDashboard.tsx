@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageTransition } from '@/components/PageTransition';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
@@ -18,7 +17,7 @@ import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
@@ -35,7 +34,8 @@ async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
       .eq('user_id', userId)
       .or('category.eq.motorcycle,category.eq.bicycle');
     return (result?.count ?? 0) > 0;
-  } catch {
+  } catch (error) {
+    logger.error('Error checking free messaging category:', error);
     return false;
   }
 }
@@ -211,8 +211,18 @@ export function MessagingDashboard() {
         // Conversation not in cache - fetch it directly from database
         const fetchedConversation = await fetchSingleConversation(conversationId);
 
-        if (fetchedConversation && fetchedConversation.other_user) {
-          setDirectlyFetchedConversation(fetchedConversation);
+        if (fetchedConversation) {
+          // Conversation found — use it even if other_user is undefined (show anonymous fallback)
+          const conversationWithFallback = {
+            ...fetchedConversation,
+            other_user: fetchedConversation.other_user || {
+              id: fetchedConversation.client_id !== user?.id ? fetchedConversation.client_id : fetchedConversation.owner_id,
+              full_name: 'User',
+              avatar_url: undefined,
+              role: fetchedConversation.client_id === user?.id ? 'owner' : 'client',
+            }
+          };
+          setDirectlyFetchedConversation(conversationWithFallback);
           setSelectedConversationId(conversationId);
           setSearchParams({});
           toast({
@@ -220,7 +230,7 @@ export function MessagingDashboard() {
             description: 'You can now send messages!',
           });
         } else {
-          // Still couldn't find it - show error
+          // Conversation genuinely doesn't exist
           toast({
             title: '❌ Could not open conversation',
             description: 'The conversation may not exist. Try refreshing the page.',
@@ -400,27 +410,35 @@ export function MessagingDashboard() {
         variant="conversation-limit"
       />
 
-      <div className="w-full pb-24 min-h-screen bg-background">
-        <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
-          {/* Clean Header */}
-          <div className="flex items-center gap-3 mb-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-              className="text-foreground hover:bg-muted rounded-full shrink-0"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">Messages</h1>
+      <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
+        <div className="w-full max-w-4xl mx-auto px-4 pt-6 sm:px-6">
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Messages</h1>
+              {filteredConversations.length > 0 && (
+                <p className="text-[13px] text-muted-foreground mt-0.5">
+                  {filteredConversations.length} active conversation{filteredConversations.length !== 1 ? 's' : ''}
+                </p>
+              )}
+            </div>
+            {stats?.unreadCount > 0 && (
+              <div
+                className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+              >
+                {stats.unreadCount} new
+              </div>
+            )}
           </div>
 
           {/* Search */}
           <div className="relative mb-5">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <input
               placeholder="Search conversations..."
-              className="pl-10 h-11 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground rounded-2xl focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-muted border border-border"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -436,8 +454,8 @@ export function MessagingDashboard() {
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation) => {
                 const isOwner = conversation.other_user?.role === 'owner';
-                const hasUnread = conversation.last_message?.sender_id !== user?.id && 
-                  conversation.last_message_at && 
+                const hasUnread = conversation.last_message?.sender_id !== user?.id &&
+                  conversation.last_message_at &&
                   new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
 
                 return (
@@ -448,18 +466,16 @@ export function MessagingDashboard() {
                   >
                     {/* Avatar with gradient ring */}
                     <div className="relative shrink-0">
-                      <div className={`p-[2px] rounded-full ${
-                        isOwner 
-                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500' 
+                      <div className={`p-[2px] rounded-full ${isOwner
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                           : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                      }`}>
+                        }`}>
                         <Avatar className="w-13 h-13 border-2 border-background">
                           <AvatarImage src={conversation.other_user?.avatar_url} />
-                          <AvatarFallback className={`text-sm font-semibold text-white ${
-                            isOwner
+                          <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
                               ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                               : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                          }`}>
+                            }`}>
                             {conversation.other_user?.full_name?.charAt(0) || '?'}
                           </AvatarFallback>
                         </Avatar>
@@ -475,11 +491,10 @@ export function MessagingDashboard() {
                           <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
                             {conversation.other_user?.full_name || 'Unknown'}
                           </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                            isOwner 
-                              ? 'bg-purple-500/15 text-purple-400' 
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
+                              ? 'bg-purple-500/15 text-purple-400'
                               : 'bg-blue-500/15 text-blue-400'
-                          }`}>
+                            }`}>
                             {isOwner ? 'Provider' : 'Explorer'}
                           </span>
                         </div>

@@ -4,9 +4,12 @@ import { PropertyManagement } from "@/components/PropertyManagement";
 import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
 
 const OwnerProperties = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [initialCategory, setInitialCategory] = useState<string | null>(null);
@@ -33,9 +36,9 @@ const OwnerProperties = () => {
     <>
       <div className="w-full overflow-x-hidden">
         <motion.button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/owner/settings')}
           whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
-          className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150 mb-4 px-1"
+          className={`flex items-center gap-1.5 text-sm font-medium ${isLight ? 'text-gray-500 hover:text-gray-900' : 'text-white/60 hover:text-white'} transition-colors duration-150 mb-4 px-1`}
         >
           <ArrowLeft className="w-4 h-4" />
           Back

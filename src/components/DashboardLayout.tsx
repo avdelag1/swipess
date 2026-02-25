@@ -1,6 +1,6 @@
-// @ts-nocheck
 
 import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
@@ -293,9 +293,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, restoreDrafts]);
 
+  // SCROLL-TO-TOP: Reset scroll position on every page navigation
+  // Uses 'instant' (not smooth) so the new page always starts at the top without any animated scroll
+  useEffect(() => {
+    const el = document.getElementById('dashboard-scroll-container');
+    if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+  }, [location.pathname]);
+
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
-  // (survives localStorage clears from Lovable preview URLs)
+  // (survives localStorage clears from external preview URLs)
 
   const selectedListing = selectedListingId ? listings.find(l => l.id === selectedListingId) : null;
   const selectedProfile = selectedProfileId ? profiles.find(p => p.user_id === selectedProfileId) : null;
@@ -375,8 +382,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       ...filters,
       propertyType: filters.propertyTypes, // propertyTypes -> propertyType
       listingType: filters.listingTypes?.length === 1 ? filters.listingTypes[0] :
-                   filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
-                   filters.listingTypes?.[0] || 'rent',
+        filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
+          filters.listingTypes?.[0] || 'rent',
       petFriendly: filters.petFriendly === 'yes' || filters.petFriendly === true,
       furnished: filters.furnished === 'yes' || filters.furnished === true,
       verified: filters.verified || false,
@@ -460,7 +467,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
-                            (userRole === 'owner' && location.pathname === '/owner/dashboard');
+    (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
   // FIX: Memoize cloned children to prevent infinite re-renders
   const enhancedChildren = useMemo(() => {
@@ -477,22 +484,23 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     });
   }, [children, handlePropertyInsights, handleClientInsights, handleMessageClick, combinedFilters]);
 
-  // PERF FIX: Detect camera routes to hide TopBar/BottomNav (fullscreen camera UX)
-  // Camera routes are now INSIDE layout to prevent dashboard remount on navigate back
+  // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
+  // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back
   const isCameraRoute = location.pathname.includes('/camera');
+  const isRadioRoute = location.pathname.includes('/radio');
 
   // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   // On these routes, TopBar becomes transparent and content extends behind it
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
     return path === '/client/dashboard' ||
-           path === '/owner/dashboard' ||
-           path.includes('discovery');
+      path === '/owner/dashboard' ||
+      path.includes('discovery');
   }, [location.pathname]);
 
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
-  
+
   const pageTitle = useMemo(() => {
     const path = location.pathname;
 
@@ -535,9 +543,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           in App.tsx. This prevents race conditions and UI flickers from multiple handlers
           firing on the same conversation_messages INSERT event. */}
 
-      {/* Top Bar - Fixed with safe-area-top. Hidden on camera routes for fullscreen UX */}
+      {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {!isCameraRoute && (
+      {!isCameraRoute && !isRadioRoute && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
@@ -550,17 +558,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       )}
 
       {/* Main Content - Scrollable area with safe area spacing for fixed header/footer */}
-      {/* On camera route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
+      {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
-        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum"
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
         style={{
-          paddingTop: (isCameraRoute || isImmersiveDashboard) 
-            ? 'var(--safe-top)' 
+          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
+            ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: isCameraRoute ? 'var(--safe-bottom)' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          paddingLeft: 'max(var(--safe-left), 0px)',
-          paddingRight: 'max(var(--safe-right), 0px)',
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
+          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
@@ -570,15 +578,19 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           willChange: 'contents',
         }}
       >
-        {enhancedChildren}
-        {/* Fade-out gradient at bottom of content */}
-        <div className="pointer-events-none fixed left-0 right-0 h-24 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[1]" 
-          style={{ bottom: `calc(${bottomNavHeight}px + var(--safe-bottom))` }} 
-        />
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
+          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
+        >
+          {enhancedChildren}
+        </motion.div>
       </main>
 
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera routes for fullscreen UX */}
-      {!isCameraRoute && (
+      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera and radio routes for fullscreen UX */}
+      {!isCameraRoute && !isRadioRoute && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}
@@ -609,7 +621,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
-      {/* Message Activations Packages */}
+      {/* Token Packages */}
       <Suspense fallback={null}>
         <MessageActivationPackages
           isOpen={showMessageActivations}
@@ -726,14 +738,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <Suspense fallback={null}>
         <OnboardingFlow
           open={showOnboarding}
-            onComplete={() => {
-              setShowOnboarding(false);
-              // Clear cache so we don't show onboarding again
-              clearOnboardingCache();
-              toast({
-                title: 'Profile Complete!',
-                description: 'Start exploring and find your perfect match!',
-              });
+          onComplete={() => {
+            setShowOnboarding(false);
+            // Clear cache so we don't show onboarding again
+            clearOnboardingCache();
+            toast({
+              title: 'Profile Complete!',
+              description: 'Start exploring and find your perfect match!',
+            });
           }}
         />
       </Suspense>

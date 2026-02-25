@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +6,7 @@ import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, 
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -96,9 +95,13 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
         .eq('target_type', 'profile');
 
       if (error) throw error;
+
+      // Return user ID for cache invalidation
+      return user.user.id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+    onSuccess: (userId) => {
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', userId] });
       toast({
         title: 'Client removed',
         description: 'Client removed from your liked list.',
@@ -120,7 +123,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error: blockError } = await supabase
+      const { error: blockError } = await (supabase as any)
         .from('user_blocks')
         .insert({
           blocker_id: user.user.id,
@@ -139,9 +142,13 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
         .eq('user_id', user.user.id)
         .eq('target_id', client.user_id)
         .eq('target_type', 'profile');
+
+      // Return user ID for cache invalidation
+      return user.user.id;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-clients'] });
+    onSuccess: (userId) => {
+      // FIXED: Include user ID in query key to match LikedClients query key
+      queryClient.invalidateQueries({ queryKey: ['liked-clients', userId] });
       toast({
         title: 'Client blocked',
         description: 'Client blocked successfully.',
@@ -164,7 +171,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_reports')
         .insert({
           reporter_id: user.user.id,

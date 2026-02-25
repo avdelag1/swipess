@@ -9,8 +9,7 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
-  --radius-2xl: 36px;
-  /* ✨ NEW: For hero cards and major containers */
+  --radius-2xl: 36px; /* ✨ NEW: For hero cards and major containers */
   --radius-full: 9999px;
 
   /* ── Elevation Tokens (layered shadows) ── */
@@ -38,12 +37,9 @@
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.04);
   --glass-blur: 16px;
-  --glass-blur-md: 20px;
-  /* ✨ NEW: For key surfaces */
-  --glass-blur-lg: 24px;
-  /* ✨ NEW: For modals */
-  --glass-blur-xl: 32px;
-  /* ✨ NEW: For overlays */
+  --glass-blur-md: 20px; /* ✨ NEW: For key surfaces */
+  --glass-blur-lg: 24px; /* ✨ NEW: For modals */
+  --glass-blur-xl: 32px; /* ✨ NEW: For overlays */
 
   /* ── Spacing System ── */
   --space-xs: 4px;
@@ -56,13 +52,8 @@
   --space-4xl: 64px;
 }
 
-/* Dark themes get deeper glass — :root is now dark by default */
-.dark,
-.grey-matte,
-.black-matte,
-.red-matte,
-.amber-matte,
-:root {
+/* Dark themes get deeper glass */
+.dark, .grey-matte, .black-matte, .red-matte, .amber-matte {
   --elevation-surface: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.12);
   --elevation-elevated: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.15);
   --elevation-floating: 0 8px 30px rgba(0, 0, 0, 0.35), 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -79,7 +70,7 @@
 }
 
 /* Light themes get lighter glass */
-.white-matte {
+.white-matte, :root {
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(0, 0, 0, 0.06);
   --glass-highlight: rgba(255, 255, 255, 0.8);

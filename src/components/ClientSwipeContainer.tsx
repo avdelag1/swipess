@@ -1,10 +1,18 @@
-import { useState, useCallback, useRef, useEffect, memo } from 'react';
+import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from 'react';
+import { createPortal } from 'react-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
 import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
-import { MatchCelebration } from './MatchCelebration';
-import { ShareDialog } from './ShareDialog';
-import { MessageConfirmationDialog } from './MessageConfirmationDialog';
+import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
+import { imageCache } from '@/lib/swipe/cardImageCache';
+import { swipeQueue } from '@/lib/swipe/SwipeQueue';
+
+// FIX: Lazy-load modals via portal to prevent re-renders from bleeding into swipe tree
+const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
+const ShareDialog = lazy(() => import('./ShareDialog').then(m => ({ default: m.ShareDialog })));
+const MessageConfirmationDialog = lazy(() => import('./MessageConfirmationDialog').then(m => ({ default: m.MessageConfirmationDialog })));
+
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useSwipe } from '@/hooks/useSwipe';
@@ -12,14 +20,14 @@ import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
-import { usePrefetchManager } from '@/hooks/usePrefetchManager';
+import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession, getDeckFromSession } from '@/state/swipeDeckStore';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, CircleDot, Wrench, User } from 'lucide-react';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -93,17 +101,18 @@ const ClientSwipeContainerComponent = ({
   filters
 }: ClientSwipeContainerProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
   // Dynamic labels based on category
   const getCategoryLabel = () => {
     switch (category) {
-      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties' };
-      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles' };
-      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles' };
-      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs' };
-      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings' };
+      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', icon: <MapPin className="w-5 h-5 opacity-70" /> };
+      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', icon: <Bike className="w-5 h-5 opacity-70" /> };
+      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', icon: <CircleDot className="w-5 h-5 opacity-70" /> };
+      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', icon: <Wrench className="w-5 h-5 opacity-70" /> };
+      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings', icon: <User className="w-5 h-5 opacity-70" /> };
     }
   };
 
@@ -132,6 +141,11 @@ const ClientSwipeContainerComponent = ({
 
   // Local state for immediate UI updates - drives the swipe animation
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // FIX: Track deck length in state to force re-render when profiles are appended
+  // Without this, the "No Clients Found" empty state persists because
+  // appending to deckQueueRef alone doesn't trigger a React re-render
+  const [deckLength, setDeckLength] = useState(0);
 
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
@@ -169,46 +183,51 @@ const ClientSwipeContainerComponent = ({
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  // FILTER CHANGE DETECTION: Reset deck when filters change
-  // Track previous filter state to detect changes
-  const prevFiltersRef = useRef(filters);
+  // PERF FIX: Create stable filter signature for deck versioning
+  // This detects when filters actually changed vs just navigation return
+  // More precise than array comparison - handles all filter types
+  const filterSignature = (() => {
+    if (!filters) return 'default';
+    return [
+      filters.category || '',
+      Array.isArray(filters.categories) ? filters.categories.join(',') : '',
+      filters.listingType || '',
+      filters.clientGender || '',
+      filters.clientType || '',
+    ].join('|');
+  })();
+
+  // Track previous filter signature to detect filter changes
+  const prevFilterSignatureRef = useRef<string>(filterSignature);
+  const filterChangedRef = useRef(false);
+
+  // Detect filter changes synchronously during render (not in useEffect)
+  if (filterSignature !== prevFilterSignatureRef.current) {
+    filterChangedRef.current = true;
+    prevFilterSignatureRef.current = filterSignature;
+  }
+
+  // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)
   useEffect(() => {
     // Skip on initial mount
-    if (!prevFiltersRef.current && !filters) return;
+    if (!filterChangedRef.current) return;
 
-    // PERFORMANCE: Use efficient array comparison instead of JSON.stringify
-    const arraysEqual = (a?: any[], b?: any[]) => {
-      if (!a && !b) return true;
-      if (!a || !b) return false;
-      if (a.length !== b.length) return false;
-      return a.every((val, i) => val === b[i]);
-    };
+    // Reset the filter changed flag
+    filterChangedRef.current = false;
 
-    // Check if filters actually changed (optimized comparison)
-    const filtersChanged =
-      !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
-      !arraysEqual(prevFiltersRef.current?.category, filters?.category) ||
-      prevFiltersRef.current?.clientGender !== filters?.clientGender ||
-      prevFiltersRef.current?.clientType !== filters?.clientType ||
-      prevFiltersRef.current?.listingType !== filters?.listingType;
+    logger.info('[ClientSwipeContainer] Filters changed, resetting deck');
 
-    if (filtersChanged) {
-      logger.info('[ClientSwipeContainer] Filters changed, resetting deck');
+    // Reset local state and refs
+    currentIndexRef.current = 0;
+    setCurrentIndex(0);
+    setDeckLength(0);
+    deckQueueRef.current = [];
+    swipedIdsRef.current.clear();
+    setPage(0);
 
-      // Reset local state and refs
-      currentIndexRef.current = 0;
-      setCurrentIndex(0);
-      deckQueueRef.current = [];
-      swipedIdsRef.current.clear();
-      setPage(0);
-
-      // Reset store
-      resetOwnerDeck(category);
-
-      // Update prev filters
-      prevFiltersRef.current = filters;
-    }
-  }, [filters, category, resetOwnerDeck]);
+    // Reset store
+    resetOwnerDeck(category);
+  }, [filterSignature, category, resetOwnerDeck]);
 
   // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
   // When true, skip initial animations to prevent "double render" feeling
@@ -220,7 +239,7 @@ const ClientSwipeContainerComponent = ({
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
-  // The images will be in cache when OwnerClientTinderCard renders, preventing any flash
+  // The images will be in cache when OwnerClientCard renders, preventing any flash
   // ALWAYS keep 2-3 cards preloaded to prevent swipe delays
   const eagerPreloadInitiatedRef = useRef(false);
   if (!eagerPreloadInitiatedRef.current && deckQueueRef.current.length > 0) {
@@ -228,16 +247,29 @@ const ClientSwipeContainerComponent = ({
     const currentIdx = currentIndexRef.current;
 
     // Preload ALL images of current + next 4 profiles for smooth swiping
+    const imagesToPreload: string[] = [];
     [0, 1, 2, 3, 4].forEach((offset) => {
       const profile = deckQueueRef.current[currentIdx + offset];
       if (profile?.profile_images && Array.isArray(profile.profile_images)) {
         profile.profile_images.forEach((imgUrl: string) => {
-          if (imgUrl) preloadClientImageToCache(imgUrl);
+          if (imgUrl) {
+            imagesToPreload.push(imgUrl);
+            preloadClientImageToCache(imgUrl);
+            // Mark in simple boolean cache so CardImage.tsx detects cached images instantly
+            imageCache.set(imgUrl, true);
+          }
         });
       } else if (profile?.avatar_url) {
+        imagesToPreload.push(profile.avatar_url);
         preloadClientImageToCache(profile.avatar_url);
+        imageCache.set(profile.avatar_url, true);
       }
     });
+
+    // Also batch preload with ImagePreloadController for GPU-decode support
+    if (imagesToPreload.length > 0) {
+      imagePreloadController.preloadBatch(imagesToPreload);
+    }
   }
 
   // Use external profiles if provided, otherwise fetch internally (fallback for standalone use)
@@ -251,7 +283,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem(`swipe-deck-owner-${category}`); } catch {}
+    try { sessionStorage.removeItem(`swipe-deck-owner-${category}`); } catch (err) { /* Ignore session storage errors */ }
   }, [category]);
 
   // ========================================
@@ -313,6 +345,22 @@ const ClientSwipeContainerComponent = ({
     trigger: currentIndex
   });
 
+  // Prefetch next batch of client profiles when approaching end of current batch
+  // Uses requestIdleCallback internally for non-blocking prefetch
+  useSwipePrefetch(
+    currentIndexRef.current,
+    page,
+    deckQueueRef.current.length
+  );
+
+  // PERF: Initialize swipeQueue with user ID for fire-and-forget background writes
+  // This eliminates the async auth call on every swipe
+  useEffect(() => {
+    if (user?.id) {
+      swipeQueue.setUserId(user.id);
+    }
+  }, [user?.id]);
+
   // Cleanup prefetch scheduler on unmount
   useEffect(() => {
     return () => {
@@ -341,7 +389,7 @@ const ClientSwipeContainerComponent = ({
     if (clientProfiles.length > 0 && !isLoading) {
       const existingIds = new Set(deckQueueRef.current.map(p => p.user_id));
       const dismissedSet = new Set(dismissedIds);
-      
+
       // CRITICAL: Filter out current user's own profile AND dismissed/swiped profiles
       const newProfiles = clientProfiles.filter(p => {
         // NEVER show user their own profile (defense in depth)
@@ -362,6 +410,11 @@ const ClientSwipeContainerComponent = ({
           currentIndexRef.current = newIndex;
           setCurrentIndex(newIndex);
         }
+
+        // FIX: Force re-render when deck goes from empty to populated
+        // Without this, the "No Clients Found" empty state persists because
+        // appending to deckQueueRef alone doesn't trigger a React re-render
+        setDeckLength(deckQueueRef.current.length);
 
         // PERSIST: Save to store and session for navigation survival
         setOwnerDeck(category, deckQueueRef.current, true);
@@ -424,6 +477,41 @@ const ClientSwipeContainerComponent = ({
       }).then(() => {
         // SUCCESS: Like saved successfully
         logger.info('[ClientSwipeContainer] Swipe saved successfully:', { direction, profileId: profile.user_id });
+
+        // OPTIMISTIC: Add liked client to cache AFTER DB write succeeds (same pattern as TinderentSwipeContainer)
+        if (direction === 'right' && user?.id) {
+          queryClient.setQueryData(['liked-clients', user.id], (oldData: any[] | undefined) => {
+            const likedClient = {
+              id: profile.user_id,
+              user_id: profile.user_id,
+              full_name: profile.full_name || profile.name || 'Unknown',
+              name: profile.full_name || profile.name || 'Unknown',
+              age: profile.age || 0,
+              bio: profile.bio || '',
+              profile_images: profile.profile_images || profile.images || [],
+              images: profile.profile_images || profile.images || [],
+              location: profile.location,
+              liked_at: new Date().toISOString(),
+              occupation: profile.occupation,
+              nationality: profile.nationality,
+              interests: profile.interests,
+              monthly_income: profile.monthly_income,
+              verified: profile.verified,
+              property_types: profile.preferred_property_types || [],
+              moto_types: [],
+              bicycle_types: [],
+            };
+            if (!oldData) {
+              return [likedClient];
+            }
+            // Check if already in the list to avoid duplicates
+            const exists = oldData.some((item: any) => item.id === likedClient.id || item.user_id === likedClient.user_id);
+            if (exists) {
+              return oldData;
+            }
+            return [likedClient, ...oldData];
+          });
+        }
       }).catch((err) => {
         // ERROR: Save failed - log and handle appropriately
         logger.error('[ClientSwipeContainer] Swipe save error:', err);
@@ -474,7 +562,7 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Track dismissal on left swipe (dislike)
-      direction === 'left' ? dismissTarget(profile.user_id).catch(() => {}) : Promise.resolve(),
+      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { }) : Promise.resolve(),
 
       // Record for undo - pass category so deck can be properly restored
       Promise.resolve(recordSwipe(profile.user_id, 'profile', direction, category))
@@ -644,7 +732,7 @@ const ClientSwipeContainerComponent = ({
           <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
             <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
-                   style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
+                style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
             </div>
             <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
               {[1, 2, 3, 4].map((num) => (
@@ -688,7 +776,7 @@ const ClientSwipeContainerComponent = ({
   // "All Caught Up" - finished swiping through all cards
   if (isDeckFinished) {
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-black">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-background">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -698,13 +786,14 @@ const ClientSwipeContainerComponent = ({
           {/* RADAR SEARCH EFFECT - Premium futuristic scanning animation */}
           <RadarSearchEffect
             size={100}
-            color="#8B5CF6"
+            color="#E4007C"
             isActive={isRefreshing}
+            icon={labels.icon}
           />
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-white">All Caught Up!</h3>
-            <p className="text-white/50 text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-semibold text-foreground">All Caught Up!</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
               You've seen all available {labels.plural.toLowerCase()}. Check back later or refresh for new listings.
             </p>
           </div>
@@ -723,7 +812,7 @@ const ClientSwipeContainerComponent = ({
                 {String(isRefreshing ? `Scanning for ${labels.plural}...` : 'Discover More')}
               </Button>
             </motion.div>
-            <p className="text-xs text-white/40">New {labels.plural.toLowerCase()} are added daily</p>
+            <p className="text-xs text-muted-foreground">New {labels.plural.toLowerCase()} are added daily</p>
           </div>
         </motion.div>
       </div>
@@ -733,14 +822,14 @@ const ClientSwipeContainerComponent = ({
   // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
   if (showInitialError) {
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-black">
-        <div className="text-center bg-white/5 border border-white/10 rounded-xl p-8">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
+        <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
           <div className="text-6xl mb-4">😞</div>
-          <h3 className="text-xl font-bold text-white mb-2">Error</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
           <Button
             onClick={handleRefresh}
             variant="outline"
-            className="gap-2 border-white/20 text-white"
+            className="gap-2"
             size="lg"
           >
             <RefreshCw className="w-4 h-4" />
@@ -754,7 +843,7 @@ const ClientSwipeContainerComponent = ({
   // Empty state (no cards fetched yet)
   if (showEmptyState || !topCard) {
     return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-black">
+      <div className="relative w-full h-full flex-1 flex items-center justify-center px-4 bg-background">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -764,13 +853,14 @@ const ClientSwipeContainerComponent = ({
           {/* RADAR SEARCH EFFECT - Calm futuristic scanning animation */}
           <RadarSearchEffect
             size={100}
-            color="#8B5CF6"
+            color="#E4007C"
             isActive={isRefreshing}
+            icon={labels.icon}
           />
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-white">No {labels.plural} Found</h3>
-            <p className="text-white/50 text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-semibold text-foreground">No {labels.plural} Found</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
               Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()}
             </p>
           </div>
@@ -811,7 +901,7 @@ const ClientSwipeContainerComponent = ({
           >
             <SimpleOwnerSwipeCard
               profile={nextCard}
-              onSwipe={() => {}}
+              onSwipe={() => { }}
               isTop={false}
               hideActions={true}
             />
@@ -839,34 +929,40 @@ const ClientSwipeContainerComponent = ({
         </div>
       </div>
 
-      <MatchCelebration
-        isOpen={matchCelebration.isOpen}
-        onClose={() => setMatchCelebration({ isOpen: false })}
-        matchedUser={{
-          name: String(matchCelebration.clientProfile?.name || 'User'),
-          avatar: matchCelebration.clientProfile?.images?.[0],
-          role: 'client'
-        }}
-        onMessage={() => topCard.user_id && handleConnect(topCard.user_id)}
-      />
+      {/* FIX: Render modals via portal OUTSIDE the swipe React tree
+          This prevents modal state changes from causing swipe re-renders,
+          matching the "Tinder-level" fluidity of the client side */}
+      {createPortal(
+        <Suspense fallback={null}>
+          <MatchCelebration
+            isOpen={matchCelebration.isOpen}
+            onClose={() => setMatchCelebration({ isOpen: false })}
+            matchedUser={{
+              name: String(matchCelebration.clientProfile?.name || 'User'),
+              avatar: matchCelebration.clientProfile?.images?.[0],
+              role: 'client'
+            }}
+            onMessage={() => topCard.user_id && handleConnect(topCard.user_id)}
+          />
 
-      {/* Message Confirmation Dialog */}
-      <MessageConfirmationDialog
-        open={messageDialogOpen}
-        onOpenChange={setMessageDialogOpen}
-        onConfirm={handleSendMessage}
-        recipientName={selectedClientId ? deckQueueRef.current.find(p => p.user_id === selectedClientId)?.name || 'this person' : 'this person'}
-        isLoading={isCreatingConversation}
-      />
+          <MessageConfirmationDialog
+            open={messageDialogOpen}
+            onOpenChange={setMessageDialogOpen}
+            onConfirm={handleSendMessage}
+            recipientName={selectedClientId ? deckQueueRef.current.find(p => p.user_id === selectedClientId)?.name || 'this person' : 'this person'}
+            isLoading={isCreatingConversation}
+          />
 
-      {/* Share Dialog - only render when we have a valid topCard */}
-      <ShareDialog
-        open={shareDialogOpen}
-        onOpenChange={setShareDialogOpen}
-        profileId={topCard.user_id}
-        title={topCard.name ? `Check out ${String(topCard.name)}'s profile` : 'Check out this profile'}
-        description={`Budget: $${topCard.budget_max?.toLocaleString() || 'N/A'} - Looking for: ${Array.isArray(topCard.preferred_listing_types) ? topCard.preferred_listing_types.join(', ') : 'Various properties'}`}
-      />
+          <ShareDialog
+            open={shareDialogOpen}
+            onOpenChange={setShareDialogOpen}
+            profileId={topCard.user_id}
+            title={topCard.name ? `Check out ${String(topCard.name)}'s profile` : 'Check out this profile'}
+            description={`Budget: $${topCard.budget_max?.toLocaleString() || 'N/A'} - Looking for: ${Array.isArray(topCard.preferred_listing_types) ? topCard.preferred_listing_types.join(', ') : 'Various properties'}`}
+          />
+        </Suspense>,
+        document.body
+      )}
     </div>
   );
 };

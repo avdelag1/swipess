@@ -1,21 +1,22 @@
-// @ts-nocheck
 /**
  * UnifiedListingForm - Creates listings for all categories
  * Updated to match new normalized schema with JSONB arrays
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { toast } from '@/hooks/use-toast';
-import { notifications } from '@/utils/notifications';
-import { Upload, X, Bike, CircleDot } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
+import { Upload, X, Bike, CircleDot, ChevronRight, Sparkles, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { CategorySelector, Category, Mode } from './CategorySelector';
 import { MotorcycleListingForm, MotorcycleFormData } from './MotorcycleListingForm';
 import { BicycleListingForm, BicycleFormData } from './BicycleListingForm';
@@ -42,6 +43,13 @@ interface UnifiedListingFormProps {
   editingProperty?: EditingListing;
 }
 
+const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
+const stagger = { staggerChildren: 0.08, delayChildren: 0.1 };
+const itemFadeScale = {
+  hidden: { opacity: 0, y: 15, scale: 0.98 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
+};
+
 export function UnifiedListingForm({ isOpen, onClose, editingProperty }: UnifiedListingFormProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category>('property');
   const [selectedMode, setSelectedMode] = useState<Mode>('rent');
@@ -50,6 +58,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [location, setLocation] = useState<{ lat?: number; lng?: number }>({});
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Use refs to track latest values for mutation (avoids closure staleness)
+  const imagesRef = useRef(images);
+  const imageFilesRef = useRef(imageFiles);
+
+  // Keep refs in sync with state
+  useEffect(() => { imagesRef.current = images; }, [images]);
+  useEffect(() => { imageFilesRef.current = imageFiles; }, [imageFiles]);
 
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -69,7 +85,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   useEffect(() => {
     if (!isOpen) return;
-    
+
     if (editingProperty?.id) {
       setEditingId(editingProperty.id);
       setSelectedCategory(editingProperty.category || 'property');
@@ -102,16 +118,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('Not authenticated');
 
-      if (images.length + imageFiles.length < 1) {
+      // Use refs to get latest values (avoids stale closure)
+      const currentImages = imagesRef.current;
+      const currentImageFiles = imageFilesRef.current;
+
+      if (currentImages.length + currentImageFiles.length < 1) {
         throw new Error('At least 1 photo required');
       }
 
       let uploadedImageUrls: string[] = [];
-      if (imageFiles.length > 0) {
-        uploadedImageUrls = await uploadPhotoBatch(user.user.id, imageFiles, 'listing-images');
+      if (currentImageFiles.length > 0) {
+        uploadedImageUrls = await uploadPhotoBatch(user.user.id, currentImageFiles, 'listing-images');
       }
 
-      const allImages = [...images, ...uploadedImageUrls];
+      const allImages = [...currentImages, ...uploadedImageUrls];
 
       // Convert arrays to JSONB format
       const amenities = formData.amenities ? JSON.parse(JSON.stringify(formData.amenities)) : [];
@@ -220,21 +240,21 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         // Update existing listing
         const { data, error } = await supabase
           .from('listings')
-          .update(listingData)
+          .update(listingData as any)
           .eq('id', editingId)
           .select()
           .single();
-        
+
         if (error) throw error;
         listingResult = data;
       } else {
         // Insert new listing
         const { data, error } = await supabase
           .from('listings')
-          .insert(listingData)
+          .insert(listingData as any)
           .select()
           .single();
-        
+
         if (error) throw error;
         listingResult = data;
       }
@@ -254,10 +274,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     onError: (error: Error) => {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description: error.message || 'Failed to save listing.',
-        variant: 'destructive'
       });
     }
   });
@@ -275,7 +293,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const handleImageAdd = () => {
     const totalImages = images.length + imageFiles.length;
     if (totalImages >= maxPhotos) {
-      toast({ title: 'Maximum Photos Reached', description: `You can upload up to ${maxPhotos} photos.`, variant: 'destructive' });
+      toast.error('Maximum Photos Reached', {
+        description: `You can upload up to ${maxPhotos} photos.`,
+      });
       return;
     }
 
@@ -290,14 +310,18 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       const availableSlots = maxPhotos - totalImages;
       if (files.length > availableSlots) {
-        toast({ title: 'Too Many Photos', description: `You can only add ${availableSlots} more.`, variant: 'destructive' });
+        toast.error('Too Many Photos', {
+          description: `You can only add ${availableSlots} more.`
+        });
         files.splice(availableSlots);
       }
 
       const validatedFiles = files.filter(file => {
         const validation = validateImageFile(file);
         if (!validation.isValid) {
-          toast({ title: 'Invalid File', description: `${file.name}: ${validation.error}`, variant: 'destructive' });
+          toast.error('Invalid File', {
+            description: `${file.name}: ${validation.error}`
+          });
         }
         return validation.isValid;
       });
@@ -318,7 +342,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   const handleSubmit = () => {
     if (images.length + imageFiles.length < 1) {
-      toast({ title: 'Photo Required', description: 'Please upload at least 1 photo.', variant: 'destructive' });
+      toast.error('Photo Required', {
+        description: 'Please upload at least 1 photo.'
+      });
       return;
     }
 
@@ -330,15 +356,14 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         latitude: location.lat,
         longitude: location.lng,
       });
-      
+
       sessionStorage.setItem('pending_auth_action', JSON.stringify({
         action: 'save_listing',
         category: selectedCategory,
         timestamp: Date.now(),
       }));
-      
-      toast({
-        title: 'Draft Saved!',
+
+      toast.success('Draft Saved!', {
         description: 'Create an account to publish your listing.',
         duration: 5000,
       });
@@ -353,119 +378,207 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl h-[95vh] sm:h-[90vh] flex flex-col p-0 gap-0 overflow-hidden">
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3 border-b">
+      <DialogContent className={cn(
+        // Mobile: full screen — covers the entire viewport including the TopBar area
+        "!top-0 !left-0 !translate-x-0 !translate-y-0 !w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none",
+        // Desktop (sm+): restore centered modal with rounded corners
+        "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-5xl sm:!h-[90vh] sm:!max-h-[90vh] sm:!rounded-[var(--radius-xl)]",
+        "flex flex-col p-0 gap-0 overflow-hidden"
+      )}>
+        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-2 sm:pb-3 border-b">
           <DialogTitle className="text-lg sm:text-xl">
             {editingId ? 'Edit Listing' : 'Create New Listing'}
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 min-h-0">
-          <div className="px-4 sm:px-6 py-4 space-y-4 sm:space-y-6">
-            <CategorySelector
-              selectedCategory={selectedCategory}
-              selectedMode={selectedMode}
-              onCategoryChange={setSelectedCategory}
-              onModeChange={setSelectedMode}
-            />
+        <ScrollArea className="flex-1">
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={stagger}
+            className="px-6 py-6 space-y-8 pb-32"
+          >
+            {/* Category selection with cascade */}
+            <motion.div variants={itemFadeScale}>
+              <CategorySelector
+                selectedCategory={selectedCategory}
+                selectedMode={selectedMode}
+                onCategoryChange={setSelectedCategory}
+                onModeChange={setSelectedMode}
+              />
+            </motion.div>
 
             {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
-              <div className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20">
-                <div className={`p-2.5 sm:p-3 rounded-lg sm:rounded-xl ${
+              <motion.div
+                variants={itemFadeScale}
+                className="flex items-center gap-4 p-5 rounded-3xl bg-zinc-900/40 backdrop-blur-xl border border-white/5 shadow-xl"
+              >
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
                   selectedCategory === 'motorcycle'
                     ? 'text-orange-500 bg-orange-500/10'
                     : 'text-purple-500 bg-purple-500/10'
-                }`}>
+                )}>
                   {selectedCategory === 'motorcycle' ? (
-                    <CircleDot className="w-6 h-6 sm:w-7 sm:h-7" />
+                    <CircleDot className="w-8 h-8" />
                   ) : (
-                    <Bike className="w-6 h-6 sm:w-7 sm:h-7" />
+                    <Bike className="w-8 h-8" />
                   )}
                 </div>
-                <div>
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-foreground">
                     {selectedCategory === 'motorcycle' ? 'Motorcycle' : 'Bicycle'}
                   </h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground opacity-80">
                     {selectedCategory === 'motorcycle'
                       ? 'Motorcycles, scooters, ATVs'
                       : 'Bikes, e-bikes, mountain bikes'}
                   </p>
                 </div>
-              </div>
+                <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary px-3 py-1 rounded-full">
+                  Verified
+                </Badge>
+              </motion.div>
             )}
 
-            {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
-            {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
-            {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
-            {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
+            <motion.div variants={itemFadeScale} className="space-y-8">
+              {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
+              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
+              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
+              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
+            </motion.div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Photos * (min 1, max {maxPhotos})
-                  {(images.length + imageFiles.length) < 1 && (
-                    <span className="text-destructive text-sm font-normal ml-2">- Need at least 1 photo</span>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  {images.map((img, index) => (
-                    <div key={`existing-${index}`} className="relative aspect-square">
-                      <img src={img} alt={`Existing ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
-                      <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => handleImageRemove(index, 'existing')}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  {imageFiles.map((file, index) => (
-                    <div key={`new-${index}`} className="relative aspect-square">
-                      <img src={URL.createObjectURL(file)} alt={`New ${index + 1}`} className="w-full h-full object-cover rounded-lg" />
-                      <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => handleImageRemove(index, 'new')}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                
-                {(images.length + imageFiles.length) < maxPhotos && (
-                  <Button onClick={handleImageAdd} variant="outline" className="w-full">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Add Photos ({images.length + imageFiles.length}/{maxPhotos})
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            {/* Photo Section with premium cards */}
+            <motion.div variants={itemFadeScale}>
+              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
+                    {(images.length + imageFiles.length) < 1 && (
+                      <Badge variant="destructive" className="animate-pulse">Required</Badge>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <AnimatePresence>
+                      {images.map((img, index) => (
+                        <motion.div
+                          key={`existing-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className="relative aspect-square group overflow-hidden rounded-2xl shadow-lg border border-white/5"
+                        >
+                          <img src={img} alt={`Existing ${index + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="h-10 w-10 rounded-full shadow-2xl active:scale-90"
+                              onClick={() => handleImageRemove(index, 'existing')}
+                            >
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ))}
+                      {imageFiles.map((file, index) => (
+                        <motion.div
+                          key={`new-${index}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          className="relative aspect-square group overflow-hidden rounded-2xl shadow-lg border border-white/5"
+                        >
+                          <img src={URL.createObjectURL(file)} alt={`New ${index + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Button
+                              variant="destructive"
+                              size="icon"
+                              className="h-10 w-10 rounded-full shadow-2xl active:scale-90"
+                              onClick={() => handleImageRemove(index, 'new')}
+                            >
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
 
-            <Card className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-blue-400/30">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base">Legal Documents</CardTitle>
-                    {selectedCategory !== 'bicycle' && (
-                      <Badge variant="outline" className="bg-blue-500/20 border-blue-400 text-blue-300">Get Verified Badge</Badge>
+                    {(images.length + imageFiles.length) < maxPhotos && (
+                      <motion.button
+                        whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleImageAdd}
+                        className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
+                      >
+                        <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
+                        <span className="text-xs font-semibold">Add Photo</span>
+                      </motion.button>
                     )}
                   </div>
+
+                  <p className="text-xs text-center text-muted-foreground opacity-60">
+                    High quality JPG or PNG, max 10MB per file
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Legal / Verification Section */}
+            <motion.div variants={itemFadeScale}>
+              <div className="rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-400/20 shadow-2xl shadow-blue-500/5">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400 border border-blue-400/30 shadow-lg">
+                    <Shield className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-bold text-foreground">Legal Verification</h4>
+                      <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-none px-2 py-0 text-[10px] uppercase font-black">Boost Visibility</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {selectedCategory === 'bicycle'
+                        ? 'Upload purchase receipt to earn a blue verification checkmark and build extra trust.'
+                        : 'Upload ownership documents to earn a verified star and appear higher in search results.'}
+                    </p>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/40 self-center" />
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {selectedCategory === 'bicycle' 
-                    ? '📋 Optional: Upload purchase receipt to earn a blue verification checkmark'
-                    : '🛡️ Upload ownership documents to earn a blue verification star and build trust with clients'}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-muted-foreground mb-3">Note: You can upload documents now or after creating the listing.</p>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
+            </motion.div>
+          </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-t bg-background">
-          <Button variant="outline" onClick={handleClose} className="h-10 sm:h-11 text-sm order-2 sm:order-1">Cancel</Button>
-          <Button onClick={handleSubmit} disabled={createListingMutation.isPending} className="h-10 sm:h-11 text-sm order-1 sm:order-2 bg-red-500 hover:bg-red-600 text-white">
-            {createListingMutation.isPending ? 'Saving...' : (editingId ? 'Save Listing' : 'Save Listing')}
+        <div className="shrink-0 flex items-center justify-between px-8 py-5 border-t border-white/5 bg-background/60 backdrop-blur-xl">
+          <Button
+            variant="ghost"
+            onClick={handleClose}
+            className="text-muted-foreground hover:text-foreground hover:bg-white/5 px-6 rounded-2xl h-12 font-semibold transition-all"
+          >
+            Cancel
           </Button>
+
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={handleSubmit}
+              disabled={createListingMutation.isPending}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 rounded-2xl h-12 font-bold shadow-xl shadow-primary/20 active:scale-[0.96] transition-all flex items-center gap-2"
+            >
+              {createListingMutation.isPending ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>{editingId ? 'Update Listing' : 'Publish Listing'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

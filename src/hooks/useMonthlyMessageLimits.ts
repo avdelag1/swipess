@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useAuth } from './useAuth';
 
 /**

@@ -1,8 +1,7 @@
-// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
 

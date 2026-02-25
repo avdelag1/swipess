@@ -1,12 +1,13 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useNavigate } from 'react-router-dom';
-import { useProfileSetup } from './useProfileSetup';
+import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
+
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Prevent duplicate OAuth setup calls
   const processingOAuthRef = useRef(false);
   const processedUserIdRef = useRef<string | null>(null);
+  // Track OAuth timeout for cleanup on unmount
+  const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -99,37 +102,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         setInitialized(true); // Mark as initialized on any auth state change
 
-        // Handle OAuth setup asynchronously WITHOUT blocking loading state
+        // Handle profile setup asynchronously on SIGNED_IN for ALL users
         if (event === 'SIGNED_IN' && session?.user) {
+          // Reset profile creation lock on every fresh sign-in to prevent
+          // stale lockouts from a previous failed attempt or old session
+          resetProfileCreationLock(session.user.id);
+
           const provider = session.user.app_metadata?.provider;
           const isOAuthUser = provider && provider !== 'email';
 
-          // Only process OAuth users, and only once per user
           if (isOAuthUser && !processingOAuthRef.current && processedUserIdRef.current !== session.user.id) {
+            // OAuth user setup (existing logic)
             processingOAuthRef.current = true;
             processedUserIdRef.current = session.user.id;
 
-            // Run OAuth setup in background with timeout protection (non-blocking)
-            const oauthSetupTimeout = setTimeout(() => {
+            oauthTimeoutRef.current = setTimeout(() => {
               if (processingOAuthRef.current) {
                 logger.warn('[Auth] OAuth setup timeout - resetting state');
                 processingOAuthRef.current = false;
               }
-            }, 15000); // 15 second timeout
+            }, 15000);
 
             handleOAuthUserSetupAsync(session.user)
               .catch((error) => {
                 logger.error('[Auth] OAuth setup failed:', error);
-                toast({
-                  title: 'Profile Setup Issue',
-                  description: 'There was an issue setting up your profile. Please try refreshing the page.',
-                  variant: 'destructive',
-                });
+                toast.error('Profile Setup Issue', { description: 'There was an issue setting up your profile. Please try refreshing the page.' });
               })
               .finally(() => {
-                clearTimeout(oauthSetupTimeout);
+                if (oauthTimeoutRef.current) {
+                  clearTimeout(oauthTimeoutRef.current);
+                  oauthTimeoutRef.current = null;
+                }
                 processingOAuthRef.current = false;
               });
+          } else if (!isOAuthUser && processedUserIdRef.current !== session.user.id) {
+            // Email user profile setup (e.g. after email confirmation click)
+            // Ensures user_roles, client/owner profiles, and onboarding are set up
+            processedUserIdRef.current = session.user.id;
+            const metadataRole = (session.user.user_metadata?.role as 'client' | 'owner') || 'client';
+            createProfileIfMissing(session.user, metadataRole).catch((err) => {
+              logger.error('[Auth] Email user profile setup failed:', err);
+            });
           }
         }
 
@@ -144,6 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      // Clean up OAuth timeout on unmount to prevent state updates after unmount
+      if (oauthTimeoutRef.current) {
+        clearTimeout(oauthTimeoutRef.current);
+        oauthTimeoutRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -151,6 +169,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Non-blocking OAuth user setup
   const handleOAuthUserSetupAsync = async (user: User) => {
     try {
+      // CACHE RESET: Clear stale profile/role cache before OAuth profile setup
+      queryClient.removeQueries({ queryKey: ['user-role'] });
+      queryClient.removeQueries({ queryKey: ['profile'] });
+      queryClient.removeQueries({ queryKey: ['message_activations'] });
+      queryClient.removeQueries({ queryKey: ['client-profile'] });
+      queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
       // Check localStorage first, then URL params
       const pendingRole = localStorage.getItem('pendingOAuthRole') as 'client' | 'owner' | null;
       const urlParams = new URLSearchParams(window.location.search);
@@ -194,11 +219,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       logger.error('[Auth] OAuth setup error:', error);
-      toast({
-        title: 'Profile Setup Failed',
-        description: 'Failed to complete your profile setup. Please try signing in again.',
-        variant: 'destructive',
-      });
+      toast.error('Profile Setup Failed', { description: 'Failed to complete your profile setup. Please try signing in again.' });
     }
   };
 
@@ -226,19 +247,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const existingRole = existingProfile.role;
 
         if (existingRole && existingRole !== role) {
-          toast({
-            title: "Email Already Registered",
-            description: `This email is already registered as a ${existingRole.toUpperCase()} account. To use both roles, please create a separate account with a different email address.`,
-            variant: "destructive"
-          });
+          toast.error("Email Already Registered", { description: `This email is already registered as a ${existingRole.toUpperCase()} account. To use both roles, please create a separate account with a different email address.` });
           return { error: new Error(`Email already registered with ${existingRole} role`) };
         }
 
-        toast({
-          title: "Account Already Exists",
-          description: `An account with this email already exists. Please sign in instead.`,
-          variant: "destructive"
-        });
+        toast.error("Account Already Exists", { description: `An account with this email already exists. Please sign in instead.` });
         return { error: new Error('User already registered') };
       }
 
@@ -263,30 +276,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw error;
       }
 
-      if (data.user && !data.user.email_confirmed_at) {
-        toast({
-          title: "Check Your Email",
-          description: "Please check your email to verify your account.",
-        });
-        return { error: null };
-      } else if (data.user) {
-        toast({
-          title: "Creating your account...",
-          description: "Setting up your profile.",
+      if (data.user) {
+        // Always attempt profile creation regardless of email confirmation status.
+        // The DB trigger creates a bare profile, but we need user_roles,
+        // client_profiles/owner_profiles, and onboarding_completed=true.
+        createProfileIfMissing(data.user, role).catch((err) => {
+          logger.error('[Auth] Background profile setup failed:', err);
         });
 
-        // Create profile
-        const profileResult = await createProfileIfMissing(data.user, role);
-
-        if (!profileResult) {
-          logger.error('[Auth] Profile creation failed');
-          await supabase.auth.signOut();
-          toast({
-            title: "Setup Failed",
-            description: "Could not complete account setup. Please try again.",
-            variant: "destructive"
+        // If the signup returned a session, the user is already signed in
+        // (email confirmation is disabled or auto-confirmed).
+        // If no session, auto-sign in with the same credentials.
+        if (!data.session) {
+          logger.log('[Auth] No session after signup, attempting auto sign-in...');
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email,
+            password
           });
-          return { error: new Error('Failed to complete account setup') };
+
+          if (signInError) {
+            // If auto sign-in fails (e.g. email confirmation still required on server),
+            // show a helpful message but don't block the flow
+            logger.warn('[Auth] Auto sign-in after signup failed:', signInError.message);
+            toast.success("Account Created!", { description: "Your account has been created. Please sign in to continue." });
+            return { error: null };
+          }
+
+          // Auto sign-in succeeded - update local state
+          if (signInData.user) {
+            setUser(signInData.user);
+            setSession(signInData.session);
+          }
         }
 
         // Invalidate role query cache to ensure fresh data
@@ -295,13 +315,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Brief wait for cache invalidation to propagate
         await new Promise(resolve => setTimeout(resolve, 200));
 
-        toast({
-          title: "Account Created!",
-          description: "Loading your dashboard...",
-        });
+        // Determine dashboard path from role
+        const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
 
-        // Navigation will be handled by Index.tsx using metadata role
-        // This ensures a single navigation point and prevents race conditions
+        // AUTO-REFRESH: Invalidate all queries to force fresh data
+        queryClient.invalidateQueries();
+
+        toast.success("Account Created!", { description: "Loading your dashboard..." });
+
+        navigate(targetPath, { replace: true });
       }
 
       return { error: null };
@@ -319,17 +341,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errorMessage = error.message;
       }
 
-      toast({
-        title: "Sign Up Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("Sign Up Failed", { description: errorMessage });
       return { error };
     }
   };
 
   const signIn = async (email: string, password: string, role: 'client' | 'owner') => {
     try {
+      // Reset profile creation lock to prevent stale lockouts from previous sessions
+      resetProfileCreationLock();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -341,6 +362,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       if (data.user) {
+        // CACHE RESET: Clear all stale profile/role data before doing anything.
+        // This prevents "profile creation" errors caused by stale React Query cache
+        // from a previous session or a previous app version.
+        queryClient.removeQueries({ queryKey: ['user-role'] });
+        queryClient.removeQueries({ queryKey: ['profile'] });
+        queryClient.removeQueries({ queryKey: ['message_activations'] });
+        queryClient.removeQueries({ queryKey: ['client-profile'] });
+        queryClient.removeQueries({ queryKey: ['owner-profile'] });
+
         // Quick role check to prevent dashboard flash (max 2 seconds)
         let actualRole: 'client' | 'owner' = role;
 
@@ -371,10 +401,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // This ensures the swipe deck and other dashboard data is refreshed
         queryClient.invalidateQueries();
 
-        toast({
-          title: "Welcome back!",
-          description: "Loading your dashboard...",
-        });
+        toast.success("Welcome back!", { description: "Loading your dashboard..." });
 
         navigate(targetPath, { replace: true });
 
@@ -403,11 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errorMessage = error.message;
       }
 
-      toast({
-        title: "Sign In Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("Sign In Failed", { description: errorMessage });
       return { error };
     }
   };
@@ -429,13 +452,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Use current origin as fallback to support all environments (dev, staging, production)
       const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           redirectTo: redirectUrl,
-          queryParams,
-          skipBrowserRedirect: false
-        }
+          queryParams: queryParams,
+        },
       });
 
       if (error) {
@@ -473,11 +495,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         errorMessage = error.message;
       }
 
-      toast({
-        title: "OAuth Sign In Failed",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      toast.error("OAuth Sign In Failed", { description: errorMessage });
       return { error };
     }
   };
@@ -506,21 +524,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Still navigate to home even if there's an error
       }
 
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully.",
-      });
+      toast.success("Signed out", { description: "You have been signed out successfully." });
 
       // Force navigation to landing page with full page refresh
       // This ensures a clean state and shows the landing page immediately
       window.location.href = '/';
     } catch (error) {
       logger.error('[Auth] Unexpected sign out error:', error);
-      toast({
-        title: "Sign Out Error",
-        description: "An unexpected error occurred during sign out.",
-        variant: "destructive"
-      });
+      toast.error("Sign Out Error", { description: "An unexpected error occurred during sign out." });
       // Even on error, try to redirect to home
       window.location.href = '/';
     }

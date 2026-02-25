@@ -1,11 +1,10 @@
-// @ts-nocheck
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Check, Crown, Zap, Star } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -258,7 +257,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
           <div className="text-center text-xs sm:text-sm text-muted-foreground mt-6 sm:mt-8 space-y-1 pb-2 sm:pb-4">
             <p>✓ Cancel anytime · Secure payments powered by PayPal</p>
-            <p>Questions? Contact support at <span className="text-primary">support@tinderent.com</span></p>
+            <p>Questions? Contact support at <span className="text-primary">support@swipess.com</span></p>
           </div>
         </ScrollArea>
       </DialogContent>

@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { TinderentSwipeContainer } from '@/components/TinderentSwipeContainer';
+import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { PropertyInsightsDialog } from '@/components/PropertyInsightsDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { ListingFilters } from '@/hooks/useSmartMatching';
@@ -19,14 +18,14 @@ interface ClientDashboardProps {
  * DashboardLayout is now rendered ONCE at route level via PersistentDashboardLayout
  * This component only renders its inner content
  */
-export default function ClientDashboard({ 
-  onPropertyInsights, 
-  onMessageClick, 
-  filters 
+export default function ClientDashboard({
+  onPropertyInsights,
+  onMessageClick,
+  filters
 }: ClientDashboardProps) {
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
-  
+
   // Connect filter store to swipe container
   const filterVersion = useFilterStore((s) => s.filterVersion);
   const getListingFilters = useFilterStore((s) => s.getListingFilters);
@@ -62,11 +61,11 @@ export default function ClientDashboard({
 
   return (
     <>
-      <TinderentSwipeContainer
+      <SwipessSwipeContainer
         onListingTap={handleListingTap}
         onInsights={handleListingTap}
         onMessageClick={onMessageClick}
-        filters={mergedFilters}
+        filters={mergedFilters as ListingFilters}
       />
 
       <PropertyInsightsDialog

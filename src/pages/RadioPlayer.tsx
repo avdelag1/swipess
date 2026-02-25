@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { getStationsByCity, cityThemes, CityLocation } from '@/data/radioStations';
+import { getStationsByCity, cityThemes } from '@/data/radioStations';
+import { CityLocation } from '@/types/radio';
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic } from 'lucide-react';
 
 export default function RadioPlayer() {
@@ -49,138 +49,224 @@ export default function RadioPlayer() {
   // Error is shown inline if stream fails
 
   return (
-    <div className="fixed inset-0 bg-black text-white flex flex-col">
+    <div className="fixed inset-0 text-foreground flex flex-col overflow-hidden transition-all duration-300" style={{ background: cityThemes[state.currentCity].gradient }}>
+      {/* Background Overlay for better readability */}
+      <div className="absolute inset-0 bg-background/40 backdrop-blur-[2px] -z-10" />
+
       {/* Header - UI chrome */}
       <div className="flex items-center justify-between px-4 pt-12 pb-2">
-        <button onClick={() => window.history.back()} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+        <button onClick={() => window.history.back()} className="w-10 h-10 rounded-full bg-muted/20 backdrop-blur-md flex items-center justify-center border border-border transition-transform hover:bg-muted/40 active:scale-95">
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <span className="text-white/40 text-xs tracking-widest">RADIO</span>
-        <div className={`px-3 py-1 rounded-full ${state.isPlaying ? 'bg-white/20' : 'bg-white/10'}`}>
-          <span className={`text-xs ${state.isPlaying ? 'text-white' : 'text-white/40'}`}>
-            {state.isPlaying ? 'LIVE' : 'OFF'}
-          </span>
+        <div className="flex flex-col items-center">
+          <span className="text-foreground/60 text-[10px] font-bold tracking-[0.2em] uppercase">Swipess Radio</span>
+          <div className="flex items-center gap-1.5 mt-1">
+            <div className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-[#E4007C] animate-pulse shadow-[0_0_8px_#E4007C]' : 'bg-foreground/20'}`} />
+            <span className="text-[11px] font-medium tracking-wide">
+              {state.isPlaying ? 'CONNECTED' : 'DISCONNECTED'}
+            </span>
+          </div>
         </div>
+        <div className="w-10 h-10 flex items-center justify-center" />
       </div>
 
       {/* Center - Vinyl & Controls */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4">
-        
+      <div className="flex-1 flex flex-col items-center justify-center px-6">
+
         {/* Quick Controls - Shuffle, Playlist, Favorites, Settings, Mic */}
-        <div className="flex items-center justify-center gap-4 mb-4">
-          <button 
+        <div className="flex items-center justify-center gap-6 mb-8">
+          <button
             onClick={toggleShuffle}
-            className={`p-2 rounded-full transition-colors ${state.isShuffle ? 'bg-white/20' : 'bg-white/5'}`}
+            className={`p-2.5 rounded-full transition-all active:scale-90 ${state.isShuffle ? 'bg-primary/30 shadow-lg text-primary-foreground' : 'bg-muted/30 border border-border text-foreground/40'}`}
           >
-            <Shuffle className={`w-5 h-5 ${state.isShuffle ? 'text-white' : 'text-white/50'}`} />
+            <Shuffle className={`w-5 h-5 ${state.isShuffle ? 'text-primary' : 'text-foreground/40'}`} />
           </button>
-          
-          <button 
+
+          <button
             onClick={() => setShowPlaylist(true)}
-            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-2.5 rounded-full bg-muted/30 border border-border hover:bg-muted/50 transition-all active:scale-90"
           >
-            <ListMusic className="w-5 h-5 text-white/50" />
+            <ListMusic className="w-5 h-5 text-foreground/40" />
           </button>
-          
-          <button 
+
+          <button
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
-            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-2.5 rounded-full bg-muted/30 border border-border hover:bg-muted/50 transition-all active:scale-90"
           >
-            <Heart className={`w-5 h-5 ${state.currentStation && state.favorites.includes(state.currentStation.id) ? 'text-white' : 'text-white/50'}`}
+            <Heart className={`w-5 h-5 ${state.currentStation && state.favorites.includes(state.currentStation.id) ? 'text-[#E4007C]' : 'text-foreground/40'}`}
               fill={state.currentStation && state.favorites.includes(state.currentStation.id) ? "currentColor" : "none"} />
           </button>
 
           {/* Skin Selector */}
-          <button 
+          <button
             onClick={() => {
               const skins: Array<'modern' | 'vinyl' | 'retro'> = ['modern', 'vinyl', 'retro'];
               const currentIndex = skins.indexOf(state.skin as any);
               const nextSkin = skins[(currentIndex + 1) % skins.length];
               setSkin(nextSkin);
             }}
-            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            className="p-2.5 rounded-full bg-muted/30 border border-border hover:bg-muted/50 transition-all active:scale-90"
             title={`Skin: ${state.skin}`}
           >
-            {state.skin === 'vinyl' && <div className="w-5 h-5 rounded-full border-2 border-white/50" />}
-            {state.skin === 'retro' && <div className="w-5 h-3 border-2 border-white/50 rounded-sm" />}
-            {state.skin === 'modern' && <div className="w-4 h-4 rounded-sm border-2 border-white/50" />}
+            <div className="w-5 h-5 relative flex items-center justify-center text-foreground">
+              {state.skin === 'vinyl' && <div className="w-4 h-4 rounded-full border-2 border-foreground/60" />}
+              {state.skin === 'retro' && <div className="w-4 h-3 border-2 border-foreground/60 rounded-sm" />}
+              {state.skin === 'modern' && <div className="w-3.5 h-3.5 rounded-sm border-2 border-foreground/60" />}
+            </div>
           </button>
         </div>
 
         {/* Vinyl Record - Skin varies */}
-        <motion.div
-          className={`relative mb-4 ${
-            state.skin === 'vinyl' ? 'w-36 h-36 rounded-full' :
-            state.skin === 'retro' ? 'w-40 h-28 rounded-lg' :
-            'w-32 h-32 rounded-3xl'
-          }`}
-          style={{
-            background: state.skin === 'vinyl' 
-              ? 'linear-gradient(135deg, #222 0%, #111 50%, #222 100%)'
-              : state.skin === 'retro'
-              ? 'linear-gradient(135deg, #8B4513 0%, #5D3A1A 50%, #8B4513 100%)'
-              : 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 50%, #1a1a1a 100%)',
-            border: state.skin === 'retro' ? '4px solid #D4A574' : '1px solid #333'
-          }}
-          animate={{ rotate: state.isPlaying ? 360 : 0 }}
-          transition={{ duration: state.isPlaying ? (state.skin === 'retro' ? 6 : 4) : 0, repeat: Infinity, ease: "linear" }}
-        >
-          {state.skin === 'vinyl' && (
-            <>
-              <div className="absolute inset-1.5 rounded-full border border-white/10" />
-              <div className="absolute inset-3 rounded-full border border-white/5" />
-              <div className="absolute inset-5 rounded-full border border-white/5" />
-            </>
-          )}
-          
-          {state.skin === 'retro' && (
-            <>
-              {/* Cassette windows */}
-              <div className="absolute inset-4 bg-black/60 rounded-md flex items-center justify-center gap-2">
-                <div className="w-8 h-6 rounded-full bg-white/20" />
-                <div className="w-8 h-6 rounded-full bg-white/20" />
-              </div>
-              {/* Tape holes */}
-              <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-6 bg-white rounded-full" />
-              <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-6 bg-white rounded-full" />
-            </>
-          )}
-          
-          {state.skin === 'modern' && (
-            <>
-              <div className="absolute inset-2 rounded-full border border-white/10" />
-              <div className="absolute inset-4 rounded-full border border-white/5" />
-            </>
-          )}
+        <div className="relative group">
+          {/* Buffering/Loading Indicator */}
+          <AnimatePresence>
+            {(error?.includes('Buffering') || error?.includes('timeout')) && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute -inset-8 z-20 flex items-center justify-center pointer-events-none"
+              >
+                <div className="absolute inset-0 rounded-full border-4 border-muted border-t-[#E4007C] animate-spin" />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          {/* Center label - Station info */}
-          <div className={`absolute inset-10 rounded-full bg-white flex flex-col items-center justify-center ${
-            state.skin === 'retro' ? 'inset-8' : ''
-          }`}>
-            <span className="text-xs font-bold text-black">{state.currentStation?.frequency || '--.-'}</span>
-            <span className="text-[8px] text-black/60 uppercase">{state.currentStation?.genre || '---'}</span>
+          <motion.div
+            className={`relative mb-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ${state.skin === 'vinyl' ? 'w-56 h-56 rounded-full' :
+              state.skin === 'retro' ? 'w-60 h-40 rounded-xl' :
+                'w-52 h-52 rounded-[2.5rem]'
+              }`}
+            style={{
+              background: state.skin === 'vinyl'
+                ? 'radial-gradient(circle at center, #333 0%, #111 40%, #222 50%, #111 70%, #000 100%)'
+                : state.skin === 'retro'
+                  ? 'linear-gradient(135deg, #A0522D 0%, #6B4423 50%, #8B4513 100%)'
+                  : `linear-gradient(135deg, ${cityThemes[state.currentCity].primaryColor} 0%, #1a1a1a 100%)`,
+              border: state.skin === 'retro' ? '8px solid #DEB887' : '1px solid rgba(255,255,255,0.15)',
+            }}
+            animate={{
+              rotate: state.isPlaying ? 360 : 0,
+              scale: state.isPlaying ? [1, 1.03, 1] : 1
+            }}
+            transition={{
+              rotate: { duration: state.isPlaying ? (state.skin === 'retro' ? 10 : 5) : 0, repeat: Infinity, ease: "linear" },
+              scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+            }}
+          >
+            {state.skin === 'vinyl' && (
+              <>
+                {/* Vinyl grooves */}
+                {[...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute inset-0 rounded-full border border-white/10"
+                    style={{ margin: `${(i + 1) * 6}px` }}
+                  />
+                ))}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-20" />
+              </>
+            )}
+
+            {state.skin === 'retro' && (
+              <>
+                {/* Cassette details */}
+                <div className="absolute inset-x-8 top-6 bottom-6 bg-black/90 rounded flex items-center justify-center gap-10 border border-white/10 shadow-inner">
+                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-white/10 animate-spin-slow" />
+                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-white/10 animate-spin-slow" />
+                </div>
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-2 bg-white/10 rounded-full shadow-inner" />
+              </>
+            )}
+
+            {state.skin === 'modern' && (
+              <>
+                <div className="absolute inset-6 rounded-[2rem] border border-black/10 dark:border-white/5" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/40 rounded-[2.5rem]" />
+              </>
+            )}
+
+            {/* Center label - Station info */}
+            <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white flex flex-col items-center justify-center shadow-2xl ${state.skin === 'vinyl' ? 'w-20 h-20' :
+              state.skin === 'retro' ? 'w-16 h-16' :
+                'w-20 h-20'
+              }`}>
+              <span className="text-base font-black text-black leading-none mb-0.5">{state.currentStation?.frequency || '--.-'}</span>
+              <span className="text-[8px] text-black/50 font-bold uppercase tracking-widest">{state.currentStation?.genre || '---'}</span>
+            </div>
+
+            {/* Center hole */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className={`rounded-full bg-black shadow-lg ${state.skin === 'retro' ? 'w-4 h-4' : 'w-2.5 h-2.5'}`} />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Station Info */}
+        <div className="text-center mb-8">
+          <motion.h1
+            key={state.currentStation?.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-2xl font-black text-foreground mb-2 tracking-tight"
+          >
+            {state.currentStation?.name || 'Select Station'}
+          </motion.h1>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => setShowCitySelector(true)}
+              className="px-4 py-1.5 bg-background/20 backdrop-blur-md rounded-full border border-border hover:bg-background/40 active:scale-95 transition-all text-foreground"
+            >
+              <span className="text-[11px] font-bold tracking-widest text-foreground uppercase">
+                {cityThemes[state.currentCity].name}
+              </span>
+            </button>
+            <div className="w-1 h-1 rounded-full bg-border" />
+            <span className="text-[11px] font-bold text-foreground/40 tracking-widest uppercase">
+              {state.currentStation?.genre || 'MUSIC'}
+            </span>
           </div>
+        </div>
 
-          {/* Center hole */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className={`rounded-full bg-black ${state.skin === 'retro' ? 'w-2 h-2' : 'w-1.5 h-1.5'}`} />
-          </div>
-        </motion.div>
-
-        {/* Station Name */}
-        <h1 className="text-lg font-bold text-white mb-1">{state.currentStation?.name || 'Select Station'}</h1>
-        <p className="text-white/40 text-sm mb-2">{cityThemes[state.currentCity].name}</p>
-
-        {/* City Selector */}
-        <button
-          onClick={() => setShowCitySelector(true)}
-          className="px-3 py-1 bg-white/10 rounded-full mb-4"
-        >
-          <span className="text-xs text-white/70">{cityThemes[state.currentCity].name}</span>
-        </button>
+        {/* Status/Error Messages */}
+        <div className="h-6 flex items-center justify-center mb-4">
+          <AnimatePresence mode="wait">
+            {error ? (
+              <motion.span
+                key="error"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="text-xs font-medium text-[#E4007C] tracking-wide"
+              >
+                {error}
+              </motion.span>
+            ) : state.isPlaying ? (
+              <motion.div
+                key="playing"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-baseline gap-1"
+              >
+                <div className="flex gap-[2px]">
+                  {[1, 2, 3, 4].map(i => (
+                    <motion.div
+                      key={i}
+                      className="w-0.5 h-2 bg-[#E4007C]"
+                      animate={{ height: [4, 10, 4] }}
+                      transition={{ duration: 0.5, delay: i * 0.1, repeat: Infinity }}
+                    />
+                  ))}
+                </div>
+                <span className="text-[10px] font-bold text-foreground/40 tracking-[0.2em] uppercase ml-1">Streaming Live</span>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
 
         {/* Station Dial */}
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-xs mb-10 px-4">
           <input
             type="range"
             min="0"
@@ -191,23 +277,46 @@ export default function RadioPlayer() {
               setDialValue(val);
               handleDialChange(val);
             }}
-            className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer"
+            className="w-full h-1.5 bg-muted rounded-full appearance-none cursor-pointer radio-slider radio-dial mb-3"
             style={{
-              background: `linear-gradient(to right, white ${(dialValue / (cityStations.length - 1)) * 100}%, white/20 ${(dialValue / (cityStations.length - 1)) * 100}%)`
+              background: `linear-gradient(to right, #E4007C ${(dialValue / (cityStations.length - 1)) * 100}%, rgba(128,128,128,0.2) ${(dialValue / (cityStations.length - 1)) * 100}%)`
             }}
           />
-          <div className="flex justify-between mt-1">
-            <span className="text-[10px] text-white/30">{cityStations[0]?.name}</span>
-            <span className="text-[10px] text-white/30">{cityStations[cityStations.length - 1]?.name}</span>
+          <div className="flex justify-between items-center px-1">
+            <span className="text-[9px] font-bold text-foreground/40 uppercase tracking-tighter truncate max-w-[80px]">{cityStations[0]?.name}</span>
+            <div className="bg-muted px-2 py-0.5 rounded text-[8px] font-bold text-foreground/60">DIAL</div>
+            <span className="text-[9px] font-bold text-foreground/40 uppercase tracking-tighter truncate max-w-[80px]">{cityStations[cityStations.length - 1]?.name}</span>
           </div>
         </div>
       </div>
 
-      {/* Bottom Controls - Radio Player Area */}
-      <div className="px-4 pb-12">
+      {/* Bottom Controls - Area */}
+      <div className="px-8 pb-14 bg-gradient-to-t from-background/80 to-transparent">
+        {/* Playback Controls */}
+        <div className="flex items-center justify-center gap-8 mb-10">
+          <button onClick={() => changeStation('prev')} className="w-14 h-14 rounded-full bg-muted/30 border border-border flex items-center justify-center transition-all hover:bg-muted/50 active:scale-90 text-foreground">
+            <SkipBack className="w-6 h-6" />
+          </button>
+
+          <motion.button
+            onClick={togglePlayPause}
+            className="w-20 h-20 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {state.isPlaying ? <Pause className="w-10 h-10" fill="currentColor" /> : <Play className="w-10 h-10 ml-1.5" fill="currentColor" />}
+          </motion.button>
+
+          <button onClick={() => changeStation('next')} className="w-14 h-14 rounded-full bg-muted/30 border border-border flex items-center justify-center transition-all hover:bg-muted/50 active:scale-90 text-foreground">
+            <SkipForward className="w-6 h-6" />
+          </button>
+        </div>
+
         {/* Volume Slider */}
-        <div className="flex items-center gap-3 mb-8">
-          <Volume2 className="w-4 h-4 text-white/40" />
+        <div className="flex items-center gap-4 max-w-sm mx-auto">
+          <button onClick={() => setVolume(state.volume > 0 ? 0 : 0.7)}>
+            {state.volume === 0 ? <VolumeX className="w-4 h-4 text-foreground/40" /> : <Volume2 className="w-4 h-4 text-foreground/60" />}
+          </button>
           <input
             type="range"
             min="0"
@@ -215,31 +324,13 @@ export default function RadioPlayer() {
             step="0.01"
             value={state.volume}
             onChange={(e) => setVolume(parseFloat(e.target.value))}
-            className="flex-1 h-1 bg-white/20 rounded-full appearance-none cursor-pointer"
+            className="flex-1 h-1 bg-muted rounded-full appearance-none cursor-pointer radio-slider"
             style={{
-              background: `linear-gradient(to right, white ${state.volume * 100}%, white/20 ${state.volume * 100}%)`
+              background: `linear-gradient(to right, currentColor ${state.volume * 100}%, transparent ${state.volume * 100}%)`,
+              color: 'var(--foreground)'
             }}
           />
-          <VolumeX className="w-4 h-4 text-white/40" />
-        </div>
-
-        {/* Playback Controls */}
-        <div className="flex items-center justify-center gap-4 mb-10">
-          <button onClick={() => changeStation('prev')} className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-            <SkipBack className="w-5 h-5" />
-          </button>
-
-          <motion.button
-            onClick={togglePlayPause}
-            className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center"
-            whileTap={{ scale: 0.95 }}
-          >
-            {state.isPlaying ? <Pause className="w-8 h-8" fill="currentColor" /> : <Play className="w-8 h-8 ml-1" fill="currentColor" />}
-          </motion.button>
-
-          <button onClick={() => changeStation('next')} className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-            <SkipForward className="w-5 h-5" />
-          </button>
+          <span className="text-[10px] font-bold text-foreground/40 w-6">{Math.round(state.volume * 100)}</span>
         </div>
       </div>
 
@@ -250,11 +341,11 @@ export default function RadioPlayer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-x-4 inset-y-16 bg-black/95 z-50 flex flex-col rounded-2xl"
+            className="fixed inset-x-4 inset-y-16 bg-background/95 backdrop-blur-xl z-50 flex flex-col rounded-2xl border border-border"
           >
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <span className="font-semibold">Select City</span>
-              <button onClick={() => setShowCitySelector(false)} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <span className="font-semibold text-foreground">Select City</span>
+              <button onClick={() => setShowCitySelector(false)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80">
                 <ArrowLeft className="w-5 h-5" />
               </button>
             </div>
@@ -263,15 +354,21 @@ export default function RadioPlayer() {
                 <button
                   key={city}
                   onClick={() => { setCity(city); setShowCitySelector(false); }}
-                  className={`w-full p-4 rounded-xl flex items-center gap-4 ${state.currentCity === city ? 'bg-white/20' : 'bg-white/5'}`}
+                  className={`w-full p-4 rounded-2xl flex items-center gap-4 transition-all active:scale-95 ${state.currentCity === city ? 'bg-muted/80 border border-primary/20 shadow-lg' : 'bg-muted/30 border border-border hover:bg-muted/50'}`}
                 >
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
-                    <span>{city.charAt(0)}</span>
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-lg shadow-inner"
+                    style={{ background: cityThemes[city].gradient }}
+                  >
+                    <span>{cityThemes[city].name.charAt(0)}</span>
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="font-medium">{cityThemes[city].name}</p>
-                    <p className="text-white/40 text-sm">{getStationsByCity(city).length} stations</p>
+                    <p className="font-bold text-sm tracking-wide uppercase text-foreground">{cityThemes[city].name}</p>
+                    <p className="text-foreground/50 text-[10px] font-medium tracking-widest uppercase">{getStationsByCity(city).length} Channels</p>
                   </div>
+                  {state.currentCity === city && (
+                    <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_8px_#E4007C]" />
+                  )}
                 </button>
               ))}
             </div>
@@ -283,51 +380,53 @@ export default function RadioPlayer() {
       <AnimatePresence>
         {showPlaylist && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-x-4 inset-y-16 bg-black/95 z-50 flex flex-col rounded-2xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-x-4 inset-y-16 bg-background/95 backdrop-blur-3xl z-50 flex flex-col rounded-[2rem] border border-border shadow-2xl"
           >
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <span className="font-semibold">Playlist</span>
-              <button onClick={() => setShowPlaylist(false)} className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <span className="font-black text-sm tracking-[0.2em] uppercase text-foreground">Playlist</span>
+              <button onClick={() => setShowPlaylist(false)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 text-foreground">
                 <ArrowLeft className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 scrollbar-hide">
               {/* Play Favorites */}
               {state.favorites.length > 0 && (
                 <button
                   onClick={() => { playFavorites(); setShowPlaylist(false); }}
-                  className="w-full p-4 rounded-xl bg-white/20 flex items-center gap-4"
+                  className="w-full p-4 rounded-2xl bg-muted/50 border border-border focus:border-[#E4007C] flex items-center gap-4 mb-4 transition-all hover:bg-muted/80 active:scale-95 shadow-sm"
                 >
-                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-black" fill="currentColor" />
+                  <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center shadow-md">
+                    <Heart className="w-6 h-6 text-[#E4007C]" fill="currentColor" />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="font-medium">Favorites</p>
-                    <p className="text-white/40 text-sm">{state.favorites.length} stations</p>
+                    <p className="font-black text-sm tracking-wide uppercase text-foreground">Favorites</p>
+                    <p className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">{state.favorites.length} Saved Stations</p>
                   </div>
                 </button>
               )}
 
               {/* Current City Stations */}
-              <p className="text-white/40 text-sm mt-4 mb-2">{cityThemes[state.currentCity].name}</p>
+              <div className="px-2 pb-2">
+                <span className="text-[10px] font-black text-foreground/40 tracking-[0.3em] uppercase">{cityThemes[state.currentCity].name} Stations</span>
+              </div>
               {cityStations.map((station) => (
                 <button
                   key={station.id}
                   onClick={() => { play(station); setShowPlaylist(false); }}
-                  className={`w-full p-3 rounded-xl flex items-center gap-3 ${state.currentStation?.id === station.id ? 'bg-white/20' : 'bg-white/5'}`}
+                  className={`w-full p-3.5 rounded-2xl flex items-center gap-4 transition-all hover:bg-muted/50 active:scale-[0.98] ${state.currentStation?.id === station.id ? 'bg-muted/80 border border-border shadow-sm' : 'bg-transparent border border-transparent'}`}
                 >
-                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-11 h-11 rounded-full bg-muted border border-border flex items-center justify-center text-foreground font-bold text-[10px] tracking-tighter">
                     {station.frequency}
                   </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-medium text-sm">{station.name}</p>
-                    <p className="text-white/40 text-xs">{station.genre}</p>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="font-bold text-sm truncate uppercase tracking-tight text-foreground">{station.name}</p>
+                    <p className="text-muted-foreground text-[10px] font-medium tracking-widest uppercase truncate">{station.genre}</p>
                   </div>
                   {state.favorites.includes(station.id) && (
-                    <Heart className="w-4 h-4 text-white" fill="currentColor" />
+                    <Heart className="w-4 h-4 text-[#E4007C] drop-shadow-[0_0_5px_rgba(228,0,124,0.3)]" fill="currentColor" />
                   )}
                 </button>
               ))}

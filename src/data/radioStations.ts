@@ -7,28 +7,28 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
   'new-york': {
     id: 'new-york',
     name: 'New York',
-    primaryColor: '#1a1a1a',
-    secondaryColor: '#ffd700',
-    accentColor: '#ff4500',
-    gradient: 'linear-gradient(135deg, #1a1a1a 0%, #333333 100%)',
+    primaryColor: '#ff0000',
+    secondaryColor: '#1a1a1a',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #ff0000 0%, #1a1a1a 100%)',
     description: 'The city that never sleeps'
   },
   'miami': {
     id: 'miami',
     name: 'Miami',
-    primaryColor: '#ff006e',
-    secondaryColor: '#fb5607',
-    accentColor: '#ffbe0b',
-    gradient: 'linear-gradient(135deg, #ff006e 0%, #fb5607 50%, #ffbe0b 100%)',
+    primaryColor: '#0070f3',
+    secondaryColor: '#E4007C',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #0070f3 0%, #E4007C 100%)',
     description: 'Neon nights and tropical vibes'
   },
   'ibiza': {
     id: 'ibiza',
     name: 'Ibiza',
     primaryColor: '#5e17eb',
-    secondaryColor: '#3a0ca3',
-    accentColor: '#4cc9f0',
-    gradient: 'linear-gradient(135deg, #5e17eb 0%, #3a0ca3 50%, #4cc9f0 100%)',
+    secondaryColor: '#4cc9f0',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #5e17eb 0%, #4cc9f0 100%)',
     description: 'Electronic paradise'
   },
   'tulum': {
@@ -43,10 +43,10 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
   'california': {
     id: 'california',
     name: 'California',
-    primaryColor: '#ff6b35',
-    secondaryColor: '#f7931e',
-    accentColor: '#fdc500',
-    gradient: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #fdc500 100%)',
+    primaryColor: '#E4007C',
+    secondaryColor: '#fdc500',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #E4007C 0%, #fdc500 100%)',
     description: 'West coast sunshine'
   },
   'texas': {
@@ -67,6 +67,15 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
     gradient: 'linear-gradient(135deg, #001f3f 0%, #ffffff 50%, #ff4136 100%)',
     description: 'Parisian elegance'
   },
+  'italy': {
+    id: 'italy',
+    name: 'Italy',
+    primaryColor: '#009246',
+    secondaryColor: '#ce2b37',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #009246 0%, #ffffff 50%, #ce2b37 100%)',
+    description: 'Italian vibes and electronic energy'
+  },
   'podcasts': {
     id: 'podcasts',
     name: 'Podcasts',
@@ -79,455 +88,850 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
 };
 
 /**
- * All radio stations organized by city
+ * All radio stations organized by city (10 stations per city)
  */
 export const radioStations: RadioStation[] = [
-  // New York - SomaFM channels
+  // Miami - 10 Stations
   {
-    id: 'ny-groovesalad',
-    name: 'Groove Salad',
-    frequency: '100.3 FM',
+    id: 'miami-1',
+    name: 'Miami Deep House',
+    frequency: '93.1',
+    streamUrl: 'https://streaming.tmcrental.com/radio/8000/radio.mp3',
+    city: 'miami',
+    genre: 'Deep House',
+    description: 'Beach club vibes'
+  },
+  {
+    id: 'miami-2',
+    name: 'Revolution Radio',
+    frequency: '93.5',
+    streamUrl: 'https://ice64.securenetsystems.net/WBGF',
+    city: 'miami',
+    genre: 'EDM',
+    description: 'Miami Electronic Music'
+  },
+  {
+    id: 'miami-3',
+    name: 'Chill Miami',
+    frequency: '104.1',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
-    city: 'new-york',
+    city: 'miami',
     genre: 'Chillout',
-    description: 'A nicely chilled plate of ambient/downtempo beats'
+    description: 'Downtempo Beats'
   },
   {
-    id: 'ny-defcon',
-    name: 'DEF CON Radio',
-    frequency: '104.3 FM',
-    streamUrl: 'https://ice1.somafm.com/defcon-128-mp3',
+    id: 'miami-4',
+    name: 'Miami Latin',
+    frequency: '99.5',
+    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
+    city: 'miami',
+    genre: 'Latino',
+    description: 'Tropical Rhythms'
+  },
+  {
+    id: 'miami-5',
+    name: 'South Beach Lounge',
+    frequency: '102.3',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'miami',
+    genre: 'Lounge',
+    description: 'Elegant nights'
+  },
+  {
+    id: 'miami-6',
+    name: 'Ocean Drive',
+    frequency: '95.1',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'miami',
+    genre: 'House',
+    description: 'Cruising the coast'
+  },
+  {
+    id: 'miami-7',
+    name: 'Magic Miami',
+    frequency: '101.5',
+    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
+    city: 'miami',
+    genre: 'Retro',
+    description: 'Old school vibes'
+  },
+  {
+    id: 'miami-8',
+    name: 'Miami 80s',
+    frequency: '88.7',
+    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
+    city: 'miami',
+    genre: '80s Pop',
+    description: 'Vice City sound'
+  },
+  {
+    id: 'miami-9',
+    name: 'Sub-Zero Miami',
+    frequency: '94.3',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'miami',
+    genre: 'IDM',
+    description: 'Intelligent beats'
+  },
+  {
+    id: 'miami-10',
+    name: 'Miami Sunshine',
+    frequency: '107.1',
+    streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
+    city: 'miami',
+    genre: 'Indie',
+    description: 'Bright and breezy'
+  },
+
+  // New York - 10 Stations
+  {
+    id: 'ny-1',
+    name: 'WKCR Jazz',
+    frequency: '89.9',
+    streamUrl: 'http://wkcr.streamguys1.com:80/live',
     city: 'new-york',
-    genre: 'Electronic',
-    description: 'Music for Hacking'
+    genre: 'Jazz',
+    description: 'Real NY Jazz'
   },
   {
-    id: 'ny-indiepop',
-    name: 'Indie Pop Rocks',
-    frequency: '105.1 FM',
+    id: 'ny-2',
+    name: 'WNYC News',
+    frequency: '93.9',
+    streamUrl: 'https://fm939.wnyc.org/wnycfm.mp3',
+    city: 'new-york',
+    genre: 'Talk',
+    description: 'Public Radio'
+  },
+  {
+    id: 'ny-3',
+    name: 'NYC Hip Hop',
+    frequency: '97.1',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
+    city: 'new-york',
+    genre: 'Hip Hop',
+    description: 'Street vibes'
+  },
+  {
+    id: 'ny-4',
+    name: 'The Big Apple',
+    frequency: '101.1',
+    streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
+    city: 'new-york',
+    genre: '70s Pop',
+    description: 'Classic NY'
+  },
+  {
+    id: 'ny-5',
+    name: 'Brooklyn Underground',
+    frequency: '105.5',
+    streamUrl: 'https://ice1.somafm.com/suburbansprawl-128-mp3',
+    city: 'new-york',
+    genre: 'Indie',
+    description: 'Bushwick sounds'
+  },
+  {
+    id: 'ny-6',
+    name: 'Wall Street Rock',
+    frequency: '98.7',
     streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
     city: 'new-york',
-    genre: 'Indie Pop',
-    description: 'New and classic indie pop'
+    genre: 'Rock',
+    description: 'Power chords'
   },
   {
-    id: 'ny-u80s',
-    name: 'Underground 80s',
-    frequency: '103.5 FM',
-    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
-    city: 'new-york',
-    genre: 'Alternative',
-    description: 'Early 80s UK Synthpop and a bit of New Wave'
-  },
-  {
-    id: 'ny-secretagent',
-    name: 'Secret Agent',
-    frequency: '101.9 FM',
-    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
-    city: 'new-york',
-    genre: 'Lounge',
-    description: 'The soundtrack for your stylish, mysterious life'
-  },
-
-  // Miami - Tropical & Dance Vibes
-  {
-    id: 'miami-beach',
-    name: 'Miami Beach Radio',
-    frequency: '98.7 FM',
-    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
-    city: 'miami',
-    genre: 'Electronic',
-    description: 'A late night blend of deep-house and downtempo chill'
-  },
-  {
-    id: 'miami-vibes',
-    name: 'Miami Vibes',
-    frequency: '97.5 FM',
+    id: 'ny-7',
+    name: 'Central Park Chill',
+    frequency: '92.3',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
-    city: 'miami',
+    city: 'new-york',
     genre: 'Chillout',
-    description: 'Smooth tropical beats for sunset sessions'
+    description: 'Oasis in the city'
   },
   {
-    id: 'miami-latin',
-    name: 'Miami Latin',
-    frequency: '99.1 FM',
-    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
-    city: 'miami',
-    genre: 'Latin Fusion',
-    description: 'Latin rhythms with modern electronic twist'
+    id: 'ny-8',
+    name: 'Greenwich Folk',
+    frequency: '90.7',
+    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
+    city: 'new-york',
+    genre: 'Folk',
+    description: 'Village sounds'
   },
   {
-    id: 'miami-poolside',
-    name: 'Poolside FM',
-    frequency: '100.5 FM',
-    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
-    city: 'miami',
-    genre: 'Poolside Pop',
-    description: 'Sunny daytime vibes for pool parties'
+    id: 'ny-9',
+    name: 'Empire State Classical',
+    frequency: '96.3',
+    streamUrl: 'https://wqxr.streamguys1.com/wqxr',
+    city: 'new-york',
+    genre: 'Classical',
+    description: 'Masterpieces'
   },
   {
-    id: 'miami-deep',
-    name: 'Miami Deep House',
-    frequency: '96.9 FM',
-    streamUrl: 'https://ice1.somafm.com/fluid-128-mp3',
-    city: 'miami',
-    genre: 'Deep House',
-    description: 'Deep underground house music'
+    id: 'ny-10',
+    name: 'NY Ambient',
+    frequency: '104.5',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'new-york',
+    genre: 'Ambient',
+    description: 'Late night NY'
   },
 
-  // Ibiza - Electronic Paradise
+  // Ibiza - 10 Stations
   {
-    id: 'ibiza-global',
+    id: 'ibiza-1',
     name: 'Ibiza Global Radio',
-    frequency: '97.6 FM',
-    streamUrl: 'https://s1.radio.co/s4e8c8c3d1/listen',
+    frequency: '97.6',
+    streamUrl: 'https://api.ibizaglobalradio.com:8443/live',
     city: 'ibiza',
-    genre: 'Electronic',
-    description: 'The worlds most iconic electronic music station'
+    genre: 'Dance',
+    description: 'Electronic Soul'
   },
   {
-    id: 'ibiza-deep',
-    name: 'Ibiza Deep House',
-    frequency: '95.2 FM',
-    streamUrl: 'https://ice1.somafm.com/fluid-128-mp3',
+    id: 'ibiza-2',
+    name: 'Ibiza Sonica',
+    frequency: '92.4',
+    streamUrl: 'https://s3.sonicabroadcast.com/7002/stream',
     city: 'ibiza',
-    genre: 'Deep House',
-    description: 'Deep house vibes from the white isle'
+    genre: 'House',
+    description: 'Deep Vibes'
   },
   {
-    id: 'ibiza-club',
-    name: 'Ibiza Club Classics',
-    frequency: '98.4 FM',
-    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    id: 'ibiza-3',
+    name: 'Blue Marlin',
+    frequency: '101.2',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'ibiza',
-    genre: 'Club Classics',
-    description: 'Iconic club tracks from the island legends'
+    genre: 'Chill',
+    description: 'Beach Club'
   },
   {
-    id: 'ibiza-chill',
-    name: 'Ibiza Sunset Chill',
-    frequency: '92.8 FM',
+    id: 'ibiza-4',
+    name: 'Sunset Ashram',
+    frequency: '95.5',
     streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
     city: 'ibiza',
-    genre: 'Chillout',
-    description: 'Sunset sounds for the beach clubs'
+    genre: 'Lounge',
+    description: 'Sunset Bliss'
   },
   {
-    id: 'ibiza-trance',
-    name: 'Ibiza Trance',
-    frequency: '94.6 FM',
-    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    id: 'ibiza-5',
+    name: 'Pacha Radio',
+    frequency: '104.7',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'ibiza',
-    genre: 'Trance',
-    description: 'Progressive trance and melodic journeys'
+    genre: 'Club',
+    description: 'Main Room'
   },
   {
-    id: 'ibiza-afterhours',
-    name: 'Ibiza Afterhours',
-    frequency: '91.2 FM',
-    streamUrl: 'https://ice1.somafm.com/spacestation-128-mp3',
+    id: 'ibiza-6',
+    name: 'Ushuaia',
+    frequency: '99.9',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'ibiza',
-    genre: 'Ambient Electronic',
-    description: 'Late night ambient for sunrise sessions'
+    genre: 'Deep Tech',
+    description: 'Day Party'
+  },
+  {
+    id: 'ibiza-7',
+    name: 'Amnesia',
+    frequency: '107.0',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
+    city: 'ibiza',
+    genre: 'Techno',
+    description: 'Pyramid Nights'
+  },
+  {
+    id: 'ibiza-8',
+    name: 'DC-10',
+    frequency: '102.1',
+    streamUrl: 'https://ice1.somafm.com/dubstep-128-mp3',
+    city: 'ibiza',
+    genre: 'Underground',
+    description: 'Circoloco'
+  },
+  {
+    id: 'ibiza-9',
+    name: 'Hi Ibiza',
+    frequency: '106.3',
+    streamUrl: 'https://ice1.somafm.com/vaporwaves-128-mp3',
+    city: 'ibiza',
+    genre: 'Future House',
+    description: 'Cutting Edge'
+  },
+  {
+    id: 'ibiza-10',
+    name: 'Lio Ibiza',
+    frequency: '105.5',
+    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
+    city: 'ibiza',
+    genre: 'Cabaret Pop',
+    description: 'Sexy & Wild'
   },
 
-  // Tulum/Playa del Carmen - Meditation, Chill, Ambient
+  // Tulum - 10 Stations
   {
-    id: 'tulum-dronezone',
-    name: 'Drone Zone',
-    frequency: '100.1 FM',
+    id: 'tulum-1',
+    name: 'Groove Salad',
+    frequency: '102.1',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'tulum',
+    genre: 'Ambient',
+    description: 'Tulum Jungle Chilled'
+  },
+  {
+    id: 'tulum-2',
+    name: 'Lush Tulum',
+    frequency: '98.5',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'tulum',
+    genre: 'Chillout',
+    description: 'Vocal Bliss'
+  },
+  {
+    id: 'tulum-3',
+    name: 'Drone Zone Tulum',
+    frequency: '100.1',
     streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
     city: 'tulum',
-    genre: 'Ambient Meditation',
-    description: 'Atmospheric ambient for meditation and contemplation'
+    genre: 'Ambient',
+    description: 'Deep Roots'
   },
   {
-    id: 'tulum-deepspace',
-    name: 'Deep Space One',
-    frequency: '102.5 FM',
+    id: 'tulum-4',
+    name: 'Deep Space',
+    frequency: '94.3',
     streamUrl: 'https://ice1.somafm.com/deepspaceone-128-mp3',
     city: 'tulum',
-    genre: 'Ambient Space',
-    description: 'Deep ambient electronic and space music for exploration'
+    genre: 'Space',
+    description: 'Cosmic Journey'
   },
   {
-    id: 'tulum-paradise-mellow',
-    name: 'RP Mellow Mix',
-    frequency: '94.1 FM',
-    streamUrl: 'https://stream.radioparadise.com/mellow-128',
+    id: 'tulum-5',
+    name: 'Def Con',
+    frequency: '91.7',
+    streamUrl: 'https://ice1.somafm.com/defcon-128-mp3',
     city: 'tulum',
-    genre: 'Mellow Eclectic',
-    description: 'Eclectic mix of calming music for relaxation'
+    genre: 'Electronic',
+    description: 'Digital Jungle'
   },
   {
-    id: 'tulum-suburbs',
-    name: 'Suburbs of Goa',
-    frequency: '101.5 FM',
-    streamUrl: 'https://ice1.somafm.com/suburbsofgoa-128-mp3',
+    id: 'tulum-6',
+    name: 'Secret Agent',
+    frequency: '105.9',
+    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
     city: 'tulum',
-    genre: 'Psybient',
-    description: 'Downtempo psybient music for stargazing and relaxation'
+    genre: 'Retro',
+    description: 'Mysterious Vibes'
   },
   {
-    id: 'tulum-lush',
-    name: 'Lush',
-    frequency: '99.3 FM',
-    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    id: 'tulum-7',
+    name: 'Sonic Universe',
+    frequency: '103.5',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
     city: 'tulum',
-    genre: 'Chillout Vocals',
-    description: 'Sensuous and mellow vocals, mostly female, with chillout beats'
+    genre: 'Jazz',
+    description: 'Global Jazz'
+  },
+  {
+    id: 'tulum-8',
+    name: 'PopTron',
+    frequency: '107.5',
+    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
+    city: 'tulum',
+    genre: 'Indie Pop',
+    description: 'Fresh Beats'
+  },
+  {
+    id: 'tulum-9',
+    name: 'Suburbs',
+    frequency: '96.7',
+    streamUrl: 'https://ice1.somafm.com/suburbansprawl-128-mp3',
+    city: 'tulum',
+    genre: 'Alternative',
+    description: 'Raw Energy'
+  },
+  {
+    id: 'tulum-10',
+    name: 'Illinois Street',
+    frequency: '89.1',
+    streamUrl: 'https://ice1.somafm.com/illstreet-128-mp3',
+    city: 'tulum',
+    genre: 'Lounge',
+    description: 'Classic Lounge'
   },
 
-  // California - Electronic, Pop, Chill
+  // California - 10 Stations
   {
-    id: 'ca-groovesalad',
-    name: 'Groove Salad',
-    frequency: '106.7 FM',
+    id: 'cali-1',
+    name: 'LA Chill',
+    frequency: '104.3',
     streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'california',
     genre: 'Chillout',
-    description: 'A nicely chilled plate of ambient/downtempo beats'
+    description: 'West Coast Calm'
   },
   {
-    id: 'ca-poptron',
-    name: 'PopTron',
-    frequency: '102.7 FM',
-    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
-    city: 'california',
-    genre: 'Electropop',
-    description: 'Electropop and indie dance rock'
-  },
-  {
-    id: 'ca-indiepop',
-    name: 'Indie Pop Rocks',
-    frequency: '91.5 FM',
+    id: 'cali-2',
+    name: 'Surfer Pop',
+    frequency: '99.1',
     streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
     city: 'california',
-    genre: 'Indie Pop',
-    description: 'New and classic indie pop from around the world'
+    genre: 'Indie',
+    description: 'Beach Bound'
   },
   {
-    id: 'ca-beatblender',
-    name: 'Beat Blender',
-    frequency: '89.9 FM',
+    id: 'cali-3',
+    name: 'SF Underground',
+    frequency: '107.7',
     streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
     city: 'california',
-    genre: 'Electronic',
-    description: 'A late night blend of deep-house and downtempo chill'
+    genre: 'House',
+    description: 'Foggy Beats'
   },
   {
-    id: 'ca-seventies',
-    name: 'Left Coast 70s',
-    frequency: '89.3 FM',
-    streamUrl: 'https://ice1.somafm.com/seventies-128-mp3',
+    id: 'cali-4',
+    name: 'Hills Folk',
+    frequency: '90.5',
+    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
     city: 'california',
-    genre: 'Classic Rock',
-    description: 'Mellow album rock from the 70s - one rock station'
+    genre: 'Folk',
+    description: 'Canyon Sounds'
+  },
+  {
+    id: 'cali-5',
+    name: 'Silicon Valley',
+    frequency: '101.9',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'california',
+    genre: 'IDM',
+    description: 'Tech Flow'
+  },
+  {
+    id: 'cali-6',
+    name: 'Sunset Blvd',
+    frequency: '95.3',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'california',
+    genre: 'Vocals',
+    description: 'Golden Hour'
+  },
+  {
+    id: 'cali-7',
+    name: 'Pacific Ambient',
+    frequency: '88.1',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'california',
+    genre: 'Ambient',
+    description: 'Ocean Deep'
+  },
+  {
+    id: 'cali-8',
+    name: 'Retro LA',
+    frequency: '103.1',
+    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
+    city: 'california',
+    genre: '80s',
+    description: 'Synthesizer Sunsets'
+  },
+  {
+    id: 'cali-9',
+    name: 'Malibu Lounge',
+    frequency: '106.5',
+    streamUrl: 'https://ice1.somafm.com/bagel-128-mp3',
+    city: 'california',
+    genre: 'Alt Rock',
+    description: 'Coastline Vibes'
+  },
+  {
+    id: 'cali-10',
+    name: 'Napa Jazz',
+    frequency: '97.5',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'california',
+    genre: 'Jazz',
+    description: 'Smooth Harvest'
   },
 
-  // Texas - Electronic, Lounge, Americana
+  // Texas - 10 Stations
   {
-    id: 'tx-bootliquor',
-    name: 'Boot Liquor',
-    frequency: '91.7 FM',
-    streamUrl: 'https://ice1.somafm.com/bootliquor-128-mp3',
+    id: 'texas-1',
+    name: 'Austin Indie',
+    frequency: '90.5',
+    streamUrl: 'https://ice1.somafm.com/bagel-128-mp3',
     city: 'texas',
-    genre: 'Americana',
-    description: 'Americana Roots music - the one rock/country station'
+    genre: 'Indie',
+    description: 'Keep Austin Weird'
   },
   {
-    id: 'tx-spacesta',
-    name: 'Space Station Soma',
-    frequency: '96.7 FM',
-    streamUrl: 'https://ice1.somafm.com/spacestation-128-mp3',
+    id: 'texas-2',
+    name: 'Lone Star Folk',
+    frequency: '101.9',
+    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
     city: 'texas',
-    genre: 'Ambient Electronic',
-    description: 'Tune in, turn on, space out - electronic ambient'
+    genre: 'Folk',
+    description: 'Coyote Nights'
   },
   {
-    id: 'tx-fluid',
-    name: 'Fluid',
-    frequency: '96.7 FM',
-    streamUrl: 'https://ice1.somafm.com/fluid-128-mp3',
+    id: 'texas-3',
+    name: 'Dallas Deep',
+    frequency: '93.7',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
     city: 'texas',
-    genre: 'Instrumental Hip Hop',
-    description: 'Drown in instrumental hip-hop, future soul and liquid trap'
+    genre: 'Chill',
+    description: 'Big State Beats'
   },
   {
-    id: 'tx-illstreet',
-    name: 'Illinois Street Lounge',
-    frequency: '90.5 FM',
-    streamUrl: 'https://ice1.somafm.com/illstreet-128-mp3',
+    id: 'texas-4',
+    name: 'Houston Hop',
+    frequency: '97.9',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
     city: 'texas',
-    genre: 'Lounge',
-    description: 'Classic bachelor pad, playful exotica and vintage music'
+    genre: 'IDM',
+    description: 'Space City Sound'
   },
   {
-    id: 'tx-secretagent',
-    name: 'Secret Agent',
-    frequency: '98.9 FM',
+    id: 'texas-5',
+    name: 'San Antonio Soul',
+    frequency: '105.3',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'texas',
+    genre: 'R&B',
+    description: 'Alamo Beats'
+  },
+  {
+    id: 'texas-6',
+    name: 'Ranch Radio',
+    frequency: '92.1',
     streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
     city: 'texas',
-    genre: 'Lounge Spy',
-    description: 'The soundtrack for your stylish, mysterious life'
-  },
-
-  // French - Keeping original French stations (these URLs should work)
-  {
-    id: 'fr-fip',
-    name: 'FIP',
-    frequency: '105.1 FM',
-    streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3',
-    city: 'french',
-    genre: 'Eclectic',
-    description: 'Eclectic Music Selection'
+    genre: 'Retro',
+    description: 'Dusty Classics'
   },
   {
-    id: 'fr-inter',
-    name: 'France Inter',
-    frequency: '87.8 FM',
-    streamUrl: 'https://icecast.radiofrance.fr/franceinter-midfi.mp3',
-    city: 'french',
-    genre: 'Talk/Culture',
-    description: 'Culture & Information'
+    id: 'texas-7',
+    name: 'Texas Techno',
+    frequency: '107.5',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
+    city: 'texas',
+    genre: 'Techno',
+    description: 'Warehouse Raves'
   },
   {
-    id: 'fr-musique',
-    name: 'France Musique',
-    frequency: '91.7 FM',
-    streamUrl: 'https://icecast.radiofrance.fr/francemusique-midfi.mp3',
-    city: 'french',
-    genre: 'Classical',
-    description: 'Classical and Jazz Music'
-  },
-  {
-    id: 'fr-cultura',
-    name: 'France Culture',
-    frequency: '93.5 FM',
-    streamUrl: 'https://icecast.radiofrance.fr/franceculture-midfi.mp3',
-    city: 'french',
-    genre: 'Talk/Culture',
-    description: 'Ideas, Arts, and Knowledge'
-  },
-  {
-    id: 'fr-nova',
-    name: 'Radio Nova',
-    frequency: '101.5 FM',
-    streamUrl: 'https://novazz.ice.infomaniak.ch/novazz-128.mp3',
-    city: 'french',
-    genre: 'Eclectic',
-    description: 'New Music and World Sounds'
-  },
-
-  // Talk Radio & Informational - News, Culture, Variety
-  {
-    id: 'talk-bbc-world',
-    name: 'BBC World Service',
-    frequency: 'Talk 1',
-    streamUrl: 'https://stream.live.vc.bbcmedia.co.uk/bbc_world_service',
-    city: 'podcasts',
-    genre: 'World News',
-    description: 'Global news, analysis and features from the BBC'
-  },
-  {
-    id: 'talk-fip',
-    name: 'FIP',
-    frequency: 'Talk 2',
-    streamUrl: 'https://icecast.radiofrance.fr/fip-midfi.mp3',
-    city: 'podcasts',
-    genre: 'Eclectic Radio',
-    description: 'French eclectic radio with diverse music and minimal talk'
-  },
-  {
-    id: 'talk-paradise-main',
-    name: 'Radio Paradise',
-    frequency: 'Talk 3',
-    streamUrl: 'https://stream.radioparadise.com/mp3-128',
-    city: 'podcasts',
-    genre: 'Eclectic Mix',
-    description: 'Eclectic mix of rock, indie, electronica, world - DJ curated'
-  },
-  {
-    id: 'talk-francecult',
-    name: 'France Culture',
-    frequency: 'Talk 4',
-    streamUrl: 'https://icecast.radiofrance.fr/franceculture-midfi.mp3',
-    city: 'podcasts',
-    genre: 'Culture & Ideas',
-    description: 'French cultural radio with debates, documentaries, and analysis'
-  },
-  {
-    id: 'talk-inter',
-    name: 'France Inter',
-    frequency: 'Talk 5',
-    streamUrl: 'https://icecast.radiofrance.fr/franceinter-midfi.mp3',
-    city: 'podcasts',
-    genre: 'News & Culture',
-    description: 'French talk radio with news, interviews, and entertainment'
-  },
-  {
-    id: 'talk-sonicuniverse',
-    name: 'Sonic Universe',
-    frequency: 'Talk 6',
+    id: 'texas-8',
+    name: 'Bluebonnet Jazz',
+    frequency: '89.5',
     streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
-    city: 'podcasts',
-    genre: 'Jazz Variety',
-    description: 'Transcending jazz with eclectic, avant-garde takes and world fusion'
+    city: 'texas',
+    genre: 'Jazz',
+    description: 'Meadow Improvisation'
   },
   {
-    id: 'talk-indie',
-    name: 'Indie Pop Rocks',
-    frequency: 'Talk 7',
-    streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
-    city: 'podcasts',
-    genre: 'Indie Pop',
-    description: 'New and classic indie pop from around the world'
+    id: 'texas-9',
+    name: 'Border Blast',
+    frequency: '94.1',
+    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
+    city: 'texas',
+    genre: 'Pop',
+    description: 'South State Hits'
   },
   {
-    id: 'talk-folkfwd',
+    id: 'texas-10',
+    name: 'Prairie Drone',
+    frequency: '100.9',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'texas',
+    genre: 'Ambient',
+    description: 'Endless Horizon'
+  },
+
+  // French - 10 Stations
+  {
+    id: 'french-1',
+    name: 'Paris Chill',
+    frequency: '102.3',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'french',
+    genre: 'Lounge',
+    description: 'Chic Parisien'
+  },
+  {
+    id: 'french-2',
+    name: 'Riviera Beats',
+    frequency: '95.5',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'french',
+    genre: 'House',
+    description: 'Beach Club Luxury'
+  },
+  {
+    id: 'french-3',
+    name: 'Lyon Lounge',
+    frequency: '107.1',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'french',
+    genre: 'Chill',
+    description: 'Silk City Sounds'
+  },
+  {
+    id: 'french-4',
+    name: 'Marseille Mix',
+    frequency: '98.9',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'french',
+    genre: 'Electronic',
+    description: 'Mediterranean Pulse'
+  },
+  {
+    id: 'french-5',
+    name: 'Cannes Classic',
+    frequency: '101.5',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'french',
+    genre: 'Jazz',
+    description: 'Red Carpet Vibes'
+  },
+  {
+    id: 'french-6',
+    name: 'French Folk',
+    frequency: '92.7',
+    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
+    city: 'french',
+    genre: 'Folk',
+    description: 'Countryside Dreams'
+  },
+  {
+    id: 'french-7',
+    name: 'Vogue Radio',
+    frequency: '103.7',
+    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
+    city: 'french',
+    genre: 'Pop',
+    description: 'Trendsetter Tracks'
+  },
+  {
+    id: 'french-8',
+    name: 'Paris Ambient',
+    frequency: '89.5',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'french',
+    genre: 'Ambient',
+    description: 'Rainy Paris Nights'
+  },
+  {
+    id: 'french-9',
+    name: 'Retro France',
+    frequency: '94.3',
+    streamUrl: 'https://ice1.somafm.com/u80s-128-mp3',
+    city: 'french',
+    genre: '80s',
+    description: 'Vintage Synth'
+  },
+  {
+    id: 'french-10',
+    name: 'Indie Paris',
+    frequency: '106.1',
+    streamUrl: 'https://ice1.somafm.com/bagel-128-mp3',
+    city: 'french',
+    genre: 'Indie',
+    description: 'Modern Boutique'
+  },
+
+  // Italy - 10 Stations
+  {
+    id: 'italy-1',
+    name: 'Milan Deep',
+    frequency: '90.3',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'italy',
+    genre: 'House',
+    description: 'Fashion Week Beats'
+  },
+  {
+    id: 'italy-2',
+    name: 'Rome Chill',
+    frequency: '105.0',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'italy',
+    genre: 'Chillout',
+    description: 'Eternal City Lounge'
+  },
+  {
+    id: 'italy-3',
+    name: 'Venice Ambient',
+    frequency: '101.5',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'italy',
+    genre: 'Ambient',
+    description: 'Floating Melodies'
+  },
+  {
+    id: 'italy-4',
+    name: 'Tuscany Folk',
+    frequency: '92.9',
+    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
+    city: 'italy',
+    genre: 'Folk',
+    description: 'Rolling Hills Soundtrack'
+  },
+  {
+    id: 'italy-5',
+    name: 'Naples Neo',
+    frequency: '98.1',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'italy',
+    genre: 'IDM',
+    description: 'Modern Heritage'
+  },
+  {
+    id: 'italy-6',
+    name: 'Sicily Soul',
+    frequency: '104.5',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'italy',
+    genre: 'Vocals',
+    description: 'Heart of Italy'
+  },
+  {
+    id: 'italy-7',
+    name: 'Italian Jazz',
+    frequency: '89.7',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'italy',
+    genre: 'Jazz',
+    description: 'Elegant Evenings'
+  },
+  {
+    id: 'italy-8',
+    name: 'Dolce Pop',
+    frequency: '107.3',
+    streamUrl: 'https://ice1.somafm.com/poptron-128-mp3',
+    city: 'italy',
+    genre: 'Pop',
+    description: 'Sweetest Hits'
+  },
+  {
+    id: 'italy-9',
+    name: 'Vintage Roma',
+    frequency: '96.5',
+    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
+    city: 'italy',
+    genre: 'Retro',
+    description: 'La Dolce Vita'
+  },
+  {
+    id: 'italy-10',
+    name: 'Firenze Indie',
+    frequency: '94.9',
+    streamUrl: 'https://ice1.somafm.com/bagel-128-mp3',
+    city: 'italy',
+    genre: 'Indie Rock',
+    description: 'Renaissance Energy'
+  },
+
+  // Podcasts - 10 Stations
+  {
+    id: 'pod-1',
+    name: 'Secret Agent',
+    frequency: '105.5',
+    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
+    city: 'podcasts',
+    genre: 'Espionage',
+    description: 'Spies & Soundtrack'
+  },
+  {
+    id: 'pod-2',
+    name: 'Mission Control',
+    frequency: '93.3',
+    streamUrl: 'https://ice1.somafm.com/missioncontrol-128-mp3',
+    city: 'podcasts',
+    genre: 'Space',
+    description: 'NASA Audio & Beats'
+  },
+  {
+    id: 'pod-3',
+    name: 'Boot Liquor',
+    frequency: '88.5',
+    streamUrl: 'https://ice1.somafm.com/bootliquor-128-mp3',
+    city: 'podcasts',
+    genre: 'Americana',
+    description: 'Stories of the Road'
+  },
+  {
+    id: 'pod-4',
     name: 'Folk Forward',
-    frequency: 'Talk 8',
+    frequency: '90.9',
     streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
     city: 'podcasts',
-    genre: 'Folk & Americana',
-    description: 'Indie folk, alt-folk and occasional classics'
+    genre: 'Folk Radio',
+    description: 'Modern Storytelling'
   },
   {
-    id: 'talk-covers',
-    name: 'Covers',
-    frequency: 'Talk 9',
+    id: 'pod-5',
+    name: 'Seven Inch Soul',
+    frequency: '101.1',
+    streamUrl: 'https://ice1.somafm.com/seven-128-mp3',
+    city: 'podcasts',
+    genre: 'Soul Music',
+    description: 'Classic Grooves'
+  },
+  {
+    id: 'pod-6',
+    name: 'Suburban Sprawl',
+    frequency: '96.3',
+    streamUrl: 'https://ice1.somafm.com/suburbansprawl-128-mp3',
+    city: 'podcasts',
+    genre: 'Indie Talk',
+    description: 'Underground Culture'
+  },
+  {
+    id: 'pod-7',
+    name: 'Covers Podcast',
+    frequency: '94.7',
     streamUrl: 'https://ice1.somafm.com/covers-128-mp3',
     city: 'podcasts',
-    genre: 'Cover Songs',
-    description: 'Songs you know by artists you don\'t - unique cover versions'
+    genre: 'Covers',
+    description: 'New Takes on Classics'
+  },
+  {
+    id: 'pod-8',
+    name: 'Vaporwaves',
+    frequency: '107.7',
+    streamUrl: 'https://ice1.somafm.com/vaporwaves-128-mp3',
+    city: 'podcasts',
+    genre: 'Vaporwave',
+    description: 'Internet Culture'
+  },
+  {
+    id: 'pod-9',
+    name: 'Cliqhop Podcast',
+    frequency: '92.1',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'podcasts',
+    genre: 'Electronic',
+    description: 'Digital Discussion'
+  },
+  {
+    id: 'pod-10',
+    name: 'SF 10-33',
+    frequency: '104.9',
+    streamUrl: 'https://ice1.somafm.com/sf1033-128-mp3',
+    city: 'podcasts',
+    genre: 'Public Safety',
+    description: 'City Pulse'
   }
 ];
 
-/**
- * Get stations for a specific city
- */
 export function getStationsByCity(city: CityLocation): RadioStation[] {
   return radioStations.filter(station => station.city === city);
 }
 
-/**
- * Get station by ID
- */
 export function getStationById(id: string): RadioStation | undefined {
   return radioStations.find(station => station.id === id);
 }
 
-/**
- * Get all cities
- */
 export function getAllCities(): CityLocation[] {
   return Object.keys(cityThemes) as CityLocation[];
 }
 
-/**
- * Get random station from any city (for shuffle mode)
- */
 export function getRandomStation(): RadioStation {
   return radioStations[Math.floor(Math.random() * radioStations.length)];
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -16,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, Bell, BellOff, Trash2, Edit, Plus, Search, AlertCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { motion } from 'framer-motion';
 
 interface SearchCriteria {
@@ -76,7 +75,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     setFetchError(null);
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)
@@ -150,7 +149,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
         city: city || null,
       };
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('saved_searches')
         .insert({
           user_id: user?.id,
@@ -187,7 +186,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
   const handleToggleAlerts = async (searchId: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('saved_searches')
         .update({ last_matched_at: new Date().toISOString() } as any)
         .eq('id', searchId);
@@ -218,7 +217,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     if (!deleteTarget) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('saved_searches')
         .delete()
         .eq('id', deleteTarget.id);

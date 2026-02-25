@@ -4,6 +4,7 @@ import { Search, Briefcase, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -13,7 +14,15 @@ interface ModeSwitcherProps {
 
 function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
+  const { theme } = useTheme();
+  const isDark = theme === 'black-matte';
   const lastClickTime = useRef(0);
+
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const floatingShadow = isDark
+    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
     const now = Date.now();
@@ -48,13 +57,19 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'relative flex items-center justify-center rounded-xl',
           'transition-all duration-100 ease-out',
           'active:scale-[0.9]',
-          'hover:bg-white/10',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
           size === 'sm' ? 'h-8 w-8' : size === 'md' ? 'h-9 w-9' : 'h-10 w-10',
           className
         )}
+        style={{
+          backgroundColor: glassBg,
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: glassBorder,
+          boxShadow: floatingShadow,
+        }}
         aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
       >
         <AnimatePresence mode="wait">
@@ -109,31 +124,33 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
       >
         <motion.div
-          className="absolute inset-y-1 rounded-full bg-gradient-to-r from-primary/30 to-primary/20"
+          className="absolute inset-y-1 rounded-full bg-gradient-to-r shadow-sm"
           initial={false}
           animate={{
             left: activeMode === 'client' ? '4px' : '50%',
             right: activeMode === 'client' ? '50%' : '4px',
+            backgroundColor: activeMode === 'client' ? 'rgba(45, 212, 191, 0.2)' : 'rgba(251, 146, 60, 0.2)',
+            boxShadow: activeMode === 'client' ? '0 0 10px rgba(45, 212, 191, 0.15)' : '0 0 10px rgba(251, 146, 60, 0.15)'
           }}
-          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          style={{ willChange: 'left, right' }}
+          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+          style={{ willChange: 'left, right, background-color' }}
         />
 
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
-          'relative z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-colors duration-200',
-          activeMode === 'client' ? 'text-teal-400 font-semibold' : 'text-white/60'
+          'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
+          activeMode === 'client' ? 'text-teal-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
           <Briefcase className="h-3.5 w-3.5" />
-          <span className="font-bold">Client Side</span>
+          <span className="text-xs uppercase tracking-wider">Client</span>
         </div>
 
         <div className={cn(
-          'relative z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-colors duration-200',
-          activeMode === 'owner' ? 'text-orange-400 font-semibold' : 'text-white/60'
+          'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
+          activeMode === 'owner' ? 'text-orange-400 font-bold scale-105' : 'text-white/50 hover:text-white/80'
         )}>
           <Search className="h-3.5 w-3.5" />
-          <span className="font-bold">Owner Side</span>
+          <span className="text-xs uppercase tracking-wider">Owner</span>
         </div>
 
         <AnimatePresence>
@@ -158,7 +175,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       disabled={isSwitching || !canSwitchMode}
       className={cn(
         'relative flex items-center gap-1.5 rounded-xl px-2.5',
-        'hover:bg-white/10',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -167,6 +183,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         sizeClasses[size],
         className
       )}
+      style={{
+        backgroundColor: glassBg,
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        border: glassBorder,
+        boxShadow: floatingShadow,
+      }}
       aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
     >
       <AnimatePresence mode="wait">

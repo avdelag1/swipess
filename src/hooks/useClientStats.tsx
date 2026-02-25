@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,7 +33,7 @@ export function useClientStats() {
         .select('*', { count: 'exact', head: true })
         .eq('target_id', user.id)
         .eq('target_type', 'profile')
-        .eq('direction', 'like');
+        .eq('direction', 'right');
 
       // Count mutual matches (using user_id/owner_id columns)
       const { count: matchesCount } = await supabase

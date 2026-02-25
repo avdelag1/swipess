@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Reviews System Hooks
  *
@@ -13,7 +12,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from './use-toast';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
 // ============================================================================
@@ -196,8 +195,8 @@ export function useListingRatingAggregate(listingId: string | undefined, _catego
       });
 
       const avgRating = sum / data.length;
-      const trustLevel = data.length >= 5 && avgRating >= 4.0 ? 'trusted' as const : 
-                         avgRating < 3.0 && data.length >= 3 ? 'needs_attention' as const : 'new' as const;
+      const trustLevel = data.length >= 5 && avgRating >= 4.0 ? 'trusted' as const :
+        avgRating < 3.0 && data.length >= 3 ? 'needs_attention' as const : 'new' as const;
 
       return {
         average_rating: avgRating,
@@ -284,17 +283,19 @@ export function useUserRatingAggregate(userId: string | undefined) {
       if (!userId) return null;
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('average_rating, total_reviews')
-        .eq('id', userId)
-        .maybeSingle();
+        .from('reviews')
+        .select('rating')
+        .eq('reviewed_id', userId);
 
       if (error) {
         logger.error('Error fetching user rating aggregate:', error);
         return null;
       }
 
-      if (!data) {
+      const reviews = data || [];
+      const count = reviews.length;
+
+      if (count === 0) {
         return {
           average_rating: 5.0,
           total_reviews: 0,
@@ -307,15 +308,21 @@ export function useUserRatingAggregate(userId: string | undefined) {
         };
       }
 
-      const avgRating = Number(data.average_rating) || 5.0;
-      const count = data.total_reviews || 0;
-      const trustLevel = count >= 5 && avgRating >= 4.0 ? 'trusted' as const : 
-                         avgRating < 3.0 && count >= 3 ? 'needs_attention' as const : 'new' as const;
+      const sum = reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
+      const avgRating = sum / count;
+      const distribution: Record<string, number> = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
+      reviews.forEach(r => {
+        const key = String(Math.min(5, Math.max(1, Math.round(r.rating || 5))));
+        distribution[key] = (distribution[key] || 0) + 1;
+      });
+
+      const trustLevel = count >= 5 && avgRating >= 4.0 ? 'trusted' as const :
+        avgRating < 3.0 && count >= 3 ? 'needs_attention' as const : 'new' as const;
 
       return {
         average_rating: avgRating,
         total_reviews: count,
-        rating_distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+        rating_distribution: distribution,
         displayed_rating: avgRating,
         total_ratings: count,
         verified_ratings: 0,
@@ -389,8 +396,7 @@ export function useCreateReview() {
         queryClient.invalidateQueries({ queryKey: ['review-aggregate', 'user', variables.reviewed_id] });
       }
 
-      toast({
-        title: 'Review submitted',
+      toast.success('Review submitted', {
         description: 'Thank you for your feedback!',
       });
     },
@@ -398,13 +404,11 @@ export function useCreateReview() {
       const message = error.message?.includes('Cannot review your own')
         ? "You can't review your own listing"
         : error.message?.includes('duplicate key')
-        ? 'You have already reviewed this item'
-        : 'Please try again later.';
+          ? 'You have already reviewed this item'
+          : 'Please try again later.';
 
-      toast({
-        title: 'Failed to submit review',
+      toast.error('Failed to submit review', {
         description: message,
-        variant: 'destructive',
       });
     },
   });
@@ -492,7 +496,7 @@ export function useMarkReviewHelpful() {
 
   return useMutation({
     mutationFn: async (reviewId: string) => {
-      const { error } = await supabase.rpc('increment_review_helpful', {
+      const { error } = await supabase.rpc('increment_review_helpful' as any, {
         p_review_id: reviewId,
       });
 
@@ -505,16 +509,13 @@ export function useMarkReviewHelpful() {
       // Invalidate review queries to show updated count
       queryClient.invalidateQueries({ queryKey: ['reviews'] });
 
-      toast({
-        title: 'Thank you',
+      toast.success('Thank you', {
         description: 'Your feedback helps improve our community.',
       });
     },
     onError: () => {
-      toast({
-        title: 'Already voted',
+      toast('Already voted', {
         description: "You've already marked this review as helpful.",
-        variant: 'default',
       });
     },
   });
@@ -526,10 +527,10 @@ export function useMarkReviewHelpful() {
 
 /** @deprecated Use useListingReviews or useUserReviews instead */
 export const useReviews = (targetType: 'user' | 'property', targetId: string) => {
-  if (targetType === 'property') {
-    return useListingReviews(targetId);
-  }
-  return useUserReviews(targetId);
+  // Both hooks must be called unconditionally to satisfy React's rules of hooks
+  const listingReviews = useListingReviews(targetId);
+  const userReviews = useUserReviews(targetId);
+  return targetType === 'property' ? listingReviews : userReviews;
 };
 
 /** @deprecated Use useUserRatingAggregate instead */

@@ -12,8 +12,8 @@ function buildVersionPlugin() {
     transformIndexHtml(html: string) {
       // Inject version, preconnect hints, and performance optimizations
       const preconnects = `
-    <link rel="preconnect" href="https://vxplzgwimqqimkpabvja.supabase.co" crossorigin>
-    <link rel="dns-prefetch" href="https://vxplzgwimqqimkpabvja.supabase.co">
+    <link rel="preconnect" href="https://qegyisokrxdsszzswsqk.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://qegyisokrxdsszzswsqk.supabase.co">
     <meta name="app-version" content="${buildTime}" />`;
       return html.replace('</head>', `${preconnects}\n</head>`);
     },
@@ -121,14 +121,11 @@ function resourceHintsPlugin(): import('vite').Plugin {
   };
 }
 
-// Build timestamp for cache versioning (used by SW registration)
-const BUILD_TIME = Date.now().toString();
-
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
-    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(BUILD_TIME),
+    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
   },
   server: {
     host: "::",
@@ -255,12 +252,12 @@ export default defineConfig(({ mode }) => ({
 
           // Split Radix UI by component type for granular loading
           if (id.includes('node_modules/@radix-ui/react-dialog') ||
-              id.includes('node_modules/@radix-ui/react-alert-dialog')) {
+            id.includes('node_modules/@radix-ui/react-alert-dialog')) {
             return 'ui-dialogs';
           }
           if (id.includes('node_modules/@radix-ui/react-dropdown') ||
-              id.includes('node_modules/@radix-ui/react-select') ||
-              id.includes('node_modules/@radix-ui/react-popover')) {
+            id.includes('node_modules/@radix-ui/react-select') ||
+            id.includes('node_modules/@radix-ui/react-popover')) {
             return 'ui-dropdowns';
           }
           // Tooltip - very common, keep separate and small

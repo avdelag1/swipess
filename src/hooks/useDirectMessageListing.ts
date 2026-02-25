@@ -1,8 +1,7 @@
-// @ts-nocheck
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
 interface DirectMessageParams {
@@ -89,7 +88,7 @@ export function useDirectMessageListing() {
 
       // Create match record for tracking
       try {
-        await supabase
+        await (supabase as any)
           .from('matches')
           .insert({
             client_id: user.id,

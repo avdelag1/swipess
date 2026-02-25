@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -122,7 +121,7 @@ export function useMyReports() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User must be logged in');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_reports')
         .select('*')
         .eq('reporter_id', user.id)

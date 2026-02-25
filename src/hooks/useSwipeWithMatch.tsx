@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -14,14 +13,14 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      targetId, 
-      direction, 
-      targetType 
-    }: { 
-      targetId: string; 
-      direction: 'left' | 'right'; 
-      targetType: 'listing' | 'profile' 
+    mutationFn: async ({
+      targetId,
+      direction,
+      targetType
+    }: {
+      targetId: string;
+      direction: 'left' | 'right';
+      targetType: 'listing' | 'profile'
     }) => {
       // Defensive auth check
       const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -63,8 +62,8 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // This prevents FK violations from stale cached profile data
           const { data: clientExists, error: verifyError } = await supabase
             .from('profiles')
-            .select('id, full_name, city')
-            .eq('id', targetId)
+            .select('user_id, full_name, city, is_active')
+            .eq('user_id', targetId)
             .maybeSingle();
 
           if (verifyError) {
@@ -182,7 +181,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           const { data: ownerProfile } = await supabase
             .from('profiles')
             .select('full_name, avatar_url')
-            .eq('id', user.id)
+            .eq('user_id', user.id)
             .maybeSingle();
 
           const ownerName = ownerProfile?.full_name || 'Someone';
@@ -260,7 +259,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           // Get listing owner and client info for notification
           const [listingResult, clientResult] = await Promise.all([
             supabase.from('listings').select('owner_id, title').eq('id', targetId).maybeSingle(),
-            supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
+            supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
           ]);
 
           if (listingResult.data?.owner_id) {
@@ -275,7 +274,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
               message: `${clientName} liked ${listingTitle}!`,
               is_read: false
             }]).then(
-              () => logger.info('[useSwipeWithMatch] Notification sent to owner:', listingResult.data.owner_id),
+              () => logger.info('[useSwipeWithMatch] Notification sent to owner:', listingResult.data?.owner_id),
               (err) => logger.error('[useSwipeWithMatch] Failed to notify owner:', err)
             );
 
@@ -337,20 +336,21 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         // Owner swiping right on client - invalidate liked-clients cache so it shows in the list
         const invalidations = [
           queryClient.invalidateQueries({ queryKey: ['matches'] }),
-          queryClient.invalidateQueries({ queryKey: ['liked-clients'] }),
+          // FIXED: Include user ID in query key to match LikedClients query key format
+          queryClient.invalidateQueries({ queryKey: ['liked-clients', user?.id] }),
           queryClient.invalidateQueries({ queryKey: ['owner-stats'] }),
         ];
-        Promise.all(invalidations).catch(() => {});
+        Promise.all(invalidations).catch(() => { });
       } else if (isLike && variables.targetType === 'listing') {
-        // Client liking listing - cache is updated manually in TinderentSwipeContainer after DB save
+        // Client liking listing - cache is updated manually in SwipessSwipeContainer after DB save
         // Only invalidate matches to detect new matches (don't invalidate liked-properties to avoid refetch race)
-        queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(() => {});
+        queryClient.invalidateQueries({ queryKey: ['matches'] }).catch(() => { });
       } else if (isDislike) {
         // Invalidate dislikes cache so the disliked profiles are excluded from future fetches
         const invalidations = [
           queryClient.invalidateQueries({ queryKey: ['client-profiles'] }),
         ];
-        Promise.all(invalidations).catch(() => {});
+        Promise.all(invalidations).catch(() => { });
       }
     },
     onError: (error) => {
@@ -394,14 +394,19 @@ async function detectAndCreateMatch({
     }
 
     matchClientId = userId;  // Current user is the client
-    matchOwnerId = listing.owner_id;  // Listing owner
+    const ownerId = listing.owner_id;
+    if (!ownerId) {
+      logger.error('Listing owner not found');
+      return;
+    }
+    matchOwnerId = ownerId;  // Listing owner
     matchListingId = targetId;  // The listing
 
     // Check if owner liked this client (in likes table with target_type='profile')
     const { data: ownerLike } = await supabase
       .from('likes')
       .select('*')
-      .eq('user_id', listing.owner_id)
+      .eq('user_id', ownerId)
       .eq('target_id', userId)
       .eq('target_type', 'profile')
       .maybeSingle();
@@ -451,9 +456,9 @@ async function detectAndCreateMatch({
       const { data: matchData, error: matchError } = await supabase
         .from('matches')
         .upsert({
-          client_id: matchClientId,
+          user_id: matchClientId,
           owner_id: matchOwnerId,
-          listing_id: matchListingId,
+          listing_id: (matchListingId as string),
           status: 'active'
         })
         .select();
@@ -468,7 +473,7 @@ async function detectAndCreateMatch({
           const query = supabase
             .from('matches')
             .select()
-            .eq('client_id', matchClientId)
+            .eq('user_id', matchClientId)
             .eq('owner_id', matchOwnerId);
 
           if (matchListingId) {
@@ -504,7 +509,7 @@ async function detectAndCreateMatch({
         .from('conversations')
         .upsert({
           match_id: match.id,
-          client_id: match.client_id,
+          user_id: match.user_id,
           owner_id: match.owner_id,
           listing_id: match.listing_id,
           status: 'active'
@@ -520,13 +525,13 @@ async function detectAndCreateMatch({
           supabase
             .from('profiles')
             .select('*')
-            .eq('id', match.client_id)
-            .single(),
+            .eq('user_id', match.user_id)
+            .maybeSingle(),
           supabase
             .from('profiles')
             .select('*')
-            .eq('id', match.owner_id)
-            .single()
+            .eq('user_id', match.owner_id)
+            .maybeSingle()
         ]);
 
         // Trigger match celebration

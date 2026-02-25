@@ -1,28 +1,25 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { ThemeSelector } from "@/components/ThemeSelector";
+import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User,
-  Camera, ArrowLeft, Crown, Settings as SettingsIcon,
-  Flame, Palette, Heart, Scale, FileText
+  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Palette, Heart, Settings
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
-const fastSpring = { type: "spring" as const, stiffness: 600, damping: 28, mass: 0.6 };
-const stagger = { staggerChildren: 0.06, delayChildren: 0.02 };
+const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
+const stagger = { staggerChildren: 0.08, delayChildren: 0.15 };
 const childVariant = {
-  hidden: { opacity: 0, y: 18, scale: 0.97 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring },
+  hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
+  visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },
 };
 
 const OwnerProfileNew = () => {
@@ -31,238 +28,197 @@ const OwnerProfileNew = () => {
   const { data: stats, isLoading: statsLoading } = useOwnerStats();
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
 
   const isLoading = statsLoading || profileLoading;
 
   if (isLoading) {
     return (
-      <>
-        <div className="w-full p-4 pb-32">
-          <div className="max-w-lg mx-auto space-y-4">
-            <div className="flex items-center gap-4 mb-6">
-              <Skeleton className="w-20 h-20 rounded-full" />
-              <div className="flex-1">
-                <Skeleton className="h-6 w-32 mb-2" />
-                <Skeleton className="h-4 w-48" />
-              </div>
+      <div className="w-full p-4 pb-32">
+        <div className="max-w-lg mx-auto space-y-4">
+          <div className="flex items-center gap-4 mb-6">
+            <Skeleton className="w-24 h-24 rounded-full" />
+            <div className="flex-1">
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-48" />
             </div>
-            <Skeleton className="h-24 rounded-xl" />
-            <Skeleton className="h-32 rounded-xl" />
           </div>
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
         </div>
-      </>
+      </div>
     );
   }
 
   return (
     <>
       <motion.div
-        className="w-full px-5 py-4 pb-24"
         initial="hidden"
         animate="visible"
-        variants={{ visible: { transition: stagger } }}
+        variants={stagger}
+        className="w-full max-w-lg mx-auto p-4 pb-32 space-y-6"
       >
-        <div className="max-w-lg mx-auto space-y-4">
-          {/* Back Button */}
-          <motion.div variants={childVariant}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate(-1)}
-              className="mb-2 text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-          </motion.div>
-
-          {/* Profile Header */}
-          <motion.div
-            className="flex items-center gap-4"
-            variants={childVariant}
+        {/* Back Button */}
+        <motion.div variants={childVariant}>
+          <button
+            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/owner/dashboard')}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
+            style={{
+              background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
+              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(12px)',
+            }}
           >
-            <div className="relative">
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
+        </motion.div>
+
+        {/* Profile Header */}
+        <motion.div className="flex items-center gap-4" variants={childVariant}>
+          <div className="relative">
+            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
               <div
-                className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center overflow-hidden cursor-pointer"
+                className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => setShowEditDialog(true)}
               >
                 {ownerProfile?.profile_images?.[0] ? (
-                  <img
-                    src={ownerProfile.profile_images[0]}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={ownerProfile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <Building2 className="w-10 h-10 text-primary-foreground" />
+                  <Building2 className="w-10 h-10 text-muted-foreground" />
                 )}
               </div>
-              <button
-                onClick={() => setShowEditDialog(true)}
-                className="absolute -bottom-1 -right-1 w-7 h-7 bg-primary rounded-full flex items-center justify-center shadow-lg"
-              >
-                <Camera className="w-4 h-4 text-primary-foreground" />
-              </button>
             </div>
-            <div className="flex-1">
-              <h1 className="text-xl font-bold text-foreground">
-                {ownerProfile?.business_name || 'Set up your business'}
-              </h1>
-              <p className="text-sm text-muted-foreground">{user?.email}</p>
-            </div>
-          </motion.div>
-
-          {/* Edit Profile Button - Always visible */}
-          <motion.div
-            variants={childVariant}
-          >
-            <Button
+            <button
               onClick={() => setShowEditDialog(true)}
-              className="w-full h-12 gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground font-semibold text-base shadow-lg"
+              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
+              style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}
             >
-              <User className="w-5 h-5" />
-              Edit Profile
-            </Button>
-          </motion.div>
+              <Camera className="w-3.5 h-3.5 text-white" />
+            </button>
+          </div>
+          <div className="flex-1">
+            <h1 className="text-2xl font-black text-foreground leading-tight tracking-tight">
+              {ownerProfile?.business_name || 'Set up your business'}
+            </h1>
+            <p className="text-sm font-medium text-muted-foreground mt-0.5">{user?.email}</p>
+          </div>
+        </motion.div>
 
-          {/* Share Profile Section - Earn Free Messages */}
+        {/* Edit Profile Button */}
+        <motion.div variants={childVariant}>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setShowEditDialog(true)}
+            className="w-full h-14 flex items-center justify-center gap-2 rounded-2xl font-black text-base text-white relative overflow-hidden group shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #E4007C, #D4006E)',
+            }}
+          >
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <User className="w-6 h-6 relative z-10" />
+            <span className="relative z-10 tracking-tight">Edit Business Profile</span>
+          </motion.button>
+        </motion.div>
+
+        {/* Action Grid */}
+        <motion.div variants={childVariant} className="grid grid-cols-2 gap-4">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => navigate('/owner/liked-clients')}
+            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
+            style={{
+              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(20px)'
+            }}
+          >
+            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]">
+              <Flame className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="text-sm font-black text-foreground">Your Likes</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                {stats?.likedClientsCount ?? 0} Clients
+              </div>
+            </div>
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => navigate('/owner/interested-clients')}
+            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
+            style={{
+              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
+              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(20px)'
+            }}
+          >
+            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#D4006E] to-[#E4007C]">
+              <Heart className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <div className="text-sm font-black text-foreground">Who Liked You</div>
+              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+                {stats?.interestedClientsCount ?? 0} Interested
+              </div>
+            </div>
+          </motion.button>
+        </motion.div>
+
+        {/* Share Profile */}
+        <motion.div variants={childVariant}>
           <SharedProfileSection
             profileId={user?.id}
             profileName={ownerProfile?.business_name || 'Your Business'}
             isClient={false}
           />
+        </motion.div>
 
-          {/* Your Liked Clients */}
-          <motion.div
-            variants={childVariant}
+
+
+        {/* Upgrade Button - Flagship Mexican Pink */}
+        <motion.div variants={childVariant}>
+          <button
+            onClick={() => navigate('/subscription-packages')}
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] mexican-pink-premium relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl"
           >
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <button
-                  onClick={() => navigate('/owner/liked-clients')}
-                  className="w-full flex items-center gap-3"
-                >
-                  <Flame className="w-5 h-5 text-orange-500" />
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-foreground">Your Likes</div>
-                    <div className="text-sm text-muted-foreground">Clients you've liked</div>
-                  </div>
-                  <div className="text-lg font-bold text-foreground">{stats?.likedClientsCount ?? 0}</div>
-                </button>
-              </CardContent>
-            </Card>
-          </motion.div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
+            <Crown className="w-7 h-7 relative z-10 drop-shadow-lg animate-pulse" />
+            <span className="relative z-10 font-black tracking-tight text-lg">Premium Upgrade</span>
+          </button>
+        </motion.div>
 
-          {/* Clients Who Liked You */}
-          <motion.div
-            variants={childVariant}
+        {/* Secondary Actions */}
+        <motion.div variants={childVariant} className="space-y-3">
+          <button
+            onClick={() => navigate('/owner/settings')}
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2"
+            style={{
+              background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
+              borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)',
+              color: 'var(--foreground)',
+              boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.03)' : 'none'
+            }}
           >
-            <Card className="bg-card border-border">
-              <CardContent className="p-4">
-                <button
-                  onClick={() => navigate('/owner/interested-clients')}
-                  className="w-full flex items-center gap-3"
-                >
-                  <Heart className="w-5 h-5 text-pink-500" />
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-foreground">Who Liked You</div>
-                    <div className="text-sm text-muted-foreground">See who's interested in your listings</div>
-                  </div>
-                  <div className="text-lg font-bold text-foreground">{stats?.interestedClientsCount ?? 0}</div>
-                </button>
-              </CardContent>
-            </Card>
-          </motion.div>
+            <Settings className="w-5 h-5 opacity-70" />
+            Settings
+          </button>
 
-          {/* Filter Colors / Theme Section */}
-          <motion.div
-            variants={childVariant}
+          <button
+            onClick={signOut}
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
           >
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-primary" />
-                  <CardTitle>Filter Colors</CardTitle>
-                </div>
-                <CardDescription>
-                  Customize your app appearance
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ThemeSelector compact showTitle={false} />
-              </CardContent>
-            </Card>
-          </motion.div>
+            <LogOut className="w-5 h-5" />
+            Sign Out
+          </button>
+        </motion.div>
 
-          <Separator className="my-4" />
-
-          {/* Quick Links */}
-          <motion.div
-            variants={childVariant}
-          >
-            <Card className="bg-card border-border">
-              <CardContent className="p-0">
-                <button
-                  onClick={() => navigate('/owner/properties')}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
-                >
-                  <Building2 className="w-5 h-5 text-primary" />
-                  <span className="flex-1 text-left text-foreground">Manage Listings</span>
-                </button>
-                <button
-                  onClick={() => navigate('/owner/contracts')}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
-                >
-                  <FileText className="w-5 h-5 text-blue-500" />
-                  <span className="flex-1 text-left text-foreground">Contract Management</span>
-                </button>
-                <button
-                  onClick={() => navigate('/owner/legal-services')}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
-                >
-                  <Scale className="w-5 h-5 text-purple-500" />
-                  <span className="flex-1 text-left text-foreground">Legal Services</span>
-                </button>
-                <button
-                  onClick={() => navigate('/subscription-packages')}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors border-b border-border"
-                >
-                  <Crown className="w-5 h-5 text-amber-500" />
-                  <span className="flex-1 text-left text-foreground">Subscription</span>
-                </button>
-                <button
-                  onClick={() => navigate('/owner/settings')}
-                  className="w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors"
-                >
-                  <SettingsIcon className="w-5 h-5 text-gray-500" />
-                  <span className="flex-1 text-left text-foreground">Settings</span>
-                </button>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Logout Button */}
-          <motion.div
-            variants={childVariant}
-          >
-            <Button
-              onClick={signOut}
-              variant="outline"
-              className="w-full h-12 gap-2 border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-            >
-              <LogOut className="w-5 h-5" />
-              Sign Out
-            </Button>
-          </motion.div>
-
-          {/* Bottom spacing for navigation */}
-          <div className="h-8" />
-        </div>
+        <div className="h-12" />
       </motion.div>
 
-      <OwnerProfileDialog
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
+      <OwnerProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
     </>
   );
 };
