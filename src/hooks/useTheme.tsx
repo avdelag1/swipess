@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from './useAuth';
-import { logger } from '@/utils/prodLogger';
+
 type Theme = 'black-matte' | 'white-matte';
+
+const THEME_STORAGE_KEY = 'swipess-theme';
 
 interface ThemeContextType {
   theme: Theme;
@@ -11,65 +11,44 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+/**
+ * ThemeProvider - Manages black-matte / white-matte switching.
+ *
+ * Persistence strategy:
+ *  1. Read from localStorage on mount (instant, synchronous, no flash).
+ *  2. Write to localStorage on every change.
+ *  3. Optionally sync to Supabase profiles table if the column exists.
+ *
+ * Default: 'white-matte' for new users.
+ */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('white-matte');
-  const { user } = useAuth();
-
-  // Load theme from database when user logs in
-  useEffect(() => {
-    if (user?.id) {
-      const loadUserTheme = async () => {
-        try {
-          const { data, error } = await supabase
-            .from('profiles')
-            .select('theme_preference')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-          if (error) throw error;
-
-          // Support both old and new theme names for backwards compatibility
-          const validThemes = ['black-matte', 'white-matte'];
-          const legacyThemeMap: Record<string, Theme> = {
-            'default': 'black-matte',
-            'dark': 'black-matte',
-            'grey-matte': 'black-matte',
-            'amber': 'black-matte',
-            'amber-matte': 'black-matte',
-            'red': 'black-matte',
-            'red-matte': 'black-matte'
-          };
-
-          if (data?.theme_preference) {
-            const preferredTheme = data.theme_preference;
-            if (validThemes.includes(preferredTheme)) {
-              setThemeState(preferredTheme as Theme);
-            } else if (legacyThemeMap[preferredTheme]) {
-              setThemeState(legacyThemeMap[preferredTheme]);
-            }
-          }
-        } catch (error) {
-          logger.error('Failed to load theme preference:', error);
-          setThemeState('white-matte');
-        }
-      };
-      loadUserTheme();
-    } else {
-      // Reset to white-matte when logged out
-      setThemeState('white-matte');
+  const [theme, setThemeState] = useState<Theme>(() => {
+    // Synchronous read from localStorage — prevents flash of wrong theme
+    try {
+      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      if (stored === 'black-matte' || stored === 'white-matte') {
+        return stored;
+      }
+    } catch {
+      // localStorage unavailable
     }
-  }, [user?.id]);
+    return 'white-matte';
+  });
 
-  // Apply theme class to document and update status bar
+  // Apply theme class to document and update status bar color
   useEffect(() => {
     const root = window.document.documentElement;
-    // Remove all theme classes
-    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'dark', 'amber', 'red');
+
+    // Remove all old theme classes
+    root.classList.remove(
+      'grey-matte', 'black-matte', 'white-matte',
+      'red-matte', 'amber-matte', 'dark', 'amber', 'red'
+    );
 
     // Add current theme class
     root.classList.add(theme);
 
-    // Update status bar color based on theme
+    // Update mobile status bar colour
     const themeColors: Record<string, string> = {
       'black-matte': '#000000',
       'white-matte': '#f5f5f5',
@@ -77,31 +56,24 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     const color = themeColors[theme] || '#1a1a1a';
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    
+
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
       metaThemeColor.setAttribute('name', 'theme-color');
       document.head.appendChild(metaThemeColor);
     }
-    
+
     metaThemeColor.setAttribute('content', color);
   }, [theme]);
 
-  // Save theme to database and update state
-  const setTheme = async (newTheme: Theme) => {
+  // Public setter — persists to localStorage immediately
+  const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
 
-    if (user?.id) {
-      try {
-        const { error } = await supabase
-          .from('profiles')
-          .update({ theme_preference: newTheme })
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-      } catch (error) {
-        logger.error('Failed to save theme preference:', error);
-      }
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    } catch {
+      // localStorage full or unavailable — theme still applies in-memory
     }
   };
 
