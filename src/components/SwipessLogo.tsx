@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
@@ -10,30 +11,29 @@ function SwipessLogoComponent({
   size = 'md',
   className,
 }: SwipessLogoProps) {
-  // Responsive sizes - MAXIMUM visibility while fitting screens
-  const sizeClasses = {
-    xs: 'text-xl sm:text-2xl',
-    sm: 'text-3xl sm:text-4xl',
-    md: 'text-4xl sm:text-5xl',
-    lg: 'text-6xl sm:text-7xl',
-    xl: 'text-7xl sm:text-8xl md:text-9xl',
-    '2xl': 'text-7xl sm:text-8xl md:text-9xl lg:text-[10rem]',
-    '3xl': 'text-[4.5rem] sm:text-8xl md:text-9xl lg:text-[10rem]',
-    '4xl': 'text-[5rem] sm:text-[6rem] md:text-[8rem] lg:text-[11rem]',
+  // Map our size keys to pixel heights that maintain the premium look
+  const heightMap = {
+    xs: 'h-6',      // ~24px
+    sm: 'h-8',      // ~32px
+    md: 'h-10',     // ~40px
+    lg: 'h-14',     // ~56px
+    xl: 'h-20',     // ~80px
+    '2xl': 'h-28',  // ~112px
+    '3xl': 'h-36',  // ~144px
+    '4xl': 'h-48',  // ~192px
   };
 
   return (
-    <span
-      className={cn(
-        'swipess-logo font-black italic select-none overflow-visible inline-flex items-end tracking-tighter',
-        'bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 bg-clip-text text-transparent',
-        'drop-shadow-[0_0_20px_rgba(249,115,22,0.4)]',
-        sizeClasses[size],
-        className
-      )}
-    >
-      Swipess
-    </span>
+    <div className={cn('relative inline-flex items-center justify-center overflow-visible', className)}>
+      <img
+        src={swipessLogo}
+        alt="Swipess"
+        className={cn(
+          'w-auto object-contain select-none pointer-events-none transition-all duration-300',
+          heightMap[size]
+        )}
+      />
+    </div>
   );
 }
 
