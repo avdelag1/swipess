@@ -134,7 +134,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md bg-background/90 dark:bg-zinc-950/90 backdrop-blur-3xl border border-border dark:border-white/10 p-0 overflow-hidden rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] dark:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] outline-none"
+        className="fixed z-[10010] flex flex-col !w-[100vw] sm:!w-[500px] !max-w-none !left-0 sm:!left-[50%] !bottom-0 sm:!bottom-auto !top-auto sm:!top-[50%] !translate-x-0 sm:!-translate-x-1/2 !translate-y-0 sm:!-translate-y-1/2 !mt-auto h-[90dvh] sm:h-[85vh] sm:max-h-[800px] !p-0 !gap-0 !rounded-b-none sm:!rounded-b-[2.5rem] !rounded-t-[2.5rem] !border-x-0 !border-b-0 sm:!border border-border dark:border-white/10 bg-background/95 dark:bg-zinc-950/95 backdrop-blur-3xl shadow-[0_-20px_60px_-15px_rgba(228,0,124,0.15)] outline-none overflow-hidden"
         hideCloseButton={true}
       >
         {/* Header */}
@@ -162,7 +162,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         </div>
 
         {/* Messages Area */}
-        <div className="max-h-[60vh] min-h-[300px] overflow-y-auto px-8 py-8 space-y-8 scrollbar-none relative">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6 scrollbar-none relative w-full overflow-x-hidden">
           {messages.length === 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
@@ -289,7 +289,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         )}
 
         {/* Input Area */}
-        <div className="p-4 border-t border-border dark:border-white/5 bg-background/60 dark:bg-[#0e0e10]/60">
+        <div className="p-4 sm:p-5 mt-auto border-t border-border dark:border-white/5 bg-background/80 dark:bg-[#0e0e10]/80 backdrop-blur-xl">
           <div className="relative">
             <Input
               ref={inputRef}
