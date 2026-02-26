@@ -159,7 +159,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const bgActive = isLight ? 'hsl(var(--background) / 0.96)' : 'hsl(var(--background) / 0.42)';
   const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.65), 0 3px 10px hsl(0 0% 0% / 0.08)'
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
     : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
   const controlBlur = isLight ? 'none' : 'blur(8px)';
 
@@ -234,7 +234,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                     color: active ? 'transparent' : iconColor,
                     stroke: active ? 'url(#active-gradient)' : 'currentColor',
                     fill: active ? 'url(#active-gradient)' : 'none',
-                    filter: active ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
+                    filter: (active && !isLight) ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
                   }}
                   strokeWidth={active ? 3.5 : 3}
                 />

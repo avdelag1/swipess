@@ -25,9 +25,9 @@ function SwipessLogoComponent({
   return (
     <span
       className={cn(
-        'swipess-logo font-bold italic select-none overflow-visible inline-flex items-end',
+        'swipess-logo font-black italic select-none overflow-visible inline-flex items-end tracking-tighter',
         'bg-gradient-to-r from-orange-400 via-amber-400 to-orange-400 bg-clip-text text-transparent',
-        'drop-shadow-[0_0_20px_rgba(249,115,22,0.8)]',
+        'drop-shadow-[0_0_20px_rgba(249,115,22,0.4)]',
         sizeClasses[size],
         className
       )}

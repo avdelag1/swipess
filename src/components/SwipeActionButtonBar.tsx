@@ -168,6 +168,9 @@ const ActionButton = memo(({
     return configs[variant] || configs.default;
   }, [variant]);
 
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
+
   return (
     <motion.button
       onClick={handleClick}
@@ -188,9 +191,16 @@ const ActionButton = memo(({
         borderRadius: '50%',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        boxShadow: isPressed
-          ? `inset 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2)`
-          : `inset 0 1px 0 rgba(255,255,255,0.15), 0 ${isPrimary ? 8 : 5}px ${isPrimary ? 20 : 12}px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)`,
+        // THEME OPTIMIZED SHADOWS:
+        // In white-matte (inverted), we use white shadows so they invert to clean black shadows.
+        // We also reduce shadow spread to keep it crisp.
+        boxShadow: isWhiteMatte
+          ? (isPressed
+            ? `inset 0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(255,255,255,0.1)`
+            : `inset 0 1px 0 rgba(0,0,0,0.1), 0 ${isPrimary ? 4 : 3}px ${isPrimary ? 12 : 8}px rgba(255,255,255,0.5), 0 1px 2px rgba(255,255,255,0.2)`)
+          : (isPressed
+            ? `inset 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2)`
+            : `inset 0 1px 0 rgba(255,255,255,0.15), 0 ${isPrimary ? 8 : 5}px ${isPrimary ? 20 : 12}px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)`),
         // GPU acceleration
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
@@ -260,7 +270,7 @@ function SwipeActionButtonBarComponent({
       >
         {/* 1. Return/Undo Button (Small) - Amber */}
         <ActionButton
-          onClick={onUndo || (() => {})}
+          onClick={onUndo || (() => { })}
           disabled={disabled || !canUndo}
           size="small"
           variant="amber"
