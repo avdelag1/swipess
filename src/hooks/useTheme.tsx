@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'black-matte';
+type Theme = 'grey-matte' | 'black-matte' | 'white-matte' | 'red-matte' | 'pure-black' | 'cheers' | 'amber-matte';
 
 const THEME_STORAGE_KEY = 'swipess-theme';
 
@@ -11,44 +11,43 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-/**
- * ThemeProvider - App permanently locked to black-matte
- */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme] = useState<Theme>('black-matte');
+  const [theme, setThemeState] = useState<Theme>(
+    () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'white-matte'
+  );
 
-  // Apply theme class to document and update status bar color
   useEffect(() => {
     const root = window.document.documentElement;
 
-    // Remove all old theme classes
     root.classList.remove(
       'grey-matte', 'white-matte', 'red-matte', 'amber-matte',
       'pure-black', 'cheers', 'dark', 'amber', 'red'
     );
 
-    // Add current theme class
-    root.classList.add('black-matte');
+    root.classList.add(theme);
 
-    // Update mobile status bar colour
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
       metaThemeColor.setAttribute('name', 'theme-color');
       document.head.appendChild(metaThemeColor);
     }
 
-    metaThemeColor.setAttribute('content', '#000000');
-  }, []);
+    // Set status bar roughly matching background
+    if (theme === 'white-matte') {
+      metaThemeColor.setAttribute('content', '#f9fafb');
+    } else {
+      metaThemeColor.setAttribute('content', '#000000');
+    }
+  }, [theme]);
 
-  // Dummy setter so nothing crashes
   const setTheme = (newTheme: Theme) => {
-    console.log("Theme permanently set to black-matte");
+    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    setThemeState(newTheme);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme: 'black-matte', setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

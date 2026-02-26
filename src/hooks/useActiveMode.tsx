@@ -63,6 +63,7 @@ const PAGE_MAPPING: Record<string, Record<string, string>> = {
     security: '/client/security',
     contracts: '/client/contracts',
     listings: '/client/dashboard',
+    properties: '/client/dashboard',
     'new-listing': '/client/dashboard',
   },
 };
