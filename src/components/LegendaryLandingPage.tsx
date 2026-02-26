@@ -16,7 +16,7 @@ import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth'
 import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
-import swipessLogo from '@/assets/swipess-logo-new.png';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -422,7 +422,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 <Input
                   type="email"
                   name="email"
-                  autocomplete="username"
+                  autoComplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
                   className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
@@ -437,7 +437,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
-                      autocomplete={isLogin ? "current-password" : "new-password"}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
                       className="pl-10 pr-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"

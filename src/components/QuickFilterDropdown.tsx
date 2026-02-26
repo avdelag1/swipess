@@ -8,7 +8,7 @@ import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from
 
 // Custom motorcycle icon
 const MotorcycleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="5" cy="17" r="3" />
     <circle cx="19" cy="17" r="3" />
     <path d="M9 17h6" />
@@ -39,10 +39,10 @@ type CategoryOption = {
 };
 
 const categoryOptions: CategoryOption[] = [
-  { id: 'property', label: 'Property', icon: <Home className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', hasSubOptions: true },
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', hasSubOptions: true },
   { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, color: 'from-red-500 to-orange-500', hasSubOptions: true },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike className="w-4 h-4" />, color: 'from-green-500 to-emerald-500', hasSubOptions: true },
-  { id: 'services', label: 'Workers', icon: <Wrench className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', hasSubOptions: true },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500', hasSubOptions: true },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', hasSubOptions: true },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -51,25 +51,24 @@ const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
   { id: 'sale', label: 'Buy' },
 ];
 
-// Owner-specific filter options
 const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'any', label: 'All Genders', icon: <Users className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'female', label: 'Women', icon: <User className="w-4 h-4" />, color: 'from-pink-500 to-rose-500' },
-  { id: 'male', label: 'Men', icon: <User className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500' },
+  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
+  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500' },
+  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500' },
 ];
 
 const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'all', label: 'All Types', icon: <Briefcase className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'hire', label: 'Hiring', icon: <Briefcase className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
-  { id: 'rent', label: 'Renting', icon: <Briefcase className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
-  { id: 'buy', label: 'Buying', icon: <Briefcase className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
+  { id: 'all', label: 'All Types', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
+  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
+  { id: 'rent', label: 'Renting', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
+  { id: 'buy', label: 'Buying', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
 ];
 
 // UPGRADED BRIGHTNESS: Text is a bright, glowing gradient
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
   <>
     <span className={cn(
-      "hidden sm:inline font-bold text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent",
+      "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
         : isDark
@@ -79,7 +78,7 @@ const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boole
       Quick Filter
     </span>
     <span className={cn(
-      "sm:hidden font-bold text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent",
+      "sm:hidden font-black text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
         : isDark
@@ -100,10 +99,10 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const isDark = theme === 'black-matte';
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1.5px solid rgba(0, 0, 0, 0.1)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+    : '0 2px 4px rgba(0,0,0,0.05)';
 
   // ========== READ FROM ZUSTAND STORE ==========
   const categories = useFilterStore((state) => state.categories);
@@ -190,7 +189,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
+      <div className="bg-[#000000]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <span className="text-sm font-semibold text-foreground">Filter Clients</span>
@@ -218,7 +217,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientGender === option.id
                       ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : 'text-muted-foreground hover:bg-muted/50 bg-muted/30 border border-border'
+                      : 'text-muted-foreground hover:bg-white/10 bg-white/5 border border-white/5'
                   )}
                 >
                   {option.icon}
@@ -258,7 +257,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {
     return (
-      <div className="bg-background border border-border rounded-2xl shadow-lg overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
+      <div className="bg-[#000000]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-border">
           <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
@@ -290,7 +289,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                   categories.includes(category.id)
                     ? 'bg-gradient-to-r ' + category.color + ' text-white'
-                    : 'text-foreground hover:bg-muted/50'
+                    : 'text-foreground hover:bg-white/10'
                 )}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
@@ -298,14 +297,14 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     'p-1.5 sm:p-2 rounded-lg',
                     categories.includes(category.id)
                       ? 'bg-white/20 text-white'
-                      : 'bg-muted text-foreground'
+                      : 'bg-white/5 text-foreground'
                   )}>
                     {category.icon}
                   </span>
                   <span className="font-medium text-sm sm:text-base">{category.label}</span>
                 </div>
                 {category.hasSubOptions && (
-                  <ChevronRight className={cn(
+                  <ChevronRight strokeWidth={3} className={cn(
                     "w-5 h-5 text-muted-foreground transition-transform",
                     clickedCategory === category.id && "rotate-90"
                   )} />
@@ -334,7 +333,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                             'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
                             categories.includes(category.id) && listingType === ltOption.id
                               ? `bg-gradient-to-r ${category.color} text-white`
-                              : 'text-foreground hover:bg-muted/50 bg-muted/30'
+                              : 'text-foreground hover:bg-white/10 bg-white/5'
                           )}
                         >
                           <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>

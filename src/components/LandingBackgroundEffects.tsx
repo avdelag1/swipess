@@ -42,15 +42,17 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   });
 
   const initStars = useCallback((w: number, h: number) => {
-    const count = Math.floor((w * h) / 1000);
-    starsRef.current = Array.from({ length: Math.min(count, 500) }, () => {
+    // Higher density for more 'premium' feel
+    const count = Math.floor((w * h) / 600);
+    starsRef.current = Array.from({ length: Math.min(count, 1000) }, () => {
       const x = Math.random() * w;
       const y = Math.random() * h;
       return {
         x, y, baseX: x, baseY: y, vx: 0, vy: 0,
-        size: Math.random() * 1.5 + 0.5,
-        opacity: Math.random() * 0.8 + 0.2,
-        twinkleSpeed: Math.random() * 0.1 + 0.02,
+        // Tiny stars for more delicate look
+        size: Math.random() * 0.7 + 0.3,
+        opacity: Math.random() * 0.7 + 0.3,
+        twinkleSpeed: Math.random() * 0.08 + 0.02,
         twinklePhase: Math.random() * Math.PI * 2,
       };
     });
@@ -137,31 +139,34 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       time += 0.5;
       const { x: px, y: py, isDown } = pointerRef.current;
 
-      const pullRadius = isDown ? 400 : 150;
-      const pullStrength = isDown ? 0.05 : 0.01;
+      const pullRadius = isDown ? 500 : 250;
+      const pullStrength = isDown ? 0.12 : 0.04;
 
       for (const star of starsRef.current) {
         // Physical forces
         const dx = px - star.x;
         const dy = py - star.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx * dx + dy * dy;
+        const dist = Math.sqrt(distSq);
 
         if (dist < pullRadius && pointerRef.current.isActive) {
-          // Pull towards finger
+          // Snappy magnetism
           const force = (pullRadius - dist) / pullRadius;
-          star.vx += dx * force * pullStrength;
-          star.vy += dy * force * pullStrength;
+          // Apply inverse square-ish pull for tighter following near finger
+          const strength = force * force * pullStrength;
+          star.vx += dx * strength;
+          star.vy += dy * strength;
         } else {
-          // Return to base position softly
+          // Return to home position with snappier spring
           const bdx = star.baseX - star.x;
           const bdy = star.baseY - star.y;
-          star.vx += bdx * 0.02;
-          star.vy += bdy * 0.02;
+          star.vx += bdx * 0.035;
+          star.vy += bdy * 0.035;
         }
 
-        // Apply friction
-        star.vx *= 0.85;
-        star.vy *= 0.85;
+        // Damping - higher for more controlled, less 'slippery' feel
+        star.vx *= 0.82;
+        star.vy *= 0.82;
 
         // Apply velocities
         star.x += star.vx;
