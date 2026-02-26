@@ -4,6 +4,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
+import { RadioMiniPlayer } from '@/components/RadioMiniPlayer';
 import { useTheme } from '@/hooks/useTheme';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
@@ -48,6 +49,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       >
         {children}
       </main>
+
+      {/* Global Radio Mini Player - accessible everywhere including landing page */}
+      <RadioMiniPlayer />
     </div>
   );
 }

@@ -17,6 +17,7 @@ import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/utils/microPolish';
 
 // ICON SIZING - responsive
 const ICON_SIZE = 22;
@@ -135,6 +136,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const handleNavPress = (event: React.PointerEvent, item: NavItem) => {
     event.stopPropagation();
     event.preventDefault();
+    haptics.select();
 
     if (item.onClick) {
       item.onClick();
@@ -234,13 +236,13 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                     fill: active ? 'url(#active-gradient)' : 'none',
                     filter: active ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
                   }}
-                  strokeWidth={active ? 3 : 2.5}
+                  strokeWidth={active ? 3.5 : 3}
                 />
               </div>
               <span
                 className={cn(
                   "text-[10px] tracking-wide transition-all duration-300",
-                  active ? "font-bold" : "font-medium"
+                  active ? "font-black" : "font-extrabold"
                 )}
                 style={{
                   color: active ? activeColor : iconColor,

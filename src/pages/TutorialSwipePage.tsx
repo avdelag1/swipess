@@ -15,7 +15,8 @@ import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-m
 import {
   Home, Wrench, Bike, Car, User, Users,
   Heart, X, Info, Star, MapPin, CheckCircle,
-  Sparkles, ArrowRight, BadgeCheck, DollarSign, Eye, RotateCcw, ChevronLeft,
+  Sparkles, ArrowRight, BadgeCheck, DollarSign, RotateCcw, ChevronLeft,
+  Flame, ThumbsDown
 } from 'lucide-react';
 import {
   tutorialListings,
@@ -28,6 +29,10 @@ import {
 } from '@/data/tutorialCards';
 import { triggerHaptic } from '@/utils/haptics';
 import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+import { AmbientSwipeBackground } from '@/components/AmbientSwipeBackground';
+import { GradientOverlay } from '@/components/ui/GradientMasks';
 
 // ─── Physics ─────────────────────────────────────────────────
 const SWIPE_THRESHOLD = 90;
@@ -38,15 +43,15 @@ const getExitX = () =>
 
 // ─── Category metadata ───────────────────────────────────────
 const LISTING_CATS = [
-  { key: 'property'   as TutorialCategory, label: 'Properties', Icon: Home,   color: 'text-blue-400',   ring: 'ring-blue-500/40',   bg: 'bg-blue-500/10'   },
-  { key: 'worker'     as TutorialCategory, label: 'Workers',    Icon: Wrench, color: 'text-purple-400', ring: 'ring-purple-500/40', bg: 'bg-purple-500/10' },
-  { key: 'motorcycle' as TutorialCategory, label: 'Motos',      Icon: Car,    color: 'text-orange-400', ring: 'ring-orange-500/40', bg: 'bg-orange-500/10' },
-  { key: 'bicycle'    as TutorialCategory, label: 'Bicycles',   Icon: Bike,   color: 'text-green-400',  ring: 'ring-green-500/40',  bg: 'bg-green-500/10'  },
+  { key: 'property' as TutorialCategory, label: 'Properties', Icon: Home, color: 'text-blue-600', ring: 'ring-blue-500/40', bg: 'bg-blue-500/10' },
+  { key: 'worker' as TutorialCategory, label: 'Workers', Icon: Wrench, color: 'text-purple-600', ring: 'ring-purple-500/40', bg: 'bg-purple-500/10' },
+  { key: 'motorcycle' as TutorialCategory, label: 'Motos', Icon: Car, color: 'text-orange-600', ring: 'ring-orange-500/40', bg: 'bg-orange-500/10' },
+  { key: 'bicycle' as TutorialCategory, label: 'Bicycles', Icon: Bike, color: 'text-green-600', ring: 'ring-green-500/40', bg: 'bg-green-500/10' },
 ];
 
 const CLIENT_CATS = [
-  { key: 'male'   as ClientGender, label: 'Men',   Icon: User,  color: 'text-cyan-400', ring: 'ring-cyan-500/40', bg: 'bg-cyan-500/10' },
-  { key: 'female' as ClientGender, label: 'Women', Icon: Users, color: 'text-pink-400', ring: 'ring-pink-500/40', bg: 'bg-pink-500/10' },
+  { key: 'male' as ClientGender, label: 'Men', Icon: User, color: 'text-cyan-600', ring: 'ring-cyan-500/40', bg: 'bg-cyan-500/10' },
+  { key: 'female' as ClientGender, label: 'Women', Icon: Users, color: 'text-pink-600', ring: 'ring-pink-500/40', bg: 'bg-pink-500/10' },
 ];
 
 function fmt(price: number, unit: string) {
@@ -68,7 +73,7 @@ function InsightsModal({
       onClick={onClose}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-md" />
 
       {/* Sheet */}
       <motion.div
@@ -76,65 +81,64 @@ function InsightsModal({
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', stiffness: 420, damping: 35 }}
-        className="relative w-full max-w-md bg-[#141414] rounded-t-[28px] overflow-hidden border-t border-white/10 shadow-2xl"
+        className="relative w-full max-w-md bg-white rounded-t-[32px] overflow-hidden shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
         {/* Handle */}
         <div className="flex justify-center pt-3">
-          <div className="w-10 h-1 rounded-full bg-white/20" />
+          <div className="w-10 h-1 rounded-full bg-zinc-200" />
         </div>
 
         {/* Header image */}
         {image && (
-          <div className="h-28 overflow-hidden relative mt-2">
+          <div className="h-32 overflow-hidden relative mt-2">
             <img src={image} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#141414] to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent" />
           </div>
         )}
 
         <div className="px-5 pt-3 pb-1">
           <div className="flex items-center gap-1.5 mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest">6 Key Insights</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span className="text-[11px] font-bold text-amber-500 uppercase tracking-widest">6 Key Insights</span>
           </div>
-          <p className="text-base font-bold text-white leading-tight">{title}</p>
-          {subtitle && <p className="text-xs text-white/40 mt-0.5">{subtitle}</p>}
+          <p className="text-xl font-bold text-zinc-900 leading-tight">{title}</p>
+          {subtitle && <p className="text-sm text-zinc-500 mt-0.5 font-medium">{subtitle}</p>}
         </div>
 
         {/* List */}
-        <div className="px-4 pb-4 mt-2 space-y-2 overflow-y-auto max-h-[52vh]">
+        <div className="px-4 pb-4 mt-3 space-y-2 overflow-y-auto max-h-[52vh]">
           {insights.map((ins, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.055 }}
-              className={`flex items-start gap-3 p-3 rounded-2xl border ${
-                ins.highlight
-                  ? 'bg-amber-500/8 border-amber-500/20'
-                  : 'bg-white/4 border-white/8'
-              }`}
+              className={`flex items-start gap-3 p-3.5 rounded-2xl border transition-all ${ins.highlight
+                ? 'bg-amber-50 border-amber-200 shadow-sm'
+                : 'bg-zinc-50 border-zinc-100'
+                }`}
             >
               <span className="text-xl leading-none mt-0.5 flex-shrink-0">{ins.icon}</span>
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold text-white/40 uppercase tracking-wide mb-0.5">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">
                   {ins.question}
                 </p>
-                <p className={`text-sm leading-snug ${ins.highlight ? 'text-amber-200 font-medium' : 'text-white/75'}`}>
+                <p className={`text-sm leading-snug font-medium ${ins.highlight ? 'text-amber-900' : 'text-zinc-700'}`}>
                   {ins.answer}
                 </p>
               </div>
-              {ins.highlight && <CheckCircle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-1" />}
+              {ins.highlight && <CheckCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-1" />}
             </motion.div>
           ))}
         </div>
 
-        <div className="px-4 pb-7">
+        <div className="px-4 pb-8">
           <button
             onClick={onClose}
-            className="w-full py-3 rounded-2xl bg-white/6 border border-white/10 text-white/60 text-sm font-medium"
+            className="w-full py-4 rounded-2xl bg-zinc-900 text-white text-sm font-bold shadow-lg active:scale-[0.98] transition-all"
           >
-            Close
+            Got it, thanks!
           </button>
         </div>
       </motion.div>
@@ -181,11 +185,11 @@ function SwipeCard({ stackIndex, children, onSwipe }: SwipeCardProps) {
   );
 
   const scale = 1 - stackIndex * 0.04;
-  const yOffset = stackIndex * 14;
+  const yOffset = stackIndex * 12;
 
   return (
     <motion.div
-      className="absolute inset-0 rounded-[28px] overflow-hidden"
+      className="absolute inset-0 rounded-[32px] overflow-hidden shadow-2xl bg-white border border-zinc-100"
       style={isTop ? { x, rotate, zIndex: 20 - stackIndex } : { scale, y: yOffset, zIndex: 20 - stackIndex }}
       drag={isTop ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
@@ -229,91 +233,98 @@ function ListingCardContent({
 }) {
   const cat = LISTING_CATS.find(c => c.key === listing.category)!;
   return (
-    <div className="relative w-full h-full bg-zinc-900 select-none touch-none">
-      {/* Photo */}
-      <img
-        src={listing.images[imgIdx]}
-        alt={listing.title}
-        className="absolute inset-0 w-full h-full object-cover"
-        draggable={false}
-      />
+    <div className="relative w-full h-full bg-white select-none touch-none flex flex-col">
+      {/* Photo Area */}
+      <div className="relative w-full h-[62%] overflow-hidden">
+        <img
+          src={listing.images[imgIdx]}
+          alt={listing.title}
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
 
-      {/* Image tap zones */}
-      <div
-        className="absolute left-0 top-0 w-1/2 z-10"
-        style={{ bottom: '180px' }}
-        onClick={() => setImgIdx(p => Math.max(0, p - 1))}
-      />
-      <div
-        className="absolute right-0 top-0 w-1/2 z-10"
-        style={{ bottom: '180px' }}
-        onClick={() => setImgIdx(p => Math.min(listing.images.length - 1, p + 1))}
-      />
-
-      {/* Dot row */}
-      {listing.images.length > 1 && (
-        <div className="absolute top-3 left-3 right-3 flex gap-1 z-20">
-          {listing.images.map((_, i) => (
-            <div key={i} className={`flex-1 h-1 rounded-full ${i === imgIdx ? 'bg-white' : 'bg-white/25'}`} />
-          ))}
+        {/* Image tap zones */}
+        <div className="absolute inset-0 flex">
+          <div
+            className="w-1/2 h-full z-10"
+            onClick={() => setImgIdx(p => Math.max(0, p - 1))}
+          />
+          <div
+            className="w-1/2 h-full z-10"
+            onClick={() => setImgIdx(p => Math.min(listing.images.length - 1, p + 1))}
+          />
         </div>
-      )}
 
-      {/* Category chip */}
-      <div className="absolute top-6 right-3 z-20">
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 ${cat.bg} ${cat.color}`}>
-          <cat.Icon className="w-3 h-3" />
-          {cat.label}
-        </span>
+        {/* Dot row */}
+        {listing.images.length > 1 && (
+          <div className="absolute top-4 left-4 right-4 flex gap-1.5 z-20">
+            {listing.images.map((_, i) => (
+              <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i === imgIdx ? 'bg-white shadow-sm' : 'bg-white/40'}`} />
+            ))}
+          </div>
+        )}
+
+        {/* Category chip */}
+        <div className="absolute top-8 right-4 z-20">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md border border-white/20 bg-white/10 text-white shadow-lg`}>
+            <cat.Icon className="w-3 h-3" />
+            {cat.label}
+          </span>
+        </div>
+
+        {/* Photo Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
       </div>
 
-      {/* Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-
       {/* Info panel */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-        {/* Owner */}
-        <div className="flex items-center gap-2 mb-2">
-          <img src={listing.ownerAvatar} alt="" className="w-6 h-6 rounded-full object-cover border border-white/30" draggable={false} />
-          <span className="text-white/60 text-xs">{listing.ownerName}</span>
-          {listing.ownerVerified && <BadgeCheck className="w-3.5 h-3.5 text-blue-400" />}
-          <div className="ml-auto flex items-center gap-1">
-            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-            <span className="text-yellow-300 text-xs font-bold">{listing.ownerRating}</span>
+      <div className="flex-1 p-5 flex flex-col justify-between">
+        <div className="space-y-1">
+          {/* Owner & Header */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <img src={listing.ownerAvatar} alt="" className="w-7 h-7 rounded-full object-cover border-2 border-zinc-100 shadow-sm" draggable={false} />
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1">
+                  <span className="text-zinc-900 font-bold text-[11px] leading-none">{listing.ownerName}</span>
+                  {listing.ownerVerified && <BadgeCheck className="w-3 h-3 text-blue-500" />}
+                </div>
+                <div className="flex items-center gap-0.5 mt-0.5">
+                  <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
+                  <span className="text-zinc-400 text-[9px] font-bold">{listing.ownerRating} Owner Rating</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded-lg">
+              <span className="text-green-600 font-black text-sm">{fmt(listing.price, listing.priceUnit)}</span>
+            </div>
           </div>
-        </div>
 
-        <h2 className="text-[17px] font-bold text-white leading-snug">{listing.title}</h2>
-        <p className="text-white/50 text-xs mb-2">{listing.subtitle}</p>
-
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4 text-green-400" />
-            <span className="text-green-400 font-bold text-base">{fmt(listing.price, listing.priceUnit)}</span>
-          </div>
-          <div className="flex items-center gap-1 text-white/40">
+          <h2 className="text-lg font-black text-zinc-900 leading-tight mb-1">{listing.title}</h2>
+          <div className="flex items-center gap-2 text-zinc-400">
             <MapPin className="w-3 h-3" />
-            <span className="text-xs">{listing.city}</span>
+            <span className="text-xs font-semibold">{listing.city}, MX</span>
           </div>
         </div>
 
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1 mb-3">
-          {listing.tags.slice(0, 3).map(t => (
-            <span key={t} className="text-[10px] bg-white/8 border border-white/8 px-2 py-0.5 rounded-full text-white/50">{t}</span>
-          ))}
-        </div>
+        <div className="space-y-4">
+          {/* Tags */}
+          <div className="flex flex-wrap gap-1.5">
+            {listing.tags.slice(0, 3).map(t => (
+              <span key={t} className="text-[10px] font-bold bg-zinc-100 px-2.5 py-1 rounded-lg text-zinc-500 border border-zinc-200/50">{t}</span>
+            ))}
+          </div>
 
-        {/* Insights btn */}
-        <button
-          onPointerDown={e => e.stopPropagation()}
-          onClick={e => { e.stopPropagation(); onInsights(); }}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-white/8 border border-white/10 text-white/70 text-sm font-medium active:bg-white/14 cursor-pointer"
-        >
-          <Eye className="w-4 h-4 text-amber-400" />
-          View 6 Insights
-          <ArrowRight className="w-3.5 h-3.5 opacity-40" />
-        </button>
+          {/* Insights btn */}
+          <button
+            onPointerDown={e => e.stopPropagation()}
+            onClick={e => { e.stopPropagation(); onInsights(); }}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500/5 border-2 border-amber-500/20 text-amber-600 text-xs font-black uppercase tracking-widest active:bg-amber-500/10 cursor-pointer shadow-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            See 6 Pro Insights
+            <ArrowRight className="w-3.5 h-3.5 opacity-40 ml-1" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -330,74 +341,96 @@ function ClientCardContent({
 }) {
   const gc = CLIENT_CATS.find(c => c.key === profile.gender)!;
   return (
-    <div className="relative w-full h-full bg-zinc-900 select-none touch-none">
-      <img
-        src={profile.profile_images[imgIdx]}
-        alt={profile.name}
-        className="absolute inset-0 w-full h-full object-cover"
-        draggable={false}
-      />
+    <div className="relative w-full h-full bg-white select-none touch-none flex flex-col">
+      {/* Photo Area */}
+      <div className="relative w-full h-[62%] overflow-hidden">
+        <img
+          src={profile.profile_images[imgIdx]}
+          alt={profile.name}
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
 
-      {/* Image taps */}
-      <div
-        className="absolute left-0 top-0 w-1/2 z-10"
-        style={{ bottom: '200px' }}
-        onClick={() => setImgIdx(p => Math.max(0, p - 1))}
-      />
-      <div
-        className="absolute right-0 top-0 w-1/2 z-10"
-        style={{ bottom: '200px' }}
-        onClick={() => setImgIdx(p => Math.min(profile.profile_images.length - 1, p + 1))}
-      />
-
-      {profile.profile_images.length > 1 && (
-        <div className="absolute top-3 left-3 right-3 flex gap-1 z-20">
-          {profile.profile_images.map((_, i) => (
-            <div key={i} className={`flex-1 h-1 rounded-full ${i === imgIdx ? 'bg-white' : 'bg-white/25'}`} />
-          ))}
+        {/* Image taps */}
+        <div className="absolute inset-0 flex">
+          <div
+            className="w-1/2 h-full z-10"
+            onClick={() => setImgIdx(p => Math.max(0, p - 1))}
+          />
+          <div
+            className="w-1/2 h-full z-10"
+            onClick={() => setImgIdx(p => Math.min(profile.profile_images.length - 1, p + 1))}
+          />
         </div>
-      )}
 
-      <div className="absolute top-6 right-3 z-20">
-        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold backdrop-blur-md border border-white/10 ${gc.bg} ${gc.color}`}>
-          <gc.Icon className="w-3 h-3" />
-          {gc.label}
-        </span>
-      </div>
+        {/* Dots */}
+        {profile.profile_images.length > 1 && (
+          <div className="absolute top-4 left-4 right-4 flex gap-1.5 z-20">
+            {profile.profile_images.map((_, i) => (
+              <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i === imgIdx ? 'bg-white shadow-sm' : 'bg-white/40'}`} />
+            ))}
+          </div>
+        )}
 
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-
-      <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
-        <div className="flex items-center gap-2 mb-1">
-          <h2 className="text-xl font-bold text-white">{profile.name}</h2>
-          <span className="text-white/50 text-lg">{profile.age}</span>
-          {profile.verified && <BadgeCheck className="w-5 h-5 text-blue-400" />}
-        </div>
-        <div className="flex items-center gap-1 text-white/40 mb-2">
-          <MapPin className="w-3 h-3" />
-          <span className="text-xs">{profile.city}</span>
-        </div>
-        <p className="text-white/55 text-xs leading-snug line-clamp-2 mb-2">{profile.bio}</p>
-        <div className="flex items-center gap-1 mb-3">
-          <DollarSign className="w-4 h-4 text-green-400" />
-          <span className="text-green-400 text-sm font-bold">
-            ${profile.budget_min.toLocaleString()} – ${profile.budget_max.toLocaleString()} MXN
+        {/* Category chip */}
+        <div className="absolute top-8 right-4 z-20">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider backdrop-blur-md border border-white/20 bg-white/10 text-white shadow-lg`}>
+            <gc.Icon className="w-3 h-3" />
+            {gc.label}
           </span>
         </div>
-        <div className="flex flex-wrap gap-1 mb-3">
-          {profile.interests.slice(0, 4).map(i => (
-            <span key={i} className="text-[10px] bg-white/8 border border-white/8 px-2 py-0.5 rounded-full text-white/50">{i}</span>
-          ))}
+
+        {/* Photo Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+      </div>
+
+      <div className="flex-1 p-5 flex flex-col justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center gap-2">
+              <h2 className="text-2xl font-black text-zinc-900 leading-none">{profile.name}</h2>
+              <span className="text-zinc-300 text-xl font-bold leading-none">{profile.age}</span>
+              {profile.verified && <BadgeCheck className="w-5 h-5 text-blue-500" />}
+            </div>
+            <div className="bg-green-50 px-2.5 py-1.5 rounded-xl border border-green-100">
+              <span className="text-green-600 text-xs font-black">Verified Budget</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-zinc-400 mb-2">
+            <MapPin className="w-3.5 h-3.5" />
+            <span className="text-xs font-bold">{profile.city}, MX</span>
+          </div>
+
+          <p className="text-zinc-500 text-xs leading-relaxed font-medium line-clamp-2">{profile.bio}</p>
         </div>
-        <button
-          onPointerDown={e => e.stopPropagation()}
-          onClick={e => { e.stopPropagation(); onInsights(); }}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl bg-white/8 border border-white/10 text-white/70 text-sm font-medium active:bg-white/14 cursor-pointer"
-        >
-          <Eye className="w-4 h-4 text-amber-400" />
-          View 6 Insights
-          <ArrowRight className="w-3.5 h-3.5 opacity-40" />
-        </button>
+
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 bg-zinc-50 p-3 rounded-2xl border border-zinc-100">
+              <DollarSign className="w-4 h-4 text-green-500" />
+              <span className="text-zinc-900 text-[11px] font-black">
+                ${profile.budget_min.toLocaleString()} – ${profile.budget_max.toLocaleString()} MXN
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5">
+            {profile.interests.slice(0, 3).map(i => (
+              <span key={i} className="text-[10px] font-bold bg-zinc-100 px-2.5 py-1 rounded-lg text-zinc-500 border border-zinc-200/50">{i}</span>
+            ))}
+          </div>
+
+          <button
+            onPointerDown={e => e.stopPropagation()}
+            onClick={e => { e.stopPropagation(); onInsights(); }}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500/5 border-2 border-amber-500/20 text-amber-600 text-xs font-black uppercase tracking-widest active:bg-amber-500/10 cursor-pointer shadow-sm"
+          >
+            <Sparkles className="w-4 h-4" />
+            See 6 Member Insights
+            <ArrowRight className="w-3.5 h-3.5 opacity-40 ml-1" />
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -445,12 +478,14 @@ function ClientCardWrapper({
 // ─── Empty state ─────────────────────────────────────────────
 function EmptyState({ label, onReset }: { label: string; onReset: () => void }) {
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-      <RotateCcw className="w-10 h-10 text-white/15" />
-      <p className="text-white/40 text-sm">All {label} explored!</p>
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-zinc-50/50 rounded-[32px] border-2 border-dashed border-zinc-200">
+      <div className="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center">
+        <RotateCcw className="w-8 h-8 text-zinc-300" />
+      </div>
+      <p className="text-zinc-400 text-sm font-bold">All {label} explored!</p>
       <button
         onClick={onReset}
-        className="px-5 py-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/25 text-amber-400 text-sm font-semibold"
+        className="px-8 py-3 rounded-2xl bg-zinc-900 text-white text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all"
       >
         See them again
       </button>
@@ -520,7 +555,7 @@ export default function TutorialSwipePage() {
   const cardAreaH = `calc(100dvh - ${88 + 50 + hintH + 110 + 28 + 16}px)`;
 
   // ── Visible likes/passes ──────────────────────────────────
-  const likes  = mode === 'client' ? listLikes  : cliLikes;
+  const likes = mode === 'client' ? listLikes : cliLikes;
   const passes = mode === 'client' ? listPasses : cliPasses;
 
   // ── Active category name ──────────────────────────────────
@@ -532,239 +567,254 @@ export default function TutorialSwipePage() {
 
   return (
     <div
-      className="w-full flex flex-col"
+      className="w-full relative flex flex-col"
       style={{
         minHeight: '100dvh',
-        background: '#0c0c0c',
-        color: '#fff',
+        color: '#111',
         overflowX: 'hidden',
         overflowY: 'hidden',
       }}
     >
+      {/* ── BACKGROUND LAYERS ────────────────────────── */}
+      <AmbientSwipeBackground />
 
-      {/* ── HEADER ─────────────────────────────────────── */}
-      <div style={{ flexShrink: 0, padding: '16px 16px 10px' }}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center rounded-full"
-              style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', flexShrink: 0 }}
-            >
-              <ChevronLeft className="w-5 h-5 text-white/70" />
-            </button>
-            <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span className="text-lg font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">
-                  How It Works
-                </span>
+      {/* Brightness layer - makes the tutorial "brighter" while letting movement through */}
+      <div className="absolute inset-0 bg-white/90 pointer-events-none" style={{ zIndex: 0 }} />
+
+      {/* Cinematic shades - provides the "dark frames" contrast for buttons */}
+      <GradientOverlay light={false} intensity={0.6} />
+
+      <div className="relative z-10 w-full min-h-dvh flex flex-col">
+
+        {/* ── HEADER ─────────────────────────────────────── */}
+        <div style={{ flexShrink: 0, padding: '16px 16px 10px' }}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate(-1)}
+                aria-label="Back"
+                className="flex items-center justify-center rounded-2xl shadow-sm w-11 h-11 bg-white border border-zinc-100 shrink-0"
+              >
+                <ChevronLeft className="w-6 h-6 text-zinc-900" />
+              </button>
+              <div>
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                  <span className="text-xl font-black text-zinc-900 tracking-tight">
+                    How It Works
+                  </span>
+                </div>
+                <p className="text-[10px] uppercase font-black tracking-widest text-zinc-400 mt-0.5">Interactive Tutorial</p>
               </div>
-              <p className="text-xs text-white/30 mt-0.5">Tutorial · Swipe to explore</p>
+            </div>
+            <div className="flex items-center gap-3 bg-zinc-50 p-1.5 rounded-2xl border border-zinc-100">
+              <div className="px-3 py-1 bg-white rounded-xl shadow-sm text-center min-w-[54px] border border-zinc-50">
+                <p className="text-green-600 font-black text-sm leading-none">{likes}</p>
+                <p className="text-[8px] font-black uppercase tracking-tighter text-zinc-400 mt-1">Likes</p>
+              </div>
+              <div className="px-3 py-1 bg-white rounded-xl shadow-sm text-center min-w-[54px] border border-zinc-50">
+                <p className="text-red-600 font-black text-sm leading-none">{passes}</p>
+                <p className="text-[8px] font-black uppercase tracking-tighter text-zinc-400 mt-1">Passes</p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="text-center">
-              <p className="text-green-400 font-bold text-sm leading-none">{likes}</p>
-              <p className="text-[10px] text-white/25 mt-0.5">liked</p>
-            </div>
-            <div className="text-center">
-              <p className="text-red-400 font-bold text-sm leading-none">{passes}</p>
-              <p className="text-[10px] text-white/25 mt-0.5">passed</p>
-            </div>
+
+          {/* Mode toggle */}
+          <div className="flex gap-1.5 p-1.5 rounded-[22px] bg-zinc-100/80 border border-zinc-200/50">
+            {([
+              { val: 'client' as ViewMode, Icon: Home, label: 'Browsing' },
+              { val: 'owner' as ViewMode, Icon: Users, label: 'Profiles' },
+            ] as const).map(({ val, Icon, label }) => (
+              <button
+                key={val}
+                onClick={() => { triggerHaptic('light'); setMode(val); }}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[18px] text-xs font-black uppercase tracking-widest transition-all ${mode === val
+                  ? 'bg-white text-zinc-900 shadow-md ring-1 ring-zinc-200'
+                  : 'text-zinc-400 opacity-60'
+                  }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
           </div>
+
+          <p className="text-[10px] font-bold text-center mt-2" style={{ color: 'rgba(0,0,0,0.3)' }}>
+            {mode === 'client'
+              ? 'EXPLORE PREMIUM LISTINGS NEAR YOU'
+              : 'DISCOVER CLIENTS READY TO ENGAGE'}
+          </p>
         </div>
 
-        {/* Mode toggle */}
-        <div className="flex gap-1.5 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          {([
-            { val: 'client' as ViewMode, Icon: Home, label: 'Client View' },
-            { val: 'owner'  as ViewMode, Icon: Users, label: 'Owner View' },
-          ] as const).map(({ val, Icon, label }) => (
-            <button
-              key={val}
-              onClick={() => setMode(val)}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-sm font-semibold transition-all"
-              style={{
-                background: mode === val ? 'rgba(255,255,255,0.12)' : 'transparent',
-                color: mode === val ? '#fff' : 'rgba(255,255,255,0.35)',
-              }}
-            >
-              <Icon className="w-3.5 h-3.5" />
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <p className="text-[11px] text-center mt-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
-          {mode === 'client'
-            ? '🔍 Browse listings — find your next property, vehicle or service'
-            : '👤 Browse client profiles — see who wants what you offer'}
-        </p>
-      </div>
-
-      {/* ── CATEGORY TABS ──────────────────────────────── */}
-      <div style={{ flexShrink: 0, padding: '0 16px 10px', overflowX: 'auto' }}>
-        <div className="flex gap-2">
-          {mode === 'client'
-            ? LISTING_CATS.map(c => (
+        {/* ── CATEGORY TABS ──────────────────────────────── */}
+        <div style={{ flexShrink: 0, padding: '0 16px 12px', overflowX: 'auto' }} className="no-scrollbar">
+          <div className="flex gap-2">
+            {mode === 'client'
+              ? LISTING_CATS.map(c => (
                 <button
                   key={c.key}
-                  onClick={() => switchListCat(c.key)}
-                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+                  onClick={() => { triggerHaptic('light'); switchListCat(c.key); }}
+                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm"
                   style={{
-                    background: listCat === c.key ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    borderColor: listCat === c.key ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                    color: listCat === c.key ? '#fff' : 'rgba(255,255,255,0.35)',
+                    background: listCat === c.key ? '#000' : '#fff',
+                    borderColor: listCat === c.key ? '#000' : '#f2f2f2',
+                    color: listCat === c.key ? '#fff' : '#666',
                   }}
                 >
-                  <c.Icon className="w-3.5 h-3.5" />
+                  <c.Icon className="w-3.5 h-3.5 shadow-sm" />
                   {c.label}
-                  <span style={{ opacity: 0.4, fontSize: 10 }}>{tutorialListings[c.key].length}</span>
+                  <span className={`ml-1 transition-opacity ${listCat === c.key ? 'opacity-50' : 'opacity-30'}`} style={{ fontSize: 9 }}>{tutorialListings[c.key].length}</span>
                 </button>
               ))
-            : CLIENT_CATS.map(c => (
+              : CLIENT_CATS.map(c => (
                 <button
                   key={c.key}
-                  onClick={() => switchCliGender(c.key)}
-                  className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
+                  onClick={() => { triggerHaptic('light'); switchCliGender(c.key); }}
+                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm"
                   style={{
-                    background: cliGender === c.key ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    borderColor: cliGender === c.key ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.08)',
-                    color: cliGender === c.key ? '#fff' : 'rgba(255,255,255,0.35)',
+                    background: cliGender === c.key ? '#000' : '#fff',
+                    borderColor: cliGender === c.key ? '#000' : '#f2f2f2',
+                    color: cliGender === c.key ? '#fff' : '#666',
                   }}
                 >
                   <c.Icon className="w-3.5 h-3.5" />
                   {c.label}
-                  <span style={{ opacity: 0.4, fontSize: 10 }}>{tutorialClientProfiles[c.key].length}</span>
+                  <span className={`ml-1 transition-opacity ${cliGender === c.key ? 'opacity-50' : 'opacity-30'}`} style={{ fontSize: 9 }}>{tutorialClientProfiles[c.key].length}</span>
                 </button>
               ))}
+          </div>
         </div>
-      </div>
 
-      {/* ── HINT BANNER ────────────────────────────────── */}
-      {hint && (
+        {/* ── HINT BANNER ────────────────────────────────── */}
+        {hint && (
+          <div
+            className="flex items-center gap-3 mx-4 mb-4 px-4 py-3 rounded-[24px] shadow-sm border"
+            style={{ flexShrink: 0, background: '#fff9e6', borderColor: '#ffeeb3' }}
+          >
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-amber-600" />
+            </div>
+            <p className="text-[11px] font-bold leading-tight" style={{ color: '#926a00' }}>
+              Drag <span className="text-green-700">right</span> to like · <span className="text-red-700">left</span> to pass · tap <span className="text-amber-800">Pro Insights</span>
+            </p>
+            <button
+              onClick={() => setHint(false)}
+              aria-label="Close Hint"
+              className="ml-auto text-amber-900/40 hover:text-amber-900 shrink-0 bg-white/50 w-6 h-6 rounded-full flex items-center justify-center"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
+        )}
+
+        {/* ── CARD STACK ─────────────────────────────────── */}
         <div
-          className="flex items-center gap-2 mx-4 mb-2 px-3 py-2 rounded-2xl"
-          style={{ flexShrink: 0, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)' }}
+          style={{
+            flexShrink: 0,
+            position: 'relative',
+            margin: '0 16px',
+            height: cardAreaH,
+            minHeight: '420px',
+            maxHeight: '600px',
+          }}
         >
-          <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.5)' }}>
-            Drag <span className="text-green-400 font-semibold">right</span> to like · drag <span className="text-red-400 font-semibold">left</span> to pass · tap <span className="text-amber-300 font-semibold">View 6 Insights</span>
-          </p>
-          <button onClick={() => setHint(false)} className="ml-auto text-white/20 hover:text-white/50 flex-shrink-0">
-            <X className="w-3.5 h-3.5" />
-          </button>
+          {mode === 'client' ? (
+            listDeck.length === 0 ? (
+              <EmptyState label={catLabel} onReset={() => setListDeck([...tutorialListings[listCat]])} />
+            ) : (
+              listDeck.slice(0, 3).reverse().map((listing, revIdx) => {
+                const stackIndex = Math.min(listDeck.length, 3) - 1 - revIdx;
+                return (
+                  <ListingCardWrapper
+                    key={listing.id}
+                    listing={listing}
+                    stackIndex={stackIndex}
+                    onSwipe={handleListSwipe}
+                    onInsights={() => setModal({ kind: 'listing', data: listing })}
+                  />
+                );
+              })
+            )
+          ) : (
+            cliDeck.length === 0 ? (
+              <EmptyState label={catLabel} onReset={() => setCliDeck([...tutorialClientProfiles[cliGender]])} />
+            ) : (
+              cliDeck.slice(0, 3).reverse().map((profile, revIdx) => {
+                const stackIndex = Math.min(cliDeck.length, 3) - 1 - revIdx;
+                return (
+                  <ClientCardWrapper
+                    key={profile.id}
+                    profile={profile}
+                    stackIndex={stackIndex}
+                    onSwipe={handleCliSwipe}
+                    onInsights={() => setModal({ kind: 'client', data: profile })}
+                  />
+                );
+              })
+            )
+          )}
         </div>
-      )}
 
-      {/* ── CARD STACK ─────────────────────────────────── */}
-      <div
-        style={{
-          flexShrink: 0,
-          position: 'relative',
-          margin: '0 16px',
-          height: cardAreaH,
-          minHeight: '380px',
-          maxHeight: '560px',
-        }}
-      >
-        {mode === 'client' ? (
-          listDeck.length === 0 ? (
-            <EmptyState label={catLabel} onReset={() => setListDeck([...tutorialListings[listCat]])} />
-          ) : (
-            listDeck.slice(0, 3).reverse().map((listing, revIdx) => {
-              const stackIndex = Math.min(listDeck.length, 3) - 1 - revIdx;
-              return (
-                <ListingCardWrapper
-                  key={listing.id}
-                  listing={listing}
-                  stackIndex={stackIndex}
-                  onSwipe={handleListSwipe}
-                  onInsights={() => setModal({ kind: 'listing', data: listing })}
-                />
-              );
-            })
-          )
-        ) : (
-          cliDeck.length === 0 ? (
-            <EmptyState label={catLabel} onReset={() => setCliDeck([...tutorialClientProfiles[cliGender]])} />
-          ) : (
-            cliDeck.slice(0, 3).reverse().map((profile, revIdx) => {
-              const stackIndex = Math.min(cliDeck.length, 3) - 1 - revIdx;
-              return (
-                <ClientCardWrapper
-                  key={profile.id}
-                  profile={profile}
-                  stackIndex={stackIndex}
-                  onSwipe={handleCliSwipe}
-                  onInsights={() => setModal({ kind: 'client', data: profile })}
-                />
-              );
-            })
-          )
+        {/* ── ACTION BUTTONS ─────────────────────────────── */}
+        <div style={{ flexShrink: 0, padding: '16px 16px 0' }} className="mt-auto">
+          <div className="flex items-center justify-center gap-6">
+            {/* Pass */}
+            <motion.button
+              whileTap={{ scale: 0.88 }}
+              aria-label="Pass"
+              onClick={() => {
+                if (mode === 'client' && listDeck.length > 0) handleListSwipe('left');
+                else if (mode === 'owner' && cliDeck.length > 0) handleCliSwipe('left');
+              }}
+              className="flex items-center justify-center shadow-xl transition-all active:shadow-sm w-16 h-16 rounded-full bg-white border border-zinc-100"
+            >
+              <ThumbsDown className="w-7 h-7 text-red-500 fill-red-50" />
+            </motion.button>
+
+            {/* Info */}
+            <motion.button
+              whileTap={{ scale: 0.88 }}
+              aria-label="Information"
+              onClick={() => {
+                if (mode === 'client' && listDeck.length > 0) setModal({ kind: 'listing', data: listDeck[0] });
+                else if (mode === 'owner' && cliDeck.length > 0) setModal({ kind: 'client', data: cliDeck[0] });
+              }}
+              className="flex items-center justify-center shadow-lg w-13 h-13 rounded-full bg-white border border-zinc-100"
+            >
+              <Info className="w-6 h-6 text-amber-500" />
+            </motion.button>
+
+            {/* Like */}
+            <motion.button
+              whileTap={{ scale: 0.88 }}
+              aria-label="Like"
+              onClick={() => {
+                if (mode === 'client' && listDeck.length > 0) handleListSwipe('right');
+                else if (mode === 'owner' && cliDeck.length > 0) handleCliSwipe('right');
+              }}
+              className="flex items-center justify-center shadow-xl transition-all active:shadow-sm w-16 h-16 rounded-full bg-zinc-950"
+            >
+              <Flame className="w-7 h-7 text-amber-500 fill-amber-500" />
+            </motion.button>
+          </div>
+
+          {/* Counter */}
+          <p className="text-center mt-3 pb-6 font-black uppercase tracking-widest" style={{ fontSize: 9, color: 'rgba(0,0,0,0.2)' }}>
+            {deckLen} {catLabel} left · {likes} liked · {passes} passed
+          </p>
+        </div>
+
+        {/* ── INSIGHTS MODAL ─────────────────────────────── */}
+        {modal && (
+          <InsightsModal
+            title={modal.kind === 'listing' ? modal.data.title : `${modal.data.name}, ${(modal.data as TutorialClientProfile).age}`}
+            subtitle={modal.kind === 'listing' ? (modal.data as TutorialListing).subtitle : (modal.data as TutorialClientProfile).city}
+            insights={modal.data.insights}
+            image={modal.kind === 'listing' ? (modal.data as TutorialListing).images[0] : (modal.data as TutorialClientProfile).profile_images[0]}
+            onClose={() => setModal(null)}
+          />
         )}
       </div>
-
-      {/* ── ACTION BUTTONS ─────────────────────────────── */}
-      <div style={{ flexShrink: 0, padding: '12px 16px 0' }}>
-        <div className="flex items-center justify-center gap-5">
-          {/* Pass */}
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={() => {
-              if (mode === 'client' && listDeck.length > 0) handleListSwipe('left');
-              else if (mode === 'owner' && cliDeck.length > 0) handleCliSwipe('left');
-            }}
-            className="flex items-center justify-center"
-            style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(239,68,68,0.12)', border: '2px solid rgba(239,68,68,0.5)' }}
-          >
-            <X className="w-6 h-6 text-red-400" />
-          </motion.button>
-
-          {/* Info */}
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={() => {
-              if (mode === 'client' && listDeck.length > 0) setModal({ kind: 'listing', data: listDeck[0] });
-              else if (mode === 'owner' && cliDeck.length > 0) setModal({ kind: 'client', data: cliDeck[0] });
-            }}
-            className="flex items-center justify-center"
-            style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(251,191,36,0.12)', border: '2px solid rgba(251,191,36,0.35)' }}
-          >
-            <Info className="w-5 h-5 text-amber-400" />
-          </motion.button>
-
-          {/* Like */}
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={() => {
-              if (mode === 'client' && listDeck.length > 0) handleListSwipe('right');
-              else if (mode === 'owner' && cliDeck.length > 0) handleCliSwipe('right');
-            }}
-            className="flex items-center justify-center"
-            style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(34,197,94,0.12)', border: '2px solid rgba(34,197,94,0.5)' }}
-          >
-            <Heart className="w-6 h-6 text-green-400" />
-          </motion.button>
-        </div>
-
-        {/* Counter */}
-        <p className="text-center mt-2 pb-4" style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
-          {deckLen} {catLabel} left · {likes} liked · {passes} passed
-        </p>
-      </div>
-
-      {/* ── INSIGHTS MODAL ─────────────────────────────── */}
-      {modal && (
-        <InsightsModal
-          title={modal.kind === 'listing' ? modal.data.title : `${modal.data.name}, ${(modal.data as TutorialClientProfile).age}`}
-          subtitle={modal.kind === 'listing' ? (modal.data as TutorialListing).subtitle : (modal.data as TutorialClientProfile).city}
-          insights={modal.data.insights}
-          image={modal.kind === 'listing' ? (modal.data as TutorialListing).images[0] : (modal.data as TutorialClientProfile).profile_images[0]}
-          onClose={() => setModal(null)}
-        />
-      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import { triggerHaptic } from "@/utils/haptics"
+import { motion } from "framer-motion"
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 select-none touch-manipulation will-change-transform transform-gpu",
@@ -39,7 +40,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
   /** Use elastic wobbly spring on press instead of subtle scale */
   elastic?: boolean
@@ -75,6 +76,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           {...props}
         />
       );
+    }
+
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          onClick={handleClick}
+          {...props}
+        />
+      )
     }
 
     return (

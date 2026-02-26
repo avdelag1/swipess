@@ -36,7 +36,7 @@ export default function LegalPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-24">
         <PageHeader
           title="Legal"
           subtitle="Terms of service and privacy information"

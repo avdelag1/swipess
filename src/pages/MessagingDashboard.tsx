@@ -410,7 +410,7 @@ export function MessagingDashboard() {
       />
 
       <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
-        <div className="w-full max-w-4xl mx-auto px-4 pt-6 sm:px-6">
+        <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
 
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -466,14 +466,14 @@ export function MessagingDashboard() {
                     {/* Avatar with gradient ring */}
                     <div className="relative shrink-0">
                       <div className={`p-[2px] rounded-full ${isOwner
-                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                          : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                        ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                        : 'bg-gradient-to-br from-blue-500 to-cyan-500'
                         }`}>
                         <Avatar className="w-13 h-13 border-2 border-background">
                           <AvatarImage src={conversation.other_user?.avatar_url} />
                           <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
-                              ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                              : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                            ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                            : 'bg-gradient-to-br from-blue-500 to-cyan-500'
                             }`}>
                             {conversation.other_user?.full_name?.charAt(0) || '?'}
                           </AvatarFallback>
@@ -491,8 +491,8 @@ export function MessagingDashboard() {
                             {conversation.other_user?.full_name || 'Unknown'}
                           </span>
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
-                              ? 'bg-purple-500/15 text-purple-400'
-                              : 'bg-blue-500/15 text-blue-400'
+                            ? 'bg-purple-500/15 text-purple-400'
+                            : 'bg-blue-500/15 text-blue-400'
                             }`}>
                             {isOwner ? 'Provider' : 'Explorer'}
                           </span>

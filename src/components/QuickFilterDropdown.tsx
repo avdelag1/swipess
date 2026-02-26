@@ -8,7 +8,7 @@ import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from
 
 // Custom motorcycle icon
 const MotorcycleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="5" cy="17" r="3" />
     <circle cx="19" cy="17" r="3" />
     <path d="M9 17h6" />
@@ -39,10 +39,10 @@ type CategoryOption = {
 };
 
 const categoryOptions: CategoryOption[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={3} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', hasSubOptions: true },
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', hasSubOptions: true },
   { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, color: 'from-red-500 to-orange-500', hasSubOptions: true },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={3} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500', hasSubOptions: true },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={3} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', hasSubOptions: true },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500', hasSubOptions: true },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', hasSubOptions: true },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -52,23 +52,23 @@ const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
 ];
 
 const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={3} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'female', label: 'Women', icon: <User strokeWidth={3} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500' },
-  { id: 'male', label: 'Men', icon: <User strokeWidth={3} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500' },
+  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
+  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500' },
+  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500' },
 ];
 
 const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'all', label: 'All Types', icon: <Briefcase strokeWidth={3} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={3} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
-  { id: 'rent', label: 'Renting', icon: <Briefcase strokeWidth={3} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
-  { id: 'buy', label: 'Buying', icon: <Briefcase strokeWidth={3} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
+  { id: 'all', label: 'All Types', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
+  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
+  { id: 'rent', label: 'Renting', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
+  { id: 'buy', label: 'Buying', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
 ];
 
 // UPGRADED BRIGHTNESS: Text is a bright, glowing gradient
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
   <>
     <span className={cn(
-      "hidden sm:inline font-bold text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent",
+      "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
         : isDark
@@ -78,7 +78,7 @@ const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boole
       Quick Filter
     </span>
     <span className={cn(
-      "sm:hidden font-bold text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent",
+      "sm:hidden font-black text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
         : isDark
