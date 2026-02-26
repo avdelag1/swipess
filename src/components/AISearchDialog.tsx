@@ -24,8 +24,6 @@ interface Message {
   actionRoute?: string;
 }
 
-// Hardcoded response logic removed in favor of real Minimax AI integration.
-
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -35,24 +33,43 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: clientProfile } = useClientProfile();
-  // Fix: Fallback chain for avatar - client profile images → avatar_url → null
+
   const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
-  // Auto-focus input when dialog opens
+  // Auto-focus input and add welcome message when dialog opens
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
+
+      // Add welcome message if chat is empty
+      if (messages.length === 0) {
+        setIsTyping(true);
+        const timer = setTimeout(() => {
+          setIsTyping(false);
+          setMessages([{
+            role: 'ai',
+            content: "Welcome to Swipess! ✨ I'm your Personal Assistant. I can help you find your dream property, discover new connections, or explain how our token system works.\n\nWhat's on your mind today?",
+            timestamp: Date.now()
+          }]);
+        }, 1200);
+        return () => clearTimeout(timer);
+      }
     } else {
-      // Reset when closed
-      setMessages([]);
-      setQuery('');
+      // Small delay on cleanup for smooth exit transition
+      const timer = setTimeout(() => {
+        setMessages([]);
+        setQuery('');
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isTyping]);
 
   const handleSend = useCallback(async () => {
     if (!query.trim() || isSearching) return;
@@ -64,13 +81,15 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     setIsTyping(true);
 
     try {
-      // Execute real AI call via Edge Function
       const { data, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
           task: 'chat',
           data: {
             query: userMessage,
-            messages: messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }))
+            messages: [
+              ...messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
+              { role: 'user', content: userMessage }
+            ]
           }
         }
       });
@@ -78,9 +97,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
       if (fnError) throw fnError;
 
       const responseContent = data?.result?.text || data?.result?.message || String(data?.result || '');
-
       setIsTyping(false);
-
       setMessages(prev => [...prev, {
         role: 'ai',
         content: responseContent,
@@ -92,7 +109,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
       console.error('AI search error:', error);
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: "The Swipess Oracle is currently meditating in the high mountains of Chiapas. 🌸✨\n\nPlease try again in a heartbeat, and I'll be back with my full wisdom.",
+        content: "I'm having a brief moment of silence while I reconnect with my data sources. 💎✨\n\nPlease try again in a moment.",
         timestamp: Date.now()
       }]);
     } finally {
@@ -100,12 +117,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     }
   }, [query, isSearching, userRole, messages]);
 
-
-  // Fix: Declare handleClose before handleAction to avoid reference-before-declaration
   const handleClose = useCallback(() => {
     onClose();
-    setQuery('');
-    setMessages([]);
     setIsSearching(false);
     setIsTyping(false);
   }, [onClose]);
@@ -118,10 +131,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
-    { icon: Home, label: 'Browse', text: 'Show me apartments to rent' },
+    { icon: Home, label: 'Properties', text: 'Show me apartments to rent' },
     { icon: Flame, label: 'Matches', text: 'Where are my matches?' },
-    { icon: Zap, label: 'Tokens', text: 'What are tokens?' },
-    { icon: MessageCircle, label: 'Help', text: 'How does Swipess work?' },
+    { icon: Zap, label: 'Tokens', text: 'How do tokens work?' },
+    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?' },
   ], []);
 
   const applyQuickPrompt = (text: string) => {
@@ -134,20 +147,23 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md bg-background/90 dark:bg-zinc-950/90 backdrop-blur-3xl border border-border dark:border-white/10 p-0 overflow-hidden rounded-[2.5rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] dark:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.8)] outline-none"
+        className="sm:max-w-[400px] w-full max-h-[85vh] sm:max-h-[80vh] bg-background/80 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-6 py-6 border-b border-border dark:border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.15), rgba(245,222,179,0.05))' }}>
-          <div className="flex items-center gap-4">
-            {/* AI Avatar */}
-            <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
-              <Sparkles className="w-6 h-6 text-white" />
+        <div className="relative px-5 py-3.5 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10 relative overflow-hidden group">
+              <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             <div>
-              <h2 className="text-foreground font-black text-lg tracking-tight">Swipess AI</h2>
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Assistant</p>
+              <h2 className="text-foreground font-black text-sm tracking-tight leading-none mb-0.5">Swipess AI</h2>
+              <div className="flex items-center gap-1.5">
+                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Concierge</p>
+              </div>
             </div>
           </div>
 
@@ -155,132 +171,102 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             variant="ghost"
             size="icon"
             onClick={handleClose}
-            className="h-10 w-10 rounded-full hover:bg-white/10 transition-colors"
+            className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
           >
-            <X className="w-5 h-5 text-foreground/60" />
+            <X className="w-4 h-4 text-foreground/60" />
           </Button>
         </div>
 
         {/* Messages Area */}
-        <div className="max-h-[60vh] min-h-[300px] overflow-y-auto px-8 py-8 space-y-8 scrollbar-none relative">
-          {messages.length === 0 && (
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" style={{ height: 'min(65vh, 500px)', minHeight: '350px' }}>
+          {messages.length === 0 && !isTyping && (
             <motion.div
-              initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              className="text-center space-y-6 py-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center space-y-6 py-10"
             >
-              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.1), rgba(245,222,179,0.1))' }}>
-                <Sparkles className="w-10 h-10" style={{ color: '#E4007C' }} />
+              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl bg-zinc-900 border border-white/10">
+                <Sparkles className="w-10 h-10 text-orange-400" />
               </div>
-              <div>
-                <h3 className="text-foreground font-black text-2xl tracking-tighter">Swipess Oracle</h3>
-                <p className="text-muted-foreground text-sm font-bold mt-2">The app expert is listening. What's on your mind?</p>
-              </div>
-
-              {/* Quick prompts - HIGH CONTRAST */}
-              <div className="grid grid-cols-1 gap-3 pt-4 px-4">
-                {quickPrompts.map((prompt, index) => (
-                  <button
-                    key={index}
-                    onClick={() => applyQuickPrompt(prompt.text)}
-                    className="flex items-center gap-4 px-5 py-4 text-sm font-bold bg-muted/50 hover:bg-muted dark:bg-zinc-900/50 dark:hover:bg-zinc-800 border border-border dark:border-white/5 rounded-2xl text-foreground dark:text-zinc-100 transition-all text-left shadow-lg group active:scale-95"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-background/50 dark:bg-zinc-800/50 flex items-center justify-center group-hover:bg-[#E4007C]/20 transition-colors">
-                      <prompt.icon className="w-5 h-5 text-[#E4007C]" />
-                    </div>
-                    <span className="flex-1 leading-tight">{prompt.label}</span>
-                  </button>
-                ))}
-              </div>
+              <p className="text-muted-foreground text-sm font-bold">Connecting to Oracle...</p>
             </motion.div>
           )}
 
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {messages.map((message) => (
               <motion.div
                 key={message.timestamp}
-                initial={{ opacity: 0, y: 20, scale: 0.9, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
-                className={cn(
-                  "flex flex-col gap-2",
-                  message.role === 'user' && "items-end"
-                )}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className={cn("flex flex-col gap-2", message.role === 'user' && "items-end")}
               >
-                <div className={cn(
-                  "flex gap-3",
-                  message.role === 'user' && "flex-row-reverse"
-                )}>
+                <div className={cn("flex gap-2.5", message.role === 'user' && "flex-row-reverse")}>
                   <div className={cn(
-                    "w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1 shadow-md transition-transform duration-500",
-                    message.role === 'ai' ? "bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
+                    "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm",
+                    message.role === 'ai' ? "bg-zinc-900 border border-white/10" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
                   )}>
                     {message.role === 'ai' ? (
-                      <Sparkles className="w-5 h-5 text-white" />
+                      <Sparkles className="w-4 h-4 text-orange-400" />
                     ) : (
                       userAvatar ? (
-                        <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-2xl" />
+                        <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-xl" />
                       ) : (
-                        <User className="w-5 h-5 text-muted-foreground" />
+                        <User className="w-4 h-4 text-muted-foreground" />
                       )
                     )}
                   </div>
 
                   <div className={cn(
-                    "max-w-[85%] px-5 py-4 rounded-[2rem] text-sm font-bold leading-relaxed shadow-sm",
+                    "max-w-[85%] px-4 py-3 rounded-[1.5rem] text-xs font-semibold leading-relaxed shadow-sm",
                     message.role === 'user'
-                      ? "bg-gradient-to-br from-[#E4007C] to-[#C4006C] text-white rounded-tr-sm"
-                      : "bg-muted/80 dark:bg-white/10 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
-                  )}
-                  >
+                      ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
+                      : "bg-muted/80 dark:bg-zinc-900/50 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
+                  )}>
                     {message.content}
                   </div>
                 </div>
 
-                {/* Action button if available */}
                 {message.role === 'ai' && message.showAction && message.actionRoute && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <Button
+                    size="sm"
                     onClick={() => handleAction(message.actionRoute)}
-                    className="flex items-center gap-2 px-6 py-3 text-xs font-black rounded-full text-white shadow-[0_10px_20px_rgba(228,0,124,0.3)] transition-all ml-12 uppercase tracking-widest"
+                    className="flex items-center gap-2 px-6 h-10 rounded-full text-white shadow-lg ml-12 uppercase tracking-widest text-[10px]"
                     style={{ background: 'linear-gradient(135deg, #E4007C, #C4006C)' }}
                   >
                     {message.actionLabel || 'View'}
                     <ArrowRight className="w-4 h-4" />
-                  </motion.button>
+                  </Button>
                 )}
               </motion.div>
             ))}
           </AnimatePresence>
 
-
           {isTyping && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center gap-2 text-muted-foreground text-xs pl-8"
-            >
-              <Loader2 className="w-3 h-3 animate-spin" />
-              AI is thinking...
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 pl-2">
+              <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
+              </div>
+              <div className="bg-muted px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-muted-foreground flex items-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Thinking...
+              </div>
             </motion.div>
           )}
 
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick action buttons (appear after first message) */}
-        {messages.length > 0 && messages[messages.length - 1].role === 'ai' && (
-          <div className="px-4 pb-2">
+        {/* Quick Suggestions */}
+        {messages.length > 0 && messages[messages.length - 1].role === 'ai' && !isSearching && !isTyping && (
+          <div className="px-6 pb-2">
             <div className="flex flex-wrap gap-2">
-              {quickPrompts.slice(0, 2).map((prompt, index) => (
+              {quickPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-muted hover:bg-muted/80 dark:bg-white/5 dark:hover:bg-white/10 border border-border dark:border-white/10 rounded-full text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] bg-muted dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white transition-all font-bold uppercase tracking-wider"
                 >
-                  <prompt.icon className="w-3 h-3" style={{ color: '#f97316' }} />
+                  <prompt.icon className="w-3 h-3 text-orange-500" />
                   {prompt.label}
                 </button>
               ))}
@@ -294,11 +280,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Ask me anything..."
+              placeholder="Message your assistant..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="pr-20 h-11 bg-muted dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40"
+              className="pr-20 h-12 bg-muted dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40 font-bold"
               disabled={isSearching}
             />
 
@@ -309,11 +295,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               className="absolute right-1 top-1 bottom-1 rounded-xl px-4 h-auto text-white"
               style={query.trim() ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : { background: 'rgba(255,255,255,0.08)' }}
             >
-              {isSearching ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
+              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>
           </div>
         </div>

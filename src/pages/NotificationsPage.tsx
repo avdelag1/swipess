@@ -247,7 +247,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500">
-      <div className="max-w-2xl mx-auto px-4 pt-12 pb-32 space-y-8">
+      <div className="max-w-2xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-8">
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-black tracking-tight text-foreground">Inbox</h1>

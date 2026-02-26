@@ -12,11 +12,11 @@ export interface Listing {
   owner_id: string;
   description: string;
   status: string;
-  
+
   // Mode and category
   category?: string;
   mode?: string;
-  
+
   // Property fields
   address?: string;
   city?: string;
@@ -31,7 +31,7 @@ export interface Listing {
   listing_type?: string;
   tulum_location?: string;
   lifestyle_compatible?: string[];
-  
+
   // Common fields (vehicles)
   brand?: string;
   model?: string;
@@ -39,7 +39,7 @@ export interface Listing {
   condition?: string;
   latitude?: number;
   longitude?: number;
-  
+
   // Yacht fields
   length_m?: number;
   berths?: number;
@@ -49,7 +49,7 @@ export interface Listing {
   fuel_type?: string;
   equipment?: string[];
   rental_rates?: any;
-  
+
   // Motorcycle fields
   mileage?: number;
   engine_cc?: number;
@@ -57,7 +57,7 @@ export interface Listing {
   color?: string;
   license_required?: string;
   vehicle_type?: string;
-  
+
   // Bicycle fields
   frame_size?: string;
   wheel_size?: string;
@@ -66,7 +66,7 @@ export interface Listing {
   gear_type?: string;
   electric_assist?: boolean;
   battery_range?: number;
-  
+
   // Worker/Service fields
   service_type?: string;
   hourly_rate?: number;
@@ -81,11 +81,11 @@ export interface Listing {
   time_slots_available?: string[];
   location_type?: string;
   experience_level?: string;
-  
+
   // Additional details
   description_short?: string;
   description_full?: string;
-  
+
   // Timestamps
   updated_at?: string;
   created_at?: string;
@@ -101,7 +101,7 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         // Get current user's filter preferences for listing types
         const { data: user } = await supabase.auth.getUser();
         let preferredListingTypes = ['rent']; // Default to rent
-        
+
         if (user.user) {
           const { data: preferences, error: prefError } = await supabase
             .from('client_filter_preferences')
@@ -182,7 +182,6 @@ export function useOwnerListings() {
           .from('listings')
           .select('*')
           .eq('owner_id', user.user.id)
-          .eq('status', 'active')
           .order('created_at', { ascending: false })
           .limit(100); // Prevent loading too many listings at once
 

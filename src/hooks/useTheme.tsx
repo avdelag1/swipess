@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
+import { logger } from '@/utils/prodLogger';
 
-type Theme = 'grey-matte' | 'black-matte' | 'white-matte' | 'red-matte' | 'pure-black' | 'cheers' | 'amber-matte';
-
-const THEME_STORAGE_KEY = 'swipess-theme';
+type Theme = 'black-matte' | 'white-matte';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,20 +13,48 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(
-    () => (localStorage.getItem(THEME_STORAGE_KEY) as Theme) || 'white-matte'
-  );
+  const [theme, setThemeState] = useState<Theme>('black-matte');
+  const { user } = useAuth();
 
+  // Load theme from database when user logs in
+  useEffect(() => {
+    if (user?.id) {
+      const loadUserTheme = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('theme_preference')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (error) throw error;
+
+          const validThemes = ['black-matte', 'white-matte'];
+          if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
+            setThemeState(data.theme_preference as Theme);
+          }
+        } catch (error) {
+          logger.error('Failed to load theme preference:', error);
+          setThemeState('black-matte');
+        }
+      };
+      loadUserTheme();
+    } else {
+      setThemeState('black-matte');
+    }
+  }, [user?.id]);
+
+  // Apply theme class to document and update status bar
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove(
-      'grey-matte', 'white-matte', 'red-matte', 'amber-matte',
-      'pure-black', 'cheers', 'dark', 'amber', 'red'
-    );
+    // Remove all theme classes safely
+    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
 
-    root.classList.add(theme);
+    // Add current theme class + 'dark' variant to keep base components dark
+    root.classList.add(theme, 'dark');
 
+    // Update status bar base color according to theme
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
@@ -33,17 +62,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.head.appendChild(metaThemeColor);
     }
 
-    // Set status bar roughly matching background
     if (theme === 'white-matte') {
-      metaThemeColor.setAttribute('content', '#f9fafb');
+      metaThemeColor.setAttribute('content', '#ffffff');
     } else {
       metaThemeColor.setAttribute('content', '#000000');
     }
   }, [theme]);
 
-  const setTheme = (newTheme: Theme) => {
-    localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+  // Save theme to database and update state
+  const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
+
+    if (user?.id) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ theme_preference: newTheme })
+          .eq('id', user.id);
+
+        if (error) throw error;
+      } catch (error) {
+        logger.error('Failed to save theme preference:', error);
+      }
+    }
   };
 
   return (
