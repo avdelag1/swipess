@@ -154,6 +154,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   // Get target path for navigation
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
     const currentPath = location.pathname;
+    console.log(`[getTargetPath] newMode: ${newMode}, currentPath: ${currentPath}`);
 
     // Default paths
     const defaultPaths = {
@@ -176,6 +177,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
 
       // Look up where this page maps to in the OTHER mode
       const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
+      console.log(`[getTargetPath] fromMode: ${fromMode}, currentPageType: ${currentPageType}, mappedPath: ${mappedPath}`);
       if (mappedPath) {
         return mappedPath;
       }
@@ -228,14 +230,19 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     // 7. Navigate with error handling
     try {
       const targetPath = getTargetPath(newMode);
+      console.log(`[switchMode] Navigating to targetPath: ${targetPath}`);
       navigate(targetPath, { replace: true });
     } catch (navError) {
       logger.error('[ActiveMode] Navigation failed:', navError);
+      console.error('[switchMode] Navigation failed:', navError);
       // Fallback navigation
       try {
-        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+        const fallbackPath = newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
+        console.log(`[switchMode] Fallback navigating to: ${fallbackPath}`);
+        navigate(fallbackPath, { replace: true });
       } catch (fallbackError) {
         logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
+        console.error('[switchMode] Fallback navigation also failed:', fallbackError);
       }
     }
 
