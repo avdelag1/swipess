@@ -113,7 +113,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 py-4 pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
           <motion.button
             whileTap={{ scale: 0.96 }}
@@ -147,7 +147,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 py-4 pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
           <motion.button
             whileTap={{ scale: 0.96 }}
@@ -169,7 +169,7 @@ const OwnerSettingsNew = () => {
   }
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-6 py-6 pb-40 scrollbar-hide">
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide">
       <div className="max-w-3xl mx-auto space-y-10">
         <PageHeader
           title="Owner Settings"
