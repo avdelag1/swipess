@@ -151,22 +151,31 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Swipe hint arrow */}
+      {/* Direct Entry Button - Fixes issue where users got stuck on Splash Screen */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.4 }}
-        className="mt-6 flex items-center gap-1.5 text-white/30"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+        className="mt-8 flex flex-col items-center w-full max-w-xs z-20"
       >
-        <motion.div
-          animate={{ x: [0, 8, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex items-center gap-1"
+        <Button
+          onClick={handleTap}
+          size="lg"
+          className="w-full h-14 rounded-full text-base font-bold shadow-[0_0_30px_rgba(228,0,124,0.4)] bg-gradient-to-r from-[#E4007C] to-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all text-black hover:text-black border-none"
         >
-          <ChevronRight className="w-4 h-4" />
-          <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
-        </motion.div>
-        <span className="text-xs font-medium tracking-wide">swipe right</span>
+          Get Started
+        </Button>
+        <div className="mt-4 flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
+          <motion.div
+            animate={{ x: [0, 8, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex items-center gap-1"
+          >
+            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
+          </motion.div>
+          <span className="text-xs font-medium tracking-wide">or swipe right</span>
+        </div>
       </motion.div>
 
       {/* Effects toggle */}
@@ -313,7 +322,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
   };
   const itemVariants = {
-    hidden:  { opacity: 0, y: 18 },
+    hidden: { opacity: 0, y: 18 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const } },
   };
 
@@ -445,8 +454,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
                       <span className={`text-[10px] font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
-                          passwordStrength.score === 2 ? 'text-orange-400' :
-                            passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                        passwordStrength.score === 2 ? 'text-orange-400' :
+                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
                         }`}>{passwordStrength.label}</span>
                     </div>
                   )}

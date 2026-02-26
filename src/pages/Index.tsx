@@ -160,13 +160,11 @@ const Index = () => {
     // Only do this if the profile has been loading for a bit to avoid race conditions
     if (!isNewUser && !isLoadingRole && !userRole) {
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-      if (metadataRole) {
-        hasNavigated.current = true;
-        const targetPath = metadataRole === "client" ? "/client/dashboard" : "/owner/dashboard";
-        logger.log("[Index] Fallback to metadata role, navigating to:", targetPath);
-        navigate(targetPath, { replace: true });
-        return;
-      }
+      const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+      hasNavigated.current = true;
+      logger.log("[Index] Fallback to default/metadata role, navigating to:", targetPath);
+      navigate(targetPath, { replace: true });
+      return;
     }
   }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
 
