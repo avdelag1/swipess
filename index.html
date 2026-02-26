@@ -80,21 +80,34 @@
     }
 
     .splash-logo {
-      width: 96px;
-      height: 96px;
+      width: 120px;
+      height: 120px;
       object-fit: contain;
-      animation: splash-fade 0.4s ease-out both
+      filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.4));
+      animation: sentient-splash 3s ease-in-out infinite;
     }
 
-    @keyframes splash-fade {
-      from {
+    @keyframes sentient-splash {
+      0% {
         opacity: 0;
-        transform: scale(0.92)
+        transform: scale(0.9) rotate(-10deg);
       }
 
-      to {
+      20% {
         opacity: 1;
-        transform: scale(1)
+        transform: scale(1.05) rotate(5deg);
+      }
+
+      50% {
+        transform: scale(1) rotate(0deg);
+      }
+
+      70% {
+        transform: scale(1.05) rotate(-3deg);
+      }
+
+      100% {
+        transform: scale(1) rotate(0deg);
       }
     }
   </style>
