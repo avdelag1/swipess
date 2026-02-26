@@ -82,11 +82,19 @@ function TopBarComponent({
   const { theme } = useTheme();
   const isDark = theme === 'black-matte';
 
-  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const glassBg = isDark
+    ? 'hsl(var(--background) / 0.32)'
+    : 'hsl(var(--background) / 0.88)';
+  const glassBorder = isDark
+    ? '1px solid hsl(var(--border) / 0.55)'
+    : '1px solid hsl(var(--border) / 0.65)';
   const floatingShadow = isDark
-    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
+    : 'inset 0 1px 0 hsl(var(--foreground) / 0.65), 0 3px 10px hsl(0 0% 0% / 0.08)';
+  const controlBlur = isDark ? 'blur(10px)' : 'none';
+  const headerBackgroundClass = isDark
+    ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
+    : 'bg-transparent border-transparent';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -137,7 +145,7 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent',
+          headerBackgroundClass,
           shouldHide && 'header-hidden',
           className
         )}
@@ -192,8 +200,8 @@ function TopBarComponent({
                 )}
                 style={{
                   backgroundColor: glassBg,
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
+                  backdropFilter: controlBlur,
+                  WebkitBackdropFilter: controlBlur,
                   border: glassBorder,
                   boxShadow: floatingShadow,
                 }}
@@ -219,8 +227,8 @@ function TopBarComponent({
                   )}
                   style={{
                     backgroundColor: glassBg,
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    backdropFilter: controlBlur,
+                    WebkitBackdropFilter: controlBlur,
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
@@ -360,8 +368,8 @@ function TopBarComponent({
               )}
               style={{
                 backgroundColor: glassBg,
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
