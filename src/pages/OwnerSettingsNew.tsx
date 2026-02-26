@@ -1,6 +1,7 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight,
   Scale, Volume2, Radio, Building2

@@ -56,6 +56,7 @@ html {
 
 body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-weight: 500;
   overflow-x: hidden;
   width: 100%;
   min-height: 100vh;
@@ -2701,15 +2702,15 @@ html[data-navigation-direction="back"] {
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 html.white-matte {
-  filter: invert(1) hue-rotate(180deg) saturate(0.3);
+  filter: invert(1) hue-rotate(180deg);
   background-color: #000000;
 }
 
 /* Prevent images, videos, and media from being inverted.
-   Counter-filter restores original appearance including full saturation. */
+   Counter-filter restores original appearance with full color vibrancy. */
 html.white-matte img,
 html.white-matte video,
 html.white-matte iframe,
 html.white-matte .no-invert {
-  filter: invert(1) hue-rotate(180deg) saturate(3.33);
+  filter: invert(1) hue-rotate(180deg);
 }
