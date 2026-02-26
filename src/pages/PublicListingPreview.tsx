@@ -151,7 +151,7 @@ export default function PublicListingPreview() {
 
   const category = listing.category || 'property';
   const mode = (listing as any).listing_type || 'rent';
-  const hasImages = listing.images && listing.images.length > 0;
+  const hasImages = listing.images && Array.isArray(listing.images) && listing.images.length > 0;
   const isFreeMessagingCategory = FREE_MESSAGING_CATEGORIES.includes(category);
   const canDirectMessage = user && isFreeMessagingCategory && user.id !== listing.owner_id;
 
@@ -199,7 +199,7 @@ export default function PublicListingPreview() {
             {/* Image Gallery */}
             <div className="relative aspect-[16/10] overflow-hidden">
               {hasImages ? (
-                <ImageCarousel images={listing.images} alt={listing.title || 'Listing'} />
+                <ImageCarousel images={listing.images as string[]} alt={listing.title || 'Listing'} />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex flex-col items-center justify-center gap-2">
                   <span className="text-6xl">{getCategoryEmoji(category)}</span>
@@ -402,17 +402,17 @@ export default function PublicListingPreview() {
               <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-700/50">
                 <div className="text-center p-2 bg-gray-700/20 rounded-lg">
                   <Eye className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                  <div className="text-lg font-bold text-white">{listing.views || 0}</div>
+                  <div className="text-lg font-bold text-white">{(listing as any).views || 0}</div>
                   <div className="text-xs text-gray-400">Views</div>
                 </div>
                 <div className="text-center p-2 bg-gray-700/20 rounded-lg">
                   <Flame className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                  <div className="text-lg font-bold text-white">{listing.likes || 0}</div>
+                  <div className="text-lg font-bold text-white">{(listing as any).likes || 0}</div>
                   <div className="text-xs text-gray-400">Likes</div>
                 </div>
                 <div className="text-center p-2 bg-gray-700/20 rounded-lg">
                   <MessageSquare className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                  <div className="text-lg font-bold text-white">{listing.contacts || 0}</div>
+                  <div className="text-lg font-bold text-white">{(listing as any).contacts || 0}</div>
                   <div className="text-xs text-gray-400">Contacts</div>
                 </div>
               </div>

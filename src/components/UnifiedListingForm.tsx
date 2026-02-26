@@ -16,7 +16,6 @@ import { toast } from '@/components/ui/sonner';
 import { Upload, X, Bike, CircleDot, ChevronRight, Sparkles, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
 import { CategorySelector, Category, Mode } from './CategorySelector';
 import { MotorcycleListingForm, MotorcycleFormData } from './MotorcycleListingForm';
 import { BicycleListingForm, BicycleFormData } from './BicycleListingForm';
@@ -44,7 +43,7 @@ interface UnifiedListingFormProps {
 }
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
-const stagger = { staggerChildren: 0.08, delayChildren: 0.1 };
+const stagger = { visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } } };
 const itemFadeScale = {
   hidden: { opacity: 0, y: 15, scale: 0.98 },
   visible: { opacity: 1, y: 0, scale: 1, transition: fastSpring }
@@ -264,9 +263,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     onSuccess: () => {
       handleClose();
       if (editingId) {
-        notifications.listing.updated(selectedCategory);
+        toast.success(`${selectedCategory} listing updated successfully`);
       } else {
-        notifications.listing.created(selectedCategory);
+        toast.success(`${selectedCategory} listing created successfully`);
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });

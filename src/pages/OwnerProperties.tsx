@@ -34,13 +34,13 @@ const OwnerProperties = () => {
 
   return (
     <>
-      <div className="w-full overflow-x-hidden">
+      <div className="w-full overflow-x-hidden pt-[calc(56px+var(--safe-top)+1rem)] px-4 sm:px-6 pb-24">
         <motion.button
           onClick={() => navigate('/owner/settings')}
           whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
-          className={`flex items-center gap-1.5 text-sm font-medium ${isLight ? 'text-gray-500 hover:text-gray-900' : 'text-white/60 hover:text-white'} transition-colors duration-150 mb-4 px-1`}
+          className={`flex items-center gap-1.5 text-sm font-black uppercase tracking-tight ${isLight ? 'text-gray-500 hover:text-gray-900' : 'text-white/60 hover:text-white'} transition-colors duration-150 mb-6 px-1`}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4" strokeWidth={3} />
           Back
         </motion.button>
         <PropertyManagement initialCategory={initialCategory} initialMode={initialMode} />
