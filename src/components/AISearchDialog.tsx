@@ -65,12 +65,17 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
     try {
       // Execute real AI call via Edge Function
+      const currentConversation = [
+        ...messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content })),
+        { role: 'user', content: userMessage }
+      ];
+
       const { data, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
           task: 'chat',
           data: {
             query: userMessage,
-            messages: messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.content }))
+            messages: currentConversation
           }
         }
       });
