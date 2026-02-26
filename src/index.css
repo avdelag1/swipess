@@ -397,25 +397,7 @@ body {
     --bg-tertiary: 0 0% 12%;
   }
 
-  /* When white-matte is active alongside dark, override with pure black
-     so invert(1) produces pure 100% white (not 95% grey).
-     Compound selector .dark.white-matte beats .dark in specificity. */
-  .dark.white-matte,
-  .white-matte {
-    --background: 0 0% 0% !important;
-    --foreground: 0 0% 100% !important;
-    --card: 0 0% 2% !important;
-    --card-foreground: 0 0% 100% !important;
-    --secondary: 0 0% 3% !important;
-    --secondary-foreground: 0 0% 100% !important;
-    --muted: 0 0% 3% !important;
-    --muted-foreground: 0 0% 70% !important;
-    --border: 0 0% 6% !important;
-    --input: 0 0% 6% !important;
-    --bg-primary: 0 0% 0% !important;
-    --bg-secondary: 0 0% 2% !important;
-    --bg-tertiary: 0 0% 4% !important;
-  }
+  /* Native light theme variables are defined in matte-themes.css now, no more fake invert hack */
 
   .amber {
     --background: 43 96% 97%;
@@ -2703,22 +2685,6 @@ html[data-navigation-direction="back"] {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  FILTER-BASED LIGHT THEME                                          */
-/*  invert(1): black→white, white→black                               */
-/*  hue-rotate(180deg): restores original hues after inversion        */
-/*  saturate(0.3): tames vivid accent colors (pink→muted rose)        */
+/*  FILTER-BASED LIGHT THEME -> REPLACED WITH NATIVE VARIABLES      */
+/*  (Removed global invert in favor of native light mode variables)    */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-html.white-matte {
-  filter: invert(1) hue-rotate(180deg) saturate(0.9);
-  background-color: #000000;
-}
-
-/* Prevent images, videos, and media from being inverted.
-   Counter-filter restores original appearance with full color vibrancy. */
-html.white-matte img,
-html.white-matte video,
-html.white-matte iframe,
-html.white-matte .no-invert {
-  filter: invert(1) hue-rotate(180deg) saturate(1.11);
-}

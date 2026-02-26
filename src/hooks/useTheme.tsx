@@ -54,7 +54,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Add current theme class + 'dark' variant to keep base components dark
     root.classList.add(theme, 'dark');
 
-    // Default everything to black for the status bar, since white-matte is just an inverted black
+    // Update status bar base color according to theme
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
 
     if (!metaThemeColor) {
@@ -63,7 +63,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.head.appendChild(metaThemeColor);
     }
 
-    metaThemeColor.setAttribute('content', '#000000');
+    if (theme === 'white-matte') {
+      metaThemeColor.setAttribute('content', '#ffffff');
+    } else {
+      metaThemeColor.setAttribute('content', '#000000');
+    }
   }, [theme]);
 
   // Save theme to database and update state
