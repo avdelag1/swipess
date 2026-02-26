@@ -12,17 +12,17 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-button text-white shadow-button hover:shadow-glow hover:shadow-[var(--elevation-floating)]",
+        default: "bg-zinc-950 text-white shadow-xl hover:bg-zinc-900 border-b-2 border-zinc-800",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 hover:shadow-lg rounded-3xl",
+          "bg-red-600 text-white hover:bg-red-700 shadow-lg rounded-3xl border-b-2 border-red-800",
         outline:
-          "border-2 border-primary/20 bg-card/80 backdrop-blur-md text-card-foreground hover:bg-primary hover:text-white hover:border-primary rounded-3xl",
+          "border-2 border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 rounded-3xl shadow-sm",
         secondary:
-          "bg-gradient-to-r from-secondary to-secondary/80 text-foreground shadow-lg hover:shadow-xl backdrop-blur-md rounded-3xl",
-        ghost: "hover:bg-accent/10 hover:text-accent-foreground hover:backdrop-blur-md rounded-2xl",
-        link: "text-primary underline-offset-4 hover:underline",
-        premium: "bg-gradient-premium text-white shadow-premium premium-glow hover:shadow-glow rounded-3xl",
-        tinder: "bg-white/90 backdrop-blur-md text-card-foreground hover:bg-white shadow-card hover:shadow-xl rounded-3xl",
+          "bg-zinc-100 text-zinc-900 shadow-md hover:bg-zinc-200 rounded-3xl border-b-2 border-zinc-200",
+        ghost: "hover:bg-zinc-100 hover:text-zinc-900 rounded-2xl",
+        link: "text-zinc-900 underline-offset-4 hover:underline",
+        premium: "bg-gradient-premium text-white shadow-premium premium-glow hover:shadow-glow rounded-3xl border-b-2 border-purple-800",
+        tinder: "bg-white text-zinc-950 hover:bg-zinc-50 shadow-xl rounded-3xl border border-zinc-200",
       },
       size: {
         default: "h-12 px-6 py-3",
