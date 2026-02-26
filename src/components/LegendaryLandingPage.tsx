@@ -87,18 +87,13 @@ const LandingView = memo(({
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
     >
-      {/* Swipable logo */}
+      {/* Heartbeat logo */}
       <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
-        dragMomentum={false}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
         onTap={handleTap}
-        style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
-        whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative z-10"
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        whileTap={{ scale: 0.95 }}
+        className="cursor-pointer select-none relative z-10"
       >
         <img
           src={swipessLogo}
@@ -163,22 +158,21 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Swipe hint arrow */}
+      {/* Tap hint */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7, duration: 0.4 }}
-        className="mt-6 flex items-center gap-1.5 text-white/30"
+        className="mt-6 flex items-center justify-center text-white/40 cursor-pointer pointer-events-auto"
+        onTap={handleTap}
       >
-        <motion.div
-          animate={{ x: [0, 8, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex items-center gap-1"
+        <motion.span
+          animate={{ opacity: [0.3, 0.8, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          className="text-xs font-bold tracking-widest uppercase"
         >
-          <ChevronRight className="w-4 h-4" />
-          <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
-        </motion.div>
-        <span className="text-xs font-medium tracking-wide">swipe right</span>
+          Tap anywhere to enter
+        </motion.span>
       </motion.div>
 
       {/* Effects toggle */}
