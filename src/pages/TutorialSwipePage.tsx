@@ -97,7 +97,7 @@ function InsightsModal({
           </div>
         )}
 
-        <div className="px-5 pt-3 pb-1">
+        <div className="px-5 pt-3 pb-1 relative z-10">
           <div className="flex items-center gap-1.5 mb-1">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
             <span className="text-[11px] font-bold text-amber-500 uppercase tracking-widest">6 Key Insights</span>
