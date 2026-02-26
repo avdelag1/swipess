@@ -55,6 +55,7 @@ export interface UserPlaylist {
 
 export interface RadioPlayerState {
   isPlaying: boolean;
+  isPoweredOn: boolean;
   currentStation: RadioStation | null;
   currentCity: CityLocation;
   volume: number;

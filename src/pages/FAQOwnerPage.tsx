@@ -83,7 +83,7 @@ export default function FAQOwnerPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
+      <div className="max-w-3xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-24">
         <PageHeader
           title="FAQ & Help"
           subtitle="Common questions for property owners"

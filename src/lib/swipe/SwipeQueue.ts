@@ -278,7 +278,7 @@ class SwipeQueueProcessor {
           const { data: ownerLike } = await supabase
             .from('likes')
             .select('*')
-            .eq('user_id', listing.owner_id)
+            .eq('user_id', listing.owner_id!)
             .eq('target_id', userId)
             .eq('target_type', 'profile')
             .eq('direction', 'right')
@@ -286,11 +286,11 @@ class SwipeQueueProcessor {
 
           if (ownerLike) {
             // Create match using user_id and owner_id (actual schema)
-            await supabase.from('matches').upsert({
+            await supabase.from('matches').upsert([{
               user_id: userId,
-              owner_id: listing.owner_id,
+              owner_id: listing.owner_id!,
               listing_id: swipe.targetId,
-            }, {
+            }], {
               onConflict: 'user_id,owner_id,listing_id',
               ignoreDuplicates: true,
             });
