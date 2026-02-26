@@ -16,7 +16,7 @@ import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth'
 import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
-import swipessLogo from '@/assets/swipess-logo-new.png';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -313,7 +313,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
   };
   const itemVariants = {
-    hidden:  { opacity: 0, y: 18 },
+    hidden: { opacity: 0, y: 18 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const } },
   };
 
@@ -445,8 +445,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
                       <span className={`text-[10px] font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
-                          passwordStrength.score === 2 ? 'text-orange-400' :
-                            passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                        passwordStrength.score === 2 ? 'text-orange-400' :
+                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
                         }`}>{passwordStrength.label}</span>
                     </div>
                   )}

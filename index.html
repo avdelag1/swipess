@@ -80,8 +80,9 @@
     }
 
     .splash-logo {
-      width: 120px;
-      height: 120px;
+      width: 280px;
+      height: auto;
+      max-width: 85vw;
       object-fit: contain;
       filter: drop-shadow(0 0 20px rgba(249, 115, 22, 0.4));
       animation: sentient-splash 3s ease-in-out infinite;
@@ -159,7 +160,6 @@
   <meta name="apple-touch-fullscreen" content="yes">
 
   <!-- Favicon - SVG (modern browsers) + PNG fallbacks + ICO (legacy) -->
-  <link rel="icon" type="image/svg+xml" href="/icons/s-logo.svg">
   <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
@@ -221,7 +221,7 @@
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root">
     <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/s-logo.svg" alt="Swipess" />
+      <img class="splash-logo" src="/icons/swipess-logo-script.png" alt="Swipess" />
     </div>
   </div>
 
