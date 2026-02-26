@@ -318,11 +318,11 @@ function ListingCardContent({
           <button
             onPointerDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); onInsights(); }}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500/5 border-2 border-amber-500/20 text-amber-600 text-xs font-black uppercase tracking-widest active:bg-amber-500/10 cursor-pointer shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500 text-white text-xs font-black uppercase tracking-widest active:bg-amber-600 cursor-pointer shadow-lg transition-all active:scale-[0.97] border-b-4 border-amber-700 hover:brightness-110"
           >
             <Sparkles className="w-4 h-4" />
             See 6 Pro Insights
-            <ArrowRight className="w-3.5 h-3.5 opacity-40 ml-1" />
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </button>
         </div>
       </div>
@@ -424,11 +424,11 @@ function ClientCardContent({
           <button
             onPointerDown={e => e.stopPropagation()}
             onClick={e => { e.stopPropagation(); onInsights(); }}
-            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500/5 border-2 border-amber-500/20 text-amber-600 text-xs font-black uppercase tracking-widest active:bg-amber-500/10 cursor-pointer shadow-sm"
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-400 text-black text-xs font-black uppercase tracking-widest active:bg-amber-500 cursor-pointer shadow-lg transition-all active:scale-[0.97] border-b-4 border-amber-600 hover:brightness-110"
           >
             <Sparkles className="w-4 h-4" />
             See 6 Member Insights
-            <ArrowRight className="w-3.5 h-3.5 opacity-40 ml-1" />
+            <ArrowRight className="w-3.5 h-3.5 ml-1" />
           </button>
         </div>
       </div>
@@ -599,12 +599,12 @@ export default function TutorialSwipePage() {
               </button>
               <div>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-500" />
-                  <span className="text-xl font-black text-zinc-900 tracking-tight">
+                  <Sparkles className="w-5 h-5 text-amber-500" />
+                  <span className="text-2xl font-black text-zinc-900 tracking-tight">
                     How It Works
                   </span>
                 </div>
-                <p className="text-[10px] uppercase font-black tracking-widest text-zinc-400 mt-0.5">Interactive Tutorial</p>
+                <p className="text-[11px] uppercase font-black tracking-widest text-zinc-500 mt-0.5">Interactive Tutorial</p>
               </div>
             </div>
             <div className="flex items-center gap-3 bg-zinc-50 p-1.5 rounded-2xl border border-zinc-100">
@@ -620,7 +620,7 @@ export default function TutorialSwipePage() {
           </div>
 
           {/* Mode toggle */}
-          <div className="flex gap-1.5 p-1.5 rounded-[22px] bg-zinc-100/80 border border-zinc-200/50">
+          <div className="flex gap-1.5 p-1.5 rounded-[22px] bg-zinc-200 border border-zinc-300">
             {([
               { val: 'client' as ViewMode, Icon: Home, label: 'Browsing' },
               { val: 'owner' as ViewMode, Icon: Users, label: 'Profiles' },
@@ -628,12 +628,12 @@ export default function TutorialSwipePage() {
               <button
                 key={val}
                 onClick={() => { triggerHaptic('light'); setMode(val); }}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[18px] text-xs font-black uppercase tracking-widest transition-all ${mode === val
-                  ? 'bg-white text-zinc-900 shadow-md ring-1 ring-zinc-200'
-                  : 'text-zinc-400 opacity-60'
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[18px] text-xs font-black uppercase tracking-widest transition-all ${mode === val
+                  ? 'bg-zinc-950 text-white shadow-xl'
+                  : 'text-zinc-600 hover:text-zinc-900'
                   }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 {label}
               </button>
             ))}
@@ -654,32 +654,28 @@ export default function TutorialSwipePage() {
                 <button
                   key={c.key}
                   onClick={() => { triggerHaptic('light'); switchListCat(c.key); }}
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm"
-                  style={{
-                    background: listCat === c.key ? '#000' : '#fff',
-                    borderColor: listCat === c.key ? '#000' : '#f2f2f2',
-                    color: listCat === c.key ? '#fff' : '#666',
-                  }}
+                  className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border-2 shadow-md ${listCat === c.key
+                      ? "bg-zinc-950 text-white border-zinc-950"
+                      : "bg-white text-zinc-900 border-zinc-200"
+                    }`}
                 >
-                  <c.Icon className="w-3.5 h-3.5 shadow-sm" />
+                  <c.Icon className="w-4 h-4" />
                   {c.label}
-                  <span className={`ml-1 transition-opacity ${listCat === c.key ? 'opacity-50' : 'opacity-30'}`} style={{ fontSize: 9 }}>{tutorialListings[c.key].length}</span>
+                  <span className={`ml-1 ${listCat === c.key ? 'text-zinc-400' : 'text-zinc-400'}`} style={{ fontSize: 10 }}>{tutorialListings[c.key].length}</span>
                 </button>
               ))
               : CLIENT_CATS.map(c => (
                 <button
                   key={c.key}
                   onClick={() => { triggerHaptic('light'); switchCliGender(c.key); }}
-                  className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border shadow-sm"
-                  style={{
-                    background: cliGender === c.key ? '#000' : '#fff',
-                    borderColor: cliGender === c.key ? '#000' : '#f2f2f2',
-                    color: cliGender === c.key ? '#fff' : '#666',
-                  }}
+                  className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border-2 shadow-md ${cliGender === c.key
+                      ? "bg-zinc-950 text-white border-zinc-950"
+                      : "bg-white text-zinc-900 border-zinc-200"
+                    }`}
                 >
-                  <c.Icon className="w-3.5 h-3.5" />
+                  <c.Icon className="w-4 h-4" />
                   {c.label}
-                  <span className={`ml-1 transition-opacity ${cliGender === c.key ? 'opacity-50' : 'opacity-30'}`} style={{ fontSize: 9 }}>{tutorialClientProfiles[c.key].length}</span>
+                  <span className={`ml-1 ${cliGender === c.key ? 'text-zinc-400' : 'text-zinc-400'}`} style={{ fontSize: 10 }}>{tutorialClientProfiles[c.key].length}</span>
                 </button>
               ))}
           </div>
