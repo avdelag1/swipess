@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-type Theme = 'black-matte' | 'white-matte' | 'pure-black' | 'cheers';
+type Theme = 'black-matte' | 'white-matte';
 
 interface ThemeContextType {
   theme: Theme;
@@ -29,7 +29,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
           if (error) throw error;
 
-          const validThemes = ['black-matte', 'white-matte', 'pure-black', 'cheers'];
+          const validThemes = ['black-matte', 'white-matte'];
           if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
             setThemeState(data.theme_preference as Theme);
           }
