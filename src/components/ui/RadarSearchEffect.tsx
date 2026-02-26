@@ -61,94 +61,99 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
   return (
     <div className={`flex flex-col items-center gap-8 ${className}`}>
       <div style={containerStyle}>
-        {/* Premium Sentient Glow Layer */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 1.3, 1],
-            opacity: [0.3, 0.6, 0.3],
-            background: [
-              `radial-gradient(circle, ${color}50 0%, transparent 70%)`,
-              `radial-gradient(circle, #f9731650 0%, transparent 70%)`,
-              `radial-gradient(circle, ${color}50 0%, transparent 70%)`,
-            ]
-          } : {
-            opacity: 0.1,
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 1.5,
-            height: size * 1.5,
-            borderRadius: '50%',
-            filter: 'blur(40px)',
-            zIndex: -1,
-          }}
-        />
+        {/* Premium Sentient Glow Layer - Only active when searching */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0.6, 0.3],
+                background: [
+                  `radial-gradient(circle, ${color}50 0%, transparent 70%)`,
+                  `radial-gradient(circle, #f9731650 0%, transparent 70%)`,
+                  `radial-gradient(circle, ${color}50 0%, transparent 70%)`,
+                ]
+              }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              style={{
+                position: 'absolute',
+                width: size * 1.5,
+                height: size * 1.5,
+                borderRadius: '50%',
+                filter: 'blur(40px)',
+                zIndex: -1,
+              }}
+            />
+          )}
+        </AnimatePresence>
 
-        {/* Thick Discovery Waves - Flowing with rotation */}
-        {[1, 2, 3].map((ring) => (
-          <motion.div
-            key={ring}
-            animate={isActive ? {
-              scale: [0.8, 2.8],
-              opacity: [0.8, 0],
-              rotate: [0, 90],
-            } : {
-              scale: 1,
-              opacity: 0.1,
-            }}
-            transition={{
-              duration: 3.5,
-              repeat: Infinity,
-              ease: [0.23, 1, 0.32, 1],
-              delay: ring * 0.8,
-            }}
-            style={{
-              position: 'absolute',
-              width: centerSize,
-              height: centerSize,
-              borderRadius: '50%',
-              border: `2px solid ${color}`,
-              boxShadow: `0 0 15px ${color}20`,
-              willChange: 'transform, opacity',
-            }}
-          />
-        ))}
+        {/* Thick Discovery Waves - Only render when isActive (searching) */}
+        <AnimatePresence>
+          {isActive && [1, 2, 3].map((ring) => (
+            <motion.div
+              key={ring}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{
+                scale: [0.8, 2.8],
+                opacity: [0.8, 0],
+                rotate: [0, 90],
+              }}
+              exit={{ opacity: 0 }}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: [0.23, 1, 0.32, 1],
+                delay: ring * 0.8,
+              }}
+              style={{
+                position: 'absolute',
+                width: centerSize,
+                height: centerSize,
+                borderRadius: '50%',
+                border: `2px solid ${color}`,
+                boxShadow: `0 0 15px ${color}20`,
+                willChange: 'transform, opacity',
+              }}
+            />
+          ))}
+        </AnimatePresence>
 
-        {/* The Central Hub - "Sentient" Breathing */}
+        {/* The Central Hub - Loading Spin when Active */}
         <motion.div
           animate={isActive ? {
             scale: [1, 1.15, 1],
-            rotate: [0, 5, -5, 0],
             boxShadow: [
               `0 0 20px ${color}30`,
-              `0 0 50px ${color}50`,
+              `0 0 60px ${color}60`,
               `0 0 20px ${color}30`,
             ],
           } : {
             scale: 1,
+            boxShadow: `0 0 20px ${color}10`,
           }}
           transition={{
-            duration: 2.2,
-            repeat: Infinity,
+            duration: 2,
+            repeat: isActive ? Infinity : 0,
             ease: 'easeInOut',
           }}
           style={{
             position: 'absolute',
             width: centerSize,
             height: centerSize,
-            borderRadius: '2.5rem', // More rounded for premium feel
-            backgroundColor: 'rgba(0,0,0,0.85)',
+            borderRadius: '2.5rem',
+            backgroundColor: 'rgba(0,0,0,0.92)',
             border: `3px solid ${color}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: color,
-            backdropFilter: 'blur(20px)',
+            backdropFilter: 'blur(24px)',
             zIndex: 10,
             overflow: 'hidden',
           }}
@@ -161,12 +166,25 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
             }}
           />
 
-          <div className="relative z-10 scale-[1.5]">
+          <motion.div
+            className="relative z-10 scale-[1.5]"
+            animate={isActive ? {
+              rotate: 360,
+              scale: [1.5, 1.8, 1.5],
+            } : {
+              rotate: 0,
+              scale: 1.5,
+            }}
+            transition={isActive ? {
+              rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+              scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+            } : { duration: 0.5 }}
+          >
             {icon || <User size={36} strokeWidth={3} />}
-          </div>
+          </motion.div>
         </motion.div>
 
-        {/* Subtle breathing outer guide */}
+        {/* Subtle base guide */}
         <div
           style={{
             position: 'absolute',
@@ -174,7 +192,8 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
             height: size * 1.1,
             borderRadius: '50%',
             border: `1px solid ${color}15`,
-            opacity: 0.5,
+            opacity: isActive ? 0.5 : 0.2,
+            transition: 'opacity 0.5s ease',
           }}
         />
       </div>
