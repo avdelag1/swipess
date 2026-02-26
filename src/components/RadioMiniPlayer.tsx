@@ -80,6 +80,9 @@ export function RadioMiniPlayer() {
   const isOnRadioPage = location.pathname.startsWith('/radio');
   if (isOnRadioPage) return null;
 
+  // If closed explicitly by user
+  if (state.miniPlayerMode === 'closed') return null;
+
   return (
     <>
       {/* Invisible full-screen drag constraints boundary */}

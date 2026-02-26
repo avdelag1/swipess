@@ -44,7 +44,13 @@ export default function RetroRadioStation() {
     toggleFavorite,
     isStationFavorite,
     play,
+    setMiniPlayerMode,
   } = useRadio();
+
+  // Reset mini player mode when entering the radio page
+  useEffect(() => {
+    setMiniPlayerMode('expanded');
+  }, [setMiniPlayerMode]);
 
   const [showStationDrawer, setShowStationDrawer] = useState(false);
   const cityTheme = cityThemes[state.currentCity];
