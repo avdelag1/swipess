@@ -114,6 +114,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
+const AITestPage = lazy(() => import("./pages/AITestPage"));
 
 // Tutorial page - public onboarding experience
 const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
@@ -256,6 +257,9 @@ const App = () => (
                                       <Route path="/owner/camera" element={<OwnerProfileCamera />} />
                                       <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
                                       <Route path="/owner/filters" element={<OwnerFilters />} />
+
+                                      {/* AI Test route */}
+                                      <Route path="/ai-test" element={<AITestPage />} />
 
                                       {/* Shared routes (both roles) */}
                                       <Route path="/messages" element={<MessagingDashboard />} />
