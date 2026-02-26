@@ -119,7 +119,7 @@ export function useSmartClientMatching(
                 // Fetch supplementary data from client_profiles
                 const { data: clientProfileData } = await supabase
                     .from('client_profiles')
-                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood')
+                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions')
                     .limit(200);
 
                 const clientProfileMap = new Map<string, any>();
@@ -159,15 +159,18 @@ export function useSmartClientMatching(
                             neighborhood: profile.neighborhood || cpData?.neighborhood || null,
                             interests: profile.interests?.length > 0 ? profile.interests : cpData?.interests || [],
                             languages_spoken: profile.languages_spoken?.length > 0 ? profile.languages_spoken : cpData?.languages || [],
+                            intentions: cpData?.intentions || [], // FIX: Include intentions!
                         };
                     });
 
                 // Apply client filters if provided
                 if (filters) {
                     filteredProfiles = filteredProfiles.filter(profile => {
+                        // FIX: Use budget_max if available, fallback to 0. Schema doesn't have these explicitly yet
+                        // but we check anyway if they're in the Json blob or future columns
                         if (filters.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
                             const clientBudget = profile.budget_max || profile.monthly_income || 0;
-                            if (clientBudget < filters.budgetRange[0] || clientBudget > filters.budgetRange[1]) return false;
+                            if (clientBudget !== 0 && (clientBudget < filters.budgetRange[0] || clientBudget > filters.budgetRange[1])) return false;
                         }
 
                         if (filters.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
@@ -182,20 +185,27 @@ export function useSmartClientMatching(
                             if (profile.gender.toLowerCase() !== (filters as any).clientGender.toLowerCase()) return false;
                         }
 
-                        if ((filters as any).clientType && (filters as any).clientType !== 'all' && profile.preferred_listing_type) {
+                        // FIX: clientType filtering based on intentions
+                        if ((filters as any).clientType && (filters as any).clientType !== 'all') {
                             const clientType = (filters as any).clientType;
-                            const lookingFor = clientType === 'buy' ? 'sale' : clientType;
-                            if (profile.preferred_listing_type !== lookingFor) return false;
+                            const clientIntentions = profile.intentions || [];
+
+                            if (clientType === 'rent' && !clientIntentions.includes('rent_property')) return false;
+                            if (clientType === 'buy' && !clientIntentions.includes('buy_property')) return false;
+                            if (clientType === 'hire' && !clientIntentions.includes('hire_service')) return false;
                         }
 
+                        // FIX: Category filtering based on intentions
                         if ((filters as any).categories && (filters as any).categories.length > 0) {
                             const categories = (filters as any).categories;
+                            const clientIntentions = profile.intentions || [];
                             let hasMatchingCategory = false;
+
                             for (const cat of categories) {
-                                if (cat === 'property' && profile.preferred_property_types?.length > 0) { hasMatchingCategory = true; break; }
-                                if (cat === 'motorcycle' && profile.preferred_listing_type?.includes('moto')) { hasMatchingCategory = true; break; }
-                                if (cat === 'bicycle' && profile.preferred_listing_type?.includes('bicycle')) { hasMatchingCategory = true; break; }
-                                if (cat === 'services') { hasMatchingCategory = true; break; }
+                                if (cat === 'property' && (clientIntentions.includes('rent_property') || clientIntentions.includes('buy_property'))) { hasMatchingCategory = true; break; }
+                                if ((cat === 'motorcycle' || cat === 'moto') && clientIntentions.includes('rent_vehicle')) { hasMatchingCategory = true; break; }
+                                if (cat === 'bicycle' && clientIntentions.includes('rent_vehicle')) { hasMatchingCategory = true; break; }
+                                if ((cat === 'worker' || cat === 'services') && clientIntentions.includes('hire_service')) { hasMatchingCategory = true; break; }
                             }
                             if (!hasMatchingCategory) return false;
                         }
@@ -258,16 +268,16 @@ export function useSmartClientMatching(
                         location: profile.city ? { city: profile.city } : {},
                         lifestyle_tags: profile.lifestyle_tags || [],
                         profile_images: profile.images || [],
-                        preferred_listing_types: [],
-                        budget_min: 0,
-                        budget_max: 100000,
+                        preferred_listing_types: profile.intentions || [], // FIX: Map intentions for UI
+                        budget_min: profile.budget_min || 0,
+                        budget_max: profile.budget_max || 100000,
                         matchPercentage: Math.min(100, baseScore),
                         matchReasons: matchReasons.length > 0 ? matchReasons : ['Profile available'],
                         incompatibleReasons: [],
                         city: profile.city || undefined,
                         country: profile.country || undefined,
                         avatar_url: profile.avatar_url || undefined,
-                        verified: false,
+                        verified: !!profile.onboarding_completed, // FIX: Use onboarding as proxy for verified for now
                         work_schedule: profile.work_schedule || undefined,
                         nationality: profile.nationality || undefined,
                         languages: profile.languages_spoken || undefined,
