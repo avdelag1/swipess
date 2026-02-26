@@ -754,7 +754,7 @@ body {
   .black-matte h2,
   .black-matte h3,
   .black-matte h4 {
-    color: #ffffff !important;
+    color: hsl(var(--foreground)) !important;
     font-weight: 500 !important;
     --tw-text-opacity: 1 !important;
   }

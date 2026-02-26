@@ -44,8 +44,6 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
-  const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
 
   // Hide on scroll down, show on scroll up - targets the dashboard scroll container
   const { isVisible } = useScrollDirection({

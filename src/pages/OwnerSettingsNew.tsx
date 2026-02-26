@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
@@ -192,11 +193,11 @@ const OwnerSettingsNew = () => {
               </div>
 
               {/* Group card - Moscow style matte container */}
-              <div className="rounded-[32px] overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
+              <div className="rounded-[32px] overflow-hidden bg-card backdrop-blur-2xl border border-border shadow-2xl">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button
-                      whileHover={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                      whileHover={{ backgroundColor: "var(--glass-hover)" }}
                       whileTap={{ scale: 0.985 }}
                       onClick={() => {
                         if (item.section) setActiveSection(item.section);
@@ -226,7 +227,7 @@ const OwnerSettingsNew = () => {
                     </motion.button>
 
                     {idx < group.items.length - 1 && (
-                      <div className="mx-6 h-px bg-white/5" />
+                      <div className="mx-6 h-px bg-border/50" />
                     )}
                   </div>
                 ))}

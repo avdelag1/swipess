@@ -26,9 +26,9 @@ import {
 interface InterestedOwner {
   id: string;
   owner_id: string;
-  owner_name: string;
+  owner_name: string | null;
   bio: string | null;
-  images: string[];
+  images: any[];
   created_at: string;
   is_super_like: boolean;
   category?: string;
@@ -75,6 +75,7 @@ const ClientWhoLikedYou = () => {
         const like = likes.find(l => l.user_id === profile.user_id);
         return {
           ...profile,
+          images: (profile.images as string[]) || [],
           id: profile.user_id,
           owner_id: profile.user_id,
           owner_name: profile.full_name || '',
@@ -101,7 +102,7 @@ const ClientWhoLikedYou = () => {
     }
   });
 
-  const handleAction = async (action: 'message' | 'view' | 'remove', owner: any) => {
+  const handleAction = async (action: 'message' | 'view' | 'remove', owner: InterestedOwner) => {
     if (action === 'remove') {
       setOwnerToDelete(owner);
       setShowDeleteDialog(true);
@@ -151,7 +152,7 @@ const ClientWhoLikedYou = () => {
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />)}
           </div>
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -167,23 +168,23 @@ const ClientWhoLikedYou = () => {
             </AnimatePresence>
           </div>
         ) : (
-          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5">
+          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-card rounded-[3rem] border border-border">
             <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
-            <h3 className="text-white font-black text-2xl tracking-tighter">Stay Noticed.</h3>
-            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
+            <h3 className="text-foreground font-black text-2xl tracking-tighter">Stay Noticed.</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
           </motion.div>
         )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
+        <AlertDialogContent className="bg-background border-border rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white font-black text-xl">Dismiss Interest?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
+            <AlertDialogTitle className="text-foreground font-black text-xl">Dismiss Interest?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)} className="bg-[#E4007C] text-white rounded-xl font-black">DISMISS</AlertDialogAction>
+            <AlertDialogCancel className="bg-muted border-border text-foreground rounded-xl hover:bg-muted/80">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)} className="bg-[#E4007C] text-white rounded-xl font-black hover:opacity-90">DISMISS</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
