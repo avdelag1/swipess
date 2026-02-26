@@ -129,7 +129,7 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const isMinimaxForced = true;
+  const isMinimaxForced = false;
 
   if (isMinimaxForced) {
     try {
