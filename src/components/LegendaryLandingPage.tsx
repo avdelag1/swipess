@@ -98,46 +98,34 @@ const LandingView = memo(({
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative z-10"
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
         <img
           src={swipessLogo}
           alt="Swipess"
-          className="w-[120vw] max-w-[800px] sm:max-w-[900px] md:max-w-[1100px] h-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.6)] mx-auto"
+          className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
         />
       </motion.div>
 
       {/* Tagline */}
-      <motion.div
-        className="-mt-16 sm:-mt-24 md:-mt-32 relative z-0 flex items-center justify-center gap-[15vw] sm:gap-[18vw] md:gap-[18vw] w-full px-4 cursor-pointer select-none"
+      <motion.p
+        className="-mt-4 relative z-10 cursor-pointer"
         onTap={handleTap}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <span
-          className="text-2xl sm:text-4xl md:text-5xl font-black italic tracking-tighter opacity-60 whitespace-nowrap"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
           style={{
             background: 'linear-gradient(to right, #E4007C, #FFD700)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 0 20px rgba(228, 0, 124, 0.2))',
           }}
         >
-          luxury
+          luxury meets precision
         </span>
-        <span
-          className="text-2xl sm:text-4xl md:text-5xl font-black italic tracking-tighter opacity-60 whitespace-nowrap"
-          style={{
-            background: 'linear-gradient(to right, #E4007C, #FFD700)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 0 20px rgba(228, 0, 124, 0.2))',
-          }}
-        >
-          meets precision
-        </span>
-      </motion.div>
+      </motion.p>
 
       {/* Info chips */}
       <motion.div
