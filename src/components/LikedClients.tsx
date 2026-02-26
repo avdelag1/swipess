@@ -180,7 +180,7 @@ export function LikedClients() {
       setShowInsightsModal(true);
     }
 
-    if (action === 'delete') {
+    if (action === 'remove') {
       setClientToDelete(client);
       setShowDeleteDialog(true);
     }
