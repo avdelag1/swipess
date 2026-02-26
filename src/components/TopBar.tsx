@@ -85,11 +85,11 @@ function TopBarComponent({
   const isDark = theme === 'black-matte';
 
   const glassBg = isDark
-    ? 'hsl(var(--background) / 0.32)'
-    : 'hsl(var(--background) / 0.88)';
+    ? 'rgba(255, 255, 255, 0.12)'
+    : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
-    ? '1px solid hsl(var(--border) / 0.55)'
-    : '1.5px solid hsl(var(--foreground) / 0.1)';
+    ? '1.5px solid rgba(255, 255, 255, 0.2)'
+    : '1.5px solid rgba(0, 0, 0, 0.1)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
     : '0 1px 3px rgba(0,0,0,0.06)';
@@ -236,7 +236,7 @@ function TopBarComponent({
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
-                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(true); }}
+                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
@@ -393,17 +393,7 @@ function TopBarComponent({
                 />
                 <AnimatePresence>
                   {notificationCount > 0 && (
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1.2, opacity: 0 }}
-                      exit={{ scale: 1.5, opacity: 0 }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeOut"
-                      }}
-                      className="absolute inset-0 rounded-full border-2 border-pink-500"
-                    />
+                    <div className="absolute inset-0 rounded-full border border-pink-500/30" />
                   )}
                 </AnimatePresence>
               </div>

@@ -147,22 +147,22 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-md w-full max-h-[92vh] sm:max-h-[85vh] bg-background/80 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2.5rem] shadow-2xl outline-none"
+        className="sm:max-w-[400px] w-full max-h-[85vh] sm:max-h-[80vh] bg-background/80 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-6 py-5 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-[1.3rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10 relative overflow-hidden group">
-              <Sparkles className="w-6 h-6 text-orange-400 relative z-10" />
+        <div className="relative px-5 py-3.5 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10 relative overflow-hidden group">
+              <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             <div>
-              <h2 className="text-foreground font-black text-base tracking-tight leading-none mb-1">Swipess AI</h2>
+              <h2 className="text-foreground font-black text-sm tracking-tight leading-none mb-0.5">Swipess AI</h2>
               <div className="flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Concierge</p>
+                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
+                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Concierge</p>
               </div>
             </div>
           </div>
@@ -171,14 +171,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             variant="ghost"
             size="icon"
             onClick={handleClose}
-            className="h-10 w-10 rounded-full hover:bg-white/10 transition-colors"
+            className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
           >
-            <X className="w-5 h-5 text-foreground/60" />
+            <X className="w-4 h-4 text-foreground/60" />
           </Button>
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 scroll-smooth scrollbar-none relative" style={{ height: 'min(70vh, 600px)', minHeight: '400px' }}>
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" style={{ height: 'min(65vh, 500px)', minHeight: '350px' }}>
           {messages.length === 0 && !isTyping && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -200,27 +200,27 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={cn("flex flex-col gap-2", message.role === 'user' && "items-end")}
               >
-                <div className={cn("flex gap-3", message.role === 'user' && "flex-row-reverse")}>
+                <div className={cn("flex gap-2.5", message.role === 'user' && "flex-row-reverse")}>
                   <div className={cn(
-                    "w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 mt-1 shadow-md",
+                    "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm",
                     message.role === 'ai' ? "bg-zinc-900 border border-white/10" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
                   )}>
                     {message.role === 'ai' ? (
-                      <Sparkles className="w-5 h-5 text-orange-400" />
+                      <Sparkles className="w-4 h-4 text-orange-400" />
                     ) : (
                       userAvatar ? (
-                        <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-2xl" />
+                        <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-xl" />
                       ) : (
-                        <User className="w-5 h-5 text-muted-foreground" />
+                        <User className="w-4 h-4 text-muted-foreground" />
                       )
                     )}
                   </div>
 
                   <div className={cn(
-                    "max-w-[85%] px-5 py-4 rounded-[2rem] text-sm font-bold leading-relaxed shadow-sm",
+                    "max-w-[85%] px-4 py-3 rounded-[1.5rem] text-xs font-semibold leading-relaxed shadow-sm",
                     message.role === 'user'
                       ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
-                      : "bg-muted/80 dark:bg-white/10 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
+                      : "bg-muted/80 dark:bg-zinc-900/50 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
                   )}>
                     {message.content}
                   </div>
