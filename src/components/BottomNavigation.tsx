@@ -151,14 +151,15 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   };
 
   // Theme-aware colors
-  const iconColor = isLight ? 'hsl(0, 0%, 25%)' : 'white';
-  const activeColor = isLight ? 'hsl(0, 100%, 45%)' : '#f97316';
-  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.04)';
-  const bgActive = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
-  const borderColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
+  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
+  const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
+  const bgDefault = isLight ? 'hsl(var(--background) / 0.88)' : 'hsl(var(--background) / 0.28)';
+  const bgActive = isLight ? 'hsl(var(--background) / 0.96)' : 'hsl(var(--background) / 0.42)';
+  const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)';
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.65), 0 3px 10px hsl(0 0% 0% / 0.08)'
+    : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
+  const controlBlur = isLight ? 'none' : 'blur(8px)';
 
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
@@ -191,8 +192,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 minHeight: TOUCH_TARGET_SIZE,
                 padding: '8px 4px',
                 backgroundColor: active ? bgActive : bgDefault,
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
                 border: `1px solid ${borderColor}`,
                 borderRadius: '14px',
                 boxShadow: shadowColor,
