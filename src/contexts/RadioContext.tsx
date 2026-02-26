@@ -21,6 +21,7 @@ interface RadioContextType {
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
   playFavorites: () => void;
+  setMiniPlayerMode: (mode: 'expanded' | 'minimized' | 'closed') => void;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -36,7 +37,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     volume: 0.7,
     isShuffle: false,
     skin: 'modern',
-    favorites: []
+    favorites: [],
+    miniPlayerMode: 'expanded',
   });
 
   // Set loading to false immediately - don't block UI for preferences
@@ -379,6 +381,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     playPlaylist(state.favorites);
   }, [state.favorites, playPlaylist]);
 
+  const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
+    setState(prev => ({ ...prev, miniPlayerMode: mode }));
+  }, []);
+
   const value = {
     state,
     loading,
@@ -394,7 +400,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     toggleFavorite,
     isStationFavorite: (stationId: string) => state.favorites.includes(stationId),
     playPlaylist,
-    playFavorites
+    playFavorites,
+    setMiniPlayerMode,
   };
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
