@@ -56,7 +56,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Update status bar base color according to theme
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
       metaThemeColor.setAttribute('name', 'theme-color');
