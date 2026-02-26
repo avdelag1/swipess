@@ -91,7 +91,7 @@ function TopBarComponent({
     : '1px solid hsl(var(--border) / 0.65)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
-    : 'inset 0 1px 0 hsl(var(--foreground) / 0.65), 0 3px 10px hsl(0 0% 0% / 0.08)';
+    : 'inset 0 -1px 0 rgba(0,0,0,0.1), 0 3px 10px rgba(255, 255, 255, 0.4)';
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'

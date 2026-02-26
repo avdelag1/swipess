@@ -39,15 +39,14 @@ interface RadarSearchEffectProps {
  * Feels organic and alive without being dramatic or distracting.
  */
 export const RadarSearchEffect = memo(function RadarSearchEffect({
-  size = 120,
+  size = 140,
   color = 'currentColor',
   label,
   className = '',
   isActive = true,
   icon,
 }: RadarSearchEffectProps) {
-  const centerSize = size * 0.12;
-  const ringGap = size * 0.18;
+  const centerSize = size * 0.35; // Much larger central hub
 
   const containerStyle: CSSProperties = {
     position: 'relative',
@@ -59,232 +58,13 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
   };
 
   return (
-    <div className={`flex flex-col items-center gap-4 ${className}`}>
+    <div className={`flex flex-col items-center gap-8 ${className}`}>
       <div style={containerStyle}>
-        {/* Gentle breathing background glow */}
+        {/* Deep Ambient Glow */}
         <motion.div
           animate={isActive ? {
-            scale: [1, 1.05, 1],
-            opacity: [0.15, 0.25, 0.15],
-          } : {}}
-          transition={{
-            duration: 3.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 0.9,
-            height: size * 0.9,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${color}20 0%, transparent 70%)`,
-          }}
-        />
-
-        {/* Subtle concentric guide rings - always slightly moving */}
-        {[1, 2, 3].map((ring) => (
-          <motion.div
-            key={ring}
-            animate={isActive ? {
-              opacity: [0.15, 0.25, 0.15],
-              scale: [1, 1.02, 1],
-            } : {}}
-            transition={{
-              duration: 4 + ring * 0.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: ring * 0.3,
-            }}
-            style={{
-              position: 'absolute',
-              width: centerSize + ringGap * ring * 2,
-              height: centerSize + ringGap * ring * 2,
-              borderRadius: '50%',
-              border: `1px solid ${color}`,
-              opacity: 0.2,
-            }}
-          />
-        ))}
-
-        {/* Gentle rotating sweep - like slow breathing */}
-        <motion.div
-          animate={isActive ? {
-            rotate: [0, 360],
-          } : {}}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-          style={{
-            position: 'absolute',
-            width: size,
-            height: size,
-            overflow: 'hidden',
-            borderRadius: '50%',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              width: size / 2,
-              height: size / 2,
-              transformOrigin: '0% 0%',
-              background: `conic-gradient(
-                from 0deg,
-                transparent 0%,
-                ${color}15 30%,
-                ${color}08 60%,
-                transparent 100%
-              )`,
-            }}
-          />
-        </motion.div>
-
-        {/* Continuous gentle ripple wave 1 */}
-        <motion.div
-          animate={isActive ? {
-            scale: [0.8, 1.8],
-            opacity: [0.4, 0],
-          } : {}}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeOut',
-            delay: 0,
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 0.3,
-            height: size * 0.3,
-            borderRadius: '50%',
-            border: `1.5px solid ${color}`,
-            willChange: 'transform, opacity',
-          }}
-        />
-
-        {/* Continuous gentle ripple wave 2 */}
-        <motion.div
-          animate={isActive ? {
-            scale: [0.8, 1.8],
-            opacity: [0.4, 0],
-          } : {}}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeOut',
-            delay: 1,
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 0.3,
-            height: size * 0.3,
-            borderRadius: '50%',
-            border: `1.5px solid ${color}`,
-            willChange: 'transform, opacity',
-          }}
-        />
-
-        {/* Continuous gentle ripple wave 3 */}
-        <motion.div
-          animate={isActive ? {
-            scale: [0.8, 1.8],
-            opacity: [0.4, 0],
-          } : {}}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeOut',
-            delay: 2,
-          }}
-          style={{
-            position: 'absolute',
-            width: size * 0.3,
-            height: size * 0.3,
-            borderRadius: '50%',
-            border: `1.5px solid ${color}`,
-            willChange: 'transform, opacity',
-          }}
-        />
-
-        {/* Breathing center dot - like a heartbeat but subtle */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 1.15, 1.05, 1.15, 1],
-            opacity: [0.8, 1, 0.9, 1, 0.8],
-          } : {}}
-          transition={{
-            duration: 2.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-            times: [0, 0.25, 0.4, 0.6, 1],
-          }}
-          style={{
-            position: 'absolute',
-            width: centerSize * (icon ? 2.5 : 1),
-            height: centerSize * (icon ? 2.5 : 1),
-            borderRadius: '50%',
-            backgroundColor: icon ? `${color}20` : color,
-            border: icon ? `1px solid ${color}50` : 'none',
-            boxShadow: `0 0 15px ${color}40`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: color,
-            backdropFilter: 'blur(4px)',
-          }}
-        >
-          {icon}
-        </motion.div>
-
-        {/* Gentle expanding ring from center */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 2.5],
-            opacity: [0.3, 0],
-          } : {}}
-          transition={{
-            duration: 3.5,
-            repeat: Infinity,
-            ease: 'easeOut',
-          }}
-          style={{
-            position: 'absolute',
-            width: centerSize * 1.2,
-            height: centerSize * 1.2,
-            borderRadius: '50%',
-            border: `1px solid ${color}`,
-          }}
-        />
-
-        {/* Second expanding ring - offset for continuous motion */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 2.5],
-            opacity: [0.3, 0],
-          } : {}}
-          transition={{
-            duration: 3.5,
-            repeat: Infinity,
-            ease: 'easeOut',
-            delay: 1.75,
-          }}
-          style={{
-            position: 'absolute',
-            width: centerSize * 1.2,
-            height: centerSize * 1.2,
-            borderRadius: '50%',
-            border: `1px solid ${color}`,
-          }}
-        />
-
-        {/* Subtle outer breathing ring */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 1.08, 1],
-            opacity: [0.25, 0.15, 0.25],
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
           } : {}}
           transition={{
             duration: 4,
@@ -293,10 +73,93 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
           }}
           style={{
             position: 'absolute',
-            width: size * 0.92,
-            height: size * 0.92,
+            width: size * 1.2,
+            height: size * 1.2,
             borderRadius: '50%',
-            border: `1.5px solid ${color}`,
+            background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`,
+            filter: 'blur(20px)',
+          }}
+        />
+
+        {/* Thick Discovery Waves */}
+        {[1, 2, 3].map((ring) => (
+          <motion.div
+            key={ring}
+            animate={isActive ? {
+              scale: [0.8, 2.4],
+              opacity: [0.6, 0],
+            } : {}}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: [0.23, 1, 0.32, 1],
+              delay: ring * 1.2,
+            }}
+            style={{
+              position: 'absolute',
+              width: centerSize,
+              height: centerSize,
+              borderRadius: '50%',
+              border: `2.5px solid ${color}`, // THICKER Borders
+              boxShadow: `0 0 15px ${color}30`,
+              willChange: 'transform, opacity',
+            }}
+          />
+        ))}
+
+        {/* The Central Hub - "Thick Avatar" feel */}
+        <motion.div
+          animate={isActive ? {
+            scale: [1, 1.05, 1],
+            boxShadow: [
+              `0 0 30px ${color}40`,
+              `0 0 60px ${color}60`,
+              `0 0 30px ${color}40`,
+            ],
+          } : {}}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          style={{
+            position: 'absolute',
+            width: centerSize,
+            height: centerSize,
+            borderRadius: '2.2rem', // Squircle/Premium Rounded
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            border: `3px solid ${color}`, // THICK Border
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: color,
+            backdropFilter: 'blur(12px)',
+            zIndex: 10,
+            overflow: 'hidden',
+          }}
+        >
+          {/* Internal Glow for depth */}
+          <div
+            className="absolute inset-0 opacity-20"
+            style={{
+              background: `radial-gradient(circle at center, ${color} 0%, transparent 100%)`
+            }}
+          />
+
+          <div className="relative z-10 scale-125">
+            {icon || <User size={28} strokeWidth={3} />}
+          </div>
+        </motion.div>
+
+        {/* Subtle breathing outer guide */}
+        <div
+          style={{
+            position: 'absolute',
+            width: size * 1.1,
+            height: size * 1.1,
+            borderRadius: '50%',
+            border: `1px solid ${color}15`,
+            opacity: 0.5,
           }}
         />
       </div>
@@ -306,7 +169,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
         <motion.span
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-sm font-medium text-muted-foreground"
+          className="text-xs font-black uppercase tracking-[0.2em] text-foreground/40"
         >
           {label}
         </motion.span>
