@@ -142,7 +142,7 @@ const OwnerContracts = () => {
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-white mb-4">Active Deals</h2>
               <div className="grid gap-4">
-                {activeDeals.map((deal) => (
+                {activeDeals.map((deal: any) => (
                   <Card key={deal.id} className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">

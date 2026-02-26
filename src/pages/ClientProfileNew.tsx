@@ -20,16 +20,7 @@ import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/microPolish";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.15,
-    },
-  },
-};
+const stagger = { visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
 const childVariant = {
   hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
   visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },

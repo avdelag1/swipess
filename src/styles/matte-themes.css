@@ -3,7 +3,7 @@
 /*  Inspired by Claude, ChatGPT, and Grok - Modern, Sophisticated        */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-@layer base {
+
 
     /* THEME 1: GREY MATTE (Default - like Claude) */
     .grey-matte {
@@ -301,5 +301,4 @@
         --shadow-card: 0 20px 40px rgba(120, 53, 15, 0.4);
         --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.5);
         --overlay: rgba(26, 18, 0, 0.7);
-    }
 }

@@ -77,12 +77,12 @@ const ClientWhoLikedYou = () => {
           ...profile,
           id: profile.user_id,
           owner_id: profile.user_id,
-          owner_name: profile.full_name || 'Owner',
-          created_at: like?.created_at || new Date().toISOString(),
-          category: 'Interviewer',
-          is_super_like: (like as any)?.direction === 'super_like' || false,
-          images: (profile as any).images || [],
-          bio: profile.bio || null
+          owner_name: profile.full_name || '',
+          bio: profile.bio || null,
+          images: Array.isArray(profile.images) ? profile.images as string[] : [],
+          created_at: like?.created_at || profile.created_at,
+          is_super_like: false,
+          category: 'Interviewer'
         } as InterestedOwner;
       });
     },
@@ -127,7 +127,7 @@ const ClientWhoLikedYou = () => {
     }
   };
 
-  const filteredOwners = interestedOwners.filter(o =>
+  const filteredOwners = (interestedOwners as InterestedOwner[]).filter((o: InterestedOwner) =>
     (o.owner_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -156,7 +156,7 @@ const ClientWhoLikedYou = () => {
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
-              {filteredOwners.map((owner) => (
+              {filteredOwners.map((owner: InterestedOwner) => (
                 <PremiumLikedCard
                   key={owner.id}
                   type="profile"

@@ -39,8 +39,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 
       {/* Cinematic depth layers - react to theme (light/dark) */}
       <GlobalVignette light={isLightTheme} intensity={0.8} />
-      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
-      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
+      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={1} light={isLightTheme} />
+      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={1} light={isLightTheme} />
 
       <main
         id="main-content"

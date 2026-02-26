@@ -27,7 +27,6 @@ import { logger } from '@/utils/prodLogger';
 // Helper to check free messaging eligibility - extracted to avoid TS deep instantiation
 async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
   try {
-    // @ts-expect-error - Supabase types too deeply nested, using raw query
     const result = await supabase
       .from('listings')
       .select('id', { count: 'exact', head: true })
@@ -423,12 +422,12 @@ export function MessagingDashboard() {
                 </p>
               )}
             </div>
-            {stats?.unreadCount > 0 && (
+            {(stats as any)?.unreadCount > 0 && (
               <div
                 className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
                 style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
               >
-                {stats.unreadCount} new
+                {(stats as any).unreadCount} new
               </div>
             )}
           </div>

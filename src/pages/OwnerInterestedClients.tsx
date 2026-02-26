@@ -86,7 +86,7 @@ const OwnerInterestedClients = () => {
       const { data: listings } = await supabase
         .from('listings')
         .select('id')
-        .eq('owner_id', user?.id);
+        .eq('owner_id', user?.id ?? '');
 
       const listingIds = listings?.map(l => l.id) || [];
       if (listingIds.length === 0) return;

@@ -637,6 +637,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Reset the new listings flag
     hasNewListingsRef.current = false;
 
+    const existingIds = new Set(deckQueueRef.current.map(l => l.id));
+    const dismissedSet = new Set(dismissedIds);
     const newListings = smartListings.filter(l =>
       !existingIds.has(l.id) && !swipedIdsRef.current.has(l.id) && (!isRefreshMode ? !dismissedSet.has(l.id) : true)
     );

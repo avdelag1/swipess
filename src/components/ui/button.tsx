@@ -1,18 +1,14 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
+import { motion } from "framer-motion"
 
 import { cn } from "@/lib/utils"
 import { triggerHaptic } from "@/utils/haptics"
 import { motion } from "framer-motion"
 
 const buttonVariants = cva(
-  // iOS-grade button with instant feedback
-  // - 50ms transition for instant feel (iOS standard)
-  // - scale(0.97) for subtle press (not aggressive 0.92)
-  // - No hover:scale on touch devices (iOS-like)
-  // - Cubic-bezier for iOS spring physics
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-extrabold transition-transform duration-75 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97] select-none touch-manipulation will-change-transform transform-gpu",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 select-none touch-manipulation will-change-transform transform-gpu",
   {
     variants: {
       variant: {
@@ -46,40 +42,40 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
   VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  /** Use elastic wobbly spring on press instead of subtle scale */
+  elastic?: boolean
 }
 
-// Inline ripple effect to avoid hook context issues
-const createRipple = (event: React.MouseEvent<HTMLElement>) => {
-  const button = event.currentTarget;
-  const rect = button.getBoundingClientRect();
+const elasticTap = {
+  scale: 0.92,
+  transition: { type: "spring" as const, stiffness: 500, damping: 12, mass: 0.6 }
+};
 
-  const circle = document.createElement('span');
-  const diameter = Math.max(rect.width, rect.height);
-  const radius = diameter / 2;
+const subtleTap = {
+  scale: 0.96,
+  transition: { type: "spring" as const, stiffness: 600, damping: 20, mass: 0.4 }
+};
 
-  circle.style.width = circle.style.height = `${diameter}px`;
-  circle.style.left = `${event.clientX - rect.left - radius}px`;
-  circle.style.top = `${event.clientY - rect.top - radius}px`;
-  circle.classList.add('ripple');
-
-  const ripple = button.getElementsByClassName('ripple')[0];
-  if (ripple) {
-    ripple.remove();
-  }
-
-  button.appendChild(circle);
-
-  setTimeout(() => {
-    circle.remove();
-  }, 300);
+const hoverLift = {
+  scale: 1.03,
+  y: -1,
+  transition: { type: "spring" as const, stiffness: 400, damping: 18, mass: 0.5 }
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, onClick, ...props }, ref) => {
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      triggerHaptic('light')
-      createRipple(e)
-      onClick?.(e)
+  ({ className, variant, size, asChild = false, elastic = false, onClick, ...props }, ref) => {
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+            triggerHaptic('light');
+            onClick?.(e);
+          }}
+          {...props}
+        />
+      );
     }
 
     if (asChild) {
@@ -95,14 +91,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     return (
       <motion.button
-        whileTap={{ scale: 0.95 }}
-        transition={{ type: "spring", stiffness: 600, damping: 30 }}
-        className={cn(buttonVariants({ variant, size, className }), "button-haptic-burst")}
+        className={cn(buttonVariants({ variant, size, className }))}
         ref={ref}
-        onClick={handleClick}
-        {...props}
+        whileTap={elastic ? elasticTap : subtleTap}
+        whileHover={hoverLift}
+        onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+          triggerHaptic('light');
+          onClick?.(e);
+        }}
+        {...(props as any)}
       />
-    )
+    );
   }
 )
 Button.displayName = "Button"

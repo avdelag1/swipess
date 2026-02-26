@@ -2,6 +2,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight,
   Scale, Volume2, Radio, Building2
