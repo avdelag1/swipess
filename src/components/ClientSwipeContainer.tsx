@@ -777,12 +777,12 @@ const ClientSwipeContainerComponent = ({
   // "All Caught Up" - finished swiping through all cards
   if (isDeckFinished) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background">
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-10"
+          className="flex flex-col items-center max-w-sm w-full gap-10 -mt-20 sm:-mt-24"
         >
           {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
           <div className="relative group">
@@ -856,12 +856,12 @@ const ClientSwipeContainerComponent = ({
   // Empty state (no cards fetched yet)
   if (showEmptyState || !topCard) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background">
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-10"
+          className="flex flex-col items-center max-w-sm w-full gap-10 -mt-20 sm:-mt-24"
         >
           {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
           <div className="relative group">
