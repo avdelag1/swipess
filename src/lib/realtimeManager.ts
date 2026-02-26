@@ -25,7 +25,7 @@ export type RealtimeEventType =
   | 'notifications:INSERT';
 
 // Listener callback type
-export type RealtimeListener<T = any> = (payload: RealtimePostgresChangesPayload<T>) => void;
+export type RealtimeListener = (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => void;
 
 // Channel configuration
 interface ChannelConfig {

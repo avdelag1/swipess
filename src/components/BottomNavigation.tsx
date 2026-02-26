@@ -17,6 +17,7 @@ import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/utils/microPolish';
 
 // ICON SIZING - responsive
 const ICON_SIZE = 22;
@@ -105,7 +106,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     {
       id: 'liked',
       icon: Users,
-      label: 'Clients',
+      label: 'Liked Clients',
       path: '/owner/liked-clients',
     },
     {
@@ -135,6 +136,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const handleNavPress = (event: React.PointerEvent, item: NavItem) => {
     event.stopPropagation();
     event.preventDefault();
+    haptics.select();
 
     if (item.onClick) {
       item.onClick();
@@ -151,14 +153,15 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   };
 
   // Theme-aware colors
-  const iconColor = isLight ? 'hsl(0, 0%, 25%)' : 'white';
-  const activeColor = isLight ? 'hsl(0, 100%, 45%)' : '#f97316';
-  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.04)';
-  const bgActive = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
-  const borderColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
+  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
+  const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
+  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.8)';
+  const bgActive = isLight ? 'rgba(255, 255, 255, 1.0)' : 'rgba(39, 39, 42, 0.95)';
+  const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)';
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
+    : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
+  const controlBlur = isLight ? 'none' : 'blur(8px)';
 
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
@@ -191,8 +194,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 minHeight: TOUCH_TARGET_SIZE,
                 padding: '8px 4px',
                 backgroundColor: active ? bgActive : bgDefault,
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
                 border: `1px solid ${borderColor}`,
                 borderRadius: '14px',
                 boxShadow: shadowColor,
@@ -231,15 +234,15 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                     color: active ? 'transparent' : iconColor,
                     stroke: active ? 'url(#active-gradient)' : 'currentColor',
                     fill: active ? 'url(#active-gradient)' : 'none',
-                    filter: active ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
+                    filter: (active && !isLight) ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
                   }}
-                  strokeWidth={active ? 2.5 : 2}
+                  strokeWidth={active ? 3.5 : 3}
                 />
               </div>
               <span
                 className={cn(
                   "text-[10px] tracking-wide transition-all duration-300",
-                  active ? "font-bold" : "font-medium"
+                  active ? "font-black" : "font-extrabold"
                 )}
                 style={{
                   color: active ? activeColor : iconColor,

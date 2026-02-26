@@ -12,6 +12,7 @@ interface RadioContextType {
   play: (station?: RadioStation) => Promise<void>;
   pause: () => void;
   togglePlayPause: () => void;
+  togglePower: () => void;
   changeStation: (direction: 'next' | 'prev') => void;
   setCity: (city: CityLocation) => void;
   setVolume: (volume: number) => void;
@@ -32,6 +33,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const [state, setState] = useState<RadioPlayerState>({
     isPlaying: false,
+    isPoweredOn: true,
     currentStation: null,
     currentCity: 'tulum',
     volume: 0.7,
@@ -176,7 +178,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
-        const currentStationId = data.radio_current_station_id;
+        const currentStationId = (data as any).radio_current_station_id;
         let currentStation = currentStationId ? getStationById(currentStationId) : null;
 
         if (!currentStation) {
@@ -187,6 +189,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setState(prev => ({
           ...prev,
           currentStation: currentStation || defaultStation,
+          // Handle missing column gracefully
+          isPoweredOn: (data as any).radio_is_powered_on ?? false
         }));
       }
     } catch (err) {
@@ -202,6 +206,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const dbUpdates: any = {};
       // Only persist the station column that exists in the schema
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
+      if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
       await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
     } catch (err) {
@@ -300,9 +305,29 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (state.isPlaying) {
       pause();
     } else {
+      // Automatically power on if playing
+      if (!state.isPoweredOn) {
+        setState(prev => ({ ...prev, isPoweredOn: true }));
+        savePreferences({ isPoweredOn: true });
+      }
       play();
     }
-  }, [state.isPlaying, play, pause]);
+  }, [state.isPlaying, state.isPoweredOn, play, pause]);
+
+  const togglePower = useCallback(() => {
+    const newPower = !state.isPoweredOn;
+    setState(prev => ({
+      ...prev,
+      isPoweredOn: newPower,
+      isPlaying: newPower ? prev.isPlaying : false // Stop playing if powered off
+    }));
+
+    if (!newPower && audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    savePreferences({ isPoweredOn: newPower });
+  }, [state.isPoweredOn]);
 
   const changeStation = useCallback((direction: 'next' | 'prev') => {
     const city = state.currentCity;
@@ -392,6 +417,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     play,
     pause,
     togglePlayPause,
+    togglePower,
     changeStation,
     setCity,
     setVolume,

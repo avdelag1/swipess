@@ -180,7 +180,7 @@ export function LikedClients() {
       setShowInsightsModal(true);
     }
 
-    if (action === 'delete') {
+    if (action === 'remove') {
       setClientToDelete(client);
       setShowDeleteDialog(true);
     }
@@ -215,7 +215,7 @@ export function LikedClients() {
     <div className="w-full bg-black min-h-screen pb-32">
       <div className="p-4 sm:p-8 max-w-7xl mx-auto">
         <PageHeader
-          title="Talent Pool"
+          title="Liked Clients"
           subtitle="Profiles you've matched with"
           showBack={true}
           actions={
@@ -228,8 +228,8 @@ export function LikedClients() {
                       className={cn(
                         "flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95",
                         filterSafeOnly
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.2)]"
-                          : "bg-zinc-900 border-white/5 text-zinc-500"
+                          ? "bg-emerald-600 border-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
+                          : "bg-zinc-800 border-zinc-700 text-zinc-300"
                       )}
                     >
                       {filterSafeOnly ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
@@ -265,7 +265,7 @@ export function LikedClients() {
             placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-16 bg-zinc-900/50 border border-white/5 rounded-3xl pl-14 pr-6 text-white placeholder-zinc-500 font-bold focus:border-[#E4007C] transition-all outline-none"
+            className="w-full h-16 bg-zinc-900 border border-white/10 rounded-3xl pl-14 pr-6 text-white placeholder-zinc-500 font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
           />
         </div>
 

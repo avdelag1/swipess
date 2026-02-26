@@ -173,7 +173,7 @@ export function useSwipeAnalytics(userRole: 'client' | 'owner') {
 
   // Get insights and recommendations
   const getInsights = () => {
-    const insights = [];
+    const insights: Array<{ type: string; title: string; message: string; action: string }> = [];
     
     if (!metrics) return insights;
 
