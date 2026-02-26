@@ -83,7 +83,7 @@ const OwnerInterestedClients = () => {
   const removeLikeMutation = useMutation({
     mutationFn: async (clientId: string) => {
       // In a real app, this might archive or mark as rejected
-      const { error } = await supabase.from('likes').delete().eq('target_id', user?.id).eq('user_id', clientId);
+      const { error } = await supabase.from('likes').delete().eq('target_id', user?.id || "").eq('user_id', clientId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -149,7 +149,7 @@ const OwnerInterestedClients = () => {
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />)}
           </div>
         ) : filteredClients.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -165,23 +165,23 @@ const OwnerInterestedClients = () => {
             </AnimatePresence>
           </div>
         ) : (
-          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5">
+          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-card rounded-[3rem] border border-border">
             <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
-            <h3 className="text-white font-black text-2xl tracking-tighter">Attraction Imminent.</h3>
-            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">When someone likes your listings, they'll appear here for you to connect.</p>
+            <h3 className="text-foreground font-black text-2xl tracking-tighter">Attraction Imminent.</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">When someone likes your listings, they'll appear here for you to connect.</p>
           </motion.div>
         )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
+        <AlertDialogContent className="bg-background border-border rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white font-black text-xl">Dismiss Interest?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 font-bold">This client will be removed from your interested list.</AlertDialogDescription>
+            <AlertDialogTitle className="text-foreground font-black text-xl">Dismiss Interest?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">This client will be removed from your interested list.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => clientToDelete && removeLikeMutation.mutate(clientToDelete.user_id)} className="bg-[#E4007C] text-white rounded-xl font-black">DISMISS</AlertDialogAction>
+            <AlertDialogCancel className="bg-muted border-border text-foreground rounded-xl hover:bg-muted/80">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => clientToDelete && removeLikeMutation.mutate(clientToDelete.user_id || "")} className="bg-[#E4007C] text-white rounded-xl font-black hover:opacity-90">DISMISS</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

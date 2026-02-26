@@ -142,8 +142,8 @@ export default function RadioPlayer() {
                 ? 'radial-gradient(circle at center, #333 0%, #111 40%, #222 50%, #111 70%, #000 100%)'
                 : state.skin === 'retro'
                   ? 'linear-gradient(135deg, #A0522D 0%, #6B4423 50%, #8B4513 100%)'
-                  : `linear-gradient(135deg, ${cityThemes[state.currentCity].primaryColor} 0%, #1a1a1a 100%)`,
-              border: state.skin === 'retro' ? '8px solid #DEB887' : '1px solid rgba(255,255,255,0.15)',
+                  : `linear-gradient(135deg, ${cityThemes[state.currentCity].primaryColor} 0%, var(--background) 100%)`,
+              border: state.skin === 'retro' ? '8px solid #DEB887' : '1px solid var(--border)',
             }}
             animate={{
               rotate: state.isPlaying ? 360 : 0,
@@ -171,18 +171,18 @@ export default function RadioPlayer() {
             {state.skin === 'retro' && (
               <>
                 {/* Cassette details */}
-                <div className="absolute inset-x-8 top-6 bottom-6 bg-black/90 rounded flex items-center justify-center gap-10 border border-white/10 shadow-inner">
-                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-white/10 animate-spin-slow" />
-                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-white/10 animate-spin-slow" />
+                <div className="absolute inset-x-8 top-6 bottom-6 bg-background/90 rounded flex items-center justify-center gap-10 border border-border/50 shadow-inner">
+                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-border/50 animate-spin-slow" />
+                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-border/50 animate-spin-slow" />
                 </div>
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-2 bg-white/10 rounded-full shadow-inner" />
+                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-2 bg-foreground/10 rounded-full shadow-inner" />
               </>
             )}
 
             {state.skin === 'modern' && (
               <>
-                <div className="absolute inset-6 rounded-[2rem] border border-black/10 dark:border-white/5" />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/40 rounded-[2.5rem]" />
+                <div className="absolute inset-6 rounded-[2rem] border border-border/50" />
+                <div className="absolute inset-0 bg-gradient-to-br from-foreground/20 via-transparent to-background/40 rounded-[2.5rem]" />
               </>
             )}
 
@@ -197,7 +197,7 @@ export default function RadioPlayer() {
 
             {/* Center hole */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className={`rounded-full bg-black shadow-lg ${state.skin === 'retro' ? 'w-4 h-4' : 'w-2.5 h-2.5'}`} />
+              <div className={`rounded-full bg-foreground shadow-lg ${state.skin === 'retro' ? 'w-4 h-4' : 'w-2.5 h-2.5'}`} />
             </div>
           </motion.div>
         </div>

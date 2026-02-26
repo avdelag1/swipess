@@ -43,8 +43,6 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
-  const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
 
   // Hide on scroll down, show on scroll up - targets the dashboard scroll container
   const { isVisible } = useScrollDirection({
@@ -150,15 +148,13 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     return location.pathname === item.path;
   };
 
-  // Theme-aware colors
-  const iconColor = isLight ? 'hsl(0, 0%, 25%)' : 'white';
-  const activeColor = isLight ? 'hsl(0, 100%, 45%)' : '#f97316';
-  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.04)';
-  const bgActive = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.08)';
-  const borderColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
-  const shadowColor = isLight
-    ? 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)';
+  // Theme-aware colors using semantic CSS variables
+  const iconColor = 'hsl(var(--muted-foreground))';
+  const activeColor = 'hsl(var(--primary))';
+  const bgDefault = 'hsl(var(--secondary) / 0.4)';
+  const bgActive = 'hsl(var(--secondary) / 0.8)';
+  const borderColor = 'hsl(var(--border) / 0.4)';
+  const shadowColor = 'var(--shadow-sm)';
 
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
