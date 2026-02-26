@@ -130,7 +130,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             left: activeMode === 'client' ? '4px' : '50%',
             right: activeMode === 'client' ? '50%' : '4px',
             backgroundColor: activeMode === 'client' ? 'rgba(45, 212, 191, 0.2)' : 'rgba(251, 146, 60, 0.2)',
-            boxShadow: activeMode === 'client' ? '0 0 10px rgba(45, 212, 191, 0.15)' : '0 0 10px rgba(251, 146, 60, 0.15)'
+            boxShadow: 'none'
           }}
           transition={{ type: 'spring', stiffness: 450, damping: 30 }}
           style={{ willChange: 'left, right, background-color' }}

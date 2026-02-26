@@ -16,6 +16,7 @@
 
 import { memo, CSSProperties } from 'react';
 import { motion } from 'framer-motion';
+import { User } from 'lucide-react';
 
 interface RadarSearchEffectProps {
   /** Size in pixels (default 120) */
@@ -39,14 +40,14 @@ interface RadarSearchEffectProps {
  * Feels organic and alive without being dramatic or distracting.
  */
 export const RadarSearchEffect = memo(function RadarSearchEffect({
-  size = 140,
+  size = 180,
   color = 'currentColor',
   label,
   className = '',
   isActive = true,
   icon,
 }: RadarSearchEffectProps) {
-  const centerSize = size * 0.35; // Much larger central hub
+  const centerSize = size * 0.45; // Much larger central hub
 
   const containerStyle: CSSProperties = {
     position: 'relative',
@@ -60,63 +61,19 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
   return (
     <div className={`flex flex-col items-center gap-8 ${className}`}>
       <div style={containerStyle}>
-        {/* Deep Ambient Glow */}
+        {/* Premium Sentient Glow Layer */}
         <motion.div
           animate={isActive ? {
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          } : {}}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: 'easeInOut',
+            scale: [1, 1.3, 1],
+            opacity: [0.3, 0.6, 0.3],
+            background: [
+              `radial-gradient(circle, ${color}50 0%, transparent 70%)`,
+              `radial-gradient(circle, #f9731650 0%, transparent 70%)`,
+              `radial-gradient(circle, ${color}50 0%, transparent 70%)`,
+            ]
+          } : {
+            opacity: 0.1,
           }}
-          style={{
-            position: 'absolute',
-            width: size * 1.2,
-            height: size * 1.2,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`,
-            filter: 'blur(20px)',
-          }}
-        />
-
-        {/* Thick Discovery Waves */}
-        {[1, 2, 3].map((ring) => (
-          <motion.div
-            key={ring}
-            animate={isActive ? {
-              scale: [0.8, 2.4],
-              opacity: [0.6, 0],
-            } : {}}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: [0.23, 1, 0.32, 1],
-              delay: ring * 1.2,
-            }}
-            style={{
-              position: 'absolute',
-              width: centerSize,
-              height: centerSize,
-              borderRadius: '50%',
-              border: `2.5px solid ${color}`, // THICKER Borders
-              boxShadow: `0 0 15px ${color}30`,
-              willChange: 'transform, opacity',
-            }}
-          />
-        ))}
-
-        {/* The Central Hub - "Thick Avatar" feel */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 1.05, 1],
-            boxShadow: [
-              `0 0 30px ${color}40`,
-              `0 0 60px ${color}60`,
-              `0 0 30px ${color}40`,
-            ],
-          } : {}}
           transition={{
             duration: 3,
             repeat: Infinity,
@@ -124,16 +81,74 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
           }}
           style={{
             position: 'absolute',
+            width: size * 1.5,
+            height: size * 1.5,
+            borderRadius: '50%',
+            filter: 'blur(40px)',
+            zIndex: -1,
+          }}
+        />
+
+        {/* Thick Discovery Waves - Flowing with rotation */}
+        {[1, 2, 3].map((ring) => (
+          <motion.div
+            key={ring}
+            animate={isActive ? {
+              scale: [0.8, 2.8],
+              opacity: [0.8, 0],
+              rotate: [0, 90],
+            } : {
+              scale: 1,
+              opacity: 0.1,
+            }}
+            transition={{
+              duration: 3.5,
+              repeat: Infinity,
+              ease: [0.23, 1, 0.32, 1],
+              delay: ring * 0.8,
+            }}
+            style={{
+              position: 'absolute',
+              width: centerSize,
+              height: centerSize,
+              borderRadius: '50%',
+              border: `2px solid ${color}`,
+              boxShadow: `0 0 15px ${color}20`,
+              willChange: 'transform, opacity',
+            }}
+          />
+        ))}
+
+        {/* The Central Hub - "Sentient" Breathing */}
+        <motion.div
+          animate={isActive ? {
+            scale: [1, 1.15, 1],
+            rotate: [0, 5, -5, 0],
+            boxShadow: [
+              `0 0 20px ${color}30`,
+              `0 0 50px ${color}50`,
+              `0 0 20px ${color}30`,
+            ],
+          } : {
+            scale: 1,
+          }}
+          transition={{
+            duration: 2.2,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          style={{
+            position: 'absolute',
             width: centerSize,
             height: centerSize,
-            borderRadius: '2.2rem', // Squircle/Premium Rounded
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            border: `3px solid ${color}`, // THICK Border
+            borderRadius: '2.5rem', // More rounded for premium feel
+            backgroundColor: 'rgba(0,0,0,0.85)',
+            border: `3px solid ${color}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             color: color,
-            backdropFilter: 'blur(12px)',
+            backdropFilter: 'blur(20px)',
             zIndex: 10,
             overflow: 'hidden',
           }}
@@ -146,8 +161,8 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
             }}
           />
 
-          <div className="relative z-10 scale-125">
-            {icon || <User size={28} strokeWidth={3} />}
+          <div className="relative z-10 scale-[1.5]">
+            {icon || <User size={36} strokeWidth={3} />}
           </div>
         </motion.div>
 

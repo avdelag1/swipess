@@ -535,6 +535,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path.includes('/settings')) return 'Settings';
     if (path.includes('/messages')) return 'Messages';
     if (path.includes('/notifications')) return 'Notifications';
+    if (path.includes('/liked-clients')) return 'Liked Clients';
     if (path.includes('/liked')) return 'Liked';
     if (path.includes('/properties')) return 'Properties';
     if (path.includes('/listings')) return 'Listings';

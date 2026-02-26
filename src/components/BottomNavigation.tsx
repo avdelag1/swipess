@@ -106,7 +106,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     {
       id: 'liked',
       icon: Users,
-      label: 'Clients',
+      label: 'Liked Clients',
       path: '/owner/liked-clients',
     },
     {
@@ -155,8 +155,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   // Theme-aware colors
   const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
   const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
-  const bgDefault = isLight ? 'hsl(var(--background) / 0.88)' : 'hsl(var(--background) / 0.28)';
-  const bgActive = isLight ? 'hsl(var(--background) / 0.96)' : 'hsl(var(--background) / 0.42)';
+  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.8)';
+  const bgActive = isLight ? 'rgba(255, 255, 255, 1.0)' : 'rgba(39, 39, 42, 0.95)';
   const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
