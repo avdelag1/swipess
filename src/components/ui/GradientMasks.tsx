@@ -43,6 +43,7 @@ export const GradientMaskTop = memo(function GradientMaskTop({
   heightPercent = 24,
 }: GradientMaskProps) {
   const baseColor = light ? '255,255,255' : '0,0,0';
+  const lightDim = light ? 0.3 : 1; // Significantly reduce opacity in light mode
 
   const style: CSSProperties = {
     position: 'fixed',
@@ -50,14 +51,13 @@ export const GradientMaskTop = memo(function GradientMaskTop({
     left: 0,
     right: 0,
     height: `${heightPercent}%`,
-    // Natural shade: softer edge, longer gradual fade
     background: `linear-gradient(
       to bottom,
-      rgba(${baseColor}, ${0.35 * intensity}) 0%,
-      rgba(${baseColor}, ${0.22 * intensity}) 15%,
-      rgba(${baseColor}, ${0.12 * intensity}) 35%,
-      rgba(${baseColor}, ${0.06 * intensity}) 55%,
-      rgba(${baseColor}, ${0.02 * intensity}) 75%,
+      rgba(${baseColor}, ${0.35 * intensity * lightDim}) 0%,
+      rgba(${baseColor}, ${0.22 * intensity * lightDim}) 15%,
+      rgba(${baseColor}, ${0.12 * intensity * lightDim}) 35%,
+      rgba(${baseColor}, ${0.06 * intensity * lightDim}) 55%,
+      rgba(${baseColor}, ${0.02 * intensity * lightDim}) 75%,
       rgba(${baseColor}, 0) 100%
     )`,
     // GPU acceleration
@@ -91,21 +91,21 @@ export const GradientMaskBottom = memo(function GradientMaskBottom({
   heightPercent = 40,
 }: GradientMaskProps) {
   const baseColor = light ? '255,255,255' : '0,0,0';
+  const lightDim = light ? 0.3 : 1;
 
   const style: CSSProperties = {
-    position: 'fixed', // Fixed to persist across scroll
+    position: 'fixed',
     bottom: 0,
     left: 0,
     right: 0,
     height: `${heightPercent}%`,
-    // Natural shade: softer edge, longer gradual fade upward
     background: `linear-gradient(
       to top,
-      rgba(${baseColor}, ${0.4 * intensity}) 0%,
-      rgba(${baseColor}, ${0.25 * intensity}) 12%,
-      rgba(${baseColor}, ${0.14 * intensity}) 30%,
-      rgba(${baseColor}, ${0.07 * intensity}) 50%,
-      rgba(${baseColor}, ${0.02 * intensity}) 70%,
+      rgba(${baseColor}, ${0.4 * intensity * lightDim}) 0%,
+      rgba(${baseColor}, ${0.25 * intensity * lightDim}) 12%,
+      rgba(${baseColor}, ${0.14 * intensity * lightDim}) 30%,
+      rgba(${baseColor}, ${0.07 * intensity * lightDim}) 50%,
+      rgba(${baseColor}, ${0.02 * intensity * lightDim}) 70%,
       rgba(${baseColor}, 0) 100%
     )`,
     // GPU acceleration
@@ -135,7 +135,7 @@ export const GlobalVignette = memo(function GlobalVignette({
   light = false,
 }: Omit<GradientMaskProps, 'zIndex' | 'heightPercent'>) {
   const baseColor = light ? '100,100,100' : '0,0,0';
-  const alphaMultipiler = light ? 0.35 : 1;
+  const alphaMultipiler = light ? 0.15 : 1;
 
   const style: CSSProperties = {
     position: 'fixed',

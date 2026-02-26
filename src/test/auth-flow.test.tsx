@@ -56,11 +56,11 @@ describe('useProfileSetup', () => {
         vi.clearAllMocks();
 
         // Default mock behavior for generic calls
-        vi.mocked(supabase.from).mockReturnThis();
-        vi.mocked(supabase.select).mockReturnThis();
-        vi.mocked(supabase.insert).mockImplementation(() => Promise.resolve({ data: {}, error: null }) as any);
-        vi.mocked(supabase.upsert).mockImplementation(() => Promise.resolve({ data: {}, error: null }) as any);
-        vi.mocked(supabase.maybeSingle).mockResolvedValue({ data: null, error: null });
+        vi.mocked(supabase.from as any).mockReturnThis();
+        (supabase as any).select = vi.fn().mockReturnThis();
+        (supabase as any).insert = vi.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null }) as any);
+        (supabase as any).upsert = vi.fn().mockImplementation(() => Promise.resolve({ data: {}, error: null }) as any);
+        (supabase as any).maybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
     });
 
     it('should create a profile if missing', async () => {
@@ -71,8 +71,8 @@ describe('useProfileSetup', () => {
         };
 
         // Setup specific mocks for this test
-        vi.mocked(supabase.maybeSingle).mockResolvedValueOnce({ data: null, error: null }); // profiles check
-        vi.mocked(supabase.insert).mockResolvedValueOnce({ data: { id: 'test-user-id' }, error: null } as any); // profiles insert
+        (supabase as any).maybeSingle.mockResolvedValueOnce({ data: null, error: null });
+        (supabase as any).insert.mockResolvedValueOnce({ data: { id: 'test-user-id' }, error: null } as any);
 
         const { result } = renderHook(() => useProfileSetup(), { wrapper });
 
@@ -88,7 +88,7 @@ describe('useProfileSetup', () => {
             email: 'existing@example.com',
         };
 
-        vi.mocked(supabase.maybeSingle).mockResolvedValueOnce({ data: { id: 'existing-user-id' }, error: null });
+        (supabase as any).maybeSingle.mockResolvedValueOnce({ data: { id: 'existing-user-id' }, error: null });
 
         const { result } = renderHook(() => useProfileSetup(), { wrapper });
 

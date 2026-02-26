@@ -71,10 +71,13 @@ const ClientWhoLikedYou = () => {
           ...profile,
           id: profile.user_id,
           owner_id: profile.user_id,
-          owner_name: profile.full_name,
-          created_at: like?.created_at,
+          owner_name: profile.full_name || '',
+          bio: profile.bio || null,
+          images: Array.isArray(profile.images) ? profile.images as string[] : [],
+          created_at: like?.created_at || profile.created_at,
+          is_super_like: false,
           category: 'Interviewer'
-        };
+        } as InterestedOwner;
       });
     },
     enabled: !!user?.id,
@@ -118,7 +121,7 @@ const ClientWhoLikedYou = () => {
     }
   };
 
-  const filteredOwners = interestedOwners.filter(o =>
+  const filteredOwners = (interestedOwners as InterestedOwner[]).filter((o: InterestedOwner) =>
     (o.owner_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -147,7 +150,7 @@ const ClientWhoLikedYou = () => {
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
-              {filteredOwners.map((owner) => (
+              {filteredOwners.map((owner: InterestedOwner) => (
                 <PremiumLikedCard
                   key={owner.id}
                   type="profile"

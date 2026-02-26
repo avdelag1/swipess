@@ -1,7 +1,6 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = { staggerChildren: 0.08, delayChildren: 0.15 };
+const stagger = { visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
 const childVariant = {
   hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
   visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },
