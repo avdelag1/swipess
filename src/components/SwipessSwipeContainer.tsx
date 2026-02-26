@@ -41,9 +41,9 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 
-// Custom motorcycle icon
-const MotorcycleIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+// Custom motorcycle icon with configurable stroke
+const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
     <circle cx="5" cy="17" r="3" />
     <circle cx="19" cy="17" r="3" />
     <path d="M9 17h6" />
@@ -53,7 +53,7 @@ const MotorcycleIcon = ({ className }: { className?: string }) => (
 );
 
 // Category configuration for dynamic empty states
-const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string; plural: string; color: string }> = {
+const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
   property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
   moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
@@ -618,7 +618,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     return () => {
       prefetchSchedulerRef.current.cancel();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [currentIndex, prefetchListingDetails, isDashboard]); // currentIndex updates on each swipe, triggering reliable prefetch
 
   // CONSTANT-TIME: Append new unique listings to queue AND persist to store
@@ -1319,15 +1319,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             <motion.div
               animate={{ scale: [1, 1.15, 1, 1.1, 1] }}
               transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
+              className={`w-20 h-20 rounded-full border-[3px] border-current flex items-center justify-center ${iconColor}`}
             >
-              <CategoryIcon className="w-10 h-10" />
+              <CategoryIcon className="w-10 h-10" strokeWidth={4} />
             </motion.div>
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
               {description}
             </p>
           </div>
@@ -1335,12 +1335,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="gap-2 rounded-full px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
+              className="gap-2 rounded-full px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg font-black uppercase tracking-widest text-xs"
             >
               {isRefreshing ? (
                 <RadarSearchIcon size={18} isActive={true} />
               ) : (
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" strokeWidth={4} />
               )}
               {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
             </Button>
@@ -1351,9 +1351,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             <Button
               variant="outline"
               onClick={() => navigate('/tutorial')}
-              className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10"
+              className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-black uppercase tracking-widest text-xs"
             >
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-4 h-4" strokeWidth={4} />
               Try Tutorial Cards
             </Button>
           </motion.div>

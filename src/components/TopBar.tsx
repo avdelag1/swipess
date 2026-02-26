@@ -13,6 +13,7 @@ import { formatPriceMXN } from '@/utils/subscriptionPricing';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
+import { haptics } from '@/utils/microPolish';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -146,7 +147,7 @@ function TopBarComponent({
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
             {title && (
-              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-foreground whitespace-nowrap">
+              <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
                 {title}
               </div>
             )}
@@ -169,6 +170,7 @@ function TopBarComponent({
             className="flex-1 h-full cursor-pointer"
             onPointerDown={(e) => {
               e.preventDefault();
+              haptics.tap();
               const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
               navigate(dashboardPath);
             }}
@@ -197,11 +199,11 @@ function TopBarComponent({
                   border: glassBorder,
                   boxShadow: floatingShadow,
                 }}
-                onPointerDown={(e) => { e.preventDefault(); setIsAISearchOpen(true); }}
+                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setIsAISearchOpen(true); }}
                 onClick={(e) => e.preventDefault()}
                 aria-label="AI Search"
               >
-                <Sparkles strokeWidth={2.5} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
+                <Sparkles strokeWidth={4} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
               </Button>
             )}
 
@@ -224,12 +226,12 @@ function TopBarComponent({
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
-                  onPointerDown={(e) => { e.preventDefault(); setTokensOpen(true); }}
+                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(true); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={2.5} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
-                  <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
+                  <Zap strokeWidth={4} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
+                  <span className="hidden sm:inline font-black text-sm tracking-tighter text-foreground whitespace-nowrap uppercase">
                     Tokens
                   </span>
                 </Button>
@@ -365,13 +367,13 @@ function TopBarComponent({
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
-              onPointerDown={(e) => { e.preventDefault(); onNotificationsClick?.(); }}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
                 <Bell
-                  strokeWidth={2.5}
+                  strokeWidth={4}
                   className={cn(
                     "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                     notificationCount > 0

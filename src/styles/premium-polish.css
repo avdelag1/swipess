@@ -132,6 +132,64 @@
   animation: view-entry-premium 500ms var(--ease-out-expo);
 }
 
+/* ━━━ Haptic Burst & Prism Effects ━━━ */
+@keyframes haptic-burst {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    transform: scale(1);
+  }
+
+  10% {
+    box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.2);
+    transform: scale(0.96);
+  }
+
+  100% {
+    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0);
+    transform: scale(1);
+  }
+}
+
+.button-haptic-burst:active {
+  animation: haptic-burst 0.4s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+@keyframes prism-blur-in {
+  0% {
+    filter: blur(12px) saturate(200%) contrast(120%);
+    opacity: 0;
+    transform: scale(1.05) translateZ(0);
+  }
+
+  100% {
+    filter: blur(0px) saturate(100%) contrast(100%);
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes prism-blur-out {
+  0% {
+    filter: blur(0px) saturate(100%) contrast(100%);
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+
+  100% {
+    filter: blur(12px) saturate(200%) contrast(120%);
+    opacity: 0;
+    transform: scale(0.95) translateZ(0);
+  }
+}
+
+.prism-transition-in {
+  animation: prism-blur-in 0.6s var(--ease-out-expo) forwards;
+}
+
+.prism-transition-out {
+  animation: prism-blur-out 0.5s var(--ease-in-expo) forwards;
+}
+
 /* Modal entry animation */
 @keyframes modal-entry-premium {
   0% {

@@ -31,6 +31,12 @@ interface InterestedOwner {
   images: string[];
   created_at: string;
   is_super_like: boolean;
+  category?: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  age?: number | null;
+  occupation?: string | null;
+  verified?: boolean;
 }
 
 const ClientWhoLikedYou = () => {
@@ -38,13 +44,13 @@ const ClientWhoLikedYou = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [ownerToDelete, setOwnerToDelete] = useState<any>(null);
+  const [ownerToDelete, setOwnerToDelete] = useState<InterestedOwner | null>(null);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 
-  const { data: interestedOwners = [], isLoading } = useQuery<InterestedOwner[]>({
+  const { data: interestedOwners = [] as InterestedOwner[], isLoading } = useQuery({
     queryKey: ['client-who-liked-you', user?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<InterestedOwner[]> => {
       if (!user?.id) return [];
       const { data: likes, error: likesError } = await supabase
         .from('likes')
@@ -65,16 +71,19 @@ const ClientWhoLikedYou = () => {
 
       if (profilesError) throw profilesError;
 
-      return profiles.map(profile => {
+      return (profiles || []).map(profile => {
         const like = likes.find(l => l.user_id === profile.user_id);
         return {
           ...profile,
           id: profile.user_id,
           owner_id: profile.user_id,
-          owner_name: profile.full_name,
-          created_at: like?.created_at,
-          category: 'Interviewer'
-        };
+          owner_name: profile.full_name || 'Owner',
+          created_at: like?.created_at || new Date().toISOString(),
+          category: 'Interviewer',
+          is_super_like: (like as any)?.direction === 'super_like' || false,
+          images: (profile as any).images || [],
+          bio: profile.bio || null
+        } as InterestedOwner;
       });
     },
     enabled: !!user?.id,
@@ -124,7 +133,7 @@ const ClientWhoLikedYou = () => {
 
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
-      <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
         <PageHeader
           title="They're Interested"
           subtitle="Owners who want to meet you"

@@ -493,9 +493,26 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // On these routes, TopBar becomes transparent and content extends behind it
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    return path === '/client/dashboard' ||
-      path === '/owner/dashboard' ||
-      path.includes('discovery');
+    // Core routes that should go full-bleed behind the header
+    const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
+      '/client/profile',
+      '/owner/profile',
+      '/client/liked-properties',
+      '/owner/liked-clients',
+      '/client/filters',
+      '/owner/filters',
+      '/owner/properties',
+      '/client/services',
+      '/messages',
+      '/notifications',
+      '/settings'
+    ];
+
+    return immersiveRoutes.some(route => path === route || path.startsWith(route + '/')) ||
+      path.includes('discovery') ||
+      path.includes('view-client');
   }, [location.pathname]);
 
   // Get page title based on location for TopBar display
@@ -598,9 +615,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onListingsClick={handleListingsClick}
         />
       )}
-
-      {/* Radio Mini Player */}
-      <RadioMiniPlayer />
 
       {/* Advanced Filters Dialog */}
       <AdvancedFilters

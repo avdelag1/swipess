@@ -4,6 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { triggerHaptic } from "@/utils/haptics"
+import { motion } from "framer-motion"
 
 const buttonVariants = cva(
   // iOS-grade button with instant feedback
@@ -11,7 +12,7 @@ const buttonVariants = cva(
   // - scale(0.97) for subtle press (not aggressive 0.92)
   // - No hover:scale on touch devices (iOS-like)
   // - Cubic-bezier for iOS spring physics
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-semibold transition-transform duration-75 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97] select-none touch-manipulation will-change-transform transform-gpu",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl text-sm font-extrabold transition-transform duration-75 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97] select-none touch-manipulation will-change-transform transform-gpu",
   {
     variants: {
       variant: {
@@ -43,7 +44,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
 }
 
@@ -75,18 +76,28 @@ const createRipple = (event: React.MouseEvent<HTMLElement>) => {
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, onClick, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button"
-
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      // Instant haptic feedback for game-like feel
       triggerHaptic('light')
       createRipple(e)
       onClick?.(e)
     }
 
+    if (asChild) {
+      return (
+        <Slot
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          onClick={handleClick}
+          {...props}
+        />
+      )
+    }
+
     return (
-      <Comp
-        className={cn(buttonVariants({ variant, size, className }))}
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 600, damping: 30 }}
+        className={cn(buttonVariants({ variant, size, className }), "button-haptic-burst")}
         ref={ref}
         onClick={handleClick}
         {...props}

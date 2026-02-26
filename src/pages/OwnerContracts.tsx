@@ -70,7 +70,7 @@ const OwnerContracts = () => {
 
   return (
     <>
-      <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-24 sm:pb-8">
+      <div className="w-full overflow-x-hidden p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-6 lg:p-8 pb-24 sm:pb-8">
         <div className="max-w-6xl mx-auto">
           <motion.button
             onClick={() => navigate('/owner/settings')}

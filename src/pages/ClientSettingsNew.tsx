@@ -59,13 +59,6 @@ const settingsGroups: SettingsGroup[] = [
     label: 'Tools',
     items: [
       {
-        icon: Radio,
-        label: 'Radio Player',
-        description: 'Listen to live radio stations',
-        bg: 'linear-gradient(135deg, #064e3b, #10b981)',
-        route: '/radio',
-      },
-      {
         icon: FileText,
         label: 'My Contracts',
         description: 'View and manage your contracts',

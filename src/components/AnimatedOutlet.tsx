@@ -20,16 +20,41 @@ export function AnimatedOutlet() {
             {element ? (
                 <motion.div
                     key={location.key}
-                    initial={{ opacity: 0, scale: 0.96, filter: 'blur(10px)', y: 10 }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', y: 0 }}
-                    exit={{ opacity: 0, scale: 1.02, filter: 'blur(10px)', y: -10 }}
-                    transition={{
-                        type: "spring",
-                        stiffness: 120, // Slightly firmer for precision
-                        damping: 24,    // Good control
-                        mass: 0.8       // Lighter feel
+                    initial={{
+                        opacity: 0,
+                        rotateY: 8,
+                        scale: 0.94,
+                        filter: 'blur(15px) saturate(150%)',
+                        x: 20,
+                        perspective: 1200
                     }}
-                    className="h-full w-full flex flex-col flex-1 origin-center"
+                    animate={{
+                        opacity: 1,
+                        rotateY: 0,
+                        scale: 1,
+                        filter: 'blur(0px) saturate(100%)',
+                        x: 0,
+                        transition: {
+                            type: "spring",
+                            stiffness: 140,
+                            damping: 22,
+                            mass: 0.8,
+                            duration: 0.6
+                        }
+                    }}
+                    exit={{
+                        opacity: 0,
+                        rotateY: -8,
+                        scale: 1.06,
+                        filter: 'blur(15px) saturate(150%)',
+                        x: -20,
+                        transition: {
+                            duration: 0.45,
+                            ease: [0.33, 1, 0.68, 1]
+                        }
+                    }}
+                    className="h-full w-full flex flex-col flex-1 origin-center perspective-1000"
+                    style={{ transformStyle: 'preserve-3d' }}
                 >
                     {React.cloneElement(element, { key: location.key })}
                 </motion.div>
