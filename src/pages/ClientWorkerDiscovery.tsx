@@ -71,14 +71,14 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
 
       // Fetch owner profiles separately
       if (listings && listings.length > 0) {
-        const ownerIds = listings.map(l => l.owner_id);
+        const ownerIds = listings.map((l: any) => l.owner_id);
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, full_name, avatar_url')
           .in('id', ownerIds);
 
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-        return listings.map(l => ({
+        return listings.map((l: any) => ({
           id: l.id,
           title: l.title,
           description: l.description,
@@ -109,8 +109,8 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
       <div className="relative aspect-[4/3] bg-muted">
         {worker.images?.[0] ? (
           <img
-            src={worker.images[0]}
-            alt={worker.title}
+            src={worker.images[0] as string}
+            alt={worker.title ?? 'Worker'}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -136,7 +136,7 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
             <div className="flex items-center gap-2 mt-1">
               <div className="w-5 h-5 rounded-full overflow-hidden bg-muted">
                 {worker.owner.avatar_url ? (
-                  <img src={worker.owner.avatar_url} alt={worker.owner.full_name} className="w-full h-full object-cover" />
+                  <img src={worker.owner.avatar_url ?? undefined} alt={worker.owner.full_name ?? undefined} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-primary/20" />
                 )}
@@ -178,9 +178,9 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
           <div className="flex items-center gap-1">
             <DollarSign className="w-4 h-4 text-emerald-500" />
             <span className="font-bold text-lg">
-              {worker.price > 0 ? `$${worker.price}` : 'Quote'}
+              {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
             </span>
-            {worker.price > 0 && pricingInfo && (
+            {(worker.price ?? 0) > 0 && pricingInfo && (
               <span className="text-xs text-muted-foreground">
                 /{pricingInfo.label.replace('Per ', '')}
               </span>

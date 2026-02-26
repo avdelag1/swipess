@@ -6,7 +6,8 @@
  * NOTE: This function is centralized in useAutomaticUpdates.tsx
  * Kept here for backward compatibility - imports from there
  */
-export { clearAllCaches } from '@/hooks/useAutomaticUpdates';
+import { clearAllCaches } from '@/hooks/useAutomaticUpdates';
+export { clearAllCaches };
 
 /**
  * Clear all local storage data related to the app

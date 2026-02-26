@@ -143,7 +143,7 @@ export const AmbientSwipeBackground: React.FC<AmbientSwipeBackgroundProps> = ({
     >
       {/* Subtle dark overlay to ensure background cards don't compete with main card */}
       <div
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 bg-black/35"
         style={{ zIndex: 1 }}
       />
 

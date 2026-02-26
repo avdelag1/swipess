@@ -6,20 +6,16 @@
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#000000",
   "theme_color": "#ff69b4",
   "lang": "en",
   "dir": "ltr",
-
   "icons": [
-    {
-      "src": "/icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
@@ -51,7 +47,6 @@
       "purpose": "maskable"
     }
   ],
-
   "shortcuts": [
     {
       "name": "Browse Properties",
@@ -96,7 +91,6 @@
       ]
     }
   ],
-
   "screenshots": [
     {
       "src": "/screenshots/screenshot-browse.png",
@@ -127,8 +121,11 @@
       "label": "Swipess on desktop"
     }
   ],
-
-  "categories": ["lifestyle", "business", "social"],
+  "categories": [
+    "lifestyle",
+    "business",
+    "social"
+  ],
   "prefer_related_applications": false,
   "related_applications": [
     {
@@ -136,7 +133,6 @@
       "url": "https://apps.apple.com/app/swipes/id1234567890"
     }
   ],
-
   "launch_handler": {
     "client_mode": "navigate-existing"
   },

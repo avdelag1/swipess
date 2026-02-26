@@ -4,6 +4,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
+import { RadioMiniPlayer } from '@/components/RadioMiniPlayer';
 import { useTheme } from '@/hooks/useTheme';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
@@ -36,14 +37,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <VisualEngine />
       </Suspense>
 
-      {/* Cinematic depth layers - transparent overlays */}
-      {!isLightTheme && (
-        <>
-          <GlobalVignette light={false} intensity={0.8} />
-          <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} light={false} />
-          <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} light={false} />
-        </>
-      )}
+      {/* Cinematic depth layers - subtle and balanced for each theme */}
+      <GlobalVignette light={isLightTheme} intensity={0.8} />
+      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
+      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
 
       <main
         id="main-content"
@@ -52,6 +49,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       >
         {children}
       </main>
+
+      {/* Global Radio Mini Player - accessible everywhere including landing page */}
+      <RadioMiniPlayer />
     </div>
   );
 }

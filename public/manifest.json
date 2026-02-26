@@ -5,7 +5,10 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#000000",
   "theme_color": "#ff69b4",
   "orientation": "portrait-primary",
@@ -14,12 +17,6 @@
   "id": "com.swipes.app",
   "prefer_related_applications": false,
   "icons": [
-    {
-      "src": "/icons/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
@@ -51,7 +48,11 @@
       "purpose": "maskable"
     }
   ],
-  "categories": ["lifestyle", "business", "social"],
+  "categories": [
+    "lifestyle",
+    "business",
+    "social"
+  ],
   "screenshots": [
     {
       "src": "/screenshots/screenshot-browse.png",
@@ -90,7 +91,7 @@
       "url": "/client/dashboard",
       "icons": [
         {
-          "src": "/icons/app-icon-s.png",
+          "src": "/icons/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -102,7 +103,7 @@
       "url": "/owner/properties",
       "icons": [
         {
-          "src": "/icons/app-icon-s.png",
+          "src": "/icons/icon-192.png",
           "sizes": "192x192"
         }
       ]
@@ -114,7 +115,7 @@
       "url": "/messages",
       "icons": [
         {
-          "src": "/icons/app-icon-s.png",
+          "src": "/icons/icon-192.png",
           "sizes": "192x192"
         }
       ]

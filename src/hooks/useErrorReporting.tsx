@@ -19,13 +19,6 @@ export function useErrorReporting() {
 
     // Log to console for development
     logger.error('Error Report:', errorReport);
-    
-    // Show user-friendly toast
-    toast({
-      title: "Something went wrong",
-      description: "We've been notified and are working on a fix.",
-      variant: "destructive",
-    });
   };
 
   // Global error handler

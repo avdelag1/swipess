@@ -13,11 +13,14 @@ import { formatPriceMXN } from '@/utils/subscriptionPricing';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
+import { haptics } from '@/utils/microPolish';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
+import { SwipessLogo } from './SwipessLogo';
 
 // Tier styling for package cards
 const tierConfig = {
@@ -81,11 +84,19 @@ function TopBarComponent({
   const { theme } = useTheme();
   const isDark = theme === 'black-matte';
 
-  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const glassBg = isDark
+    ? 'rgba(255, 255, 255, 0.12)'
+    : 'rgba(255, 255, 255, 0.95)';
+  const glassBorder = isDark
+    ? '1.5px solid rgba(255, 255, 255, 0.2)'
+    : '1.5px solid rgba(0, 0, 0, 0.1)';
   const floatingShadow = isDark
-    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
+    : '0 1px 3px rgba(0,0,0,0.06)';
+  const controlBlur = isDark ? 'blur(10px)' : 'none';
+  const headerBackgroundClass = isDark
+    ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
+    : 'bg-transparent border-transparent';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -136,7 +147,7 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent',
+          headerBackgroundClass,
           shouldHide && 'header-hidden',
           className
         )}
@@ -144,13 +155,15 @@ function TopBarComponent({
         <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+            {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
             {title && (
-              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-foreground whitespace-nowrap">
+              <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
                 {title}
               </div>
             )}
 
             <div className="flex items-center gap-2 flex-shrink-0">
+              <ThemeToggle />
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
               <ModeSwitcher variant="pill" size="md" className="hidden md:flex" />
             </div>
@@ -167,6 +180,7 @@ function TopBarComponent({
             className="flex-1 h-full cursor-pointer"
             onPointerDown={(e) => {
               e.preventDefault();
+              haptics.tap();
               const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
               navigate(dashboardPath);
             }}
@@ -190,16 +204,16 @@ function TopBarComponent({
                 )}
                 style={{
                   backgroundColor: glassBg,
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
+                  backdropFilter: controlBlur,
+                  WebkitBackdropFilter: controlBlur,
                   border: glassBorder,
                   boxShadow: floatingShadow,
                 }}
-                onPointerDown={(e) => { e.preventDefault(); setIsAISearchOpen(true); }}
+                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setIsAISearchOpen(true); }}
                 onClick={(e) => e.preventDefault()}
                 aria-label="AI Search"
               >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
+                <Sparkles strokeWidth={4} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
               </Button>
             )}
 
@@ -217,17 +231,17 @@ function TopBarComponent({
                   )}
                   style={{
                     backgroundColor: glassBg,
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
+                    backdropFilter: controlBlur,
+                    WebkitBackdropFilter: controlBlur,
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
-                  onPointerDown={(e) => { e.preventDefault(); setTokensOpen(true); }}
+                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
-                  <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
+                  <Zap strokeWidth={4} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
+                  <span className="hidden sm:inline font-black text-sm tracking-tighter text-foreground whitespace-nowrap uppercase">
                     Tokens
                   </span>
                 </Button>
@@ -235,7 +249,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-background/95 dark:bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-white/10 bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -358,17 +372,18 @@ function TopBarComponent({
               )}
               style={{
                 backgroundColor: glassBg,
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
-              onPointerDown={(e) => { e.preventDefault(); onNotificationsClick?.(); }}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
                 <Bell
+                  strokeWidth={4}
                   className={cn(
                     "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                     notificationCount > 0
@@ -378,17 +393,7 @@ function TopBarComponent({
                 />
                 <AnimatePresence>
                   {notificationCount > 0 && (
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1.2, opacity: 0 }}
-                      exit={{ scale: 1.5, opacity: 0 }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeOut"
-                      }}
-                      className="absolute inset-0 rounded-full border-2 border-pink-500"
-                    />
+                    <div className="absolute inset-0 rounded-full border border-pink-500/30" />
                   )}
                 </AnimatePresence>
               </div>

@@ -249,12 +249,12 @@ export default function ClientFilters() {
             </div>
 
             <div className="space-y-2">
-              {(['rent', 'buy', 'both'] as ListingType[]).map((type) => {
+              {(['rent', 'sale', 'both'] as ListingType[]).map((type) => {
                 const isSelected = selectedListingType === type;
-                const labels = { rent: 'Rentals', buy: 'Purchase', both: 'Both' };
-                const icons = {
+                const labels: Record<ListingType, string> = { rent: 'Rentals', sale: 'Purchase', both: 'Both' };
+                const icons: Record<ListingType, React.ReactNode> = {
                   rent: <ShoppingBag className="w-5 h-5" />,
-                  buy: <Building2 className="w-5 h-5" />,
+                  sale: <Building2 className="w-5 h-5" />,
                   both: <Users className="w-5 h-5" />
                 };
 
