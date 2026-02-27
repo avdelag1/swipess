@@ -34,7 +34,7 @@ const MAX_PHOTOS: Record<Category, number> = {
   worker: 10,
 };
 
-export function ConversationalListingCreator() {
+function ConversationalListingCreator() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('category');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -538,3 +538,5 @@ export function ConversationalListingCreator() {
 
   return null;
 }
+
+export default ConversationalListingCreator;
