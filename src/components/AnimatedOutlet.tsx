@@ -10,8 +10,10 @@ import { AnimatePresence, motion } from 'framer-motion';
  * 
  * Fixed: Uses React.cloneElement with location.key to freeze the React Router 
  * context during the exit animation, preventing unmount crashes.
+ * 
+ * Now accepts props to pass to the routed components.
  */
-export function AnimatedOutlet() {
+export function AnimatedOutlet(props: any) {
     const location = useLocation();
     const element = useOutlet();
 
@@ -56,7 +58,7 @@ export function AnimatedOutlet() {
                     className="h-full w-full flex flex-col flex-1 origin-center perspective-1000"
                     style={{ transformStyle: 'preserve-3d' }}
                 >
-                    {React.cloneElement(element, { key: location.key })}
+                    {React.cloneElement(element, { ...props, key: location.key })}
                 </motion.div>
             ) : null}
         </AnimatePresence>

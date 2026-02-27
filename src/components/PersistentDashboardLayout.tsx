@@ -70,6 +70,7 @@ export function PersistentDashboardLayout() {
     }
   }, [location.pathname, activeMode, syncMode]);
 
+
   return (
     <DashboardLayout userRole={userRole}>
       <AnimatedOutlet />
