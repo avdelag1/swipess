@@ -287,14 +287,20 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
   if (mode === 'off') {
     return (
-      <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(ellipse_at_50%_40%,rgba(10,10,20,0.7)_0%,rgba(0,0,0,0.97)_100%)]" />
+      <div
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse at 50% 40%, rgba(10,10,20,0.7) 0%, rgba(0,0,0,0.97) 100%)',
+        }}
+      />
     );
   }
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0 pointer-events-none mix-blend-screen"
+      className="absolute inset-0 z-0 pointer-events-none"
+      style={{ mixBlendMode: 'screen' }}
     />
   );
 }

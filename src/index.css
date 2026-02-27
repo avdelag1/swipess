@@ -176,7 +176,7 @@ body {
   padding-left: max(var(--safe-left), 12px);
   padding-right: max(var(--safe-right), 12px);
   /* Refined subtle dark fade behind bottom nav for a "vanishing" look */
-  background: linear-gradient(to top, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.1) 25%, transparent 100%);
+  background: linear-gradient(to top, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.1) 25%, transparent 100%) !important;
   border-top: none;
   transform: translateZ(0) translateY(0) scale(1);
   opacity: 1;
@@ -190,15 +190,9 @@ body {
 }
 
 /* In white-matte keep nav/header crystal clear so no haze sits over icon labels */
-/* Use a very subtle white fade for the bottom bar in light mode */
-.white-matte .app-header {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
+.white-matte .app-header,
 .white-matte .app-bottom-bar {
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.6) 40%, transparent 100%) !important;
+  background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -760,7 +754,7 @@ body {
   .black-matte h2,
   .black-matte h3,
   .black-matte h4 {
-    color: hsl(var(--foreground)) !important;
+    color: #ffffff !important;
     font-weight: 500 !important;
     --tw-text-opacity: 1 !important;
   }

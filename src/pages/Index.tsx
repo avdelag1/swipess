@@ -176,7 +176,7 @@ const Index = () => {
   }, [user?.id]);
 
   if (!initialized || loading) {
-    return <div className="min-h-screen min-h-dvh bg-background transition-colors duration-300" />;
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // User exists but still loading role - show transparent screen
@@ -184,11 +184,11 @@ const Index = () => {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background transition-colors duration-300">
+        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
-            <h2 className="text-foreground text-lg font-semibold">Setup Taking Longer Than Expected</h2>
-            <p className="text-muted-foreground text-sm">
+            <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
+            <p className="text-white/70 text-sm">
               Your account setup is taking longer than usual. Please refresh the page to continue.
             </p>
             <button
@@ -202,20 +202,20 @@ const Index = () => {
       );
     }
 
-    return <div className="min-h-screen min-h-dvh bg-background transition-colors duration-300" />;
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // Solo muestra landing page si NO hay usuario logueado
   if (!user) {
     return (
-      <div className="min-h-screen bg-background transition-colors duration-300">
+      <div className="min-h-screen">
         <LegendaryLandingPage />
       </div>
     );
   }
 
   // Caso final (redirigiendo)
-  return <div className="min-h-screen min-h-dvh bg-background transition-colors duration-300" />;
+  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
 };
 
 export default Index;

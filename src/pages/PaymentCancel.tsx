@@ -8,7 +8,7 @@ export default function PaymentCancel() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    sessionStorage.removeItem('pending_purchase');
+    localStorage.removeItem('pending_purchase');
   }, []);
 
   return (

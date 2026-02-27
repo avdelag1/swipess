@@ -9,9 +9,7 @@ export type FilterType =
   | 'noir'
   | 'dramatic'
   | 'silvertone'
-  | 'fade'
-  | 'white'
-  | 'carbon';
+  | 'fade';
 
 export interface FilterConfig {
   name: string;
@@ -55,18 +53,6 @@ export const CAMERA_FILTERS: Record<FilterType, FilterConfig> = {
   fade: {
     name: 'Fade',
     cssFilter: 'saturate(0.8) contrast(0.9) brightness(1.1)',
-  },
-  white: {
-    name: 'White',
-    // noticeable lightening effect – saturate to 0 so colors vanish and crank brightness
-    // to make the preview/image almost pure white. Previous subtle values made the
-    // filter appear identical to original, which is why users reported it "not
-    // working" while the dark/carbon filter showed correctly.
-    cssFilter: 'saturate(0) brightness(3)',
-  },
-  carbon: {
-    name: 'Carbon',
-    cssFilter: 'brightness(0.8) contrast(1.4) grayscale(0.2)',
   },
 };
 

@@ -16,10 +16,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('black-matte');
   const { user } = useAuth();
 
-  // Load theme from database when user logs in (or localStorage when anonymous)
+  // Load theme from database when user logs in
   useEffect(() => {
-    const validThemes = ['black-matte', 'white-matte'];
-
     if (user?.id) {
       const loadUserTheme = async () => {
         try {
@@ -31,9 +29,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
           if (error) throw error;
 
+          const validThemes = ['black-matte', 'white-matte'];
           if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
             setThemeState(data.theme_preference as Theme);
-            localStorage.setItem('swipess-theme', data.theme_preference);
           }
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
@@ -42,13 +40,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       };
       loadUserTheme();
     } else {
-      // Anonymous users may still have a stored preference from earlier
-      const saved = localStorage.getItem('swipess-theme');
-      if (saved && validThemes.includes(saved)) {
-        setThemeState(saved as Theme);
-      } else {
-        setThemeState('black-matte');
-      }
+      setThemeState('black-matte');
     }
   }, [user?.id]);
 
@@ -59,13 +51,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Remove all theme classes safely
     root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
 
-    // Add current theme class
-    root.classList.add(theme);
-    
-    // Only add 'dark' for dark themes to allow 'white-matte' to render light styles correctly
-    if (theme !== 'white-matte') {
-      root.classList.add('dark');
-    }
+    // Add current theme class + 'dark' variant to keep base components dark
+    root.classList.add(theme, 'dark');
 
     // Update status bar base color according to theme
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -85,11 +72,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Save theme to database and update state
   const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
-    // keep a local copy so filters page / other tabs remain in sync
-    try {
-      localStorage.setItem('swipess-theme', newTheme);
-      window.dispatchEvent(new Event('storage'));
-    } catch {}
 
     if (user?.id) {
       try {

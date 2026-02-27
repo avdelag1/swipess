@@ -13,8 +13,6 @@ import { useConversationalAI } from '@/hooks/ai/useConversationalAI';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { validateImageFile } from '@/utils/fileValidation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
 
 type Step = 'category' | 'photos' | 'conversation' | 'review';
 
@@ -34,7 +32,7 @@ const MAX_PHOTOS: Record<Category, number> = {
   worker: 10,
 };
 
-function ConversationalListingCreator() {
+export function ConversationalListingCreator() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('category');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -358,29 +356,29 @@ function ConversationalListingCreator() {
             Back to Photos
           </Button>
 
-          <Card className="h-[75vh] sm:h-[calc(100vh-220px)] flex flex-col rounded-[2rem] sm:rounded-[3rem] border-white/10 bg-background/60 backdrop-blur-3xl shadow-2xl overflow-hidden ring-1 ring-white/5">
-            <CardHeader className="border-b border-white/5 py-4 sm:py-8 px-5 sm:px-10 shrink-0 sticky top-0 bg-background/80 backdrop-blur-xl z-20">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
-                  <div className="w-9 h-9 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary/20 flex items-center justify-center shadow-inner flex-shrink-0">
-                    <MessageSquare className="w-5 h-5 sm:w-7 sm:h-7 text-primary" />
+          <Card className="h-[calc(100vh-220px)] flex flex-col rounded-[3rem] border-white/10 bg-background/60 backdrop-blur-3xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+            <CardHeader className="border-b border-white/5 py-8 px-10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center shadow-inner">
+                    <MessageSquare className="w-7 h-7 text-primary" />
                   </div>
-                  <div className="min-w-0">
-                    <CardTitle className="text-base sm:text-2xl font-black tracking-tight truncate">AI Assistant</CardTitle>
-                    <CardDescription className="text-[10px] sm:text-sm font-bold opacity-70 truncate">Tells us about your listing</CardDescription>
+                  <div>
+                    <CardTitle className="text-2xl font-black tracking-tight">AI Assistant</CardTitle>
+                    <CardDescription className="text-sm font-bold opacity-70">Tell us about your listing</CardDescription>
                   </div>
                 </div>
-                <div className="text-right flex-shrink-0 flex flex-col items-end">
-                  <Badge variant={isComplete ? "default" : "secondary"} className="rounded-full px-2 sm:px-4 py-0.5 text-[9px] sm:text-xs font-black uppercase tracking-widest shadow-lg">
-                    {completionPercentage}%
+                <div className="text-right">
+                  <Badge variant={isComplete ? "default" : "secondary"} className="rounded-full px-4 py-1 text-xs font-black uppercase tracking-widest shadow-lg">
+                    {completionPercentage}% Complete
                   </Badge>
-                  <Progress value={completionPercentage} className="h-1 sm:h-2 w-12 sm:w-32 mt-1 sm:mt-2 rounded-full bg-white/10" />
+                  <Progress value={completionPercentage} className="h-2 w-32 mt-3 rounded-full bg-white/10 transition-all duration-1000" />
                 </div>
               </div>
             </CardHeader>
 
-            <CardContent className="flex-1 flex flex-col overflow-hidden p-0 sm:p-8">
-              <ScrollArea className="flex-1 h-full px-4 sm:px-6 py-4">
+            <CardContent className="flex-1 flex flex-col overflow-hidden p-8">
+              <ScrollArea className="flex-1 pr-6">
                 <div className="space-y-6">
                   {messages.map((message, index) => (
                     <motion.div
@@ -538,5 +536,3 @@ function ConversationalListingCreator() {
 
   return null;
 }
-
-export default ConversationalListingCreator;
