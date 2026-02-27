@@ -9,7 +9,9 @@ export type FilterType =
   | 'noir'
   | 'dramatic'
   | 'silvertone'
-  | 'fade';
+  | 'fade'
+  | 'white'
+  | 'carbon';
 
 export interface FilterConfig {
   name: string;
@@ -53,6 +55,14 @@ export const CAMERA_FILTERS: Record<FilterType, FilterConfig> = {
   fade: {
     name: 'Fade',
     cssFilter: 'saturate(0.8) contrast(0.9) brightness(1.1)',
+  },
+  white: {
+    name: 'White',
+    cssFilter: 'brightness(1.2) contrast(0.9) saturate(1.1)',
+  },
+  carbon: {
+    name: 'Carbon',
+    cssFilter: 'brightness(0.8) contrast(1.4) grayscale(0.2)',
   },
 };
 

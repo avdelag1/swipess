@@ -139,11 +139,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="fixed z-[10010] flex flex-col !w-[100vw] sm:!w-[500px] !max-w-none !left-0 sm:!left-[50%] !bottom-0 sm:!bottom-auto !top-auto sm:!top-[50%] !translate-x-0 sm:!-translate-x-1/2 !translate-y-0 sm:!-translate-y-1/2 !mt-auto h-[90dvh] sm:h-[85vh] sm:max-h-[800px] !p-0 !gap-0 !rounded-b-none sm:!rounded-b-[2.5rem] !rounded-t-[2.5rem] !border-x-0 !border-b-0 sm:!border border-border dark:border-white/10 bg-background/95 dark:bg-zinc-950/95 backdrop-blur-3xl shadow-[0_-20px_60px_-15px_rgba(228,0,124,0.15)] outline-none overflow-hidden"
+        className="fixed z-[10010] flex flex-col !w-[100vw] sm:!w-[500px] !max-w-none !left-0 sm:!left-[50%] !bottom-0 sm:!bottom-auto !top-auto sm:!top-[50%] !translate-x-0 sm:!-translate-x-1/2 !translate-y-0 sm:!-translate-y-1/2 !mt-auto h-[85dvh] sm:h-[80vh] sm:max-h-[750px] !p-0 !gap-0 !rounded-b-none sm:!rounded-b-[2.5rem] !rounded-t-[2.5rem] !border-x-0 !border-b-0 sm:!border border-border dark:border-white/10 bg-background/95 dark:bg-zinc-950/95 backdrop-blur-3xl shadow-[0_-20px_60px_-15px_rgba(228,0,124,0.15)] outline-none overflow-hidden"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-6 py-6 border-b border-border dark:border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.15), rgba(245,222,179,0.05))' }}>
+        <div className="relative px-6 py-5 sm:py-6 border-b border-border dark:border-white/5 flex items-center justify-between shrink-0" style={{ background: 'linear-gradient(135deg, rgba(228,0,124,0.15), rgba(245,222,179,0.05))' }}>
           <div className="flex items-center gap-4">
             {/* AI Avatar */}
             <div className="w-12 h-12 rounded-[1.5rem] flex items-center justify-center shadow-lg" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
