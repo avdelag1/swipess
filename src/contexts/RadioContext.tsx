@@ -258,10 +258,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.load();
 
         // Update station AND city (important for shuffle mode)
+        // Also reset miniPlayerMode to expanded so it shows when navigating away
         setState(prev => ({
           ...prev,
           currentStation: targetStation,
-          currentCity: targetStation.city // Update city to match the station
+          currentCity: targetStation.city, // Update city to match the station
+          miniPlayerMode: 'expanded' // Reset mini player to show when navigating away
         }));
         savePreferences({
           currentStation: targetStation,
@@ -332,7 +334,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({
       ...prev,
       isPoweredOn: newPower,
-      isPlaying: newPower ? prev.isPlaying : false // Stop playing if powered off
+      isPlaying: newPower ? prev.isPlaying : false, // Stop playing if powered off
+      miniPlayerMode: newPower ? prev.miniPlayerMode : 'closed' // Close mini player when powered off
     }));
 
     if (!newPower && audioRef.current) {
