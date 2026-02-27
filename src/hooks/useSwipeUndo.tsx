@@ -110,9 +110,15 @@ export function useSwipeUndo() {
       saveLastSwipe(null);
 
       // Refresh queries
-      queryClient.invalidateQueries({ queryKey: ['swipe-dismissals'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['swipe-dismissals'] }).catch(err => {
+        logger.warn('[useSwipeUndo] invalidateQueries swipe-dismissals failed', err);
+      });
+      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => {
+        logger.warn('[useSwipeUndo] invalidateQueries listings failed', err);
+      });
+      queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(err => {
+        logger.warn('[useSwipeUndo] invalidateQueries liked-properties failed', err);
+      });
 
       toast({
         title: '↩️ Card Returned',
