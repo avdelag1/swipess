@@ -162,7 +162,7 @@ function TopBarComponent({
         <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
-            {title && (
+            {title && title !== '' && (
               <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
                 {title}
               </div>
