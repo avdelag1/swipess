@@ -563,7 +563,9 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Track dismissal on left swipe (dislike)
-      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { }) : Promise.resolve(),
+      direction === 'left' ? dismissTarget(profile.user_id).catch(err => {
+        logger.warn('[ClientSwipeContainer] dismissTarget failed:', err);
+      }) : Promise.resolve(),
 
       // Record for undo - pass category so deck can be properly restored
       Promise.resolve(recordSwipe(profile.user_id, 'profile', direction, category))

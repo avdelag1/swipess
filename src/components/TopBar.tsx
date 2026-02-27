@@ -89,7 +89,7 @@ function TopBarComponent({
 
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme === 'black-matte';
+  const isDark = theme !== 'white-matte';
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
@@ -103,7 +103,7 @@ function TopBarComponent({
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
-    : 'bg-transparent border-transparent';
+    : 'bg-gradient-to-b from-white/95 via-white/60 to-transparent border-transparent';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -366,8 +366,10 @@ function TopBarComponent({
                   className={cn(
                     "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-200 group-hover:text-orange-100"
-                      : "text-gray-50 group-hover:text-white"
+                      ? "text-orange-400 group-hover:text-orange-500"
+                      : isDark
+                        ? "text-gray-50 group-hover:text-white"
+                        : "text-gray-600 group-hover:text-gray-800"
                   )}
                 />
                 <AnimatePresence>

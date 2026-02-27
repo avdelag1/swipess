@@ -760,8 +760,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     // Track dismissal on left swipe (dislike)
     if (direction === 'left') {
-      dismissTarget(listing.id).catch(() => {
-        // Non-critical error - already logged in hook
+      dismissTarget(listing.id).catch(err => {
+        logger.warn('[SwipessSwipeContainer] dismissTarget error:', err);
       });
     }
 
@@ -790,7 +790,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
         profileId: listing.id,
         viewType: 'listing',
         action: direction === 'right' ? 'like' : 'pass'
-      }).catch(() => { });
+      }).catch(err => {
+        logger.warn('[SwipessSwipeContainer] recordProfileView error:', err);
+      });
     });
 
     // Clear direction for next swipe
