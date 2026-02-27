@@ -58,7 +58,11 @@ export const CAMERA_FILTERS: Record<FilterType, FilterConfig> = {
   },
   white: {
     name: 'White',
-    cssFilter: 'brightness(1.2) contrast(0.9) saturate(1.1)',
+    // noticeable lightening effect – saturate to 0 so colors vanish and crank brightness
+    // to make the preview/image almost pure white. Previous subtle values made the
+    // filter appear identical to original, which is why users reported it "not
+    // working" while the dark/carbon filter showed correctly.
+    cssFilter: 'saturate(0) brightness(3)',
   },
   carbon: {
     name: 'Carbon',
