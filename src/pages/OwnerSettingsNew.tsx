@@ -11,7 +11,6 @@ import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };

@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
 export function RadioMiniPlayer() {
-  const { state, togglePlayPause, changeStation, togglePower } = useRadio();
+  const { state, togglePlayPause, changeStation, togglePower, pause, setMiniPlayerMode } = useRadio();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,13 +49,14 @@ export function RadioMiniPlayer() {
     }
   }, [togglePlayPause]);
 
-  const handleTogglePower = useCallback((e: React.MouseEvent) => {
+  const handleCloseMiniPlayer = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isDraggingRef.current) {
       triggerHaptic('medium');
-      togglePower();
+      pause();
+      setMiniPlayerMode('closed');
     }
-  }, [togglePower]);
+  }, [pause, setMiniPlayerMode]);
 
   const handlePrev = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -129,7 +130,7 @@ export function RadioMiniPlayer() {
 
             {/* Power Button */}
             <button
-              onClick={handleTogglePower}
+              onClick={handleCloseMiniPlayer}
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90",
                 state.isPoweredOn ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-white/10 text-white/40"
