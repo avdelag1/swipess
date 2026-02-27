@@ -5,6 +5,7 @@
  */
 
 import { lazy, Suspense, ReactNode, ComponentType, LazyExoticComponent } from 'react';
+import { logger } from '@/utils/prodLogger';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyProps = any;
@@ -45,14 +46,19 @@ export function preloadComponent(
 ): void {
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => {
-      importFn().catch(() => {
-        // Silently fail, component will still load when needed
+      importFn().catch((error) => {
+        logger.debug('[LazyLoader] Preload failed (non-blocking)', {
+          error: error instanceof Error ? error.message : 'Unknown',
+          context: 'component preload'
+        });
       });
     });
   } else {
     setTimeout(() => {
-      importFn().catch(() => {
-        // Silently fail
+      importFn().catch((error) => {
+        logger.debug('[LazyLoader] Preload failed (non-blocking)', {
+          error: error instanceof Error ? error.message : 'Unknown'
+        });
       });
     }, 2000);
   }
@@ -67,16 +73,20 @@ export function preloadComponents(
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => {
       importFns.forEach(importFn => {
-        importFn().catch(() => {
-          // Silently fail
+        importFn().catch((error) => {
+          logger.debug('[LazyLoader] Batch preload failed', {
+            error: error instanceof Error ? error.message : 'Unknown'
+          });
         });
       });
     });
   } else {
     setTimeout(() => {
       importFns.forEach(importFn => {
-        importFn().catch(() => {
-          // Silently fail
+        importFn().catch((error) => {
+          logger.debug('[LazyLoader] Batch preload failed', {
+            error: error instanceof Error ? error.message : 'Unknown'
+          });
         });
       });
     }, 2000);
@@ -95,8 +105,10 @@ export function createHoverPreloader(
   return () => {
     if (!preloaded) {
       preloaded = true;
-      importFn().catch(() => {
-        // Silently fail
+      importFn().catch((error) => {
+        logger.debug('[LazyLoader] Hover preload failed', {
+          error: error instanceof Error ? error.message : 'Unknown'
+        });
       });
     }
   };
