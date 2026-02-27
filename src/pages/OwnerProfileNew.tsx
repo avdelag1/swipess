@@ -7,14 +7,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Palette, Heart, Settings
+  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Palette, Heart, Settings, Radio
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
+import { haptics } from "@/utils/microPolish";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = { staggerChildren: 0.08, delayChildren: 0.15 } as any;
+const stagger = { visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
 const childVariant = {
   hidden: { opacity: 0, y: 30, scale: 0.94, filter: "blur(8px)" },
   visible: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)", transition: premiumSpring },
@@ -55,20 +56,20 @@ const OwnerProfileNew = () => {
         initial="hidden"
         animate="visible"
         variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pb-32 space-y-6"
+        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
         {/* Back Button */}
         <motion.div variants={childVariant}>
           <button
-            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/owner/dashboard')}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all active:scale-95"
+            onClick={() => { haptics.tap(); window.history.length > 1 ? navigate(-1) : navigate('/owner/dashboard'); }}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black uppercase tracking-tight transition-all active:scale-95"
             style={{
               background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
               border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
               backdropFilter: 'blur(12px)',
             }}
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" strokeWidth={3} />
             Back
           </button>
         </motion.div>
@@ -79,7 +80,7 @@ const OwnerProfileNew = () => {
             <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
-                onClick={() => setShowEditDialog(true)}
+                onClick={() => { haptics.tap(); setShowEditDialog(true); }}
               >
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
@@ -89,7 +90,9 @@ const OwnerProfileNew = () => {
               </div>
             </div>
             <button
-              onClick={() => setShowEditDialog(true)}
+              onClick={() => { haptics.tap(); setShowEditDialog(true); }}
+              aria-label="Edit Profile"
+              title="Edit Profile"
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
               style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}
             >
@@ -108,7 +111,7 @@ const OwnerProfileNew = () => {
         <motion.div variants={childVariant}>
           <motion.button
             whileTap={{ scale: 0.96 }}
-            onClick={() => setShowEditDialog(true)}
+            onClick={() => { haptics.select(); setShowEditDialog(true); }}
             className="w-full h-14 flex items-center justify-center gap-2 rounded-2xl font-black text-base text-white relative overflow-hidden group shadow-lg"
             style={{
               background: 'linear-gradient(135deg, #E4007C, #D4006E)',
@@ -124,7 +127,7 @@ const OwnerProfileNew = () => {
         <motion.div variants={childVariant} className="grid grid-cols-2 gap-4">
           <motion.button
             whileTap={{ scale: 0.96 }}
-            onClick={() => navigate('/owner/liked-clients')}
+            onClick={() => { haptics.tap(); navigate('/owner/liked-clients'); }}
             className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
             style={{
               background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
@@ -145,7 +148,7 @@ const OwnerProfileNew = () => {
 
           <motion.button
             whileTap={{ scale: 0.96 }}
-            onClick={() => navigate('/owner/interested-clients')}
+            onClick={() => { haptics.tap(); navigate('/owner/interested-clients'); }}
             className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
             style={{
               background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
@@ -176,10 +179,22 @@ const OwnerProfileNew = () => {
 
 
 
+        {/* Radio Player Action */}
+        <motion.div variants={childVariant}>
+          <button
+            onClick={() => { haptics.tap(); navigate('/radio'); }}
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-2xl border border-white/10 relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Radio className="w-7 h-7 relative z-10 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+            <span className="relative z-10 font-black tracking-tight text-lg text-white">Radio Player</span>
+          </button>
+        </motion.div>
+
         {/* Upgrade Button - Flagship Mexican Pink */}
         <motion.div variants={childVariant}>
           <button
-            onClick={() => navigate('/subscription-packages')}
+            onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
             className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] mexican-pink-premium relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
@@ -191,7 +206,7 @@ const OwnerProfileNew = () => {
         {/* Secondary Actions */}
         <motion.div variants={childVariant} className="space-y-3">
           <button
-            onClick={() => navigate('/owner/settings')}
+            onClick={() => { haptics.tap(); navigate('/owner/settings'); }}
             className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2"
             style={{
               background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
@@ -205,7 +220,7 @@ const OwnerProfileNew = () => {
           </button>
 
           <button
-            onClick={signOut}
+            onClick={() => { haptics.warning(); signOut(); }}
             className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
           >
             <LogOut className="w-5 h-5" />

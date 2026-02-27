@@ -221,7 +221,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     return (
       <div
         className={cn(
-          'bg-background/80 backdrop-blur-xl border-b border-border px-3 py-2',
+          'bg-background/50 backdrop-blur-xl border-b border-border px-3 py-2',
           className
         )}
       >
@@ -301,7 +301,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   return (
     <div
       className={cn(
-        'bg-background/80 backdrop-blur-xl border-b border-border px-3 py-2',
+        'bg-background/50 backdrop-blur-xl border-b border-border px-3 py-2',
         className
       )}
     >

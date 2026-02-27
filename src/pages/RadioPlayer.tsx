@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { getStationsByCity, cityThemes } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
-import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic } from 'lucide-react';
+import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic, Power } from 'lucide-react';
 
 export default function RadioPlayer() {
-  const { state, error, togglePlayPause, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin } = useRadio();
+  const { state, error, togglePlayPause, togglePower, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin } = useRadio();
   const [showCitySelector, setShowCitySelector] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
 
@@ -25,9 +25,12 @@ export default function RadioPlayer() {
   const handleDialChange = useCallback((value: number) => {
     const station = cityStations[value];
     if (station && station.id !== state.currentStation?.id) {
+      if (!state.isPoweredOn) {
+        togglePower();
+      }
       play(station);
     }
-  }, [cityStations, play, state.currentStation?.id]);
+  }, [cityStations, play, state.currentStation?.id, state.isPoweredOn, togglePower]);
 
   // Keyboard controls
   useEffect(() => {
@@ -61,13 +64,18 @@ export default function RadioPlayer() {
         <div className="flex flex-col items-center">
           <span className="text-foreground/60 text-[10px] font-bold tracking-[0.2em] uppercase">Swipess Radio</span>
           <div className="flex items-center gap-1.5 mt-1">
-            <div className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-[#E4007C] animate-pulse shadow-[0_0_8px_#E4007C]' : 'bg-foreground/20'}`} />
+            <div className={`w-1.5 h-1.5 rounded-full ${state.isPoweredOn ? 'bg-blue-400 animate-pulse shadow-[0_0_8px_#60a5fa]' : 'bg-foreground/20'}`} />
             <span className="text-[11px] font-medium tracking-wide">
-              {state.isPlaying ? 'CONNECTED' : 'DISCONNECTED'}
+              {state.isPoweredOn ? (state.isPlaying ? 'STREAMING' : 'READY') : 'POWER OFF'}
             </span>
           </div>
         </div>
-        <div className="w-10 h-10 flex items-center justify-center" />
+        <button
+          onClick={togglePower}
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 border ${state.isPoweredOn ? 'bg-red-500/20 text-red-500 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-white/10 text-white/40 border-white/10'}`}
+        >
+          <Power className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Center - Vinyl & Controls */}

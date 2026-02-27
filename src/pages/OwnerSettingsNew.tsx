@@ -1,6 +1,7 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { PageHeader } from "@/components/PageHeader";
 import { CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight,
   Scale, Volume2, Radio, Building2
@@ -10,7 +11,6 @@ import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
@@ -57,13 +57,6 @@ const settingsGroups: SettingsGroup[] = [
   {
     label: 'Tools',
     items: [
-      {
-        icon: Radio,
-        label: 'Radio Player',
-        description: 'Listen to live radio stations',
-        bg: 'linear-gradient(135deg, #064e3b, #10b981)',
-        route: '/radio',
-      },
       {
         icon: Building2,
         label: 'Manage Listings',
@@ -121,7 +114,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 py-4 pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
           <motion.button
             whileTap={{ scale: 0.96 }}
@@ -155,7 +148,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 py-4 pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
           <motion.button
             whileTap={{ scale: 0.96 }}
@@ -177,7 +170,7 @@ const OwnerSettingsNew = () => {
   }
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-6 py-6 pb-40 scrollbar-hide">
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide">
       <div className="max-w-3xl mx-auto space-y-10">
         <PageHeader
           title="Owner Settings"

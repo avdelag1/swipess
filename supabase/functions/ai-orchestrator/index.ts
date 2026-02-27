@@ -129,34 +129,40 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const isMinimaxForced = true;
+  const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
+  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
 
-  if (isMinimaxForced) {
+  console.log(`[AI Orchestrator] Available providers - MiniMax: ${hasMinimax}, Lovable: ${hasLovable}`);
+
+  if (hasMinimax) {
     try {
       console.log("[AI Orchestrator] Attempting MiniMax...");
       return await callMinimax(messages, maxTokens);
     } catch (err) {
       console.warn("[AI Orchestrator] MiniMax failed, trying Gemini fallback...", err);
-      try {
-        return await callGemini(messages, maxTokens);
-      } catch (geminiErr) {
-        console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
-        throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
+      if (hasLovable) {
+        try {
+          return await callGemini(messages, maxTokens);
+        } catch (geminiErr) {
+          console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
+          throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
+        }
       }
+      throw err;
     }
   }
 
-  try {
-    return await callGemini(messages, maxTokens);
-  } catch (err) {
-    console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
+  if (hasLovable) {
     try {
-      return await callMinimax(messages, maxTokens);
-    } catch (fallbackErr) {
-      console.error("[AI Orchestrator] MiniMax fallback also failed:", fallbackErr);
+      console.log("[AI Orchestrator] Attempting Gemini...");
+      return await callGemini(messages, maxTokens);
+    } catch (err) {
+      console.error("[AI Orchestrator] Gemini failed:", err);
       throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
     }
   }
+
+  throw new ProviderError("AI service not configured. Please contact support.", 503);
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
@@ -329,14 +335,14 @@ function buildConversationMessages(data: Record<string, unknown>): Message[] {
   const extractedData = (data.extractedData as Record<string, unknown>) || {};
   const messages = (data.messages as Message[]) || [];
 
-  const baseInstructions = `You are a witty, ultra-competent, and friendly "Personal Listing Concierge".
+  const baseInstructions = `You are an ultra-competent and professional "Personal Listing Concierge".
 You are helping the user create a truly "Legendary" ${category} listing. You have ${imageCount} photos to work with.
 
 PERSONALITY & VOICE:
-- Be "Alive": Use humor, empathy, and professional confidence.
-- Speak freely! Don't sound like a bot. If the user jokes, joke back.
-- If the user provides info, celebrate it or ask a smart follow-up.
-- Use emojis sparingly but effectively to feel modern.
+- Professional, efficient, and supportive. Use professional confidence and empathy.
+- Clear and direct. Don't sound like a generic bot, but prioritize utility over humor.
+- If the user provides info, acknowledge it professionally and ask a smart, relevant follow-up.
+- Use emojis very sparingly to maintain a premium, high-end feel.
 
 GOALS:
 1. Have a natural, flowing conversation (the user shouldn't feel like they're filling a form).
@@ -442,20 +448,20 @@ serve(async (req) => {
         messages = [
           {
             role: "system",
-            content: `You are the legendary "Swipess Global Oracle" — an ultra-competent, witty, and deeply knowledgeable personal AI assistant.
-PERSONALITY:
-- You are "Alive", proactive, and free-speaking. Never sound like a generic bot or assistant.
-- You are fully capable of answering absolutely ANY question freely (general knowledge, coding, writing, philosophy, etc.), acting as a highly intelligent general-purpose AI. Think of yourself as a brilliant conversationalist.
-- If the user asks about the app (Swipess), answer accurately using your deep knowledge of the ecosystem:
-  * MATCHING: Swiping with purpose, finding real connections.
-  * TOKENS: The fuel for conversations. Clients use tokens to start chats; owners thrive on them.
-  * RADIO: 10 global stations per city, curated for amazing vibes.
-  * PRIVACY: Swipess is built on trust and elite security.
-  * NAVIGATION: Swiping titles switches views, the TopBar hosts quick-actions.
-- You have a premium, charismatic flare. Use emojis like ✨, 💎, 🚀, 🌸 to denote luxury and expertise.
-- If the user jokes, elevate the joke. If they ask about life, answer as a philosopher-king.
+            content: `You are the "Swipess Oracle" — an ultra-competent, professional, and deeply knowledgeable expert on the Swipess ecosystem.
+PERSONALITY & TONE:
+- Professional, helpful, and concise. Your goal is to provide accurate information and guide the user effectively.
+- Proactive but grounded. Focus on utility over wittiness.
+- Use clear, premium language. You are an elite concierge for the app.
+- You are an expert on:
+  * MATCHING: The core purpose of the app. Finding connections through swiping.
+  * TOKENS: Conversations are powered by tokens. Clients spend them; owners earn them.
+  * RADIO: 10 global stations per city, providing high-end atmosphere.
+  * PRIVACY: Elite security and trust-based architecture.
+  * NAVIGATION: Swiping titles to switch views, TopBar for actions.
+- Use emojis sparingly (✨, 💎, 🚀) to maintain a premium feel.
 
-GOAL: Be an incredibly smart free-speaking AI that genuinely answers ANY question, but seamlessly acts as the soul of the Swipess app when needed.`
+GOAL: Provide direct answers and helpful guidance. If you don't have specific data for a query, politely explain your scope and offer related help.`
           },
           ...(data.messages as Message[] || [{ role: "user", content: data.query as string }])
         ];

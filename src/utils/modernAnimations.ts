@@ -81,16 +81,35 @@ export const swipeExitVariants = {
   },
 };
 
-// Button press animation
+// Button press animation — classic subtle
 export const buttonTapAnimation = {
   scale: 0.96,
   transition: { duration: 0.1 }
+};
+
+// Elastic "jelly" press — wobbly spring rebound on tap
+export const elasticTapAnimation = {
+  scale: 0.92,
+  transition: { type: "spring" as const, stiffness: 500, damping: 12, mass: 0.6 }
+};
+
+// Woven/rubber-band press — deeper squish with overshoot
+export const wovenTapAnimation = {
+  scale: 0.88,
+  transition: { type: "spring" as const, stiffness: 350, damping: 10, mass: 0.8 }
 };
 
 // Button hover animation
 export const buttonHoverAnimation = {
   scale: 1.03,
   transition: springConfigs.snappy
+};
+
+// Elastic hover — subtle float-up with spring
+export const elasticHoverAnimation = {
+  scale: 1.05,
+  y: -2,
+  transition: { type: "spring" as const, stiffness: 400, damping: 15, mass: 0.5 }
 };
 
 // Overlay fade variants

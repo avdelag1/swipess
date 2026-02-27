@@ -1,76 +1,50 @@
 
 
-# Fix All Build Errors
+## Plan: Fix Build Errors, Remove "Get Started" Button, Fix White Theme, Fix Mini Radio Persistence
 
-## Overview
+### 1. Fix build error: `BottomNavigation.tsx` — missing `isLight` variable
+Add `const isLight = theme === 'white-matte';` after the existing `useTheme()` call (line 19 imports `useTheme`, but `isLight` is never derived from it). Need to check if `theme` is destructured from `useTheme()`.
 
-There are 4 categories of build errors, all straightforward fixes:
+Looking at the imports, `useTheme` is imported at line 19. Need to add the `isLight` derivation after the theme hook usage inside the component body.
 
-1. **Toast import errors** (AccountSecurity, AuthDialog, AIListingAssistant) -- importing `toast` from `'sonner'` directly instead of from the compatibility wrapper
-2. **CascadeFilterButton** -- `MouseEvent` type mismatch in event listeners
-3. **ClientInsightsDialog** -- null safety for `clientStats` and `renterInsights`
-4. **AIListingAssistant** -- `unknown` type cast for `generatedData` fields
+### 2. Fix build error: `SwipeActionButtonBar.tsx` — missing `useTheme` import
+Add `import { useTheme } from '@/hooks/useTheme';` to the imports (line 25-28 area).
 
----
+### 3. Fix build error: `button.tsx` — duplicate `motion` import and duplicate `asChild` block
+- Remove the duplicate `import { motion } from "framer-motion"` on line 8
+- Remove the duplicate `if (asChild)` block (lines 81-90) which references undefined `handleClick`
 
-## Fix 1: Toast Imports (3 files)
+### 4. Fix build error: `RadarSearchEffect.tsx` — missing `AnimatePresence` import
+Add `AnimatePresence` to the framer-motion import statement.
 
-These files import `toast` from `'sonner'` directly, bypassing the compatibility wrapper that handles the old `toast({ title, description, variant })` syntax.
+### 5. Fix build error: `ClientWhoLikedYou.tsx` — duplicate `images` property
+Remove the duplicate `images` property at line 78 (keep line 83).
 
-**Fix:** Change the import in each file from:
-```typescript
-import { toast } from 'sonner';
-```
-to:
-```typescript
-import { toast } from '@/components/ui/sonner';
-```
+### 6. Fix build error: `OwnerSettingsNew.tsx` — duplicate `Badge` import
+Remove the duplicate `import { Badge }` at line 14.
 
-### Files:
-- `src/components/AccountSecurity.tsx` (line 9) -- 11 toast calls with old syntax
-- `src/components/AuthDialog.tsx` (line 11) -- 14 toast calls with old syntax, some with JSX descriptions
-- `src/components/AIListingAssistant.tsx` (line 11) -- fixes the `unknown` ReactNode error too since sonner's raw return type won't leak into JSX
+### 7. Remove "Get Started" button from landing page
+Remove the "Direct Entry Button" section in `LegendaryLandingPage.tsx` (lines 154-179), keeping only the swipeable logo and tagline as entry points.
 
----
+### 8. Fix white theme "filter" haze
+The `GradientMasks.tsx` component applies gradient overlays even in light mode. The `lightDim` multiplier of `0.08` still creates a visible haze with white gradients (`255,255,255`). For the white-matte theme, these should be fully disabled (set `lightDim` to `0` or skip rendering when `light` is true).
 
-## Fix 2: CascadeFilterButton.tsx Event Listener Type
+### 9. Fix mini radio player persistence after close
+Currently in `RadioMiniPlayer.tsx`, the player checks `state.miniPlayerMode === 'closed'` to hide, but `togglePower` in `RadioContext.tsx` doesn't set `miniPlayerMode` to `'closed'`. The power button in the mini player sets `isPoweredOn = false`, which hides it, but when the user opens the radio page again it auto-powers on.
 
-Lines 84-99: The `handleClickOutside` function types its parameter as `MouseEvent` (DOM), but `addEventListener('touchstart', ...)` expects `EventListener` which takes `Event`, not `MouseEvent`.
+The fix: When the user explicitly closes/powers off the mini player, set `miniPlayerMode` to `'closed'`. Only reset it back to `'expanded'` when the user navigates to the radio station page and interacts with it (plays a station). Currently `togglePower` in RadioContext just toggles power without touching `miniPlayerMode`. We need to update the mini player's power button handler to call `setMiniPlayerMode('closed')` instead of `togglePower`, so it stays closed until the user opens the radio page again.
 
-**Fix:** Change the parameter type from `MouseEvent` to `Event` and cast `event.target` inside:
-```typescript
-const handleClickOutside = (event: Event) => {
-  const target = event.target as Node;
-  if (
-    panelRef.current && !panelRef.current.contains(target) &&
-    buttonRef.current && !buttonRef.current.contains(target)
-  ) {
-    setIsOpen(false);
-  }
-};
-```
+### Technical Details
 
----
-
-## Fix 3: ClientInsightsDialog.tsx Null Safety
-
-`clientStats` and `renterInsights` are both computed via `useMemo` and return `null` when `profile` is absent. The template accesses their properties directly without null guards starting around line 389.
-
-**Fix:** Add a null guard before the statistics section that uses these values. Wrap the Client Statistics block (lines 376-424) with `{clientStats && ( ... )}` and the Renter Readiness block (lines 428-540+) with `{renterInsights && ( ... )}`.
-
-This is safe because both values are `null` only when `profile` is null, and the dialog shouldn't render these sections without a profile anyway.
-
----
-
-## Summary
-
-| File | Fix | Lines |
-|------|-----|-------|
-| `AccountSecurity.tsx` | Change toast import to wrapper | Line 9 |
-| `AuthDialog.tsx` | Change toast import to wrapper | Line 11 |
-| `AIListingAssistant.tsx` | Change toast import to wrapper | Line 11 |
-| `CascadeFilterButton.tsx` | Change `MouseEvent` to `Event` | Lines 84-89 |
-| `ClientInsightsDialog.tsx` | Add null guards around `clientStats` and `renterInsights` blocks | Lines 376-540 |
-
-All fixes are minimal single-line or wrapping changes. No logic, layout, or functionality changes.
+**Files to modify:**
+- `src/components/BottomNavigation.tsx` — add `const { theme } = useTheme(); const isLight = theme === 'white-matte';` in component body
+- `src/components/SwipeActionButtonBar.tsx` — add `useTheme` import
+- `src/components/ui/button.tsx` — remove duplicate import and duplicate asChild block
+- `src/components/ui/RadarSearchEffect.tsx` — add `AnimatePresence` to import
+- `src/pages/ClientWhoLikedYou.tsx` — remove duplicate `images` property
+- `src/pages/OwnerSettingsNew.tsx` — remove duplicate `Badge` import
+- `src/components/LegendaryLandingPage.tsx` — remove Get Started button block
+- `src/components/ui/GradientMasks.tsx` — disable gradients entirely for light theme (return null or set opacity to 0)
+- `src/components/RadioMiniPlayer.tsx` — change power button to call `setMiniPlayerMode('closed')` and pause audio
+- `src/contexts/RadioContext.tsx` — reset `miniPlayerMode` to `'expanded'` only when user plays from radio page
 

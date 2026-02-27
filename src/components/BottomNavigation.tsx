@@ -10,23 +10,25 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter,
-  Search, Compass, LayoutGrid, Users, Briefcase
+  Search, Compass, LayoutGrid, Users, Briefcase, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
+import { haptics } from '@/utils/microPolish';
 
-// ICON SIZING - responsive
-const ICON_SIZE = 22;
-const TOUCH_TARGET_SIZE = 48;
+// ICON SIZING - responsive, compact to fit all buttons
+const ICON_SIZE = 20;
+const TOUCH_TARGET_SIZE = 44;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
+  onAIClick?: () => void;
 }
 
 interface NavItem {
@@ -43,6 +45,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
+  const { theme } = useTheme();
+  const isLight = theme === 'white-matte';
 
   // Hide on scroll down, show on scroll up - targets the dashboard scroll container
   const { isVisible } = useScrollDirection({
@@ -79,10 +83,20 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       badge: unreadCount,
     },
     {
-      id: 'filter',
-      icon: Search,
-      label: 'Filters',
+      id: 'ai',
+      icon: Sparkles,
+      label: 'AI',
       path: '/client/filters',
+      onClick: () => {
+        // Will be handled by parent - emit event for AI search
+        window.dispatchEvent(new CustomEvent('open-ai-search'));
+      },
+    },
+    {
+      id: 'ai',
+      icon: Sparkles,
+      label: 'AI Oracle',
+      onClick: onAIClick,
     },
   ];
 
@@ -126,6 +140,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       label: 'Filters',
       path: '/owner/filters',
     },
+    {
+      id: 'ai',
+      icon: Sparkles,
+      label: 'AI Oracle',
+      onClick: onAIClick,
+    },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
@@ -133,6 +153,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const handleNavPress = (event: React.PointerEvent, item: NavItem) => {
     event.stopPropagation();
     event.preventDefault();
+    haptics.select();
 
     if (item.onClick) {
       item.onClick();
@@ -148,18 +169,21 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     return location.pathname === item.path;
   };
 
-  // Theme-aware colors using semantic CSS variables
-  const iconColor = 'hsl(var(--muted-foreground))';
-  const activeColor = 'hsl(var(--primary))';
-  const bgDefault = 'hsl(var(--secondary) / 0.4)';
-  const bgActive = 'hsl(var(--secondary) / 0.8)';
-  const borderColor = 'hsl(var(--border) / 0.4)';
-  const shadowColor = 'var(--shadow-sm)';
+  // Theme-aware colors
+  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
+  const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
+  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.8)';
+  const bgActive = isLight ? 'rgba(255, 255, 255, 1.0)' : 'rgba(39, 39, 42, 0.95)';
+  const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
+  const shadowColor = isLight
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
+    : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
+  const controlBlur = isLight ? 'none' : 'blur(8px)';
 
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
-      <div
-        className="flex items-center justify-between w-full max-w-xl mx-auto px-2 py-2 pointer-events-auto bg-transparent"
+        <div
+          className="flex items-center justify-evenly w-full max-w-xl mx-auto px-1 py-1.5 pointer-events-auto bg-transparent"
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -183,15 +207,17 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 '-webkit-tap-highlight-color-transparent'
               )}
               style={{
-                minWidth: TOUCH_TARGET_SIZE,
+                minWidth: 0,
+                width: `${100 / navItems.length}%`,
+                maxWidth: TOUCH_TARGET_SIZE + 8,
                 minHeight: TOUCH_TARGET_SIZE,
-                padding: '8px 4px',
-                backgroundColor: active ? bgActive : bgDefault,
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: `1px solid ${borderColor}`,
+                padding: '6px 2px',
+                backgroundColor: isLight ? (active ? 'rgba(0,0,0,0.06)' : 'transparent') : (active ? bgActive : bgDefault),
+                backdropFilter: isLight ? 'none' : controlBlur,
+                WebkitBackdropFilter: isLight ? 'none' : controlBlur,
+                border: isLight ? '1px solid transparent' : `1px solid ${borderColor}`,
                 borderRadius: '14px',
-                boxShadow: shadowColor,
+                boxShadow: isLight ? 'none' : shadowColor,
               }}
             >
               {/* Active indicator dot */}
@@ -227,15 +253,15 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                     color: active ? 'transparent' : iconColor,
                     stroke: active ? 'url(#active-gradient)' : 'currentColor',
                     fill: active ? 'url(#active-gradient)' : 'none',
-                    filter: active ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
+                    filter: (active && !isLight) ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
                   }}
-                  strokeWidth={active ? 2.5 : 2}
+                  strokeWidth={active ? 3.5 : 3}
                 />
               </div>
               <span
                 className={cn(
                   "text-[10px] tracking-wide transition-all duration-300",
-                  active ? "font-bold" : "font-medium"
+                  active ? "font-black" : "font-extrabold"
                 )}
                 style={{
                   color: active ? activeColor : iconColor,

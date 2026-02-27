@@ -42,6 +42,7 @@ const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog'
 const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
+const AISearchDialog = lazy(() => import('@/components/AISearchDialog'))
 
 // Hooks
 import { useListings } from "@/hooks/useListings"
@@ -134,6 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
+  const [showAiSearch, setShowAiSearch] = useState(false)
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
@@ -353,6 +355,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowMessageActivations(true)
   }, [])
 
+  const handleAiSearchClick = useCallback(() => {
+    setShowAiSearch(true)
+  }, [])
+
   const handleMenuItemClick = useCallback((action: string) => {
     switch (action) {
       case 'add-listing':
@@ -493,9 +499,26 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // On these routes, TopBar becomes transparent and content extends behind it
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    return path === '/client/dashboard' ||
-      path === '/owner/dashboard' ||
-      path.includes('discovery');
+    // Core routes that should go full-bleed behind the header
+    const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
+      '/client/profile',
+      '/owner/profile',
+      '/client/liked-properties',
+      '/owner/liked-clients',
+      '/client/filters',
+      '/owner/filters',
+      '/owner/properties',
+      '/client/services',
+      '/messages',
+      '/notifications',
+      '/settings'
+    ];
+
+    return immersiveRoutes.some(route => path === route || path.startsWith(route + '/')) ||
+      path.includes('discovery') ||
+      path.includes('view-client');
   }, [location.pathname]);
 
   // Get page title based on location for TopBar display
@@ -518,6 +541,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path.includes('/settings')) return 'Settings';
     if (path.includes('/messages')) return 'Messages';
     if (path.includes('/notifications')) return 'Notifications';
+    if (path.includes('/liked-clients')) return 'Liked Clients';
     if (path.includes('/liked')) return 'Liked';
     if (path.includes('/properties')) return 'Properties';
     if (path.includes('/listings')) return 'Listings';
@@ -583,9 +607,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
+          className="flex-1 w-full flex flex-col"
+          style={{ minHeight: '100%' }}
         >
           {enhancedChildren}
+          {/* Spacer for bottom navigation */}
+          <div className="h-24 shrink-0" />
         </motion.div>
       </main>
 
@@ -596,11 +623,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
+          onAIClick={handleAiSearchClick}
         />
       )}
-
-      {/* Radio Mini Player */}
-      <RadioMiniPlayer />
 
       {/* Advanced Filters Dialog */}
       <AdvancedFilters
@@ -760,6 +785,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <WelcomeNotification
           isOpen={shouldShowWelcome}
           onClose={dismissWelcome}
+        />
+      </Suspense>
+
+      {/* AISearchDialog - Triggered from Bottom Navigation AI Button */}
+      <Suspense fallback={null}>
+        <AISearchDialog
+          isOpen={showAiSearch}
+          onClose={() => setShowAiSearch(false)}
         />
       </Suspense>
     </div>

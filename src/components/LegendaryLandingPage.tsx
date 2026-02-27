@@ -16,7 +16,7 @@ import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth'
 import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
-import swipessLogo from '@/assets/swipess-logo-new.png';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -59,7 +59,7 @@ const LandingView = memo(({
   const handleDragStart = () => { isDragging.current = true; };
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    const shouldSwipe = info.offset.x > 100 || info.velocity.x > 400;
+    const shouldSwipe = info.offset.x > 40 || info.velocity.x > 200;
     if (shouldSwipe) {
       if (triggered.current) return;
       triggered.current = true;
@@ -82,7 +82,8 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 cursor-pointer"
+      onTap={handleTap}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
@@ -91,7 +92,7 @@ const LandingView = memo(({
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
+        dragElastic={0.95}
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -151,32 +152,6 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Direct Entry Button - Fixes issue where users got stuck on Splash Screen */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-8 flex flex-col items-center w-full max-w-xs z-20"
-      >
-        <Button
-          onClick={handleTap}
-          size="lg"
-          className="w-full h-14 rounded-full text-base font-bold shadow-[0_0_30px_rgba(228,0,124,0.4)] bg-gradient-to-r from-[#E4007C] to-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all text-black hover:text-black border-none"
-        >
-          Get Started
-        </Button>
-        <div className="mt-4 flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
-          <motion.div
-            animate={{ x: [0, 8, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex items-center gap-1"
-          >
-            <ChevronRight className="w-4 h-4" />
-            <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
-          </motion.div>
-          <span className="text-xs font-medium tracking-wide">or swipe right</span>
-        </div>
-      </motion.div>
 
       {/* Effects toggle */}
       <motion.button
@@ -422,7 +397,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 <Input
                   type="email"
                   name="email"
-                  autocomplete="username"
+                  autoComplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
                   className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
@@ -437,7 +412,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
-                      autocomplete={isLogin ? "current-password" : "new-password"}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
                       className="pl-10 pr-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"

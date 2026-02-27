@@ -3,281 +3,298 @@
 /*  Inspired by Claude, ChatGPT, and Grok - Modern, Sophisticated        */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-@layer base {
 
-    /* THEME 1: GREY MATTE (Default - like Claude) */
-    .grey-matte {
-        /* Background colors - Sophisticated mid-grey palette */
-        --background: 0 0% 18%;
-        --foreground: 0 0% 91%;
-        --card: 0 0% 23%;
-        --card-foreground: 0 0% 91%;
-        --primary: 0 100% 50%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 0 0% 27%;
-        --secondary-foreground: 0 0% 91%;
-        --muted: 0 0% 27%;
-        --muted-foreground: 0 0% 72%;
-        --accent: 0 100% 50%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 29%;
-        --input: 0 0% 29%;
-        --ring: 0 100% 50%;
 
-        /* Modern theme variables */
-        --bg-primary: 0 0% 18%;
-        --bg-secondary: 0 0% 23%;
-        --bg-tertiary: 0 0% 27%;
-        --text-primary: 0 0% 91%;
-        --text-secondary: 0 0% 72%;
-        --text-tertiary: 0 0% 53%;
-        --border-primary: 0 0% 29%;
-        --border-secondary: 0 0% 35%;
-        --accent-primary: 0 100% 50%;
-        --accent-secondary: 0 100% 60%;
+/* THEME 1: GREY MATTE (Default - like Claude) */
+.grey-matte {
+    /* Background colors - Sophisticated mid-grey palette */
+    --background: 0 0% 18%;
+    --foreground: 0 0% 91%;
+    --card: 0 0% 23%;
+    --card-foreground: 0 0% 91%;
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 27%;
+    --secondary-foreground: 0 0% 91%;
+    --muted: 0 0% 27%;
+    --muted-foreground: 0 0% 72%;
+    --accent: 0 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 29%;
+    --input: 0 0% 29%;
+    --ring: 0 100% 50%;
 
-        /* Shadows - Subtle depth for floating cards */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.16);
-        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.24);
-        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
-        --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
-        --overlay: rgba(0, 0, 0, 0.6);
-    }
+    /* Modern theme variables */
+    --bg-primary: 0 0% 18%;
+    --bg-secondary: 0 0% 23%;
+    --bg-tertiary: 0 0% 27%;
+    --text-primary: 0 0% 91%;
+    --text-secondary: 0 0% 72%;
+    --text-tertiary: 0 0% 53%;
+    --border-primary: 0 0% 29%;
+    --border-secondary: 0 0% 35%;
+    --accent-primary: 0 100% 50%;
+    --accent-secondary: 0 100% 60%;
 
-    /* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
-    .black-matte {
-        /* Background colors - Deep black palette */
-        --background: 0 0% 5%;
-        --foreground: 0 0% 96%;
-        --card: 0 0% 10%;
-        --card-foreground: 0 0% 96%;
-        --primary: 0 100% 60%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 0 0% 15%;
-        --secondary-foreground: 0 0% 96%;
-        --muted: 0 0% 15%;
-        --muted-foreground: 0 0% 75%;
-        --accent: 0 100% 60%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 16%;
-        --input: 0 0% 16%;
-        --ring: 0 100% 60%;
+    /* Shadows - Subtle depth for floating cards */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.16);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.24);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.3);
+    --shadow-glow: 0 0 30px rgba(211, 47, 47, 0.3);
+    --overlay: rgba(0, 0, 0, 0.6);
+}
 
-        /* Modern theme variables */
-        --bg-primary: 0 0% 5%;
-        --bg-secondary: 0 0% 10%;
-        --bg-tertiary: 0 0% 15%;
-        --text-primary: 0 0% 96%;
-        --text-secondary: 0 0% 75%;
-        --text-tertiary: 0 0% 50%;
-        --border-primary: 0 0% 16%;
-        --border-secondary: 0 0% 20%;
-        --accent-primary: 0 100% 60%;
-        --accent-secondary: 0 100% 70%;
+/* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
+.black-matte {
+    /* Background colors - Deep black palette */
+    --background: 0 0% 5%;
+    --foreground: 0 0% 96%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 96%;
+    --primary: 0 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 75%;
+    --accent: 0 100% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 16%;
+    --input: 0 0% 16%;
+    --ring: 0 100% 60%;
 
-        /* Shadows - Deep shadows for maximum depth */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
-        --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
-        --overlay: rgba(0, 0, 0, 0.8);
-    }
+    /* Modern theme variables */
+    --bg-primary: 0 0% 5%;
+    --bg-secondary: 0 0% 10%;
+    --bg-tertiary: 0 0% 15%;
+    --text-primary: 0 0% 96%;
+    --text-secondary: 0 0% 75%;
+    --text-tertiary: 0 0% 50%;
+    --border-primary: 0 0% 16%;
+    --border-secondary: 0 0% 20%;
+    --accent-primary: 0 100% 60%;
+    --accent-secondary: 0 100% 70%;
 
-    /* THEME 3: WHITE MATTE (Clean minimalist - like Apple/Linear) */
-    .white-matte {
-        /* Background colors - Soft white palette with deeper depth */
-        --background: 210 20% 98%;
-        --foreground: 222 47% 11%;
+    /* Shadows - Deep shadows for maximum depth */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
+    --overlay: rgba(0, 0, 0, 0.8);
+}
 
-        /* M3 Tonal Elevation: Slightly tinted cards for better grouping */
-        --card: 0 0% 100%;
-        /* Shadows - More visible shadows for light theme */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
-        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
-        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.18);
-        --shadow-glow: 0 0 30px rgba(198, 40, 40, 0.25);
-        --overlay: rgba(0, 0, 0, 0.5);
+/* THEME 3: WHITE MATTE — Clean, luxurious light mode */
+.white-matte {
+    /* Background colors - Crisp white palette */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 5%;
+    --primary: 0 100% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 0 100% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 100% 60%;
 
-        /* White-matte specific UI surface colors for glass elements */
-        --glass-bg: 0 0% 0% / 0.04;
-        --glass-border: 0 0% 0% / 0.08;
-        --glass-hover: 0 0% 0% / 0.06;
-        --nav-icon-color: 0 0% 15%;
-        --nav-icon-active: 0 100% 45%;
-    }
+    /* Modern theme variables */
+    --bg-primary: 0 0% 100%;
+    --bg-secondary: 0 0% 98%;
+    --bg-tertiary: 0 0% 96%;
+    --text-primary: 0 0% 5%;
+    --text-secondary: 0 0% 40%;
+    --text-tertiary: 0 0% 55%;
+    --border-primary: 0 0% 90%;
+    --border-secondary: 0 0% 85%;
+    --accent-primary: 0 100% 60%;
+    --accent-secondary: 0 100% 70%;
 
-    /* THEME 4: RED MATTE (Bold Mexican spirit) */
-    .red-matte {
-        /* Background colors - Deep red-black palette */
-        --background: 0 65% 8%;
-        --foreground: 0 100% 92%;
-        --card: 0 65% 12%;
-        --card-foreground: 0 100% 92%;
-        --primary: 0 100% 61%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 0 65% 16%;
-        --secondary-foreground: 0 100% 92%;
-        --muted: 0 65% 16%;
-        --muted-foreground: 0 100% 73%;
-        --accent: 0 100% 61%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 0 50% 20%;
-        --input: 0 50% 20%;
-        --ring: 0 100% 61%;
+    /* Shadows - Clean, elegant shadows for light mode */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
+    --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.2);
+    --overlay: rgba(255, 255, 255, 0.85);
+}
 
-        /* Modern theme variables */
-        --bg-primary: 0 65% 8%;
-        --bg-secondary: 0 65% 12%;
-        --bg-tertiary: 0 65% 16%;
-        --text-primary: 0 100% 92%;
-        --text-secondary: 0 100% 73%;
-        --text-tertiary: 0 100% 53%;
-        --border-primary: 0 50% 20%;
-        --border-secondary: 0 50% 25%;
-        --accent-primary: 0 100% 61%;
-        --accent-secondary: 0 100% 71%;
+/* THEME 4: RED MATTE (Bold Mexican spirit) */
+.red-matte {
+    /* Background colors - Deep red-black palette */
+    --background: 0 65% 8%;
+    --foreground: 0 100% 92%;
+    --card: 0 65% 12%;
+    --card-foreground: 0 100% 92%;
+    --primary: 0 100% 61%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 65% 16%;
+    --secondary-foreground: 0 100% 92%;
+    --muted: 0 65% 16%;
+    --muted-foreground: 0 100% 73%;
+    --accent: 0 100% 61%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 50% 20%;
+    --input: 0 50% 20%;
+    --ring: 0 100% 61%;
 
-        /* Shadows - Red-tinted shadows */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-        --shadow-md: 0 4px 16px rgba(139, 10, 10, 0.2);
-        --shadow-lg: 0 8px 32px rgba(139, 10, 10, 0.3);
-        --shadow-card: 0 20px 40px rgba(139, 10, 10, 0.4);
-        --shadow-glow: 0 0 30px rgba(255, 61, 61, 0.5);
-        --overlay: rgba(45, 10, 10, 0.7);
-    }
+    /* Modern theme variables */
+    --bg-primary: 0 65% 8%;
+    --bg-secondary: 0 65% 12%;
+    --bg-tertiary: 0 65% 16%;
+    --text-primary: 0 100% 92%;
+    --text-secondary: 0 100% 73%;
+    --text-tertiary: 0 100% 53%;
+    --border-primary: 0 50% 20%;
+    --border-secondary: 0 50% 25%;
+    --accent-primary: 0 100% 61%;
+    --accent-secondary: 0 100% 71%;
 
-    /* THEME 5: PURE BLACK (AMOLED void black) */
-    .pure-black {
-        /* Background colors - True AMOLED black palette */
-        --background: 0 0% 0%;
-        --foreground: 0 0% 95%;
-        --card: 0 0% 6%;
-        --card-foreground: 0 0% 95%;
-        --primary: 0 100% 58%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 0 0% 10%;
-        --secondary-foreground: 0 0% 95%;
-        --muted: 0 0% 10%;
-        --muted-foreground: 0 0% 70%;
-        --accent: 0 100% 58%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 0 0% 12%;
-        --input: 0 0% 12%;
-        --ring: 0 100% 58%;
+    /* Shadows - Red-tinted shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(139, 10, 10, 0.2);
+    --shadow-lg: 0 8px 32px rgba(139, 10, 10, 0.3);
+    --shadow-card: 0 20px 40px rgba(139, 10, 10, 0.4);
+    --shadow-glow: 0 0 30px rgba(255, 61, 61, 0.5);
+    --overlay: rgba(45, 10, 10, 0.7);
+}
 
-        /* Modern theme variables */
-        --bg-primary: 0 0% 0%;
-        --bg-secondary: 0 0% 6%;
-        --bg-tertiary: 0 0% 10%;
-        --text-primary: 0 0% 95%;
-        --text-secondary: 0 0% 70%;
-        --text-tertiary: 0 0% 45%;
-        --border-primary: 0 0% 12%;
-        --border-secondary: 0 0% 18%;
-        --accent-primary: 0 100% 58%;
-        --accent-secondary: 0 100% 68%;
+/* THEME 5: PURE BLACK (AMOLED void black) */
+.pure-black {
+    /* Background colors - True AMOLED black palette */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 95%;
+    --primary: 0 100% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 0 100% 58%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
+    --ring: 0 100% 58%;
 
-        /* Shadows - Maximum depth for AMOLED */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
-        --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
-        --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
-        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.9);
-        --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.5);
-        --overlay: rgba(0, 0, 0, 0.9);
-    }
+    /* Modern theme variables */
+    --bg-primary: 0 0% 0%;
+    --bg-secondary: 0 0% 6%;
+    --bg-tertiary: 0 0% 10%;
+    --text-primary: 0 0% 95%;
+    --text-secondary: 0 0% 70%;
+    --text-tertiary: 0 0% 45%;
+    --border-primary: 0 0% 12%;
+    --border-secondary: 0 0% 18%;
+    --accent-primary: 0 100% 58%;
+    --accent-secondary: 0 100% 68%;
 
-    /* THEME 6: CHEERS (Animal print - Leopard safari) */
-    .cheers {
-        /* Background colors - Warm leopard/safari inspired */
-        --background: 25 60% 6%;
-        --foreground: 42 85% 88%;
-        --card: 25 55% 10%;
-        --card-foreground: 42 85% 88%;
-        --primary: 38 90% 52%;
-        --primary-foreground: 25 60% 6%;
-        --secondary: 25 50% 15%;
-        --secondary-foreground: 42 85% 88%;
-        --muted: 25 50% 15%;
-        --muted-foreground: 35 55% 60%;
-        --accent: 38 90% 52%;
-        --accent-foreground: 25 60% 6%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 30 45% 18%;
-        --input: 30 45% 18%;
-        --ring: 38 90% 52%;
+    /* Shadows - Maximum depth for AMOLED */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.7);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.8);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.9);
+    --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.5);
+    --overlay: rgba(0, 0, 0, 0.9);
+}
 
-        /* Modern theme variables */
-        --bg-primary: 25 60% 6%;
-        --bg-secondary: 25 55% 10%;
-        --bg-tertiary: 25 50% 15%;
-        --text-primary: 42 85% 88%;
-        --text-secondary: 35 55% 60%;
-        --text-tertiary: 30 40% 40%;
-        --border-primary: 30 45% 18%;
-        --border-secondary: 30 45% 24%;
-        --accent-primary: 38 90% 52%;
-        --accent-secondary: 40 85% 62%;
+/* THEME 6: CHEERS (Animal print - Leopard safari) */
+.cheers {
+    /* Background colors - Warm leopard/safari inspired */
+    --background: 25 60% 6%;
+    --foreground: 42 85% 88%;
+    --card: 25 55% 10%;
+    --card-foreground: 42 85% 88%;
+    --primary: 38 90% 52%;
+    --primary-foreground: 25 60% 6%;
+    --secondary: 25 50% 15%;
+    --secondary-foreground: 42 85% 88%;
+    --muted: 25 50% 15%;
+    --muted-foreground: 35 55% 60%;
+    --accent: 38 90% 52%;
+    --accent-foreground: 25 60% 6%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 30 45% 18%;
+    --input: 30 45% 18%;
+    --ring: 38 90% 52%;
 
-        /* Shadows - Warm golden-brown shadows */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
-        --shadow-md: 0 4px 16px rgba(100, 60, 5, 0.25);
-        --shadow-lg: 0 8px 32px rgba(100, 60, 5, 0.35);
-        --shadow-card: 0 20px 40px rgba(100, 60, 5, 0.45);
-        --shadow-glow: 0 0 30px rgba(212, 158, 20, 0.55);
-        --overlay: rgba(18, 8, 0, 0.75);
-    }
+    /* Modern theme variables */
+    --bg-primary: 25 60% 6%;
+    --bg-secondary: 25 55% 10%;
+    --bg-tertiary: 25 50% 15%;
+    --text-primary: 42 85% 88%;
+    --text-secondary: 35 55% 60%;
+    --text-tertiary: 30 40% 40%;
+    --border-primary: 30 45% 18%;
+    --border-secondary: 30 45% 24%;
+    --accent-primary: 38 90% 52%;
+    --accent-secondary: 40 85% 62%;
 
-    /* THEME 7: AMBER MATTE (Warm & inviting) */
-    .amber-matte {
-        /* Background colors - Deep amber-black palette */
-        --background: 35 65% 7%;
-        --foreground: 40 100% 92%;
-        --card: 35 65% 11%;
-        --card-foreground: 40 100% 92%;
-        --primary: 38 92% 50%;
-        --primary-foreground: 0 0% 100%;
-        --secondary: 35 65% 15%;
-        --secondary-foreground: 40 100% 92%;
-        --muted: 35 65% 15%;
-        --muted-foreground: 40 100% 73%;
-        --accent: 38 92% 50%;
-        --accent-foreground: 0 0% 100%;
-        --destructive: 0 84% 60%;
-        --destructive-foreground: 0 0% 100%;
-        --border: 35 50% 18%;
-        --input: 35 50% 18%;
-        --ring: 38 92% 50%;
+    /* Shadows - Warm golden-brown shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
+    --shadow-md: 0 4px 16px rgba(100, 60, 5, 0.25);
+    --shadow-lg: 0 8px 32px rgba(100, 60, 5, 0.35);
+    --shadow-card: 0 20px 40px rgba(100, 60, 5, 0.45);
+    --shadow-glow: 0 0 30px rgba(212, 158, 20, 0.55);
+    --overlay: rgba(18, 8, 0, 0.75);
+}
 
-        /* Modern theme variables */
-        --bg-primary: 35 65% 7%;
-        --bg-secondary: 35 65% 11%;
-        --bg-tertiary: 35 65% 15%;
-        --text-primary: 40 100% 92%;
-        --text-secondary: 40 100% 73%;
-        --text-tertiary: 40 100% 53%;
-        --border-primary: 35 50% 18%;
-        --border-secondary: 35 50% 23%;
-        --accent-primary: 38 92% 50%;
-        --accent-secondary: 38 92% 60%;
+/* THEME 7: AMBER MATTE (Warm & inviting) */
+.amber-matte {
+    /* Background colors - Deep amber-black palette */
+    --background: 35 65% 7%;
+    --foreground: 40 100% 92%;
+    --card: 35 65% 11%;
+    --card-foreground: 40 100% 92%;
+    --primary: 38 92% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 35 65% 15%;
+    --secondary-foreground: 40 100% 92%;
+    --muted: 35 65% 15%;
+    --muted-foreground: 40 100% 73%;
+    --accent: 38 92% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 35 50% 18%;
+    --input: 35 50% 18%;
+    --ring: 38 92% 50%;
 
-        /* Shadows - Amber-tinted shadows */
-        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-        --shadow-md: 0 4px 16px rgba(120, 53, 15, 0.2);
-        --shadow-lg: 0 8px 32px rgba(120, 53, 15, 0.3);
-        --shadow-card: 0 20px 40px rgba(120, 53, 15, 0.4);
-        --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.5);
-        --overlay: rgba(26, 18, 0, 0.7);
-    }
+    /* Modern theme variables */
+    --bg-primary: 35 65% 7%;
+    --bg-secondary: 35 65% 11%;
+    --bg-tertiary: 35 65% 15%;
+    --text-primary: 40 100% 92%;
+    --text-secondary: 40 100% 73%;
+    --text-tertiary: 40 100% 53%;
+    --border-primary: 35 50% 18%;
+    --border-secondary: 35 50% 23%;
+    --accent-primary: 38 92% 50%;
+    --accent-secondary: 38 92% 60%;
+
+    /* Shadows - Amber-tinted shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 16px rgba(120, 53, 15, 0.2);
+    --shadow-lg: 0 8px 32px rgba(120, 53, 15, 0.3);
+    --shadow-card: 0 20px 40px rgba(120, 53, 15, 0.4);
+    --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.5);
+    --overlay: rgba(26, 18, 0, 0.7);
 }

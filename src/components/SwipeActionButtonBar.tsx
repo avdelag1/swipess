@@ -26,6 +26,7 @@ import { memo, useCallback, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
@@ -114,6 +115,9 @@ const ActionButton = memo(({
 
   // Premium color configurations - TINDER STYLE with transparent backgrounds
   // Only borders and icons provide visual definition, gradient overlay does the rest
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
+
   const variantConfig = useMemo(() => {
     const configs: Record<string, {
       iconColor: string;
@@ -124,49 +128,49 @@ const ActionButton = memo(({
     }> = {
       like: {
         iconColor: '#ff6b35',
-        bgColor: 'rgba(255, 107, 53, 0.10)',
-        pressedBg: 'rgba(255, 107, 53, 0.25)',
+        bgColor: isWhiteMatte ? 'rgba(255, 107, 53, 0.15)' : 'rgba(255, 107, 53, 0.2)',
+        pressedBg: 'rgba(255, 107, 53, 0.35)',
         glowColor: 'rgba(255, 107, 53, 0.5)',
-        borderColor: 'rgba(255, 107, 53, 0.35)',
+        borderColor: '#ff6b35',
       },
       dislike: {
         iconColor: '#ef4444',
-        bgColor: 'rgba(239, 68, 68, 0.08)',
-        pressedBg: 'rgba(239, 68, 68, 0.20)',
+        bgColor: isWhiteMatte ? 'rgba(239, 68, 68, 0.15)' : 'rgba(239, 68, 68, 0.2)',
+        pressedBg: 'rgba(239, 68, 68, 0.30)',
         glowColor: 'rgba(239, 68, 68, 0.4)',
-        borderColor: 'rgba(239, 68, 68, 0.35)',
+        borderColor: '#ef4444',
       },
       amber: {
         iconColor: '#f59e0b',
-        bgColor: 'rgba(245, 158, 11, 0.06)',
-        pressedBg: 'rgba(245, 158, 11, 0.18)',
+        bgColor: isWhiteMatte ? 'rgba(245, 158, 11, 0.15)' : 'rgba(245, 158, 11, 0.2)',
+        pressedBg: 'rgba(245, 158, 11, 0.25)',
         glowColor: 'rgba(245, 158, 11, 0.35)',
-        borderColor: 'rgba(245, 158, 11, 0.30)',
+        borderColor: '#f59e0b',
       },
       cyan: {
         iconColor: '#06b6d4',
-        bgColor: 'rgba(6, 182, 212, 0.06)',
-        pressedBg: 'rgba(6, 182, 212, 0.18)',
+        bgColor: isWhiteMatte ? 'rgba(6, 182, 212, 0.15)' : 'rgba(6, 182, 212, 0.2)',
+        pressedBg: 'rgba(6, 182, 212, 0.25)',
         glowColor: 'rgba(6, 182, 212, 0.35)',
-        borderColor: 'rgba(6, 182, 212, 0.30)',
+        borderColor: '#06b6d4',
       },
       purple: {
         iconColor: '#a855f7',
-        bgColor: 'rgba(168, 85, 247, 0.06)',
-        pressedBg: 'rgba(168, 85, 247, 0.18)',
+        bgColor: isWhiteMatte ? 'rgba(168, 85, 247, 0.15)' : 'rgba(168, 85, 247, 0.2)',
+        pressedBg: 'rgba(168, 85, 247, 0.25)',
         glowColor: 'rgba(168, 85, 247, 0.35)',
-        borderColor: 'rgba(168, 85, 247, 0.30)',
+        borderColor: '#a855f7',
       },
       default: {
-        iconColor: 'rgba(255, 255, 255, 0.9)',
-        bgColor: 'rgba(255, 255, 255, 0.04)',
-        pressedBg: 'rgba(255, 255, 255, 0.12)',
-        glowColor: 'rgba(255, 255, 255, 0.2)',
-        borderColor: 'rgba(255, 255, 255, 0.20)',
+        iconColor: '#000000',
+        bgColor: '#ffffff',
+        pressedBg: '#f4f4f5',
+        glowColor: 'rgba(0, 0, 0, 0.1)',
+        borderColor: '#e4e4e7',
       },
     };
     return configs[variant] || configs.default;
-  }, [variant]);
+  }, [variant, isWhiteMatte]);
 
   return (
     <motion.button
@@ -188,9 +192,16 @@ const ActionButton = memo(({
         borderRadius: '50%',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        boxShadow: isPressed
-          ? `inset 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2)`
-          : `inset 0 1px 0 rgba(255,255,255,0.15), 0 ${isPrimary ? 8 : 5}px ${isPrimary ? 20 : 12}px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)`,
+        // THEME OPTIMIZED SHADOWS:
+        // In white-matte (inverted), we use white shadows so they invert to clean black shadows.
+        // We also reduce shadow spread to keep it crisp.
+        boxShadow: isWhiteMatte
+          ? (isPressed
+            ? `inset 0 2px 4px rgba(255,255,255,0.4), 0 1px 2px rgba(255,255,255,0.1)`
+            : `inset 0 1px 0 rgba(0,0,0,0.1), 0 ${isPrimary ? 4 : 3}px ${isPrimary ? 12 : 8}px rgba(255,255,255,0.5), 0 1px 2px rgba(255,255,255,0.2)`)
+          : (isPressed
+            ? `inset 0 2px 6px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.2)`
+            : `inset 0 1px 0 rgba(255,255,255,0.15), 0 ${isPrimary ? 8 : 5}px ${isPrimary ? 20 : 12}px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)`),
         // GPU acceleration
         transform: 'translateZ(0)',
         backfaceVisibility: 'hidden',
@@ -260,7 +271,7 @@ function SwipeActionButtonBarComponent({
       >
         {/* 1. Return/Undo Button (Small) - Amber */}
         <ActionButton
-          onClick={onUndo || (() => {})}
+          onClick={onUndo || (() => { })}
           disabled={disabled || !canUndo}
           size="small"
           variant="amber"
