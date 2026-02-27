@@ -2,7 +2,7 @@
  * HTML sanitizer using DOMPurify to strip dangerous tags/attributes.
  * Used for contentEditable editors to prevent XSS when rendering user or template content.
  */
-import * as DOMPurify from 'dompurify';
+import DOMPurify from 'dompurify';
 
 /**
  * Sanitize an HTML string using DOMPurify.

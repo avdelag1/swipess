@@ -1,11 +1,11 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import './styles/tokens.css';
 @import './styles/premium-polish.css';
 @import './styles/matte-themes.css';
 @import './styles/pwa-performance.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 
 /* Hide scrollbar for horizontal scrolling action buttons */
