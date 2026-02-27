@@ -109,6 +109,7 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
+  console.log('[DashboardLayout] Rendering with userRole:', userRole);
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
   const [showLikedProperties, setShowLikedProperties] = useState(false)
   const [showPreferences, setShowPreferences] = useState(false)

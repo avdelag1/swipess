@@ -166,11 +166,18 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }));
 
     try {
+      // Use a safer query that handles missing columns
       const { data, error } = await supabase
         .from('profiles')
-        .select('radio_current_station_id')
+        .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        logger.warn('[RadioPlayer] Error loading preferences (possibly missing columns):', error);
+        setLoading(false);
+        return;
+      }
 
       if (error) {
         setLoading(false);
@@ -190,7 +197,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           currentStation: currentStation || defaultStation,
           // Handle missing column gracefully
-          isPoweredOn: (data as any).radio_is_powered_on ?? false
+          isPoweredOn: (data as any).radio_is_powered_on ?? prev.isPoweredOn
         }));
       }
     } catch (err) {
