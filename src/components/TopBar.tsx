@@ -360,6 +360,33 @@ function TopBarComponent({
               </PopoverContent>
             </Popover>
 
+            {/* AI Search Button */}
+            <Button
+              variant="ghost"
+              className={cn(
+                "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
+                "active:scale-[0.95]",
+                "touch-manipulation",
+                "-webkit-tap-highlight-color-transparent",
+                "flex items-center gap-1.5"
+              )}
+              style={{
+                backgroundColor: glassBg,
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setIsAISearchOpen(true); }}
+              onClick={(e) => e.preventDefault()}
+              aria-label="AI Search"
+            >
+              <Sparkles strokeWidth={4} className="h-4 w-4 sm:h-5 sm:w-5 text-purple-400" />
+              <span className="hidden sm:inline font-black text-sm tracking-tighter text-foreground whitespace-nowrap uppercase">
+                AI
+              </span>
+            </Button>
+
             {/* Notifications Button */}
             <Button
               variant="ghost"
