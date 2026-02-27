@@ -11,7 +11,9 @@ interface ThemeToggleProps {
 
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
-    const isDark = theme === 'black-matte';
+    // consider everything except explicit light mode as dark so the toggle
+    // flips reliably even if another matte variant is added later
+    const isDark = theme !== 'white-matte';
 
     // Glass styling for the button
     const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
