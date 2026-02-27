@@ -793,6 +793,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <AISearchDialog
           isOpen={showAiSearch}
           onClose={() => setShowAiSearch(false)}
+          userRole={userRole === 'admin' ? 'client' : userRole}
         />
       </Suspense>
     </div>
