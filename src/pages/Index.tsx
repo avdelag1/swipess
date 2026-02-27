@@ -160,17 +160,10 @@ const Index = () => {
     // Only do this if the profile has been loading for a bit to avoid race conditions
     if (!isNewUser && !isLoadingRole && !userRole) {
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+      const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
       hasNavigated.current = true;
-      if (metadataRole) {
-        const targetPath = metadataRole === "client" ? "/client/dashboard" : "/owner/dashboard";
-        logger.log("[Index] Fallback to metadata role, navigating to:", targetPath);
-        navigate(targetPath, { replace: true });
-      } else {
-        // FATAL FALLBACK: If a user has NO role in DB and NO role in metadata, default to client
-        // This PREVENTS them from getting permanently stuck on the splash screen!
-        logger.warn("[Index] CRITICAL FALLBACK: User has no role defined anywhere. Defaulting to client.");
-        navigate("/client/dashboard", { replace: true });
-      }
+      logger.log("[Index] Fallback to default/metadata role, navigating to:", targetPath);
+      navigate(targetPath, { replace: true });
       return;
     }
   }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
@@ -183,16 +176,7 @@ const Index = () => {
   }, [user?.id]);
 
   if (!initialized || loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
-        <img
-          src="/icons/swipess-logo-script.png"
-          alt="Swipess"
-          className="w-[280px] max-w-[85vw] h-auto object-contain drop-shadow-[0_0_20px_rgba(228,0,124,0.4)]"
-          style={{ animation: 'splash-heartbeat 2s ease-in-out infinite' }}
-        />
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh bg-background transition-colors duration-300" />;
   }
 
   // User exists but still loading role - show transparent screen
@@ -200,11 +184,11 @@ const Index = () => {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-[#050505]">
+        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background transition-colors duration-300">
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
-            <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
-            <p className="text-white/70 text-sm">
+            <h2 className="text-foreground text-lg font-semibold">Setup Taking Longer Than Expected</h2>
+            <p className="text-muted-foreground text-sm">
               Your account setup is taking longer than usual. Please refresh the page to continue.
             </p>
             <button
@@ -218,38 +202,20 @@ const Index = () => {
       );
     }
 
-    // Splash screen while finishing role setup
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
-        <img
-          src="/icons/swipess-logo-script.png"
-          alt="Swipess"
-          className="w-[280px] max-w-[85vw] h-auto object-contain drop-shadow-[0_0_20px_rgba(228,0,124,0.4)]"
-          style={{ animation: 'splash-heartbeat 2s ease-in-out infinite' }}
-        />
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh bg-background transition-colors duration-300" />;
   }
 
   // Solo muestra landing page si NO hay usuario logueado
   if (!user) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background transition-colors duration-300">
         <LegendaryLandingPage />
       </div>
     );
   }
 
   // Caso final (redirigiendo)
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
-      <img
-        src="/icons/swipess-logo-script.png"
-        alt="Swipess"
-        className="splash-logo"
-      />
-    </div>
-  );
+  return <div className="min-h-screen min-h-dvh bg-background transition-colors duration-300" />;
 };
 
 export default Index;

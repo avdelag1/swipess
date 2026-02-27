@@ -275,7 +275,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         )}
 
         {/* Input Area */}
-        <div className="p-4 border-t border-border dark:border-white/5 bg-background/60 dark:bg-[#0e0e10]/60">
+        <div className="p-4 sm:p-5 mt-auto border-t border-border dark:border-white/5 bg-background/80 dark:bg-[#0e0e10]/80 backdrop-blur-xl">
           <div className="relative">
             <Input
               ref={inputRef}

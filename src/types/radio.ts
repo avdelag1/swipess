@@ -62,4 +62,5 @@ export interface RadioPlayerState {
   isShuffle: boolean;
   skin: RadioSkin;
   favorites: string[]; // station IDs
+  miniPlayerMode: 'expanded' | 'minimized' | 'closed';
 }

@@ -10,7 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter,
-  Search, Compass, LayoutGrid, Users, Briefcase
+  Search, Compass, LayoutGrid, Users, Briefcase, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -19,9 +19,9 @@ import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 
-// ICON SIZING - responsive
-const ICON_SIZE = 22;
-const TOUCH_TARGET_SIZE = 48;
+// ICON SIZING - responsive, compact to fit all buttons
+const ICON_SIZE = 20;
+const TOUCH_TARGET_SIZE = 44;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -83,10 +83,14 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       badge: unreadCount,
     },
     {
-      id: 'filter',
-      icon: Search,
-      label: 'Filters',
+      id: 'ai',
+      icon: Sparkles,
+      label: 'AI',
       path: '/client/filters',
+      onClick: () => {
+        // Will be handled by parent - emit event for AI search
+        window.dispatchEvent(new CustomEvent('open-ai-search'));
+      },
     },
     {
       id: 'ai',
@@ -113,7 +117,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     {
       id: 'liked',
       icon: Users,
-      label: 'Liked Clients',
+      label: 'Clients',
       path: '/owner/liked-clients',
     },
     {
@@ -178,8 +182,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
 
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
-      <div
-        className="flex items-center justify-between w-full max-w-xl mx-auto px-2 py-2 pointer-events-auto bg-transparent"
+        <div
+          className="flex items-center justify-evenly w-full max-w-xl mx-auto px-1 py-1.5 pointer-events-auto bg-transparent"
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -203,15 +207,17 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 '-webkit-tap-highlight-color-transparent'
               )}
               style={{
-                minWidth: TOUCH_TARGET_SIZE,
+                minWidth: 0,
+                width: `${100 / navItems.length}%`,
+                maxWidth: TOUCH_TARGET_SIZE + 8,
                 minHeight: TOUCH_TARGET_SIZE,
-                padding: '8px 4px',
-                backgroundColor: active ? bgActive : bgDefault,
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
-                border: `1px solid ${borderColor}`,
+                padding: '6px 2px',
+                backgroundColor: isLight ? (active ? 'rgba(0,0,0,0.06)' : 'transparent') : (active ? bgActive : bgDefault),
+                backdropFilter: isLight ? 'none' : controlBlur,
+                WebkitBackdropFilter: isLight ? 'none' : controlBlur,
+                border: isLight ? '1px solid transparent' : `1px solid ${borderColor}`,
                 borderRadius: '14px',
-                boxShadow: shadowColor,
+                boxShadow: isLight ? 'none' : shadowColor,
               }}
             >
               {/* Active indicator dot */}
