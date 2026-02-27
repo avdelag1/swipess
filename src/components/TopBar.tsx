@@ -56,6 +56,7 @@ interface TopBarProps {
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
+  onAISearchClick?: () => void;
 }
 
 function TopBarComponent({
@@ -67,15 +68,10 @@ function TopBarComponent({
   transparent = false,
   hideOnScroll = false,
   title,
+  onAISearchClick,
 }: TopBarProps) {
-  const { isVisible } = useScrollDirection({
-    threshold: 15,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-  });
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
-  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -155,13 +151,13 @@ function TopBarComponent({
         <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
-            {/* Visual verification: Logo and Title removed per user request */}
-            {/* {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
+            {/* Visual verification: Logo and Title restored per user request */}
+            {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
             {title && (
               <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
                 {title}
               </div>
-            )} */}
+            )}
 
             <div className="flex items-center gap-2 flex-shrink-0">
               <ThemeToggle />
@@ -191,32 +187,7 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button - Only show for clients */}
-            {userRole === 'client' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
-                  "active:scale-[0.95]",
-                  "touch-manipulation",
-                  "-webkit-tap-highlight-color-transparent",
-                  "group flex-shrink-0"
-                )}
-                style={{
-                  backgroundColor: glassBg,
-                  backdropFilter: controlBlur,
-                  WebkitBackdropFilter: controlBlur,
-                  border: glassBorder,
-                  boxShadow: floatingShadow,
-                }}
-                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setIsAISearchOpen(true); }}
-                onClick={(e) => e.preventDefault()}
-                aria-label="AI Search"
-              >
-                <Sparkles strokeWidth={4} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
-              </Button>
-            )}
+            {/* AI Search Button - Moved to BottomNavigation */}
 
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
@@ -417,13 +388,6 @@ function TopBarComponent({
           </div>
         </div>
       </header>
-
-      {/* AI Search Dialog */}
-      <AISearchDialog
-        isOpen={isAISearchOpen}
-        onClose={() => setIsAISearchOpen(false)}
-        userRole={userRole}
-      />
     </>
   );
 }

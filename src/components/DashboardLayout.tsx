@@ -19,6 +19,7 @@ import { AdvancedFilters } from '@/components/AdvancedFilters'
 // DISABLED: LiveHDBackground was causing performance issues
 // import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
+import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
@@ -134,6 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
+  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
@@ -567,6 +569,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
           showFilters={isOnDiscoveryPage}
           userRole={userRole === 'admin' ? 'client' : userRole}
           transparent={isImmersiveDashboard}
@@ -614,6 +617,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
         />
       )}
 
@@ -764,6 +768,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           }}
         />
       </Suspense>
+
+      {/* AI Search Dialog */}
+      <AISearchDialog
+        isOpen={isAISearchOpen}
+        onClose={() => setIsAISearchOpen(false)}
+        userRole={userRole}
+      />
 
       {/* Push Notification Permission Prompt */}
       <Suspense fallback={null}>
