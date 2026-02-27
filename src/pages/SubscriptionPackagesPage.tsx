@@ -247,12 +247,11 @@ export default function SubscriptionPackagesPage() {
   const packagesUI = convertPackages(messagePackages);
 
   const handleMessagePurchase = (pkg: any) => {
-    // Save return path for silent redirect after payment
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    // Save return path for silent redirect after payment (session-only, clears on tab close)
+    sessionStorage.setItem('payment_return_path', `/${userRole}/dashboard`);
+    sessionStorage.setItem('pending_purchase', JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
-      price: pkg.price,
     }));
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');
@@ -263,14 +262,11 @@ export default function SubscriptionPackagesPage() {
   };
 
   const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
-    // Save return path for silent redirect after payment
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-    localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
+    // Save return path for silent redirect after payment (session-only, clears on tab close)
+    sessionStorage.setItem('payment_return_path', `/${userRole}/dashboard`);
+    sessionStorage.setItem('selected_plan', JSON.stringify({
       role: userRole,
       planId: plan.id,
-      name: plan.name,
-      price: plan.price,
-      at: new Date().toISOString()
     }));
     window.open(plan.paypalUrl, '_blank');
     toast({ title: 'Redirecting to PayPal', description: `Selected: ${plan.name} (${formatPriceMXN(plan.price)}/month)` });
