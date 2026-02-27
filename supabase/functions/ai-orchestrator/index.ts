@@ -129,40 +129,34 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
-  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
+  const isMinimaxForced = true;
 
-  console.log(`[AI Orchestrator] Available providers - MiniMax: ${hasMinimax}, Lovable: ${hasLovable}`);
-
-  if (hasMinimax) {
+  if (isMinimaxForced) {
     try {
       console.log("[AI Orchestrator] Attempting MiniMax...");
       return await callMinimax(messages, maxTokens);
     } catch (err) {
       console.warn("[AI Orchestrator] MiniMax failed, trying Gemini fallback...", err);
-      if (hasLovable) {
-        try {
-          return await callGemini(messages, maxTokens);
-        } catch (geminiErr) {
-          console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
-          throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
-        }
+      try {
+        return await callGemini(messages, maxTokens);
+      } catch (geminiErr) {
+        console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
+        throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
       }
-      throw err;
     }
   }
 
-  if (hasLovable) {
+  try {
+    return await callGemini(messages, maxTokens);
+  } catch (err) {
+    console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
     try {
-      console.log("[AI Orchestrator] Attempting Gemini...");
-      return await callGemini(messages, maxTokens);
-    } catch (err) {
-      console.error("[AI Orchestrator] Gemini failed:", err);
+      return await callMinimax(messages, maxTokens);
+    } catch (fallbackErr) {
+      console.error("[AI Orchestrator] MiniMax fallback also failed:", fallbackErr);
       throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
     }
   }
-
-  throw new ProviderError("AI service not configured. Please contact support.", 503);
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
