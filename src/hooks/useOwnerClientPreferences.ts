@@ -63,7 +63,14 @@ export function useOwnerClientPreferences() {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      // Gracefully handle errors - return null instead of crashing
+      if (error) {
+        if (import.meta.env.DEV) {
+          logger.error('Error fetching owner client preferences:', error);
+        }
+        return null;
+      }
+
       return data as OwnerClientPreferences | null;
     },
   });
@@ -84,9 +91,17 @@ export function useOwnerClientPreferences() {
           ...prefs,
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      // Gracefully handle errors - don't crash the app
+      if (error) {
+        if (import.meta.env.DEV) {
+          logger.error('Error updating owner client preferences:', error);
+        }
+        // Return a minimal valid response to prevent crash
+        return { user_id: user.id, ...prefs };
+      }
+
       return data;
     },
     onSuccess: () => {

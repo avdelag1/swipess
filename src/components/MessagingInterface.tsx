@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -451,10 +452,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 </span>
               )}
             </div>
-            <button
+            <motion.button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90"
+              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+              whileTap={{ scale: 0.82, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 10, mass: 0.7 } }}
+              whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 300, damping: 15 } }}
               style={{
                 background: newMessage.trim() && !isAtLimit
                   ? 'linear-gradient(135deg, #ec4899, #f97316)'
@@ -464,7 +467,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               }}
             >
               <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
-            </button>
+            </motion.button>
           </div>
         </form>
 

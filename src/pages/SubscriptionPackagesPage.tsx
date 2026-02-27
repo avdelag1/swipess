@@ -340,7 +340,7 @@ export default function SubscriptionPackagesPage() {
                 const isPopular = pkg.tier === 'standard';
                 return (
                   <motion.div key={pkg.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                    <Card className={`relative h-full flex flex-col overflow-hidden bg-card/90 backdrop-blur-md border border-border/50 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
+                    <Card className={`relative h-full flex flex-col overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
                       {isPopular && (
                         <div className="absolute top-0 left-0 right-0 z-10">
                           <div className="bg-gradient-to-r from-[#E4007C] to-[#ff009e] text-white text-[10px] font-black py-1.5 text-center tracking-widest uppercase shadow-lg">⭐ BEST VALUE</div>

@@ -80,21 +80,33 @@
     }
 
     .splash-logo {
-      width: 96px;
-      height: 96px;
+      width: 280px;
+      height: auto;
+      max-width: 85vw;
       object-fit: contain;
-      animation: splash-fade 0.4s ease-out both
+      filter: drop-shadow(0 0 20px rgba(228, 0, 124, 0.4));
+      animation: splash-heartbeat 2s ease-in-out infinite;
     }
 
-    @keyframes splash-fade {
-      from {
-        opacity: 0;
-        transform: scale(0.92)
+    @keyframes splash-heartbeat {
+      0% {
+        transform: scale(1);
       }
 
-      to {
-        opacity: 1;
-        transform: scale(1)
+      15% {
+        transform: scale(1.05);
+      }
+
+      30% {
+        transform: scale(1);
+      }
+
+      45% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
       }
     }
   </style>
@@ -146,7 +158,6 @@
   <meta name="apple-touch-fullscreen" content="yes">
 
   <!-- Favicon - SVG (modern browsers) + PNG fallbacks + ICO (legacy) -->
-  <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
   <link rel="icon" type="image/png" sizes="48x48" href="/icons/icon-48.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png">
@@ -208,7 +219,7 @@
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root">
     <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/swipess-logo-new.png" alt="Swipess" />
+      <img class="splash-logo" src="/icons/swipess-logo-script.png" alt="Swipess" />
     </div>
   </div>
 

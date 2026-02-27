@@ -26,11 +26,17 @@ import {
 interface InterestedOwner {
   id: string;
   owner_id: string;
-  owner_name: string | null;
+  owner_name: string;
   bio: string | null;
-  images: any[];
+  images: string[];
   created_at: string;
-  is_super_like?: boolean;
+  is_super_like: boolean;
+  category?: string;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  age?: number | null;
+  occupation?: string | null;
+  verified?: boolean;
 }
 
 const ClientWhoLikedYou = () => {
@@ -38,13 +44,13 @@ const ClientWhoLikedYou = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [ownerToDelete, setOwnerToDelete] = useState<any>(null);
+  const [ownerToDelete, setOwnerToDelete] = useState<InterestedOwner | null>(null);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 
-  const { data: interestedOwners = [], isLoading } = useQuery<InterestedOwner[]>({
+  const { data: interestedOwners = [] as InterestedOwner[], isLoading } = useQuery({
     queryKey: ['client-who-liked-you', user?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<InterestedOwner[]> => {
       if (!user?.id) return [];
       const { data: likes, error: likesError } = await supabase
         .from('likes')
@@ -65,17 +71,19 @@ const ClientWhoLikedYou = () => {
 
       if (profilesError) throw profilesError;
 
-      return profiles.map(profile => {
+      return (profiles || []).map(profile => {
         const like = likes.find(l => l.user_id === profile.user_id);
         return {
           ...profile,
-          images: (profile.images as string[]) || [],
           id: profile.user_id,
           owner_id: profile.user_id,
-          owner_name: profile.full_name,
-          created_at: like?.created_at,
+          owner_name: profile.full_name || '',
+          bio: profile.bio || null,
+          images: Array.isArray(profile.images) ? profile.images as string[] : [],
+          created_at: like?.created_at || profile.created_at,
+          is_super_like: false,
           category: 'Interviewer'
-        };
+        } as InterestedOwner;
       });
     },
     enabled: !!user?.id,
@@ -93,7 +101,7 @@ const ClientWhoLikedYou = () => {
     }
   });
 
-  const handleAction = async (action: 'message' | 'view' | 'remove', owner: InterestedOwner) => {
+  const handleAction = async (action: 'message' | 'view' | 'remove', owner: any) => {
     if (action === 'remove') {
       setOwnerToDelete(owner);
       setShowDeleteDialog(true);
@@ -119,13 +127,13 @@ const ClientWhoLikedYou = () => {
     }
   };
 
-  const filteredOwners = (interestedOwners as any[]).filter((o: any) =>
+  const filteredOwners = (interestedOwners as InterestedOwner[]).filter((o: InterestedOwner) =>
     (o.owner_name || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
-      <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
         <PageHeader
           title="They're Interested"
           subtitle="Owners who want to meet you"
@@ -143,12 +151,12 @@ const ClientWhoLikedYou = () => {
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />)}
           </div>
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <AnimatePresence>
-              {filteredOwners.map((owner: any) => (
+              {filteredOwners.map((owner: InterestedOwner) => (
                 <PremiumLikedCard
                   key={owner.id}
                   type="profile"
@@ -159,23 +167,23 @@ const ClientWhoLikedYou = () => {
             </AnimatePresence>
           </div>
         ) : (
-          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-card rounded-[3rem] border border-border">
+          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5">
             <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
-            <h3 className="text-foreground font-black text-2xl tracking-tighter">Stay Noticed.</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
+            <h3 className="text-white font-black text-2xl tracking-tighter">Stay Noticed.</h3>
+            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
           </motion.div>
         )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-background border-border rounded-[2rem]">
+        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground font-black text-xl">Dismiss Interest?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
+            <AlertDialogTitle className="text-white font-black text-xl">Dismiss Interest?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-muted border-border text-foreground rounded-xl hover:bg-muted/80">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)} className="bg-[#E4007C] text-white rounded-xl font-black hover:opacity-90">DISMISS</AlertDialogAction>
+            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)} className="bg-[#E4007C] text-white rounded-xl font-black">DISMISS</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
