@@ -41,7 +41,7 @@ interface NavItem {
   isCenter?: boolean;
 }
 
-export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick }: BottomNavigationProps) {
+export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick, onAIClick }: BottomNavigationProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
@@ -83,19 +83,15 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       badge: unreadCount,
     },
     {
-      id: 'ai',
-      icon: Sparkles,
-      label: 'AI',
-      path: '/client/filters',
-      onClick: () => {
-        // Will be handled by parent - emit event for AI search
-        window.dispatchEvent(new CustomEvent('open-ai-search'));
-      },
+      id: 'filter',
+      icon: Filter,
+      label: 'Filters',
+      onClick: onFilterClick,
     },
     {
       id: 'ai',
       icon: Sparkles,
-      label: 'AI Oracle',
+      label: 'AI',
       onClick: onAIClick,
     },
   ];
