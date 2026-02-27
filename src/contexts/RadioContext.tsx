@@ -268,7 +268,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }, 10000); // 10 second timeout
 
       await audioRef.current.play();
-      setState(prev => ({ ...prev, isPlaying: true }));
+      setState(prev => ({ ...prev, isPlaying: true, miniPlayerMode: 'expanded' }));
       setError(null);
 
       // Clear timeout on successful play

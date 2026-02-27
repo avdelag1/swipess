@@ -75,7 +75,6 @@ const ClientWhoLikedYou = () => {
         const like = likes.find(l => l.user_id === profile.user_id);
         return {
           ...profile,
-          images: (profile.images as string[]) || [],
           id: profile.user_id,
           owner_id: profile.user_id,
           owner_name: profile.full_name || '',
