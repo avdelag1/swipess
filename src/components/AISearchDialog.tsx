@@ -178,7 +178,15 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         </div>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" style={{ height: 'min(65vh, 500px)', minHeight: '350px' }}>
+        <div 
+          className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" 
+          style={{ 
+            height: 'min(60vh, 450px)', 
+            minHeight: '300px',
+            maxHeight: 'calc(85vh - 200px)',
+            overflowY: 'auto'
+          }}
+        >
           {messages.length === 0 && !isTyping && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}

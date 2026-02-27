@@ -96,7 +96,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'black-matte';
+  const isDark = theme !== 'white-matte';
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
   const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1.5px solid rgba(0, 0, 0, 0.1)';
