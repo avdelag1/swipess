@@ -3,7 +3,7 @@ import { useUserSubscription } from './useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 type PlanLimits = {
   messages_per_month: number;

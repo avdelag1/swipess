@@ -39,7 +39,7 @@ async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
   }
 }
 
-function MessagingDashboard() {
+export function MessagingDashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -542,5 +542,3 @@ function MessagingDashboard() {
     </>
   );
 }
-
-export default MessagingDashboard;

@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { MessageCircle, AlertCircle, Sparkles } from 'lucide-react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface MessageConfirmationDialogProps {
   open: boolean;

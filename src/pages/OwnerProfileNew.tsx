@@ -1,3 +1,4 @@
+/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";

@@ -180,13 +180,13 @@ const ClientProfileNew = () => {
             onClick={() => { haptics.tap(); navigate('/client/liked-properties'); }}
             className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
           >
-            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
               <Flame className="w-6 h-6 text-[#E4007C]" />
             </div>
             <div className="relative z-10">
-              <div className="text-sm font-black tracking-tight text-card-foreground mt-1">Your Likes</div>
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Properties</div>
+              <div className="text-sm font-black tracking-tight text-white mt-1">Your Likes</div>
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Properties</div>
             </div>
           </motion.button>
 
@@ -195,13 +195,13 @@ const ClientProfileNew = () => {
             onClick={() => { haptics.tap(); navigate('/client/who-liked-you'); }}
             className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
           >
-            <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
               <Heart className="w-6 h-6 text-[#E4007C]" />
             </div>
             <div className="relative z-10">
-              <div className="text-sm font-black tracking-tight text-card-foreground mt-1">Who Liked You</div>
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Interested</div>
+              <div className="text-sm font-black tracking-tight text-white mt-1">Who Liked You</div>
+              <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-0.5">Interested</div>
             </div>
           </motion.button>
         </motion.div>

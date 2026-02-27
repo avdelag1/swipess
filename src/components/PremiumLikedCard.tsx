@@ -2,17 +2,15 @@ import { motion } from "framer-motion";
 import { Heart, MessageCircle, MapPin, Trash2, Eye, Bed, Bath, Square, User, Home, Bike, Briefcase, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/useTheme";
 
 interface PremiumLikedCardProps {
     type: 'listing' | 'profile';
     data: any;
     onAction: (action: 'message' | 'view' | 'remove', data: any) => void;
+    isLight?: boolean;
 }
 
-export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps) {
-    const { theme } = useTheme();
-    const isLight = theme === 'white-matte';
+export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLikedCardProps) {
     const imageUrl = type === 'listing'
         ? (data.images?.[0] || data.image_url)
         : (data.images?.[0] || data.avatar_url || data.profile_images?.[0]);
@@ -86,9 +84,9 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
                     {type === 'listing' && (
                         <>
                             {data.beds && (
-                                <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-xl border", isLight ? "bg-muted border-border" : "bg-zinc-800/50 border-white/5")}>
-                                    <Bed className="w-3.5 h-3.5 text-muted-foreground" />
-                                    <span className="text-[10px] font-black text-foreground">{data.beds}</span>
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800/50 border border-white/5">
+                                    <Bed className="w-3.5 h-3.5 text-zinc-400" />
+                                    <span className="text-[10px] font-black text-zinc-200">{data.beds}</span>
                                 </div>
                             )}
                             {data.price && (
@@ -108,7 +106,7 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
 
                 {/* Description Preview */}
                 {(data.bio || data.description) && (
-                    <p className="text-xs text-muted-foreground font-medium line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-zinc-400 font-medium line-clamp-2 leading-relaxed">
                         {data.bio || data.description}
                     </p>
                 )}
@@ -125,7 +123,7 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
 
                     <button
                         onClick={() => onAction('view', data)}
-                        className={cn("flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black border transition-all active:scale-[0.96]", isLight ? "bg-muted hover:bg-accent text-foreground border-border" : "bg-zinc-800 hover:bg-zinc-700 text-white border-white/5")}
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-black border border-white/5 transition-all active:scale-95"
                     >
                         <Eye className="w-4 h-4" />
                         VIEW

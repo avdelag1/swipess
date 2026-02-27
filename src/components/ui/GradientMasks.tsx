@@ -42,10 +42,8 @@ export const GradientMaskTop = memo(function GradientMaskTop({
   light = false,
   heightPercent = 24,
 }: GradientMaskProps) {
-  // Fully disable gradient in light mode — clean white, no haze
-  if (light) return null;
-  const baseColor = '0,0,0';
-  const lightDim = 1;
+  const baseColor = light ? '255,255,255' : '0,0,0';
+  const lightDim = light ? 0.08 : 1; // Ultra-subtle in light mode to avoid haze
 
   const style: CSSProperties = {
     position: 'fixed',
@@ -92,9 +90,8 @@ export const GradientMaskBottom = memo(function GradientMaskBottom({
   light = false,
   heightPercent = 40,
 }: GradientMaskProps) {
-  if (light) return null;
-  const baseColor = '0,0,0';
-  const lightDim = 1;
+  const baseColor = light ? '255,255,255' : '0,0,0';
+  const lightDim = light ? 0.08 : 1;
 
   const style: CSSProperties = {
     position: 'fixed',
@@ -137,9 +134,8 @@ export const GlobalVignette = memo(function GlobalVignette({
   className = '',
   light = false,
 }: Omit<GradientMaskProps, 'zIndex' | 'heightPercent'>) {
-  if (light) return null;
-  const baseColor = '0,0,0';
-  const alphaMultipiler = 1;
+  const baseColor = light ? '100,100,100' : '0,0,0';
+  const alphaMultipiler = light ? 0.05 : 1;
 
   const style: CSSProperties = {
     position: 'fixed',

@@ -80,11 +80,6 @@ const clientTypeOptions: {
     { id: 'business', label: 'Business', description: 'Corporate needs', icon: <Building2 className="w-5 h-5" />, accentClass: 'text-cyan-500' },
   ];
 
-const themeOptions = [
-  { id: 'white-matte', label: 'White Matte', icon: <Sparkles className="w-5 h-5 text-orange-400" />, bg: 'bg-white', border: 'border-gray-200', text: 'text-gray-900' },
-  { id: 'black-matte', label: 'Black Matte', icon: <Zap className="w-5 h-5 text-blue-400" />, bg: 'bg-zinc-900', border: 'border-zinc-800', text: 'text-white' },
-];
-
 export default function OwnerFilters() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -186,7 +181,7 @@ export default function OwnerFilters() {
                       "relative overflow-hidden rounded-[2rem] text-left transition-all duration-300",
                       isSelected
                         ? "border-2 border-primary/30 ring-4 ring-primary/5 shadow-lg"
-                        : "border border-border/60 bg-secondary/30 hover:bg-secondary/50"
+                        : "border border-border/50 bg-card/40 hover:bg-card/60"
                     )}
                     style={{
                       height: '110px',
@@ -278,45 +273,6 @@ export default function OwnerFilters() {
                   </motion.button>
                 );
               })}
-            </div>
-          </section>
-
-          {/* Theme Section - HIS REQUEST: White filter, Black filter */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
-                  Visual Style
-                </span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {themeOptions.map((opt) => (
-                <motion.button
-                  key={opt.id}
-                  onClick={() => {
-                    const el = document.documentElement;
-                    el.classList.remove('white-matte', 'black-matte');
-                    el.classList.add(opt.id);
-                    localStorage.setItem('swipess-theme', opt.id);
-                    window.dispatchEvent(new Event('storage'));
-                  }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={cn(
-                    "flex flex-col gap-3 p-4 rounded-[2rem] border transition-all duration-300",
-                    opt.bg, opt.border, opt.text,
-                    theme === opt.id ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : "opacity-80"
-                  )}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-background/10 backdrop-blur-md flex items-center justify-center">
-                    {opt.icon}
-                  </div>
-                  <span className="text-sm font-bold">{opt.label}</span>
-                </motion.button>
-              ))}
             </div>
           </section>
         </div>

@@ -247,11 +247,12 @@ export default function SubscriptionPackagesPage() {
   const packagesUI = convertPackages(messagePackages);
 
   const handleMessagePurchase = (pkg: any) => {
-    // Save return path for silent redirect after payment (session-only, clears on tab close)
-    sessionStorage.setItem('payment_return_path', `/${userRole}/dashboard`);
-    sessionStorage.setItem('pending_purchase', JSON.stringify({
+    // Save return path for silent redirect after payment
+    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
+      price: pkg.price,
     }));
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');
@@ -262,11 +263,14 @@ export default function SubscriptionPackagesPage() {
   };
 
   const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
-    // Save return path for silent redirect after payment (session-only, clears on tab close)
-    sessionStorage.setItem('payment_return_path', `/${userRole}/dashboard`);
-    sessionStorage.setItem('selected_plan', JSON.stringify({
+    // Save return path for silent redirect after payment
+    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
       role: userRole,
       planId: plan.id,
+      name: plan.name,
+      price: plan.price,
+      at: new Date().toISOString()
     }));
     window.open(plan.paypalUrl, '_blank');
     toast({ title: 'Redirecting to PayPal', description: `Selected: ${plan.name} (${formatPriceMXN(plan.price)}/month)` });
@@ -336,7 +340,7 @@ export default function SubscriptionPackagesPage() {
                 const isPopular = pkg.tier === 'standard';
                 return (
                   <motion.div key={pkg.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                    <Card className={`relative h-full flex flex-col overflow-hidden bg-card/90 backdrop-blur-md border border-border/50 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
+                    <Card className={`relative h-full flex flex-col overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
                       {isPopular && (
                         <div className="absolute top-0 left-0 right-0 z-10">
                           <div className="bg-gradient-to-r from-[#E4007C] to-[#ff009e] text-white text-[10px] font-black py-1.5 text-center tracking-widest uppercase shadow-lg">⭐ BEST VALUE</div>

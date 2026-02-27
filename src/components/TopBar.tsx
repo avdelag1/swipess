@@ -1,4 +1,4 @@
-import { memo, useState, useEffect } from 'react';
+import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText } from 'lucide-react';
@@ -80,16 +80,9 @@ function TopBarComponent({
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Listen for AI search open event from bottom nav
-  useEffect(() => {
-    const handler = () => setIsAISearchOpen(true);
-    window.addEventListener('open-ai-search', handler);
-    return () => window.removeEventListener('open-ai-search', handler);
-  }, []);
-
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'black-matte';
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
@@ -103,7 +96,7 @@ function TopBarComponent({
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
-    : 'bg-gradient-to-b from-white/95 via-white/60 to-transparent border-transparent';
+    : 'bg-transparent border-transparent';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -162,7 +155,8 @@ function TopBarComponent({
         <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
-            {title && title !== '' && (
+            {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
+            {title && (
               <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
                 {title}
               </div>
@@ -196,6 +190,33 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
+            {/* AI Search Button - Only show for clients */}
+            {userRole === 'client' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
+                  "active:scale-[0.95]",
+                  "touch-manipulation",
+                  "-webkit-tap-highlight-color-transparent",
+                  "group flex-shrink-0"
+                )}
+                style={{
+                  backgroundColor: glassBg,
+                  backdropFilter: controlBlur,
+                  WebkitBackdropFilter: controlBlur,
+                  border: glassBorder,
+                  boxShadow: floatingShadow,
+                }}
+                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setIsAISearchOpen(true); }}
+                onClick={(e) => e.preventDefault()}
+                aria-label="AI Search"
+              >
+                <Sparkles strokeWidth={4} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
+              </Button>
+            )}
+
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
@@ -366,10 +387,8 @@ function TopBarComponent({
                   className={cn(
                     "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-400 group-hover:text-orange-500"
-                      : isDark
-                        ? "text-gray-50 group-hover:text-white"
-                        : "text-gray-600 group-hover:text-gray-800"
+                      ? "text-orange-200 group-hover:text-orange-100"
+                      : "text-gray-50 group-hover:text-white"
                   )}
                 />
                 <AnimatePresence>

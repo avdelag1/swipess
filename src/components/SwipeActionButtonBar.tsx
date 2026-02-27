@@ -26,7 +26,6 @@ import { memo, useCallback, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { useTheme } from '@/hooks/useTheme';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
@@ -115,9 +114,6 @@ const ActionButton = memo(({
 
   // Premium color configurations - TINDER STYLE with transparent backgrounds
   // Only borders and icons provide visual definition, gradient overlay does the rest
-  const { theme } = useTheme();
-  const isWhiteMatte = theme === 'white-matte';
-
   const variantConfig = useMemo(() => {
     const configs: Record<string, {
       iconColor: string;
@@ -170,7 +166,10 @@ const ActionButton = memo(({
       },
     };
     return configs[variant] || configs.default;
-  }, [variant, isWhiteMatte]);
+  }, [variant]);
+
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
 
   return (
     <motion.button

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useHasPremiumFeature, useUserSubscription } from '@/hooks/useSubscription';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 export function useMessaging() {
   return useQuery({

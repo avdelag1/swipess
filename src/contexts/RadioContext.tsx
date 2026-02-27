@@ -166,21 +166,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }));
 
     try {
-      // Don't query non-existent columns - check if user exists first
-      if (!user?.id) {
-        setLoading(false);
-        return;
-      }
-      
       const { data, error } = await supabase
         .from('profiles')
         .select('radio_current_station_id')
         .eq('id', user.id)
-        .maybeSingle(); // Changed from single() to maybeSingle() for safer handling
+        .single();
 
       if (error) {
-        // Log the error but don't crash - column might not exist
-        console.warn('[RadioPlayer] Profile column not found or RLS blocking:', error.message);
         setLoading(false);
         return;
       }
@@ -216,12 +208,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
-      const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
-      
-      if (error) {
-        // Log but don't crash - column might not exist in older profiles
-        console.warn('[RadioPlayer] Could not save preferences:', error.message);
-      }
+      await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
@@ -281,7 +268,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }, 10000); // 10 second timeout
 
       await audioRef.current.play();
-      setState(prev => ({ ...prev, isPlaying: true, miniPlayerMode: 'expanded' }));
+      setState(prev => ({ ...prev, isPlaying: true }));
       setError(null);
 
       // Clear timeout on successful play
