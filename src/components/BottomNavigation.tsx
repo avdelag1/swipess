@@ -28,6 +28,7 @@ interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
+  onAIClick?: () => void;
 }
 
 interface NavItem {
@@ -87,6 +88,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       label: 'Filters',
       path: '/client/filters',
     },
+    {
+      id: 'ai',
+      icon: Sparkles,
+      label: 'AI Oracle',
+      onClick: onAIClick,
+    },
   ];
 
   // Owner Navigation Items — distinct icons
@@ -128,6 +135,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       icon: SlidersHorizontal,
       label: 'Filters',
       path: '/owner/filters',
+    },
+    {
+      id: 'ai',
+      icon: Sparkles,
+      label: 'AI Oracle',
+      onClick: onAIClick,
     },
   ];
 

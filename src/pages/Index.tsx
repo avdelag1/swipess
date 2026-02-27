@@ -160,13 +160,18 @@ const Index = () => {
     // Only do this if the profile has been loading for a bit to avoid race conditions
     if (!isNewUser && !isLoadingRole && !userRole) {
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+      hasNavigated.current = true;
       if (metadataRole) {
-        hasNavigated.current = true;
         const targetPath = metadataRole === "client" ? "/client/dashboard" : "/owner/dashboard";
         logger.log("[Index] Fallback to metadata role, navigating to:", targetPath);
         navigate(targetPath, { replace: true });
-        return;
+      } else {
+        // FATAL FALLBACK: If a user has NO role in DB and NO role in metadata, default to client
+        // This PREVENTS them from getting permanently stuck on the splash screen!
+        logger.warn("[Index] CRITICAL FALLBACK: User has no role defined anywhere. Defaulting to client.");
+        navigate("/client/dashboard", { replace: true });
       }
+      return;
     }
   }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
 
@@ -178,7 +183,16 @@ const Index = () => {
   }, [user?.id]);
 
   if (!initialized || loading) {
-    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
+        <img
+          src="/icons/swipess-logo-script.png"
+          alt="Swipess"
+          className="w-[280px] max-w-[85vw] h-auto object-contain drop-shadow-[0_0_20px_rgba(228,0,124,0.4)]"
+          style={{ animation: 'splash-heartbeat 2s ease-in-out infinite' }}
+        />
+      </div>
+    );
   }
 
   // User exists but still loading role - show transparent screen
@@ -186,7 +200,7 @@ const Index = () => {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-[#050505]">
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
             <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
@@ -204,7 +218,17 @@ const Index = () => {
       );
     }
 
-    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+    // Splash screen while finishing role setup
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
+        <img
+          src="/icons/swipess-logo-script.png"
+          alt="Swipess"
+          className="w-[280px] max-w-[85vw] h-auto object-contain drop-shadow-[0_0_20px_rgba(228,0,124,0.4)]"
+          style={{ animation: 'splash-heartbeat 2s ease-in-out infinite' }}
+        />
+      </div>
+    );
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -217,7 +241,15 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
+      <img
+        src="/icons/swipess-logo-script.png"
+        alt="Swipess"
+        className="splash-logo"
+      />
+    </div>
+  );
 };
 
 export default Index;

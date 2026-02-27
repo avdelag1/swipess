@@ -59,7 +59,7 @@ const LandingView = memo(({
   const handleDragStart = () => { isDragging.current = true; };
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    const shouldSwipe = info.offset.x > 100 || info.velocity.x > 400;
+    const shouldSwipe = info.offset.x > 40 || info.velocity.x > 200;
     if (shouldSwipe) {
       if (triggered.current) return;
       triggered.current = true;
@@ -82,7 +82,8 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 cursor-pointer"
+      onTap={handleTap}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
@@ -91,14 +92,14 @@ const LandingView = memo(({
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
+        dragElastic={0.95}
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative z-10"
+        className="cursor-pointer active:cursor-grabbing touch-none select-none relative z-10"
       >
         <img
           src={swipessLogo}
@@ -109,8 +110,7 @@ const LandingView = memo(({
 
       {/* Tagline */}
       <motion.div
-        className="-mt-16 sm:-mt-24 md:-mt-32 relative z-0 flex items-center justify-center gap-[15vw] sm:gap-[18vw] md:gap-[18vw] w-full px-4 cursor-pointer select-none"
-        onTap={handleTap}
+        className="-mt-16 sm:-mt-24 md:-mt-32 relative z-0 flex items-center justify-center gap-[15vw] sm:gap-[18vw] md:gap-[18vw] w-full px-4 select-none pointer-events-none"
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}

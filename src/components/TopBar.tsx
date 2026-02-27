@@ -190,32 +190,6 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button - Only show for clients */}
-            {userRole === 'client' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
-                  "active:scale-[0.95]",
-                  "touch-manipulation",
-                  "-webkit-tap-highlight-color-transparent",
-                  "group flex-shrink-0"
-                )}
-                style={{
-                  backgroundColor: glassBg,
-                  backdropFilter: controlBlur,
-                  WebkitBackdropFilter: controlBlur,
-                  border: glassBorder,
-                  boxShadow: floatingShadow,
-                }}
-                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setIsAISearchOpen(true); }}
-                onClick={(e) => e.preventDefault()}
-                aria-label="AI Search"
-              >
-                <Sparkles strokeWidth={4} className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
-              </Button>
-            )}
 
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
