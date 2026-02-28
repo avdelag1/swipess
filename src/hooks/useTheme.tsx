@@ -76,6 +76,20 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Save theme to database and update state
   const setTheme = async (newTheme: Theme) => {
+    // Apply CSS class immediately so CSS variables update before React re-renders
+    // This prevents the "black flash" where CSS vars are stale during the re-render
+    const root = window.document.documentElement;
+    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
+    root.classList.add(newTheme);
+    if (newTheme !== 'white-matte') {
+      root.classList.add('dark');
+    }
+    // Update status bar meta immediately too
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', newTheme === 'white-matte' ? '#ffffff' : '#000000');
+    }
+
     setThemeState(newTheme);
 
     if (user?.id) {

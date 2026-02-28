@@ -4,7 +4,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X, ChevronRight
+  ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -148,33 +148,6 @@ const LandingView = memo(({
               <span className="text-white/90 text-xs font-medium">{label}</span>
             </div>
           ))}
-        </div>
-      </motion.div>
-
-      {/* Direct Entry Button - Fixes issue where users got stuck on Splash Screen */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-8 flex flex-col items-center w-full max-w-xs z-20"
-      >
-        <Button
-          onClick={handleTap}
-          size="lg"
-          className="w-full h-14 rounded-full text-base font-bold shadow-[0_0_30px_rgba(228,0,124,0.4)] bg-gradient-to-r from-[#E4007C] to-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all text-black hover:text-black border-none"
-        >
-          Get Started
-        </Button>
-        <div className="mt-4 flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
-          <motion.div
-            animate={{ x: [0, 8, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex items-center gap-1"
-          >
-            <ChevronRight className="w-4 h-4" />
-            <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
-          </motion.div>
-          <span className="text-xs font-medium tracking-wide">or swipe right</span>
         </div>
       </motion.div>
 
