@@ -102,7 +102,7 @@ deferredInit(async () => {
       const { StatusBar, Style } = await import("@capacitor/status-bar");
       await StatusBar.setOverlaysWebView({ overlay: false });
       await StatusBar.setStyle({ style: Style.Light });
-      await StatusBar.setBackgroundColor({ color: "#000000" });
+      await StatusBar.setBackgroundColor({ color: "#FF0000" });
     }
   } catch {
     // Silently ignore - only applies to native mobile platforms

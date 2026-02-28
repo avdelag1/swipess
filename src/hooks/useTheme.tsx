@@ -12,22 +12,11 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = 'swipess-theme';
-const VALID_THEMES: Theme[] = ['black-matte', 'white-matte'];
-
-function getSavedTheme(): Theme {
-  try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY);
-    if (saved && VALID_THEMES.includes(saved as Theme)) return saved as Theme;
-  } catch { /* ignore */ }
-  return 'black-matte';
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(getSavedTheme);
+  const [theme, setThemeState] = useState<Theme>('black-matte');
   const { user } = useAuth();
 
-  // Load theme from database when user logs in (DB takes priority over localStorage)
+  // Load theme from database when user logs in
   useEffect(() => {
     if (user?.id) {
       const loadUserTheme = async () => {
@@ -40,16 +29,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
           if (error) throw error;
 
-          if (data?.theme_preference && VALID_THEMES.includes(data.theme_preference as Theme)) {
-            const dbTheme = data.theme_preference as Theme;
-            setThemeState(dbTheme);
-            try { localStorage.setItem(THEME_STORAGE_KEY, dbTheme); } catch { /* ignore */ }
+          const validThemes = ['black-matte', 'white-matte'];
+          if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
+            setThemeState(data.theme_preference as Theme);
           }
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
+          setThemeState('black-matte');
         }
       };
       loadUserTheme();
+    } else {
+      setThemeState('black-matte');
     }
   }, [user?.id]);
 
@@ -83,10 +74,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme]);
 
-  // Save theme to localStorage + database and update state
+  // Save theme to database and update state
   const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme);
-    try { localStorage.setItem(THEME_STORAGE_KEY, newTheme); } catch { /* ignore */ }
 
     if (user?.id) {
       try {

@@ -28,16 +28,3 @@ yarn-error.log*
 # Capacitor build outputs
 android/
 ios/
-
-# Dev trash - build logs, lint outputs, commit drafts
-build_*.txt
-lint*.txt
-lint-*.txt
-dev_output.log
-temp_build_log.txt
-.commit-*.txt
-diagnose_*.sql
-
-# AI agent leftovers
-antigravity-awesome-skills/
-.tmp/
