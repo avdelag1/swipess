@@ -1,13 +1,13 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { Play, Pause, SkipBack, SkipForward, GripVertical, Power } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, GripVertical, Power, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
 export function RadioMiniPlayer() {
-  const { state, togglePlayPause, changeStation, togglePower } = useRadio();
+  const { state, togglePlayPause, changeStation, togglePower, setMiniPlayerMode } = useRadio();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -73,6 +73,14 @@ export function RadioMiniPlayer() {
     }
   }, [changeStation]);
 
+  const handleClose = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isDraggingRef.current) {
+      triggerHaptic('medium');
+      setMiniPlayerMode('closed');
+    }
+  }, [setMiniPlayerMode]);
+
   // Don't show if powered off or no station
   if (!state.isPoweredOn || !state.currentStation) return null;
 
@@ -126,6 +134,14 @@ export function RadioMiniPlayer() {
             <div className="flex items-center justify-center opacity-30 hover:opacity-100 transition-opacity pr-1">
               <GripVertical className="w-4 h-4 text-white" />
             </div>
+
+            {/* Close Button */}
+            <button
+              onClick={handleClose}
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-red-500/40 transition-all shadow-lg z-[60]"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
 
             {/* Power Button */}
             <button
