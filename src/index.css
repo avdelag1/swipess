@@ -176,7 +176,7 @@ body {
   padding-left: max(var(--safe-left), 12px);
   padding-right: max(var(--safe-right), 12px);
   /* Refined subtle dark fade behind bottom nav for a "vanishing" look */
-  background: linear-gradient(to top, rgba(5, 5, 5, 0.45) 0%, rgba(5, 5, 5, 0.1) 25%, transparent 100%) !important;
+  background: linear-gradient(to top, hsla(var(--background) / 0.45) 0%, hsla(var(--background) / 0.1) 25%, transparent 100%) !important;
   border-top: none;
   transform: translateZ(0) translateY(0) scale(1);
   opacity: 1;
