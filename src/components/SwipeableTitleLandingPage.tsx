@@ -17,6 +17,7 @@ import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
 import swipessLogo from '@/assets/swipess-logo-transparent.png';
+import sLogoNew from '@/assets/swipess-logo-new.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -554,6 +555,20 @@ function SwipeableTitleLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+      {/* S Logo Background Decoration */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Top left */}
+        <img src={sLogoNew} alt="" className="absolute top-0 left-0 w-32 h-32 opacity-5 blur-sm" />
+        {/* Top right */}
+        <img src={sLogoNew} alt="" className="absolute top-20 right-10 w-40 h-40 opacity-4 blur-md" />
+        {/* Bottom left */}
+        <img src={sLogoNew} alt="" className="absolute bottom-10 left-5 w-36 h-36 opacity-4 blur-md" />
+        {/* Bottom right */}
+        <img src={sLogoNew} alt="" className="absolute bottom-0 right-0 w-44 h-44 opacity-5 blur-sm" />
+        {/* Center back */}
+        <img src={sLogoNew} alt="" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 opacity-3 blur-3xl" />
+      </div>
+
       <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="sync">
