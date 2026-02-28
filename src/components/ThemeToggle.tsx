@@ -33,12 +33,12 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         <button
             onClick={handleToggle}
             className={cn(
-                'relative flex items-center justify-center rounded-md',
+                'relative flex items-center justify-center rounded-lg',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent',
-                'h-7 w-7 flex-shrink-0',
+                'h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0',
                 className
             )}
             style={{

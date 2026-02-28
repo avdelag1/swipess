@@ -51,7 +51,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             content: "Welcome to Swipess! ✨ I'm your Personal Assistant. I can help you find your dream property, discover new connections, or explain how our token system works.\n\nWhat's on your mind today?",
             timestamp: Date.now()
           }]);
-        }, 400); // Faster welcome to reduce opening layout shift
+        }, 1200);
         return () => clearTimeout(timer);
       }
     } else {
@@ -64,26 +64,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     }
   }, [isOpen]);
 
-  // Scroll to bottom when messages change with a safer approach
+  // Scroll to bottom when messages change
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (messagesEndRef.current) {
-        messagesEndRef.current.scrollIntoView({
-          behavior: messages.length <= 1 ? 'auto' : 'smooth',
-          block: 'end'
-        });
-      }
-    };
-
-    // Multiple attempts to ensure layout has settled
-    scrollToBottom();
-    const timer = setTimeout(scrollToBottom, 50);
-    const timer2 = setTimeout(scrollToBottom, 150);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(timer2);
-    };
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [messages, isTyping]);
 
   const handleSend = useCallback(async () => {
@@ -215,7 +200,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </motion.div>
           )}
 
-          <AnimatePresence mode="sync" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false}>
             {messages.map((message) => (
               <motion.div
                 key={message.timestamp}
@@ -265,50 +250,37 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           </AnimatePresence>
 
           {isTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 pl-2 min-h-[50px]"
-            >
-              <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-orange-400 animate-pulse" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 pl-2">
+              <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
               </div>
-              <div className="bg-muted px-4 py-2.5 rounded-[1.25rem] rounded-tl-sm text-[11px] font-bold text-muted-foreground flex items-center gap-2">
+              <div className="bg-muted px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-muted-foreground flex items-center gap-2">
                 <Loader2 className="w-3 h-3 animate-spin" />
                 Thinking...
               </div>
             </motion.div>
           )}
 
-          <div ref={messagesEndRef} className="h-2" />
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Suggestions - Fixed height to prevent layout jumps */}
-        <div className="min-h-[44px]">
-          <AnimatePresence>
-            {messages.length > 0 && messages[messages.length - 1].role === 'ai' && !isSearching && !isTyping && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 5 }}
-                className="px-6 pb-3"
-              >
-                <div className="flex flex-wrap gap-2">
-                  {quickPrompts.map((prompt, index) => (
-                    <button
-                      key={index}
-                      onClick={() => applyQuickPrompt(prompt.text)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] bg-muted dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white transition-all font-bold uppercase tracking-wider whitespace-nowrap"
-                    >
-                      <prompt.icon className="w-3 h-3 text-orange-500" />
-                      {prompt.label}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        {/* Quick Suggestions */}
+        {messages.length > 0 && messages[messages.length - 1].role === 'ai' && !isSearching && !isTyping && (
+          <div className="px-6 pb-2">
+            <div className="flex flex-wrap gap-2">
+              {quickPrompts.map((prompt, index) => (
+                <button
+                  key={index}
+                  onClick={() => applyQuickPrompt(prompt.text)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] bg-muted dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white transition-all font-bold uppercase tracking-wider"
+                >
+                  <prompt.icon className="w-3 h-3 text-orange-500" />
+                  {prompt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Input Area */}
         <div className="p-4 sm:p-5 mt-auto border-t border-border dark:border-white/5 bg-background/80 dark:bg-[#0e0e10]/80 backdrop-blur-xl">

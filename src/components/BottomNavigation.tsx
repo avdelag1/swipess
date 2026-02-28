@@ -9,7 +9,7 @@ import { startTransition } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter,
+  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter, Sparkles,
   Search, Compass, LayoutGrid, Users, Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,7 @@ interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
+  onAISearchClick?: () => void;
 }
 
 interface NavItem {
@@ -40,7 +41,7 @@ interface NavItem {
   isCenter?: boolean;
 }
 
-export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick }: BottomNavigationProps) {
+export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick, onAISearchClick }: BottomNavigationProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
@@ -80,6 +81,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       label: 'Messages',
       path: '/messages',
       badge: unreadCount,
+    },
+    {
+      id: 'ai-search',
+      icon: Sparkles,
+      label: 'AI Search',
+      onClick: onAISearchClick,
     },
     {
       id: 'filter',
@@ -122,6 +129,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       label: 'Messages',
       path: '/messages',
       badge: unreadCount,
+    },
+    {
+      id: 'ai-search',
+      icon: Sparkles,
+      label: 'AI Search',
+      onClick: onAISearchClick,
     },
     {
       id: 'filter',
