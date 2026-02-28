@@ -83,7 +83,7 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(255, 255, 255, 1)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
     : '1.5px solid rgba(0, 0, 0, 0.1)';
@@ -162,7 +162,7 @@ function TopBarComponent({
           </div>
 
           {/* Center section: Scrollable area for controls */}
-          <div className="relative flex-1 flex items-center overflow-x-auto no-scrollbar scroll-smooth gap-1 px-1 -mx-1">
+          <div className="relative flex-1 flex items-center overflow-x-auto no-scrollbar scroll-smooth gap-3 px-1 -mx-1">
             <ThemeToggle className="flex-shrink-0" />
 
             <ModeSwitcher variant="pill" size="sm" className="flex-shrink-0" />

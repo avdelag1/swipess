@@ -153,6 +153,8 @@ export default defineConfig(({ mode }) => ({
       // Force single React instance (prevents Invalid Hook Call)
       react: path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      // Ensure dompurify is properly resolved
+      dompurify: path.resolve(__dirname, "./node_modules/dompurify"),
     },
     // Prevent duplicate React instances (including jsx runtimes)
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-query'],
@@ -163,7 +165,8 @@ export default defineConfig(({ mode }) => ({
       'react-dom',
       '@tanstack/react-query',
       'framer-motion',
-      'lucide-react'
+      'lucide-react',
+      'dompurify'
     ],
     exclude: ['@capacitor/core', '@capacitor/app'],
   },

@@ -6,7 +6,7 @@ import { CityLocation } from '@/types/radio';
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic, Power } from 'lucide-react';
 
 export default function RadioPlayer() {
-  const { state, error, togglePlayPause, togglePower, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin } = useRadio();
+  const { state, error, togglePlayPause, togglePower, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin, setMiniPlayerMode } = useRadio();
   const [showCitySelector, setShowCitySelector] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
 
@@ -20,6 +20,13 @@ export default function RadioPlayer() {
   useEffect(() => {
     setDialValue(currentStationIndex);
   }, [currentStationIndex]);
+
+  // Reset mini player mode to expanded when visiting radio page
+  useEffect(() => {
+    if (state.miniPlayerMode === 'closed') {
+      setMiniPlayerMode('expanded');
+    }
+  }, [state.miniPlayerMode, setMiniPlayerMode]);
 
   // Handle dial - snaps to nearest station
   const handleDialChange = useCallback((value: number) => {
