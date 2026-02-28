@@ -33,7 +33,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const [state, setState] = useState<RadioPlayerState>({
     isPlaying: false,
-    isPoweredOn: localStorage.getItem('swipess_radio_is_powered_on') === 'true',
+    isPoweredOn: true,
     currentStation: null,
     currentCity: 'tulum',
     volume: 0.7,
@@ -332,7 +332,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       miniPlayerMode: newPower ? prev.miniPlayerMode : 'closed' // Close mini player when powered off
     }));
 
-    localStorage.setItem('swipess_radio_is_powered_on', String(newPower));
     if (!newPower && audioRef.current) {
       audioRef.current.pause();
     }

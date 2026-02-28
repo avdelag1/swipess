@@ -60,7 +60,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
-          size === 'sm' ? 'h-8 w-8 rounded-xl' : size === 'md' ? 'h-10 w-10 rounded-2xl' : 'h-11 w-11 rounded-2xl',
+          size === 'sm' ? 'h-7 w-7' : size === 'md' ? 'h-8 w-8' : 'h-9 w-9',
           className
         )}
         style={{
@@ -174,7 +174,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       onClick={(e) => handleToggle(e)}
       disabled={isSwitching || !canSwitchMode}
       className={cn(
-        'relative flex items-center gap-1.5 rounded-xl px-2.5',
+        'relative flex items-center gap-1 rounded-lg px-2',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',

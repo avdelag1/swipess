@@ -149,7 +149,7 @@ function TopBarComponent({
           className
         )}
       >
-        <div className="flex items-center justify-between h-14 max-w-screen-xl mx-auto gap-2 px-4 sm:px-6">
+        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
             {/* Visual verification: Logo and Title restored per user request */}
@@ -200,7 +200,7 @@ function TopBarComponent({
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-2"
+                    "flex items-center gap-1"
                   )}
                   style={{
                     backgroundColor: glassBg,
