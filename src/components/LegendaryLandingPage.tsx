@@ -3,8 +3,8 @@ import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import {
-  Shield, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X,
+  Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
+  ArrowLeft, Loader, Check, X, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,7 +87,7 @@ const LandingView = memo(({
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
     >
-      {/* Swipable logo + slogan */}
+      {/* Swipable logo */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -98,45 +98,77 @@ const LandingView = memo(({
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] mx-auto"
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
         <img
           src={swipessLogo}
           alt="Swipess"
-          className="w-full h-auto object-contain rounded-3xl drop-shadow-2xl"
+          className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
         />
+      </motion.div>
 
-        {/* Slogan split around P tail */}
-        <motion.div
-          className="absolute inset-x-0 flex items-center pointer-events-none"
-          style={{ top: '65%' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
+      {/* Tagline */}
+      <motion.p
+        className="-mt-4 relative z-10 cursor-pointer"
+        onTap={handleTap}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+      >
+        <span
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+          style={{
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
         >
-          {/* "luxury" — left of the P tail */}
-          <span
-            className="absolute right-[54%] text-xl sm:text-2xl md:text-3xl font-bold italic whitespace-nowrap"
-            style={{
-              background: 'linear-gradient(to right, #E4007C, #FFD700)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
+          luxury meets precision
+        </span>
+      </motion.p>
+
+      {/* Info chips */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.25 }}
+        className="mt-3"
+      >
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          {[
+            { icon: Sparkles, label: 'Elite Assets' },
+            { icon: Shield, label: 'Encrypted Chat' },
+            { icon: Users, label: 'Global Network' },
+          ].map(({ icon: Icon, label }) => (
+            <div
+              key={label}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+            >
+              <Icon className="w-3.5 h-3.5 text-white/90" />
+              <span className="text-white/90 text-xs font-medium">{label}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Swipe hint */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+        className="mt-8 flex flex-col items-center z-20"
+      >
+        <div className="flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
+          <motion.div
+            animate={{ x: [0, 8, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex items-center gap-1"
           >
-            luxury
-          </span>
-          {/* "meets precision" — right of the P tail */}
-          <span
-            className="absolute left-[50%] text-xl sm:text-2xl md:text-3xl font-bold italic whitespace-nowrap"
-            style={{
-              background: 'linear-gradient(to right, #E4007C, #FFD700)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            meets precision
-          </span>
-        </motion.div>
+            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
+          </motion.div>
+          <span className="text-xs font-medium tracking-wide">swipe right to enter</span>
+        </div>
       </motion.div>
 
       {/* Effects toggle */}
