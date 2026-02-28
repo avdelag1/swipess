@@ -212,7 +212,7 @@ export function LikedClients() {
   });
 
   return (
-    <div className="w-full bg-black min-h-screen pb-32">
+    <div className="w-full bg-background min-h-screen pb-32">
       <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
         <PageHeader
           title="Liked Clients"
@@ -255,24 +255,24 @@ export function LikedClients() {
           }
         />
 
-        {/* Search Bar - GLASSMORPHIC */}
+        {/* Search Bar */}
         <div className="relative mb-10 pt-4">
           <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-zinc-500" />
+            <Search className="h-4 w-4 text-muted-foreground" />
           </div>
           <input
             type="text"
             placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-16 bg-zinc-900 border border-white/10 rounded-3xl pl-14 pr-6 text-white placeholder-zinc-500 font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
+            className="w-full h-16 bg-secondary border border-border rounded-3xl pl-14 pr-6 text-foreground placeholder-muted-foreground font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
           />
         </div>
 
         {/* Count Label */}
         <div className="flex items-center gap-3 mb-8 px-2">
           <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_10px_#E4007C]" />
-          <span className="text-xs font-black text-zinc-500 uppercase tracking-[0.2em]">
+          <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredClients.length} Potential Professionals
           </span>
         </div>
@@ -280,7 +280,7 @@ export function LikedClients() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />
+              <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
@@ -300,13 +300,13 @@ export function LikedClients() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5"
+            className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
           >
-            <div className="w-24 h-24 rounded-[2.5rem] bg-zinc-900 flex items-center justify-center mb-8 shadow-2xl border border-white/5">
+            <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
               <Users className="w-12 h-12 text-[#E4007C]/40" />
             </div>
-            <h3 className="text-white font-black text-2xl tracking-tighter mb-4">Discovery Awaits.</h3>
-            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">
+            <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Discovery Awaits.</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
               Your liked clients will appear here. Start swiping to grow your network.
             </p>
           </motion.div>
