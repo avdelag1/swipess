@@ -147,7 +147,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[400px] w-full max-h-[85vh] sm:max-h-[80vh] bg-background/80 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
+        className="sm:max-w-[400px] w-full max-h-[80vh] sm:max-h-[75vh] bg-background dark:bg-[#0e0e11] border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%]"
         hideCloseButton={true}
       >
         {/* Header */}
