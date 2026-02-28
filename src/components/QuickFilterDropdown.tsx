@@ -361,7 +361,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative flex items-center gap-1 px-1.5 h-7 rounded-md transition-all duration-200 touch-manipulation',
+          'relative flex items-center gap-2 px-3 h-8 rounded-xl transition-all duration-200 touch-manipulation',
           hasActiveFilters && 'ring-1 ring-pink-500/30'
         )}
         style={{

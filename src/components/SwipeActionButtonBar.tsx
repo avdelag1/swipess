@@ -26,6 +26,7 @@ import { memo, useCallback, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
@@ -86,6 +87,8 @@ const ActionButton = memo(({
   children: React.ReactNode;
   ariaLabel: string;
 }) => {
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
   const [isPressed, setIsPressed] = useState(false);
 
   const handleClick = useCallback((e: React.MouseEvent) => {
@@ -106,9 +109,6 @@ const ActionButton = memo(({
 
     onClick();
   }, [disabled, variant, onClick]);
-
-  const { theme } = useTheme();
-  const isWhiteMatte = theme === 'white-matte';
 
   // Compute sizes
   const buttonSize = size === 'large' ? LARGE_SIZE : SMALL_SIZE;

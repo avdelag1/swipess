@@ -349,14 +349,14 @@ export function ConversationalListingCreator() {
 
   if (step === 'conversation') {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-6">
-        <div className="max-w-4xl mx-auto py-8">
-          <Button variant="ghost" onClick={() => setStep('photos')} className="mb-6 rounded-full hover:bg-white/10 px-6 font-bold">
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted p-4 sm:p-6 overflow-y-auto">
+        <div className="max-w-2xl mx-auto pt-4 pb-12 min-h-full flex flex-col">
+          <Button variant="ghost" onClick={() => setStep('photos')} className="mb-6 self-start rounded-full hover:bg-white/10 px-6 font-bold">
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Photos
           </Button>
 
-          <Card className="h-[calc(100vh-220px)] flex flex-col rounded-[3rem] border-white/10 bg-background/60 backdrop-blur-3xl shadow-2xl overflow-hidden ring-1 ring-white/5">
+          <Card className="flex-1 min-h-[500px] h-[calc(100dvh-180px)] sm:h-[700px] flex flex-col rounded-[2.5rem] sm:rounded-[3rem] border-white/10 bg-background/60 backdrop-blur-3xl shadow-2xl overflow-hidden ring-1 ring-white/5">
             <CardHeader className="border-b border-white/5 py-8 px-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -377,8 +377,8 @@ export function ConversationalListingCreator() {
               </div>
             </CardHeader>
 
-            <CardContent className="flex-1 flex flex-col overflow-hidden p-8">
-              <ScrollArea className="flex-1 pr-6">
+            <CardContent className="flex-1 flex flex-col overflow-hidden p-4 sm:p-8">
+              <ScrollArea className="flex-1 pr-2 sm:pr-6" type="scroll">
                 <div className="space-y-6">
                   {messages.map((message, index) => (
                     <motion.div

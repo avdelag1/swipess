@@ -149,7 +149,7 @@ function TopBarComponent({
           className
         )}
       >
-        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
+        <div className="flex items-center justify-between h-14 max-w-screen-xl mx-auto gap-2 px-4 sm:px-6">
           {/* Left section: Title + Mode switcher + filters */}
           {/* Left section: Logo (Fixed tunnel) */}
           <div className="relative z-20 flex items-center flex-shrink-0 pr-3 mr-1 bg-gradient-to-r from-background via-background/90 to-transparent">
@@ -176,7 +176,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-7 rounded-md transition-all duration-100 ease-out flex-shrink-0",
+                "relative h-8 w-8 rounded-xl transition-all duration-100 ease-out flex-shrink-0",
                 "active:scale-[0.95]",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent"
@@ -199,7 +199,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-7 rounded-md transition-all duration-100 ease-out flex-shrink-0",
+                "relative h-8 w-8 rounded-xl transition-all duration-100 ease-out flex-shrink-0",
                 "active:scale-[0.95]",
                 "group",
                 "touch-manipulation",
@@ -255,11 +255,11 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-7 px-1.5 rounded-md transition-all duration-100 ease-out",
+                    "relative h-8 px-3 rounded-xl transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1"
+                    "flex items-center gap-2"
                   )}
                   style={{
                     backgroundColor: glassBg,

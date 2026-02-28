@@ -87,7 +87,7 @@ const LandingView = memo(({
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
     >
-      {/* Swipable logo */}
+      {/* Swipable text title */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -98,62 +98,75 @@ const LandingView = memo(({
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none"
+        className="cursor-grab active:cursor-grabbing touch-none select-none relative"
       >
-        <img
-          src={swipessLogo}
-          alt="Swipess"
-          className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
-        />
+        <div className="relative inline-block">
+          {/* Main Title "swipes" */}
+          <h1 className="text-8xl sm:text-9xl md:text-[12rem] font-black italic tracking-[-0.08em] text-white leading-none">
+            swipes
+          </h1>
+
+          {/* Subtitle Alignment Container */}
+          <div className="absolute inset-x-0 top-full mt-4 flex flex-col items-start px-[0.1em]">
+            <div className="flex w-full items-start justify-between">
+              {/* "luxury world" centered below "sw i" */}
+              <div className="flex flex-col items-center ml-[0.2em]">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#E4007C] to-[#ea580c]">
+                  luxury
+                </span>
+                <span className="text-xs sm:text-sm md:text-base font-bold tracking-[0.4em] uppercase text-white/60 -mt-1">
+                  world
+                </span>
+              </div>
+
+              {/* "meets precision" / "mid's precision" following "P" */}
+              <div className="flex flex-col items-start ml-[0.5em] mt-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm sm:text-base md:text-lg font-bold italic text-white/40 uppercase tracking-widest">
+                    meets
+                  </span>
+                  <span className="text-sm sm:text-base md:text-lg font-black italic text-orange-500 uppercase tracking-tighter">
+                    precision
+                  </span>
+                </div>
+                <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#ea580c] to-[#FFD700] -mt-1">
+                  mid's precision
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </motion.div>
 
-      {/* Tagline - Reordered to flow with logo geometry */}
-      <motion.div
-        className="relative z-10 -mt-2 sm:-mt-4 md:-mt-6 w-full max-w-[600px] sm:max-w-xl md:max-w-2xl flex flex-col items-end cursor-pointer group select-none"
-        onTap={handleTap}
+      {/* Slogan */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="mt-48 text-white/40 text-[10px] uppercase tracking-[0.5em] font-medium"
       >
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl sm:text-2xl md:text-3xl font-black italic tracking-tighter mr-[28%] bg-clip-text text-transparent bg-gradient-to-r from-[#E4007C] to-[#ea580c] uppercase"
-          style={{
-            filter: 'drop-shadow(0 0 10px rgba(228,0,124,0.2))',
-          }}
-        >
-          luxury meets
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-3xl sm:text-5xl md:text-6xl font-black italic tracking-tighter mr-[4%] -mt-1 sm:-mt-2 bg-clip-text text-transparent bg-gradient-to-r from-[#ea580c] to-[#FFD700] uppercase"
-          style={{
-            filter: 'drop-shadow(0 0 15px rgba(234,88,12,0.3))',
-          }}
-        >
-        </motion.div>
-      </motion.div>
+        Find Your Perfect Rental
+      </motion.p>
 
-      {/* Info chips */}
+      {/* Info chips / Supplementary elements */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
-        className="mt-3"
+        transition={{ duration: 0.4, delay: 0.8 }}
+        className="mt-8"
       >
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           {[
-            { icon: Sparkles, label: 'Elite Assets' },
-            { icon: Shield, label: 'Encrypted Chat' },
-            { icon: Users, label: 'Global Network' },
+            { icon: Shield, label: 'Security' },
+            { icon: MessageCircle, label: 'Chat' },
+            { icon: Sparkles, label: 'Global' },
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              className="flex items-center gap-2 px-4 py-2 bg-white/[0.05] backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.5)] group hover:bg-white/10 transition-colors"
             >
-              <Icon className="w-3.5 h-3.5 text-white/90" />
-              <span className="text-white/90 text-xs font-medium">{label}</span>
+              <Icon className="w-3.5 h-3.5 text-white/60 group-hover:text-orange-400 transition-colors" />
+              <span className="text-white/60 text-[10px] font-black uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
             </div>
           ))}
         </div>
@@ -163,7 +176,7 @@ const LandingView = memo(({
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.05] backdrop-blur-md border border-white/10 shadow-2xl text-white/40 text-sm font-bold active:bg-white/20 transition-colors hover:text-white"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -544,6 +557,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </div>
               </div>
               <button onClick={() => setShowErrorDetails(false)}
+                aria-label="Close error details"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                 <X className="w-4 h-4 text-white" />
               </button>
