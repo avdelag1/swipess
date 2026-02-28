@@ -50,8 +50,8 @@ const AITestPage = () => {
       if (error) throw new Error(error.message || "Function error");
       if (data?.error) throw new Error(data.error);
 
-      const reply = data?.result || data?.message || "(no response)";
-      const provider = data?.provider || "unknown";
+      const reply = data?.result?.message || data?.result?.text || data?.message || "(no response)";
+      const provider = data?.provider_used || data?.provider || "unknown";
 
       setProviderUsed(provider);
       setStatus("ok");
