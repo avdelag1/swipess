@@ -147,11 +147,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[400px] w-full max-h-[85vh] sm:max-h-[80vh] bg-background/80 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
+        className="sm:max-w-[400px] w-[calc(100%-16px)] max-h-[75vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[58%]"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-5 py-3.5 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
+        <div className="relative px-5 py-3.5 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10 relative overflow-hidden group">
               <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
@@ -181,9 +181,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         <div 
           className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" 
           style={{ 
-            height: 'min(60vh, 450px)', 
-            minHeight: '300px',
-            maxHeight: 'calc(85vh - 200px)',
+            height: 'min(50vh, 380px)', 
+            minHeight: '250px',
+            maxHeight: 'calc(75vh - 200px)',
             overflowY: 'auto'
           }}
         >

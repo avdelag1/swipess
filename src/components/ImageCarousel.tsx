@@ -101,9 +101,7 @@ function preloadImageBackground(url: string): void {
             cached.element = img;
             cached.lastAccessed = Date.now();
           }
-        }).catch(err => {
-          logger.warn('[ImageCarousel] image decode failed:', err);
-        });
+        }).catch(() => {});
       }
     };
     img.onerror = () => {

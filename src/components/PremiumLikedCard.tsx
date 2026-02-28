@@ -2,17 +2,15 @@ import { motion } from "framer-motion";
 import { Heart, MessageCircle, MapPin, Trash2, Eye, Bed, Bath, Square, User, Home, Bike, Briefcase, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/useTheme";
 
 interface PremiumLikedCardProps {
     type: 'listing' | 'profile';
     data: any;
     onAction: (action: 'message' | 'view' | 'remove', data: any) => void;
+    isLight?: boolean;
 }
 
-export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps) {
-    const { theme } = useTheme();
-    const isLight = theme === 'white-matte';
+export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLikedCardProps) {
     const imageUrl = type === 'listing'
         ? (data.images?.[0] || data.image_url)
         : (data.images?.[0] || data.avatar_url || data.profile_images?.[0]);
@@ -31,9 +29,7 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
             whileHover={{ y: -4 }}
             className={cn(
                 "group relative rounded-[2rem] overflow-hidden transition-all duration-300",
-                isLight
-                    ? "bg-white border border-black/5 shadow-xl shadow-black/5"
-                    : "bg-zinc-900/50 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/40"
+                "bg-card border border-border shadow-2xl"
             )}
         >
             {/* Visual Header / Image */}
@@ -45,8 +41,8 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-                        {type === 'listing' ? <Home className="w-12 h-12 text-zinc-600" /> : <User className="w-12 h-12 text-zinc-600" />}
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                        {type === 'listing' ? <Home className="w-12 h-12 text-muted-foreground" /> : <User className="w-12 h-12 text-muted-foreground" />}
                     </div>
                 )}
 
@@ -86,7 +82,7 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
                     {type === 'listing' && (
                         <>
                             {data.beds && (
-                                <div className={cn("flex items-center gap-1.5 px-3 py-1.5 rounded-xl border", isLight ? "bg-muted border-border" : "bg-zinc-800/50 border-white/5")}>
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary border border-border">
                                     <Bed className="w-3.5 h-3.5 text-muted-foreground" />
                                     <span className="text-[10px] font-black text-foreground">{data.beds}</span>
                                 </div>
@@ -125,7 +121,7 @@ export function PremiumLikedCard({ type, data, onAction }: PremiumLikedCardProps
 
                     <button
                         onClick={() => onAction('view', data)}
-                        className={cn("flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black border transition-all active:scale-[0.96]", isLight ? "bg-muted hover:bg-accent text-foreground border-border" : "bg-zinc-800 hover:bg-zinc-700 text-white border-white/5")}
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-secondary hover:bg-muted text-foreground text-xs font-black border border-border transition-all active:scale-95"
                     >
                         <Eye className="w-4 h-4" />
                         VIEW

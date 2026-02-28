@@ -563,9 +563,7 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Track dismissal on left swipe (dislike)
-      direction === 'left' ? dismissTarget(profile.user_id).catch(err => {
-        logger.warn('[ClientSwipeContainer] dismissTarget failed:', err);
-      }) : Promise.resolve(),
+      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { }) : Promise.resolve(),
 
       // Record for undo - pass category so deck can be properly restored
       Promise.resolve(recordSwipe(profile.user_id, 'profile', direction, category))
@@ -784,21 +782,21 @@ const ClientSwipeContainerComponent = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-10 -mt-20 sm:-mt-24"
+          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20"
         >
           {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
           <div className="relative group">
             <RadarSearchEffect
-              size={160}
+              size={140}
               color="#E4007C"
               isActive={isRefreshing}
               icon={labels.icon}
             />
           </div>
 
-          <div className="space-y-6 text-center">
-            <div className="space-y-3">
-              <h3 className="text-3xl font-black text-foreground uppercase tracking-tighter italic leading-none">
+          <div className="space-y-4 text-center">
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter leading-none">
                 All Caught Up!
               </h3>
               <p className="text-muted-foreground text-base font-bold tracking-tight opacity-70 px-4">
@@ -863,21 +861,21 @@ const ClientSwipeContainerComponent = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-10 -mt-20 sm:-mt-24"
+          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20"
         >
           {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
           <div className="relative group">
             <RadarSearchEffect
-              size={160}
+              size={140}
               color="#E4007C"
               isActive={isRefreshing}
               icon={labels.icon}
             />
           </div>
 
-          <div className="space-y-6 text-center">
-            <div className="space-y-3">
-              <h3 className="text-3xl font-black text-foreground uppercase tracking-tighter italic leading-none">
+          <div className="space-y-4 text-center">
+            <div className="space-y-2">
+              <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter leading-none">
                 No {labels.plural} Found
               </h3>
               <p className="text-muted-foreground text-base font-bold tracking-tight opacity-70 px-4">

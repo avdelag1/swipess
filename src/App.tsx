@@ -73,7 +73,7 @@ const OwnerProfile = lazy(() => import("./pages/OwnerProfileNew"));
 const OwnerSettings = lazy(() => import("./pages/OwnerSettingsNew"));
 const OwnerProperties = lazy(() => import("./pages/OwnerProperties"));
 const OwnerNewListing = lazy(() => import("./pages/OwnerNewListing"));
-const ConversationalListingCreator = lazy(() => import("./components/ConversationalListingCreator"));
+const ConversationalListingCreator = lazy(() => import("./components/ConversationalListingCreator").then(m => ({ default: m.ConversationalListingCreator })));
 const OwnerLikedClients = lazy(() => import("./pages/OwnerLikedClients"));
 const OwnerInterestedClients = lazy(() => import("./pages/OwnerInterestedClients"));
 const OwnerContracts = lazy(() => import("./pages/OwnerContracts"));
@@ -92,7 +92,7 @@ const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
 // Shared routes - lazy loaded
-const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard"));
+const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
 const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));

@@ -213,7 +213,7 @@ export function LikedClients() {
 
   return (
     <div className="w-full bg-background min-h-screen pb-32">
-      <div className="p-4 sm:p-8 pt-16 sm:pt-20 max-w-7xl mx-auto">
+      <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
         <PageHeader
           title="Liked Clients"
           subtitle="Profiles you've matched with"
@@ -255,17 +255,17 @@ export function LikedClients() {
           }
         />
 
-        {/* Search Bar - GLASSMORPHIC */}
+        {/* Search Bar */}
         <div className="relative mb-10 pt-4">
           <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-zinc-500" />
+            <Search className="h-4 w-4 text-muted-foreground" />
           </div>
           <input
             type="text"
             placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className={cn("w-full h-16 border rounded-3xl pl-14 pr-6 font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner", isLight ? "bg-muted border-border text-foreground placeholder-muted-foreground" : "bg-zinc-900 border-white/10 text-white placeholder-zinc-500")}
+            className="w-full h-16 bg-secondary border border-border rounded-3xl pl-14 pr-6 text-foreground placeholder-muted-foreground font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
           />
         </div>
 
@@ -300,9 +300,9 @@ export function LikedClients() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={cn("flex flex-col items-center justify-center py-32 text-center rounded-[3rem] border", isLight ? "bg-muted/50 border-border" : "bg-zinc-900/20 border-white/5")}
+            className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
           >
-            <div className={cn("w-24 h-24 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl border", isLight ? "bg-muted border-border" : "bg-zinc-900 border-white/5")}>
+            <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
               <Users className="w-12 h-12 text-[#E4007C]/40" />
             </div>
             <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Discovery Awaits.</h3>
@@ -320,15 +320,15 @@ export function LikedClients() {
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className={cn("rounded-[2rem]", isLight ? "bg-background border-border" : "bg-zinc-950 border-white/10")}>
+        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground font-black text-xl">Remove Match?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground font-bold">
+            <AlertDialogTitle className="text-white font-black text-xl">Remove Match?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 font-bold">
               Are you sure you want to remove {clientToDelete?.full_name} from your talents?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-muted border-border text-foreground" : "bg-zinc-900 border-white/5 text-white")}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"

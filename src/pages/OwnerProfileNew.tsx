@@ -1,13 +1,13 @@
+/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Palette, Heart, Settings, Radio
+  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Heart, Settings, Radio
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";

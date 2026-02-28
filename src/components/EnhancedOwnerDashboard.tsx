@@ -34,6 +34,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
   const filterCategory = mergedFilters?.categories?.[0] || mergedFilters?.category || undefined;
+  console.log('[EnhancedOwnerDashboard] Rendering with filters:', mergedFilters);
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
     filterCategory as any,
@@ -42,6 +43,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     false,  // isRefreshMode
     mergedFilters as any // FIX: Now includes synced filters!
   );
+
+  if (error) {
+    console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
+  } else {
+    console.log('[EnhancedOwnerDashboard] Fetched profiles count:', clientProfiles.length);
+  }
+
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
 
   const handleClientTap = (clientId: string) => {

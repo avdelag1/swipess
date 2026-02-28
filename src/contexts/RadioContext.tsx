@@ -40,7 +40,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     skin: 'modern',
     favorites: [],
-    miniPlayerMode: 'expanded',
+    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'expanded',
   });
 
   // Set loading to false immediately - don't block UI for preferences
@@ -166,21 +166,20 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }));
 
     try {
-      // Don't query non-existent columns - check if user exists first
-      if (!user?.id) {
+      // Use a safer query that handles missing columns
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
+         .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        logger.warn('[RadioPlayer] Error loading preferences (possibly missing columns):', error);
         setLoading(false);
         return;
       }
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('radio_current_station_id')
-        .eq('id', user.id)
-        .maybeSingle(); // Changed from single() to maybeSingle() for safer handling
 
       if (error) {
-        // Log the error but don't crash - column might not exist
-        console.warn('[RadioPlayer] Profile column not found or RLS blocking:', error.message);
         setLoading(false);
         return;
       }
@@ -198,7 +197,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           currentStation: currentStation || defaultStation,
           // Handle missing column gracefully
-          isPoweredOn: (data as any).radio_is_powered_on ?? false
+          isPoweredOn: (data as any).radio_is_powered_on ?? prev.isPoweredOn
         }));
       }
     } catch (err) {
@@ -216,12 +215,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
-      const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
-      
-      if (error) {
-        // Log but don't crash - column might not exist in older profiles
-        console.warn('[RadioPlayer] Could not save preferences:', error.message);
-      }
+      await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
@@ -283,7 +277,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }, 10000); // 10 second timeout
 
       await audioRef.current.play();
-      setState(prev => ({ ...prev, isPlaying: true, miniPlayerMode: 'expanded' }));
+      setState(prev => ({ ...prev, isPlaying: true }));
       setError(null);
 
       // Clear timeout on successful play
@@ -424,6 +418,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
     setState(prev => ({ ...prev, miniPlayerMode: mode }));
+    localStorage.setItem('swipess_radio_mini_player_mode', mode);
   }, []);
 
   const value = {

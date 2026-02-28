@@ -179,7 +179,7 @@ export function NotificationSystem() {
                 is_read: false
               }]).then(
                 () => { /* Notification saved successfully */ },
-                (err) => { logger.warn('[NotificationSystem] failed to persist notification', err); /* non-critical */ }
+                () => { /* Notification save failed - non-critical, user still sees toast */ }
               );
 
               // Show browser notification

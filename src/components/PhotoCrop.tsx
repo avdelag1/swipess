@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { detectFaceCenter } from '@/utils/faceDetection';
 import { compressImage } from '@/utils/imageCompression';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface PhotoCropProps {
   imageUrl: string;

@@ -15,7 +15,7 @@ interface ModeSwitcherProps {
 function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'black-matte';
   const lastClickTime = useRef(0);
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
@@ -43,9 +43,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   }, [activeMode, handleModeSwitch]);
 
   const sizeClasses = {
-    sm: 'h-8 text-xs',
-    md: 'h-9 text-sm',
-    lg: 'h-10 text-base',
+    sm: 'h-7 text-[9px]',
+    md: 'h-8 text-[10px]',
+    lg: 'h-9 text-xs',
   };
 
   if (variant === 'icon') {
@@ -54,13 +54,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
-          'relative flex items-center justify-center rounded-xl',
+          'relative flex items-center justify-center rounded-lg',
           'transition-all duration-100 ease-out',
           'active:scale-[0.9]',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
-          size === 'sm' ? 'h-8 w-8' : size === 'md' ? 'h-9 w-9' : 'h-10 w-10',
+          size === 'sm' ? 'h-7 w-7' : size === 'md' ? 'h-8 w-8' : 'h-9 w-9',
           className
         )}
         style={{
@@ -81,7 +81,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             </motion.div>
           ) : (
             <motion.div
@@ -93,9 +93,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             >
               {/* HIGH CONTRAST: Clear icon colors */}
               {activeMode === 'client' ? (
-                <User strokeWidth={4} className="h-4 w-4 text-teal-400" />
+                <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
               ) : (
-                <UserCog strokeWidth={4} className="h-4 w-4 text-orange-400" />
+                <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
               )}
             </motion.div>
           )}
@@ -110,7 +110,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
-          'relative flex items-center gap-2 rounded-full px-3 py-1.5',
+          'relative flex items-center gap-1.5 rounded-full px-2 py-1',
           'bg-white/5',
           'hover:bg-white/10',
           'transition-all duration-100 ease-out',
@@ -127,8 +127,8 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           className="absolute inset-y-1 rounded-full bg-gradient-to-r shadow-sm"
           initial={false}
           animate={{
-            left: activeMode === 'client' ? '4px' : '50%',
-            right: activeMode === 'client' ? '50%' : '4px',
+            left: activeMode === 'client' ? '3px' : '50%',
+            right: activeMode === 'client' ? '50%' : '3px',
             backgroundColor: activeMode === 'client' ? 'rgba(45, 212, 191, 0.2)' : 'rgba(251, 146, 60, 0.2)',
             boxShadow: 'none'
           }}
@@ -138,19 +138,19 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
-          'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
+          'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
           activeMode === 'client' ? 'text-teal-400 font-black scale-105' : 'text-white/50 hover:text-white/80'
         )}>
-          <User strokeWidth={4} className="h-3.5 w-3.5" />
-          <span className="text-xs uppercase tracking-wider font-extrabold">Client</span>
+          <User strokeWidth={4} className="h-3 w-3" />
+          <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Client</span>
         </div>
 
         <div className={cn(
-          'relative z-10 flex items-center justify-center w-full gap-1.5 px-3 py-1 rounded-full transition-all duration-300',
+          'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
           activeMode === 'owner' ? 'text-orange-400 font-black scale-105' : 'text-white/50 hover:text-white/80'
         )}>
-          <UserCog strokeWidth={4} className="h-3.5 w-3.5" />
-          <span className="text-xs uppercase tracking-wider font-extrabold">Business</span>
+          <UserCog strokeWidth={4} className="h-3 w-3" />
+          <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Business</span>
         </div>
 
         <AnimatePresence>
@@ -161,7 +161,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               exit={{ opacity: 0 }}
               className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full"
             >
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -174,7 +174,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       onClick={(e) => handleToggle(e)}
       disabled={isSwitching || !canSwitchMode}
       className={cn(
-        'relative flex items-center gap-1.5 rounded-xl px-2.5',
+        'relative flex items-center gap-1 rounded-lg px-2',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -203,16 +203,16 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}
           {isSwitching ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+            <Loader2 className="h-3 w-3 animate-spin text-white" />
           ) : activeMode === 'client' ? (
             <>
-              <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
-              <span className="font-black text-teal-400 uppercase tracking-tight">Client Side</span>
+              <User strokeWidth={4} className="h-3 w-3 text-teal-400" />
+              <span className="font-extrabold text-[9px] text-teal-400 uppercase tracking-tighter">Client Side</span>
             </>
           ) : (
             <>
-              <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
-              <span className="font-black text-orange-400 uppercase tracking-tight">Business Side</span>
+              <UserCog strokeWidth={4} className="h-3 w-3 text-orange-400" />
+              <span className="font-extrabold text-[9px] text-orange-400 uppercase tracking-tighter">Business Side</span>
             </>
           )}
         </motion.div>

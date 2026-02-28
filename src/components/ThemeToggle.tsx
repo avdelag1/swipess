@@ -11,9 +11,7 @@ interface ThemeToggleProps {
 
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
-    // consider everything except explicit light mode as dark so the toggle
-    // flips reliably even if another matte variant is added later
-    const isDark = theme !== 'white-matte';
+    const isDark = theme === 'black-matte';
 
     // Glass styling for the button
     const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
@@ -35,12 +33,12 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         <button
             onClick={handleToggle}
             className={cn(
-                'relative flex items-center justify-center rounded-xl',
+                'relative flex items-center justify-center rounded-md',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent',
-                'h-8 w-8 text-xs sm:h-9 sm:w-9 md:h-10 md:w-10 flex-shrink-0',
+                'h-7 w-7 flex-shrink-0',
                 className
             )}
             style={{

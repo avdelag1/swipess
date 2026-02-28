@@ -19,6 +19,7 @@ import { AdvancedFilters } from '@/components/AdvancedFilters'
 // DISABLED: LiveHDBackground was causing performance issues
 // import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
+import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
@@ -42,7 +43,6 @@ const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog'
 const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
-const AISearchDialog = lazy(() => import('@/components/AISearchDialog'))
 
 // Hooks
 import { useListings } from "@/hooks/useListings"
@@ -105,10 +105,11 @@ function clearOnboardingCache(): void {
 
 interface DashboardLayoutProps {
   children: ReactNode
-  userRole: 'client' | 'owner' | 'admin'
+  userRole: 'client' | 'owner'
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
+  console.log('[DashboardLayout] Rendering with userRole:', userRole);
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
   const [showLikedProperties, setShowLikedProperties] = useState(false)
   const [showPreferences, setShowPreferences] = useState(false)
@@ -135,7 +136,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
-  const [showAiSearch, setShowAiSearch] = useState(false)
+  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
@@ -222,7 +223,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         const { data, error } = await supabase
           .from('profiles')
           .select('onboarding_completed, full_name, city, age')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .maybeSingle();
 
         if (error) {
@@ -353,10 +354,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const handleMessageActivationsClick = useCallback(() => {
     setShowMessageActivations(true)
-  }, [])
-
-  const handleAiSearchClick = useCallback(() => {
-    setShowAiSearch(true)
   }, [])
 
   const handleMenuItemClick = useCallback((action: string) => {
@@ -573,8 +570,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
           showFilters={isOnDiscoveryPage}
-          userRole={userRole === 'admin' ? 'client' : userRole}
+          userRole={userRole}
           transparent={isImmersiveDashboard}
           hideOnScroll={true}
           title={pageTitle}
@@ -607,12 +605,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-          className="flex-1 w-full flex flex-col"
-          style={{ minHeight: '100%' }}
+          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
         >
           {enhancedChildren}
-          {/* Spacer for bottom navigation */}
-          <div className="h-24 shrink-0" />
         </motion.div>
       </main>
 
@@ -623,7 +618,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
-          onAIClick={handleAiSearchClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
         />
       )}
 
@@ -651,7 +646,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <MessageActivationPackages
           isOpen={showMessageActivations}
           onClose={() => setShowMessageActivations(false)}
-          userRole={userRole === 'admin' ? 'client' : userRole}
+          userRole={userRole}
         />
       </Suspense>
 
@@ -775,6 +770,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
+      {/* AI Search Dialog */}
+      <AISearchDialog
+        isOpen={isAISearchOpen}
+        onClose={() => setIsAISearchOpen(false)}
+        userRole={userRole}
+      />
+
       {/* Push Notification Permission Prompt */}
       <Suspense fallback={null}>
         <PushNotificationPrompt />
@@ -785,15 +787,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <WelcomeNotification
           isOpen={shouldShowWelcome}
           onClose={dismissWelcome}
-        />
-      </Suspense>
-
-      {/* AISearchDialog - Triggered from Bottom Navigation AI Button */}
-      <Suspense fallback={null}>
-        <AISearchDialog
-          isOpen={showAiSearch}
-          onClose={() => setShowAiSearch(false)}
-          userRole={userRole === 'admin' ? 'client' : userRole}
         />
       </Suspense>
     </div>

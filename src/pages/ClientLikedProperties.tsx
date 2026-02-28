@@ -136,7 +136,7 @@ const ClientLikedProperties = () => {
 
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
-      <div className="p-4 sm:p-8 pt-16 sm:pt-20 max-w-7xl mx-auto">
+      <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
         <PageHeader
           title={currentCategory.title}
           subtitle={currentCategory.subtitle}
@@ -148,7 +148,7 @@ const ClientLikedProperties = () => {
                 refreshLikedProperties();
               }}
               disabled={isLoading || isFetching}
-              className={cn("flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95 disabled:opacity-50", isLight ? "bg-muted border-border text-foreground/70 hover:text-foreground" : "bg-zinc-900 border-white/5 text-white/70 hover:text-white")}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
             >
               <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
               <span className="text-xs font-black uppercase tracking-widest text-[#E4007C]">Sync</span>
@@ -167,9 +167,7 @@ const ClientLikedProperties = () => {
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
                   ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
-                  : isLight
-                    ? "bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-accent"
-                    : "bg-zinc-900/50 border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  : "bg-secondary border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -179,7 +177,7 @@ const ClientLikedProperties = () => {
         </div>
 
         {/* Count Label */}
-          <div className="flex items-center gap-3 mb-8 px-2">
+        <div className="flex items-center gap-3 mb-8 px-2">
           <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_10px_#E4007C]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredProperties.length} Saved Essentials
@@ -209,9 +207,9 @@ const ClientLikedProperties = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={cn("flex flex-col items-center justify-center py-32 text-center rounded-[3rem] border", isLight ? "bg-muted/50 border-border" : "bg-zinc-900/20 border-white/5")}
+            className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
           >
-            <div className={cn("w-24 h-24 rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl border", isLight ? "bg-muted border-border" : "bg-zinc-900 border-white/5")}>
+            <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
               <Flame className="w-12 h-12 text-[#E4007C]/40" />
             </div>
             <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Pure Potential.</h3>
@@ -220,7 +218,7 @@ const ClientLikedProperties = () => {
             </p>
             <button
               onClick={() => navigate('/client/dashboard')}
-              className="mt-10 px-8 py-4 rounded-2xl bg-[#E4007C] text-white text-sm font-black tracking-widest hover:bg-[#FF1493] transition-all active:scale-[0.96] shadow-[0_10px_30px_rgba(228,0,124,0.3)]"
+              className="mt-10 px-8 py-4 rounded-2xl bg-[#E4007C] text-white text-sm font-black tracking-widest hover:bg-[#FF1493] transition-all active:scale-95 shadow-[0_10px_30px_rgba(228,0,124,0.3)]"
             >
               EXPLORE WORLD
             </button>
@@ -257,15 +255,15 @@ const ClientLikedProperties = () => {
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className={cn("rounded-[2rem]", isLight ? "bg-background border-border" : "bg-zinc-950 border-white/10")}>
+        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground font-black text-xl">Remove from World?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground font-bold">
+            <AlertDialogTitle className="text-white font-black text-xl">Remove from World?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 font-bold">
               Are you sure you want to remove "{propertyToDelete?.title}" from your favorites?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-muted border-border text-foreground" : "bg-zinc-900 border-white/5 text-white")}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"

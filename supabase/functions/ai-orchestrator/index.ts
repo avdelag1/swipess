@@ -129,40 +129,20 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
-  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
-
-  console.log(`[AI Orchestrator] Available providers - MiniMax: ${hasMinimax}, Lovable: ${hasLovable}`);
-
-  if (hasMinimax) {
+  // Primary: Lovable AI (Gemini) — most reliable
+  // Fallback: MiniMax
+  try {
+    console.log("[AI Orchestrator] Attempting Gemini (Lovable AI)...");
+    return await callGemini(messages, maxTokens);
+  } catch (err) {
+    console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
     try {
-      console.log("[AI Orchestrator] Attempting MiniMax...");
       return await callMinimax(messages, maxTokens);
-    } catch (err) {
-      console.warn("[AI Orchestrator] MiniMax failed, trying Gemini fallback...", err);
-      if (hasLovable) {
-        try {
-          return await callGemini(messages, maxTokens);
-        } catch (geminiErr) {
-          console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
-          throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
-        }
-      }
-      throw err;
-    }
-  }
-
-  if (hasLovable) {
-    try {
-      console.log("[AI Orchestrator] Attempting Gemini...");
-      return await callGemini(messages, maxTokens);
-    } catch (err) {
-      console.error("[AI Orchestrator] Gemini failed:", err);
+    } catch (fallbackErr) {
+      console.error("[AI Orchestrator] MiniMax fallback also failed:", fallbackErr);
       throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
     }
   }
-
-  throw new ProviderError("AI service not configured. Please contact support.", 503);
 }
 
 // ─── JSON Parser ──────────────────────────────────────────────────
@@ -488,45 +468,51 @@ GOAL: Provide direct answers and helpful guidance. If you don't have specific da
     }
 
     const aiResult = await callAI(messages, maxTokens);
+    console.log(`[AI Orchestrator] Success via ${aiResult.provider}, task: ${task}, content length: ${aiResult.content.length}`);
 
     let result: Record<string, unknown>;
-    const parsed = parseJSON(aiResult.content);
 
-    if (parsed) {
-      // Validate with Zod based on task to ensure structured output
-      try {
-        switch (task) {
-          case "listing":
-            result = ListingSchema.parse(parsed);
-            break;
-          case "profile":
-            result = ProfileSchema.parse(parsed);
-            break;
-          case "search":
-            result = SearchSchema.parse(parsed);
-            break;
-          case "enhance":
-            result = EnhanceSchema.parse(parsed);
-            break;
-          case "conversation":
-            result = ConversationSchema.parse(parsed);
-            break;
-          default:
-            result = parsed;
-        }
-      } catch (validationErr) {
-        console.error(`[AI Orchestrator] Validation failed for task "${task}":`, validationErr);
-        // Fallback to parsed if validation fails, but we've logged the error for debugging
-        result = parsed;
-      }
-    } else if (task === "conversation") {
-      result = {
-        message: aiResult.content,
-        extractedData: data.extractedData || {},
-        isComplete: false,
-      };
+    // For chat task, always return plain text — no JSON parsing needed
+    if (task === "chat") {
+      result = { text: aiResult.content, message: aiResult.content };
     } else {
-      result = { text: aiResult.content };
+      const parsed = parseJSON(aiResult.content);
+
+      if (parsed) {
+        // Validate with Zod based on task to ensure structured output
+        try {
+          switch (task) {
+            case "listing":
+              result = ListingSchema.parse(parsed);
+              break;
+            case "profile":
+              result = ProfileSchema.parse(parsed);
+              break;
+            case "search":
+              result = SearchSchema.parse(parsed);
+              break;
+            case "enhance":
+              result = EnhanceSchema.parse(parsed);
+              break;
+            case "conversation":
+              result = ConversationSchema.parse(parsed);
+              break;
+            default:
+              result = parsed;
+          }
+        } catch (validationErr) {
+          console.error(`[AI Orchestrator] Validation failed for task "${task}":`, validationErr);
+          result = parsed;
+        }
+      } else if (task === "conversation") {
+        result = {
+          message: aiResult.content,
+          extractedData: data.extractedData || {},
+          isComplete: false,
+        };
+      } else {
+        result = { text: aiResult.content };
+      }
     }
 
     return new Response(

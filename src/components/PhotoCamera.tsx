@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { applyFilter, FilterType } from '@/utils/photoFilters';
 import { triggerHaptic } from '@/utils/haptics';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import PhotoCrop from './PhotoCrop';
 import UploadProgress from './UploadProgress';
 
