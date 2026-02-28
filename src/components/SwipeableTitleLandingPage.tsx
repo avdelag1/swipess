@@ -4,7 +4,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X, ChevronRight, Lock as LockIcon
+  ArrowLeft, Loader, Check, X, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,10 +14,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { Capacitor } from '@capacitor/core';
+import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
+type EffectMode = 'off' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -37,12 +40,19 @@ const checkPasswordStrength = (password: string) => {
 
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
-  onEnterAuth,
+  onEnterAuth, effectMode, cycleEffect, effectLabel,
 }: {
   onEnterAuth: () => void;
+  effectMode: EffectMode;
+  cycleEffect: () => void;
+  effectLabel: string;
 }) => {
   const x = useMotionValue(0);
-  const titleScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.88]);
+  const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
+  const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
+  const logoBlur = useTransform(x, [0, 100, 220], [0, 2, 14]);
+  const logoFilter = useTransform(logoBlur, (v) => `blur(${v}px)`);
+
   const isDragging = useRef(false);
   const triggered = useRef(false);
 
@@ -74,107 +84,66 @@ const LandingView = memo(({
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
     >
-      {/* Main title section */}
-      <div className="mb-8">
-        {/* Swipable title */}
-        <motion.div
-          drag="x"
-          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-          dragElastic={0.9}
-          dragMomentum={false}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
-          onTap={handleTap}
-          style={{ x, scale: titleScale }}
-          whileTap={{ scale: 0.97 }}
-          className="cursor-grab active:cursor-grabbing touch-none select-none mb-6"
-        >
-          <h1 className="text-7xl md:text-8xl font-black tracking-tighter text-white mb-2">
-            swipes
-          </h1>
-        </motion.div>
+      {/* Swipable logo */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+        dragElastic={0.9}
+        dragMomentum={false}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onTap={handleTap}
+        style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
+        whileTap={{ scale: 0.97 }}
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
+      >
+        <img
+          src={swipessLogo}
+          alt="Swipess"
+          className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+        />
+      </motion.div>
 
-        {/* Subtitle layout - positioned relative to letters in "swipes" */}
-        <div className="relative flex justify-center">
-          {/* Main subtitle grid layout */}
-          <div className="grid grid-cols-12 gap-x-0 gap-y-2 w-full max-w-2xl">
-            {/* Left section: "luxury world" below "swi" */}
-            <div className="col-span-4 flex flex-col items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.15 }}
-                className="flex flex-col items-center gap-1"
-              >
-                <p className="text-4xl md:text-5xl font-bold italic text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-orange-400">
-                  luxury
-                </p>
-                <p className="text-lg md:text-xl text-white/60 italic">
-                  world
-                </p>
-              </motion.div>
-            </div>
-
-            {/* Middle spacer */}
-            <div className="col-span-4" />
-
-            {/* Right section: "meets precision" and "mid's precision" below "p" */}
-            <div className="col-span-4 flex flex-col items-center">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="flex flex-col items-center gap-1"
-              >
-                <p className="text-sm md:text-base text-white/70 italic">
-                  meets precision
-                </p>
-                <p className="text-3xl md:text-4xl font-bold italic text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400">
-                  mid's
-                </p>
-                <p className="text-lg md:text-xl text-white/60 italic">
-                  precision
-                </p>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Slogan */}
+      {/* Tagline — separated with deliberate spacing, not too close */}
       <motion.p
-        className="text-lg md:text-xl text-white/70 italic mb-12 cursor-pointer"
+        className="mt-6 relative z-10 cursor-pointer"
         onTap={handleTap}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500">
+        <span
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+          style={{
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
           luxury meets precision
         </span>
       </motion.p>
 
-      {/* Supplementary elements */}
+      {/* Info chips */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.3 }}
-        className="mt-8 mb-12"
+        transition={{ duration: 0.4, delay: 0.25 }}
+        className="mt-5"
       >
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {[
-            { icon: Shield, label: 'Security' },
-            { icon: Sparkles, label: 'Chat' },
-            { icon: Users, label: 'Connect' },
+            { icon: Sparkles, label: 'Elite Assets' },
+            { icon: Shield, label: 'Encrypted Chat' },
+            { icon: Users, label: 'Global Network' },
           ].map(({ icon: Icon, label }) => (
-            <motion.div
+            <div
               key={label}
-              whileHover={{ scale: 1.05 }}
-              className="flex flex-col items-center gap-1.5 px-4 py-3 bg-white/[0.08] backdrop-blur-md rounded-xl border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)] cursor-pointer hover:bg-white/[0.12] transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
             >
-              <Icon className="w-5 h-5 text-white/80" />
-              <span className="text-white/80 text-xs font-semibold">{label}</span>
-            </motion.div>
+              <Icon className="w-3.5 h-3.5 text-white/90" />
+              <span className="text-white/90 text-xs font-medium">{label}</span>
+            </div>
           ))}
         </div>
       </motion.div>
@@ -183,8 +152,8 @@ const LandingView = memo(({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.4 }}
-        className="mt-6 flex flex-col items-center z-20"
+        transition={{ delay: 0.6, duration: 0.4 }}
+        className="mt-8 flex flex-col items-center z-20"
       >
         <div className="flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
           <motion.div
@@ -195,9 +164,19 @@ const LandingView = memo(({
             <ChevronRight className="w-4 h-4" />
             <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
           </motion.div>
-          <span className="text-xs font-medium tracking-wide">swipe right or tap to sign in</span>
+          <span className="text-xs font-medium tracking-wide">swipe right to enter</span>
         </div>
       </motion.div>
+
+      {/* Effects toggle */}
+      <motion.button
+        onClick={cycleEffect}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
+        aria-label="Toggle background effect"
+      >
+        {effectLabel}
+      </motion.button>
     </motion.div>
   );
 });
@@ -221,7 +200,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const isNativePlatform = Capacitor.isNativePlatform();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
-  // Load remembered email on mount
   useEffect(() => {
     const rememberedEmail = localStorage.getItem('auth_client_email') || '';
     if (rememberedEmail) {
@@ -327,7 +305,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     setShowPassword(false); setAgreeToTerms(false);
   };
 
-  // stagger variants for form elements
   const containerVariants = {
     hidden: {},
     visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
@@ -348,13 +325,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     >
       <StarFieldBackground />
 
-      {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/4 rounded-full blur-3xl" />
       </div>
 
-      {/* Back button */}
       <motion.button
         onClick={onBack}
         initial={{ opacity: 0, x: -12 }}
@@ -366,7 +341,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         <ArrowLeft className="w-5 h-5" />
       </motion.button>
 
-      {/* Form content */}
       <div className="h-full flex flex-col justify-center p-4 sm:p-5 relative z-10">
         <motion.div
           className="w-full max-w-sm mx-auto"
@@ -374,19 +348,16 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           initial="hidden"
           animate="visible"
         >
-          {/* Header */}
           <motion.div variants={itemVariants} className="text-center mb-5">
             <h2 className="text-xl font-bold text-white">
               {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome to Swipess' : 'Create account'}
             </h2>
           </motion.div>
 
-          {/* Card */}
           <motion.div
             variants={itemVariants}
             className="bg-white/[0.02] border border-white/10 rounded-2xl p-5"
           >
-            {/* Google OAuth */}
             {!isForgotPassword && !isNativePlatform && (
               <motion.div variants={itemVariants}>
                 <Button
@@ -413,9 +384,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               </motion.div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
-              {/* Name (sign-up) */}
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants} className="relative group">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
@@ -427,7 +396,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </motion.div>
               )}
 
-              {/* Email */}
               <motion.div variants={itemVariants} className="relative group">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
                 <Input
@@ -440,7 +408,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 />
               </motion.div>
 
-              {/* Password */}
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <div className="relative group">
@@ -473,7 +440,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </motion.div>
               )}
 
-              {/* Terms (sign-up) */}
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <label className="flex items-center gap-2 cursor-pointer group">
@@ -492,7 +458,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </motion.div>
               )}
 
-              {/* Remember me / Forgot password */}
               {isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants} className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -519,7 +484,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </motion.div>
               )}
 
-              {/* Submit */}
               <motion.div variants={itemVariants}>
                 <Button
                   type="submit" disabled={isLoading}
@@ -538,7 +502,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               </motion.div>
             </form>
 
-            {/* Toggle sign-in / sign-up */}
             <motion.div variants={itemVariants} className="text-center mt-4">
               {isForgotPassword ? (
                 <button type="button" onClick={() => { setIsForgotPassword(false); setEmail(''); }}
@@ -559,7 +522,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         </motion.div>
       </div>
 
-      {/* Error details modal */}
       {showErrorDetails && errorDetails && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-zinc-900 border border-red-500/20 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl">
@@ -602,20 +564,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function SwipeableTitleLandingPage() {
   const [view, setView] = useState<View>('landing');
+  const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
+
+  const cycleEffect = () => setEffectMode((p) => p === 'orbs' ? 'stars' : p === 'stars' ? 'off' : 'orbs');
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      {/* Subtle gradient background */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-pink-500/5 rounded-full blur-3xl" />
-      </div>
+      <LandingBackgroundEffects mode={effectMode} />
 
       <AnimatePresence mode="sync">
         {view === 'landing' ? (
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
+            effectMode={effectMode}
+            cycleEffect={cycleEffect}
+            effectLabel={effectLabel}
           />
         ) : (
           <AuthView
