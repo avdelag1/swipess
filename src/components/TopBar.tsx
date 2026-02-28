@@ -83,7 +83,7 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(255, 255, 255, 1)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
     : '1.5px solid rgba(0, 0, 0, 0.1)';
