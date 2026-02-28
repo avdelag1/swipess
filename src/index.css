@@ -189,10 +189,14 @@ body {
   -webkit-backface-visibility: hidden;
 }
 
-/* In white-matte keep nav/header crystal clear so no haze sits over icon labels */
-.white-matte .app-header,
-.white-matte .app-bottom-bar {
+/* In white-matte: clear header, light-appropriate bottom fade */
+.white-matte .app-header {
   background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.white-matte .app-bottom-bar {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 40%, transparent 100%) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
