@@ -112,6 +112,10 @@ const OwnerProfileCamera = lazy(() => import("./pages/OwnerProfileCamera"));
 const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
+// Test pages
+const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
+const AITestPage = lazy(() => import("./pages/AITestPage"));
+
 // Tutorial page - public onboarding experience
 const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
 
@@ -254,6 +258,9 @@ const App = () => (
                                       <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
                                       <Route path="/owner/filters" element={<OwnerFilters />} />
 
+                                      {/* AI Test route */}
+                                      <Route path="/ai-test" element={<AITestPage />} />
+
                                       {/* Shared routes (both roles) */}
                                       <Route path="/messages" element={<MessagingDashboard />} />
                                       <Route path="/notifications" element={<NotificationsPage />} />
@@ -281,6 +288,11 @@ const App = () => (
                                     {/* Public Preview Pages - Shareable Links */}
                                     <Route path="/profile/:id" element={<PublicProfilePreview />} />
                                     <Route path="/listing/:id" element={<PublicListingPreview />} />
+
+                                    {/* Test Pages — dev only */}
+                                    {import.meta.env.DEV && (
+                                      <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
+                                    )}
 
                                     {/* Tutorial / Onboarding - Public Access */}
                                     <Route path="/tutorial" element={<TutorialSwipePage />} />

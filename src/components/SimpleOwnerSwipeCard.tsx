@@ -31,7 +31,7 @@ const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 18;
+const MAX_ROTATION = 12;
 
 // Calculate exit distance dynamically based on viewport
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -49,7 +49,7 @@ const SPRING_CONFIGS = {
   SOFT: { stiffness: 300, damping: 22, mass: 1.2 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SOFT;
+const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE;
 
 // Client profile type
 interface ClientProfile {
@@ -606,9 +606,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
 
-          {/* Image dots - Positioned below floating header */}
+          {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
-            <div className="absolute left-4 right-4 flex gap-1" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 60px)', zIndex: 25 }}>
+            <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
               {images.map((_, idx) => (
                 <div
                   key={idx}
@@ -800,24 +800,26 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
         </div>
 
+        {/* Action buttons INSIDE card - Tinder style */}
+        {!hideActions && (
+          <div
+            className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
+            onClick={(e) => {
+              // Prevent clicks in button area from bubbling to card handler
+              e.stopPropagation();
+            }}
+          >
+            <SwipeActionButtonBar
+              onLike={() => handleButtonSwipe('right')}
+              onDislike={() => handleButtonSwipe('left')}
+              onShare={onShare}
+              onUndo={onUndo}
+              onMessage={onMessage}
+              canUndo={canUndo}
+            />
+          </div>
+        )}
       </motion.div>
-
-      {/* Action buttons OUTSIDE card - float over the card, don't move during swipe */}
-      {!hideActions && (
-        <div
-          className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <SwipeActionButtonBar
-            onLike={() => handleButtonSwipe('right')}
-            onDislike={() => handleButtonSwipe('left')}
-            onShare={onShare}
-            onUndo={onUndo}
-            onMessage={onMessage}
-            canUndo={canUndo}
-          />
-        </div>
-      )}
     </div>
   );
 });

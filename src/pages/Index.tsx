@@ -2,7 +2,7 @@ import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
-import SwipeableTitleLandingPage from "@/components/SwipeableTitleLandingPage";
+import LegendaryLandingPage from "@/components/LegendaryLandingPage";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -258,7 +258,7 @@ const Index = () => {
   if (!user) {
     return (
       <div className="min-h-screen">
-        <SwipeableTitleLandingPage />
+        <LegendaryLandingPage />
       </div>
     );
   }

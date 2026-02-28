@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect } from 'react';
+import { memo, useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -151,14 +151,21 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Swipe hint */}
+      {/* Direct Entry Button - Fixes issue where users got stuck on Splash Screen */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-8 flex flex-col items-center z-20"
+        className="mt-8 flex flex-col items-center w-full max-w-xs z-20"
       >
-        <div className="flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
+        <Button
+          onClick={handleTap}
+          size="lg"
+          className="w-full h-14 rounded-full text-base font-bold shadow-[0_0_30px_rgba(228,0,124,0.4)] bg-gradient-to-r from-[#E4007C] to-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all text-black hover:text-black border-none"
+        >
+          Get Started
+        </Button>
+        <div className="mt-4 flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
           <motion.div
             animate={{ x: [0, 8, 0] }}
             transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
@@ -167,7 +174,7 @@ const LandingView = memo(({
             <ChevronRight className="w-4 h-4" />
             <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
           </motion.div>
-          <span className="text-xs font-medium tracking-wide">swipe right to enter</span>
+          <span className="text-xs font-medium tracking-wide">or swipe right</span>
         </div>
       </motion.div>
 
