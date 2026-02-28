@@ -68,7 +68,7 @@ const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.React
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
   <>
     <span className={cn(
-      "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
+      "hidden sm:inline font-black text-[10px] tracking-tighter whitespace-nowrap bg-clip-text text-transparent uppercase",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
         : isDark
@@ -78,7 +78,7 @@ const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boole
       Quick Filter
     </span>
     <span className={cn(
-      "sm:hidden font-black text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
+      "sm:hidden font-black text-[9px] tracking-tighter whitespace-nowrap bg-clip-text text-transparent uppercase",
       hasActiveFilters
         ? "bg-gradient-to-r from-pink-400 to-rose-400"
         : isDark
@@ -361,7 +361,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-8 sm:h-9 rounded-lg transition-all duration-200 touch-manipulation',
+          'relative flex items-center gap-1 px-1.5 h-7 rounded-md transition-all duration-200 touch-manipulation',
           hasActiveFilters && 'ring-1 ring-pink-500/30'
         )}
         style={{
@@ -384,7 +384,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="bg-gradient-to-br from-orange-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center"
+              className="bg-gradient-to-br from-orange-500 to-pink-500 text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
             >
               {activeFilterCount}
             </motion.span>
