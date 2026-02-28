@@ -136,7 +136,7 @@ const ClientLikedProperties = () => {
 
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
-      <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
         <PageHeader
           title={currentCategory.title}
           subtitle={currentCategory.subtitle}
