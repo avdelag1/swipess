@@ -178,7 +178,7 @@ const ClientProfileNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/liked-properties'); }}
-            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
+            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-border transition-all shadow-lg overflow-hidden relative group bg-card/50 backdrop-blur-md"
           >
             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
@@ -193,7 +193,7 @@ const ClientProfileNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/who-liked-you'); }}
-            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-white/5 transition-all shadow-lg overflow-hidden relative group bg-zinc-900/50 backdrop-blur-md"
+            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-border transition-all shadow-lg overflow-hidden relative group bg-card/50 backdrop-blur-md"
           >
             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
@@ -259,7 +259,7 @@ const ClientProfileNew = () => {
         <motion.div variants={childVariant}>
           <button
             onClick={() => { haptics.tap(); navigate('/radio'); }}
-            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] bg-zinc-900/40 backdrop-blur-2xl border border-white/10 relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl group"
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-border relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl group"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <Radio className="w-7 h-7 relative z-10 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />

@@ -593,7 +593,8 @@ function LegendaryLandingPage() {
   const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden bg-background">
+      <div className="absolute inset-0 transition-colors duration-500 bg-background" />
       <LandingBackgroundEffects mode={effectMode} />
 
       <AnimatePresence mode="sync">
