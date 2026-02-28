@@ -60,7 +60,7 @@
 .dark,
 .grey-matte,
 .black-matte,
-.pure-black,
+.white-matte,
 .red-matte,
 .amber-matte {
   --elevation-surface: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.12);

@@ -61,7 +61,7 @@ const OwnerProfileNew = () => {
         {/* Back Button */}
         <motion.div variants={childVariant}>
           <button
-            onClick={() => { haptics.tap(); window.history.length > 1 ? navigate(-1) : navigate('/owner/dashboard'); }}
+            onClick={() => { haptics.tap(); if (window.history.length > 1) { navigate(-1); } else { navigate('/owner/dashboard'); } }}
             className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black uppercase tracking-tight transition-all active:scale-95"
             style={{
               background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',

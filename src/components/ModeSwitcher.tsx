@@ -15,7 +15,7 @@ interface ModeSwitcherProps {
 function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'black-matte';
   const lastClickTime = useRef(0);
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
@@ -43,9 +43,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   }, [activeMode, handleModeSwitch]);
 
   const sizeClasses = {
-    sm: 'h-8 text-[10px]',
-    md: 'h-10 text-[11px]',
-    lg: 'h-11 text-xs',
+    sm: 'h-7 text-[10px]',
+    md: 'h-8 text-xs',
+    lg: 'h-9 text-sm',
   };
 
   if (variant === 'icon') {
@@ -203,16 +203,16 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}
           {isSwitching ? (
-            <Loader2 className="h-3 w-3 animate-spin text-white" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
           ) : activeMode === 'client' ? (
             <>
-              <User strokeWidth={4} className="h-3 w-3 text-teal-400" />
-              <span className="font-extrabold text-[9px] text-teal-400 uppercase tracking-tighter">Client Side</span>
+              <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
+              <span className="font-black text-teal-400 uppercase tracking-tight">Client Side</span>
             </>
           ) : (
             <>
-              <UserCog strokeWidth={4} className="h-3 w-3 text-orange-400" />
-              <span className="font-extrabold text-[9px] text-orange-400 uppercase tracking-tighter">Business Side</span>
+              <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
+              <span className="font-black text-orange-400 uppercase tracking-tight">Business Side</span>
             </>
           )}
         </motion.div>

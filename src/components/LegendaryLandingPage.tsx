@@ -138,14 +138,24 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Slogan */}
+      {/* Tagline */}
       <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-48 text-white/40 text-[10px] uppercase tracking-[0.5em] font-medium"
+        className="-mt-4 relative z-10 cursor-pointer"
+        onTap={handleTap}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
       >
-        Find Your Perfect Rental
+        <span
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+          style={{
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          luxury meets precision
+        </span>
       </motion.p>
 
       {/* Info chips / Supplementary elements */}
@@ -172,11 +182,38 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
+      {/* Direct Entry Button - Fixes issue where users got stuck on Splash Screen */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+        className="mt-8 flex flex-col items-center w-full max-w-xs z-20"
+      >
+        <Button
+          onClick={handleTap}
+          size="lg"
+          className="w-full h-14 rounded-full text-base font-bold shadow-[0_0_30px_rgba(228,0,124,0.4)] bg-gradient-to-r from-[#E4007C] to-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all text-black hover:text-black border-none"
+        >
+          Get Started
+        </Button>
+        <div className="mt-4 flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
+          <motion.div
+            animate={{ x: [0, 8, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex items-center gap-1"
+          >
+            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
+          </motion.div>
+          <span className="text-xs font-medium tracking-wide">or swipe right</span>
+        </div>
+      </motion.div>
+
       {/* Effects toggle */}
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.05] backdrop-blur-md border border-white/10 shadow-2xl text-white/40 text-sm font-bold active:bg-white/20 transition-colors hover:text-white"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}

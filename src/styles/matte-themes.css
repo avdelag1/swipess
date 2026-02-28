@@ -128,7 +128,7 @@
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
     --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.2);
-    --overlay: rgba(255, 255, 255, 0.85);
+    --overlay: rgba(255, 255, 255, 0);
 }
 
 /* THEME 4: RED MATTE (Bold Mexican spirit) */

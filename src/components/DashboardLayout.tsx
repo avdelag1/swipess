@@ -105,7 +105,7 @@ function clearOnboardingCache(): void {
 
 interface DashboardLayoutProps {
   children: ReactNode
-  userRole: 'client' | 'owner' | 'admin'
+  userRole: 'client' | 'owner'
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
@@ -223,7 +223,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         const { data, error } = await supabase
           .from('profiles')
           .select('onboarding_completed, full_name, city, age')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .maybeSingle();
 
         if (error) {
@@ -572,7 +572,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onMessageActivationsClick={handleMessageActivationsClick}
           onAISearchClick={() => setIsAISearchOpen(true)}
           showFilters={isOnDiscoveryPage}
-          userRole={userRole === 'admin' ? 'client' : userRole}
+          userRole={userRole}
           transparent={isImmersiveDashboard}
           hideOnScroll={true}
           title={pageTitle}
@@ -646,7 +646,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <MessageActivationPackages
           isOpen={showMessageActivations}
           onClose={() => setShowMessageActivations(false)}
-          userRole={userRole === 'admin' ? 'client' : userRole}
+          userRole={userRole}
         />
       </Suspense>
 
