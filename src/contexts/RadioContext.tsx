@@ -40,7 +40,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     skin: 'modern',
     favorites: [],
-    miniPlayerMode: 'expanded',
+    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'expanded',
   });
 
   // Set loading to false immediately - don't block UI for preferences
@@ -418,6 +418,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
     setState(prev => ({ ...prev, miniPlayerMode: mode }));
+    localStorage.setItem('swipess_radio_mini_player_mode', mode);
   }, []);
 
   const value = {
