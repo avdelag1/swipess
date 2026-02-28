@@ -444,9 +444,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
           <CardImage src={currentImage} alt={listing.title || 'Listing'} />
 
-          {/* Image dots - Positioned below header area */}
+          {/* Image dots - Positioned below floating header */}
           {imageCount > 1 && (
-            <div className="absolute top-16 left-4 right-4 z-25 flex gap-1" style={{ marginTop: 'env(safe-area-inset-top, 0px)' }}>
+            <div className="absolute left-4 right-4 flex gap-1" style={{ top: 'calc(env(safe-area-inset-top, 0px) + 60px)', zIndex: 25 }}>
               {images.map((_, idx) => (
                 <div
                   key={idx}
