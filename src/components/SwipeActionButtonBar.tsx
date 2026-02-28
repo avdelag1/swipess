@@ -26,6 +26,7 @@ import { memo, useCallback, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Share2, RotateCcw, MessageCircle, Flame, ThumbsDown } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 interface SwipeActionButtonBarProps {
   onLike: () => void;
