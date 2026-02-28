@@ -161,7 +161,7 @@ const Index = () => {
       const { data } = await supabase
         .from('profiles')
         .select('active_mode')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (data?.active_mode === 'client' || data?.active_mode === 'owner') {

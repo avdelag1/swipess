@@ -170,7 +170,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
-        .eq('id', user.id)
+         .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
@@ -215,7 +215,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
-      await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
+      await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
