@@ -83,9 +83,10 @@ const LandingView = memo(({
     <motion.div
       key="landing"
       className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      style={{ paddingBottom: '10vh' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
     >
       {/* Swipable logo */}
       <motion.div
@@ -150,6 +151,17 @@ const LandingView = memo(({
           ))}
         </div>
       </motion.div>
+
+      {/* Tap hint */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="mt-7 text-white/25 text-xs tracking-widest uppercase cursor-pointer select-none"
+        onClick={handleTap}
+      >
+        tap to enter
+      </motion.p>
 
       {/* Effects toggle */}
       <motion.button
@@ -292,21 +304,20 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   // stagger variants for form elements
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
+    visible: { transition: { staggerChildren: 0.03, delayChildren: 0.06 } },
   };
   const itemVariants = {
-    hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as const } },
   };
 
   return (
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
-      style={{ background: '#050505' }}
-      initial={{ x: 20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ x: 20, opacity: 0, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
+      initial={{ y: 24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
+      exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
       <StarFieldBackground />
 
@@ -574,7 +585,7 @@ function LegendaryLandingPage() {
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
       <LandingBackgroundEffects mode={effectMode} />
 
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         {view === 'landing' ? (
           <LandingView
             key="landing"

@@ -134,10 +134,14 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       pointerRef.current.isActive = true;
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
+      // Spawn exactly 1 shooting star immediately on every tap (stars mode only)
+      if (mode === 'stars') {
+        spawnShootingStar(e.clientX, e.clientY);
+      }
     };
     const handlePointerUp = () => {
       pointerRef.current.isDown = false;
-      setTimeout(() => { pointerRef.current.isActive = false; }, 2000);
+      pointerRef.current.isActive = false;
     };
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -145,37 +149,24 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('pointercancel', handlePointerUp);
 
-    const spawnShootingStars = (x: number, y: number) => {
-      // Spawn 1-2 shooting stars when tapped
-      const count = Math.random() < 0.5 ? 1 : 2;
-      for (let i = 0; i < count; i++) {
-        // Random direction outward
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 8 + 6;
-        shootingStarsRef.current.push({
-          x,
-          y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          age: 0,
-          maxAge: Math.random() * 1 + 0.8, // 0.8-1.8 seconds
-          length: Math.random() * 30 + 40, // 40-70px tail
-        });
-      }
+    const spawnShootingStar = (x: number, y: number) => {
+      // Always exactly 1 shooting star per tap
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 8 + 6;
+      shootingStarsRef.current.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        age: 0,
+        maxAge: Math.random() * 1 + 0.8,
+        length: Math.random() * 30 + 40,
+      });
     };
 
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);
       time += 0.5;
-      const { x: px, y: py, isDown } = pointerRef.current;
-
-      // Spawn shooting stars on tap
-      if (isDown && pointerRef.current.isActive) {
-        // Reduce spawn frequency to avoid too many
-        if (Math.random() < 0.15) {
-          spawnShootingStars(px, py);
-        }
-      }
 
       // Draw regular twinkling stars (no interaction)
       for (const star of starsRef.current) {
