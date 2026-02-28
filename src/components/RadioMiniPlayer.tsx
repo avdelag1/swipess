@@ -128,34 +128,24 @@ export function RadioMiniPlayer() {
           <motion.div
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="flex items-center gap-2 px-3 py-2 bg-black/40 backdrop-blur-2xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border border-white/10 max-w-[280px] ring-1 ring-white/10"
+            className="flex items-center gap-2 px-2.5 py-1.5 bg-black/60 backdrop-blur-2xl rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6)] border border-white/20 max-w-[300px] ring-1 ring-white/10"
           >
             {/* Draggable indicator */}
-            <div className="flex items-center justify-center opacity-30 hover:opacity-100 transition-opacity pr-1">
-              <GripVertical className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-center opacity-40 hover:opacity-100 transition-opacity pr-1">
+              <GripVertical className="w-3.5 h-3.5 text-white" />
             </div>
 
-            {/* Close Button */}
+            {/* Close Button (Replaces Power) */}
             <button
               onClick={handleClose}
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center text-white/70 hover:text-white hover:bg-red-500/40 transition-all shadow-lg z-[60]"
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all active:scale-90"
+              title="Close Radio"
             >
-              <X className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Power Button */}
-            <button
-              onClick={handleTogglePower}
-              className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90",
-                state.isPoweredOn ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-white/10 text-white/40"
-              )}
-            >
-              <Power className="w-4 h-4" />
+              <X className="w-4.5 h-4.5" />
             </button>
 
             {/* Album Art / Station Orb */}
-            <div className="relative w-10 h-10 rounded-full p-[2px] bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+            <div className="relative w-9 h-9 rounded-full p-[1.5px] bg-gradient-to-br from-blue-400 to-purple-500 shadow-lg">
               <div className="w-full h-full rounded-full bg-black overflow-hidden flex items-center justify-center">
                 {state.currentStation.albumArt ? (
                   <img src={state.currentStation.albumArt} alt="" className="w-full h-full object-cover" />
@@ -173,39 +163,39 @@ export function RadioMiniPlayer() {
               onClick={handleNavigateToRadio}
               className="flex flex-col min-w-0 flex-1 text-left px-1"
             >
-              <span className="text-[11px] font-black text-white truncate tracking-tight uppercase">
+              <span className="text-[10px] font-black text-white truncate tracking-tight uppercase">
                 {state.currentStation.name}
               </span>
-              <span className="text-[9px] font-bold text-blue-400/80 truncate uppercase tracking-widest">
-                {state.currentStation.genre || 'LIVE STATION'}
+              <span className="text-[8px] font-bold text-blue-400/90 truncate uppercase tracking-widest leading-none mt-0.5">
+                {state.currentStation.genre || 'LIVE'}
               </span>
             </button>
 
             {/* Controls */}
-            <div className="flex items-center gap-1 pr-1">
+            <div className="flex items-center gap-0.5 pr-0.5">
               <button
                 onClick={handlePrev}
-                className="w-7 h-7 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                className="w-7 h-7 flex items-center justify-center text-white/60 hover:text-white transition-colors"
               >
-                <SkipBack className="w-4 h-4 fill-current" />
+                <SkipBack className="w-3.5 h-3.5 fill-current" />
               </button>
 
               <button
                 onClick={handleTogglePlay}
-                className="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center shadow-lg transition-transform active:scale-90"
+                className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-lg transition-transform active:scale-95"
               >
                 {state.isPlaying ? (
-                  <Pause className="w-4 h-4 fill-current" />
+                  <Pause className="w-3.5 h-3.5 fill-current" />
                 ) : (
-                  <Play className="w-4 h-4 fill-current ml-0.5" />
+                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
                 )}
               </button>
 
               <button
                 onClick={handleNext}
-                className="w-7 h-7 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                className="w-7 h-7 flex items-center justify-center text-white/60 hover:text-white transition-colors"
               >
-                <SkipForward className="w-4 h-4 fill-current" />
+                <SkipForward className="w-3.5 h-3.5 fill-current" />
               </button>
             </div>
           </motion.div>
