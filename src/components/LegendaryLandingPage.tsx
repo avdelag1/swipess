@@ -101,11 +101,16 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <img
-          src={swipessLogo}
-          alt="Swipess"
-          className="w-[96vw] max-w-[600px] sm:max-w-[680px] md:max-w-[760px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
-        />
+        <motion.div
+          animate={{ scale: [1, 1.06, 1, 1.06, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+        >
+          <img
+            src={swipessLogo}
+            alt="Swipess"
+            className="w-[65vw] max-w-[380px] sm:max-w-[450px] md:max-w-[520px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+          />
+        </motion.div>
       </motion.div>
 
       {/* Tagline */}
@@ -286,13 +291,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLoading(true);
-    try {
-      const { error } = await signInWithOAuth(provider, 'client');
-      if (error) throw error;
-    } catch (error: any) {
-      toast({ title: 'Google Sign-In Failed', description: error.message || 'Failed to sign in with Google', variant: 'destructive' });
+    const { error } = await signInWithOAuth(provider, 'client');
+    if (error) {
       setIsLoading(false);
     }
+    // signInWithOAuth already calls toast.error() on failure — no duplicate toast.
   };
 
   const switchMode = () => {
@@ -583,7 +586,7 @@ function LegendaryLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={effectMode} />
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
