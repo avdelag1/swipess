@@ -93,7 +93,7 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(255, 255, 255, 1)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
     : '1.5px solid rgba(0, 0, 0, 0.1)';
@@ -103,7 +103,7 @@ function TopBarComponent({
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
-    : 'bg-gradient-to-b from-white/95 via-white/60 to-transparent border-transparent';
+    : 'bg-white border-transparent';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
