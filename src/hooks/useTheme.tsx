@@ -24,7 +24,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           const { data, error } = await supabase
             .from('profiles')
             .select('theme_preference')
-            .eq('id', user.id)
+            .eq('user_id', user.id)
             .maybeSingle();
 
           if (error) throw error;
@@ -51,8 +51,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Remove all theme classes safely
     root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
 
-    // Add current theme class + 'dark' variant to keep base components dark
-    root.classList.add(theme, 'dark');
+    // Add current theme class
+    root.classList.add(theme);
+    
+    // Only add 'dark' class for dark themes
+    if (theme !== 'white-matte') {
+      root.classList.add('dark');
+    }
 
     // Update status bar base color according to theme
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -78,7 +83,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         const { error } = await supabase
           .from('profiles')
           .update({ theme_preference: newTheme })
-          .eq('id', user.id);
+          .eq('user_id', user.id);
 
         if (error) throw error;
       } catch (error) {
