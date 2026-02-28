@@ -15,6 +15,16 @@ interface Star {
   vy: number;
 }
 
+interface ShootingStar {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  age: number;
+  maxAge: number;
+  length: number;
+}
+
 interface Orb {
   x: number;
   y: number;
@@ -31,6 +41,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const animRef = useRef<number>(0);
   const starsRef = useRef<Star[]>([]);
   const orbsRef = useRef<Orb[]>([]);
+  const shootingStarsRef = useRef<ShootingStar[]>([]);
   const initializedRef = useRef<EffectMode | null>(null);
 
   // Track pointer for interactivity
@@ -134,74 +145,120 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('pointercancel', handlePointerUp);
 
+    const spawnShootingStars = (x: number, y: number) => {
+      // Spawn 1-2 shooting stars when tapped
+      const count = Math.random() < 0.5 ? 1 : 2;
+      for (let i = 0; i < count; i++) {
+        // Random direction outward
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 6;
+        shootingStarsRef.current.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          age: 0,
+          maxAge: Math.random() * 1 + 0.8, // 0.8-1.8 seconds
+          length: Math.random() * 30 + 40, // 40-70px tail
+        });
+      }
+    };
+
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);
       time += 0.5;
       const { x: px, y: py, isDown } = pointerRef.current;
 
-      const pullRadius = isDown ? 500 : 250;
-      const pullStrength = isDown ? 0.12 : 0.04;
-
-      for (const star of starsRef.current) {
-        // Physical forces
-        const dx = px - star.x;
-        const dy = py - star.y;
-        const distSq = dx * dx + dy * dy;
-        const dist = Math.sqrt(distSq);
-
-        if (dist < pullRadius && pointerRef.current.isActive) {
-          // Snappy magnetism
-          const force = (pullRadius - dist) / pullRadius;
-          // Apply inverse square-ish pull for tighter following near finger
-          const strength = force * force * pullStrength;
-          star.vx += dx * strength;
-          star.vy += dy * strength;
-        } else {
-          // Return to home position with snappier spring
-          const bdx = star.baseX - star.x;
-          const bdy = star.baseY - star.y;
-          star.vx += bdx * 0.035;
-          star.vy += bdy * 0.035;
+      // Spawn shooting stars on tap
+      if (isDown && pointerRef.current.isActive) {
+        // Reduce spawn frequency to avoid too many
+        if (Math.random() < 0.15) {
+          spawnShootingStars(px, py);
         }
+      }
 
-        // Damping - higher for more controlled, less 'slippery' feel
-        star.vx *= 0.82;
-        star.vy *= 0.82;
+      // Draw regular twinkling stars (no interaction)
+      for (const star of starsRef.current) {
+        // Just return to home position naturally
+        const bdx = star.baseX - star.x;
+        const bdy = star.baseY - star.y;
+        star.vx += bdx * 0.05;
+        star.vy += bdy * 0.05;
 
-        // Apply velocities
+        star.vx *= 0.85;
+        star.vy *= 0.85;
+
         star.x += star.vx;
         star.y += star.vy;
 
         const noise = Math.random() * 0.2;
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.5 + 0.5;
 
-        // Stars get brighter when moving fast
-        const speed = Math.sqrt(star.vx * star.vx + star.vy * star.vy);
-        const speedGlow = Math.min(speed * 0.5, 1);
-
-        const alpha = Math.min(star.opacity * (twinkle * 0.8 + noise) + speedGlow, 1);
+        const alpha = Math.min(star.opacity * (twinkle * 0.8 + noise), 1);
 
         if (alpha < 0.01) continue;
 
         ctx.beginPath();
-        // Slightly elongate based on velocity
-        if (speed > 1) {
-          const angle = Math.atan2(star.vy, star.vx);
-          ctx.ellipse(star.x, star.y, star.size + speed * 0.2, star.size, angle, 0, Math.PI * 2);
-        } else {
-          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        }
-
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
         ctx.fill();
+      }
 
-        // Add subtle glow to fast moving stars near finger
-        if (speedGlow > 0.2) {
-          ctx.shadowBlur = 10;
-          ctx.shadowColor = 'white';
-          ctx.fill();
-          ctx.shadowBlur = 0;
+      // Draw and update shooting stars
+      for (let i = shootingStarsRef.current.length - 1; i >= 0; i--) {
+        const ss = shootingStarsRef.current[i];
+        ss.age += 0.016; // ~60fps
+
+        if (ss.age >= ss.maxAge) {
+          shootingStarsRef.current.splice(i, 1);
+          continue;
         }
+
+        // Progress of the shooting star (0 to 1)
+        const progress = ss.age / ss.maxAge;
+
+        // Move the shooting star
+        ss.x += ss.vx;
+        ss.y += ss.vy;
+
+        // Fade out towards the end
+        const fadeAlpha = 1 - (progress * 0.7);
+
+        // Draw shooting star with tail
+        const speed = Math.sqrt(ss.vx * ss.vx + ss.vy * ss.vy);
+        const angle = Math.atan2(ss.vy, ss.vx);
+
+        // Tail
+        const tailStartX = ss.x - Math.cos(angle) * ss.length;
+        const tailStartY = ss.y - Math.sin(angle) * ss.length;
+
+        const gradient = ctx.createLinearGradient(tailStartX, tailStartY, ss.x, ss.y);
+        gradient.addColorStop(0, `rgba(255, 255, 255, 0)`);
+        gradient.addColorStop(0.5, `rgba(200, 220, 255, ${fadeAlpha * 0.4})`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, ${fadeAlpha})`);
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(tailStartX, tailStartY);
+        ctx.lineTo(ss.x, ss.y);
+        ctx.stroke();
+
+        // Bright head of the shooting star
+        ctx.beginPath();
+        ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${fadeAlpha})`;
+        ctx.fill();
+
+        // Glow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = `rgba(255, 255, 255, ${fadeAlpha * 0.8})`;
+        ctx.beginPath();
+        ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 220, 180, ${fadeAlpha * 0.3})`;
+        ctx.fill();
+        ctx.shadowBlur = 0;
       }
     };
 
