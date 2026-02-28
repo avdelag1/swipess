@@ -42,10 +42,7 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const LegalPage = lazy(() => import("./pages/LegalPage"));
-const AGLPage = lazy(() => import("./pages/AGLPage"));
-
 // Info pages
-const AboutPage = lazy(() => import("./pages/AboutPage"));
 const FAQClientPage = lazy(() => import("./pages/FAQClientPage"));
 const FAQOwnerPage = lazy(() => import("./pages/FAQOwnerPage"));
 
@@ -112,12 +109,6 @@ const OwnerProfileCamera = lazy(() => import("./pages/OwnerProfileCamera"));
 const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
-// Test pages
-const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
-const AITestPage = lazy(() => import("./pages/AITestPage"));
-
-// Tutorial page - public onboarding experience
-const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -258,9 +249,6 @@ const App = () => (
                                       <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
                                       <Route path="/owner/filters" element={<OwnerFilters />} />
 
-                                      {/* AI Test route */}
-                                      <Route path="/ai-test" element={<AITestPage />} />
-
                                       {/* Shared routes (both roles) */}
                                       <Route path="/messages" element={<MessagingDashboard />} />
                                       <Route path="/notifications" element={<NotificationsPage />} />
@@ -277,25 +265,15 @@ const App = () => (
                                     {/* Legal Pages - Public Access */}
                                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                     <Route path="/terms-of-service" element={<TermsOfService />} />
-                                    <Route path="/agl" element={<AGLPage />} />
                                     <Route path="/legal" element={<LegalPage />} />
 
                                     {/* Info Pages - Public Access */}
-                                    <Route path="/about" element={<AboutPage />} />
                                     <Route path="/faq/client" element={<FAQClientPage />} />
                                     <Route path="/faq/owner" element={<FAQOwnerPage />} />
 
                                     {/* Public Preview Pages - Shareable Links */}
                                     <Route path="/profile/:id" element={<PublicProfilePreview />} />
                                     <Route path="/listing/:id" element={<PublicListingPreview />} />
-
-                                    {/* Test Pages — dev only */}
-                                    {import.meta.env.DEV && (
-                                      <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
-                                    )}
-
-                                    {/* Tutorial / Onboarding - Public Access */}
-                                    <Route path="/tutorial" element={<TutorialSwipePage />} />
 
                                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                                     <Route path="*" element={<NotFound />} />
