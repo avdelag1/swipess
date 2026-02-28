@@ -79,14 +79,14 @@ function TopBarComponent({
   const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme === 'black-matte';
+  const isDark = theme !== 'white-matte';
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(0, 0, 0, 0.07)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
-    : '1.5px solid rgba(0, 0, 0, 0.1)';
+    : '1.5px solid rgba(0, 0, 0, 0.15)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
     : '0 1px 3px rgba(0,0,0,0.06)';

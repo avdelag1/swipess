@@ -91,8 +91,8 @@
 
 /* THEME 3: WHITE MATTE — Clean, luxurious light mode */
 .white-matte {
-    /* Background colors - Crisp white palette */
-    --background: 0 0% 100%;
+    /* Background colors - Soft off-white palette (not pure white, avoids harsh contrast with dark cards) */
+    --background: 0 0% 96%;
     --foreground: 0 0% 5%;
     --card: 0 0% 98%;
     --card-foreground: 0 0% 5%;
@@ -111,7 +111,7 @@
     --ring: 0 100% 60%;
 
     /* Modern theme variables */
-    --bg-primary: 0 0% 100%;
+    --bg-primary: 0 0% 96%;
     --bg-secondary: 0 0% 98%;
     --bg-tertiary: 0 0% 96%;
     --text-primary: 0 0% 5%;
