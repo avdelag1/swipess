@@ -49,7 +49,8 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
     y: typeof window !== 'undefined' ? window.innerHeight / 2 : 0,
     isDown: false,
-    isActive: false // true if actively moving/touching recently
+    isActive: false, // true if actively moving/touching recently
+    lastDownTime: 0, // Track last tap time for shooting stars
   });
 
   const initStars = useCallback((w: number, h: number) => {
@@ -134,6 +135,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       pointerRef.current.isActive = true;
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
+      pointerRef.current.lastDownTime = Date.now();
     };
     const handlePointerUp = () => {
       pointerRef.current.isDown = false;
@@ -167,12 +169,13 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);
       time += 0.5;
-      const { x: px, y: py, isDown } = pointerRef.current;
+      const { x: px, y: py, isDown, lastDownTime } = pointerRef.current;
 
-      // Spawn shooting stars on tap
+      // Spawn shooting stars on every tap (check if recently tapped)
       if (isDown && pointerRef.current.isActive) {
-        // Reduce spawn frequency to avoid too many
-        if (Math.random() < 0.15) {
+        const timeSinceDown = Date.now() - lastDownTime;
+        // Spawn only once per tap (within first 50ms of tap)
+        if (timeSinceDown < 50) {
           spawnShootingStars(px, py);
         }
       }
