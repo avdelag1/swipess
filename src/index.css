@@ -9,16 +9,14 @@
 
 
 /* Hide scrollbar for horizontal scrolling action buttons */
-.scrollbar-hide,
-.no-scrollbar {
+.scrollbar-hide {
   -ms-overflow-style: none;
   /* Internet Explorer 10+ */
   scrollbar-width: none;
   /* Firefox */
 }
 
-.scrollbar-hide::-webkit-scrollbar,
-.no-scrollbar::-webkit-scrollbar {
+.scrollbar-hide::-webkit-scrollbar {
   display: none;
   /* Safari and Chrome */
 }

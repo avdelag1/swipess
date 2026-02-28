@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap, ShoppingBag, Building2, Users } from 'lucide-react';
+import { AISearchDialog } from '@/components/AISearchDialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,7 @@ const categories: {
 export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showAISearch, setShowAISearch] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme();
 
@@ -166,9 +168,9 @@ export default function ClientFilters() {
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Let our AI Listing Assistant help you find the perfect match based on your preferences and viewing history.
                 </p>
-                <Button variant="default" className="rounded-full px-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
-                  Try AI Search
-                </Button>
+                 <Button variant="default" className="rounded-full px-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20" onClick={() => setShowAISearch(true)}>
+                   Try AI Search
+                 </Button>
               </div>
             </div>
           </section>
@@ -314,6 +316,8 @@ export default function ClientFilters() {
           </motion.button>
         </div>
       </div>
+
+      <AISearchDialog isOpen={showAISearch} onClose={() => setShowAISearch(false)} userRole="client" />
     </div>
   );
 }

@@ -35,7 +35,7 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .single();
 
       if (profileError) throw profileError;

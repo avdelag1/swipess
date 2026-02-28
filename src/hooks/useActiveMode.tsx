@@ -103,7 +103,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('active_mode')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
@@ -141,7 +141,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
           active_mode: newMode,
           updated_at: new Date().toISOString()
         })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
 
       // Update query cache
       queryClient.setQueryData(['active-mode', user.id], newMode);
@@ -332,7 +332,7 @@ export function useActiveModeQuery(userId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select('active_mode')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (error) {
