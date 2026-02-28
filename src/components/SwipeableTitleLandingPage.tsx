@@ -20,7 +20,6 @@ import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -40,12 +39,9 @@ const checkPasswordStrength = (password: string) => {
 
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
-  onEnterAuth, effectMode, cycleEffect, effectLabel,
+  onEnterAuth,
 }: {
   onEnterAuth: () => void;
-  effectMode: EffectMode;
-  cycleEffect: () => void;
-  effectLabel: string;
 }) => {
   const x = useMotionValue(0);
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
@@ -168,15 +164,6 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Effects toggle */}
-      <motion.button
-        onClick={cycleEffect}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
-        aria-label="Toggle background effect"
-      >
-        {effectLabel}
-      </motion.button>
     </motion.div>
   );
 });
@@ -564,23 +551,16 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function SwipeableTitleLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
-
-  const cycleEffect = () => setEffectMode((p) => p === 'orbs' ? 'stars' : p === 'stars' ? 'off' : 'orbs');
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={effectMode} />
+      <LandingBackgroundEffects mode="stars" />
 
       <AnimatePresence mode="sync">
         {view === 'landing' ? (
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
-            effectMode={effectMode}
-            cycleEffect={cycleEffect}
-            effectLabel={effectLabel}
           />
         ) : (
           <AuthView
