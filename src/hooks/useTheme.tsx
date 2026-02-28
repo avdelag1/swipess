@@ -51,8 +51,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     // Remove all theme classes safely
     root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
 
-    // Add current theme class + 'dark' variant to keep base components dark
-    root.classList.add(theme, 'dark');
+    // Add current theme class + 'dark' variant ONLY for dark-based themes
+    if (theme === 'white-matte') {
+      root.classList.add(theme);
+    } else {
+      root.classList.add(theme, 'dark');
+    }
 
     // Update status bar base color according to theme
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');

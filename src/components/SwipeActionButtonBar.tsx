@@ -107,6 +107,9 @@ const ActionButton = memo(({
     onClick();
   }, [disabled, variant, onClick]);
 
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
+
   // Compute sizes
   const buttonSize = size === 'large' ? LARGE_SIZE : SMALL_SIZE;
   const iconSize = size === 'large' ? LARGE_ICON_SIZE : SMALL_ICON_SIZE;
@@ -166,10 +169,7 @@ const ActionButton = memo(({
       },
     };
     return configs[variant] || configs.default;
-  }, [variant]);
-
-  const { theme } = useTheme();
-  const isWhiteMatte = theme === 'white-matte';
+  }, [variant, isWhiteMatte]);
 
   return (
     <motion.button
