@@ -28,3 +28,20 @@ yarn-error.log*
 # Capacitor build outputs
 android/
 ios/
+
+# Junk/leftover files
+.commit-*.txt
+build_final.txt
+build_fresh.txt
+dev_output.log
+lint-errors.txt
+lint_final.txt
+lint_fresh.txt
+temp_build_log.txt
+tsc_output.txt
+*.sql
+ACTION_ITEMS.md
+AUDIT_REPORT.md
+FULL_CODEBASE_AUDIT.md
+antigravity-awesome-skills/
+.lovable/
