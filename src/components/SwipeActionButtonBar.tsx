@@ -87,6 +87,8 @@ const ActionButton = memo(({
   children: React.ReactNode;
   ariaLabel: string;
 }) => {
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
   const [isPressed, setIsPressed] = useState(false);
 
   const handleClick = useCallback((e: React.MouseEvent) => {

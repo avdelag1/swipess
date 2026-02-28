@@ -18,33 +18,33 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "/swipes-s-flame.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "/swipes-s-flame.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-1024.png",
+      "src": "/swipes-s-flame.svg",
       "sizes": "1024x1024",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "/icons/maskable-192.png",
+      "src": "/swipes-s-flame.svg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/maskable-512.png",
+      "src": "/swipes-s-flame.svg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "maskable"
     }
   ],

@@ -5,11 +5,13 @@ import swipessLogo from '@/assets/swipess-logo-transparent.png';
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
   className?: string;
+  onClick?: () => void;
 }
 
 function SwipessLogoComponent({
   size = 'md',
   className,
+  onClick,
 }: SwipessLogoProps) {
   // Map our size keys to pixel heights that maintain the premium look
   const heightMap = {
@@ -24,7 +26,10 @@ function SwipessLogoComponent({
   };
 
   return (
-    <div className={cn('relative inline-flex items-center justify-center overflow-visible', className)}>
+    <div
+      className={cn('relative inline-flex items-center justify-center overflow-visible', className)}
+      onClick={onClick}
+    >
       <img
         src={swipessLogo}
         alt="Swipess"
