@@ -79,7 +79,7 @@ function TopBarComponent({
   const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'black-matte';
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
@@ -235,7 +235,7 @@ function TopBarComponent({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-1 -right-1 text-white text-[7px] font-bold rounded-full min-w-[12px] h-[12px] flex items-center justify-center ring-1 ring-background"
+                    className="absolute -top-1 -right-1 text-white text-[7px] font-bold rounded-full min-w-[12px] h-[12px] flex items-center justify-center ring-1 ring-[#1C1C1E]"
                     style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                   >
                     {notificationCount > 99 ? '99+' : notificationCount}

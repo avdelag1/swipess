@@ -107,33 +107,25 @@ const LandingView = memo(({
         />
       </motion.div>
 
-      {/* Tagline - Reordered to flow with logo geometry */}
-      <motion.div
-        className="relative z-10 -mt-2 sm:-mt-4 md:-mt-6 w-full max-w-[600px] sm:max-w-xl md:max-w-2xl flex flex-col items-end cursor-pointer group select-none"
+      {/* Tagline */}
+      <motion.p
+        className="-mt-4 relative z-10 cursor-pointer"
         onTap={handleTap}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xl sm:text-2xl md:text-3xl font-black italic tracking-tighter mr-[28%] bg-clip-text text-transparent bg-gradient-to-r from-[#E4007C] to-[#ea580c] uppercase"
+        <span
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
           style={{
-            filter: 'drop-shadow(0 0 10px rgba(228,0,124,0.2))',
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
           }}
         >
-          luxury meets
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-3xl sm:text-5xl md:text-6xl font-black italic tracking-tighter mr-[4%] -mt-1 sm:-mt-2 bg-clip-text text-transparent bg-gradient-to-r from-[#ea580c] to-[#FFD700] uppercase"
-          style={{
-            filter: 'drop-shadow(0 0 15px rgba(234,88,12,0.3))',
-          }}
-        >
-        </motion.div>
-      </motion.div>
+          luxury meets precision
+        </span>
+      </motion.p>
 
       {/* Info chips */}
       <motion.div
@@ -159,11 +151,38 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
+      {/* Direct Entry Button - Fixes issue where users got stuck on Splash Screen */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6, duration: 0.4 }}
+        className="mt-8 flex flex-col items-center w-full max-w-xs z-20"
+      >
+        <Button
+          onClick={handleTap}
+          size="lg"
+          className="w-full h-14 rounded-full text-base font-bold shadow-[0_0_30px_rgba(228,0,124,0.4)] bg-gradient-to-r from-[#E4007C] to-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all text-black hover:text-black border-none"
+        >
+          Get Started
+        </Button>
+        <div className="mt-4 flex items-center gap-1.5 text-white/30 cursor-pointer" onClick={handleTap}>
+          <motion.div
+            animate={{ x: [0, 8, 0] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+            className="flex items-center gap-1"
+          >
+            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
+          </motion.div>
+          <span className="text-xs font-medium tracking-wide">or swipe right</span>
+        </div>
+      </motion.div>
+
       {/* Effects toggle */}
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
