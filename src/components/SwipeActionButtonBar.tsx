@@ -113,6 +113,9 @@ const ActionButton = memo(({
   const iconSize = size === 'large' ? LARGE_ICON_SIZE : SMALL_ICON_SIZE;
   const isPrimary = size === 'large';
 
+  const { theme } = useTheme();
+  const isWhiteMatte = theme === 'white-matte';
+
   // Premium color configurations - TINDER STYLE with transparent backgrounds
   // Only borders and icons provide visual definition, gradient overlay does the rest
   const variantConfig = useMemo(() => {
@@ -167,10 +170,7 @@ const ActionButton = memo(({
       },
     };
     return configs[variant] || configs.default;
-  }, [variant]);
-
-  const { theme } = useTheme();
-  const isWhiteMatte = theme === 'white-matte';
+  }, [variant, isWhiteMatte]);
 
   return (
     <motion.button
