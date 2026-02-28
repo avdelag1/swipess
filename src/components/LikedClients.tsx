@@ -213,7 +213,7 @@ export function LikedClients() {
 
   return (
     <div className="w-full bg-black min-h-screen pb-32">
-      <div className="p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
         <PageHeader
           title="Liked Clients"
           subtitle="Profiles you've matched with"
