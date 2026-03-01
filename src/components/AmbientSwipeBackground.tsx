@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useTheme } from '@/hooks/useTheme';
-import { cn } from '@/lib/utils';
 
 interface BackgroundCard {
   id: string;
@@ -79,8 +77,6 @@ export const AmbientSwipeBackground: React.FC<AmbientSwipeBackgroundProps> = ({
   isPaused = false,
   className = '',
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
   const [isEnabled, setIsEnabled] = useState(true);
   const [cards] = useState<BackgroundCard[]>(() =>
     // Generate 4 cards per lane for continuous coverage without gaps
@@ -145,12 +141,9 @@ export const AmbientSwipeBackground: React.FC<AmbientSwipeBackgroundProps> = ({
         opacity: 1,
       }}
     >
-      {/* Subtle overlay to ensure background cards don't compete with main card - theme aware */}
+      {/* Subtle dark overlay to ensure background cards don't compete with main card */}
       <div
-        className={cn(
-          "absolute inset-0 transition-colors duration-500",
-          isDark ? "bg-black/35" : "bg-white/40"
-        )}
+        className="absolute inset-0 bg-black/35"
         style={{ zIndex: 1 }}
       />
 

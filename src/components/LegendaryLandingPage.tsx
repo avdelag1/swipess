@@ -4,7 +4,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X, ChevronRight
+  ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,11 +83,12 @@ const LandingView = memo(({
     <motion.div
       key="landing"
       className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      style={{ paddingBottom: '10vh' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
     >
-      {/* Swipable text title */}
+      {/* Swipable logo */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -98,85 +99,80 @@ const LandingView = memo(({
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative"
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <div className="relative inline-block">
-          {/* Main Title "swipes" */}
-          <h1 className="text-8xl sm:text-9xl md:text-[12rem] font-black italic tracking-[-0.08em] text-white leading-none">
-            swipes
-          </h1>
-
-          {/* Subtitle Alignment Container */}
-          <div className="absolute inset-x-0 top-full mt-4 flex flex-col items-start px-[0.1em]">
-            <div className="flex w-full items-start justify-between">
-              {/* "luxury world" centered below "sw i" */}
-              <div className="flex flex-col items-center ml-[0.2em]">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#E4007C] to-[#ea580c]">
-                  luxury
-                </span>
-                <span className="text-xs sm:text-sm md:text-base font-bold tracking-[0.4em] uppercase text-white/60 -mt-1">
-                  world
-                </span>
-              </div>
-
-              {/* "meets precision" / "mid's precision" following "P" */}
-              <div className="flex flex-col items-start ml-[0.5em] mt-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm sm:text-base md:text-lg font-bold italic text-white/40 uppercase tracking-widest">
-                    meets
-                  </span>
-                  <span className="text-sm sm:text-base md:text-lg font-black italic text-orange-500 uppercase tracking-tighter">
-                    precision
-                  </span>
-                </div>
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#ea580c] to-[#FFD700] -mt-1">
-                  mid's precision
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <motion.div
+          animate={{ scale: [1, 1.06, 1, 1.06, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+        >
+          <img
+            src={swipessLogo}
+            alt="Swipess"
+            className="w-[65vw] max-w-[380px] sm:max-w-[450px] md:max-w-[520px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+          />
+        </motion.div>
       </motion.div>
 
-      {/* Slogan */}
+      {/* Tagline */}
       <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-48 text-white/40 text-[10px] uppercase tracking-[0.5em] font-medium"
+        className="-mt-4 relative z-10 cursor-pointer"
+        onTap={handleTap}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
       >
-        Find Your Perfect Rental
+        <span
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+          style={{
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          luxury meets precision
+        </span>
       </motion.p>
 
-      {/* Info chips / Supplementary elements */}
+      {/* Info chips */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.8 }}
-        className="mt-8"
+        transition={{ duration: 0.4, delay: 0.25 }}
+        className="mt-3"
       >
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {[
-            { icon: Shield, label: 'Security' },
-            { icon: MessageCircle, label: 'Chat' },
-            { icon: Sparkles, label: 'Global' },
+            { icon: Sparkles, label: 'Elite Assets' },
+            { icon: Shield, label: 'Encrypted Chat' },
+            { icon: Users, label: 'Global Network' },
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 px-4 py-2 bg-white/[0.05] backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.5)] group hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
             >
-              <Icon className="w-3.5 h-3.5 text-white/60 group-hover:text-orange-400 transition-colors" />
-              <span className="text-white/60 text-[10px] font-black uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
+              <Icon className="w-3.5 h-3.5 text-white/90" />
+              <span className="text-white/90 text-xs font-medium">{label}</span>
             </div>
           ))}
         </div>
       </motion.div>
 
+      {/* Tap hint */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="mt-7 text-white/25 text-xs tracking-widest uppercase cursor-pointer select-none"
+        onClick={handleTap}
+      >
+        tap to enter
+      </motion.p>
+
       {/* Effects toggle */}
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.05] backdrop-blur-md border border-white/10 shadow-2xl text-white/40 text-sm font-bold active:bg-white/20 transition-colors hover:text-white"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -295,13 +291,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLoading(true);
-    try {
-      const { error } = await signInWithOAuth(provider, 'client');
-      if (error) throw error;
-    } catch (error: any) {
-      toast({ title: 'Google Sign-In Failed', description: error.message || 'Failed to sign in with Google', variant: 'destructive' });
+    const { error } = await signInWithOAuth(provider, 'client');
+    if (error) {
       setIsLoading(false);
     }
+    // signInWithOAuth already calls toast.error() on failure — no duplicate toast.
   };
 
   const switchMode = () => {
@@ -313,21 +307,20 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   // stagger variants for form elements
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
+    visible: { transition: { staggerChildren: 0.03, delayChildren: 0.06 } },
   };
   const itemVariants = {
-    hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as const } },
   };
 
   return (
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
-      style={{ background: '#050505' }}
-      initial={{ x: 20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ x: 20, opacity: 0, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
+      initial={{ y: 24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
+      exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
       <StarFieldBackground />
 
@@ -343,7 +336,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="absolute top-4 left-4 z-20 text-white/60 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-95"
+        className="absolute top-4 left-4 z-20 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all duration-200 active:scale-95"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
         <ArrowLeft className="w-5 h-5" />
@@ -359,7 +352,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center mb-5">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-foreground">
               {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome to Swipess' : 'Create account'}
             </h2>
           </motion.div>
@@ -367,59 +360,34 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           {/* Card */}
           <motion.div
             variants={itemVariants}
-            className="bg-white/[0.02] border border-white/10 rounded-2xl p-5"
+            className="bg-card border border-border rounded-2xl p-5"
           >
-            {/* Google OAuth */}
-            {!isForgotPassword && !isNativePlatform && (
-              <motion.div variants={itemVariants}>
-                <Button
-                  type="button"
-                  onClick={(e) => handleOAuthSignIn(e, 'google')}
-                  disabled={isLoading}
-                  variant="outline"
-                  className="w-full h-12 font-semibold text-sm text-white hover:border-white/20 transition-all active:scale-[0.97]"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.06)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  {isLoading ? <><Loader className="w-4 h-4 mr-2 animate-spin" />Connecting...</> : <><FaGoogle className="w-4 h-4 mr-2 text-white" />Continue with Google</>}
-                </Button>
-                <div className="relative flex items-center my-4">
-                  <div className="flex-grow border-t border-white/10" />
-                  <span className="flex-shrink mx-3 text-white/30 text-xs font-medium">or</span>
-                  <div className="flex-grow border-t border-white/10" />
-                </div>
-              </motion.div>
-            )}
+            {/* Email-only auth (Google OAuth removed) */}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
               {/* Name (sign-up) */}
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants} className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                   <Input
                     type="text" value={name} onChange={(e) => setName(e.target.value)} required
                     placeholder="Full Name"
-                    className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                    className="pl-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                   />
                 </motion.div>
               )}
 
               {/* Email */}
               <motion.div variants={itemVariants} className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                 <Input
                   type="email"
                   name="email"
                   autoComplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
-                  className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                  className="pl-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                 />
               </motion.div>
 
@@ -427,23 +395,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
-                      className="pl-10 pr-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                      className="pl-10 pr-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   {!isLogin && password && (
                     <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                         <div className={`h-full ${passwordStrength.color} rounded-full transition-all duration-300`}
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
@@ -462,11 +430,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <div className="relative">
                       <input type="checkbox" checked={agreeToTerms} onChange={(e) => setAgreeToTerms(e.target.checked)} className="sr-only peer" />
-                      <div className="w-4 h-4 rounded border-2 border-white/30 bg-white/5 peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
+                      <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
                         {agreeToTerms && <Check className="w-2.5 h-2.5 text-white" />}
                       </div>
                     </div>
-                    <span className="text-xs text-white/50">
+                    <span className="text-xs text-muted-foreground">
                       I agree to the{' '}
                       <a href="/terms-of-service" target="_blank" className="text-orange-400 underline">Terms</a>{' & '}
                       <a href="/privacy-policy" target="_blank" className="text-orange-400 underline">Privacy</a>
@@ -482,11 +450,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <label className="flex items-center gap-2 cursor-pointer">
                       <div className="relative">
                         <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="sr-only peer" />
-                        <div className="w-4 h-4 rounded border-2 border-white/30 bg-white/5 peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
+                        <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
                           {rememberMe && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
                       </div>
-                      <span className="text-sm text-white/60">Remember me</span>
+                      <span className="text-sm text-muted-foreground">Remember me</span>
                     </label>
                     <button type="button" onClick={() => setIsForgotPassword(true)}
                       className="text-sm text-orange-400 hover:underline font-medium">
@@ -557,7 +525,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </div>
               </div>
               <button onClick={() => setShowErrorDetails(false)}
-                aria-label="Close error details"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                 <X className="w-4 h-4 text-white" />
               </button>
@@ -593,11 +560,10 @@ function LegendaryLandingPage() {
   const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden bg-background">
-      <div className="absolute inset-0 transition-colors duration-500 bg-background" />
-      <LandingBackgroundEffects mode={effectMode} />
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         {view === 'landing' ? (
           <LandingView
             key="landing"
