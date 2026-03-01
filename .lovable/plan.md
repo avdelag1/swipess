@@ -1,34 +1,30 @@
 
 
-## Plan: White Theme, Google Button Removal, Header Tightening, Logo Size
+## Plan: Fix Low-Contrast Text/Icons in White Theme
 
-### 1. Remove Google OAuth button from sign-in/sign-up
-**File:** `src/components/LegendaryLandingPage.tsx` (lines 365-389)
-- Remove the entire Google OAuth block including the "Continue with Google" button and the "or" divider
-- Keep only email/password authentication
+The screenshot shows the bottom navigation icons and labels are barely visible against the white background — they use `rgba(0,0,0,0.06)` backgrounds and `0.7` opacity labels which wash out in light mode.
 
-### 2. Make header buttons tighter (closer frames to icons/text)
+### 1. Fix BottomNavigation icon/label contrast for white-matte
+**File:** `src/components/BottomNavigation.tsx` (lines 168-177, 253-262)
+
+Changes to theme-aware color variables:
+- `iconColor` light: increase from `0.85` opacity to `1.0` → full black icons
+- `bgDefault` light: increase from `rgba(0,0,0,0.06)` to `rgba(0,0,0,0.08)` — slightly more visible pill bg
+- `bgActive` light: increase from `rgba(0,0,0,0.10)` to `rgba(0,0,0,0.14)`
+- `borderColor` light: keep as-is (already 1.0)
+- Label opacity for inactive items (line ~260): change from `0.7` to `0.85` in light mode
+- Inactive icon `strokeWidth`: already 3, fine
+
+### 2. Audit TopBar button contrast
 **File:** `src/components/TopBar.tsx`
-- Reduce padding on the Tokens button: `px-1.5 sm:px-2` → `px-1 sm:px-1.5`
-- Reduce height: `h-8 sm:h-9` → `h-7 sm:h-8`
-- Reduce notification button: `h-8 w-8 sm:h-9 sm:w-9` → `h-7 w-7 sm:h-8 sm:w-8`
-- Tighten the rounded corners from `rounded-lg` to `rounded-md` for a more compact look
+- Verify "TOKENS", "QUICK FILTER", notification bell text/icons use `text-foreground` not hardcoded light colors
+- The tier config (lines 26-47) uses hardcoded dark-theme colors like `text-purple-300` — these need light-mode variants
 
-### 3. Make SwipesS logo slightly bigger
-**File:** `src/components/SwipessLogo.tsx`
-- Change the `sm` size mapping from `h-8` (32px) to `h-9` (36px) so the logo in the TopBar is slightly larger
+### 3. Global text contrast safety net
+**File:** `src/components/TopBar.tsx`
+- Ensure popover content, mode switcher labels, and header text all use semantic `text-foreground` / `text-muted-foreground` tokens that resolve to dark colors in white-matte
 
-### 4. Ensure white theme renders across the full app
-**File:** `src/components/LegendaryLandingPage.tsx`
-- The landing page has hardcoded dark styles (`bg-white/[0.02]`, `text-white`, `border-white/10`). These need theme-aware conditionals so the sign-in card renders properly in white-matte mode with dark text on white background.
-
-**Files to audit for hardcoded dark colors:**
-- `src/components/TopBar.tsx` — popover content uses `bg-[#1C1C1E]/95` and `text-white` hardcoded (line 225, 280-285)
-- `src/components/BottomNavigation.tsx` — verify it already adapts (it checks `isLight`)
-
-### Technical Details
-- The `ThemeToggle` component already toggles between `black-matte` and `white-matte` correctly
-- CSS variables in `matte-themes.css` define proper light values for `.white-matte`
-- The issue is hardcoded color classes bypassing the CSS variable system
-- The landing page form card and popover need semantic tokens (`bg-card`, `text-foreground`, `border-border`) instead of hardcoded rgba values
+### Technical scope
+- Only color/opacity values change — no layout, no structure, no routing changes
+- All changes are conditional on `isLight` flag so dark themes remain untouched
 
