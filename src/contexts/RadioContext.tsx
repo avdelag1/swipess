@@ -195,7 +195,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
-        .eq('user_id', user.id)
+         .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {

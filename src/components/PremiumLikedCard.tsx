@@ -29,9 +29,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
             whileHover={{ y: -4 }}
             className={cn(
                 "group relative rounded-[2rem] overflow-hidden transition-all duration-300",
-                isLight
-                    ? "bg-white border border-black/5 shadow-xl shadow-black/5"
-                    : "bg-zinc-900/50 backdrop-blur-xl border border-white/5 shadow-2xl shadow-black/40"
+                "bg-card border border-border shadow-2xl"
             )}
         >
             {/* Visual Header / Image */}
@@ -43,8 +41,8 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-zinc-800">
-                        {type === 'listing' ? <Home className="w-12 h-12 text-zinc-600" /> : <User className="w-12 h-12 text-zinc-600" />}
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                        {type === 'listing' ? <Home className="w-12 h-12 text-muted-foreground" /> : <User className="w-12 h-12 text-muted-foreground" />}
                     </div>
                 )}
 
@@ -84,9 +82,9 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                     {type === 'listing' && (
                         <>
                             {data.beds && (
-                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800/50 border border-white/5">
-                                    <Bed className="w-3.5 h-3.5 text-zinc-400" />
-                                    <span className="text-[10px] font-black text-zinc-200">{data.beds}</span>
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-secondary border border-border">
+                                    <Bed className="w-3.5 h-3.5 text-muted-foreground" />
+                                    <span className="text-[10px] font-black text-foreground">{data.beds}</span>
                                 </div>
                             )}
                             {data.price && (
@@ -106,7 +104,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
 
                 {/* Description Preview */}
                 {(data.bio || data.description) && (
-                    <p className="text-xs text-zinc-400 font-medium line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-muted-foreground font-medium line-clamp-2 leading-relaxed">
                         {data.bio || data.description}
                     </p>
                 )}
@@ -123,7 +121,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
 
                     <button
                         onClick={() => onAction('view', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-black border border-white/5 transition-all active:scale-95"
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-secondary hover:bg-muted text-foreground text-xs font-black border border-border transition-all active:scale-95"
                     >
                         <Eye className="w-4 h-4" />
                         VIEW
