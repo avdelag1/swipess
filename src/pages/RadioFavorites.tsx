@@ -36,21 +36,18 @@ export default function RadioFavoritesPage() {
     .filter((s) => s !== undefined);
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a] overflow-y-auto z-40">
-      {/* Background - subtle gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] pointer-events-none" />
-
+    <div className="fixed inset-0 bg-background overflow-y-auto z-40">
       {/* Header */}
-      <div className="sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-xl z-10 border-b border-white/5 px-4 py-4">
+      <div className="sticky top-0 bg-background/80 backdrop-blur-lg z-10 border-b border-border px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/radio')}
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold text-white">Liked Stations</h1>
+            <h1 className="text-xl font-bold text-foreground">Liked Stations</h1>
           </div>
           <button
             onClick={handleShufflePlay}
@@ -81,7 +78,7 @@ export default function RadioFavoritesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 onClick={() => handlePlayStation(station!.id)}
-                className="group flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-pointer"
+                className="group flex items-center gap-4 p-4 bg-muted/30 rounded-2xl border border-border hover:bg-muted/50 transition-all cursor-pointer"
               >
                 {/* Station Icon */}
                 <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
@@ -98,13 +95,13 @@ export default function RadioFavoritesPage() {
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => handleRemoveFavorite(station!.id, e)}
-                    className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20"
+                    className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500/30"
                   >
                     <X className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handlePlayStation(station!.id); }}
-                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10"
+                    className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
                   >
                     <Play className="w-4 h-4" fill="currentColor" />
                   </button>
