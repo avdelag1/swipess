@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
 export function RadioMiniPlayer() {
-  const { state, togglePlayPause, changeStation, togglePower, setMiniPlayerMode } = useRadio();
+  const { state, togglePlayPause, changeStation, togglePower, setMiniPlayerMode, pause } = useRadio();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -77,11 +77,10 @@ export function RadioMiniPlayer() {
     e.stopPropagation();
     if (!isDraggingRef.current) {
       triggerHaptic('medium');
+      pause();
       setMiniPlayerMode('closed');
-      // Power off completely so it doesn't reappear on refresh
-      togglePower();
     }
-  }, [setMiniPlayerMode, togglePower]);
+  }, [pause, setMiniPlayerMode]);
 
   // Don't show if powered off or no station
   if (!state.isPoweredOn || !state.currentStation) return null;
@@ -137,13 +136,13 @@ export function RadioMiniPlayer() {
               <GripVertical className="w-3.5 h-3.5 text-white" />
             </div>
 
-            {/* Close Button (X) */}
+            {/* Close Button (Replaces Power) */}
             <button
               onClick={handleClose}
-              className="w-9 h-9 rounded-full flex items-center justify-center bg-zinc-800/80 text-white/80 border border-white/10 hover:bg-red-500/80 hover:text-white transition-all active:scale-90 shadow-lg"
+              className="w-8 h-8 rounded-full flex items-center justify-center bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all active:scale-90"
               title="Close Radio"
             >
-              <X className="w-5 h-5" strokeWidth={3} />
+              <X className="w-4.5 h-4.5" />
             </button>
 
             {/* Album Art / Station Orb */}

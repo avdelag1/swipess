@@ -913,7 +913,7 @@ const ClientSwipeContainerComponent = ({
 
   // Main swipe view - edge-to-edge cards with next card visible behind
   return (
-    <div className="relative w-full h-full flex-1 flex flex-col bg-background">
+    <div className="relative w-full h-full flex-1 flex flex-col bg-black">
       <div className="relative flex-1 w-full">
         {/* Next card visible behind - creates depth and anticipation */}
         {nextCard && (

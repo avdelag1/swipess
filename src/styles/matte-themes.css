@@ -91,8 +91,8 @@
 
 /* THEME 3: WHITE MATTE — Clean, luxurious light mode */
 .white-matte {
-    /* Background colors - Crisp white palette */
-    --background: 0 0% 100%;
+    /* Background colors - Soft off-white palette (not pure white, avoids harsh contrast with dark cards) */
+    --background: 0 0% 96%;
     --foreground: 0 0% 5%;
     --card: 0 0% 98%;
     --card-foreground: 0 0% 5%;
@@ -111,7 +111,7 @@
     --ring: 0 100% 60%;
 
     /* Modern theme variables */
-    --bg-primary: 0 0% 100%;
+    --bg-primary: 0 0% 96%;
     --bg-secondary: 0 0% 98%;
     --bg-tertiary: 0 0% 96%;
     --text-primary: 0 0% 5%;
@@ -128,7 +128,7 @@
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
     --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
     --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.2);
-    --overlay: rgba(255, 255, 255, 0.85);
+    --overlay: rgba(255, 255, 255, 0);
 }
 
 /* THEME 4: RED MATTE (Bold Mexican spirit) */

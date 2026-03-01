@@ -4,7 +4,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X, ChevronRight
+  ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,11 +83,12 @@ const LandingView = memo(({
     <motion.div
       key="landing"
       className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      style={{ paddingBottom: '10vh' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
     >
-      {/* Swipable text title */}
+      {/* Swipable logo */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -98,85 +99,80 @@ const LandingView = memo(({
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-grab active:cursor-grabbing touch-none select-none relative"
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <div className="relative inline-block">
-          {/* Main Title "swipes" */}
-          <h1 className="text-8xl sm:text-9xl md:text-[12rem] font-black italic tracking-[-0.08em] text-white leading-none">
-            swipes
-          </h1>
-
-          {/* Subtitle Alignment Container */}
-          <div className="absolute inset-x-0 top-full mt-4 flex flex-col items-start px-[0.1em]">
-            <div className="flex w-full items-start justify-between">
-              {/* "luxury world" centered below "sw i" */}
-              <div className="flex flex-col items-center ml-[0.2em]">
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#E4007C] to-[#ea580c]">
-                  luxury
-                </span>
-                <span className="text-xs sm:text-sm md:text-base font-bold tracking-[0.4em] uppercase text-white/60 -mt-1">
-                  world
-                </span>
-              </div>
-
-              {/* "meets precision" / "mid's precision" following "P" */}
-              <div className="flex flex-col items-start ml-[0.5em] mt-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm sm:text-base md:text-lg font-bold italic text-white/40 uppercase tracking-widest">
-                    meets
-                  </span>
-                  <span className="text-sm sm:text-base md:text-lg font-black italic text-orange-500 uppercase tracking-tighter">
-                    precision
-                  </span>
-                </div>
-                <span className="text-2xl sm:text-3xl md:text-4xl font-black italic tracking-tighter uppercase bg-clip-text text-transparent bg-gradient-to-r from-[#ea580c] to-[#FFD700] -mt-1">
-                  mid's precision
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <motion.div
+          animate={{ scale: [1, 1.06, 1, 1.06, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+        >
+          <img
+            src={swipessLogo}
+            alt="Swipess"
+            className="w-[65vw] max-w-[380px] sm:max-w-[450px] md:max-w-[520px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+          />
+        </motion.div>
       </motion.div>
 
-      {/* Slogan */}
+      {/* Tagline */}
       <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-48 text-white/40 text-[10px] uppercase tracking-[0.5em] font-medium"
+        className="-mt-4 relative z-10 cursor-pointer"
+        onTap={handleTap}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
       >
-        Find Your Perfect Rental
+        <span
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
+          style={{
+            background: 'linear-gradient(to right, #E4007C, #FFD700)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}
+        >
+          luxury meets precision
+        </span>
       </motion.p>
 
-      {/* Info chips / Supplementary elements */}
+      {/* Info chips */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.8 }}
-        className="mt-8"
+        transition={{ duration: 0.4, delay: 0.25 }}
+        className="mt-3"
       >
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {[
-            { icon: Shield, label: 'Security' },
-            { icon: MessageCircle, label: 'Chat' },
-            { icon: Sparkles, label: 'Global' },
+            { icon: Sparkles, label: 'Elite Assets' },
+            { icon: Shield, label: 'Encrypted Chat' },
+            { icon: Users, label: 'Global Network' },
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-2 px-4 py-2 bg-white/[0.05] backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.5)] group hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
             >
-              <Icon className="w-3.5 h-3.5 text-white/60 group-hover:text-orange-400 transition-colors" />
-              <span className="text-white/60 text-[10px] font-black uppercase tracking-widest group-hover:text-white transition-colors">{label}</span>
+              <Icon className="w-3.5 h-3.5 text-white/90" />
+              <span className="text-white/90 text-xs font-medium">{label}</span>
             </div>
           ))}
         </div>
       </motion.div>
 
+      {/* Tap hint */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="mt-7 text-white/25 text-xs tracking-widest uppercase cursor-pointer select-none"
+        onClick={handleTap}
+      >
+        tap to enter
+      </motion.p>
+
       {/* Effects toggle */}
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.05] backdrop-blur-md border border-white/10 shadow-2xl text-white/40 text-sm font-bold active:bg-white/20 transition-colors hover:text-white"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -295,13 +291,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLoading(true);
-    try {
-      const { error } = await signInWithOAuth(provider, 'client');
-      if (error) throw error;
-    } catch (error: any) {
-      toast({ title: 'Google Sign-In Failed', description: error.message || 'Failed to sign in with Google', variant: 'destructive' });
+    const { error } = await signInWithOAuth(provider, 'client');
+    if (error) {
       setIsLoading(false);
     }
+    // signInWithOAuth already calls toast.error() on failure — no duplicate toast.
   };
 
   const switchMode = () => {
@@ -313,21 +307,20 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   // stagger variants for form elements
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
+    visible: { transition: { staggerChildren: 0.03, delayChildren: 0.06 } },
   };
   const itemVariants = {
-    hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as const } },
   };
 
   return (
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
-      style={{ background: '#050505' }}
-      initial={{ x: 20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ x: 20, opacity: 0, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
+      initial={{ y: 24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
+      exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
       <StarFieldBackground />
 
@@ -557,7 +550,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                 </div>
               </div>
               <button onClick={() => setShowErrorDetails(false)}
-                aria-label="Close error details"
                 className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center">
                 <X className="w-4 h-4 text-white" />
               </button>
@@ -593,11 +585,10 @@ function LegendaryLandingPage() {
   const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden bg-background">
-      <div className="absolute inset-0 transition-colors duration-500 bg-background" />
-      <LandingBackgroundEffects mode={effectMode} />
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         {view === 'landing' ? (
           <LandingView
             key="landing"
