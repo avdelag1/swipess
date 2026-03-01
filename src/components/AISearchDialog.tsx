@@ -147,7 +147,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[400px] w-[calc(100%-16px)] max-h-[75vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[58%]"
+        className="sm:max-w-[500px] w-[calc(100%-16px)] max-h-[85vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
         hideCloseButton={true}
       >
         {/* Header */}
@@ -181,9 +181,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         <div 
           className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" 
           style={{ 
-            height: 'min(50vh, 380px)', 
-            minHeight: '250px',
-            maxHeight: 'calc(75vh - 200px)',
+            height: 'min(60vh, 480px)', 
+            minHeight: '300px',
+            maxHeight: 'calc(85vh - 200px)',
             overflowY: 'auto'
           }}
         >
