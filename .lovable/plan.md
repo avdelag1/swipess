@@ -1,57 +1,34 @@
 
 
-# Fix Plan: Background Color Issues + Build Errors + AI Orchestrator
+## Plan: White Theme, Google Button Removal, Header Tightening, Logo Size
 
-## Problem Analysis
+### 1. Remove Google OAuth button from sign-in/sign-up
+**File:** `src/components/LegendaryLandingPage.tsx` (lines 365-389)
+- Remove the entire Google OAuth block including the "Continue with Google" button and the "or" divider
+- Keep only email/password authentication
 
-### 1. Pink/Weird Background Color on Light Theme
-The `GradientMasks.tsx` system in `AppLayout.tsx` renders fixed gradient overlays (top, bottom, vignette) across all pages. In light theme (`white-matte`), these use white (`rgb(255,255,255)`) base colors at up to 40% opacity, creating a washed-out, pinkish tint over the content. The overlays sit at z-index 15-20, covering buttons and content areas. This is what creates the "something on top of buttons" effect you're seeing.
+### 2. Make header buttons tighter (closer frames to icons/text)
+**File:** `src/components/TopBar.tsx`
+- Reduce padding on the Tokens button: `px-1.5 sm:px-2` → `px-1 sm:px-1.5`
+- Reduce height: `h-8 sm:h-9` → `h-7 sm:h-8`
+- Reduce notification button: `h-8 w-8 sm:h-9 sm:w-9` → `h-7 w-7 sm:h-8 sm:w-8`
+- Tighten the rounded corners from `rounded-lg` to `rounded-md` for a more compact look
 
-### 2. AI Orchestrator + MiniMax
-The `MINIMAX_API_KEY` secret is already configured. The orchestrator code in `supabase/functions/ai-orchestrator/index.ts` already has MiniMax as a fallback provider with `isMinimaxForced = false` (Gemini primary, MiniMax fallback). This is working as designed.
+### 3. Make SwipesS logo slightly bigger
+**File:** `src/components/SwipessLogo.tsx`
+- Change the `sm` size mapping from `h-8` (32px) to `h-9` (36px) so the logo in the TopBar is slightly larger
 
-### 3. Build Errors (25+ errors blocking the app)
-Multiple TypeScript errors need fixing across several files.
+### 4. Ensure white theme renders across the full app
+**File:** `src/components/LegendaryLandingPage.tsx`
+- The landing page has hardcoded dark styles (`bg-white/[0.02]`, `text-white`, `border-white/10`). These need theme-aware conditionals so the sign-in card renders properly in white-matte mode with dark text on white background.
 
----
+**Files to audit for hardcoded dark colors:**
+- `src/components/TopBar.tsx` — popover content uses `bg-[#1C1C1E]/95` and `text-white` hardcoded (line 225, 280-285)
+- `src/components/BottomNavigation.tsx` — verify it already adapts (it checks `isLight`)
 
-## Plan
-
-### Step 1: Fix Light Theme Gradient Overlays
-**File: `src/components/ui/GradientMasks.tsx`**
-- Reduce intensity of gradients in light mode significantly (max opacity from 0.35/0.40 down to ~0.10-0.15)
-- Use fully transparent vignette in light mode to avoid the dirty/pink look
-- This preserves the cinematic effect in dark mode while keeping light mode clean
-
-### Step 2: Fix Build Errors (all files)
-
-**`src/components/ConversationalListingCreator.tsx`** - Missing imports:
-- Add `import { motion } from 'framer-motion'` and `import { cn } from '@/lib/utils'`
-
-**`src/components/LegendaryLandingPage.tsx`** (lines 416, 431):
-- Change `autocomplete` to `autoComplete` (React JSX attribute)
-
-**`src/components/SwipessSwipeContainer.tsx`** (line 641):
-- Add `existingIds` and `dismissedSet` variable definitions before the filter call using the existing `deckQueueRef` and `dismissedIds`
-
-**`src/components/UnifiedListingForm.tsx`**:
-- Remove duplicate `import { cn } from '@/lib/utils'` (line 19)
-- Replace `notifications.listing.updated/created` with `toast()` calls
-- Fix the `stagger` variants type issue (wrap in proper Variants format)
-
-**`src/pages/ClientProfileNew.tsx`** and **`src/pages/OwnerProfileNew.tsx`**:
-- Remove duplicate `SharedProfileSection` import (line 5 / line 4)
-- Fix `staggerChildren` variants type (same pattern as UnifiedListingForm)
-
-**`src/pages/MessagingDashboard.tsx`**:
-- Remove unused `@ts-expect-error` directive (line 30)
-- Remove references to `stats.unreadCount` (property doesn't exist on stats type) - use optional chaining or cast
-
-**Remaining files** (ClientWhoLikedYou, ClientWorkerDiscovery, ClientFilters, ClientContracts, OwnerContracts, OwnerInterestedClients, OwnerViewClientProfile, useSwipeAnalytics, realtimeManager, SwipeQueue):
-- Add missing type annotations, fix null/undefined handling, add missing properties to interfaces
-
-### Step 3: Verify AI Orchestrator MiniMax Configuration
-- The MiniMax API key is already stored as a secret
-- The orchestrator already uses it as fallback
-- No code changes needed -- it's functional
+### Technical Details
+- The `ThemeToggle` component already toggles between `black-matte` and `white-matte` correctly
+- CSS variables in `matte-themes.css` define proper light values for `.white-matte`
+- The issue is hardcoded color classes bypassing the CSS variable system
+- The landing page form card and popover need semantic tokens (`bg-card`, `text-foreground`, `border-border`) instead of hardcoded rgba values
 
