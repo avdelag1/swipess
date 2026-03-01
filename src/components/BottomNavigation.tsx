@@ -9,7 +9,7 @@ import { startTransition } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter,
+  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter, Sparkles,
   Search, Compass, LayoutGrid, Users, Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -28,6 +28,7 @@ interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
+  onAISearchClick?: () => void;
 }
 
 interface NavItem {
@@ -40,7 +41,7 @@ interface NavItem {
   isCenter?: boolean;
 }
 
-export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick }: BottomNavigationProps) {
+export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick, onAISearchClick }: BottomNavigationProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
@@ -80,6 +81,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       label: 'Messages',
       path: '/messages',
       badge: unreadCount,
+    },
+    {
+      id: 'ai-search',
+      icon: Sparkles,
+      label: 'AI Search',
+      onClick: onAISearchClick,
     },
     {
       id: 'filter',
@@ -124,6 +131,12 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
       badge: unreadCount,
     },
     {
+      id: 'ai-search',
+      icon: Sparkles,
+      label: 'AI Search',
+      onClick: onAISearchClick,
+    },
+    {
       id: 'filter',
       icon: SlidersHorizontal,
       label: 'Filters',
@@ -152,14 +165,14 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     return location.pathname === item.path;
   };
 
-  // Theme-aware colors
-  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
+  // Theme-aware colors — high contrast for white-matte
+  const iconColor = isLight ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))';
   const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
-  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.8)';
-  const bgActive = isLight ? 'rgba(255, 255, 255, 1.0)' : 'rgba(39, 39, 42, 0.95)';
-  const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
+  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(24, 24, 27, 0.8)';
+  const bgActive = isLight ? 'rgba(0, 0, 0, 0.14)' : 'rgba(39, 39, 42, 0.95)';
+  const borderColor = isLight ? 'hsl(var(--border) / 1.0)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
+    ? '0 2px 8px rgba(0,0,0,0.08)'
     : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
   const controlBlur = isLight ? 'none' : 'blur(8px)';
 
@@ -246,7 +259,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 )}
                 style={{
                   color: active ? activeColor : iconColor,
-                  opacity: active ? 1 : 0.7
+                  opacity: active ? 1 : (isLight ? 0.85 : 0.7)
                 }}
               >
                 {item.label}

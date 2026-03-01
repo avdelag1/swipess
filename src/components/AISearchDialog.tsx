@@ -147,7 +147,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[500px] w-[calc(100%-16px)] max-h-[85vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
+        className="sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0"
         hideCloseButton={true}
       >
         {/* Header */}
@@ -178,14 +178,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         </div>
 
         {/* Messages Area */}
-        <div 
-          className="flex-1 overflow-y-auto px-5 py-5 space-y-6 scroll-smooth scrollbar-none relative" 
-          style={{ 
-            height: 'min(60vh, 480px)', 
-            minHeight: '300px',
-            maxHeight: 'calc(85vh - 200px)',
-            overflowY: 'auto'
-          }}
+        <div
+          className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-6 scroll-smooth scrollbar-none relative"
         >
           {messages.length === 0 && !isTyping && (
             <motion.div

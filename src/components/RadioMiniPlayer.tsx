@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 
 export function RadioMiniPlayer() {
-  const { state, togglePlayPause, changeStation, togglePower, setMiniPlayerMode } = useRadio();
+  const { state, togglePlayPause, changeStation, togglePower, setMiniPlayerMode, pause } = useRadio();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -77,9 +77,10 @@ export function RadioMiniPlayer() {
     e.stopPropagation();
     if (!isDraggingRef.current) {
       triggerHaptic('medium');
+      pause();
       setMiniPlayerMode('closed');
     }
-  }, [setMiniPlayerMode]);
+  }, [pause, setMiniPlayerMode]);
 
   // Don't show if powered off or no station
   if (!state.isPoweredOn || !state.currentStation) return null;
