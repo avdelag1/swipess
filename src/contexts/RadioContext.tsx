@@ -33,7 +33,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const [state, setState] = useState<RadioPlayerState>({
     isPlaying: false,
-    isPoweredOn: localStorage.getItem('swipess_radio_is_powered_on') === 'true',
+    isPoweredOn: true,
     currentStation: null,
     currentCity: 'tulum',
     volume: 0.7,
@@ -134,9 +134,34 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []); // Only run once - handlers use refs for latest state
 
-  // Load user preferences from Supabase
+  // Load liked stations from Supabase
+  const loadLikedStations = async () => {
+    if (!user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('likes')
+        .select('target_id')
+        .eq('user_id', user.id)
+        .eq('target_type', 'radio_station')
+        .eq('direction', 'up');
+
+      if (error) throw error;
+
+      if (data) {
+        const likedIds = data.map(item => item.target_id);
+        setState(prev => ({ ...prev, favorites: likedIds }));
+      }
+    } catch (err) {
+      logger.error('[RadioPlayer] Error loading liked stations:', err);
+    }
+  };
+
+  // Load user preferences and liked stations from Supabase
   useEffect(() => {
-    loadUserPreferences();
+    if (user?.id) {
+      loadUserPreferences();
+      loadLikedStations();
+    }
   }, [user?.id]);
 
   // Update audio volume when state changes
@@ -170,7 +195,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
@@ -215,7 +240,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
-      await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
+      await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
@@ -252,10 +277,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.load();
 
         // Update station AND city (important for shuffle mode)
+        // Also reset miniPlayerMode to expanded so it shows when navigating away
         setState(prev => ({
           ...prev,
           currentStation: targetStation,
-          currentCity: targetStation.city // Update city to match the station
+          currentCity: targetStation.city, // Update city to match the station
+          miniPlayerMode: 'expanded' // Reset mini player to show when navigating away
         }));
         savePreferences({
           currentStation: targetStation,
@@ -326,10 +353,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({
       ...prev,
       isPoweredOn: newPower,
-      isPlaying: newPower ? prev.isPlaying : false // Stop playing if powered off
+      isPlaying: newPower ? prev.isPlaying : false, // Stop playing if powered off
+      miniPlayerMode: newPower ? prev.miniPlayerMode : 'closed' // Close mini player when powered off
     }));
 
-    localStorage.setItem('swipess_radio_is_powered_on', String(newPower));
     if (!newPower && audioRef.current) {
       audioRef.current.pause();
     }
@@ -391,16 +418,64 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     savePreferences({ skin });
   }, []);
 
-  const toggleFavorite = useCallback((stationId: string) => {
+  const toggleFavorite = useCallback(async (stationId: string) => {
+    if (!user?.id) {
+      // Fallback to local state if not logged in
+      setState(prev => {
+        const isFavorite = prev.favorites.includes(stationId);
+        const newFavorites = isFavorite
+          ? prev.favorites.filter(id => id !== stationId)
+          : [...prev.favorites, stationId];
+        return { ...prev, favorites: newFavorites };
+      });
+      return;
+    }
+
+    const isFavorite = state.favorites.includes(stationId);
+
+    // Optimistic update
     setState(prev => {
-      const isFavorite = prev.favorites.includes(stationId);
       const newFavorites = isFavorite
         ? prev.favorites.filter(id => id !== stationId)
         : [...prev.favorites, stationId];
-      savePreferences({ favorites: newFavorites });
       return { ...prev, favorites: newFavorites };
     });
-  }, []);
+
+    try {
+      if (isFavorite) {
+        // Remove like
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('target_id', stationId)
+          .eq('target_type', 'radio_station');
+
+        if (error) throw error;
+      } else {
+        // Add like
+        const { error } = await supabase
+          .from('likes')
+          .insert({
+            user_id: user.id,
+            target_id: stationId,
+            target_type: 'radio_station',
+            direction: 'up'
+          });
+
+        if (error) throw error;
+      }
+    } catch (err) {
+      logger.error('[RadioPlayer] Error toggling favorite:', err);
+      // Revert optimistic update on error
+      setState(prev => ({
+        ...prev,
+        favorites: isFavorite
+          ? [...prev.favorites, stationId]
+          : prev.favorites.filter(id => id !== stationId)
+      }));
+    }
+  }, [user?.id, state.favorites]);
 
   const playPlaylist = useCallback((stationIds: string[]) => {
     if (stationIds.length === 0) return;
