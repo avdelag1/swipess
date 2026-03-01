@@ -172,7 +172,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const bgActive = isLight ? 'rgba(0, 0, 0, 0.14)' : 'rgba(39, 39, 42, 0.95)';
   const borderColor = isLight ? 'hsl(var(--border) / 1.0)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
+    ? '0 2px 8px rgba(0,0,0,0.08)'
     : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
   const controlBlur = isLight ? 'none' : 'blur(8px)';
 
