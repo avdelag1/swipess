@@ -12,7 +12,6 @@ import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { useState } from "react";
-import { NotificationPreferencesSettings } from "@/components/NotificationPreferencesSettings";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const stagger = { staggerChildren: 0.05, delayChildren: 0.02 };
@@ -164,10 +163,6 @@ const OwnerSettingsNew = () => {
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />
-
-            <div className="h-px bg-border my-6" />
-
-            <NotificationPreferencesSettings role="owner" />
           </motion.div>
         </div>
       </div>

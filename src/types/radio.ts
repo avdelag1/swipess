@@ -14,7 +14,9 @@ export type CityLocation =
   | 'texas'
   | 'french'
   | 'italy'
-  | 'podcasts';
+  | 'podcasts'
+  | 'reggae'
+  | 'jazz';
 
 export interface RadioStation {
   id: string;

@@ -14,7 +14,7 @@ function SwipessLogoComponent({
   // Map our size keys to pixel heights that maintain the premium look
   const heightMap = {
     xs: 'h-6',      // ~24px
-    sm: 'h-8',      // ~32px
+    sm: 'h-9',      // ~36px
     md: 'h-10',     // ~40px
     lg: 'h-14',     // ~56px
     xl: 'h-20',     // ~80px
