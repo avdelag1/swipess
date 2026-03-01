@@ -10,6 +10,7 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '@/hooks/useTheme';
 
 interface NotificationsDialogProps {
   isOpen: boolean;
@@ -69,6 +70,8 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
 };
 
 export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
@@ -104,7 +107,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
               </div>
               <div className="min-w-0">
                 <DialogTitle className="text-lg sm:text-xl font-bold">Notifications</DialogTitle>
-                <p className="text-xs sm:text-sm text-gray-300 truncate">
+                <p className={cn("text-xs sm:text-sm truncate", isDark ? "text-gray-300" : "text-gray-600")}>
                   {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
                 </p>
               </div>
@@ -171,14 +174,17 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                   >
                     <div className="relative mb-4">
                       <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-xl scale-150" />
-                      <div className="relative p-4 sm:p-5 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-white/10 shadow-lg">
-                        <Bell className="w-8 h-8 sm:w-9 sm:h-9 text-white/50" />
+                      <div className={cn(
+                        "relative p-4 sm:p-5 rounded-full border shadow-lg",
+                        isDark ? "bg-gradient-to-br from-gray-800 to-gray-900 border-white/10" : "bg-white border-black/5"
+                      )}>
+                        <Bell className={cn("w-8 h-8 sm:w-9 sm:h-9", isDark ? "text-white/50" : "text-black/30")} />
                       </div>
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold text-white mb-1">
+                    <h3 className={cn("text-sm sm:text-base font-bold mb-1", isDark ? "text-white" : "text-black")}>
                       {activeFilter === 'all' ? 'No notifications yet' : `No ${activeFilter} notifications`}
                     </h3>
-                    <p className="text-xs text-gray-400 max-w-[200px]">
+                    <p className={cn("text-xs max-w-[200px]", isDark ? "text-gray-400" : "text-gray-500")}>
                       New activity will appear here
                     </p>
                   </motion.div>
@@ -227,49 +233,49 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                                       <NotificationIconBg type={notification.type} role={role} />
                                     )}
                                   </div>
-                                
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2 mb-0.5">
+
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2 mb-0.5">
+                                      <div className="flex items-center gap-2">
+                                        <h4 className="font-semibold text-foreground text-sm">
+                                          {notification.title}
+                                        </h4>
+                                        {!notification.read && (
+                                          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                        )}
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          dismissNotification(notification.id);
+                                        }}
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                                      </Button>
+                                    </div>
+
+                                    <p className={cn("text-xs line-clamp-2 mb-1.5", isDark ? "text-gray-300" : "text-gray-600 font-medium")}>
+                                      {notification.message}
+                                    </p>
+
                                     <div className="flex items-center gap-2">
-                                      <h4 className="font-semibold text-foreground text-sm">
-                                        {notification.title}
-                                      </h4>
+                                      <span className="text-[10px] text-gray-400">
+                                        {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                                      </span>
                                       {!notification.read && (
-                                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                        <Badge className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0">
+                                          New
+                                        </Badge>
                                       )}
                                     </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        dismissNotification(notification.id);
-                                      }}
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
-                                    </Button>
-                                  </div>
-                                  
-                                  <p className="text-xs text-gray-300 line-clamp-2 mb-1.5">
-                                    {notification.message}
-                                  </p>
-                                  
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-gray-400">
-                                      {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
-                                    </span>
-                                    {!notification.read && (
-                                      <Badge className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0">
-                                        New
-                                      </Badge>
-                                    )}
                                   </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
+                              </CardContent>
+                            </Card>
+                          </motion.div>
                         );
                       })}
                     </div>

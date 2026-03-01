@@ -127,6 +127,8 @@ export default function NotificationsPage() {
   const [deletingAll, setDeletingAll] = useState(false);
   const [removingLikeId, setRemovingLikeId] = useState<string | null>(null);
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const { data: userRole } = useUserRole(user?.id);
   const { data: likedProperties, isLoading: likedLoading } = useLikedProperties();
   const navigate = useNavigate();
@@ -325,8 +327,9 @@ export default function NotificationsPage() {
                         transition={{ delay: i * 0.03 }}
                       >
                         <Card className={cn(
-                          "relative overflow-hidden rounded-[2rem] border-border/40 transition-all hover:border-primary/20 bg-card/40 backdrop-blur-sm group",
-                          !n.read && "bg-primary/[0.03] border-primary/20 ring-1 ring-primary/10"
+                          "relative overflow-hidden rounded-[2rem] border-border/40 transition-all hover:border-primary/20 backdrop-blur-sm group",
+                          isDark ? "bg-card/40" : "bg-white/90 shadow-sm border-black/5",
+                          !n.read && (isDark ? "bg-primary/[0.03] border-primary/20 ring-1 ring-primary/10" : "bg-primary/[0.05] border-primary/30")
                         )}>
                           <div className={cn("absolute inset-y-0 left-0 w-1 bg-gradient-to-b", getBgGradient(n.type, role))} />
                           <CardContent className="p-5 flex items-start gap-4">
@@ -388,7 +391,10 @@ export default function NotificationsPage() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <Card className="rounded-[2rem] border-border/40 bg-card/40 backdrop-blur-sm overflow-hidden group hover:border-primary/20 transition-all">
+                      <Card className={cn(
+                        "rounded-[2rem] border-border/40 backdrop-blur-sm overflow-hidden group hover:border-primary/20 transition-all",
+                        isDark ? "bg-card/40" : "bg-white/90 shadow-sm border-black/5"
+                      )}>
                         <div className="flex items-center p-3 gap-4">
                           <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer" onClick={() => navigate(`/listing/${p.id}`)}>
                             <img src={p.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />

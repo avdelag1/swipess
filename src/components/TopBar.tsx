@@ -172,6 +172,7 @@ function TopBarComponent({
 
             {/* AI Search integrated into scrollable list */}
             <Button
+              id="ai-search-button"
               variant="ghost"
               size="icon"
               className={cn(

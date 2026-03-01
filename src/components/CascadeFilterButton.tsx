@@ -2,6 +2,7 @@ import { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Car, Bike, Ship, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 
 // Re-export unified types
@@ -75,6 +76,8 @@ const buttonClass = cn(
 );
 
 function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }: CascadeFilterButtonProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -84,7 +87,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
     const handleClickOutside = (event: Event) => {
       const target = event.target as Node;
       if (
-        panelRef.current && 
+        panelRef.current &&
         !panelRef.current.contains(target) &&
         buttonRef.current &&
         !buttonRef.current.contains(target)
@@ -142,13 +145,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Filter"
         className={cn(
           buttonClass,
           'flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium',
           'border',
           isOpen || hasActiveFilters
             ? 'bg-primary text-primary-foreground border-primary'
-            : 'bg-muted/50 text-foreground border-border/50'
+            : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-white text-black border-black/10 shadow-sm'
         )}
       >
         <Filter className="w-4 h-4" />
