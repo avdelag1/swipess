@@ -2,6 +2,7 @@ import { memo, useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 
 // Re-export from CascadeFilterButton for backwards compatibility
@@ -169,6 +170,8 @@ function FilterDropdown({
 }
 
 function QuickFilterBarComponent({ filters, onChange, className, userRole = 'client' }: QuickFilterBarProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
@@ -221,7 +224,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     return (
       <div
         className={cn(
-          'bg-background/50 backdrop-blur-xl border-b border-border px-3 py-2',
+          isDark ? 'bg-background/50' : 'bg-white/80',
+          'backdrop-blur-xl border-b border-border px-3 py-2',
           className
         )}
       >
@@ -301,7 +305,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   return (
     <div
       className={cn(
-        'bg-background/50 backdrop-blur-xl border-b border-border px-3 py-2',
+        isDark ? 'bg-background/50' : 'bg-white/80',
+        'backdrop-blur-xl border-b border-border px-3 py-2',
         className
       )}
     >

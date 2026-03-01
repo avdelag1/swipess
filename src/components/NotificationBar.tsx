@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, MessageCircle, Heart, Star, UserPlus, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 type NotificationType = 'like' | 'message' | 'super_like' | 'match' | 'new_user' | 'premium_purchase' | 'activation_purchase';
 
@@ -51,6 +52,8 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
   const [visible, setVisible] = useState(false);
   const dismissedRef = useRef(false);
   const prevUnreadCountRef = useRef(0);
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
 
   const unreadNotifications = useMemo(() => notifications.filter(n => !n.read), [notifications]);
   const unreadCount = unreadNotifications.length;
@@ -99,7 +102,8 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
             whileTap={{ scale: 0.98 }}
             className={cn(
               "pointer-events-auto flex items-center min-w-[280px] max-w-[90vw] h-12 gap-3 px-4 rounded-full",
-              "bg-black/80 dark:bg-[#0e0e11]/90 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] cursor-pointer group"
+              "bg-black/80 dark:bg-[#0e0e11]/90 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] cursor-pointer group",
+              !isDark && "bg-white/90 border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
             )}
             onClick={() => {
               onNotificationClick(currentNotification);
@@ -114,10 +118,10 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
             </div>
 
             <div className="flex-1 min-w-0 pr-2">
-              <h4 className="text-[11px] font-black text-white uppercase tracking-wider leading-none mb-0.5 truncate">
+              <h4 className={cn("text-[11px] font-black uppercase tracking-wider leading-none mb-0.5 truncate", isDark ? "text-white" : "text-black")}>
                 {unreadCount > 1 ? `(${unreadCount}) Swipess Alerts` : currentNotification.title}
               </h4>
-              <p className="text-[10px] text-white/50 font-bold truncate leading-tight">
+              <p className={cn("text-[10px] font-bold truncate leading-tight", isDark ? "text-white/50" : "text-black/50")}>
                 {unreadCount > 1 ? 'Check your notifications center' : currentNotification.message}
               </p>
             </div>

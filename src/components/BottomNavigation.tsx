@@ -191,6 +191,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
 
           return (
             <button
+              id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
               key={item.id}
               onPointerDown={(e) => { handleNavPress(e, item); if (item.path) prefetchRoute(item.path); }}
               onTouchStart={(e) => { e.stopPropagation(); }}

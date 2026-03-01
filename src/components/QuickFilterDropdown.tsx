@@ -133,11 +133,17 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      // FIX: Ignore clicks on AI search button to prevent it from closing filters
+      const isAISearchClick = target.closest('#ai-search-button');
+
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
+        !dropdownRef.current.contains(target) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
+        !buttonRef.current.contains(target) &&
+        !isAISearchClick
       ) {
         setIsOpen(false);
         setClickedCategory(null);
@@ -189,9 +195,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-[#000000]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
+      <div className={cn(
+        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
+        isDark ? "bg-[#000000]/95 border-white/10" : "bg-white/95 border-black/10"
+      )}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
           <span className="text-sm font-semibold text-foreground">Filter Clients</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -257,9 +266,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {
     return (
-      <div className="bg-[#000000]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
+      <div className={cn(
+        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]",
+        isDark ? "bg-[#000000]/95 border-white/10" : "bg-white/95 border-black/10"
+      )}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
           <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
           {activeFilterCount > 0 && (
             <motion.button
