@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+import swipessLogo from '@/assets/swipess-logo-flame.png';
 
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
