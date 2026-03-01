@@ -86,10 +86,10 @@ function TopBarComponent({
     : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
-    : '1.5px solid rgba(0, 0, 0, 0.1)';
+    : '1.5px solid rgba(0, 0, 0, 0.15)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
-    : '0 1px 3px rgba(0,0,0,0.06)';
+    : '0 2px 10px rgba(0,0,0,0.08)';
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
@@ -222,8 +222,8 @@ function TopBarComponent({
                   className={cn(
                     "h-3 w-3 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-200 group-hover:text-orange-100"
-                      : "text-gray-50 group-hover:text-white"
+                      ? (isDark ? "text-orange-200" : "text-orange-600")
+                      : (isDark ? "text-gray-50" : "text-gray-900")
                   )}
                 />
               </div>

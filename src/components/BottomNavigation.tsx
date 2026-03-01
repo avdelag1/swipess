@@ -166,13 +166,13 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   };
 
   // Theme-aware colors
-  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
+  const iconColor = isLight ? '#000000' : 'hsl(var(--foreground))';
   const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
-  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.8)';
+  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.98)' : 'rgba(24, 24, 27, 0.8)';
   const bgActive = isLight ? 'rgba(255, 255, 255, 1.0)' : 'rgba(39, 39, 42, 0.95)';
-  const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
+  const borderColor = isLight ? 'rgba(0, 0, 0, 0.15)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
+    ? '0 2px 8px rgba(0,0,0,0.08)'
     : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
   const controlBlur = isLight ? 'none' : 'blur(8px)';
 
