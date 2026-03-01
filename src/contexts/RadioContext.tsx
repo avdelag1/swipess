@@ -134,9 +134,34 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []); // Only run once - handlers use refs for latest state
 
-  // Load user preferences from Supabase
+  // Load liked stations from Supabase
+  const loadLikedStations = async () => {
+    if (!user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('likes')
+        .select('target_id')
+        .eq('user_id', user.id)
+        .eq('target_type', 'radio_station')
+        .eq('direction', 'up');
+
+      if (error) throw error;
+
+      if (data) {
+        const likedIds = data.map(item => item.target_id);
+        setState(prev => ({ ...prev, favorites: likedIds }));
+      }
+    } catch (err) {
+      logger.error('[RadioPlayer] Error loading liked stations:', err);
+    }
+  };
+
+  // Load user preferences and liked stations from Supabase
   useEffect(() => {
-    loadUserPreferences();
+    if (user?.id) {
+      loadUserPreferences();
+      loadLikedStations();
+    }
   }, [user?.id]);
 
   // Update audio volume when state changes
@@ -393,16 +418,64 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     savePreferences({ skin });
   }, []);
 
-  const toggleFavorite = useCallback((stationId: string) => {
+  const toggleFavorite = useCallback(async (stationId: string) => {
+    if (!user?.id) {
+      // Fallback to local state if not logged in
+      setState(prev => {
+        const isFavorite = prev.favorites.includes(stationId);
+        const newFavorites = isFavorite
+          ? prev.favorites.filter(id => id !== stationId)
+          : [...prev.favorites, stationId];
+        return { ...prev, favorites: newFavorites };
+      });
+      return;
+    }
+
+    const isFavorite = state.favorites.includes(stationId);
+
+    // Optimistic update
     setState(prev => {
-      const isFavorite = prev.favorites.includes(stationId);
       const newFavorites = isFavorite
         ? prev.favorites.filter(id => id !== stationId)
         : [...prev.favorites, stationId];
-      savePreferences({ favorites: newFavorites });
       return { ...prev, favorites: newFavorites };
     });
-  }, []);
+
+    try {
+      if (isFavorite) {
+        // Remove like
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('target_id', stationId)
+          .eq('target_type', 'radio_station');
+
+        if (error) throw error;
+      } else {
+        // Add like
+        const { error } = await supabase
+          .from('likes')
+          .insert({
+            user_id: user.id,
+            target_id: stationId,
+            target_type: 'radio_station',
+            direction: 'up'
+          });
+
+        if (error) throw error;
+      }
+    } catch (err) {
+      logger.error('[RadioPlayer] Error toggling favorite:', err);
+      // Revert optimistic update on error
+      setState(prev => ({
+        ...prev,
+        favorites: isFavorite
+          ? [...prev.favorites, stationId]
+          : prev.favorites.filter(id => id !== stationId)
+      }));
+    }
+  }, [user?.id, state.favorites]);
 
   const playPlaylist = useCallback((stationIds: string[]) => {
     if (stationIds.length === 0) return;
