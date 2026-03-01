@@ -2,6 +2,9 @@ import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTheme } from '@/hooks/useTheme';
+import { getSemanticColor } from '@/utils/colors';
+import { cn } from '@/lib/utils';
 
 interface AppErrorProps {
   error: Error;
@@ -10,6 +13,8 @@ interface AppErrorProps {
 
 export function AppError({ error, resetError }: AppErrorProps) {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
 
   const handleGoHome = () => {
     resetError();
@@ -22,26 +27,36 @@ export function AppError({ error, resetError }: AppErrorProps) {
     window.location.reload();
   };
 
+  const errorBgColor = getSemanticColor('error', 'bgLight', isDark);
+  const errorTextColor = getSemanticColor('error', 'text', isDark);
+  const errorBorderColor = getSemanticColor('error', 'border', isDark);
+
   return (
-    <div className="min-h-screen min-h-dvh bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-gray-900/90 border-white/10">
+    <div className="min-h-screen min-h-dvh bg-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
-            <AlertTriangle className="w-8 h-8 text-red-400" />
+          <div
+            className={cn(
+              'w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border',
+              errorBgColor,
+              errorBorderColor
+            )}
+          >
+            <AlertTriangle className={cn('w-8 h-8', errorTextColor)} />
           </div>
-          <CardTitle className="text-xl text-white">Oops! Something went wrong</CardTitle>
+          <CardTitle className="text-xl">Oops! Something went wrong</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-white/70 text-center">
+          <p className="text-muted-foreground text-center">
             We encountered an unexpected error. Don't worry, we're working to fix it!
           </p>
 
           {import.meta.env.DEV && (
-            <div className="bg-black/40 border border-white/10 p-3 rounded-lg text-xs font-mono text-red-300 overflow-auto max-h-32">
+            <div className={cn('p-3 rounded-lg text-xs font-mono overflow-auto max-h-32', errorBgColor, 'border', errorBorderColor)}>
               <strong>Error:</strong> {error.message}
               {error.stack && (
                 <details className="mt-2">
-                  <summary className="cursor-pointer hover:text-red-200">Stack trace</summary>
+                  <summary className="cursor-pointer hover:opacity-80">Stack trace</summary>
                   <pre className="mt-2 text-xs whitespace-pre-wrap break-all">{error.stack}</pre>
                 </details>
               )}
@@ -51,7 +66,7 @@ export function AppError({ error, resetError }: AppErrorProps) {
           <div className="flex flex-col gap-2">
             <Button
               onClick={resetError}
-              className="w-full bg-red-500 hover:bg-red-600 text-white"
+              className={cn('w-full text-white', getSemanticColor('error', 'bg', isDark))}
             >
               Try Again
             </Button>
