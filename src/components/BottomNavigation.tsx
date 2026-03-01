@@ -179,7 +179,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   return (
     <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
       <div
-        className="flex items-center justify-between w-full max-w-xl mx-auto px-2 py-2 pointer-events-auto bg-transparent"
+        className="flex items-center justify-around w-full max-w-xl mx-auto px-4 py-3 pointer-events-auto bg-transparent pb-[env(safe-area-inset-bottom)]"
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',

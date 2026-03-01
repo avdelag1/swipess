@@ -86,10 +86,10 @@ function TopBarComponent({
     : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
-    : '1.5px solid rgba(0, 0, 0, 0.15)';
+    : '1.5px solid rgba(0, 0, 0, 0.25)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
-    : '0 2px 10px rgba(0,0,0,0.08)';
+    : '0 4px 12px rgba(0, 0, 0, 0.15)';
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
@@ -149,23 +149,22 @@ function TopBarComponent({
           className
         )}
       >
-        <div className="flex items-center justify-between h-14 max-w-screen-xl mx-auto gap-2 px-4 sm:px-6">
+        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-4 sm:px-6 pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)]">
           {/* Left section: Title + Mode switcher + filters */}
-          {/* Left section: Logo (Fixed tunnel) */}
-          <div className="relative z-20 flex items-center flex-shrink-0 pr-3 mr-1 bg-gradient-to-r from-background via-background/90 to-transparent">
-            {!title && <SwipessLogo size="sm" className="flex-shrink-0 scale-90 origin-left hover:scale-95 transition-transform cursor-pointer" onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')} />}
+          <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+            {/* Visual verification: Logo and Title restored per user request */}
+            {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
             {title && (
-              <div className="flex-shrink-0 font-black text-[10px] text-foreground whitespace-nowrap uppercase tracking-tighter">
+              <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
                 {title}
               </div>
             )}
-          </div>
 
-          {/* Center section: Scrollable area for controls */}
-          <div className="relative flex-1 flex items-center overflow-x-auto no-scrollbar scroll-smooth gap-1 px-1 -mx-1">
-            <ThemeToggle className="flex-shrink-0" />
-
-            <ModeSwitcher variant="pill" size="sm" className="flex-shrink-0" />
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <ThemeToggle />
+              <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
+              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
+            </div>
 
             {showFilters && userRole && (
               <QuickFilterDropdown userRole={userRole} className="flex-shrink-0" />
@@ -221,32 +220,28 @@ function TopBarComponent({
                   strokeWidth={4}
                   className={cn(
                     "h-3 w-3 transition-colors duration-150",
-                    notificationCount > 0
-                      ? (isDark ? "text-orange-200" : "text-orange-600")
-                      : (isDark ? "text-gray-50" : "text-gray-900")
+                    notificationCount > 0 ? (isDark ? "text-orange-200" : "text-orange-600") : (isDark ? "text-gray-50" : "text-gray-900")
                   )}
                 />
               </div>
-              <AnimatePresence mode="wait">
-                {notificationCount > 0 && (
-                  <motion.span
-                    key="notification-badge"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-1 -right-1 text-white text-[7px] font-bold rounded-full min-w-[12px] h-[12px] flex items-center justify-center ring-1 ring-background"
-                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-                  >
-                    {notificationCount > 99 ? '99+' : notificationCount}
-                  </motion.span>
-                )}
-              </AnimatePresence>
             </Button>
           </div>
 
-          {/* Right section: Tokens (Fixed tunnel) */}
-          <div className="relative z-20 flex items-center flex-shrink-0 pl-3 ml-1 bg-gradient-to-l from-background via-background/90 to-transparent">
+          {/* Center tap zone - navigates back to dashboard */}
+          <div
+            className="flex-1 h-full cursor-pointer"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              haptics.tap();
+              const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
+              navigate(dashboardPath);
+            }}
+            onClick={(e) => e.preventDefault()}
+            aria-label="Go to dashboard"
+          />
+
+          {/* Right section: Actions */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
             {/* AI Search Button - Moved to BottomNavigation */}
 
             {/* Token Packages Button with Popover */}
@@ -255,11 +250,11 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-8 px-3 rounded-xl transition-all duration-100 ease-out",
+                    "relative h-8 sm:h-9 px-1.5 sm:px-2 rounded-lg transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-2"
+                    "flex items-center gap-1"
                   )}
                   style={{
                     backgroundColor: glassBg,
@@ -272,8 +267,8 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className="h-3.5 w-3.5 text-amber-300" />
-                  <span className="font-black text-[10px] tracking-tight text-foreground whitespace-nowrap uppercase">
+                  <Zap strokeWidth={4} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-300" />
+                  <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
                     Tokens
                   </span>
                 </Button>
@@ -390,6 +385,61 @@ function TopBarComponent({
                 </div>
               </PopoverContent>
             </Popover>
+
+            {/* Notifications Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "relative h-8 w-8 sm:h-9 sm:w-9 rounded-lg transition-all duration-100 ease-out",
+                "active:scale-[0.95]",
+                "group flex-shrink-0",
+                "touch-manipulation",
+                "-webkit-tap-highlight-color-transparent"
+              )}
+              style={{
+                backgroundColor: glassBg,
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
+              onClick={(e) => e.preventDefault()}
+              aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
+            >
+              <div className="relative">
+                <Bell
+                  strokeWidth={4}
+                  className={cn(
+                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
+                    notificationCount > 0
+                      ? "text-orange-200 group-hover:text-orange-100"
+                      : "text-gray-50 group-hover:text-white"
+                  )}
+                />
+                <AnimatePresence>
+                  {notificationCount > 0 && (
+                    <div className="absolute inset-0 rounded-full border border-pink-500/30" />
+                  )}
+                </AnimatePresence>
+              </div>
+              <AnimatePresence mode="wait">
+                {notificationCount > 0 && (
+                  <motion.span
+                    key="notification-badge"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-[#1C1C1E]"
+                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                  >
+                    {notificationCount > 99 ? '99+' : notificationCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Button>
           </div>
         </div>
       </header>
