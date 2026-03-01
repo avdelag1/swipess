@@ -165,11 +165,11 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
     return location.pathname === item.path;
   };
 
-  // Theme-aware colors
-  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
+  // Theme-aware colors — high contrast for white-matte
+  const iconColor = isLight ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))';
   const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
-  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(24, 24, 27, 0.8)';
-  const bgActive = isLight ? 'rgba(0, 0, 0, 0.10)' : 'rgba(39, 39, 42, 0.95)';
+  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(24, 24, 27, 0.8)';
+  const bgActive = isLight ? 'rgba(0, 0, 0, 0.14)' : 'rgba(39, 39, 42, 0.95)';
   const borderColor = isLight ? 'hsl(var(--border) / 1.0)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
@@ -259,7 +259,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 )}
                 style={{
                   color: active ? activeColor : iconColor,
-                  opacity: active ? 1 : 0.7
+                  opacity: active ? 1 : (isLight ? 0.85 : 0.7)
                 }}
               >
                 {item.label}
