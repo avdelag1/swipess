@@ -12,7 +12,6 @@ import { logger } from "@/utils/prodLogger";
 import { PageHeader } from "@/components/PageHeader";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { cn } from "@/lib/utils";
-import { InterestPreviewModal } from "@/components/InterestPreviewModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,8 +45,6 @@ const ClientWhoLikedYou = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState<InterestedOwner | null>(null);
-  const [previewOwner, setPreviewOwner] = useState<InterestedOwner | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 
@@ -55,7 +52,7 @@ const ClientWhoLikedYou = () => {
     queryKey: ['client-who-liked-you', user?.id],
     queryFn: async (): Promise<InterestedOwner[]> => {
       if (!user?.id) return [];
-      const { data: likes, error: likesError } = await (supabase as any)
+      const { data: likes, error: likesError } = await supabase
         .from('likes')
         .select('*')
         .eq('target_id', user.id)
@@ -66,7 +63,7 @@ const ClientWhoLikedYou = () => {
       if (likesError) throw likesError;
       if (!likes || likes.length === 0) return [];
 
-      const ownerIds = likes.map((l: any) => l.user_id);
+      const ownerIds = likes.map(l => l.user_id);
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
@@ -75,7 +72,7 @@ const ClientWhoLikedYou = () => {
       if (profilesError) throw profilesError;
 
       return (profiles || []).map(profile => {
-        const like = likes.find((l: any) => l.user_id === profile.user_id);
+        const like = likes.find(l => l.user_id === profile.user_id);
         return {
           ...profile,
           id: profile.user_id,
@@ -83,7 +80,7 @@ const ClientWhoLikedYou = () => {
           owner_name: profile.full_name || '',
           bio: profile.bio || null,
           images: Array.isArray(profile.images) ? profile.images as string[] : [],
-          created_at: (like as any)?.created_at || profile.created_at,
+          created_at: like?.created_at || profile.created_at,
           is_super_like: false,
           category: 'Interviewer'
         } as InterestedOwner;
@@ -111,13 +108,23 @@ const ClientWhoLikedYou = () => {
       return;
     }
 
-    // Now 'view' and 'message' both open the rich preview modal first (symmetric flow)
-    setPreviewOwner(owner);
-    setIsPreviewOpen(true);
-  };
+    if (action === 'view') {
+      navigate(`/profile/${owner.owner_id}`);
+      return;
+    }
 
-  const handleMessageInitiated = (conversationId: string) => {
-    navigate(`/messages?conversationId=${conversationId}`);
+    if (action === 'message') {
+      try {
+        const result = await startConversation.mutateAsync({
+          otherUserId: owner.owner_id,
+          initialMessage: `Hi! I saw you were interested in my profile. Let's connect!`,
+          canStartNewConversation: true
+        });
+        if (result?.conversationId) navigate(`/messages?conversationId=${result.conversationId}`);
+      } catch (error) {
+        toast.error("Unable to start conversation");
+      }
+    }
   };
 
   const filteredOwners = (interestedOwners as InterestedOwner[]).filter((o: InterestedOwner) =>
@@ -148,7 +155,7 @@ const ClientWhoLikedYou = () => {
           </div>
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence>
               {filteredOwners.map((owner: InterestedOwner) => (
                 <PremiumLikedCard
                   key={owner.id}
@@ -162,39 +169,26 @@ const ClientWhoLikedYou = () => {
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5">
             <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
-            <h3 className="text-foreground font-black text-2xl tracking-tighter">Stay Noticed.</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
+            <h3 className="text-white font-black text-2xl tracking-tighter">Stay Noticed.</h3>
+            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
           </motion.div>
         )}
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-card border-border rounded-[2rem]">
+        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground font-black text-xl">Dismiss Interest?</AlertDialogTitle>
-            <AlertDialogDescription className="text-muted-foreground font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
+            <AlertDialogTitle className="text-white font-black text-xl">Dismiss Interest?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-muted border-border text-foreground rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.owner_id)} className="bg-[#E4007C] text-white rounded-xl font-black">DISMISS</AlertDialogAction>
+            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)} className="bg-[#E4007C] text-white rounded-xl font-black">DISMISS</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Symmetric Flow Modal */}
-      {previewOwner && (
-        <InterestPreviewModal
-          isOpen={isPreviewOpen}
-          onClose={() => setIsPreviewOpen(false)}
-          likerId={previewOwner.owner_id}
-          targetType="profile"
-          onMessageInitiated={handleMessageInitiated}
-        />
-      )}
     </div>
   );
 };
-
-export default ClientWhoLikedYou;
 
 export default ClientWhoLikedYou;

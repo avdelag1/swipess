@@ -1,7 +1,7 @@
 {
-  "name": "Swipess",
+  "name": "Swipess - Find Your Perfect Rental",
   "short_name": "Swipess",
-  "description": "The Elite Multi-Vertical Hub. Swipe through properties, vehicles, and services.",
+  "description": "Find your perfect rental property or tenant with ease. Swipe through properties and connect with the right matches. Swipess makes matching easy.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,7 +10,7 @@
     "minimal-ui"
   ],
   "background_color": "#000000",
-  "theme_color": "#000000",
+  "theme_color": "#ff69b4",
   "orientation": "portrait-primary",
   "lang": "en",
   "dir": "ltr",
