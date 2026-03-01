@@ -1573,10 +1573,36 @@ body {
   background: transparent;
 }
 
+
 *::-webkit-scrollbar-thumb {
   background: hsl(var(--muted-foreground) / 0.3);
   border-radius: 3px;
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  FINAL OVERRIDE FOR WHITE THEME - Fixes "Black Whopper" Legacy Wrappers */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+.white-matte,
+.white-matte body,
+.white-matte #root,
+.white-matte .app-root {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.white-matte .bg-background,
+.white-matte .bg-card,
+.white-matte .bg-secondary {
+  background-color: #ffffff !important;
+}
+
+.white-matte .text-foreground,
+.white-matte .text-primary,
+.white-matte .text-muted-foreground {
+  color: #000000 !important;
+}
+
 
 *::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.5);

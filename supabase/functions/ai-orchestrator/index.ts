@@ -129,24 +129,8 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  const isMinimaxForced = true;
-
-  if (isMinimaxForced) {
-    try {
-      console.log("[AI Orchestrator] Attempting MiniMax...");
-      return await callMinimax(messages, maxTokens);
-    } catch (err) {
-      console.warn("[AI Orchestrator] MiniMax failed, trying Gemini fallback...", err);
-      try {
-        return await callGemini(messages, maxTokens);
-      } catch (geminiErr) {
-        console.error("[AI Orchestrator] Gemini fallback also failed:", geminiErr);
-        throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
-      }
-    }
-  }
-
   try {
+    console.log("[AI Orchestrator] Attempting Gemini (Primary)...");
     return await callGemini(messages, maxTokens);
   } catch (err) {
     console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
