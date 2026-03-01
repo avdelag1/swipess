@@ -4,6 +4,7 @@ import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Fil
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';
@@ -258,7 +259,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             <div className="flex items-center gap-1 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
-                const isServices = category.id === 'services';
+                const colorClass = getCategoryColorClass(category.id, isDark);
                 return (
                   <button
                     key={category.id}
@@ -268,9 +269,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                       'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                       'border',
                       isActive
-                        ? isServices
-                          ? 'bg-emerald-500 text-white border-emerald-500'
-                          : 'bg-orange-500 text-white border-orange-500'
+                        ? cn(colorClass, 'text-white border-current')
                         : 'bg-muted text-foreground border-border hover:bg-muted/80'
                     )}
                   >
@@ -331,7 +330,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                 'border',
                 filters.categories.length === allCategories.length
-                  ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white border-transparent'
+                  ? isDark
+                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 text-white border-transparent'
+                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 text-white border-transparent'
                   : 'bg-muted text-foreground border-border hover:bg-muted/80'
               )}
             >
@@ -350,7 +351,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           <div className="flex items-center gap-1 flex-shrink-0">
             {categories.map((category) => {
               const isActive = filters.categories.includes(category.id);
-              const isServices = category.id === 'services';
+              const colorClass = getCategoryColorClass(category.id, isDark);
               return (
                 <button
                   key={category.id}
@@ -360,9 +361,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                     'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                     'border',
                     isActive
-                      ? isServices
-                        ? 'bg-emerald-500 text-white border-emerald-500'
-                        : 'bg-orange-500 text-white border-orange-500'
+                      ? cn(colorClass, 'text-white border-current')
                       : 'bg-muted text-foreground border-border hover:bg-muted/80'
                   )}
                 >

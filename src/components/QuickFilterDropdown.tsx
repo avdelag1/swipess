@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { getCategoryGradientClass } from '@/types/filters';
 
 // Custom motorcycle icon
 const MotorcycleIcon = ({ className }: { className?: string }) => (
@@ -34,15 +35,14 @@ type CategoryOption = {
   id: QuickFilterCategory;
   label: string;
   icon: React.ReactNode;
-  color: string;
   hasSubOptions: boolean;
 };
 
-const categoryOptions: CategoryOption[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', hasSubOptions: true },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, color: 'from-red-500 to-orange-500', hasSubOptions: true },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500', hasSubOptions: true },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', hasSubOptions: true },
+const categoryOptionBase: CategoryOption[] = [
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
+  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -287,7 +287,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
         {/* Category Options - always inline (no flyout) */}
         <div className="py-2 max-h-[60vh] overflow-y-auto">
-          {categoryOptions.map((category, index) => (
+          {categoryOptionBase.map((category, index) => {
+            const gradientClass = getCategoryGradientClass(category.id, isDark);
+            return (
             <motion.div
               key={category.id}
               initial={{ opacity: 0, x: -20 }}
@@ -300,7 +302,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 className={cn(
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                   categories.includes(category.id)
-                    ? 'bg-gradient-to-r ' + category.color + ' text-white'
+                    ? cn('bg-gradient-to-r', gradientClass, 'text-white')
                     : 'text-foreground hover:bg-white/10'
                 )}
               >
@@ -344,7 +346,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                           className={cn(
                             'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
                             categories.includes(category.id) && listingType === ltOption.id
-                              ? `bg-gradient-to-r ${category.color} text-white`
+                              ? cn('bg-gradient-to-r', gradientClass, 'text-white')
                               : 'text-foreground hover:bg-white/10 bg-white/5'
                           )}
                         >
@@ -356,7 +358,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 )}
               </AnimatePresence>
             </motion.div>
-          ))}
+          );
+          })}
         </div>
       </div>
     );
