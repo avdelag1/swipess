@@ -213,7 +213,7 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-300" />
+                  <Zap strokeWidth={4} className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isDark ? "text-amber-300" : "text-amber-600")} />
                   <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
                     Tokens
                   </span>
@@ -360,8 +360,8 @@ function TopBarComponent({
                   className={cn(
                     "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-200 group-hover:text-orange-100"
-                      : "text-gray-50 group-hover:text-white"
+                      ? (isDark ? "text-orange-200 group-hover:text-orange-100" : "text-orange-600 group-hover:text-orange-700")
+                      : (isDark ? "text-gray-50 group-hover:text-white" : "text-foreground group-hover:text-foreground")
                   )}
                 />
                 <AnimatePresence>
