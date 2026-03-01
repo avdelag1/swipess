@@ -1,10 +1,4 @@
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTheme } from '@/hooks/useTheme';
-import { getSemanticColor } from '@/utils/colors';
-import { cn } from '@/lib/utils';
 
 interface AppErrorProps {
   error: Error;
@@ -12,47 +6,29 @@ interface AppErrorProps {
 }
 
 export function AppError({ error, resetError }: AppErrorProps) {
-  const navigate = useNavigate();
-  const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
-
   const handleGoHome = () => {
     resetError();
-    navigate('/', { replace: true });
+    window.location.href = '/';
   };
 
   const handleReload = () => {
-    // Keep window.location.reload() for full reload scenario
-    // This clears any corrupted state that a soft navigation might not fix
     window.location.reload();
   };
 
-  const errorBgColor = getSemanticColor('error', 'bgLight', isDark);
-  const errorTextColor = getSemanticColor('error', 'text', isDark);
-  const errorBorderColor = getSemanticColor('error', 'border', isDark);
-
   return (
     <div className="min-h-screen min-h-dvh bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div
-            className={cn(
-              'w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border',
-              errorBgColor,
-              errorBorderColor
-            )}
-          >
-            <AlertTriangle className={cn('w-8 h-8', errorTextColor)} />
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-lg">
+        <div className="flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-destructive/30 bg-destructive/10">
+            <AlertTriangle className="w-8 h-8 text-destructive" />
           </div>
-          <CardTitle className="text-xl">Oops! Something went wrong</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-muted-foreground text-center">
+          <h2 className="text-xl font-semibold text-foreground mb-2">Oops! Something went wrong</h2>
+          <p className="text-muted-foreground mb-6">
             We encountered an unexpected error. Don't worry, we're working to fix it!
           </p>
 
           {import.meta.env.DEV && (
-            <div className={cn('p-3 rounded-lg text-xs font-mono overflow-auto max-h-32', errorBgColor, 'border', errorBorderColor)}>
+            <div className="w-full p-3 rounded-lg text-xs font-mono overflow-auto max-h-32 bg-destructive/10 border border-destructive/30 text-destructive text-left mb-6">
               <strong>Error:</strong> {error.message}
               {error.stack && (
                 <details className="mt-2">
@@ -63,38 +39,36 @@ export function AppError({ error, resetError }: AppErrorProps) {
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
-            <Button
+          <div className="w-full flex flex-col gap-2">
+            <button
               onClick={resetError}
-              className={cn('w-full text-white', getSemanticColor('error', 'bg', isDark))}
+              className="w-full h-12 bg-destructive text-destructive-foreground rounded-xl font-medium text-base active:scale-[0.98] transition-transform"
             >
               Try Again
-            </Button>
+            </button>
             <div className="flex gap-2">
-              <Button
+              <button
                 onClick={handleGoHome}
-                variant="outline"
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
+                className="flex-1 h-10 bg-secondary text-secondary-foreground rounded-xl font-medium text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
               >
-                <Home className="w-4 h-4 mr-2" />
+                <Home className="w-4 h-4" />
                 Go Home
-              </Button>
-              <Button
+              </button>
+              <button
                 onClick={handleReload}
-                variant="outline"
-                className="flex-1 border-white/20 text-white hover:bg-white/10"
+                className="flex-1 h-10 bg-secondary text-secondary-foreground rounded-xl font-medium text-sm active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
               >
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-4 h-4" />
                 Reload
-              </Button>
+              </button>
             </div>
           </div>
 
-          <p className="text-xs text-white/50 text-center mt-4">
+          <p className="text-xs text-muted-foreground text-center mt-4">
             If this problem persists, please contact support.
           </p>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
