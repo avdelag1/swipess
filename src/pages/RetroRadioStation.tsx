@@ -197,20 +197,6 @@ export default function RetroRadioStation() {
               className={`w-5 h-5 transition-colors ${isFav ? 'text-white fill-white' : 'text-white/50'}`}
             />
           </motion.button>
-
-          {/* Liked Stations Page Link */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={() => navigate('/radio/favorites')}
-            className="p-2.5 rounded-full transition-all bg-white/5 hover:bg-white/10"
-            aria-label="View liked stations"
-          >
-            <div className="relative">
-              <Heart className="w-5 h-5 text-white/50" />
-              <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-500 rounded-full border border-[#1a1a1a]" />
-            </div>
-          </motion.button>
         </div>
 
         {/* Main Content - Centered Vinyl with Controls */}
