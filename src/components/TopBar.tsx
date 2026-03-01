@@ -196,7 +196,7 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-8 sm:h-9 px-1.5 sm:px-2 rounded-lg transition-all duration-100 ease-out",
+                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
@@ -222,7 +222,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-white/10 bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -277,12 +277,12 @@ function TopBarComponent({
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-1.5">
-                                <span className="font-bold text-white text-sm capitalize">{tier}</span>
-                                <span className="text-white/60 text-xs">{tokens} tokens</span>
+                                <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
+                                <span className="text-muted-foreground text-xs">{tokens} tokens</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
-                                <span className="font-bold text-white text-base">{formatPriceMXN(pkg.price)}</span>
-                                <span className="text-white/40 text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
+                                <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
                               </div>
                             </div>
 
@@ -337,7 +337,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-8 w-8 sm:h-9 sm:w-9 rounded-lg transition-all duration-100 ease-out",
+                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
                 "group flex-shrink-0",
                 "touch-manipulation",
@@ -378,7 +378,7 @@ function TopBarComponent({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-[#1C1C1E]"
+                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-background"
                     style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                   >
                     {notificationCount > 99 ? '99+' : notificationCount}
