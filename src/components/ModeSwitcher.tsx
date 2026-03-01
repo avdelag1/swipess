@@ -43,9 +43,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   }, [activeMode, handleModeSwitch]);
 
   const sizeClasses = {
-    sm: 'h-8 text-[10px]',
-    md: 'h-10 text-[11px]',
-    lg: 'h-11 text-xs',
+    sm: 'h-7 text-[10px]',
+    md: 'h-8 text-xs',
+    lg: 'h-9 text-sm',
   };
 
   if (variant === 'icon') {
@@ -60,7 +60,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
-          size === 'sm' ? 'h-8 w-8 rounded-xl' : size === 'md' ? 'h-10 w-10 rounded-2xl' : 'h-11 w-11 rounded-2xl',
+          size === 'sm' ? 'h-7 w-7' : size === 'md' ? 'h-8 w-8' : 'h-9 w-9',
           className
         )}
         style={{
@@ -174,7 +174,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       onClick={(e) => handleToggle(e)}
       disabled={isSwitching || !canSwitchMode}
       className={cn(
-        'relative flex items-center gap-1.5 rounded-xl px-2.5',
+        'relative flex items-center gap-1 rounded-lg px-2',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -203,16 +203,16 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}
           {isSwitching ? (
-            <Loader2 className="h-3 w-3 animate-spin text-white" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
           ) : activeMode === 'client' ? (
             <>
-              <User strokeWidth={4} className="h-3 w-3 text-teal-400" />
-              <span className="font-extrabold text-[9px] text-teal-400 uppercase tracking-tighter">Client Side</span>
+              <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
+              <span className="font-black text-teal-400 uppercase tracking-tight">Client Side</span>
             </>
           ) : (
             <>
-              <UserCog strokeWidth={4} className="h-3 w-3 text-orange-400" />
-              <span className="font-extrabold text-[9px] text-orange-400 uppercase tracking-tighter">Business Side</span>
+              <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
+              <span className="font-black text-orange-400 uppercase tracking-tight">Business Side</span>
             </>
           )}
         </motion.div>

@@ -20,7 +20,12 @@ export const VisualEngine = () => {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Base gradient - adapts to theme */}
-      <div className="absolute inset-0 transition-colors duration-500 bg-background" />
+      <div
+        className={`absolute inset-0 transition-colors duration-500 ${isDark
+            ? "bg-[#050505]"
+            : "bg-background"
+          }`}
+      />
 
       {/* Glows removed to allow for the 'Organic Frame' and 'Vanishing Shade' aesthetics */}
 
