@@ -26,6 +26,8 @@ const CITY_ICONS: Record<CityLocation, string> = {
   'french': 'FR',
   'podcasts': 'PD',
   'italy': 'IT',
+  'jazz': 'JZ',
+  'reggae': 'RG',
 };
 
 /**
