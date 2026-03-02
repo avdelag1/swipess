@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '@/hooks/useTheme';
+import { cn } from '@/lib/utils';
 
 interface NotificationsDialogProps {
   isOpen: boolean;
