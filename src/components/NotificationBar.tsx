@@ -128,10 +128,13 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
 
             <button
               onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
-              className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
+              className={cn(
+                "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors",
+                isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
+              )}
               aria-label="Dismiss"
             >
-              <X className="w-3 h-3 text-white/40 group-hover:text-white" />
+              <X className={cn("w-3 h-3", isDark ? "text-white/40 group-hover:text-white" : "text-black/40 group-hover:text-black")} />
             </button>
           </motion.div>
         </motion.div>
