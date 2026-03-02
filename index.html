@@ -67,25 +67,51 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="apple-touch-fullscreen" content="yes">
 
-  <!-- Favicon - SVG (modern browsers) + PNG fallbacks + ICO (legacy) -->
+  <!-- Favicon - Flame S logo as app icon -->
+  <link rel="icon" type="image/png" href="/icons/s-logo-app.png">
+  <link rel="shortcut icon" href="/icons/s-logo-app.png">
 
-  <!-- Apple Touch Icons - All required sizes -->
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-touch-icon-57x57.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-touch-icon-60x60.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-touch-icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="76x76" href="/icons/apple-touch-icon-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="/icons/apple-touch-icon-114x114.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-touch-icon-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-touch-icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167x167.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png">
-  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/apple-touch-icon-1024x1024.png">
+  <!-- Apple Touch Icons - Flame S logo as app icon -->
+  <link rel="apple-touch-icon" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="57x57" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/s-logo-app.png">
+  <link rel="apple-touch-icon" sizes="1024x1024" href="/icons/s-logo-app.png">
 
   <!-- Capacitor iOS -->
   <meta name="supported-color-schemes" content="light dark">
   <meta name="color-scheme" content="light dark">
+
+  <!-- Splash screen styles - inline for instant paint before CSS loads -->
+  <style>
+    .initial-loader {
+      position: fixed;
+      inset: 0;
+      background: #050505;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .splash-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 28px;
+      animation: splashPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes splashPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.82; transform: scale(1.06); }
+    }
+  </style>
 
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -131,7 +157,7 @@
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root">
     <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/swipess-logo-script.png" alt="Swipess" />
+      <img class="splash-logo" src="/icons/s-logo-app.png" alt="Swipess" />
     </div>
   </div>
 

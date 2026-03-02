@@ -16,7 +16,7 @@ import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth'
 import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+import swipessLogo from '../../public/icons/s-logo-app.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -108,7 +108,7 @@ const LandingView = memo(({
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[65vw] max-w-[380px] sm:max-w-[450px] md:max-w-[520px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+            className="w-[52vw] max-w-[220px] sm:max-w-[260px] md:max-w-[300px] h-auto object-contain rounded-[32px] drop-shadow-2xl mx-auto"
           />
         </motion.div>
       </motion.div>
