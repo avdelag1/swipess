@@ -856,7 +856,7 @@ const ClientSwipeContainerComponent = ({
   // Empty state (no cards fetched yet)
   if (showEmptyState || !topCard) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ backgroundColor: 'hsl(var(--card))' }}>
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -913,7 +913,7 @@ const ClientSwipeContainerComponent = ({
 
   // Main swipe view - edge-to-edge cards with next card visible behind
   return (
-    <div className="relative w-full h-full flex-1 flex flex-col bg-black">
+    <div className="relative w-full h-full flex-1 flex flex-col bg-background">
       <div className="relative flex-1 w-full">
         {/* Next card visible behind - creates depth and anticipation */}
         {nextCard && (
