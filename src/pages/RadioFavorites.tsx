@@ -45,7 +45,8 @@ export default function RadioFavoritesPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate('/radio')}
+              onClick={() => navigate(-1)}
+              title="Go back"
               className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -98,12 +99,14 @@ export default function RadioFavoritesPage() {
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => handleRemoveFavorite(station!.id, e)}
+                    title="Remove from favorites"
                     className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 hover:bg-red-500/20"
                   >
                     <X className="w-4 h-4" />
                   </button>
                   <button
                     onClick={(e) => { e.stopPropagation(); handlePlayStation(station!.id); }}
+                    title="Play station"
                     className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10"
                   >
                     <Play className="w-4 h-4" fill="currentColor" />
