@@ -370,7 +370,38 @@ serve(async (req) => {
   }
 
   try {
-    // Validate required environment variables first
+    // Handle unauthenticated GET ping — no auth required
+    if (req.method === "GET") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator is alive",
+          gemini_configured: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Read body once up-front so we can check task before auth
+    const body = await req.json();
+    const task: string = body.task || body.type;
+    const data: Record<string, unknown> = body.data || body;
+
+    // Handle ping — no auth required
+    if (task === "ping") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator is alive",
+          gemini_configured: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate required environment variables
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
@@ -403,10 +434,6 @@ serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    const body = await req.json();
-    const task: string = body.task || body.type;
-    const data: Record<string, unknown> = body.data || body;
 
     let messages: Message[];
     let maxTokens = 1000;
@@ -451,15 +478,6 @@ GOAL: Provide direct answers and helpful guidance. If you don't have specific da
         messages = buildConversationMessages(data);
         maxTokens = 1500;
         break;
-      case "ping":
-        return new Response(
-          JSON.stringify({
-            status: "ready",
-            message: "Minimax Connection Verified",
-            key_configured: !!Deno.env.get("MINIMAX_API_KEY")
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
       default:
         return new Response(
           JSON.stringify({ error: `Invalid task: ${task}` }),
