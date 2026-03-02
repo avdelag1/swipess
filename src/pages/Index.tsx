@@ -8,7 +8,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
-import flameSLogo from '../../public/icons/s-logo-app.png';
 
 const Index = () => {
   const { user, loading, initialized } = useAuth();
@@ -226,11 +225,7 @@ const Index = () => {
   }, [user?.id]);
 
   if (!initialized || loading) {
-    return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-        <img src={flameSLogo} alt="Swipess" style={{ width: 140, height: 140, objectFit: 'contain', borderRadius: 28, animation: 'pulse 1.8s ease-in-out infinite' }} />
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // User exists but still loading role - show transparent screen
@@ -256,11 +251,7 @@ const Index = () => {
       );
     }
 
-    return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-        <img src={flameSLogo} alt="Swipess" style={{ width: 140, height: 140, objectFit: 'contain', borderRadius: 28, animation: 'pulse 1.8s ease-in-out infinite' }} />
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -273,11 +264,7 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-      <img src={flameSLogo} alt="Swipess" style={{ width: 140, height: 140, objectFit: 'contain', borderRadius: 28, animation: 'pulse 1.8s ease-in-out infinite' }} />
-    </div>
-  );
+  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
 };
 
 export default Index;
