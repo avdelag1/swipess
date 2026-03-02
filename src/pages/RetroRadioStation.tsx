@@ -18,6 +18,7 @@ import {
   SkipForward,
   Play,
   Pause,
+  Library,
 } from 'lucide-react';
 
 /**
@@ -196,6 +197,25 @@ export default function RetroRadioStation() {
             <Heart
               className={`w-5 h-5 transition-colors ${isFav ? 'text-white fill-white' : 'text-white/50'}`}
             />
+          </motion.button>
+
+          {/* Navigate to liked stations */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.05 }}
+            onClick={() => navigate('/radio/favorites')}
+            className="relative p-2.5 rounded-full transition-all"
+            aria-label="View liked stations"
+          >
+            <Library className="w-5 h-5 text-white/50" />
+            {state.favorites.length > 0 && (
+              <span
+                className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full text-[8px] font-bold text-white flex items-center justify-center"
+                style={{ background: cityTheme.primaryColor }}
+              >
+                {state.favorites.length > 9 ? '9+' : state.favorites.length}
+              </span>
+            )}
           </motion.button>
         </div>
 
