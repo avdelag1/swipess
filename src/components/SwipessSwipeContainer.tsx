@@ -1308,7 +1308,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     const { title, description } = getEmptyMessage();
 
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <div className="relative w-full flex-1 flex items-center justify-center px-4 bg-background" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
