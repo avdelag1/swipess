@@ -70,19 +70,18 @@ const deferredInit = (callback: () => void, timeout = 3000) => {
 deferredInit(async () => {
   try {
     const [
-      { logBundleSize },
-      { setupUpdateChecker, checkAppVersion },
+      { checkAppVersion, setupUpdateChecker },
       { initPerformanceOptimizations },
       { initWebVitalsMonitoring },
       { initOfflineSync },
     ] = await Promise.all([
-      import("@/utils/performance"),
+      // import("@/utils/performance"),
       import("@/utils/cacheManager"),
       import("@/utils/performanceMonitor"),
       import("@/utils/webVitals"),
       import("@/utils/offlineSwipeQueue"),
     ]);
-    logBundleSize();
+    // logBundleSize();
     checkAppVersion();
     // Check for updates every 60 seconds (more aggressive)
     setupUpdateChecker(60000);
@@ -116,10 +115,10 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
       .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
       .then((registration) => {
         console.log('[SW] Registered successfully');
-        
+
         // Check for updates immediately
         registration.update();
-        
+
         // Check for updates frequently (every 60 seconds)
         setInterval(() => registration.update(), 60000);
 

@@ -92,7 +92,7 @@ export function useSaveOwnerProfile() {
       }
 
       // SYNC to profiles table - so owner info shows in messages/public profiles
-      const syncPayload: any = {
+      const syncPayload: Record<string, any> = {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 

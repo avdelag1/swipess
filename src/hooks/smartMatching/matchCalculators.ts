@@ -153,7 +153,7 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
  * Calculate match between owner preferences and a client profile.
  * Returns a weighted score based on budget, demographics, lifestyle, and compatibility.
  */
-export function calculateClientMatch(ownerPrefs: any, clientProfile: any): {
+export function calculateClientMatch(ownerPrefs: Record<string, any>, clientProfile: Record<string, any>): {
     percentage: number;
     reasons: string[];
     incompatible: string[];

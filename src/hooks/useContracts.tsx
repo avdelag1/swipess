@@ -66,7 +66,7 @@ export function useContracts() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data as unknown) as (DigitalContract & { 
+      return (data as unknown) as (DigitalContract & {
         signatures: ContractSignature[];
         deal_status: DealStatus[];
       })[];
@@ -194,7 +194,7 @@ export function useSignContract() {
       const isClient = contract.client_id === user.id;
 
       let newStatus: string;
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
 
       if (isOwner) {
         newStatus = 'signed_by_owner';
@@ -219,7 +219,7 @@ export function useSignContract() {
         throw new Error('User not authorized to sign this contract');
       }
 
-      updateData.status = newStatus as 'pending' | 'signed_by_owner' | 'signed_by_client' | 'completed' | 'cancelled' | 'disputed';
+      updateData.status = newStatus;
 
       // Update deal status
       await (supabase as any)

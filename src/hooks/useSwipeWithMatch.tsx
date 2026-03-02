@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { logger } from '@/utils/prodLogger';
 
 interface SwipeWithMatchOptions {
-  onMatch?: (clientProfile: any, ownerProfile: any) => void;
+  onMatch?: (clientProfile: Record<string, unknown>, ownerProfile: Record<string, unknown>) => void;
 }
 
 export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
@@ -51,7 +51,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         }
       }
 
-      let like: any;
+      let like: Record<string, any> | null = null;
 
       if (targetType === 'profile') {
         // Owner swiping on a client profile
@@ -373,7 +373,7 @@ async function detectAndCreateMatch({
   targetId: string;
   targetType: 'listing' | 'profile';
   userId: string;
-  onMatch?: (clientProfile: any, ownerProfile: any) => void;
+  onMatch?: (clientProfile: Record<string, unknown>, ownerProfile: Record<string, unknown>) => void;
 }) {
   let mutualLike = null;
   let matchClientId: string;

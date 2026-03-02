@@ -13,10 +13,10 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type { 
-  QuickFilterCategory, 
-  QuickFilterListingType, 
-  ClientGender, 
+import type {
+  QuickFilterCategory,
+  QuickFilterListingType,
+  ClientGender,
   ClientType,
   QuickFilters,
   ListingFilters
@@ -29,55 +29,55 @@ interface FilterState {
   activeCategory: QuickFilterCategory | null;
   categories: QuickFilterCategory[];
   listingType: QuickFilterListingType;
-  
+
   // ========== OWNER FILTERS ==========
   // Client filters for owner swipe deck
   clientGender: ClientGender;
   clientType: ClientType;
-  
+
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
   bedrooms: number[];
   bathrooms: number[];
   amenities: string[];
   propertyTypes: string[];
-  
+
   // ========== STATE FLAGS ==========
   // Version number that increments on every filter change
   // Swipe containers watch this to know when to reset their decks
   filterVersion: number;
-  
+
   // Timestamp of last filter change for cache invalidation
   lastChangedAt: number;
-  
+
   // ========== ACTIONS ==========
   // Category actions
   setActiveCategory: (category: QuickFilterCategory | null) => void;
   toggleCategory: (category: QuickFilterCategory) => void;
   setCategories: (categories: QuickFilterCategory[]) => void;
-  
+
   // Listing type actions
   setListingType: (type: QuickFilterListingType) => void;
-  
+
   // Owner filter actions
   setClientGender: (gender: ClientGender) => void;
   setClientType: (type: ClientType) => void;
-  
+
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
   setBathrooms: (bathrooms: number[]) => void;
   setAmenities: (amenities: string[]) => void;
   setPropertyTypes: (types: string[]) => void;
-  
+
   // Bulk update
   setFilters: (filters: Partial<QuickFilters>) => void;
-  
+
   // Reset actions
   resetClientFilters: () => void;
   resetOwnerFilters: () => void;
   resetAllFilters: () => void;
-  
+
   // Getters
   getQuickFilters: () => QuickFilters;
   getListingFilters: () => ListingFilters;
@@ -106,7 +106,7 @@ export const useFilterStore = create<FilterState>()(
     propertyTypes: [],
     filterVersion: 0,
     lastChangedAt: Date.now(),
-    
+
     // ========== CATEGORY ACTIONS ==========
     setActiveCategory: (category) => {
       logger.info('[FilterStore] setActiveCategory:', category);
@@ -118,7 +118,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     toggleCategory: (category) => {
       logger.info('[FilterStore] toggleCategory:', category);
       set((state) => {
@@ -126,7 +126,7 @@ export const useFilterStore = create<FilterState>()(
         const newCategories = isActive
           ? state.categories.filter(c => c !== category)
           : [...state.categories, category];
-        
+
         return {
           categories: newCategories,
           activeCategory: newCategories.length === 1 ? newCategories[0] : null,
@@ -135,7 +135,7 @@ export const useFilterStore = create<FilterState>()(
         };
       });
     },
-    
+
     setCategories: (categories) => {
       logger.info('[FilterStore] setCategories:', categories);
       set((state) => ({
@@ -145,7 +145,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     // ========== LISTING TYPE ACTIONS ==========
     setListingType: (type) => {
       logger.info('[FilterStore] setListingType:', type);
@@ -155,7 +155,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     // ========== OWNER FILTER ACTIONS ==========
     setClientGender: (gender) => {
       logger.info('[FilterStore] setClientGender:', gender);
@@ -165,7 +165,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     setClientType: (type) => {
       logger.info('[FilterStore] setClientType:', type);
       set((state) => ({
@@ -174,16 +174,17 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     // ========== ADVANCED FILTER ACTIONS ==========
     setPriceRange: (range) => {
+      logger.info('[FilterStore] setPriceRange:', range);
       set((state) => ({
         priceRange: range,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     setBedrooms: (bedrooms) => {
       set((state) => ({
         bedrooms,
@@ -191,7 +192,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     setBathrooms: (bathrooms) => {
       set((state) => ({
         bathrooms,
@@ -199,7 +200,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     setAmenities: (amenities) => {
       set((state) => ({
         amenities,
@@ -207,7 +208,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     setPropertyTypes: (types) => {
       set((state) => ({
         propertyTypes: types,
@@ -215,7 +216,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     // ========== BULK UPDATE ==========
     setFilters: (filters) => {
       logger.info('[FilterStore] setFilters:', filters);
@@ -229,7 +230,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     // ========== RESET ACTIONS ==========
     resetClientFilters: () => {
       logger.info('[FilterStore] resetClientFilters');
@@ -246,7 +247,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     resetOwnerFilters: () => {
       logger.info('[FilterStore] resetOwnerFilters');
       set((state) => ({
@@ -259,7 +260,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     resetAllFilters: () => {
       logger.info('[FilterStore] resetAllFilters');
       set((state) => ({
@@ -277,7 +278,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
     // ========== GETTERS ==========
     getQuickFilters: () => {
       const state = get();
@@ -290,11 +291,11 @@ export const useFilterStore = create<FilterState>()(
         activeCategory: state.activeCategory ?? undefined,
       };
     },
-    
+
     getListingFilters: () => {
       const state = get();
       const hasServices = state.categories.includes('services');
-      
+
       return {
         category: state.activeCategory ?? undefined,
         categories: state.categories.map(mapCategoryToDb),
@@ -309,7 +310,7 @@ export const useFilterStore = create<FilterState>()(
         clientType: state.clientType !== 'all' ? state.clientType : undefined,
       };
     },
-    
+
     hasActiveFilters: (role) => {
       const state = get();
       if (role === 'client') {
@@ -317,7 +318,7 @@ export const useFilterStore = create<FilterState>()(
       }
       return state.clientGender !== 'any' || state.clientType !== 'all' || state.categories.length > 0 || state.listingType !== 'both';
     },
-    
+
     getActiveFilterCount: (role) => {
       const state = get();
       if (role === 'client') {

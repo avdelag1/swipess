@@ -23,10 +23,10 @@ export const NotificationPreferencesSettings = ({ role }: { role: 'client' | 'ow
     const { data: profile, isLoading } = useQuery({
         queryKey: ['profile-preferences', user?.id],
         queryFn: async () => {
-            const { data, error } = await supabase
+            const { data, error } = await (supabase as any)
                 .from('profiles')
                 .select('notification_preferences')
-                .eq('id', user?.id!)
+                .eq('id', user!.id)
                 .single();
             if (error) throw error;
             return data;
@@ -36,10 +36,10 @@ export const NotificationPreferencesSettings = ({ role }: { role: 'client' | 'ow
 
     const updatePreferencesMutation = useMutation({
         mutationFn: async (newPrefs: NotificationPreferences) => {
-            const { error } = await supabase
+            const { error } = await (supabase as any)
                 .from('profiles')
                 .update({ notification_preferences: newPrefs })
-                .eq('id', user?.id!);
+                .eq('id', user!.id);
             if (error) throw error;
         },
         onSuccess: () => {

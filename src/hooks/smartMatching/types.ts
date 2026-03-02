@@ -19,7 +19,7 @@ export interface MatchedClientProfile {
     gender: string;
     interests: string[];
     preferred_activities: string[];
-    location: any;
+    location: Record<string, unknown>;
     lifestyle_tags: string[];
     profile_images: string[];
     preferred_listing_types?: string[];

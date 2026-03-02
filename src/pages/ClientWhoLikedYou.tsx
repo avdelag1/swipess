@@ -196,5 +196,3 @@ const ClientWhoLikedYou = () => {
 };
 
 export default ClientWhoLikedYou;
-
-export default ClientWhoLikedYou;

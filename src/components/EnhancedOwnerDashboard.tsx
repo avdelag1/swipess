@@ -8,11 +8,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
+import { logger } from '@/utils/prodLogger';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
   onMessageClick?: () => void;
-  filters?: any; // Combined quick filters + advanced filters from DashboardLayout
+  filters?: Record<string, unknown>; // Combined quick filters + advanced filters from DashboardLayout
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
@@ -34,20 +35,17 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
   const filterCategory = mergedFilters?.categories?.[0] || mergedFilters?.category || undefined;
-  console.log('[EnhancedOwnerDashboard] Rendering with filters:', mergedFilters);
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
-    filterCategory as any,
+    filterCategory as 'property' | 'moto' | 'bicycle' | undefined,
     0,      // page
     50,     // limit
     false,  // isRefreshMode
-    mergedFilters as any // FIX: Now includes synced filters!
+    mergedFilters as Record<string, unknown> // FIX: Now includes synced filters!
   );
 
   if (error) {
-    console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
-  } else {
-    console.log('[EnhancedOwnerDashboard] Fetched profiles count:', clientProfiles.length);
+    logger.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
   }
 
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();

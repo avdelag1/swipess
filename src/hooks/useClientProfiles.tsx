@@ -12,7 +12,7 @@ export interface ClientProfile {
   interests: string[];
   preferred_activities: string[];
   profile_images: string[];
-  location: any;
+  location: Record<string, unknown> | null;
   city?: string;
   avatar_url?: string;
   verified?: boolean;
@@ -78,7 +78,7 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
           .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood')
           .limit(200);
 
-        const clientProfileMap = new Map<string, any>();
+        const clientProfileMap = new Map<string, Record<string, unknown>>();
         if (clientProfileData) {
           for (const cp of clientProfileData) {
             clientProfileMap.set(cp.user_id, cp);
@@ -86,13 +86,13 @@ export function useClientProfiles(excludeSwipedIds: string[] = [], options: { en
         }
 
         // Transform profiles to ClientProfile interface with enrichment
-        const transformed: ClientProfile[] = profiles.map((profile: any, index: number) => {
-          const cpData = clientProfileMap.get(profile.user_id);
+        const transformed: ClientProfile[] = profiles.map((profile: Record<string, any>, index: number) => {
+          const cpData = clientProfileMap.get(profile.user_id) as Record<string, any> | undefined;
           const name = profile.full_name || cpData?.name || 'New User';
-          const profileImages = (profile.images && (profile.images as any[]).length > 0)
-            ? profile.images
-            : (cpData?.profile_images && (cpData.profile_images as any[]).length > 0)
-              ? cpData.profile_images
+          const profileImages = (profile.images && (profile.images as string[]).length > 0)
+            ? (profile.images as string[])
+            : (cpData?.profile_images && (cpData.profile_images as string[]).length > 0)
+              ? (cpData.profile_images as string[])
               : [];
 
           return {
@@ -156,7 +156,7 @@ export function useSwipedClientProfiles() {
           logger.error('Error fetching owner swipes:', error);
           return [];
         }
-        return ownerLikes?.map((l: any) => l.target_id) || [];
+        return ownerLikes?.map((l: { target_id: string }) => l.target_id) || [];
       } catch (error) {
         logger.error('Failed to fetch swiped client profiles:', error);
         return [];

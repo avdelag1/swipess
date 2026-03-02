@@ -21,7 +21,7 @@ interface Notification {
   metadata?: {
     role?: 'client' | 'owner';
     targetType?: 'listing' | 'profile';
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
@@ -36,7 +36,7 @@ interface DBNotification {
   title?: string;
   link_url?: string;
   related_user_id?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export function useNotificationSystem() {
@@ -145,7 +145,7 @@ export function useNotificationSystem() {
           filter: `user_id=eq.${user.id}`,
         },
         async (payload) => {
-          const dbNotification = payload.new as any;
+          const dbNotification = payload.new as DBNotification;
           if (!dbNotification) return;
 
           // Map database notification to frontend format
@@ -178,11 +178,11 @@ export function useNotificationSystem() {
 
           // Add avatar from metadata if available
           if (dbNotification.metadata?.liker_avatar) {
-            notification.avatar = dbNotification.metadata.liker_avatar;
+            notification.avatar = dbNotification.metadata.liker_avatar as string;
           } else if (dbNotification.metadata?.owner_avatar) {
-            notification.avatar = dbNotification.metadata.owner_avatar;
+            notification.avatar = dbNotification.metadata.owner_avatar as string;
           } else if (dbNotification.metadata?.sender_avatar) {
-            notification.avatar = dbNotification.metadata.sender_avatar;
+            notification.avatar = dbNotification.metadata.sender_avatar as string;
           }
 
           // OPTIMIZATION: Add to pending queue instead of immediate state update
