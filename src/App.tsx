@@ -258,8 +258,6 @@ const App = () => (
                                       <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
                                       <Route path="/owner/filters" element={<OwnerFilters />} />
 
-                                      {/* AI Test route */}
-                                      <Route path="/ai-test" element={<AITestPage />} />
 
                                       {/* Shared routes (both roles) */}
                                       <Route path="/messages" element={<MessagingDashboard />} />
@@ -279,6 +277,9 @@ const App = () => (
                                     <Route path="/terms-of-service" element={<TermsOfService />} />
                                     <Route path="/agl" element={<AGLPage />} />
                                     <Route path="/legal" element={<LegalPage />} />
+
+                                    {/* AI Test — public, no login required */}
+                                    <Route path="/ai-test" element={<AITestPage />} />
 
                                     {/* Info Pages - Public Access */}
                                     <Route path="/about" element={<AboutPage />} />
