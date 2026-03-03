@@ -168,8 +168,8 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   // Theme-aware colors — maximum contrast for white-matte
   const iconColor = isLight ? '#1a1a1a' : 'hsl(var(--foreground))';
   const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
-  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(24, 24, 27, 0.8)';
-  const bgActive = isLight ? 'rgba(0, 0, 0, 0.12)' : 'rgba(39, 39, 42, 0.95)';
+  const bgDefault = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(24, 24, 27, 0.8)';
+  const bgActive = isLight ? 'rgba(0, 0, 0, 0.14)' : 'rgba(39, 39, 42, 0.95)';
   const borderColor = isLight ? 'rgba(0, 0, 0, 0.12)' : 'hsl(var(--border) / 0.55)';
   const shadowColor = isLight
     ? '0 2px 8px rgba(0,0,0,0.06)'
@@ -260,7 +260,7 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
                 )}
                 style={{
                   color: active ? activeColor : iconColor,
-                  opacity: active ? 1 : (isLight ? 1 : 0.7)
+                  opacity: active ? 1 : (isLight ? 1 : 0.8)
                 }}
               >
                 {item.label}
