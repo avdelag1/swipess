@@ -316,6 +316,12 @@ export default defineConfig(({ mode }) => ({
       treeshake: {
         preset: 'safest',
       },
+      // Suppress known benign module resolution warnings
+      onwarn(warning, warn) {
+        // DOMPurify ESM exports sanitize as a method on the default object, not as a named export
+        if (warning.code === 'MISSING_EXPORT' && warning.exporter?.includes('dompurify')) return;
+        warn(warning);
+      },
     },
     // Warn on chunks larger than 1000KB to reduce noise
     chunkSizeWarningLimit: 1000,

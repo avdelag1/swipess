@@ -563,7 +563,7 @@ const ClientSwipeContainerComponent = ({
       }),
 
       // Track dismissal on left swipe (dislike)
-      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { }) : Promise.resolve(),
+      direction === 'left' ? dismissTarget(profile.user_id).catch(() => { /* silently ignore dismissal errors */ }) : Promise.resolve(),
 
       // Record for undo - pass category so deck can be properly restored
       Promise.resolve(recordSwipe(profile.user_id, 'profile', direction, category))
@@ -929,7 +929,7 @@ const ClientSwipeContainerComponent = ({
           >
             <SimpleOwnerSwipeCard
               profile={nextCard}
-              onSwipe={() => { }}
+              onSwipe={() => { /* noop: non-interactive card */ }}
               isTop={false}
               hideActions={true}
             />

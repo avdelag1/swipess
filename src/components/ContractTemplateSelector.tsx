@@ -30,14 +30,14 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const categoryColors: Record<string, string> = {
-  lease: 'bg-blue-100 text-blue-800',
-  rental: 'bg-green-100 text-green-800',
-  rental_agreement: 'bg-emerald-100 text-emerald-800',
-  purchase: 'bg-purple-100 text-purple-800',
-  service: 'bg-orange-100 text-orange-800',
-  bicycle: 'bg-cyan-100 text-cyan-800',
-  moto: 'bg-red-100 text-red-800',
-  promise: 'bg-amber-100 text-amber-800'
+  lease: 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
+  rental: 'bg-green-500/10 text-green-700 dark:text-green-300',
+  rental_agreement: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  purchase: 'bg-purple-500/10 text-purple-700 dark:text-purple-300',
+  service: 'bg-orange-500/10 text-orange-700 dark:text-orange-300',
+  bicycle: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300',
+  moto: 'bg-red-500/10 text-red-700 dark:text-red-300',
+  promise: 'bg-amber-500/10 text-amber-700 dark:text-amber-300'
 };
 
 export const ContractTemplateSelector: React.FC<ContractTemplateSelectorProps> = ({
@@ -61,14 +61,14 @@ export const ContractTemplateSelector: React.FC<ContractTemplateSelectorProps> =
       <DialogContent className="sm:max-w-[800px] h-[85vh] flex flex-col p-0">
         <DialogHeader className="shrink-0 px-6 pt-6 pb-2">
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-600" />
+            <FileText className="w-5 h-5 text-primary" />
             Choose a Contract Template
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden px-6">
           <Tabs defaultValue="all" className="h-full flex flex-col">
-            <TabsList className="w-full flex-wrap h-auto gap-1 bg-gray-100 p-1">
+            <TabsList className="w-full flex-wrap h-auto gap-1 bg-muted p-1">
               {categories.map(cat => (
                 <TabsTrigger
                   key={cat}
@@ -86,7 +86,7 @@ export const ContractTemplateSelector: React.FC<ContractTemplateSelectorProps> =
                 {filteredTemplates.map((template) => (
                   <Card
                     key={template.id}
-                    className="cursor-pointer hover:border-blue-400 hover:shadow-md transition-all"
+                    className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
                     onClick={() => onSelectTemplate(template)}
                   >
                     <CardContent className="p-4">
@@ -101,11 +101,11 @@ export const ContractTemplateSelector: React.FC<ContractTemplateSelectorProps> =
                               {template.category.replace('_', ' ')}
                             </Badge>
                           </div>
-                          <p className="text-sm text-gray-600 line-clamp-2">
+                          <p className="text-sm text-muted-foreground line-clamp-2">
                             {template.description}
                           </p>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400 shrink-0" />
+                        <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                       </div>
                     </CardContent>
                   </Card>
@@ -115,9 +115,9 @@ export const ContractTemplateSelector: React.FC<ContractTemplateSelectorProps> =
           </Tabs>
         </div>
 
-        <div className="shrink-0 p-4 border-t bg-gray-50">
+        <div className="shrink-0 p-4 border-t bg-muted/50">
           <div className="flex justify-between items-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} available
             </p>
             <Button variant="outline" onClick={() => onOpenChange(false)}>
