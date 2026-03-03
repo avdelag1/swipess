@@ -157,16 +157,22 @@ const Index = () => {
         return cachedMode;
       }
 
-      // Try database
-      const { data } = await supabase
-        .from('profiles')
-        .select('active_mode')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Try database with a 3-second timeout to prevent getting stuck
+      try {
+        const dbPromise = supabase
+          .from('profiles')
+          .select('active_mode')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+        const result = await Promise.race([dbPromise, timeoutPromise]);
 
-      if (data?.active_mode === 'client' || data?.active_mode === 'owner') {
-        logger.log("[Index] Sticky mode found in database:", data.active_mode);
-        return data.active_mode as 'client' | 'owner';
+        if (result && 'data' in result && (result.data?.active_mode === 'client' || result.data?.active_mode === 'owner')) {
+          logger.log("[Index] Sticky mode found in database:", result.data.active_mode);
+          return result.data.active_mode as 'client' | 'owner';
+        }
+      } catch {
+        logger.warn("[Index] fetchActiveMode DB query failed, skipping");
       }
 
       return null;
@@ -214,7 +220,18 @@ const Index = () => {
       }
     };
 
-    performRedirection();
+    // Safety net: if performRedirection never fires navigation within 6s, force it
+    const safetyTimeout = setTimeout(() => {
+      if (!hasNavigated.current && user) {
+        hasNavigated.current = true;
+        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+        logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
+        navigate(targetPath, { replace: true });
+      }
+    }, 6000);
+
+    performRedirection().finally(() => clearTimeout(safetyTimeout));
   }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
 
   // Reset navigation flag when user changes
