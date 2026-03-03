@@ -14,6 +14,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const hasNavigated = useRef(false);
+  const [showEscapeHatch, setShowEscapeHatch] = useState(false);
 
   // Capture referral code from URL if present (works for app-wide referral links)
   useEffect(() => {
@@ -217,10 +218,22 @@ const Index = () => {
         hasNavigated.current = true;
         logger.log("[Index] Last resort navigation to:", targetPath);
         navigate(targetPath, { replace: true });
+        return;
+      }
+
+      // Unconditional last resort: never leave user on black screen
+      // Fires when role query is in-flight AND user is new with no metadata role
+      if (!hasNavigated.current) {
+        hasNavigated.current = true;
+        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+        logger.warn("[Index] Unconditional fallback navigation to:", targetPath);
+        navigate(targetPath, { replace: true });
       }
     };
 
-    // Safety net: if performRedirection never fires navigation within 6s, force it
+    // Safety net: if performRedirection never fires navigation within 4s, force it
+    // IMPORTANT: Do NOT clear this from performRedirection — it must run independently
     const safetyTimeout = setTimeout(() => {
       if (!hasNavigated.current && user) {
         hasNavigated.current = true;
@@ -229,17 +242,26 @@ const Index = () => {
         logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
         navigate(targetPath, { replace: true });
       }
-    }, 6000);
+    }, 4000);
 
-    performRedirection().finally(() => clearTimeout(safetyTimeout));
+    performRedirection();
+    return () => clearTimeout(safetyTimeout);
   }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
 
   // Reset navigation flag when user changes
   useEffect(() => {
     if (!user) {
       hasNavigated.current = false;
+      setShowEscapeHatch(false);
     }
   }, [user?.id]);
+
+  // Escape hatch: show a recovery UI if loading is stuck beyond 6 seconds
+  useEffect(() => {
+    if (!user || !initialized || hasNavigated.current) return;
+    const timer = setTimeout(() => setShowEscapeHatch(true), 6000);
+    return () => clearTimeout(timer);
+  }, [user, initialized]);
 
   if (!initialized || loading) {
     return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
@@ -262,6 +284,24 @@ const Index = () => {
               className="mt-4 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
             >
               Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (showEscapeHatch) {
+      return (
+        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+          <div className="text-center space-y-4 p-4 max-w-sm">
+            <div className="text-orange-500 text-3xl">⏳</div>
+            <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
+            <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+            <button
+              onClick={() => { window.location.href = '/?clear-cache=1'; }}
+              className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
+            >
+              Refresh &amp; Continue
             </button>
           </div>
         </div>
