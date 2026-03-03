@@ -34,7 +34,7 @@ export interface SimpleSwipeCardRef {
 // Tinder-style thresholds
 const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
-const FALLBACK_PLACEHOLDER = '/placeholder.svg';
+const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
 
 // Max rotation angle (degrees) based on horizontal position
 const MAX_ROTATION = 18; // Increased from 12 for more dramatic swing
@@ -391,7 +391,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           pointerEvents: 'none',
         }}
       >
-        <CardImage src={currentImage} alt={listing.title || 'Listing'} />
+        <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
         {/* No gradient - full-bleed cards */}
       </div>
     );
@@ -442,7 +442,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           }}
         >
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
-          <CardImage src={currentImage} alt={listing.title || 'Listing'} />
+          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
 
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
