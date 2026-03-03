@@ -94,7 +94,7 @@ export const CompactRatingDisplay = memo<CompactRatingDisplayPropsWithLoading>(
       // No ratings yet - show default 5.0 (no "New" badge)
       return (
         <div className={cn('flex items-center gap-1 text-sm', className)}>
-          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+          <Star className="w-4 h-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
           <span className="font-semibold">5.0</span>
         </div>
       );
@@ -107,7 +107,7 @@ export const CompactRatingDisplay = memo<CompactRatingDisplayPropsWithLoading>(
         {/* Rating and Trust Badge */}
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            <Star className="w-4 h-4 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
             <span className="font-semibold text-base">
               {displayed_rating.toFixed(1)}
             </span>
@@ -179,7 +179,7 @@ export const DetailedRatingDisplay = memo<DetailedRatingDisplayProps>(
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="text-5xl font-bold">{displayed_rating.toFixed(1)}</span>
-            <Star className="w-8 h-8 fill-yellow-400 text-yellow-400" />
+            <Star className="w-8 h-8 fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400" />
           </div>
           <p className="text-sm text-muted-foreground">
             {total_ratings} {total_ratings === 1 ? 'rating' : 'ratings'}
@@ -202,7 +202,7 @@ export const DetailedRatingDisplay = memo<DetailedRatingDisplayProps>(
                 <span className="w-12 text-right font-medium">{stars} ★</span>
                 <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-yellow-400 transition-all"
+                    className="h-full bg-amber-500 dark:bg-amber-400 transition-all"
                     style={{ width: `${barWidth}%` }}
                   />
                 </div>
@@ -255,7 +255,7 @@ export const StarRatingInput = memo<StarRatingInputProps>(
               className={cn(
                 'transition-all',
                 disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:scale-110',
-                'focus:outline-none focus:ring-2 focus:ring-yellow-400 rounded'
+                'focus:outline-none focus:ring-2 focus:ring-amber-500 dark:focus:ring-amber-400 rounded'
               )}
               aria-label={`Rate ${star} stars`}
             >
@@ -263,8 +263,8 @@ export const StarRatingInput = memo<StarRatingInputProps>(
                 className={cn(
                   sizeClasses[size],
                   isFilled
-                    ? 'fill-yellow-400 text-yellow-400'
-                    : 'fill-none text-gray-300 dark:text-gray-600'
+                    ? 'fill-amber-500 text-amber-500 dark:fill-amber-400 dark:text-amber-400'
+                    : 'fill-none text-muted-foreground'
                 )}
               />
             </button>
