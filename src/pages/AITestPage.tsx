@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Zap, AlertCircle, CheckCircle } from "lucide-react";
+import { Send, Bot, User, Zap, AlertCircle, CheckCircle, Sparkles, ChevronRight } from "lucide-react";
+import { SwipessLogo } from "@/components/SwipessLogo";
 
 interface Message {
   role: "user" | "assistant";
@@ -90,144 +91,179 @@ const AITestPage = () => {
   };
 
   return (
-    <div className="w-full min-h-full flex flex-col px-4 py-4 pb-32 max-w-2xl mx-auto">
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-black tracking-tight text-foreground flex items-center gap-2">
-            <Zap className="w-5 h-5 text-primary" />
-            AI Test Console
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Send any question to the AI engine — test connectivity &amp; responses
-          </p>
-        </div>
+    <div className="relative w-full min-h-screen flex flex-col overflow-hidden bg-background">
+      {/* Background Orbs for Depth */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[100px] animate-pulse-subtle pointer-events-none" />
+      <div className="absolute bottom-[20%] right-[-5%] w-[30%] h-[30%] bg-pink-500/10 rounded-full blur-[80px] animate-float-slow pointer-events-none" />
 
-        <div className="flex items-center gap-2">
-          {status === "ok" && (
-            <div className="flex items-center gap-1 text-emerald-400 text-xs font-bold">
-              <CheckCircle className="w-3.5 h-3.5" />
-              {providerUsed}
+      <div className="relative z-10 w-full flex-1 flex flex-col px-4 pt-calc(var(--safe-top)+16px) pb-32 max-w-2xl mx-auto view-enter-premium">
+        {/* Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <SwipessLogo size="sm" className="drop-shadow-glow" />
+            <div>
+              <h1 className="text-xl font-black tracking-tighter text-foreground flex items-center gap-1.5 uppercase italic">
+                Oracle <span className="text-primary not-italic">Test</span>
+              </h1>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest opacity-60">
+                AI Diagnostic Interface 2.0
+              </p>
             </div>
-          )}
-          {status === "error" && (
-            <div className="flex items-center gap-1 text-red-400 text-xs font-bold">
-              <AlertCircle className="w-3.5 h-3.5" />
-              failed
-            </div>
-          )}
-          {messages.length > 0 && (
-            <button
-              onClick={clearChat}
-              className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 space-y-3 mb-4 min-h-[200px]">
-        {messages.length === 0 && (
-          <div className="text-center py-12 text-zinc-600">
-            <Bot className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p className="text-sm font-medium">Ask anything</p>
-            <p className="text-xs mt-1">The AI will respond using MiniMax (fallback: Gemini)</p>
           </div>
-        )}
 
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.ts}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
-              {msg.role === "assistant" && (
-                <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Bot className="w-3.5 h-3.5 text-primary" />
-                </div>
-              )}
-
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed font-medium ${
-                  msg.role === "user"
-                    ? "bg-primary text-white rounded-br-sm"
-                    : msg.error
-                    ? "bg-red-950/60 border border-red-500/30 text-red-300 rounded-bl-sm"
-                    : "bg-zinc-800/60 border border-white/5 text-foreground/90 rounded-bl-sm"
-                }`}
+          <div className="flex items-center gap-2">
+            {status === "ok" && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-tight"
               >
-                <p className="whitespace-pre-wrap">{msg.content}</p>
-                {msg.provider && !msg.error && (
-                  <p className="text-[10px] text-zinc-500 mt-1.5">via {msg.provider}</p>
-                )}
-              </div>
+                <CheckCircle className="w-3 h-3" />
+                {providerUsed}
+              </motion.div>
+            )}
+            {status === "error" && (
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-black uppercase tracking-tight"
+              >
+                <AlertCircle className="w-3 h-3" />
+                Error
+              </motion.div>
+            )}
+            {messages.length > 0 && (
+              <button
+                onClick={clearChat}
+                className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-primary transition-all px-3 py-1.5 rounded-xl hover:bg-white/5 active:scale-90"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
 
-              {msg.role === "user" && (
-                <div className="w-7 h-7 rounded-full bg-zinc-700 border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <User className="w-3.5 h-3.5 text-zinc-300" />
-                </div>
-              )}
+        {/* Messages */}
+        <div className="flex-1 space-y-6 mb-8 min-h-[400px]">
+          {messages.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center py-20 bg-white/[0.02] border border-white/[0.05] rounded-[32px] backdrop-blur-sm"
+            >
+              <div className="relative w-16 h-16 mx-auto mb-6">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+                <Bot className="relative w-full h-full text-primary drop-shadow-glow" />
+              </div>
+              <h2 className="text-lg font-black tracking-tight text-white mb-2 uppercase italic">Awaiting Commands</h2>
+              <p className="text-xs text-zinc-500 font-medium max-w-[240px] mx-auto leading-relaxed uppercase tracking-widest opacity-60">
+                The Swipess Oracle is online. <br /> fallback: MiniMax System.
+              </p>
             </motion.div>
-          ))}
-        </AnimatePresence>
+          )}
 
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex gap-3 justify-start"
-          >
-            <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
-              <Bot className="w-3.5 h-3.5 text-primary" />
-            </div>
-            <div className="bg-zinc-800/60 border border-white/5 rounded-2xl rounded-bl-sm px-4 py-3">
-              <div className="flex gap-1 items-center h-4">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-zinc-400"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 1.2, delay: i * 0.2, repeat: Infinity }}
-                  />
-                ))}
+          <AnimatePresence initial={false}>
+            {messages.map((msg) => (
+              <motion.div
+                key={msg.ts}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              >
+                {msg.role === "assistant" && (
+                  <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Bot className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                )}
+
+                <div
+                  className={`relative max-w-[85%] rounded-[24px] px-5 py-3.5 text-sm leading-relaxed font-semibold transition-all shadow-xl ${msg.role === "user"
+                      ? "bg-gradient-to-br from-primary to-primary/80 text-white rounded-br-none shadow-primary/20"
+                      : msg.error
+                        ? "bg-red-500/10 border border-red-500/30 text-red-300 rounded-bl-none backdrop-blur-md"
+                        : "bg-white/5 border border-white/10 text-white rounded-bl-none backdrop-blur-xl"
+                    }`}
+                >
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                  {msg.provider && !msg.error && (
+                    <div className="flex items-center gap-1 mt-2.5 opacity-40 uppercase tracking-tighter text-[9px] font-black">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      <span>Processed via {msg.provider}</span>
+                    </div>
+                  )}
+                </div>
+
+                {msg.role === "user" && (
+                  <div className="w-7 h-7 rounded-full bg-zinc-700 border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <User className="w-3.5 h-3.5 text-zinc-300" />
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+
+          {loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex gap-3 justify-start"
+            >
+              <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                <Bot className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <div className="bg-zinc-800/60 border border-white/5 rounded-2xl rounded-bl-sm px-4 py-3">
+                <div className="flex gap-1 items-center h-4">
+                  {[0, 1, 2].map((i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-zinc-400"
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1.2, delay: i * 0.2, repeat: Infinity }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input Area - Glassmorphism */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent pt-12 pb-calc(var(--safe-bottom)+16px)">
+          <div className="max-w-2xl mx-auto">
+            <div className="relative rounded-[28px] bg-zinc-900/40 border border-white/10 backdrop-blur-2xl overflow-hidden shadow-2xl p-1.5 focus-within:border-primary/50 transition-all">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Direct Oracle Access…"
+                rows={1}
+                className="w-full bg-transparent px-5 py-4 text-sm text-white placeholder:text-zinc-500 resize-none outline-none font-bold italic uppercase tracking-tight"
+                disabled={loading}
+              />
+              <div className="px-4 pb-3 flex justify-between items-center">
+                <div className="flex gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary/40 animate-pulse" />
+                  <div className="w-2 h-2 rounded-full bg-primary/20 animate-pulse delay-75" />
+                  <div className="w-2 h-2 rounded-full bg-primary/10 animate-pulse delay-150" />
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={sendMessage}
+                  disabled={!input.trim() || loading}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest disabled:opacity-20 disabled:grayscale transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40"
+                >
+                  Execute
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </motion.button>
               </div>
             </div>
-          </motion.div>
-        )}
-
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden">
-        <textarea
-          ref={inputRef}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Type any question… (Enter to send, Shift+Enter for newline)"
-          rows={2}
-          className="w-full bg-transparent px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-zinc-600 resize-none outline-none font-medium"
-          disabled={loading}
-        />
-        <div className="px-3 pb-3 flex justify-between items-center">
-          <span className="text-[10px] text-zinc-600">
-            {messages.filter((m) => m.role === "assistant" && !m.error).length} successful replies
-          </span>
-          <motion.button
-            whileTap={{ scale: 0.93 }}
-            onClick={sendMessage}
-            disabled={!input.trim() || loading}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-black disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
-          >
-            <Send className="w-3.5 h-3.5" />
-            Send
-          </motion.button>
+          </div>
         </div>
       </div>
     </div>

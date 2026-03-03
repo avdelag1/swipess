@@ -370,43 +370,55 @@ serve(async (req) => {
   }
 
   try {
-    // Validate required environment variables first
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("[AI Orchestrator] Missing core configuration: SUPABASE_URL or SUPABASE_ANON_KEY");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Server configuration error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Authenticate the request
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    // Support simple GET ping for easier diagnostics
+    const url = new URL(req.url);
+    if (req.method === "GET" && url.searchParams.get("task") === "ping") {
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
-    if (userError || !userData?.user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator Reachable via GET (Auth Bypassed)",
+          gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const body = await req.json();
     const task: string = body.task || body.type;
     const data: Record<string, unknown> = body.data || body;
+
+    // 🎯 Diagnostic Bypass: 'ping' and 'ping-keys' don't require auth
+    if (task === "ping") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator Reachable (Auth Bypassed)",
+          gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Authenticate all other tasks
+    const authHeader = req.headers.get("Authorization");
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader || "" } }
+    });
+
+    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+    if (userError || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     let messages: Message[];
     let maxTokens = 1000;

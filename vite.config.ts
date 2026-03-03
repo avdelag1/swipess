@@ -4,9 +4,13 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 
+// Build version calculation - SHARED between JS define and HTML injection
+// This ensures that import.meta.env.VITE_BUILD_TIME and <meta name="app-version">
+// match exactly, preventing infinite reload loops.
+const GLOBAL_BUILD_TIME = Date.now().toString();
+
 // Build version injector plugin for automatic cache busting
-function buildVersionPlugin() {
-  const buildTime = Date.now().toString();
+function buildVersionPlugin(buildTime: string) {
   return {
     name: 'build-version-injector',
     transformIndexHtml(html: string) {
@@ -125,7 +129,7 @@ function resourceHintsPlugin(): import('vite').Plugin {
 export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
-    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
+    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(GLOBAL_BUILD_TIME),
   },
   server: {
     host: "::",
@@ -133,7 +137,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
-    buildVersionPlugin(),
+    buildVersionPlugin(GLOBAL_BUILD_TIME),
     cssOptimizationPlugin(),
     preloadPlugin(),
     resourceHintsPlugin(),

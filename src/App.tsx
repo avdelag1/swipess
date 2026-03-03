@@ -275,6 +275,7 @@ const App = () => (
                                     <Route path="/payment/cancel" element={<PaymentCancel />} />
 
                                     {/* Legal Pages - Public Access */}
+                                    <Route path="/ai-test-public" element={<AITestPage />} />
                                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                                     <Route path="/terms-of-service" element={<TermsOfService />} />
                                     <Route path="/agl" element={<AGLPage />} />
