@@ -22,6 +22,32 @@
   <!-- CRITICAL CSS - Inlined for instant First Contentful Paint -->
   <!-- Styles moved to src/index.css for proper processing -->
 
+  <!-- Splash screen styles — applied before React loads so logo is centered with heartbeat animation -->
+  <style>
+    .initial-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: #050505;
+    }
+    .splash-logo {
+      width: 65vw;
+      max-width: 380px;
+      height: auto;
+      object-fit: contain;
+      animation: splash-heartbeat 2s ease-in-out infinite;
+    }
+    @keyframes splash-heartbeat {
+      0%,  100% { transform: scale(1); }
+      25%        { transform: scale(1.06); }
+      50%        { transform: scale(1); }
+      75%        { transform: scale(1.06); }
+    }
+  </style>
+
   <!-- Defer font loading - not render blocking -->
 
   <!-- Load fonts asynchronously - not render blocking -->

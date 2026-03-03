@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Zap, AlertCircle, CheckCircle } from "lucide-react";
+import { Send, Bot, User, Zap, AlertCircle, CheckCircle, Lock } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,6 +13,7 @@ interface Message {
 }
 
 const AITestPage = () => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,8 +52,9 @@ const AITestPage = () => {
       if (error) throw new Error(error.message || "Function error");
       if (data?.error) throw new Error(data.error);
 
-      const reply = data?.result || data?.message || "(no response)";
-      const provider = data?.provider || "unknown";
+      // The edge function returns { result: { text, message }, provider_used }
+      const reply = data?.result?.text || data?.result?.message || data?.message || "(no response)";
+      const provider = data?.provider_used || data?.provider || "unknown";
 
       setProviderUsed(provider);
       setStatus("ok");
@@ -88,6 +91,27 @@ const AITestPage = () => {
     setStatus("idle");
     setProviderUsed(null);
   };
+
+  // The AI orchestrator edge function requires authentication
+  if (!user) {
+    return (
+      <div className="w-full min-h-full flex flex-col items-center justify-center px-4 py-12 max-w-2xl mx-auto text-center">
+        <div className="w-14 h-14 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center mb-4">
+          <Lock className="w-6 h-6 text-zinc-400" />
+        </div>
+        <h2 className="text-lg font-black text-foreground mb-2">Sign in required</h2>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          The AI test console requires an account. Please sign in to test the AI engine.
+        </p>
+        <a
+          href="/"
+          className="mt-5 px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold inline-block"
+        >
+          Go to Sign In
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full min-h-full flex flex-col px-4 py-4 pb-32 max-w-2xl mx-auto">
