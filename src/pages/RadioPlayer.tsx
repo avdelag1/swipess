@@ -114,23 +114,7 @@ export default function RadioPlayer() {
               fill={state.currentStation && state.favorites.includes(state.currentStation.id) ? "currentColor" : "none"} />
           </button>
 
-          {/* Skin Selector */}
-          <button
-            onClick={() => {
-              const skins: Array<'modern' | 'vinyl' | 'retro'> = ['modern', 'vinyl', 'retro'];
-              const currentIndex = skins.indexOf(state.skin as any);
-              const nextSkin = skins[(currentIndex + 1) % skins.length];
-              setSkin(nextSkin);
-            }}
-            className="p-2.5 rounded-full bg-muted/30 border border-border hover:bg-muted/50 transition-all active:scale-90"
-            title={`Skin: ${state.skin}`}
-          >
-            <div className="w-5 h-5 relative flex items-center justify-center text-foreground">
-              {state.skin === 'vinyl' && <div className="w-4 h-4 rounded-full border-2 border-foreground/60" />}
-              {state.skin === 'retro' && <div className="w-4 h-3 border-2 border-foreground/60 rounded-sm" />}
-              {state.skin === 'modern' && <div className="w-3.5 h-3.5 rounded-sm border-2 border-foreground/60" />}
-            </div>
-          </button>
+
         </div>
 
         {/* Vinyl Record - Skin varies */}
@@ -150,70 +134,36 @@ export default function RadioPlayer() {
           </AnimatePresence>
 
           <motion.div
-            className={`relative mb-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] ${state.skin === 'vinyl' ? 'w-56 h-56 rounded-full' :
-              state.skin === 'retro' ? 'w-60 h-40 rounded-xl' :
-                'w-52 h-52 rounded-[2.5rem]'
-              }`}
+            className="relative mb-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] w-60 h-40 rounded-xl"
             style={{
-              background: state.skin === 'vinyl'
-                ? 'radial-gradient(circle at center, #333 0%, #111 40%, #222 50%, #111 70%, #000 100%)'
-                : state.skin === 'retro'
-                  ? 'linear-gradient(135deg, #A0522D 0%, #6B4423 50%, #8B4513 100%)'
-                  : `linear-gradient(135deg, ${cityThemes[state.currentCity].primaryColor} 0%, #1a1a1a 100%)`,
-              border: state.skin === 'retro' ? '8px solid #DEB887' : '1px solid rgba(255,255,255,0.15)',
+              background: 'linear-gradient(135deg, #A0522D 0%, #6B4423 50%, #8B4513 100%)',
+              border: '8px solid #DEB887',
             }}
             animate={{
               rotate: state.isPlaying ? 360 : 0,
               scale: state.isPlaying ? [1, 1.03, 1] : 1
             }}
             transition={{
-              rotate: { duration: state.isPlaying ? (state.skin === 'retro' ? 10 : 5) : 0, repeat: Infinity, ease: "linear" },
+              rotate: { duration: state.isPlaying ? 10 : 0, repeat: Infinity, ease: "linear" },
               scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
             }}
           >
-            {state.skin === 'vinyl' && (
-              <>
-                {/* Vinyl grooves */}
-                {[...Array(10)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="absolute inset-0 rounded-full border border-white/10"
-                    style={{ margin: `${(i + 1) * 6}px` }}
-                  />
-                ))}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-20" />
-              </>
-            )}
-
-            {state.skin === 'retro' && (
-              <BlueCassette
-                isPlaying={state.isPlaying}
-                stationName={state.currentStation?.name}
-                frequency={state.currentStation?.frequency}
-                genre={state.currentStation?.genre}
-              />
-            )}
-
-
-            {state.skin === 'modern' && (
-              <>
-                <div className="absolute inset-6 rounded-[2rem] border border-black/10 dark:border-white/5" />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/40 rounded-[2.5rem]" />
-              </>
-            )}
+            <BlueCassette
+              isPlaying={state.isPlaying}
+              stationName={state.currentStation?.name}
+              frequency={state.currentStation?.frequency}
+              genre={state.currentStation?.genre}
+            />
 
             {/* Center label - Station info */}
-            <div className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white flex flex-col items-center justify-center shadow-2xl ${state.skin === 'vinyl' ? 'w-20 h-20' :
-              state.skin === 'retro' ? 'w-16 h-16' :
-                'w-20 h-20'
-              }`}>
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white flex flex-col items-center justify-center shadow-2xl w-16 h-16">
               <span className="text-base font-black text-black leading-none mb-0.5">{state.currentStation?.frequency || '--.-'}</span>
               <span className="text-[8px] text-black/50 font-bold uppercase tracking-widest">{state.currentStation?.genre || '---'}</span>
             </div>
 
             {/* Center hole */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className={`rounded-full bg-black shadow-lg ${state.skin === 'retro' ? 'w-4 h-4' : 'w-2.5 h-2.5'}`} />
+              <div className="rounded-full bg-black shadow-lg w-4 h-4" />
             </div>
           </motion.div>
         </div>
