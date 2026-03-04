@@ -33,6 +33,7 @@ import { toast } from '@/hooks/use-toast';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { AmbientSwipeBackground } from '@/components/AmbientSwipeBackground';
 import { GradientOverlay } from '@/components/ui/GradientMasks';
+import CardImage from '@/components/CardImage';
 
 // ─── Physics ─────────────────────────────────────────────────
 const SWIPE_THRESHOLD = 90;
@@ -236,11 +237,9 @@ function ListingCardContent({
     <div className="relative w-full h-full bg-white select-none touch-none flex flex-col">
       {/* Photo Area */}
       <div className="relative w-full h-[62%] overflow-hidden">
-        <img
+        <CardImage
           src={listing.images[imgIdx]}
           alt={listing.title}
-          className="w-full h-full object-cover"
-          draggable={false}
         />
 
         {/* Image tap zones */}
@@ -344,11 +343,9 @@ function ClientCardContent({
     <div className="relative w-full h-full bg-white select-none touch-none flex flex-col">
       {/* Photo Area */}
       <div className="relative w-full h-[62%] overflow-hidden">
-        <img
+        <CardImage
           src={profile.profile_images[imgIdx]}
           alt={profile.name}
-          className="w-full h-full object-cover"
-          draggable={false}
         />
 
         {/* Image taps */}
@@ -655,8 +652,8 @@ export default function TutorialSwipePage() {
                   key={c.key}
                   onClick={() => { triggerHaptic('light'); switchListCat(c.key); }}
                   className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border-2 shadow-md ${listCat === c.key
-                      ? "bg-zinc-950 text-white border-zinc-950"
-                      : "bg-white text-zinc-900 border-zinc-200"
+                    ? "bg-zinc-950 text-white border-zinc-950"
+                    : "bg-white text-zinc-900 border-zinc-200"
                     }`}
                 >
                   <c.Icon className="w-4 h-4" />
@@ -669,8 +666,8 @@ export default function TutorialSwipePage() {
                   key={c.key}
                   onClick={() => { triggerHaptic('light'); switchCliGender(c.key); }}
                   className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all border-2 shadow-md ${cliGender === c.key
-                      ? "bg-zinc-950 text-white border-zinc-950"
-                      : "bg-white text-zinc-900 border-zinc-200"
+                    ? "bg-zinc-950 text-white border-zinc-950"
+                    : "bg-white text-zinc-900 border-zinc-200"
                     }`}
                 >
                   <c.Icon className="w-4 h-4" />
