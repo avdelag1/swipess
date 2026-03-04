@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { cityThemes, getStationsByCity } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
-import { VinylDisc } from '@/components/radio/retro/VinylDisc';
+import { CassetteDisplay } from '@/components/radio/retro/CassetteDisplay';
 import { NowPlayingInfo } from '@/components/radio/retro/NowPlayingInfo';
 import { VolumeSlider } from '@/components/radio/retro/VolumeSlider';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
@@ -14,23 +14,18 @@ import {
   Shuffle,
   ListMusic,
   Disc3,
-  SkipBack,
-  SkipForward,
-  Play,
-  Pause,
   Library,
 } from 'lucide-react';
 
 /**
  * RetroRadioStation — Immersive retro radio experience.
  *
- * Hybrid design combining:
- *   - A realistic spinning vinyl record (visual centerpiece)
- *   - An iPod Classic click wheel (physical-feeling controls)
+ * Features:
+ *   - A realistic cassette tape (visual centerpiece) with animated reels
+ *   - Play / Pause / Skip controls overlaid directly on the cassette body
+ *   - Label color matches the active city theme
  *   - Modern info display + station switching drawer
  *   - Premium dark aesthetic with city-themed accents
- *
- * This replaces the previous RadioPlayer page.
  */
 export default function RetroRadioStation() {
   const navigate = useNavigate();
@@ -219,9 +214,9 @@ export default function RetroRadioStation() {
           </motion.button>
         </div>
 
-        {/* Main Content - Centered Vinyl with Controls */}
-        <div className="flex-1 flex flex-col items-center justify-center py-6 gap-8">
-          {/* Vinyl Record - Large and Centered */}
+        {/* Main Content - Cassette with integrated controls */}
+        <div className="flex-1 flex flex-col items-center justify-center py-4 gap-6">
+          {/* Cassette — controls are overlaid inside the component */}
           <AnimatePresence mode="wait">
             <motion.div
               key={state.currentStation?.id ?? 'empty'}
@@ -230,12 +225,15 @@ export default function RetroRadioStation() {
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
             >
-              <VinylDisc
+              <CassetteDisplay
                 isPlaying={state.isPlaying}
                 stationName={state.currentStation?.name ?? 'SwipesS'}
                 genre={state.currentStation?.genre ?? 'Radio'}
                 cityTheme={cityTheme}
-                size={getVinylSize()}
+                width={getCassetteWidth()}
+                onPlayPause={togglePlayPause}
+                onPrev={() => changeStation('prev')}
+                onNext={() => changeStation('next')}
               />
             </motion.div>
           </AnimatePresence>
@@ -262,60 +260,6 @@ export default function RetroRadioStation() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Minimalist Control Buttons */}
-          <div className="flex items-center justify-center gap-6">
-            {/* Previous Button */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => changeStation('prev')}
-              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
-              style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}25, ${cityTheme.secondaryColor}20)`,
-                backdropFilter: 'blur(10px)',
-                boxShadow: `0 4px 20px ${cityTheme.primaryColor}30`,
-              }}
-              aria-label="Previous station"
-            >
-              <SkipBack className="w-6 h-6 text-white" fill="white" />
-            </motion.button>
-
-            {/* Play/Pause Button - Larger and Centered */}
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={togglePlayPause}
-              className="w-24 h-24 rounded-full flex items-center justify-center transition-all"
-              style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}, ${cityTheme.secondaryColor})`,
-                boxShadow: `0 8px 32px ${cityTheme.primaryColor}50, 0 0 60px ${cityTheme.primaryColor}35`,
-              }}
-              aria-label={state.isPlaying ? 'Pause' : 'Play'}
-            >
-              {state.isPlaying ? (
-                <Pause className="w-9 h-9 text-white" fill="white" />
-              ) : (
-                <Play className="w-9 h-9 text-white ml-1" fill="white" />
-              )}
-            </motion.button>
-
-            {/* Next Button */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => changeStation('next')}
-              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
-              style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}25, ${cityTheme.secondaryColor}20)`,
-                backdropFilter: 'blur(10px)',
-                boxShadow: `0 4px 20px ${cityTheme.primaryColor}30`,
-              }}
-              aria-label="Next station"
-            >
-              <SkipForward className="w-6 h-6 text-white" fill="white" />
-            </motion.button>
-          </div>
         </div>
 
         {/* Volume Slider */}
@@ -344,16 +288,17 @@ export default function RetroRadioStation() {
 }
 
 /**
- * Responsive vinyl size based on viewport - larger for centered design
+ * Responsive cassette width based on viewport.
+ * Height is derived from the standard cassette aspect ratio (~3:2) inside the component.
  */
-function getVinylSize(): number {
-  if (typeof window === 'undefined') return 140;
+function getCassetteWidth(): number {
+  if (typeof window === 'undefined') return 300;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  if (vw < 380) return 100;
-  if (vw < 480) return 120;
-  if (vh < 600) return 100;
-  if (vw < 768) return 140;
-  return 180;
+  if (vw < 360) return 260;
+  if (vw < 480) return 300;
+  if (vh < 600) return 280;
+  if (vw < 768) return 320;
+  return 360;
 }
