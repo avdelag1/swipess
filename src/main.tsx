@@ -15,13 +15,13 @@ if (urlParams.get('clear-cache') === '1') {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       registrations.forEach((registration) => registration.unregister());
-    });
+    }).catch(console.error);
   }
   // Clear all caches
   if ('caches' in window) {
     caches.keys().then((names) => {
       names.forEach((name) => caches.delete(name));
-    });
+    }).catch(console.error);
   }
   // Clear local/session storage
   localStorage.clear();
