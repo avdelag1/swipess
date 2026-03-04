@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,13 +48,24 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 14, filter: 'blur(4px)' },
+    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring' as const, stiffness: 380, damping: 28 } },
+  };
+
   return (
-    <div className="space-y-3">
+    <motion.div className="space-y-3" initial="hidden" animate="visible" variants={containerVariants}>
       {savedFilters.map((filter) => {
         const isActive = activeFilter?.id === filter.id;
-        
+
         return (
-          <Card key={filter.id} className={`bg-white/10 backdrop-blur-sm border-white/20 transition-all ${
+          <motion.div key={filter.id} variants={itemVariants}>
+          <Card className={`bg-white/10 backdrop-blur-sm border-white/20 transition-all ${
             isActive ? 'ring-2 ring-primary shadow-lg shadow-primary/20' : ''
           }`}>
             <CardContent className="p-4">
@@ -131,8 +143,9 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

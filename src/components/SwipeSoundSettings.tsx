@@ -27,7 +27,7 @@ export function SwipeSoundSettings() {
       const { data, error } = await supabase
         .from('profiles')
         .select('swipe_sound_theme')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .single();
 
       if (error) {
@@ -61,7 +61,7 @@ export function SwipeSoundSettings() {
       const { error } = await supabase
         .from('profiles')
         .update({ swipe_sound_theme: newTheme })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
 
       if (error) {
         console.error('Failed to update swipe sound theme:', error);

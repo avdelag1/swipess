@@ -4,7 +4,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X, ChevronRight
+  ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,7 +59,7 @@ const LandingView = memo(({
   const handleDragStart = () => { isDragging.current = true; };
 
   const handleDragEnd = (_: any, info: PanInfo) => {
-    const shouldSwipe = info.offset.x > 40 || info.velocity.x > 200;
+    const shouldSwipe = info.offset.x > 100 || info.velocity.x > 400;
     if (shouldSwipe) {
       if (triggered.current) return;
       triggered.current = true;
@@ -82,62 +82,56 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 cursor-pointer"
-      onTap={handleTap}
+      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      style={{ paddingBottom: '10vh' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ opacity: 0, x: 40, transition: { duration: 0.12, ease: [0.32, 0.72, 0, 1] } }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
     >
       {/* Swipable logo */}
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.95}
+        dragElastic={0.9}
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onTap={handleTap}
         style={{ x, opacity: logoOpacity, scale: logoScale, filter: logoFilter }}
         whileTap={{ scale: 0.97 }}
-        className="cursor-pointer active:cursor-grabbing touch-none select-none relative z-10"
+        className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <img
-          src={swipessLogo}
-          alt="Swipess"
-          className="w-[120vw] max-w-[800px] sm:max-w-[900px] md:max-w-[1100px] h-auto object-contain drop-shadow-[0_25px_60px_rgba(0,0,0,0.6)] mx-auto"
-        />
+        <motion.div
+          animate={{ scale: [1, 1.06, 1, 1.06, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
+        >
+          <img
+            src={swipessLogo}
+            alt="Swipess"
+            className="w-[65vw] max-w-[380px] sm:max-w-[450px] md:max-w-[520px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+          />
+        </motion.div>
       </motion.div>
 
       {/* Tagline */}
-      <motion.div
-        className="-mt-16 sm:-mt-24 md:-mt-32 relative z-0 flex items-center justify-center gap-[15vw] sm:gap-[18vw] md:gap-[18vw] w-full px-4 select-none pointer-events-none"
+      <motion.p
+        className="-mt-4 relative z-10 cursor-pointer"
+        onTap={handleTap}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
         <span
-          className="text-2xl sm:text-4xl md:text-5xl font-black italic tracking-tighter opacity-60 whitespace-nowrap"
+          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
           style={{
             background: 'linear-gradient(to right, #E4007C, #FFD700)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 0 20px rgba(228, 0, 124, 0.2))',
           }}
         >
-          luxury
+          luxury meets precision
         </span>
-        <span
-          className="text-2xl sm:text-4xl md:text-5xl font-black italic tracking-tighter opacity-60 whitespace-nowrap"
-          style={{
-            background: 'linear-gradient(to right, #E4007C, #FFD700)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            filter: 'drop-shadow(0 0 20px rgba(228, 0, 124, 0.2))',
-          }}
-        >
-          meets precision
-        </span>
-      </motion.div>
+      </motion.p>
 
       {/* Info chips */}
       <motion.div
@@ -163,23 +157,16 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      {/* Swipe hint arrow */}
-      <motion.div
+      {/* Tap hint */}
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.4 }}
-        className="mt-6 flex items-center gap-1.5 text-white/30"
+        transition={{ duration: 0.5, delay: 0.5 }}
+        className="mt-7 text-white/25 text-xs tracking-widest uppercase cursor-pointer select-none"
+        onClick={handleTap}
       >
-        <motion.div
-          animate={{ x: [0, 8, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="flex items-center gap-1"
-        >
-          <ChevronRight className="w-4 h-4" />
-          <ChevronRight className="w-4 h-4 -ml-2 opacity-60" />
-        </motion.div>
-        <span className="text-xs font-medium tracking-wide">swipe right</span>
-      </motion.div>
+        tap to enter
+      </motion.p>
 
       {/* Effects toggle */}
       <motion.button
@@ -304,13 +291,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     e.preventDefault();
     e.stopPropagation();
     setIsLoading(true);
-    try {
-      const { error } = await signInWithOAuth(provider, 'client');
-      if (error) throw error;
-    } catch (error: any) {
-      toast({ title: 'Google Sign-In Failed', description: error.message || 'Failed to sign in with Google', variant: 'destructive' });
+    const { error } = await signInWithOAuth(provider, 'client');
+    if (error) {
       setIsLoading(false);
     }
+    // signInWithOAuth already calls toast.error() on failure — no duplicate toast.
   };
 
   const switchMode = () => {
@@ -322,21 +307,20 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   // stagger variants for form elements
   const containerVariants = {
     hidden: {},
-    visible: { transition: { staggerChildren: 0.045, delayChildren: 0.08 } },
+    visible: { transition: { staggerChildren: 0.03, delayChildren: 0.06 } },
   };
   const itemVariants = {
-    hidden: { opacity: 0, y: 18 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.25, 0.46, 0.45, 0.94] as const } },
+    hidden: { opacity: 0, y: 12 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] as const } },
   };
 
   return (
     <motion.div
       key="auth"
       className="absolute inset-0 flex flex-col overflow-hidden"
-      style={{ background: '#050505' }}
-      initial={{ x: 20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
-      exit={{ x: 20, opacity: 0, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
+      initial={{ y: 24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
+      exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
       <StarFieldBackground />
 
@@ -352,7 +336,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="absolute top-4 left-4 z-20 text-white/60 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-95"
+        className="absolute top-4 left-4 z-20 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all duration-200 active:scale-95"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
         <ArrowLeft className="w-5 h-5" />
@@ -368,7 +352,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         >
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center mb-5">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-foreground">
               {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome to Swipess' : 'Create account'}
             </h2>
           </motion.div>
@@ -376,59 +360,34 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           {/* Card */}
           <motion.div
             variants={itemVariants}
-            className="bg-white/[0.02] border border-white/10 rounded-2xl p-5"
+            className="bg-card border border-border rounded-2xl p-5"
           >
-            {/* Google OAuth */}
-            {!isForgotPassword && !isNativePlatform && (
-              <motion.div variants={itemVariants}>
-                <Button
-                  type="button"
-                  onClick={(e) => handleOAuthSignIn(e, 'google')}
-                  disabled={isLoading}
-                  variant="outline"
-                  className="w-full h-12 font-semibold text-sm text-white hover:border-white/20 transition-all active:scale-[0.97]"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.06)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  {isLoading ? <><Loader className="w-4 h-4 mr-2 animate-spin" />Connecting...</> : <><FaGoogle className="w-4 h-4 mr-2 text-white" />Continue with Google</>}
-                </Button>
-                <div className="relative flex items-center my-4">
-                  <div className="flex-grow border-t border-white/10" />
-                  <span className="flex-shrink mx-3 text-white/30 text-xs font-medium">or</span>
-                  <div className="flex-grow border-t border-white/10" />
-                </div>
-              </motion.div>
-            )}
+            {/* Email-only auth (Google OAuth removed) */}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
               {/* Name (sign-up) */}
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants} className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                   <Input
                     type="text" value={name} onChange={(e) => setName(e.target.value)} required
                     placeholder="Full Name"
-                    className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                    className="pl-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                   />
                 </motion.div>
               )}
 
               {/* Email */}
               <motion.div variants={itemVariants} className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                 <Input
                   type="email"
                   name="email"
                   autoComplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
-                  className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                  className="pl-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                 />
               </motion.div>
 
@@ -436,23 +395,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
-                      className="pl-10 pr-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                      className="pl-10 pr-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   {!isLogin && password && (
                     <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                         <div className={`h-full ${passwordStrength.color} rounded-full transition-all duration-300`}
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
@@ -471,11 +430,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <div className="relative">
                       <input type="checkbox" checked={agreeToTerms} onChange={(e) => setAgreeToTerms(e.target.checked)} className="sr-only peer" />
-                      <div className="w-4 h-4 rounded border-2 border-white/30 bg-white/5 peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
+                      <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
                         {agreeToTerms && <Check className="w-2.5 h-2.5 text-white" />}
                       </div>
                     </div>
-                    <span className="text-xs text-white/50">
+                    <span className="text-xs text-muted-foreground">
                       I agree to the{' '}
                       <a href="/terms-of-service" target="_blank" className="text-orange-400 underline">Terms</a>{' & '}
                       <a href="/privacy-policy" target="_blank" className="text-orange-400 underline">Privacy</a>
@@ -491,11 +450,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <label className="flex items-center gap-2 cursor-pointer">
                       <div className="relative">
                         <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="sr-only peer" />
-                        <div className="w-4 h-4 rounded border-2 border-white/30 bg-white/5 peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
+                        <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
                           {rememberMe && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
                       </div>
-                      <span className="text-sm text-white/60">Remember me</span>
+                      <span className="text-sm text-muted-foreground">Remember me</span>
                     </label>
                     <button type="button" onClick={() => setIsForgotPassword(true)}
                       className="text-sm text-orange-400 hover:underline font-medium">
@@ -602,9 +561,9 @@ function LegendaryLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={effectMode} />
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="wait">
         {view === 'landing' ? (
           <LandingView
             key="landing"

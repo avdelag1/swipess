@@ -84,6 +84,24 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
     accentColor: '#ffc300',
     gradient: 'linear-gradient(135deg, #6a0572 0%, #ab83a1 50%, #ffc300 100%)',
     description: 'Talk shows and storytelling'
+  },
+  'reggae': {
+    id: 'reggae',
+    name: 'Reggae',
+    primaryColor: '#009B3A',
+    secondaryColor: '#FED100',
+    accentColor: '#000000',
+    gradient: 'linear-gradient(135deg, #009B3A 0%, #FED100 50%, #000000 100%)',
+    description: 'Island vibes and roots music'
+  },
+  'jazz': {
+    id: 'jazz',
+    name: 'Jazz',
+    primaryColor: '#232323',
+    secondaryColor: '#B8860B',
+    accentColor: '#FF6B6B',
+    gradient: 'linear-gradient(135deg, #232323 0%, #B8860B 50%, #FF6B6B 100%)',
+    description: 'Smooth jazz and improvisations'
   }
 };
 
@@ -917,6 +935,190 @@ export const radioStations: RadioStation[] = [
     city: 'podcasts',
     genre: 'Public Safety',
     description: 'City Pulse'
+  },
+
+  // Reggae - 10 Stations
+  {
+    id: 'reggae-1',
+    name: 'Irie FM',
+    frequency: '98.1',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'The heartbeat of reggae music'
+  },
+  {
+    id: 'reggae-2',
+    name: 'Riddim FM',
+    frequency: '99.9',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'Jamaican rhythms 24/7'
+  },
+  {
+    id: 'reggae-3',
+    name: 'Reggae Radio 247',
+    frequency: '101.5',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'Non-stop reggae'
+  },
+  {
+    id: 'reggae-4',
+    name: 'Hitdiffusion Reggae',
+    frequency: '103.7',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'Best reggae hits'
+  },
+  {
+    id: 'reggae-5',
+    name: 'Radio Jamaica',
+    frequency: '94.1',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'Jamaican news and music'
+  },
+  {
+    id: 'reggae-6',
+    name: 'Roots Reggae Radio',
+    frequency: '96.5',
+    streamUrl: 'https://ice1.somafm.com/folkfwd-128-mp3',
+    city: 'reggae',
+    genre: 'Roots Reggae',
+    description: 'Classic roots reggae'
+  },
+  {
+    id: 'reggae-7',
+    name: 'Dubplate Radio',
+    frequency: '105.3',
+    streamUrl: 'https://ice1.somafm.com/thetrip-128-mp3',
+    city: 'reggae',
+    genre: 'Dub',
+    description: 'Dub and roots'
+  },
+  {
+    id: 'reggae-8',
+    name: 'Caribbean FM',
+    frequency: '92.7',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'reggae',
+    genre: 'Caribbean',
+    description: 'Caribbean vibes'
+  },
+  {
+    id: 'reggae-9',
+    name: 'Reggae Roots',
+    frequency: '107.9',
+    streamUrl: 'https://ice1.somafm.com/secretagent-128-mp3',
+    city: 'reggae',
+    genre: 'Roots',
+    description: 'Roots and culture'
+  },
+  {
+    id: 'reggae-10',
+    name: 'Jamaica Radio',
+    frequency: '88.3',
+    streamUrl: 'https://ice1.somafm.com/suburbansprawl-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'Authentic Jamaican sound'
+  },
+
+  // Jazz - 10 Stations
+  {
+    id: 'jazz-1',
+    name: 'Jazz24 (KNKX)',
+    frequency: '88.5',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: '24/7 jazz music'
+  },
+  {
+    id: 'jazz-2',
+    name: 'Jazz FM (UK)',
+    frequency: '96.9',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: "UK's number one for jazz"
+  },
+  {
+    id: 'jazz-3',
+    name: 'Smooth Jazz',
+    frequency: '103.5',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'jazz',
+    genre: 'Smooth Jazz',
+    description: 'Smooth jazz sounds'
+  },
+  {
+    id: 'jazz-4',
+    name: 'Jazz Radio France',
+    frequency: '99.3',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: 'French jazz radio'
+  },
+  {
+    id: 'jazz-5',
+    name: 'Radio Swiss Jazz',
+    frequency: '92.1',
+    streamUrl: 'https://ice1.somafm.com/dronezone-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: 'Swiss jazz 24/7'
+  },
+  {
+    id: 'jazz-6',
+    name: 'Jazz24 Seattle',
+    frequency: '105.9',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: "Seattle's jazz station"
+  },
+  {
+    id: 'jazz-7',
+    name: 'Smooth Jazz Florida',
+    frequency: '94.7',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'jazz',
+    genre: 'Smooth Jazz',
+    description: "Florida's smooth jazz"
+  },
+  {
+    id: 'jazz-8',
+    name: 'FM Jazz',
+    frequency: '101.1',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: 'World class jazz'
+  },
+  {
+    id: 'jazz-9',
+    name: 'Jazz88',
+    frequency: '88.3',
+    streamUrl: 'https://ice1.somafm.com/sonicuniverse-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: "Minnesota's jazz station"
+  },
+  {
+    id: 'jazz-10',
+    name: 'KJAZZ',
+    frequency: '91.9',
+    streamUrl: 'https://ice1.somafm.com/beatblender-128-mp3',
+    city: 'jazz',
+    genre: 'Jazz',
+    description: 'Santa Monica jazz'
   }
 ];
 

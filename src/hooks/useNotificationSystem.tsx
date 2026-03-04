@@ -146,6 +146,7 @@ export function useNotificationSystem() {
         },
         async (payload) => {
           const dbNotification = payload.new as any;
+          if (!dbNotification) return;
 
           // Map database notification to frontend format
           const notificationTypeMap: Record<string, NotificationType> = {
@@ -210,13 +211,13 @@ export function useNotificationSystem() {
           .update({ is_read: true })
           .eq('user_id', user.id)
           .eq('is_read', false)
-      ).catch(() => {});
+      ).catch(() => { });
     }
   };
 
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read
-    setNotifications(prev => 
+    setNotifications(prev =>
       prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
     );
 

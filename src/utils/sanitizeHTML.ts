@@ -4,6 +4,17 @@
  */
 import DOMPurify from 'dompurify';
 
+// Ensure DOMPurify is available in the browser environment
+const getDOMPurify = (): typeof DOMPurify => {
+  if (typeof window === 'undefined') {
+    // Server-side rendering - return a no-op sanitizer
+    return {
+      sanitize: (html: string) => html,
+    } as typeof DOMPurify;
+  }
+  return DOMPurify;
+};
+
 /**
  * Sanitize an HTML string using DOMPurify.
  * Preserves safe formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
@@ -11,7 +22,9 @@ import DOMPurify from 'dompurify';
 export function sanitizeHTML(html: string): string {
   if (!html) return '';
 
-  return DOMPurify.sanitize(html, {
+  const purify = getDOMPurify();
+  
+  return purify.sanitize(html, {
     // Allow common rich-text formatting tags
     ALLOWED_TAGS: [
       'b', 'i', 'u', 's', 'strong', 'em', 'mark', 'small', 'del', 'ins',

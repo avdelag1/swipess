@@ -11,6 +11,8 @@ import { PropertyClientFilters } from '@/components/filters/PropertyClientFilter
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
+import { useTheme } from '@/hooks/useTheme';
+import { getCategoryTextColorClass } from '@/types/filters';
 import { cn } from '@/lib/utils';
 
 interface AdvancedFiltersProps {
@@ -23,15 +25,17 @@ interface AdvancedFiltersProps {
 
 type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
-const categories: { id: CategoryType; name: string; icon: React.ElementType; color: string }[] = [
-  { id: 'property', name: 'Property', icon: Home, color: 'text-emerald-500' },
-  { id: 'motorcycle', name: 'Motos', icon: CircleDot, color: 'text-orange-500' },
-  { id: 'bicycle', name: 'Bikes', icon: Bike, color: 'text-purple-500' },
-  { id: 'services', name: 'Workers', icon: Briefcase, color: 'text-pink-500' },
+const categoryBase: { id: CategoryType; name: string; icon: React.ElementType }[] = [
+  { id: 'property', name: 'Property', icon: Home },
+  { id: 'motorcycle', name: 'Motos', icon: CircleDot },
+  { id: 'bicycle', name: 'Bikes', icon: Bike },
+  { id: 'services', name: 'Workers', icon: Briefcase },
 ];
 
 export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, currentFilters }: AdvancedFiltersProps) {
   const safeCurrentFilters = currentFilters ?? {};
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const [activeCategory, setActiveCategory] = useState<CategoryType>('property');
   const [filterCounts, setFilterCounts] = useState<Record<CategoryType, number>>({
     property: 0,
@@ -187,9 +191,10 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
               "w-full grid grid-cols-4 p-1 bg-muted/50 rounded-xl",
               isMobile ? "h-16 gap-1" : "h-12"
             )}>
-              {categories.map((cat) => {
+              {categoryBase.map((cat) => {
                 const Icon = cat.icon;
                 const count = filterCounts[cat.id];
+                const categoryColor = getCategoryTextColorClass(cat.id, isDark);
                 return (
                   <TabsTrigger
                     key={cat.id}
@@ -201,7 +206,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
                   >
                     <div className="flex flex-col items-center gap-0.5">
                       <Icon className={cn(
-                        activeCategory === cat.id ? cat.color : 'text-muted-foreground',
+                        activeCategory === cat.id ? categoryColor : 'text-muted-foreground',
                         isMobile ? "w-5 h-5" : "w-4 h-4"
                       )} />
                       <span className={cn(

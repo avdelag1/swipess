@@ -22,6 +22,7 @@ interface RadioContextType {
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
   playFavorites: () => void;
+  setMiniPlayerMode: (mode: 'expanded' | 'minimized' | 'closed') => void;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -38,7 +39,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     volume: 0.7,
     isShuffle: false,
     skin: 'modern',
-    favorites: []
+    favorites: [],
+    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'expanded',
   });
 
   // Set loading to false immediately - don't block UI for preferences
@@ -164,11 +166,18 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }));
 
     try {
+      // Use a safer query that handles missing columns
       const { data, error } = await supabase
         .from('profiles')
-        .select('radio_current_station_id')
-        .eq('id', user.id)
-        .single();
+        .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
+         .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        logger.warn('[RadioPlayer] Error loading preferences (possibly missing columns):', error);
+        setLoading(false);
+        return;
+      }
 
       if (error) {
         setLoading(false);
@@ -188,7 +197,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           currentStation: currentStation || defaultStation,
           // Handle missing column gracefully
-          isPoweredOn: (data as any).radio_is_powered_on ?? false
+          isPoweredOn: (data as any).radio_is_powered_on ?? prev.isPoweredOn
         }));
       }
     } catch (err) {
@@ -206,7 +215,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
-      await supabase.from('profiles').update(dbUpdates).eq('id', user.id);
+      await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {
       logger.info('[RadioPlayer] Error saving preferences:', err);
     }
@@ -243,10 +252,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.load();
 
         // Update station AND city (important for shuffle mode)
+        // Also reset miniPlayerMode to expanded so it shows when navigating away
         setState(prev => ({
           ...prev,
           currentStation: targetStation,
-          currentCity: targetStation.city // Update city to match the station
+          currentCity: targetStation.city, // Update city to match the station
+          miniPlayerMode: 'expanded' // Reset mini player to show when navigating away
         }));
         savePreferences({
           currentStation: targetStation,
@@ -317,7 +328,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     setState(prev => ({
       ...prev,
       isPoweredOn: newPower,
-      isPlaying: newPower ? prev.isPlaying : false // Stop playing if powered off
+      isPlaying: newPower ? prev.isPlaying : false, // Stop playing if powered off
+      miniPlayerMode: newPower ? prev.miniPlayerMode : 'closed' // Close mini player when powered off
     }));
 
     if (!newPower && audioRef.current) {
@@ -404,6 +416,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     playPlaylist(state.favorites);
   }, [state.favorites, playPlaylist]);
 
+  const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
+    setState(prev => ({ ...prev, miniPlayerMode: mode }));
+    localStorage.setItem('swipess_radio_mini_player_mode', mode);
+  }, []);
+
   const value = {
     state,
     loading,
@@ -420,7 +437,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     toggleFavorite,
     isStationFavorite: (stationId: string) => state.favorites.includes(stationId),
     playPlaylist,
-    playFavorites
+    playFavorites,
+    setMiniPlayerMode,
   };
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;

@@ -40,7 +40,7 @@ export function useWelcomeState(userId: string | undefined) {
         const { data: profile, error } = await supabase
           .from('profiles')
           .select('created_at')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .maybeSingle();
 
         if (error) {

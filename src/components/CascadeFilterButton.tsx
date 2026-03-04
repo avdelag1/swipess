@@ -2,7 +2,9 @@ import { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Car, Bike, Ship, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export unified types
 export type { QuickFilterCategory, QuickFilters } from '@/types/filters';
@@ -75,6 +77,8 @@ const buttonClass = cn(
 );
 
 function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }: CascadeFilterButtonProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -84,7 +88,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
     const handleClickOutside = (event: Event) => {
       const target = event.target as Node;
       if (
-        panelRef.current && 
+        panelRef.current &&
         !panelRef.current.contains(target) &&
         buttonRef.current &&
         !buttonRef.current.contains(target)
@@ -142,13 +146,14 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Filter"
         className={cn(
           buttonClass,
           'flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium',
           'border',
           isOpen || hasActiveFilters
             ? 'bg-primary text-primary-foreground border-primary'
-            : 'bg-muted/50 text-foreground border-border/50'
+            : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-white text-black border-black/10 shadow-sm'
         )}
       >
         <Filter className="w-4 h-4" />
@@ -210,7 +215,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                     <div className="grid grid-cols-2 gap-2">
                       {categories.map((category) => {
                         const isActive = filters.categories.includes(category.id);
-                        const isServices = category.id === 'services';
+                        const colorClass = getCategoryColorClass(category.id, isDark);
                         return (
                           <button
                             key={category.id}
@@ -220,9 +225,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border',
                               isActive
-                                ? isServices
-                                  ? 'bg-emerald-500 text-white border-emerald-500'
-                                  : 'bg-primary text-primary-foreground border-primary'
+                                ? cn(colorClass, 'text-white border-current')
                                 : 'bg-muted/30 text-muted-foreground border-border/50'
                             )}
                           >
@@ -250,7 +253,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'flex-1 px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border',
                               isActive
-                                ? 'bg-orange-500 text-white border-orange-500'
+                                ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-muted/30 text-muted-foreground border-border/50'
                             )}
                           >
@@ -278,7 +281,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                               'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium',
                               'border',
                               isActive
-                                ? 'bg-orange-500 text-white border-orange-500'
+                                ? 'bg-primary text-primary-foreground border-primary'
                                 : 'bg-muted/30 text-muted-foreground border-border/50'
                             )}
                           >

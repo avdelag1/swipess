@@ -185,7 +185,7 @@ export function usePrefetchManager() {
         const { data } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .single();
         return data;
       },

@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -15,6 +15,8 @@ import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+import { AppOutagePage } from "@/components/AppOutagePage";
+import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import Index from "./pages/Index";
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -171,7 +173,15 @@ function ProfileSyncWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-const App = () => (
+const App = () => {
+  // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
+  const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
+
+  if (IS_OUTAGE_ACTIVE && !outageBypassed) {
+    return <AppOutagePage onBypass={() => setOutageBypassed(true)} />;
+  }
+
+  return (
   <GlobalErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter
@@ -258,8 +268,6 @@ const App = () => (
                                       <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
                                       <Route path="/owner/filters" element={<OwnerFilters />} />
 
-                                      {/* AI Test route */}
-                                      <Route path="/ai-test" element={<AITestPage />} />
 
                                       {/* Shared routes (both roles) */}
                                       <Route path="/messages" element={<MessagingDashboard />} />
@@ -279,6 +287,9 @@ const App = () => (
                                     <Route path="/terms-of-service" element={<TermsOfService />} />
                                     <Route path="/agl" element={<AGLPage />} />
                                     <Route path="/legal" element={<LegalPage />} />
+
+                                    {/* AI Test — public, no login required */}
+                                    <Route path="/ai-test" element={<AITestPage />} />
 
                                     {/* Info Pages - Public Access */}
                                     <Route path="/about" element={<AboutPage />} />
@@ -316,6 +327,7 @@ const App = () => (
       </BrowserRouter>
     </QueryClientProvider>
   </GlobalErrorBoundary>
-);
+  );
+};
 
 export default App;

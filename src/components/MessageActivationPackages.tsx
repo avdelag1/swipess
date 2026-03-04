@@ -304,11 +304,11 @@ export function MessageActivationPackages({
                     <div className="space-y-1.5">
                       <Feature text={`Start ${pkg.tokens} new conversations`} />
                       <Feature text="Unlimited messages per chat" />
-                      <Feature text={`${pkg.duration_days}-day validity`} icon={<Clock className="w-2.5 h-2.5 text-green-500" />} />
+                      <Feature text={`${pkg.duration_days}-day validity`} icon={<Clock className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />} />
                       {pkg.legal_documents > 0 && (
                         <Feature text={`${pkg.legal_documents} legal document${pkg.legal_documents > 1 ? 's' : ''}`} />
                       )}
-                      <Feature text="Secure PayPal payment" icon={<Shield className="w-2.5 h-2.5 text-green-500" />} />
+                      <Feature text="Secure PayPal payment" icon={<Shield className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />} />
                     </div>
                   </CardContent>
 
@@ -340,7 +340,7 @@ export function MessageActivationPackages({
         className="flex flex-wrap items-center justify-center gap-4 pt-3 border-t border-border/50"
       >
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Shield className="w-3.5 h-3.5 text-green-500" />
+          <Shield className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
           <span>Secure Payment</span>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -348,7 +348,7 @@ export function MessageActivationPackages({
           <span>Instant Activation</span>
         </div>
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
           <span>No Hidden Fees</span>
         </div>
       </motion.div>
@@ -377,8 +377,8 @@ export function MessageActivationPackages({
 function Feature({ text, icon }: { text: string; icon?: React.ReactNode }) {
   return (
     <div className="flex items-center gap-2 text-[11px]">
-      <div className="flex-shrink-0 w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
-        {icon || <Check className="w-2.5 h-2.5 text-green-500" />}
+      <div className="flex-shrink-0 w-4 h-4 rounded-full bg-emerald-500/20 dark:bg-emerald-600/20 flex items-center justify-center">
+        {icon || <Check className="w-2.5 h-2.5 text-emerald-500 dark:text-emerald-400" />}
       </div>
       <span className="text-foreground">{text}</span>
     </div>

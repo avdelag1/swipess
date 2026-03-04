@@ -199,7 +199,7 @@ export default function SubscriptionPackagesPage() {
   const roleLabel = userRole === 'owner' ? 'Provider' : 'Explorer';
 
   // Fetch token packages
-  const { data: messagePackages, isLoading: packagesLoading } = useQuery({
+  const { data: messagePackages, isLoading: packagesLoading, error: packagesError } = useQuery({
     queryKey: ['activation-packages', packageCategory],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -247,29 +247,31 @@ export default function SubscriptionPackagesPage() {
   const packagesUI = convertPackages(messagePackages);
 
   const handleMessagePurchase = (pkg: any) => {
-    // Save return path for silent redirect after payment
+    if (!pkg.paypalUrl) {
+      toast({ title: "Payment link unavailable", description: "Please contact support.", variant: "destructive" });
+      return;
+    }
+    // Save return path for silent redirect after payment (price omitted — fetched server-side on activation)
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
-      price: pkg.price,
     }));
-    if (pkg.paypalUrl) {
-      window.open(pkg.paypalUrl, '_blank');
-      toast({ title: "Redirecting to PayPal", description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})` });
-    } else {
-      toast({ title: "Payment link unavailable", description: "Please contact support.", variant: "destructive" });
-    }
+    window.open(pkg.paypalUrl, '_blank');
+    toast({ title: "Redirecting to PayPal", description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})` });
   };
 
   const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
-    // Save return path for silent redirect after payment
+    if (!plan.paypalUrl) {
+      toast({ title: "Payment link unavailable", description: "Please contact support.", variant: "destructive" });
+      return;
+    }
+    // Save return path for silent redirect after payment (price omitted — fetched server-side on activation)
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
     localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
       role: userRole,
       planId: plan.id,
       name: plan.name,
-      price: plan.price,
       at: new Date().toISOString()
     }));
     window.open(plan.paypalUrl, '_blank');
@@ -329,6 +331,11 @@ export default function SubscriptionPackagesPage() {
           {packagesLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => <div key={i} className="h-96 rounded-2xl bg-muted/50 animate-pulse" />)}
+            </div>
+          ) : packagesError ? (
+            <div className="text-center py-12 space-y-3">
+              <p className="text-destructive font-medium">Failed to load packages</p>
+              <p className="text-muted-foreground text-sm">Please check your connection and try again.</p>
             </div>
           ) : packagesUI.length === 0 ? (
             <div className="text-center py-12"><p className="text-muted-foreground">No packages available.</p></div>

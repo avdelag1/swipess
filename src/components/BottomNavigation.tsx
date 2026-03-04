@@ -1,16 +1,25 @@
 /**
- * BOTTOM NAVIGATION BAR
+ * BOTTOM NAVIGATION — 2026 Liquid Glass Design
  *
- * Full-width, ergonomic bottom navigation optimized for one-handed use.
- * Theme-aware: adapts colors for dark and light modes.
+ * Full-width ergonomic bottom navigation with Liquid Glass treatment.
+ *
+ * UPGRADES FROM PREVIOUS VERSION:
+ *   - The entire navigation bar is now a Liquid Glass surface with heavy
+ *     backdrop blur (32px) and a bright top rim catch-light
+ *   - Active item gets a floating glass pill (also Liquid Glass) with
+ *     an animated liquid highlight — the pill "shines" to indicate focus
+ *   - The active indicator dot was replaced by the pill glow
+ *   - Entry animation: the bar slides up from below with spring physics
+ *   - Tab press: individual button spring compression + ripple
+ *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import { startTransition } from 'react';
+import { startTransition, useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion';
 import {
-  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter,
-  Search, Compass, LayoutGrid, Users, Briefcase
+  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter, Sparkles,
+  Search, Compass, LayoutGrid, Users, Briefcase,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -19,16 +28,15 @@ import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 
-// ICON SIZING - responsive
 const ICON_SIZE = 22;
-const TOUCH_TARGET_SIZE = 48;
+const TOUCH_TARGET = 48;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
-  onAIClick?: () => void;
+  onAISearchClick?: () => void;
 }
 
 interface NavItem {
@@ -41,243 +49,283 @@ interface NavItem {
   isCenter?: boolean;
 }
 
-export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, onListingsClick }: BottomNavigationProps) {
+// ── SPRING CONFIGS ────────────────────────────────────────────────────────────
+
+const PILL_SPRING = {
+  type: 'spring' as const,
+  stiffness: 380,
+  damping: 28,
+  mass: 0.7,
+};
+
+const TAP_SPRING = {
+  type: 'spring' as const,
+  stiffness: 440,
+  damping: 24,
+  mass: 0.6,
+};
+
+export function BottomNavigation({
+  userRole,
+  onFilterClick,
+  onAddListingClick,
+  onListingsClick,
+  onAISearchClick,
+}: BottomNavigationProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
 
-  // Hide on scroll down, show on scroll up - targets the dashboard scroll container
   const { isVisible } = useScrollDirection({
     threshold: 15,
     showAtTop: true,
-    targetSelector: '#dashboard-scroll-container'
+    targetSelector: '#dashboard-scroll-container',
   });
 
-  // Client Navigation Items — distinct icons
+  // Client nav items
   const clientNavItems: NavItem[] = [
-    {
-      id: 'browse',
-      icon: Compass,
-      label: 'Explore',
-      path: '/client/dashboard',
-    },
-    {
-      id: 'profile',
-      icon: User,
-      label: 'Profile',
-      path: '/client/profile',
-    },
-    {
-      id: 'likes',
-      icon: Flame,
-      label: 'Likes',
-      path: '/client/liked-properties',
-    },
-    {
-      id: 'messages',
-      icon: MessageCircle,
-      label: 'Messages',
-      path: '/messages',
-      badge: unreadCount,
-    },
-    {
-      id: 'filter',
-      icon: Search,
-      label: 'Filters',
-      path: '/client/filters',
-    },
-    {
-      id: 'ai',
-      icon: Sparkles,
-      label: 'AI Oracle',
-      onClick: onAIClick,
-    },
+    { id: 'browse',   icon: Compass,        label: 'Explore',   path: '/client/dashboard' },
+    { id: 'profile',  icon: User,           label: 'Profile',   path: '/client/profile' },
+    { id: 'likes',    icon: Flame,          label: 'Likes',     path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageCircle,  label: 'Messages',  path: '/messages', badge: unreadCount },
+    { id: 'ai-search',icon: Sparkles,       label: 'AI Search', onClick: onAISearchClick },
+    { id: 'filter',   icon: Search,         label: 'Filters',   path: '/client/filters' },
   ];
 
-  // Owner Navigation Items — distinct icons
+  // Owner nav items
   const ownerNavItems: NavItem[] = [
-    {
-      id: 'browse',
-      icon: LayoutGrid,
-      label: 'Dashboard',
-      path: '/owner/dashboard',
-    },
-    {
-      id: 'profile',
-      icon: Briefcase,
-      label: 'Profile',
-      path: '/owner/profile',
-    },
-    {
-      id: 'liked',
-      icon: Users,
-      label: 'Liked Clients',
-      path: '/owner/liked-clients',
-    },
-    {
-      id: 'listings',
-      icon: List,
-      label: 'Listings',
-      path: '/owner/properties',
-      isCenter: true,
-    },
-    {
-      id: 'messages',
-      icon: MessageCircle,
-      label: 'Messages',
-      path: '/messages',
-      badge: unreadCount,
-    },
-    {
-      id: 'filter',
-      icon: SlidersHorizontal,
-      label: 'Filters',
-      path: '/owner/filters',
-    },
-    {
-      id: 'ai',
-      icon: Sparkles,
-      label: 'AI Oracle',
-      onClick: onAIClick,
-    },
+    { id: 'browse',   icon: LayoutGrid,     label: 'Dashboard',     path: '/owner/dashboard' },
+    { id: 'profile',  icon: Briefcase,      label: 'Profile',       path: '/owner/profile' },
+    { id: 'liked',    icon: Users,          label: 'Liked Clients', path: '/owner/liked-clients' },
+    { id: 'listings', icon: List,           label: 'Listings',      path: '/owner/properties', isCenter: true },
+    { id: 'messages', icon: MessageCircle,  label: 'Messages',      path: '/messages', badge: unreadCount },
+    { id: 'ai-search',icon: Sparkles,       label: 'AI Search',     onClick: onAISearchClick },
+    { id: 'filter',   icon: SlidersHorizontal, label: 'Filters',    path: '/owner/filters' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
 
-  const handleNavPress = (event: React.PointerEvent, item: NavItem) => {
-    event.stopPropagation();
-    event.preventDefault();
-    haptics.select();
+  const handleNavPress = useCallback(
+    (event: React.PointerEvent, item: NavItem) => {
+      event.stopPropagation();
+      event.preventDefault();
+      haptics.select();
+      if (item.onClick) {
+        item.onClick();
+      } else if (item.path) {
+        startTransition(() => navigate(item.path!));
+      }
+    },
+    [navigate],
+  );
 
-    if (item.onClick) {
-      item.onClick();
-    } else if (item.path) {
-      startTransition(() => {
-        navigate(item.path!);
-      });
-    }
-  };
+  const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
-  const isActive = (item: NavItem) => {
-    if (!item.path) return false;
-    return location.pathname === item.path;
-  };
+  // ── Colour tokens ────────────────────────────────────────────────────────
+  const iconColorInactive = isLight ? '#1a1a1a' : 'rgba(255,255,255,0.65)';
+  const activeColor       = isLight ? 'hsl(var(--primary))' : '#f97316';
 
-  // Theme-aware colors
-  const iconColor = isLight ? 'hsl(var(--foreground) / 0.85)' : 'hsl(var(--foreground))';
-  const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
-  const bgDefault = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(24, 24, 27, 0.8)';
-  const bgActive = isLight ? 'rgba(255, 255, 255, 1.0)' : 'rgba(39, 39, 42, 0.95)';
-  const borderColor = isLight ? 'hsl(var(--border) / 0.72)' : 'hsl(var(--border) / 0.55)';
-  const shadowColor = isLight
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.15), 0 1px 2px rgba(0,0,0,0.05)'
-    : 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)';
-  const controlBlur = isLight ? 'none' : 'blur(8px)';
+  // ── Nav bar glass surface ────────────────────────────────────────────────
+  // Heavy blur shows the swipe card and content behind the navigation bar.
+  const barBg     = isLight ? 'rgba(255,255,255,0.72)' : 'rgba(12,12,14,0.68)';
+  const barBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.10)';
+  const barShadow = isLight
+    ? 'inset 0 1px 0 rgba(255,255,255,0.92), 0 -2px 12px rgba(0,0,0,0.06)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -4px 20px rgba(0,0,0,0.35)';
+
+  // ── Active glass pill colours ────────────────────────────────────────────
+  const pillBg     = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.10)';
+  const pillBorder = isLight ? 'rgba(0,0,0,0.07)'       : 'rgba(255,255,255,0.18)';
+  const pillShadow = isLight
+    ? 'inset 0 1px 0 rgba(255,255,255,0.95), 0 2px 8px rgba(0,0,0,0.08)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.30)';
 
   return (
-    <nav className={cn("app-bottom-bar pointer-events-none px-1", !isVisible && "nav-hidden")}>
+    <nav className={cn('app-bottom-bar pointer-events-none px-1', !isVisible && 'nav-hidden')}>
+      {/* ── Liquid Glass bar surface ────────────────────────────────────────
+          The bar itself is a glass layer so the swipe card content shows
+          through, reinforcing the "floating above" feeling. */}
       <div
-        className="flex items-center justify-between w-full max-w-xl mx-auto px-2 py-2 pointer-events-auto bg-transparent"
+        className="pointer-events-auto w-full max-w-xl mx-auto"
         style={{
+          // LAYER 1: Liquid glass base
+          backgroundColor: barBg,
+          backdropFilter: 'blur(32px) saturate(185%)',
+          WebkitBackdropFilter: 'blur(32px) saturate(185%)',
+          // LAYER 2: Top rim catch-light (bright edge = physical glass rim)
+          borderTop: `1px solid ${isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.14)'}`,
+          borderLeft: `1px solid ${barBorder}`,
+          borderRight: `1px solid ${barBorder}`,
+          borderBottom: 'none',
+          borderRadius: '20px 20px 0 0',
+          boxShadow: barShadow,
+          // GPU acceleration
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item);
+        {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
+        <div
+          aria-hidden="true"
+          className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
+          style={{
+            borderRadius: 'inherit',
+            background: `
+              radial-gradient(ellipse 160% 50% at 15% 0%,
+                rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
+              radial-gradient(ellipse 100% 60% at 85% 100%,
+                rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)
+            `,
+            backgroundSize: '220% 220%, 100% 100%',
+            zIndex: 1,
+          }}
+        />
 
-          return (
-            <button
-              key={item.id}
-              onPointerDown={(e) => { handleNavPress(e, item); if (item.path) prefetchRoute(item.path); }}
-              onTouchStart={(e) => { e.stopPropagation(); }}
-              onClick={(e) => e.preventDefault()}
-              className={cn(
-                'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
-                'transition-all duration-100 ease-out',
-                'active:scale-[0.9]',
-                'touch-manipulation',
-                '-webkit-tap-highlight-color-transparent'
-              )}
-              style={{
-                minWidth: TOUCH_TARGET_SIZE,
-                minHeight: TOUCH_TARGET_SIZE,
-                padding: '8px 4px',
-                backgroundColor: active ? bgActive : bgDefault,
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
-                border: `1px solid ${borderColor}`,
-                borderRadius: '14px',
-                boxShadow: shadowColor,
-              }}
-            >
-              {/* Active indicator dot */}
-              {active && (
-                <motion.div
-                  layoutId="activeIndicator"
-                  className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
-                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-                />
-              )}
+        {/* Nav items row */}
+        <div
+          className="relative flex items-center justify-between w-full px-2 py-2"
+          style={{ zIndex: 2, transform: 'translateZ(0)' }}
+        >
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item);
 
-              {/* Notification Badge */}
-              <AnimatePresence>
-                {item.badge && item.badge > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                    className="absolute top-0.5 right-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white px-1 z-10"
-                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-                  >
-                    {item.badge > 99 ? '99+' : item.badge}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-
-              <div className="relative">
-                <Icon
-                  className="transition-all duration-300 ease-out"
-                  style={{
-                    width: ICON_SIZE,
-                    height: ICON_SIZE,
-                    color: active ? 'transparent' : iconColor,
-                    stroke: active ? 'url(#active-gradient)' : 'currentColor',
-                    fill: active ? 'url(#active-gradient)' : 'none',
-                    filter: (active && !isLight) ? 'drop-shadow(0 4px 6px rgba(249, 115, 22, 0.3))' : 'none'
-                  }}
-                  strokeWidth={active ? 3.5 : 3}
-                />
-              </div>
-              <span
+            return (
+              <motion.button
+                key={item.id}
+                id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
+                onPointerDown={(e) => {
+                  handleNavPress(e, item);
+                  if (item.path) prefetchRoute(item.path);
+                }}
+                onTouchStart={(e) => e.stopPropagation()}
+                onClick={(e) => e.preventDefault()}
+                whileTap={{ scale: 0.88, transition: TAP_SPRING }}
                 className={cn(
-                  "text-[10px] tracking-wide transition-all duration-300",
-                  active ? "font-black" : "font-extrabold"
+                  'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
+                  'touch-manipulation',
                 )}
                 style={{
-                  color: active ? activeColor : iconColor,
-                  opacity: active ? 1 : 0.7
+                  minWidth: TOUCH_TARGET,
+                  minHeight: TOUCH_TARGET,
+                  padding: '8px 6px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
                 }}
               >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+                {/* ── Active glass pill ──────────────────────────────────────
+                    When this tab is active, a Liquid Glass pill appears behind
+                    the icon/label. It uses layoutId for a shared-element
+                    transition — the pill slides smoothly between tabs. */}
+                <AnimatePresence>
+                  {active && (
+                    <motion.div
+                      layoutId="activeNavPill"
+                      className="absolute inset-0"
+                      initial={{ opacity: 0, scale: 0.82 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.88 }}
+                      transition={PILL_SPRING}
+                      style={{
+                        borderRadius: 14,
+                        // Active pill: glass surface with coloured rim
+                        backgroundColor: pillBg,
+                        backdropFilter: 'blur(20px) saturate(160%)',
+                        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
+                        border: `1px solid ${pillBorder}`,
+                        boxShadow: pillShadow,
+                        zIndex: 0,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {/* Liquid highlight on the active pill */}
+                      <div
+                        aria-hidden="true"
+                        className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
+                        style={{
+                          borderRadius: 'inherit',
+                          background: `
+                            radial-gradient(ellipse 150% 65% at 20% 0%,
+                              rgba(255,255,255,${isLight ? 0.70 : 0.28}) 0%, transparent 60%),
+                            radial-gradient(ellipse 80% 50% at 90% 100%,
+                              rgba(249,115,22,${isLight ? 0.10 : 0.14}) 0%, transparent 55%)
+                          `,
+                          backgroundSize: '220% 220%, 100% 100%',
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-        {/* SVG Defs for Gradient Icons */}
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient id="active-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop stopColor="#ec4899" offset="0%" />
-              <stop stopColor="#f97316" offset="100%" />
-            </linearGradient>
-          </defs>
-        </svg>
+                {/* Notification badge */}
+                <AnimatePresence>
+                  {item.badge && item.badge > 0 && (
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                      className="absolute top-0.5 right-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white px-1 z-20"
+                      style={{ background: 'linear-gradient(135deg,#ec4899,#f97316)' }}
+                    >
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+
+                {/* Icon */}
+                <div className="relative" style={{ zIndex: 1 }}>
+                  <Icon
+                    className="transition-all duration-250 ease-out"
+                    style={{
+                      width: ICON_SIZE,
+                      height: ICON_SIZE,
+                      color: active ? 'transparent' : iconColorInactive,
+                      stroke: active ? 'url(#nav-active-gradient)' : 'currentColor',
+                      fill: active ? 'url(#nav-active-gradient)' : 'none',
+                      filter: active && !isLight
+                        ? 'drop-shadow(0 2px 6px rgba(249,115,22,0.45))'
+                        : 'none',
+                    }}
+                    strokeWidth={active ? 3.5 : 2.8}
+                  />
+                </div>
+
+                {/* Label */}
+                <span
+                  className={cn(
+                    'text-[10px] tracking-wide transition-all duration-250 relative',
+                    active ? 'font-black' : 'font-bold',
+                  )}
+                  style={{
+                    color: active ? activeColor : iconColorInactive,
+                    opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+                    zIndex: 1,
+                  }}
+                >
+                  {item.label}
+                </span>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
+
+      {/* SVG gradient defs for active icon */}
+      <svg width="0" height="0" className="absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="nav-active-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop stopColor="#ec4899" offset="0%" />
+            <stop stopColor="#f97316" offset="100%" />
+          </linearGradient>
+        </defs>
+      </svg>
     </nav>
   );
 }

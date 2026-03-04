@@ -126,6 +126,12 @@ export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
+    // Ensure Supabase env vars are always available (fallback for .env loading issues)
+    ...((!process.env.VITE_SUPABASE_URL) ? {
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('https://qegyisokrxdsszzswsqk.supabase.co'),
+      'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU'),
+      'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify('qegyisokrxdsszzswsqk'),
+    } : {}),
   },
   server: {
     host: "::",
@@ -153,6 +159,8 @@ export default defineConfig(({ mode }) => ({
       // Force single React instance (prevents Invalid Hook Call)
       react: path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
+      // Ensure dompurify is properly resolved
+      dompurify: path.resolve(__dirname, "./node_modules/dompurify"),
     },
     // Prevent duplicate React instances (including jsx runtimes)
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', '@tanstack/react-query'],
@@ -163,7 +171,8 @@ export default defineConfig(({ mode }) => ({
       'react-dom',
       '@tanstack/react-query',
       'framer-motion',
-      'lucide-react'
+      'lucide-react',
+      'dompurify'
     ],
     exclude: ['@capacitor/core', '@capacitor/app'],
   },
@@ -312,6 +321,12 @@ export default defineConfig(({ mode }) => ({
       // Safe tree shaking - don't break React context
       treeshake: {
         preset: 'safest',
+      },
+      // Suppress known benign module resolution warnings
+      onwarn(warning, warn) {
+        // DOMPurify ESM exports sanitize as a method on the default object, not as a named export
+        if (warning.code === 'MISSING_EXPORT' && warning.exporter?.includes('dompurify')) return;
+        warn(warning);
       },
     },
     // Warn on chunks larger than 1000KB to reduce noise

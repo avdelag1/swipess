@@ -14,7 +14,7 @@ import { SwipessSPattern } from "@/components/SwipessSWatermark";
  */
 export const VisualEngine = () => {
   const { theme } = useTheme();
-  const isDark = theme === "black-matte";
+  const isDark = theme !== "white-matte";
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -23,7 +23,7 @@ export const VisualEngine = () => {
       <div
         className={`absolute inset-0 transition-colors duration-500 ${isDark
             ? "bg-[#050505]"
-            : "bg-white"
+            : "bg-background"
           }`}
       />
 
@@ -56,7 +56,7 @@ interface ReactiveBackgroundProps {
 
 export const ReactiveBackground = ({ sentiment = "neutral" }: ReactiveBackgroundProps) => {
   const { theme } = useTheme();
-  const isDark = theme === "black-matte";
+  const isDark = theme !== "white-matte";
 
   // Subtle color shift based on user action (e.g., swipe direction)
   const getSentimentGlow = () => {

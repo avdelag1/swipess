@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { getCategoryGradientClass } from '@/types/filters';
 
 // Custom motorcycle icon
 const MotorcycleIcon = ({ className }: { className?: string }) => (
@@ -34,15 +35,14 @@ type CategoryOption = {
   id: QuickFilterCategory;
   label: string;
   icon: React.ReactNode;
-  color: string;
   hasSubOptions: boolean;
 };
 
-const categoryOptions: CategoryOption[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', hasSubOptions: true },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, color: 'from-red-500 to-orange-500', hasSubOptions: true },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500', hasSubOptions: true },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', hasSubOptions: true },
+const categoryOptionBase: CategoryOption[] = [
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
+  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -96,7 +96,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { theme } = useTheme();
-  const isDark = theme === 'black-matte';
+  const isDark = theme !== 'white-matte';
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
   const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1.5px solid rgba(0, 0, 0, 0.1)';
@@ -133,11 +133,17 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      // FIX: Ignore clicks on AI search button to prevent it from closing filters
+      const isAISearchClick = target.closest('#ai-search-button');
+
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
+        !dropdownRef.current.contains(target) &&
         buttonRef.current &&
-        !buttonRef.current.contains(event.target as Node)
+        !buttonRef.current.contains(target) &&
+        !isAISearchClick
       ) {
         setIsOpen(false);
         setClickedCategory(null);
@@ -189,9 +195,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className="bg-[#000000]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
+      <div className={cn(
+        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
+        isDark ? "bg-[#000000]/95 border-white/10" : "bg-white/95 border-black/10"
+      )}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
           <span className="text-sm font-semibold text-foreground">Filter Clients</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -257,9 +266,12 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render client filters dropdown (categories) - MOBILE OPTIMIZED
   const renderClientFilters = () => {
     return (
-      <div className="bg-[#000000]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
+      <div className={cn(
+        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]",
+        isDark ? "bg-[#000000]/95 border-white/10" : "bg-white/95 border-black/10"
+      )}>
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
           <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -275,7 +287,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
         {/* Category Options - always inline (no flyout) */}
         <div className="py-2 max-h-[60vh] overflow-y-auto">
-          {categoryOptions.map((category, index) => (
+          {categoryOptionBase.map((category, index) => {
+            const gradientClass = getCategoryGradientClass(category.id, isDark);
+            return (
             <motion.div
               key={category.id}
               initial={{ opacity: 0, x: -20 }}
@@ -288,7 +302,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 className={cn(
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                   categories.includes(category.id)
-                    ? 'bg-gradient-to-r ' + category.color + ' text-white'
+                    ? cn('bg-gradient-to-r', gradientClass, 'text-white')
                     : 'text-foreground hover:bg-white/10'
                 )}
               >
@@ -332,7 +346,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                           className={cn(
                             'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
                             categories.includes(category.id) && listingType === ltOption.id
-                              ? `bg-gradient-to-r ${category.color} text-white`
+                              ? cn('bg-gradient-to-r', gradientClass, 'text-white')
                               : 'text-foreground hover:bg-white/10 bg-white/5'
                           )}
                         >
@@ -344,7 +358,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 )}
               </AnimatePresence>
             </motion.div>
-          ))}
+          );
+          })}
         </div>
       </div>
     );
@@ -361,7 +376,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 md:px-5 h-9 sm:h-10 md:h-11 rounded-xl transition-all duration-200 touch-manipulation',
+          'relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-8 sm:h-9 rounded-lg transition-all duration-200 touch-manipulation',
           hasActiveFilters && 'ring-1 ring-pink-500/30'
         )}
         style={{

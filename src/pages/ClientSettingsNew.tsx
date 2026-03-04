@@ -187,7 +187,7 @@ const ClientSettingsNew = () => {
               </div>
 
               {/* Group card - Moscow style matte container */}
-              <div className="rounded-[32px] overflow-hidden bg-zinc-900/40 backdrop-blur-2xl border border-white/5 shadow-2xl">
+              <div className="rounded-[32px] overflow-hidden bg-card/40 backdrop-blur-2xl border border-border shadow-2xl">
                 {group.items.map((item, idx) => (
                   <div key={item.label}>
                     <motion.button

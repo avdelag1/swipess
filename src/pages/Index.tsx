@@ -14,6 +14,7 @@ const Index = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const hasNavigated = useRef(false);
+  const [showEscapeHatch, setShowEscapeHatch] = useState(false);
 
   // Capture referral code from URL if present (works for app-wide referral links)
   useEffect(() => {
@@ -140,59 +141,130 @@ const Index = () => {
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
       if (metadataRole) {
         hasNavigated.current = true;
-        const targetPath = metadataRole === "client" ? "/client/dashboard" : "/owner/dashboard";
+        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
         logger.log("[Index] New user - using metadata role, navigating to:", targetPath);
         navigate(targetPath, { replace: true });
         return;
       }
     }
 
-    // PRIORITY 2: Have role from DB - navigate immediately
-    if (userRole) {
-      hasNavigated.current = true;
-      const targetPath = userRole === "client" ? "/client/dashboard" : "/owner/dashboard";
-      logger.log("[Index] Role found from DB, navigating to:", targetPath);
-      navigate(targetPath, { replace: true });
-      return;
-    }
-
-    // PRIORITY 3: If not new user and role query failed after profile check, try metadata as last resort
-    // Only do this if the profile has been loading for a bit to avoid race conditions
-    if (!isNewUser && !isLoadingRole && !userRole) {
-      const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-      hasNavigated.current = true;
-      if (metadataRole) {
-        const targetPath = metadataRole === "client" ? "/client/dashboard" : "/owner/dashboard";
-        logger.log("[Index] Fallback to metadata role, navigating to:", targetPath);
-        navigate(targetPath, { replace: true });
-      } else {
-        // FATAL FALLBACK: If a user has NO role in DB and NO role in metadata, default to client
-        // This PREVENTS them from getting permanently stuck on the splash screen!
-        logger.warn("[Index] CRITICAL FALLBACK: User has no role defined anywhere. Defaulting to client.");
-        navigate("/client/dashboard", { replace: true });
+    // PRIORITY 2: Check for active_mode preference (Sticky Mode)
+    // We prioritize the user's last selected mode stored in DB or local storage
+    const fetchActiveMode = async () => {
+      // Try local storage first (fastest)
+      const cachedMode = localStorage.getItem(`swipess_active_mode_${user.id}`);
+      if (cachedMode === 'client' || cachedMode === 'owner') {
+        logger.log("[Index] Sticky mode found in localStorage:", cachedMode);
+        return cachedMode;
       }
-      return;
-    }
+
+      // Try database with a 3-second timeout to prevent getting stuck
+      try {
+        const dbPromise = supabase
+          .from('profiles')
+          .select('active_mode')
+          .eq('user_id', user.id)
+          .maybeSingle();
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+        const result = await Promise.race([dbPromise, timeoutPromise]);
+
+        if (result && 'data' in result && (result.data?.active_mode === 'client' || result.data?.active_mode === 'owner')) {
+          logger.log("[Index] Sticky mode found in database:", result.data.active_mode);
+          return result.data.active_mode as 'client' | 'owner';
+        }
+      } catch {
+        logger.warn("[Index] fetchActiveMode DB query failed, skipping");
+      }
+
+      return null;
+    };
+
+    // PRIORITY 3: Have role from DB or metadata - combine with sticky mode
+    const performRedirection = async () => {
+      if (hasNavigated.current) return;
+
+      const activeMode = await fetchActiveMode();
+
+      // If we have an active mode preference, use it
+      if (activeMode) {
+        hasNavigated.current = true;
+        const targetPath = activeMode === 'owner' ? '/owner/dashboard' : '/client/dashboard';
+        logger.log("[Index] Navigating to sticky active mode:", targetPath);
+        navigate(targetPath, { replace: true });
+        return;
+      }
+
+      // Fallback 1: Admin always goes to client (or sticky if they have one)
+      if (userRole === 'admin') {
+        hasNavigated.current = true;
+        logger.log("[Index] Admin detected, navigating to client dashboard");
+        navigate('/client/dashboard', { replace: true });
+        return;
+      }
+
+      // Fallback 2: Primary role
+      if (userRole) {
+        hasNavigated.current = true;
+        const targetPath = userRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+        logger.log("[Index] Navigating to primary role dashboard:", targetPath);
+        navigate(targetPath, { replace: true });
+        return;
+      }
+
+      // Fallback 3: Metadata or Default
+      if (!isNewUser && !isLoadingRole) {
+        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+        hasNavigated.current = true;
+        logger.log("[Index] Last resort navigation to:", targetPath);
+        navigate(targetPath, { replace: true });
+        return;
+      }
+
+      // Unconditional last resort: never leave user on black screen
+      // Fires when role query is in-flight AND user is new with no metadata role
+      if (!hasNavigated.current) {
+        hasNavigated.current = true;
+        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+        logger.warn("[Index] Unconditional fallback navigation to:", targetPath);
+        navigate(targetPath, { replace: true });
+      }
+    };
+
+    // Safety net: if performRedirection never fires navigation within 4s, force it
+    // IMPORTANT: Do NOT clear this from performRedirection — it must run independently
+    const safetyTimeout = setTimeout(() => {
+      if (!hasNavigated.current && user) {
+        hasNavigated.current = true;
+        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
+        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
+        logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
+        navigate(targetPath, { replace: true });
+      }
+    }, 4000);
+
+    performRedirection();
+    return () => clearTimeout(safetyTimeout);
   }, [user, userRole, loading, initialized, isLoadingRole, isNewUser, navigate]);
 
   // Reset navigation flag when user changes
   useEffect(() => {
     if (!user) {
       hasNavigated.current = false;
+      setShowEscapeHatch(false);
     }
   }, [user?.id]);
 
+  // Escape hatch: show a recovery UI if loading is stuck beyond 6 seconds
+  useEffect(() => {
+    if (!user || !initialized || hasNavigated.current) return;
+    const timer = setTimeout(() => setShowEscapeHatch(true), 6000);
+    return () => clearTimeout(timer);
+  }, [user, initialized]);
+
   if (!initialized || loading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
-        <img
-          src="/icons/swipess-logo-script.png"
-          alt="Swipess"
-          className="w-[280px] max-w-[85vw] h-auto object-contain drop-shadow-[0_0_20px_rgba(228,0,124,0.4)]"
-          style={{ animation: 'splash-heartbeat 2s ease-in-out infinite' }}
-        />
-      </div>
-    );
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // User exists but still loading role - show transparent screen
@@ -200,7 +272,7 @@ const Index = () => {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-[#050505]">
+        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
             <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
@@ -218,17 +290,25 @@ const Index = () => {
       );
     }
 
-    // Splash screen while finishing role setup
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
-        <img
-          src="/icons/swipess-logo-script.png"
-          alt="Swipess"
-          className="w-[280px] max-w-[85vw] h-auto object-contain drop-shadow-[0_0_20px_rgba(228,0,124,0.4)]"
-          style={{ animation: 'splash-heartbeat 2s ease-in-out infinite' }}
-        />
-      </div>
-    );
+    if (showEscapeHatch) {
+      return (
+        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+          <div className="text-center space-y-4 p-4 max-w-sm">
+            <div className="text-orange-500 text-3xl">⏳</div>
+            <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
+            <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+            <button
+              onClick={() => { window.location.href = '/?clear-cache=1'; }}
+              className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
+            >
+              Refresh & Continue
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -241,15 +321,7 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#050505] z-[9999]">
-      <img
-        src="/icons/swipess-logo-script.png"
-        alt="Swipess"
-        className="splash-logo"
-      />
-    </div>
-  );
+  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
 };
 
 export default Index;

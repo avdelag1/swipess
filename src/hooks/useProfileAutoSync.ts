@@ -178,7 +178,7 @@ export function useEnsureSpecializedProfile() {
         const { data: universalProfile } = await supabase
           .from('profiles')
           .select('full_name, email, avatar_url, age, gender, city, country, neighborhood, interests, bio, nationality, languages_spoken, smoking, work_schedule, lifestyle_tags, images')
-          .eq('id', user.id)
+          .eq('user_id', user.id)
           .maybeSingle();
 
         if (role === 'client') {

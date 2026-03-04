@@ -56,6 +56,7 @@ interface TopBarProps {
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
+  onAISearchClick?: () => void;
 }
 
 function TopBarComponent({
@@ -67,32 +68,28 @@ function TopBarComponent({
   transparent = false,
   hideOnScroll = false,
   title,
+  onAISearchClick,
 }: TopBarProps) {
-  const { isVisible } = useScrollDirection({
-    threshold: 15,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-  });
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
-  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme === 'black-matte';
+  const isDark = theme !== 'white-matte';
 
   const glassBg = isDark
     ? 'rgba(255, 255, 255, 0.12)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(0, 0, 0, 0.07)';
   const glassBorder = isDark
     ? '1.5px solid rgba(255, 255, 255, 0.2)'
-    : '1.5px solid rgba(0, 0, 0, 0.1)';
+    : '1.5px solid rgba(0, 0, 0, 0.15)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
-    : '0 1px 3px rgba(0,0,0,0.06)';
+    : '0 2px 10px rgba(0,0,0,0.08)';
   const controlBlur = isDark ? 'blur(10px)' : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
@@ -152,9 +149,10 @@ function TopBarComponent({
           className
         )}
       >
-        <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
+        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
           {/* Left section: Title + Mode switcher + filters */}
-          <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+          <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+            {/* Visual verification: Logo and Title restored per user request */}
             {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
             {title && (
               <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
@@ -162,10 +160,10 @@ function TopBarComponent({
               </div>
             )}
 
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <ThemeToggle />
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
-              <ModeSwitcher variant="pill" size="md" className="hidden md:flex" />
+              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
             </div>
 
             {showFilters && userRole && (
@@ -190,6 +188,7 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
+            {/* AI Search Button - Moved to BottomNavigation */}
 
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
@@ -197,11 +196,11 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
+                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1.5"
+                    "flex items-center gap-1"
                   )}
                   style={{
                     backgroundColor: glassBg,
@@ -214,8 +213,8 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
-                  <span className="hidden sm:inline font-black text-sm tracking-tighter text-foreground whitespace-nowrap uppercase">
+                  <Zap strokeWidth={4} className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isDark ? "text-amber-300" : "text-amber-600")} />
+                  <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
                     Tokens
                   </span>
                 </Button>
@@ -223,7 +222,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-white/10 bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -278,12 +277,12 @@ function TopBarComponent({
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-1.5">
-                                <span className="font-bold text-white text-sm capitalize">{tier}</span>
-                                <span className="text-white/60 text-xs">{tokens} tokens</span>
+                                <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
+                                <span className="text-muted-foreground text-xs">{tokens} tokens</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
-                                <span className="font-bold text-white text-base">{formatPriceMXN(pkg.price)}</span>
-                                <span className="text-white/40 text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
+                                <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
                               </div>
                             </div>
 
@@ -338,7 +337,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
+                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
                 "group flex-shrink-0",
                 "touch-manipulation",
@@ -359,10 +358,10 @@ function TopBarComponent({
                 <Bell
                   strokeWidth={4}
                   className={cn(
-                    "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
+                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-200 group-hover:text-orange-100"
-                      : "text-gray-50 group-hover:text-white"
+                      ? (isDark ? "text-orange-200 group-hover:text-orange-100" : "text-orange-600 group-hover:text-orange-700")
+                      : (isDark ? "text-gray-50 group-hover:text-white" : "text-foreground group-hover:text-foreground")
                   )}
                 />
                 <AnimatePresence>
@@ -379,7 +378,7 @@ function TopBarComponent({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-[#1C1C1E]"
+                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-background"
                     style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                   >
                     {notificationCount > 99 ? '99+' : notificationCount}
@@ -390,13 +389,6 @@ function TopBarComponent({
           </div>
         </div>
       </header>
-
-      {/* AI Search Dialog */}
-      <AISearchDialog
-        isOpen={isAISearchOpen}
-        onClose={() => setIsAISearchOpen(false)}
-        userRole={userRole}
-      />
     </>
   );
 }

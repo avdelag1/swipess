@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+import flameSLogo from '../../public/icons/s-logo-app.png';
 
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
@@ -14,7 +14,7 @@ function SwipessLogoComponent({
   // Map our size keys to pixel heights that maintain the premium look
   const heightMap = {
     xs: 'h-6',      // ~24px
-    sm: 'h-8',      // ~32px
+    sm: 'h-9',      // ~36px
     md: 'h-10',     // ~40px
     lg: 'h-14',     // ~56px
     xl: 'h-20',     // ~80px
@@ -26,10 +26,10 @@ function SwipessLogoComponent({
   return (
     <div className={cn('relative inline-flex items-center justify-center overflow-visible', className)}>
       <img
-        src={swipessLogo}
+        src={flameSLogo}
         alt="Swipess"
         className={cn(
-          'w-auto object-contain select-none pointer-events-none transition-all duration-300',
+          'w-auto object-contain select-none pointer-events-none transition-all duration-300 rounded-lg',
           heightMap[size]
         )}
       />

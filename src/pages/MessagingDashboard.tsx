@@ -1,5 +1,5 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { PageTransition } from '@/components/PageTransition';
+import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -413,7 +413,12 @@ export function MessagingDashboard() {
         <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
 
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
+            className="flex items-center justify-between mb-6"
+          >
             <div>
               <h1 className="text-3xl font-bold text-foreground tracking-tight">Messages</h1>
               {filteredConversations.length > 0 && (
@@ -430,7 +435,7 @@ export function MessagingDashboard() {
                 {(stats as any).unreadCount} new
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Search */}
           <div className="relative mb-5">
@@ -451,15 +456,20 @@ export function MessagingDashboard() {
                 <p className="text-sm text-muted-foreground">Loading conversations...</p>
               </div>
             ) : filteredConversations.length > 0 ? (
-              filteredConversations.map((conversation) => {
+              filteredConversations.map((conversation, index) => {
                 const isOwner = conversation.other_user?.role === 'owner';
                 const hasUnread = conversation.last_message?.sender_id !== user?.id &&
                   conversation.last_message_at &&
                   new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
 
                 return (
-                  <button
+                  <motion.div
                     key={conversation.id}
+                    initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
+                  >
+                  <button
                     className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
                     onClick={() => setSelectedConversationId(conversation.id)}
                   >
@@ -514,6 +524,7 @@ export function MessagingDashboard() {
                       </div>
                     </div>
                   </button>
+                  </motion.div>
                 );
               })
             ) : (

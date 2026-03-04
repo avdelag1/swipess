@@ -98,7 +98,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
   };
 
   const handleSaveAsFile = async () => {
-    const content = editorRef.current?.innerHTML || '';
+    const content = sanitizeHTML(editorRef.current?.innerHTML || '');
 
     // Create HTML file content
     const htmlContent = `
@@ -143,7 +143,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 
     setIsSaving(true);
     try {
-      const content = editorRef.current.innerHTML;
+      const content = sanitizeHTML(editorRef.current.innerHTML);
 
       // Create HTML file content
       const htmlContent = `

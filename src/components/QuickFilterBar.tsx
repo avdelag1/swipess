@@ -2,7 +2,9 @@ import { memo, useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';
@@ -169,6 +171,8 @@ function FilterDropdown({
 }
 
 function QuickFilterBarComponent({ filters, onChange, className, userRole = 'client' }: QuickFilterBarProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
@@ -221,7 +225,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     return (
       <div
         className={cn(
-          'bg-background/50 backdrop-blur-xl border-b border-border px-3 py-2',
+          isDark ? 'bg-background/50' : 'bg-white/80',
+          'backdrop-blur-xl border-b border-border px-3 py-2',
           className
         )}
       >
@@ -254,7 +259,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             <div className="flex items-center gap-1 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
-                const isServices = category.id === 'services';
+                const colorClass = getCategoryColorClass(category.id, isDark);
                 return (
                   <button
                     key={category.id}
@@ -264,9 +269,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                       'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                       'border',
                       isActive
-                        ? isServices
-                          ? 'bg-emerald-500 text-white border-emerald-500'
-                          : 'bg-orange-500 text-white border-orange-500'
+                        ? cn(colorClass, 'text-white border-current')
                         : 'bg-muted text-foreground border-border hover:bg-muted/80'
                     )}
                   >
@@ -301,7 +304,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   return (
     <div
       className={cn(
-        'bg-background/50 backdrop-blur-xl border-b border-border px-3 py-2',
+        isDark ? 'bg-background/50' : 'bg-white/80',
+        'backdrop-blur-xl border-b border-border px-3 py-2',
         className
       )}
     >
@@ -326,7 +330,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                 'border',
                 filters.categories.length === allCategories.length
-                  ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white border-transparent'
+                  ? isDark
+                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 text-white border-transparent'
+                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 text-white border-transparent'
                   : 'bg-muted text-foreground border-border hover:bg-muted/80'
               )}
             >
@@ -345,7 +351,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           <div className="flex items-center gap-1 flex-shrink-0">
             {categories.map((category) => {
               const isActive = filters.categories.includes(category.id);
-              const isServices = category.id === 'services';
+              const colorClass = getCategoryColorClass(category.id, isDark);
               return (
                 <button
                   key={category.id}
@@ -355,9 +361,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                     'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                     'border',
                     isActive
-                      ? isServices
-                        ? 'bg-emerald-500 text-white border-emerald-500'
-                        : 'bg-orange-500 text-white border-orange-500'
+                      ? cn(colorClass, 'text-white border-current')
                       : 'bg-muted text-foreground border-border hover:bg-muted/80'
                   )}
                 >
