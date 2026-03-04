@@ -156,10 +156,6 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
     return <PlaceholderImage name={name} />;
   }
 
-  if (isPlaceholder) {
-    return <PlaceholderImage name={name} />;
-  }
-
   return (
     <div
       className="absolute inset-0 w-full h-full rounded-[24px]"
