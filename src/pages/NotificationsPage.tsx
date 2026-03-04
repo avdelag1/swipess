@@ -46,7 +46,7 @@ interface Notification {
   title: string;
   message: string;
   created_at: string;
-  read: boolean;
+  is_read: boolean;
   link_url?: string | null;
   related_user_id?: string | null;
   metadata?: {
@@ -154,7 +154,7 @@ export default function NotificationsPage() {
               title: getNotificationTitle(n.type),
               message: n.message || '',
               created_at: n.created_at,
-              read: n.read || false,
+              is_read: n.is_read || false,
               link_url: n.link_url,
               related_user_id: n.related_user_id,
               metadata: n.metadata,
@@ -163,13 +163,16 @@ export default function NotificationsPage() {
             setNotifications(prev => prev.filter(n => n.id !== (payload.old as any).id));
           } else if (payload.eventType === 'UPDATE') {
             const updated = payload.new as any;
-            setNotifications(prev => prev.map(n => n.id === updated.id ? { ...n, read: updated.read } : n));
+            setNotifications(prev => prev.map(n => n.id === updated.id ? { ...n, is_read: updated.is_read } : n));
           }
         }
       )
       .subscribe();
 
-    return () => { channel.unsubscribe(); };
+    return () => {
+      channel.unsubscribe();
+      supabase.removeChannel(channel);
+    };
   }, [user?.id]);
 
   const getNotificationTitle = (type: string) => {
@@ -201,7 +204,7 @@ export default function NotificationsPage() {
         title: getNotificationTitle(n.type),
         message: n.message || '',
         created_at: n.created_at,
-        read: n.read || false,
+        is_read: n.is_read || false,
         link_url: n.link_url,
         related_user_id: n.related_user_id,
         metadata: n.metadata,
@@ -245,7 +248,7 @@ export default function NotificationsPage() {
     finally { setRemovingLikeId(null); }
   };
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.is_read).length;
   const likedCount = likedProperties?.length || 0;
 
   return (
@@ -330,7 +333,7 @@ export default function NotificationsPage() {
                         <Card className={cn(
                           "relative overflow-hidden rounded-[2rem] border-border/40 transition-all hover:border-primary/20 backdrop-blur-sm group",
                           isDark ? "bg-card/40" : "bg-white/90 shadow-sm border-black/5",
-                          !n.read && (isDark ? "bg-primary/[0.03] border-primary/20 ring-1 ring-primary/10" : "bg-primary/[0.05] border-primary/30")
+                          !n.is_read && (isDark ? "bg-primary/[0.03] border-primary/20 ring-1 ring-primary/10" : "bg-primary/[0.05] border-primary/30")
                         )}>
                           <div className={cn("absolute inset-y-0 left-0 w-1 bg-gradient-to-b", getBgGradient(n.type, role))} />
                           <CardContent className="p-5 flex items-start gap-4">

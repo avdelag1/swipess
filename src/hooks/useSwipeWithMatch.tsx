@@ -456,7 +456,7 @@ async function detectAndCreateMatch({
       const { data: matchData, error: matchError } = await supabase
         .from('matches')
         .upsert({
-          user_id: matchClientId,
+          client_id: matchClientId,
           owner_id: matchOwnerId,
           listing_id: (matchListingId as string),
           status: 'active'
@@ -473,7 +473,7 @@ async function detectAndCreateMatch({
           const query = supabase
             .from('matches')
             .select()
-            .eq('user_id', matchClientId)
+            .eq('client_id', matchClientId)
             .eq('owner_id', matchOwnerId);
 
           if (matchListingId) {
@@ -509,7 +509,7 @@ async function detectAndCreateMatch({
         .from('conversations')
         .upsert({
           match_id: match.id,
-          user_id: match.user_id,
+          client_id: match.client_id,
           owner_id: match.owner_id,
           listing_id: match.listing_id,
           status: 'active'

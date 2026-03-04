@@ -106,8 +106,9 @@ export function useNotifications() {
       .subscribe();
 
     return () => {
-      // Properly unsubscribe before removing channel
+      // Properly unsubscribe AND remove channel to prevent memory leaks
       channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user?.id]);
 

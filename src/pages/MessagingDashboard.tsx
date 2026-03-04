@@ -177,8 +177,9 @@ export function MessagingDashboard() {
       if (refetchTimeoutRef.current) {
         clearTimeout(refetchTimeoutRef.current);
       }
-      // Properly unsubscribe before removing channel
+      // Properly unsubscribe AND remove channel to prevent memory leaks
       conversationsChannel.unsubscribe();
+      supabase.removeChannel(conversationsChannel);
     };
   }, [user?.id, debouncedRefetch]);
 
@@ -469,61 +470,61 @@ export function MessagingDashboard() {
                     animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                     transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
                   >
-                  <button
-                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
-                    onClick={() => setSelectedConversationId(conversation.id)}
-                  >
-                    {/* Avatar with gradient ring */}
-                    <div className="relative shrink-0">
-                      <div className={`p-[2px] rounded-full ${isOwner
-                        ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                        : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                        }`}>
-                        <Avatar className="w-13 h-13 border-2 border-background">
-                          <AvatarImage src={conversation.other_user?.avatar_url} />
-                          <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
-                            ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                            : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                            }`}>
-                            {conversation.other_user?.full_name?.charAt(0) || '?'}
-                          </AvatarFallback>
-                        </Avatar>
+                    <button
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
+                      onClick={() => setSelectedConversationId(conversation.id)}
+                    >
+                      {/* Avatar with gradient ring */}
+                      <div className="relative shrink-0">
+                        <div className={`p-[2px] rounded-full ${isOwner
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                          : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                          }`}>
+                          <Avatar className="w-13 h-13 border-2 border-background">
+                            <AvatarImage src={conversation.other_user?.avatar_url} />
+                            <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
+                              ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                              : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                              }`}>
+                              {conversation.other_user?.full_name?.charAt(0) || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        {/* Online dot */}
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
                       </div>
-                      {/* Online dot */}
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
-                    </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
-                            {conversation.other_user?.full_name || 'Unknown'}
-                          </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
-                            ? 'bg-purple-500/15 text-purple-400'
-                            : 'bg-blue-500/15 text-blue-400'
-                            }`}>
-                            {isOwner ? 'Provider' : 'Explorer'}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
+                              {conversation.other_user?.full_name || 'Unknown'}
+                            </span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
+                              ? 'bg-purple-500/15 text-purple-400'
+                              : 'bg-blue-500/15 text-blue-400'
+                              }`}>
+                              {isOwner ? 'Provider' : 'Explorer'}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground ml-2 shrink-0">
+                            {conversation.last_message_at
+                              ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
+                              : ''
+                            }
                           </span>
                         </div>
-                        <span className="text-[11px] text-muted-foreground ml-2 shrink-0">
-                          {conversation.last_message_at
-                            ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
-                            : ''
-                          }
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
+                            {conversation.last_message?.message_text || 'Start a conversation...'}
+                          </p>
+                          {hasUnread && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
-                          {conversation.last_message?.message_text || 'Start a conversation...'}
-                        </p>
-                        {hasUnread && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
-                        )}
-                      </div>
-                    </div>
-                  </button>
+                    </button>
                   </motion.div>
                 );
               })
