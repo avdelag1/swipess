@@ -819,7 +819,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
-  }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget]);
+  }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
   // PHASE 1: Called when user swipes - ONLY updates refs and triggers animation
   // NO React state updates, NO Zustand updates, NO persistence

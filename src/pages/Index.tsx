@@ -301,7 +301,7 @@ const Index = () => {
               onClick={() => { window.location.href = '/?clear-cache=1'; }}
               className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
             >
-              Refresh &amp; Continue
+              Refresh & Continue
             </button>
           </div>
         </div>
