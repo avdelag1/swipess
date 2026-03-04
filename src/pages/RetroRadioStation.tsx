@@ -95,14 +95,15 @@ export default function RetroRadioStation() {
 
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden select-none">
-      {/* Background - vibrant gradient based on city theme */}
+      {/* Background — deep dark with vivid city-colour glow, no white */}
       <div
         className="absolute inset-0 transition-all duration-1000"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 30%, ${cityTheme.primaryColor}35 0%, transparent 70%),
-            radial-gradient(ellipse at 80% 80%, ${cityTheme.secondaryColor}25 0%, transparent 60%),
-            linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)
+            radial-gradient(ellipse at 30% 20%, ${cityTheme.primaryColor}40 0%, transparent 55%),
+            radial-gradient(ellipse at 75% 75%, ${cityTheme.secondaryColor}30 0%, transparent 55%),
+            radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.8) 0%, transparent 60%),
+            linear-gradient(180deg, #0d0d14 0%, #07070e 100%)
           `,
         }}
       />
@@ -227,13 +228,17 @@ export default function RetroRadioStation() {
             >
               <CassetteDisplay
                 isPlaying={state.isPlaying}
-                stationName={state.currentStation?.name ?? 'SwipesS'}
+                stationName={state.currentStation?.name ?? 'SwipesS FM'}
                 genre={state.currentStation?.genre ?? 'Radio'}
                 cityTheme={cityTheme}
                 width={getCassetteWidth()}
                 onPlayPause={togglePlayPause}
                 onPrev={() => changeStation('prev')}
                 onNext={() => changeStation('next')}
+                onFavorite={() => state.currentStation && toggleFavorite(state.currentStation.id)}
+                isFavorite={isFav}
+                onVolumeUp={() => setVolume(Math.min(1, state.volume + 0.1))}
+                onVolumeDown={() => setVolume(Math.max(0, state.volume - 0.1))}
               />
             </motion.div>
           </AnimatePresence>
