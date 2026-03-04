@@ -98,6 +98,7 @@ export function useSaveOwnerProfile() {
 
       if (updates.profile_images !== undefined && (updates.profile_images?.length ?? 0) > 0) {
         syncPayload.images = updates.profile_images;
+        syncPayload.avatar_url = updates.profile_images[0];
       }
 
       if (updates.business_name !== undefined) {
@@ -135,6 +136,7 @@ export function useSaveOwnerProfile() {
       qc.invalidateQueries({ queryKey: ['owner-profile-own'] });
       qc.invalidateQueries({ queryKey: ['owner-profiles'] });
       qc.invalidateQueries({ queryKey: ['profiles_public'] });
+      qc.invalidateQueries({ queryKey: ['topbar-user-profile'] });
     },
   });
 }
