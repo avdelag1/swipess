@@ -21,7 +21,7 @@ export function useUnreadMessageCount() {
         const { data: matches, error: matchError } = await supabase
           .from('matches')
           .select('id')
-          .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+          .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`);
 
         if (matchError) throw matchError;
         if (!matches?.length) return 0;
@@ -117,8 +117,9 @@ export function useUnreadMessageCount() {
       if (refetchTimeoutRef.current) {
         clearTimeout(refetchTimeoutRef.current);
       }
-      // Properly unsubscribe before removing channel
+      // Properly unsubscribe AND remove channel to prevent memory leaks
       channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
     // Note: debouncedRefetch is intentionally excluded as it references query.refetch which is stable
   }, [user?.id]);
