@@ -108,7 +108,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
               </div>
               <div className="min-w-0">
                 <DialogTitle className="text-lg sm:text-xl font-bold">Notifications</DialogTitle>
-                <p className={cn("text-xs sm:text-sm truncate", isDark ? "text-gray-300" : "text-gray-600")}>
+                <p className={cn("text-xs sm:text-sm truncate", isDark ? "text-gray-300" : "text-muted-foreground")}>
                   {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
                 </p>
               </div>
@@ -177,15 +177,15 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                       <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-xl scale-150" />
                       <div className={cn(
                         "relative p-4 sm:p-5 rounded-full border shadow-lg",
-                        isDark ? "bg-gradient-to-br from-gray-800 to-gray-900 border-white/10" : "bg-white border-black/5"
+                        isDark ? "bg-gradient-to-br from-gray-800 to-gray-900 border-white/10" : "bg-card border-border/30"
                       )}>
-                        <Bell className={cn("w-8 h-8 sm:w-9 sm:h-9", isDark ? "text-white/50" : "text-black/30")} />
+                        <Bell className={cn("w-8 h-8 sm:w-9 sm:h-9", isDark ? "text-white/50" : "text-muted-foreground/50")} />
                       </div>
                     </div>
-                    <h3 className={cn("text-sm sm:text-base font-bold mb-1", isDark ? "text-white" : "text-black")}>
+                    <h3 className={cn("text-sm sm:text-base font-bold mb-1", isDark ? "text-white" : "text-foreground")}>
                       {activeFilter === 'all' ? 'No notifications yet' : `No ${activeFilter} notifications`}
                     </h3>
-                    <p className={cn("text-xs max-w-[200px]", isDark ? "text-gray-400" : "text-gray-500")}>
+                    <p className={cn("text-xs max-w-[200px]", isDark ? "text-gray-400" : "text-muted-foreground")}>
                       New activity will appear here
                     </p>
                   </motion.div>
@@ -258,7 +258,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                                       </Button>
                                     </div>
 
-                                    <p className={cn("text-xs line-clamp-2 mb-1.5", isDark ? "text-gray-300" : "text-gray-600 font-medium")}>
+                                    <p className={cn("text-xs line-clamp-2 mb-1.5", isDark ? "text-gray-300" : "text-foreground/70 font-medium")}>
                                       {notification.message}
                                     </p>
 
