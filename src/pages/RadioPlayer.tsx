@@ -65,7 +65,12 @@ export default function RadioPlayer() {
 
       {/* Header - UI chrome */}
       <div className="flex items-center justify-between px-4 pt-12 pb-2">
-        <button onClick={() => window.history.back()} className="w-10 h-10 rounded-full bg-muted/20 backdrop-blur-md flex items-center justify-center border border-border transition-transform hover:bg-muted/40 active:scale-95">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 rounded-full bg-muted/20 backdrop-blur-md flex items-center justify-center border border-border transition-transform hover:bg-muted/40 active:scale-95"
+          aria-label="Go back"
+          title="Back"
+        >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex flex-col items-center">
@@ -80,6 +85,8 @@ export default function RadioPlayer() {
         <button
           onClick={togglePower}
           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-95 border ${state.isPoweredOn ? 'bg-red-500/20 text-red-500 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-white/10 text-white/40 border-white/10'}`}
+          aria-label={state.isPoweredOn ? "Turn off" : "Turn on"}
+          title={state.isPoweredOn ? "Power Off" : "Power On"}
         >
           <Power className="w-5 h-5" />
         </button>
@@ -100,6 +107,8 @@ export default function RadioPlayer() {
           <button
             onClick={() => setShowPlaylist(true)}
             className="p-2.5 rounded-full bg-muted/30 border border-border hover:bg-muted/50 transition-all active:scale-90"
+            aria-label="Show playlist"
+            title="Playlist"
           >
             <ListMusic className="w-5 h-5 text-foreground/40" />
           </button>
@@ -107,6 +116,8 @@ export default function RadioPlayer() {
           <button
             onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
             className="p-2.5 rounded-full bg-muted/30 border border-border hover:bg-muted/50 transition-all active:scale-90"
+            aria-label={state.currentStation && state.favorites.includes(state.currentStation.id) ? "Remove from favorites" : "Add to favorites"}
+            title="Favorite"
           >
             <Heart className={`w-5 h-5 ${state.currentStation && state.favorites.includes(state.currentStation.id) ? 'text-[#E4007C]' : 'text-foreground/40'}`}
               fill={state.currentStation && state.favorites.includes(state.currentStation.id) ? "currentColor" : "none"} />
@@ -309,7 +320,11 @@ export default function RadioPlayer() {
       <div className="px-8 pb-14 bg-gradient-to-t from-background/80 to-transparent">
         {/* Playback Controls */}
         <div className="flex items-center justify-center gap-8 mb-10">
-          <button onClick={() => changeStation('prev')} className="w-14 h-14 rounded-full bg-muted/30 border border-border flex items-center justify-center transition-all hover:bg-muted/50 active:scale-90 text-foreground">
+          <button onClick={() => changeStation('prev')}
+            className="w-14 h-14 rounded-full bg-muted/30 border border-border flex items-center justify-center transition-all hover:bg-muted/50 active:scale-90 text-foreground"
+            aria-label="Previous station"
+            title="Previous"
+          >
             <SkipBack className="w-6 h-6" />
           </button>
 
@@ -318,18 +333,27 @@ export default function RadioPlayer() {
             className="w-20 h-20 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            aria-label={state.isPlaying ? "Pause" : "Play"}
+            title={state.isPlaying ? "Pause" : "Play"}
           >
             {state.isPlaying ? <Pause className="w-10 h-10" fill="currentColor" /> : <Play className="w-10 h-10 ml-1.5" fill="currentColor" />}
           </motion.button>
 
-          <button onClick={() => changeStation('next')} className="w-14 h-14 rounded-full bg-muted/30 border border-border flex items-center justify-center transition-all hover:bg-muted/50 active:scale-90 text-foreground">
+          <button onClick={() => changeStation('next')}
+            className="w-14 h-14 rounded-full bg-muted/30 border border-border flex items-center justify-center transition-all hover:bg-muted/50 active:scale-90 text-foreground"
+            aria-label="Next station"
+            title="Next"
+          >
             <SkipForward className="w-6 h-6" />
           </button>
         </div>
 
         {/* Volume Slider */}
         <div className="flex items-center gap-4 max-w-sm mx-auto">
-          <button onClick={() => setVolume(state.volume > 0 ? 0 : 0.7)}>
+          <button onClick={() => setVolume(state.volume > 0 ? 0 : 0.7)}
+            aria-label={state.volume === 0 ? "Unmute" : "Mute"}
+            title={state.volume === 0 ? "Unmute" : "Mute"}
+          >
             {state.volume === 0 ? <VolumeX className="w-4 h-4 text-foreground/40" /> : <Volume2 className="w-4 h-4 text-foreground/60" />}
           </button>
           <input
@@ -360,7 +384,11 @@ export default function RadioPlayer() {
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
               <span className="font-semibold text-foreground">Select City</span>
-              <button onClick={() => setShowCitySelector(false)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80">
+              <button onClick={() => setShowCitySelector(false)}
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
+                aria-label="Close"
+                title="Close"
+              >
                 <ArrowLeft className="w-5 h-5" />
               </button>
             </div>
@@ -402,7 +430,11 @@ export default function RadioPlayer() {
           >
             <div className="flex items-center justify-between p-6 border-b border-border">
               <span className="font-black text-sm tracking-[0.2em] uppercase text-foreground">Playlist</span>
-              <button onClick={() => setShowPlaylist(false)} className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 text-foreground">
+              <button onClick={() => setShowPlaylist(false)}
+                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 active:scale-90 text-foreground"
+                aria-label="Close"
+                title="Close"
+              >
                 <ArrowLeft className="w-5 h-5" />
               </button>
             </div>

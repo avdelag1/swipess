@@ -18,7 +18,8 @@ import { toast } from '@/components/ui/sonner';
 
 // Get build timestamp from Vite injected environment variable
 // This changes EVERY deployment, ensuring all users get updates
-const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || Date.now().toString();
+// FALLBACK: If Vite fails to inject, we use a constant string to avoid infinite loops
+const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || 'stable-fallback';
 
 // Current app version - derived from build timestamp for automatic updates
 export const APP_VERSION = `1.0.${BUILD_TIMESTAMP.slice(-6)}`;
@@ -284,7 +285,7 @@ export function useForceUpdateOnVersionChange() {
     // We set this IMMEDIATELY to prevent even a single extra reload if something goes wrong
     const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
     if (alreadyReloaded) {
-      console.warn('[AutoUpdate] Guard active: reload already triggered this session. Blocking loop.');
+      console.warn('[AutoUpdate] Guard active: reload already triggered this session. Blocking loop. Current: ' + BUILD_TIMESTAMP);
       return;
     }
 

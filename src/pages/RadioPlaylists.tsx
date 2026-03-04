@@ -61,6 +61,7 @@ export default function RadioPlaylistsPage() {
               onClick={() => navigate(-1)}
               title="Go back"
               className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
+              aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>

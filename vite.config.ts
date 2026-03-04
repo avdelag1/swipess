@@ -15,10 +15,15 @@ function buildVersionPlugin(buildTime: string) {
     name: 'build-version-injector',
     transformIndexHtml(html: string) {
       // Inject version, preconnect hints, and performance optimizations
+      // We look for the first meta tag or the end of head to ensure correct placement
       const preconnects = `
     <link rel="preconnect" href="https://qegyisokrxdsszzswsqk.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://qegyisokrxdsszzswsqk.supabase.co">
     <meta name="app-version" content="${buildTime}" />`;
+
+      if (html.includes('<meta')) {
+        return html.replace('<meta', `${preconnects}\n    <meta`);
+      }
       return html.replace('</head>', `${preconnects}\n</head>`);
     },
     transform(code: string, id: string) {
