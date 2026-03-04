@@ -46,9 +46,9 @@ const ConversationSchema = z.object({
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const LOVABLE_MODEL = "google/gemini-3-flash-preview";
 
-// MiniMax (Fallback)
-const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2";
-const MINIMAX_MODEL = "MiniMax-M1";
+// MiniMax — international OpenAI-compatible API
+const MINIMAX_ENDPOINT = "https://api.minimax.io/v1/chat/completions";
+const MINIMAX_MODEL = "MiniMax-Text-01";
 
 // ─── Provider Calls ───────────────────────────────────────────────
 
@@ -88,9 +88,8 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
     body: JSON.stringify({
       model: MINIMAX_MODEL,
       messages,
-      temperature: 0.82, // Higher temperature for "Free-Speaking" / Witty personality
+      temperature: 0.7,
       max_tokens: maxTokens,
-      presence_penalty: 0.6,
     }),
   });
 
@@ -129,19 +128,31 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  // Primary: Lovable AI (Gemini) — most reliable
-  // Fallback: MiniMax
-  try {
-    console.log("[AI Orchestrator] Attempting Gemini (Lovable AI)...");
-    return await callGemini(messages, maxTokens);
-  } catch (err) {
-    console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
+  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
+  const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
+
+  if (!hasLovable && !hasMinimax) {
+    throw new ProviderError("No AI provider is configured.", 503);
+  }
+
+  // Try Gemini (Lovable) first only if key is present
+  if (hasLovable) {
     try {
-      return await callMinimax(messages, maxTokens);
-    } catch (fallbackErr) {
-      console.error("[AI Orchestrator] MiniMax fallback also failed:", fallbackErr);
-      throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
+      console.log("[AI Orchestrator] Attempting Gemini (Lovable AI)...");
+      return await callGemini(messages, maxTokens);
+    } catch (err) {
+      if (!hasMinimax) throw err;
+      console.warn("[AI Orchestrator] Gemini failed, falling back to MiniMax...", err);
     }
+  }
+
+  // Use MiniMax directly (primary when no Lovable key, or as fallback)
+  try {
+    console.log("[AI Orchestrator] Attempting MiniMax...");
+    return await callMinimax(messages, maxTokens);
+  } catch (fallbackErr) {
+    console.error("[AI Orchestrator] MiniMax failed:", fallbackErr);
+    throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
   }
 }
 
