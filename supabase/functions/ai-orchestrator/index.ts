@@ -80,7 +80,7 @@ async function callGemini(messages: Message[], maxTokens: number): Promise<Provi
 
 async function callMinimax(messages: Message[], maxTokens: number): Promise<ProviderResult> {
   const key = Deno.env.get("MINIMAX_API_KEY");
-  if (!key) throw new Error("MINIMAX_API_KEY not available");
+  if (!key) throw new Error("MINIMAX_API_KEY not configured in Supabase Secrets");
 
   console.log(`[AI Orchestrator] Calling MiniMax at ${MINIMAX_ENDPOINT} with model ${MINIMAX_MODEL}`);
   const res = await fetch(MINIMAX_ENDPOINT, {
@@ -98,7 +98,7 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
     const status = res.status;
     const body = await res.text();
     console.error("MiniMax error:", status, body);
-    throw new ProviderError(`MiniMax error (${status})`, status);
+    throw new ProviderError(`MiniMax Oracle error (${status})`, status);
   }
 
   const data = await res.json();
@@ -126,7 +126,7 @@ class ProviderError extends Error {
   }
 }
 
-// ─── Provider with Fallback ───────────────────────────────────────
+// ─── Main AI Caller ───────────────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
   const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
