@@ -86,23 +86,23 @@ export function BottomNavigation({
 
   // Client nav items
   const clientNavItems: NavItem[] = [
-    { id: 'browse',   icon: Compass,        label: 'Explore',   path: '/client/dashboard' },
-    { id: 'profile',  icon: User,           label: 'Profile',   path: '/client/profile' },
-    { id: 'likes',    icon: Flame,          label: 'Likes',     path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageCircle,  label: 'Messages',  path: '/messages', badge: unreadCount },
-    { id: 'ai-search',icon: Sparkles,       label: 'AI Search', onClick: onAISearchClick },
-    { id: 'filter',   icon: Search,         label: 'Filters',   path: '/client/filters' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/client/dashboard' },
+    { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
+    { id: 'filter', icon: Search, label: 'Filters', path: '/client/filters' },
   ];
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'browse',   icon: LayoutGrid,     label: 'Dashboard',     path: '/owner/dashboard' },
-    { id: 'profile',  icon: Briefcase,      label: 'Profile',       path: '/owner/profile' },
-    { id: 'liked',    icon: Users,          label: 'Liked Clients', path: '/owner/liked-clients' },
-    { id: 'listings', icon: List,           label: 'Listings',      path: '/owner/properties', isCenter: true },
-    { id: 'messages', icon: MessageCircle,  label: 'Messages',      path: '/messages', badge: unreadCount },
-    { id: 'ai-search',icon: Sparkles,       label: 'AI Search',     onClick: onAISearchClick },
-    { id: 'filter',   icon: SlidersHorizontal, label: 'Filters',    path: '/owner/filters' },
+    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
+    { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
+    { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
+    { id: 'filter', icon: SlidersHorizontal, label: 'Filters', path: '/owner/filters' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
@@ -121,23 +121,37 @@ export function BottomNavigation({
     [navigate],
   );
 
+  const handleNavKeyDown = useCallback(
+    (event: React.KeyboardEvent, item: NavItem) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      haptics.select();
+      if (item.onClick) {
+        item.onClick();
+      } else if (item.path) {
+        startTransition(() => navigate(item.path!));
+      }
+    },
+    [navigate],
+  );
+
   const isActive = (item: NavItem) => item.path ? location.pathname === item.path : false;
 
   // ── Colour tokens ────────────────────────────────────────────────────────
   const iconColorInactive = isLight ? '#1a1a1a' : 'rgba(255,255,255,0.65)';
-  const activeColor       = isLight ? 'hsl(var(--primary))' : '#f97316';
+  const activeColor = isLight ? 'hsl(var(--primary))' : '#f97316';
 
   // ── Nav bar glass surface ────────────────────────────────────────────────
   // Heavy blur shows the swipe card and content behind the navigation bar.
-  const barBg     = isLight ? 'rgba(255,255,255,0.72)' : 'rgba(12,12,14,0.68)';
+  const barBg = isLight ? 'rgba(255,255,255,0.72)' : 'rgba(12,12,14,0.68)';
   const barBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.10)';
   const barShadow = isLight
     ? 'inset 0 1px 0 rgba(255,255,255,0.92), 0 -2px 12px rgba(0,0,0,0.06)'
     : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -4px 20px rgba(0,0,0,0.35)';
 
   // ── Active glass pill colours ────────────────────────────────────────────
-  const pillBg     = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.10)';
-  const pillBorder = isLight ? 'rgba(0,0,0,0.07)'       : 'rgba(255,255,255,0.18)';
+  const pillBg = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.10)';
+  const pillBorder = isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.18)';
   const pillShadow = isLight
     ? 'inset 0 1px 0 rgba(255,255,255,0.95), 0 2px 8px rgba(0,0,0,0.08)'
     : 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.30)';
@@ -203,12 +217,19 @@ export function BottomNavigation({
                   handleNavPress(e, item);
                   if (item.path) prefetchRoute(item.path);
                 }}
+                onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
                 onClick={(e) => e.preventDefault()}
                 whileTap={{ scale: 0.88, transition: TAP_SPRING }}
+                aria-label={item.label}
+                aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
                   'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
-                  'touch-manipulation',
+                  'touch-manipulation focus-visible:outline-none',
+                  'focus-visible:ring-2 focus-visible:ring-offset-1',
+                  isLight
+                    ? 'focus-visible:ring-orange-500/70 focus-visible:ring-offset-white'
+                    : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
                   minWidth: TOUCH_TARGET,

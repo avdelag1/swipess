@@ -4,6 +4,23 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 :root {
+  /* ── Brand Color Tokens (single source of truth) ── */
+  /* Orange: primary CTA, swipe YES, logo, active states */
+  --color-brand-primary:    #FF4D00;
+  --color-brand-primary-2:  #FF6B35;
+  --color-brand-primary-3:  #FF8C42;
+  /* Pink: accent, nav active gradient start, like badges */
+  --color-brand-accent:     #EC4899;
+  --color-brand-accent-2:   #E4007C;
+  /* Combined gradient (used for badges, logos, active tabs) */
+  --color-brand-gradient: linear-gradient(135deg, var(--color-brand-accent) 0%, var(--color-brand-primary) 100%);
+  /* Glow: used in keyframes & box-shadows */
+  --color-brand-glow:       rgba(255, 77, 0, 0.45);
+  --color-brand-glow-accent: rgba(236, 72, 153, 0.35);
+
+  /* ── Focus Ring Tokens ── */
+  --focus-ring-color: rgba(255, 77, 0, 0.7);
+  --focus-ring-offset: 2px;
   /* ── Radius Tokens ── */
   --radius-sm: 8px;
   --radius-md: 14px;

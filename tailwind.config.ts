@@ -34,11 +34,17 @@ export default {
 			}
 		},
 		extend: {
-		fontFamily: {
-			'brand': ['Quicksand', 'Poppins', 'system-ui', 'sans-serif'],
-			'inter': ['Inter', 'system-ui', 'sans-serif'],
-		},
+			fontFamily: {
+				'brand': ['Quicksand', 'Poppins', 'system-ui', 'sans-serif'],
+				'inter': ['Inter', 'system-ui', 'sans-serif'],
+			},
 			colors: {
+				// Brand color tokens (map from CSS vars in tokens.css)
+				'brand-primary': 'var(--color-brand-primary)',
+				'brand-primary-2': 'var(--color-brand-primary-2)',
+				'brand-primary-3': 'var(--color-brand-primary-3)',
+				'brand-accent': 'var(--color-brand-accent)',
+				'brand-accent-2': 'var(--color-brand-accent-2)',
 				// Modern theme system with CSS variables - using HSL format
 				'theme-primary': 'hsl(var(--bg-primary))',
 				'theme-secondary': 'hsl(var(--bg-secondary))',
@@ -50,7 +56,7 @@ export default {
 				'theme-border-secondary': 'hsl(var(--border-secondary))',
 				'theme-accent-primary': 'hsl(var(--accent-primary))',
 				'theme-accent-secondary': 'hsl(var(--accent-secondary))',
-				
+
 				// Keep existing shadcn colors for compatibility
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -88,10 +94,12 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			backgroundImage: {
+				'brand-gradient': 'var(--color-brand-gradient)',
 				'theme-accent-gradient': 'var(--accent-gradient)',
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-card': 'var(--gradient-card)',
 				'gradient-button': 'var(--gradient-button)',
+
 			},
 			boxShadow: {
 				'theme-sm': 'var(--shadow-sm)',
@@ -166,8 +174,8 @@ export default {
 					'100%': { transform: 'scale(2) translateZ(0)', opacity: '0' }
 				},
 				'glow-pulse': {
-					'0%, 100%': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' },
-					'50%': { boxShadow: '0 0 40px rgba(59, 130, 246, 0.8)' }
+					'0%, 100%': { boxShadow: '0 0 20px rgba(255, 77, 0, 0.5)' },
+					'50%': { boxShadow: '0 0 40px rgba(255, 77, 0, 0.8)' }
 				},
 				'skeleton-glow': {
 					'0%, 100%': {
