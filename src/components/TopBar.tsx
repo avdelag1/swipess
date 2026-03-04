@@ -40,10 +40,10 @@ const tierConfig = {
   },
   premium: {
     icon: Crown,
-    gradient: 'from-[#E4007C]/30 to-[#B0005E]/20',
-    border: 'border-[#E4007C]/40',
-    iconBg: 'bg-[#E4007C]/20 text-pink-300',
-    button: 'bg-gradient-to-r from-[#E4007C] to-[#B0005E] hover:from-[#FF1A8B] hover:to-[#E4007C] text-white',
+    gradient: 'from-brand-accent-2/30 to-brand-accent-2/20',
+    border: 'border-brand-accent-2/40',
+    iconBg: 'bg-brand-accent-2/20 text-pink-300',
+    button: 'bg-gradient-to-r from-brand-accent-2 to-[#B0005E] hover:from-pink-500 hover:to-brand-accent-2 text-white',
   },
 } as const;
 
@@ -82,15 +82,15 @@ function TopBarComponent({
   const isDark = theme !== 'white-matte';
 
   const glassBg = isDark
-    ? 'rgba(255, 255, 255, 0.12)'
+    ? 'var(--glass-bg)'
     : 'rgba(0, 0, 0, 0.07)';
   const glassBorder = isDark
-    ? '1.5px solid rgba(255, 255, 255, 0.2)'
+    ? '1.5px solid var(--glass-border)'
     : '1.5px solid rgba(0, 0, 0, 0.15)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
     : '0 2px 10px rgba(0,0,0,0.08)';
-  const controlBlur = isDark ? 'blur(10px)' : 'none';
+  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'none';
   const headerBackgroundClass = isDark
     ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
     : 'bg-transparent border-transparent';

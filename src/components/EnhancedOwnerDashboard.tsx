@@ -1,6 +1,9 @@
-import { useState, memo, useMemo } from 'react';
+import { useState, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-import { ClientInsightsDialog } from '@/components/ClientInsightsDialog';
+// Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
+const ClientInsightsDialog = lazy(() =>
+  import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
+);
 import { NotificationBar } from '@/components/NotificationBar';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
@@ -91,11 +94,13 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
       />
 
       {selectedClient && (
-        <ClientInsightsDialog
-          open={insightsOpen}
-          onOpenChange={setInsightsOpen}
-          profile={selectedClient}
-        />
+        <Suspense fallback={null}>
+          <ClientInsightsDialog
+            open={insightsOpen}
+            onOpenChange={setInsightsOpen}
+            profile={selectedClient}
+          />
+        </Suspense>
       )}
 
       <CategorySelectionDialog

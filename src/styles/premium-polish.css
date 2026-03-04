@@ -96,12 +96,12 @@
   transition: transform 100ms ease-out;
 }
 
-/* Enhanced focus ring */
+/* Enhanced focus ring — uses brand token */
 .focus-enhanced:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 4px rgba(255, 77, 0, 0.2),
-    0 0 0 2px #FF4D00;
+    0 0 0 4px var(--focus-ring-color),
+    0 0 0 2px var(--color-brand-primary);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -625,18 +625,23 @@
  * We also slightly pulse the opacity so the highlight breathes.
  */
 @keyframes liquid-flow {
-  0%, 100% {
-    background-position: 22% 0%,  88% 108%;
+
+  0%,
+  100% {
+    background-position: 22% 0%, 88% 108%;
     opacity: 1;
   }
+
   22% {
     background-position: 65% 18%, 18% 82%;
     opacity: 0.80;
   }
+
   50% {
-    background-position: 80% 62%, 8%  22%;
+    background-position: 80% 62%, 8% 22%;
     opacity: 1;
   }
+
   75% {
     background-position: 35% 88%, 82% 12%;
     opacity: 0.88;
@@ -654,48 +659,36 @@
  */
 .liquid-glass-highlight {
   background:
-    radial-gradient(
-      ellipse 140% 60% at 22% 0%,
+    radial-gradient(ellipse 140% 60% at 22% 0%,
       rgba(255, 255, 255, 0.18) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 80% 45% at 88% 108%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
       rgba(255, 255, 255, 0.07) 0%,
-      transparent 58%
-    );
+      transparent 58%);
   background-size: 220% 220%, 100% 100%;
 }
 
 /* Light-mode version: much brighter highlights since the bg is white */
 .white-matte .liquid-glass-highlight {
   background:
-    radial-gradient(
-      ellipse 140% 60% at 22% 0%,
+    radial-gradient(ellipse 140% 60% at 22% 0%,
       rgba(255, 255, 255, 0.72) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 80% 45% at 88% 108%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
       rgba(255, 255, 255, 0.30) 0%,
-      transparent 58%
-    );
+      transparent 58%);
   background-size: 220% 220%, 100% 100%;
 }
 
 /* Animated version — adds the drift */
 .liquid-glass-highlight--animated {
   background:
-    radial-gradient(
-      ellipse 140% 60% at 22% 0%,
+    radial-gradient(ellipse 140% 60% at 22% 0%,
       rgba(255, 255, 255, 0.18) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 80% 45% at 88% 108%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
       rgba(255, 255, 255, 0.07) 0%,
-      transparent 58%
-    );
+      transparent 58%);
   background-size: 220% 220%, 100% 100%;
   animation: liquid-flow 11s ease-in-out infinite;
   will-change: background-position, opacity;
@@ -703,16 +696,12 @@
 
 .white-matte .liquid-glass-highlight--animated {
   background:
-    radial-gradient(
-      ellipse 140% 60% at 22% 0%,
+    radial-gradient(ellipse 140% 60% at 22% 0%,
       rgba(255, 255, 255, 0.72) 0%,
-      transparent 62%
-    ),
-    radial-gradient(
-      ellipse 80% 45% at 88% 108%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
       rgba(255, 255, 255, 0.30) 0%,
-      transparent 58%
-    );
+      transparent 58%);
   background-size: 220% 220%, 100% 100%;
   animation: liquid-flow 11s ease-in-out infinite;
 }
@@ -729,9 +718,11 @@
     transform: scale(0) translateZ(0);
     opacity: 0.48;
   }
+
   75% {
     opacity: 0.12;
   }
+
   100% {
     transform: scale(4.5) translateZ(0);
     opacity: 0;
@@ -776,9 +767,11 @@
     transform: translateY(20px) scale(0.96) translateZ(0);
     filter: blur(5px);
   }
+
   60% {
     filter: blur(0);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1) translateZ(0);
@@ -787,23 +780,55 @@
 }
 
 /* Container: all direct children get the animation */
-.stagger-enter > * {
+.stagger-enter>* {
   opacity: 0;
   animation: stagger-item-enter 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 /* Progressive delays — creates the visual wave */
-.stagger-enter > *:nth-child(1)  { animation-delay:   0ms; }
-.stagger-enter > *:nth-child(2)  { animation-delay:  52ms; }
-.stagger-enter > *:nth-child(3)  { animation-delay:  90ms; }
-.stagger-enter > *:nth-child(4)  { animation-delay: 122ms; }
-.stagger-enter > *:nth-child(5)  { animation-delay: 150ms; }
-.stagger-enter > *:nth-child(6)  { animation-delay: 174ms; }
-.stagger-enter > *:nth-child(7)  { animation-delay: 194ms; }
-.stagger-enter > *:nth-child(8)  { animation-delay: 210ms; }
-.stagger-enter > *:nth-child(9)  { animation-delay: 224ms; }
-.stagger-enter > *:nth-child(10) { animation-delay: 236ms; }
-.stagger-enter > *:nth-child(n+11) { animation-delay: 245ms; }
+.stagger-enter>*:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-enter>*:nth-child(2) {
+  animation-delay: 52ms;
+}
+
+.stagger-enter>*:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.stagger-enter>*:nth-child(4) {
+  animation-delay: 122ms;
+}
+
+.stagger-enter>*:nth-child(5) {
+  animation-delay: 150ms;
+}
+
+.stagger-enter>*:nth-child(6) {
+  animation-delay: 174ms;
+}
+
+.stagger-enter>*:nth-child(7) {
+  animation-delay: 194ms;
+}
+
+.stagger-enter>*:nth-child(8) {
+  animation-delay: 210ms;
+}
+
+.stagger-enter>*:nth-child(9) {
+  animation-delay: 224ms;
+}
+
+.stagger-enter>*:nth-child(10) {
+  animation-delay: 236ms;
+}
+
+.stagger-enter>*:nth-child(n+11) {
+  animation-delay: 245ms;
+}
 
 /* ──────────────────────────────────────────────────────────────────── */
 /*  MODAL LIQUID GLASS                                                   */
@@ -811,11 +836,9 @@
 /* ──────────────────────────────────────────────────────────────────── */
 
 .modal-liquid-glass {
-  background: linear-gradient(
-    145deg,
-    rgba(18, 18, 22, 0.92) 0%,
-    rgba(24, 24, 30, 0.88) 100%
-  );
+  background: linear-gradient(145deg,
+      rgba(18, 18, 22, 0.92) 0%,
+      rgba(24, 24, 30, 0.88) 100%);
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -847,10 +870,12 @@
   .liquid-glass-highlight--animated {
     animation: none !important;
   }
+
   .liquid-ripple {
     animation-duration: 0.01ms !important;
   }
-  .stagger-enter > * {
+
+  .stagger-enter>* {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
