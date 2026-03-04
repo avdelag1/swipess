@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -112,6 +113,21 @@ function TopBarComponent({
     },
   });
 
+  // Fetch the user profile to display the avatar
+  const { data: profile } = useQuery({
+    queryKey: ['topbar-user-profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('avatar_url, full_name')
+        .eq('user_id', user!.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
 
   const handleQuickPurchase = (pkg: any, tier: string) => {
@@ -152,6 +168,29 @@ function TopBarComponent({
         <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
           {/* Left section: Title + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+            {/* User Avatar - Tapping navigates to profile */}
+            {user && (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.tap();
+                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                  navigate(profilePath);
+                }}
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
+                aria-label="Go to profile"
+              >
+                <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border border-white/10 shadow-sm transition-transform active:scale-95 cursor-pointer">
+                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-foreground/80 text-[10px] font-bold uppercase">
+                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.button>
+            )}
+
             {/* Visual verification: Logo and Title restored per user request */}
             {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
             {title && (
