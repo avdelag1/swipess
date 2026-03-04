@@ -4,6 +4,8 @@ import { useRadio } from '@/contexts/RadioContext';
 import { getStationsByCity, cityThemes } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic, Power } from 'lucide-react';
+import { BlueCassette } from '@/components/radio/retro/BlueCassette';
+
 
 export default function RadioPlayer() {
   const { state, error, togglePlayPause, togglePower, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin, setMiniPlayerMode } = useRadio();
@@ -184,15 +186,14 @@ export default function RadioPlayer() {
             )}
 
             {state.skin === 'retro' && (
-              <>
-                {/* Cassette details */}
-                <div className="absolute inset-x-8 top-6 bottom-6 bg-black/90 rounded flex items-center justify-center gap-10 border border-white/10 shadow-inner">
-                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-white/10 animate-spin-slow" />
-                  <div className="w-12 h-12 rounded-full border-4 border-dashed border-white/10 animate-spin-slow" />
-                </div>
-                <div className="absolute top-2 left-1/2 -translate-x-1/2 w-20 h-2 bg-white/10 rounded-full shadow-inner" />
-              </>
+              <BlueCassette
+                isPlaying={state.isPlaying}
+                stationName={state.currentStation?.name}
+                frequency={state.currentStation?.frequency}
+                genre={state.currentStation?.genre}
+              />
             )}
+
 
             {state.skin === 'modern' && (
               <>
