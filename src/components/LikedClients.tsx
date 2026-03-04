@@ -229,7 +229,7 @@ export function LikedClients() {
                         "flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95",
                         filterSafeOnly
                           ? "bg-emerald-600 border-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
-                          : "bg-zinc-800 border-zinc-700 text-zinc-300"
+                          : "bg-muted border-border text-muted-foreground"
                       )}
                     >
                       {filterSafeOnly ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
@@ -265,7 +265,7 @@ export function LikedClients() {
             placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-16 bg-zinc-900 border border-white/10 rounded-3xl pl-14 pr-6 text-white placeholder-zinc-500 font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
+            className="w-full h-16 bg-muted border border-border rounded-3xl pl-14 pr-6 text-foreground placeholder-muted-foreground font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
           />
         </div>
 
@@ -280,7 +280,7 @@ export function LikedClients() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />
+              <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />
             ))}
           </div>
         ) : filteredClients.length > 0 ? (
@@ -300,13 +300,13 @@ export function LikedClients() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5"
+            className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border"
           >
-            <div className="w-24 h-24 rounded-[2.5rem] bg-zinc-900 flex items-center justify-center mb-8 shadow-2xl border border-white/5">
+            <div className="w-24 h-24 rounded-[2.5rem] bg-muted flex items-center justify-center mb-8 shadow-2xl border border-border">
               <Users className="w-12 h-12 text-[#E4007C]/40" />
             </div>
-            <h3 className="text-white font-black text-2xl tracking-tighter mb-4">Discovery Awaits.</h3>
-            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">
+            <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Discovery Awaits.</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
               Your liked clients will appear here. Start swiping to grow your network.
             </p>
           </motion.div>
@@ -328,7 +328,7 @@ export function LikedClients() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-muted border-border text-foreground rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"

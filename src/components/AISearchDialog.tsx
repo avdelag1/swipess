@@ -147,13 +147,13 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[400px] w-full max-h-[85vh] sm:max-h-[80vh] bg-background/80 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-white/10 dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none"
+        className="sm:max-w-[400px] w-full max-h-[85vh] sm:max-h-[80vh] bg-background/95 dark:bg-[#0e0e11]/95 backdrop-blur-3xl border border-border dark:border-white/5 p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none flex flex-col"
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-5 py-3.5 border-b border-white/5 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
+        <div className="relative px-5 py-3.5 border-b border-border dark:border-white/5 flex items-center justify-between shrink-0" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(0,0,0,0.02))' }}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10 relative overflow-hidden group">
+            <div className="w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg bg-muted dark:bg-zinc-900 border border-border dark:border-white/10 relative overflow-hidden group">
               <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
@@ -185,7 +185,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               animate={{ opacity: 1, y: 0 }}
               className="text-center space-y-6 py-10"
             >
-              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl bg-zinc-900 border border-white/10">
+              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl bg-muted dark:bg-zinc-900 border border-border dark:border-white/10">
                 <Sparkles className="w-10 h-10 text-orange-400" />
               </div>
               <p className="text-muted-foreground text-sm font-bold">Connecting to Oracle...</p>
@@ -203,7 +203,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <div className={cn("flex gap-2.5", message.role === 'user' && "flex-row-reverse")}>
                   <div className={cn(
                     "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm",
-                    message.role === 'ai' ? "bg-zinc-900 border border-white/10" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
+                    message.role === 'ai' ? "bg-muted dark:bg-zinc-900 border border-border dark:border-white/10" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
                   )}>
                     {message.role === 'ai' ? (
                       <Sparkles className="w-4 h-4 text-orange-400" />
@@ -220,7 +220,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                     "max-w-[85%] px-4 py-3 rounded-[1.5rem] text-xs font-semibold leading-relaxed shadow-sm",
                     message.role === 'user'
                       ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
-                      : "bg-muted/80 dark:bg-zinc-900/50 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
+                      : "bg-muted/80 dark:bg-zinc-900/80 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
                   )}>
                     {message.content}
                   </div>
@@ -243,7 +243,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
           {isTyping && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 pl-2">
-              <div className="w-10 h-10 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-muted dark:bg-zinc-900 border border-border dark:border-white/10 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
               </div>
               <div className="bg-muted px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-muted-foreground flex items-center gap-2">

@@ -148,7 +148,7 @@ const ClientLikedProperties = () => {
                 refreshLikedProperties();
               }}
               disabled={isLoading || isFetching}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-zinc-900 border border-white/5 text-white/70 hover:text-white transition-all active:scale-95 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-muted border border-border text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
             >
               <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
               <span className="text-xs font-black uppercase tracking-widest text-[#E4007C]">Sync</span>
@@ -167,7 +167,7 @@ const ClientLikedProperties = () => {
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
                   ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
-                  : "bg-zinc-900/50 border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  : "bg-muted border-border text-muted-foreground hover:text-foreground hover:bg-muted/80"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -187,7 +187,7 @@ const ClientLikedProperties = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />
+              <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />
             ))}
           </div>
         ) : filteredProperties.length > 0 ? (
@@ -207,9 +207,9 @@ const ClientLikedProperties = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5"
+            className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border"
           >
-            <div className="w-24 h-24 rounded-[2.5rem] bg-zinc-900 flex items-center justify-center mb-8 shadow-2xl border border-white/5">
+            <div className="w-24 h-24 rounded-[2.5rem] bg-muted flex items-center justify-center mb-8 shadow-2xl border border-border">
               <Flame className="w-12 h-12 text-[#E4007C]/40" />
             </div>
             <h3 className="text-white font-black text-2xl tracking-tighter mb-4">Pure Potential.</h3>
@@ -263,7 +263,7 @@ const ClientLikedProperties = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-muted border-border text-foreground rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"

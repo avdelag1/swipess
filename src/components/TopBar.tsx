@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -115,6 +116,22 @@ function TopBarComponent({
     },
   });
 
+  // Fetch current user's profile for the avatar
+  const { data: profile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('avatar_url, full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
   const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
 
   const handleQuickPurchase = (pkg: any, tier: string) => {
@@ -153,8 +170,27 @@ function TopBarComponent({
         )}
       >
         <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2 px-2 sm:px-4">
-          {/* Left section: Title + Mode switcher + filters */}
+          {/* Left section: Avatar + Logo/Title + Mode switcher + filters */}
           <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+            {/* User Avatar - Tapping navigates to profile */}
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={() => {
+                haptics.tap();
+                const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                navigate(profilePath);
+              }}
+              className="flex-shrink-0 focus:outline-none"
+              aria-label="Go to profile"
+            >
+              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border border-white/10 shadow-sm transition-transform active:scale-95">
+                <AvatarImage src={profile?.avatar_url || ''} />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-foreground/40 text-[10px] font-bold">
+                  {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </motion.button>
+
             {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
             {title && (
               <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
