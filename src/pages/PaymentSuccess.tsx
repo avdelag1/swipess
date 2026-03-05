@@ -30,7 +30,7 @@ export default function PaymentSuccess() {
 
     const processPayment = async () => {
       const pendingPurchase = localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-                               localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
+        localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
       const returnPath = localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
       if (!pendingPurchase) {
@@ -46,12 +46,23 @@ export default function PaymentSuccess() {
 
         // Fetch package based on what info we have
         if (purchase.packageId) {
-          const { data } = await supabase
-            .from('subscription_packages')
-            .select('*')
-            .eq('id', purchase.packageId)
-            .single();
-          pkg = data;
+          // Check for hardcoded token IDs first
+          const hardcodedTokens: Record<string, any> = {
+            'tokens-15': { id: 'tokens-15', name: 'Explorer Premium', tokens: 15, package_category: 'client_pay_per_use', duration_days: 365 },
+            'tokens-10': { id: 'tokens-10', name: 'Explorer Standard', tokens: 10, package_category: 'client_pay_per_use', duration_days: 180 },
+            'tokens-3': { id: 'tokens-3', name: 'Explorer Starter', tokens: 3, package_category: 'client_pay_per_use', duration_days: 90 },
+          };
+
+          if (hardcodedTokens[purchase.packageId]) {
+            pkg = hardcodedTokens[purchase.packageId];
+          } else {
+            const { data } = await supabase
+              .from('subscription_packages')
+              .select('*')
+              .eq('id', purchase.packageId)
+              .maybeSingle();
+            pkg = data;
+          }
         } else if (purchase.planId) {
           pkg = await mapMonthlyPlanToPackage(purchase.planId);
         }
@@ -185,8 +196,37 @@ export default function PaymentSuccess() {
     if (activError) throw activError;
   };
 
-  // Map legacy plan IDs to new package names
+  // Map legacy plan IDs and new hardcoded IDs to package data
   const mapMonthlyPlanToPackage = async (planId: string) => {
+    // Hardcoded package data for "client-side only" strategy
+    const hardcodedPackages: Record<string, any> = {
+      'client-unlimited': {
+        id: 'client-unlimited',
+        name: 'Ultimate Seeker',
+        package_category: 'client_monthly',
+        tokens: 30,
+        legal_documents_included: 3
+      },
+      'client-premium-plus-plus': {
+        id: 'client-premium-plus-plus',
+        name: 'Multi-Matcher',
+        package_category: 'client_monthly',
+        tokens: 12,
+        legal_documents_included: 1
+      },
+      'client-premium': {
+        id: 'client-premium',
+        name: 'Basic Explorer',
+        package_category: 'client_monthly',
+        tokens: 6,
+        legal_documents_included: 0
+      }
+    };
+
+    if (hardcodedPackages[planId]) {
+      return hardcodedPackages[planId];
+    }
+
     const planMap: Record<string, string> = {
       'client-unlimited': 'Ultimate Seeker',
       'client-premium-plus-plus': 'Multi-Matcher',

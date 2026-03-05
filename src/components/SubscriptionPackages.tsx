@@ -20,73 +20,17 @@ interface SubscriptionPackagesProps {
 type Plan = {
   id: string;
   name: string;
-  price: string; // e.g., "$299 MXN"
+  price: string; // e.g., "$199 USD"
   benefits: string[];
   paypalUrl: string;
   highlight?: boolean;
 };
 
-const ownerPlans: Plan[] = [
-  {
-    id: 'owner-unlimited',
-    name: 'UNLIMITED OWNER',
-    price: '$299 MXN',
-    benefits: [
-      'Unlimited properties',
-      '30 messages per month',
-      'Top visibility (100%)',
-      'Always listed first in search',
-      'Full access to tools, filters, and stats',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/P2YZA6FWZAACQ',
-    highlight: true,
-  },
-  {
-    id: 'owner-premium-max',
-    name: 'PREMIUM MAX OWNER',
-    price: '$199 MXN',
-    benefits: [
-      'Up to 10 properties',
-      '20 messages per month',
-      'High visibility (80%)',
-      'Advanced client filters',
-      '“Premium Profile” badge',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/4LG62YGVETM4L',
-  },
-  {
-    id: 'owner-premium-plus-plus',
-    name: 'PREMIUM ++ OWNER',
-    price: '$149 MXN',
-    benefits: [
-      'Up to 5 properties',
-      '12 messages per month',
-      'Medium-high visibility (50%)',
-      'Filters to choose ideal clients',
-      'Highlighted profile',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/J5NKCX6KQRCYW',
-  },
-  {
-    id: 'owner-premium-plus',
-    name: 'PREMIUM + OWNER',
-    price: '$99 MXN',
-    benefits: [
-      'Up to 2 active properties',
-      '6 direct messages per month',
-      'See who liked you',
-      'Unlimited likes',
-      'Medium visibility (25%)',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/GSA6TBVY9PFDU',
-  },
-];
-
 const clientPlans: Plan[] = [
   {
     id: 'client-unlimited',
     name: 'UNLIMITED CLIENT',
-    price: '$199 MXN',
+    price: '$199 USD',
     benefits: [
       '30 direct messages per month',
       'Unlimited superlikes',
@@ -98,9 +42,9 @@ const clientPlans: Plan[] = [
     highlight: true,
   },
   {
-    id: 'client-premium-plus-plus',
-    name: 'PREMIUM ++ CLIENT',
-    price: '$149 MXN',
+    id: 'client-6-months',
+    name: '6 MONTHS CLIENT',
+    price: '$149 USD',
     benefits: [
       '12 direct messages per month',
       'See who visited your profile',
@@ -111,9 +55,9 @@ const clientPlans: Plan[] = [
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
   },
   {
-    id: 'client-premium',
-    name: 'PREMIUM CLIENT',
-    price: '$99 MXN',
+    id: 'client-monthly',
+    name: 'MONTHLY CLIENT',
+    price: '$99 USD',
     benefits: [
       '6 direct messages per month',
       'See who liked you',
@@ -129,14 +73,14 @@ const clientPlans: Plan[] = [
 const getPackageIcon = (packageName: string) => {
   if (packageName.includes('UNLIMITED')) return <Zap className="w-5 h-5" />;
   if (packageName.includes('VIP')) return <Crown className="w-5 h-5" />;
-  if (packageName.includes('PREMIUM')) return <Star className="w-5 h-5" />;
+  if (packageName.includes('PREMIUM') || packageName.includes('MONTHS') || packageName.includes('MONTHLY')) return <Star className="w-5 h-5" />;
   return <Check className="w-5 h-5" />;
 };
 
 const getPackageColor = (packageName: string) => {
   if (packageName.includes('UNLIMITED')) return 'from-blue-500 to-cyan-500';
   if (packageName.includes('VIP')) return 'from-purple-500 to-pink-500';
-  if (packageName.includes('PREMIUM')) return 'from-green-500 to-emerald-500';
+  if (packageName.includes('PREMIUM') || packageName.includes('MONTHS') || packageName.includes('MONTHLY')) return 'from-green-500 to-emerald-500';
   return 'from-gray-500 to-slate-500';
 };
 
@@ -145,7 +89,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
   if (!showAsPage && !isOpen) return null;
 
-  const plans = userRole === 'owner' ? ownerPlans : clientPlans;
+  const plans = clientPlans; // Always use client plans now
 
   const handleSubscribe = async (plan: Plan) => {
     // Store selected plan locally (can persist to Supabase upon your approval)

@@ -9,7 +9,7 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { formatPriceMXN } from '@/utils/subscriptionPricing';
+import { formatPriceUSD } from '@/utils/subscriptionPricing';
 import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
@@ -143,7 +143,7 @@ function TopBarComponent({
       window.open(pkg.paypal_link, '_blank');
       toast({
         title: "Redirecting to PayPal",
-        description: `Processing ${tier} package (${formatPriceMXN(pkg.price)})`,
+        description: `Processing ${tier} package (${formatPriceUSD(pkg.price)})`,
       });
       setTokensOpen(false);
     } else {
@@ -321,8 +321,8 @@ function TopBarComponent({
                                 <span className="text-muted-foreground text-xs">{tokens} tokens</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
-                                <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
-                                <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                <span className="font-bold text-foreground text-base">{formatPriceUSD(pkg.price)}</span>
+                                <span className="text-muted-foreground text-[10px]">({formatPriceUSD(pricePerToken)}/ea)</span>
                               </div>
                             </div>
 

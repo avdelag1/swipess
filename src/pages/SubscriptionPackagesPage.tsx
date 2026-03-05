@@ -8,76 +8,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { formatPriceMXN } from "@/utils/subscriptionPricing";
+import { formatPriceUSD } from "@/utils/subscriptionPricing";
 import { toast } from "@/components/ui/sonner";
 import { STORAGE } from "@/constants/app";
 
-// Premium plans for owners
-const ownerPremiumPlans = [
-  {
-    id: 'owner-unlimited',
-    name: 'UNLIMITED OWNER',
-    price: 299,
-    benefits: [
-      'Unlimited properties',
-      '30 messages per month',
-      'Top visibility (100%)',
-      'Always listed first in search',
-      'Full access to tools, filters, and stats',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/P2YZA6FWZAACQ',
-    highlight: true,
-    tier: 'unlimited',
-  },
-  {
-    id: 'owner-premium-max',
-    name: 'PREMIUM MAX',
-    price: 199,
-    benefits: [
-      'Up to 10 properties',
-      '20 messages per month',
-      'High visibility (80%)',
-      'Advanced client filters',
-      '"Premium Profile" badge',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/4LG62YGVETM4L',
-    tier: 'premium-max',
-  },
-  {
-    id: 'owner-premium-plus-plus',
-    name: 'PREMIUM ++',
-    price: 149,
-    benefits: [
-      'Up to 5 properties',
-      '12 messages per month',
-      'Medium-high visibility (50%)',
-      'Filters to choose ideal clients',
-      'Highlighted profile',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/J5NKCX6KQRCYW',
-    tier: 'premium-plus-plus',
-  },
-  {
-    id: 'owner-premium-plus',
-    name: 'PREMIUM +',
-    price: 99,
-    benefits: [
-      'Up to 2 active properties',
-      '6 direct messages per month',
-      'See who liked you',
-      'Unlimited likes',
-      'Medium visibility (25%)',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/GSA6TBVY9PFDU',
-    tier: 'premium-plus',
-  },
-];
-
-// Premium plans for clients
+// Premium plans for all users (Simplified to Client-only style as requested)
 const clientPremiumPlans = [
   {
     id: 'client-unlimited',
-    name: 'UNLIMITED CLIENT',
+    name: 'UNLIMITED PREMIUM',
     price: 199,
     benefits: [
       '30 direct messages per month',
@@ -92,7 +31,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-premium-plus-plus',
-    name: 'PREMIUM ++',
+    name: '6 MONTHS PREMIUM',
     price: 149,
     benefits: [
       '12 direct messages per month',
@@ -106,7 +45,7 @@ const clientPremiumPlans = [
   },
   {
     id: 'client-premium',
-    name: 'PREMIUM',
+    name: 'MONTHLY PREMIUM',
     price: 99,
     benefits: [
       '6 direct messages per month',
@@ -118,6 +57,45 @@ const clientPremiumPlans = [
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
     tier: 'premium',
   },
+];
+
+// Token activation packages (Hardcoded for "client side only" as requested)
+const activationPackages = [
+  {
+    id: 'tokens-15',
+    name: 'Explorer Premium',
+    tokens: 15,
+    price: 179,
+    pricePerToken: 179 / 15,
+    paypalUrl: 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
+    tier: 'premium',
+    icon: Crown,
+    duration_days: 365,
+    savings: 'Save 25%',
+  },
+  {
+    id: 'tokens-10',
+    name: 'Explorer Standard',
+    tokens: 10,
+    price: 129,
+    pricePerToken: 129 / 10,
+    paypalUrl: 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
+    tier: 'standard',
+    icon: Zap,
+    duration_days: 180,
+    savings: 'Save 15%',
+  },
+  {
+    id: 'tokens-3',
+    name: 'Explorer Starter',
+    tokens: 3,
+    price: 69,
+    pricePerToken: 69 / 3,
+    paypalUrl: 'https://www.paypal.com/ncp/payment/VNM2QVBFG6TA4',
+    tier: 'starter',
+    icon: MessageCircle,
+    duration_days: 90,
+  }
 ];
 
 const getPremiumTierStyles = (tier: string, highlight?: boolean) => {
@@ -189,76 +167,27 @@ export default function SubscriptionPackagesPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Use active mode to determine which packages to show
-  // This switches when user toggles between client/owner mode
+  // Determine user context for navigation, but plans are now unified
   const { activeMode, isLoading: roleLoading } = useActiveMode();
-
   const userRole = activeMode;
-  const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
-  const premiumPlans = userRole === 'owner' ? ownerPremiumPlans : clientPremiumPlans;
-  const roleLabel = userRole === 'owner' ? 'Provider' : 'Explorer';
 
-  // Fetch token packages
-  const { data: messagePackages, isLoading: packagesLoading, error: packagesError } = useQuery({
-    queryKey: ['activation-packages', packageCategory],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('subscription_packages')
-        .select('*')
-        .eq('package_category', packageCategory)
-        .eq('is_active', true)
-        .order('tokens', { ascending: true });
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // Convert database packages to UI format
-  const convertPackages = (dbPackages: any[] | undefined) => {
-    if (!dbPackages || dbPackages.length === 0) return [];
-    const tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
-    const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
-
-    return dbPackages.map((pkg, index) => {
-      const pricePerToken = pkg.tokens > 0 ? pkg.price / pkg.tokens : 0;
-      const tier = tierMap[index] || 'starter';
-      let savings: string | undefined;
-      if (index > 0 && dbPackages[0]) {
-        const firstPricePerToken = dbPackages[0].price / dbPackages[0].tokens;
-        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
-        if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
-      }
-      return {
-        id: pkg.id,
-        name: tier.charAt(0).toUpperCase() + tier.slice(1),
-        tokens: pkg.tokens,
-        price: pkg.price,
-        pricePerToken,
-        savings,
-        tier,
-        icon: iconMap[tier],
-        duration_days: pkg.duration_days || 30,
-        paypalUrl: pkg.paypal_link || '',
-        legal_documents: pkg.legal_documents_included || 0,
-      };
-    });
-  };
-
-  const packagesUI = convertPackages(messagePackages);
+  // Unified plans (Client side only simplified)
+  const premiumPlans = clientPremiumPlans;
+  const packagesUI = activationPackages;
 
   const handleMessagePurchase = (pkg: any) => {
     if (!pkg.paypalUrl) {
       toast({ title: "Payment link unavailable", description: "Please contact support.", variant: "destructive" });
       return;
     }
-    // Save return path for silent redirect after payment (price omitted — fetched server-side on activation)
+    // Save return path for silent redirect after payment 
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
     }));
     window.open(pkg.paypalUrl, '_blank');
-    toast({ title: "Redirecting to PayPal", description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})` });
+    toast({ title: "Redirecting to PayPal", description: `Processing ${pkg.name} package (${formatPriceUSD(pkg.price)})` });
   };
 
   const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
@@ -275,7 +204,7 @@ export default function SubscriptionPackagesPage() {
       at: new Date().toISOString()
     }));
     window.open(plan.paypalUrl, '_blank');
-    toast({ title: 'Redirecting to PayPal', description: `Selected: ${plan.name} (${formatPriceMXN(plan.price)}/month)` });
+    toast({ title: 'Redirecting to PayPal', description: `Selected: ${plan.name} (${formatPriceUSD(plan.price)}/month)` });
   };
 
   if (roleLoading) {
@@ -302,7 +231,7 @@ export default function SubscriptionPackagesPage() {
             </Button>
             <div className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-foreground">{roleLabel} Packages</span>
+              <span className="font-semibold text-foreground">Premium Packages</span>
             </div>
             <div className="w-20" />
           </div>
@@ -328,80 +257,67 @@ export default function SubscriptionPackagesPage() {
             </div>
           </div>
 
-          {packagesLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => <div key={i} className="h-96 rounded-2xl bg-muted/50 animate-pulse" />)}
-            </div>
-          ) : packagesError ? (
-            <div className="text-center py-12 space-y-3">
-              <p className="text-destructive font-medium">Failed to load packages</p>
-              <p className="text-muted-foreground text-sm">Please check your connection and try again.</p>
-            </div>
-          ) : packagesUI.length === 0 ? (
-            <div className="text-center py-12"><p className="text-muted-foreground">No packages available.</p></div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-              {packagesUI.map((pkg, index) => {
-                const Icon = pkg.icon;
-                const styles = getMessageTierStyles(pkg.tier);
-                const isPopular = pkg.tier === 'standard';
-                return (
-                  <motion.div key={pkg.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                    <Card className={`relative h-full flex flex-col overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
-                      {isPopular && (
-                        <div className="absolute top-0 left-0 right-0 z-10">
-                          <div className="bg-gradient-to-r from-[#E4007C] to-[#ff009e] text-white text-[10px] font-black py-1.5 text-center tracking-widest uppercase shadow-lg">⭐ BEST VALUE</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            {packagesUI.map((pkg, index) => {
+              const Icon = pkg.icon;
+              const styles = getMessageTierStyles(pkg.tier);
+              const isPopular = pkg.tier === 'standard';
+              return (
+                <motion.div key={pkg.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
+                  <Card className={`relative h-full flex flex-col overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
+                    {isPopular && (
+                      <div className="absolute top-0 left-0 right-0 z-10">
+                        <div className="bg-gradient-to-r from-[#E4007C] to-[#ff009e] text-white text-[10px] font-black py-1.5 text-center tracking-widest uppercase shadow-lg">⭐ BEST VALUE</div>
+                      </div>
+                    )}
+                    {pkg.savings && !isPopular && (
+                      <div className="absolute top-3 right-3 z-10">
+                        <Badge className={`${styles.badge} border-none font-bold`}>{pkg.savings}</Badge>
+                      </div>
+                    )}
+                    <CardHeader className={`text-center pb-2 ${isPopular ? 'pt-10' : 'pt-6'}`}>
+                      <div className={`mx-auto mb-3 p-4 rounded-2xl ${styles.badge} w-fit`}><Icon className="w-8 h-8" /></div>
+                      <h3 className="text-xl font-bold text-foreground">{pkg.name}</h3>
+                      <div className="mt-2">
+                        <span className="text-4xl font-bold text-foreground">{formatPriceUSD(pkg.price)}</span>
+                        <span className="text-muted-foreground ml-1">USD</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">{formatPriceUSD(pkg.pricePerToken)} per token</p>
+                    </CardHeader>
+                    <CardContent className="flex-1 pt-4">
+                      <div className="text-center py-4 mb-4 rounded-xl bg-background/50 border border-border/50">
+                        <div className="text-5xl font-bold text-foreground">{pkg.tokens}</div>
+                        <div className="text-sm text-muted-foreground font-medium mt-1">Tokens</div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">Start {pkg.tokens} new conversations</span>
                         </div>
-                      )}
-                      {pkg.savings && !isPopular && (
-                        <div className="absolute top-3 right-3 z-10">
-                          <Badge className={`${styles.badge} border-none font-bold`}>{pkg.savings}</Badge>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">Unlimited messages per chat</span>
                         </div>
-                      )}
-                      <CardHeader className={`text-center pb-2 ${isPopular ? 'pt-10' : 'pt-6'}`}>
-                        <div className={`mx-auto mb-3 p-4 rounded-2xl ${styles.badge} w-fit`}><Icon className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-bold text-foreground">{pkg.name}</h3>
-                        <div className="mt-2">
-                          <span className="text-4xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
-                          <span className="text-muted-foreground text-sm ml-1">MXN</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Clock className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">{pkg.duration_days}-day validity</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{formatPriceMXN(pkg.pricePerToken)} per token</p>
-                      </CardHeader>
-                      <CardContent className="flex-1 pt-4">
-                        <div className="text-center py-4 mb-4 rounded-xl bg-background/50 border border-border/50">
-                          <div className="text-5xl font-bold text-foreground">{pkg.tokens}</div>
-                          <div className="text-sm text-muted-foreground font-medium mt-1">Tokens</div>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Shield className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">Secure PayPal payment</span>
                         </div>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Start {pkg.tokens} new conversations</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Unlimited messages per chat</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Clock className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">{pkg.duration_days}-day validity</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Shield className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Secure PayPal payment</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="pt-4 pb-6">
-                        <Button onClick={() => handleMessagePurchase(pkg)} className={`w-full h-12 font-semibold text-base ${styles.button}`} size="lg">
-                          {isPopular ? '🔥 Get Best Value' : 'Buy Now'}
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="pt-4 pb-6">
+                      <Button onClick={() => handleMessagePurchase(pkg)} className={`w-full h-12 font-semibold text-base ${styles.button}`} size="lg">
+                        {isPopular ? '🔥 Get Best Value' : 'Buy Now'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
         </motion.section>
 
         {/* PREMIUM SUBSCRIPTION PACKAGES SECTION */}
@@ -417,7 +333,7 @@ export default function SubscriptionPackagesPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {premiumPlans.map((plan, index) => {
               const styles = getPremiumTierStyles(plan.tier, plan.highlight);
               return (
@@ -433,9 +349,9 @@ export default function SubscriptionPackagesPage() {
                         {plan.highlight ? <Zap className="w-6 h-6" /> : <Star className="w-6 h-6" />}
                       </div>
                       <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
-                      <div className="mt-2 flex items-baseline gap-1">
-                        <span className="text-3xl font-bold text-foreground">{formatPriceMXN(plan.price)}</span>
-                        <span className="text-muted-foreground text-sm">/month</span>
+                      <div className="mt-1 flex items-baseline justify-center">
+                        <span className="text-3xl font-bold text-foreground">{formatPriceUSD(plan.price)}</span>
+                        <span className="text-muted-foreground ml-1 text-sm">/month</span>
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 pt-2">
