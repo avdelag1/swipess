@@ -1351,11 +1351,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           {/* Tutorial shortcut — lets new users explore demo cards while waiting */}
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
-              variant="outline"
               onClick={() => navigate('/tutorial')}
-              className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-black uppercase tracking-widest text-xs"
+              className="gap-2 rounded-full px-6 bg-white dark:bg-black text-black dark:text-white border border-black/10 dark:border-white/20 hover:bg-black/5 dark:hover:bg-white/10 font-black uppercase tracking-widest text-xs transition-colors shadow-sm"
             >
-              <Sparkles className="w-4 h-4" strokeWidth={4} />
+              <Sparkles className="w-4 h-4 text-amber-500" strokeWidth={4} />
               Try Tutorial Cards
             </Button>
           </motion.div>
