@@ -552,7 +552,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
-  const [view, setView] = useState<View>('auth');
+  const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
 
   // Cycle: orbs → stars → off (dark) → orbs
@@ -564,13 +564,20 @@ function LegendaryLandingPage() {
       <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">
-        <AuthView
-          key="auth"
-          onBack={() => {
-            // Can't go back since we skip the splash page
-            window.location.reload();
-          }}
-        />
+        {view === 'landing' ? (
+          <LandingView
+            key="landing"
+            onEnterAuth={() => setView('auth')}
+            effectMode={effectMode}
+            cycleEffect={cycleEffect}
+            effectLabel={effectLabel}
+          />
+        ) : (
+          <AuthView
+            key="auth"
+            onBack={() => setView('landing')}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
