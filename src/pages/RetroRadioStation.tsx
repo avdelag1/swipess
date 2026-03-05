@@ -48,7 +48,7 @@ function cassetteDims(vw: number, vh: number): { w: number; h: number } {
 /** useWindowSize — updates on resize */
 function useWindowSize() {
   const [size, setSize] = useState(() => ({
-    vw: typeof window !== 'undefined' ? window.innerWidth  : 390,
+    vw: typeof window !== 'undefined' ? window.innerWidth : 390,
     vh: typeof window !== 'undefined' ? window.innerHeight : 844,
   }));
   useEffect(() => {
@@ -108,18 +108,18 @@ export default function RetroRadioStation() {
 
   const cityTheme = cityThemes[state.currentCity];
   const isFav = state.currentStation ? isStationFavorite(state.currentStation.id) : false;
-  const stationName = state.currentStation?.name  ?? 'SwipesS FM';
-  const genre       = state.currentStation?.genre ?? 'Radio';
+  const stationName = state.currentStation?.name ?? 'SwipesS FM';
+  const genre = state.currentStation?.genre ?? 'Radio';
 
   // ── Keyboard shortcuts ──────────────────────────────────────────────────────
   useEffect(() => {
     const handle = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === ' ')          { e.preventDefault(); togglePlayPause(); }
+      if (e.key === ' ') { e.preventDefault(); togglePlayPause(); }
       else if (e.key === 'ArrowRight') changeStation('next');
-      else if (e.key === 'ArrowLeft')  changeStation('prev');
-      else if (e.key === 'ArrowUp')    { e.preventDefault(); setVolume(Math.min(1, state.volume + 0.1)); }
-      else if (e.key === 'ArrowDown')  { e.preventDefault(); setVolume(Math.max(0, state.volume - 0.1)); }
+      else if (e.key === 'ArrowLeft') changeStation('prev');
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setVolume(Math.min(1, state.volume + 0.1)); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setVolume(Math.max(0, state.volume - 0.1)); }
       else if (e.key === 'm' || e.key === 'M') setShowDrawer(p => !p);
     };
     window.addEventListener('keydown', handle);
@@ -127,13 +127,13 @@ export default function RetroRadioStation() {
   }, [togglePlayPause, changeStation, setVolume, state.volume]);
 
   // ── Drawer callbacks ────────────────────────────────────────────────────────
-  const handleCitySelect   = useCallback((city: CityLocation) => setCity(city), [setCity]);
+  const handleCitySelect = useCallback((city: CityLocation) => setCity(city), [setCity]);
   const handleStationSelect = useCallback((s: any) => play(s), [play]);
 
   // ── Font sizes proportional to cassette width ───────────────────────────────
-  const nameFontSize  = Math.max(13, cw * 0.052);
-  const genreFontSize = Math.max(7,  cw * 0.020);
-  const iconPlaySize  = Math.max(12, cw * 0.058);
+  const nameFontSize = Math.max(13, cw * 0.052);
+  const genreFontSize = Math.max(7, cw * 0.020);
+  const iconPlaySize = Math.max(12, cw * 0.058);
 
   return (
     /*
@@ -153,16 +153,35 @@ export default function RetroRadioStation() {
           ════════════════════════════════════════════════════════════════════ */}
       <div style={{ position: 'relative', width: cw, height: ch, flexShrink: 0 }}>
 
-        {/* ── The cassette image ── */}
+        {/* ── The cassette image (HD watermark) ── */}
         <img
-          src="/cassette-skin.png"
-          alt="FM Cassette"
+          src="/images/retro-cassette-hd.png"
+          alt="Retro Cassette"
           draggable={false}
           style={{
             position: 'absolute', inset: 0,
             width: '100%', height: '100%',
-            objectFit: 'fill',
+            objectFit: 'contain',
             pointerEvents: 'none', userSelect: 'none',
+            opacity: 0.22,
+            mixBlendMode: 'screen' as const,
+            filter: `drop-shadow(0 0 40px ${cityTheme.primaryColor}30)`,
+          }}
+        />
+
+        {/* ── Second depth layer (subtle glow) ── */}
+        <img
+          src="/images/retro-cassette-hd.png"
+          alt=""
+          draggable={false}
+          style={{
+            position: 'absolute', inset: 0,
+            width: '100%', height: '100%',
+            objectFit: 'contain',
+            pointerEvents: 'none', userSelect: 'none',
+            opacity: 0.10,
+            mixBlendMode: 'screen' as const,
+            filter: `blur(2px) drop-shadow(0 0 30px ${cityTheme.secondaryColor}25)`,
           }}
         />
 
@@ -175,42 +194,42 @@ export default function RetroRadioStation() {
             top: '14%', left: '17%', right: '17%', height: '22%',
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(245,244,240,0.96)',
             pointerEvents: 'none',
           }}
         >
-          {/* Station name — match the brushstroke label style */}
+          {/* Station name — handwritten watermark style */}
           <span
             style={{
-              fontFamily: "'Arial Black', 'Impact', 'Helvetica Neue', sans-serif",
+              fontFamily: "'Permanent Marker', cursive",
               fontSize: nameFontSize,
               fontWeight: 900,
-              fontStyle: 'italic',
-              color: '#111',
-              letterSpacing: '-0.025em',
+              color: 'rgba(255,255,255,0.85)',
+              letterSpacing: '0.03em',
               lineHeight: 1,
               textAlign: 'center',
               maxWidth: '90%',
               overflow: 'hidden',
               whiteSpace: 'nowrap',
               textOverflow: 'ellipsis',
-              transform: 'rotate(-1deg)',
               display: 'block',
+              textShadow: `0 0 20px ${cityTheme.primaryColor}60, 0 0 40px ${cityTheme.primaryColor}30, 0 2px 4px rgba(0,0,0,0.8)`,
             }}
           >
             {stationName}
           </span>
 
-          {/* Genre pill */}
+          {/* Genre tag */}
           <span
             style={{
               fontFamily: 'monospace',
               fontSize: genreFontSize,
               fontWeight: 700,
-              color: '#888',
+              color: cityTheme.primaryColor,
+              opacity: 0.7,
               textTransform: 'uppercase',
               letterSpacing: 3,
               marginTop: Math.max(2, ch * 0.012),
+              textShadow: `0 0 12px ${cityTheme.primaryColor}50`,
             }}
           >
             {genre}
@@ -247,7 +266,7 @@ export default function RetroRadioStation() {
         >
           {state.isPlaying
             ? <Pause fill="#111" style={{ width: iconPlaySize, height: iconPlaySize, color: '#111', opacity: 0.85 }} />
-            : <Play  fill="#111" style={{ width: iconPlaySize, height: iconPlaySize, color: '#111', marginLeft: '6%', opacity: 0.85 }} />
+            : <Play fill="#111" style={{ width: iconPlaySize, height: iconPlaySize, color: '#111', marginLeft: '6%', opacity: 0.85 }} />
           }
         </div>
 
