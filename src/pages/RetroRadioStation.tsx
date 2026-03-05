@@ -30,7 +30,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   ArrowLeft, ListMusic, Play, Pause, Heart,
-  SkipBack, SkipForward, Square, Circle
+  SkipBack, SkipForward, Square, Circle, Shuffle
 } from 'lucide-react';
 
 // ── Font injection ──────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ export default function RetroRadioStation() {
     togglePlayPause, changeStation,
     setCity, setVolume,
     toggleFavorite, isStationFavorite,
-    play, setMiniPlayerMode,
+    play, setMiniPlayerMode, toggleShuffle
   } = useRadio();
 
   useEffect(() => { setMiniPlayerMode('expanded'); }, [setMiniPlayerMode]);
@@ -475,6 +475,30 @@ export default function RetroRadioStation() {
         }}
       >
         <ListMusic className="w-4 h-4 text-white/70" />
+      </motion.button>
+
+      {/* Shuffle button — top-right */}
+      <motion.button
+        aria-label="Toggle shuffle"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => {
+          triggerHaptic('light');
+          toggleShuffle();
+        }}
+        className="fixed top-3 right-[6.5rem] z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: state.isShuffle ? `1px solid ${cityTheme.primaryColor}` : '1px solid rgba(255,255,255,0.1)',
+        }}
+      >
+        <Shuffle
+          className="w-4 h-4 transition-colors"
+          style={{
+            color: state.isShuffle ? cityTheme.primaryColor : 'rgba(255,255,255,0.4)',
+            filter: state.isShuffle ? `drop-shadow(0 0 6px ${cityTheme.primaryColor})` : 'none',
+          }}
+        />
       </motion.button>
 
       {/* Error toast */}
