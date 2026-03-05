@@ -230,8 +230,8 @@ function TopBarComponent({
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
             {/* AI Search Button - Moved to BottomNavigation */}
 
-            {/* Token Packages Button with Popover */}
-            <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
+            {/* Token Packages Button with Popover — client only */}
+            {userRole !== 'owner' && <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
@@ -370,7 +370,7 @@ function TopBarComponent({
                   </button>
                 </div>
               </PopoverContent>
-            </Popover>
+            </Popover>}
 
             {/* Notifications Button */}
             <Button

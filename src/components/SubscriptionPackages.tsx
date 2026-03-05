@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Check, Crown, Zap, Star } from 'lucide-react';
+import { Check, Crown, Zap, Star, Bot } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,111 +20,106 @@ interface SubscriptionPackagesProps {
 type Plan = {
   id: string;
   name: string;
-  price: string; // e.g., "$199 USD"
+  price: number;
+  period: string;
+  subtitle: string;
   benefits: string[];
   paypalUrl: string;
   highlight?: boolean;
 };
 
-const clientPlans: Plan[] = [
+// Shared benefits for all membership plans
+const membershipBenefits = [
+  'Communicate with listings and members',
+  'Post properties for rent or sale',
+  'Post services (chef, driver, cleaning, maintenance, babysitting, etc.)',
+  'Post motorcycles or bicycles for rent or sale',
+  'Save favorite listings',
+  'Discover opportunities in Tulum',
+];
+
+const premiumPlans: Plan[] = [
   {
-    id: 'client-unlimited',
-    name: 'UNLIMITED CLIENT',
-    price: '$199 USD',
-    benefits: [
-      '30 direct messages per month',
-      'Unlimited superlikes',
-      'Full visibility (100%)',
-      'Priority in search results',
-      'Access to all premium features',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
+    id: 'yearly',
+    name: 'Yearly Membership',
+    price: 299,
+    period: 'year',
+    subtitle: 'Best for residents, investors, and property owners wanting year-round access.',
+    benefits: membershipBenefits,
+    paypalUrl: '#yearly', // Placeholder — replace with live PayPal link
     highlight: true,
   },
   {
-    id: 'client-6-months',
-    name: '6 MONTHS CLIENT',
-    price: '$149 USD',
-    benefits: [
-      '12 direct messages per month',
-      'See who visited your profile',
-      'Highlighted profile',
-      'Medium visibility (50%)',
-      'Unlimited superlikes',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
+    id: 'six-month',
+    name: 'Six-Month Membership',
+    price: 119,
+    period: '6 months',
+    subtitle: 'Ideal for digital nomads, seasonal visitors, and freelancers.',
+    benefits: membershipBenefits,
+    paypalUrl: '#six-month', // Placeholder — replace with live PayPal link
   },
   {
-    id: 'client-monthly',
-    name: 'MONTHLY CLIENT',
-    price: '$99 USD',
-    benefits: [
-      '6 direct messages per month',
-      'See who liked you',
-      'More visibility (25%)',
-      'Access to additional filters',
-      'Highlighted profile in regular search',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    id: 'monthly',
+    name: 'Month-to-Month',
+    price: 39,
+    period: 'month',
+    subtitle: 'Perfect for travelers and short-term visitors exploring Tulum.',
+    benefits: membershipBenefits,
+    paypalUrl: '#monthly', // Placeholder — replace with live PayPal link
   },
 ];
 
-// Icons and colors reused
-const getPackageIcon = (packageName: string) => {
-  if (packageName.includes('UNLIMITED')) return <Zap className="w-5 h-5" />;
-  if (packageName.includes('VIP')) return <Crown className="w-5 h-5" />;
-  if (packageName.includes('PREMIUM') || packageName.includes('MONTHS') || packageName.includes('MONTHLY')) return <Star className="w-5 h-5" />;
-  return <Check className="w-5 h-5" />;
+const getPackageIcon = (planId: string) => {
+  if (planId === 'yearly') return <Zap className="w-5 h-5" />;
+  if (planId === 'six-month') return <Crown className="w-5 h-5" />;
+  return <Star className="w-5 h-5" />;
 };
 
-const getPackageColor = (packageName: string) => {
-  if (packageName.includes('UNLIMITED')) return 'from-blue-500 to-cyan-500';
-  if (packageName.includes('VIP')) return 'from-purple-500 to-pink-500';
-  if (packageName.includes('PREMIUM') || packageName.includes('MONTHS') || packageName.includes('MONTHLY')) return 'from-green-500 to-emerald-500';
-  return 'from-gray-500 to-slate-500';
+const getPackageColor = (planId: string) => {
+  if (planId === 'yearly') return 'from-blue-500 to-cyan-500';
+  if (planId === 'six-month') return 'from-pink-500 to-rose-500';
+  return 'from-orange-500 to-amber-500';
 };
 
 export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole = 'client', showAsPage = false }: SubscriptionPackagesProps) {
   const { user } = useAuth();
 
+  // Premium packages are client-only — don't render for owners
+  if (userRole === 'owner') return null;
   if (!showAsPage && !isOpen) return null;
 
-  const plans = clientPlans; // Always use client plans now
-
   const handleSubscribe = async (plan: Plan) => {
-    // Store selected plan locally (can persist to Supabase upon your approval)
-    const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
+    if (!plan.paypalUrl || plan.paypalUrl.startsWith('#')) {
+      toast({ title: 'Coming soon', description: 'This membership plan will be available shortly.', variant: 'destructive' });
+      return;
+    }
+
+    const selection = { role: 'client', planId: plan.id, name: plan.name, price: `$${plan.price} USD`, at: new Date().toISOString() };
     localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
+    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, '/client/dashboard');
 
-    // Save return path for silent redirect after payment
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-
-    // Open PayPal in a new tab
     window.open(plan.paypalUrl, '_blank');
 
-    // Feedback
     toast({
       title: 'Redirecting to PayPal',
-      description: `Selected: ${plan.name} (${plan.price})`,
+      description: `Selected: ${plan.name} ($${plan.price} USD/${plan.period})`,
     });
 
-    // Save notification for premium package purchase
     if (user?.id) {
       await supabase.from('notifications').insert([{
         user_id: user.id,
         notification_type: 'payment_received',
-        title: 'Premium Package Selected!',
-        message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
+        title: 'Premium Membership Selected!',
+        message: `You selected the ${plan.name} ($${plan.price} USD/${plan.period}). Complete payment to activate your membership!`,
         is_read: false
       }]).then(
         () => { /* Notification saved successfully */ },
         () => { /* Notification save failed - non-critical */ }
       );
 
-      // Show browser notification if permission granted
       if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-        const notification = new Notification('Premium Package Selected!', {
-          body: `${plan.name} (${plan.price}) - Complete payment to unlock premium features`,
+        const notification = new Notification('Premium Membership Selected!', {
+          body: `${plan.name} ($${plan.price} USD/${plan.period}) - Complete payment to unlock full access`,
           icon: '/favicon.ico',
           tag: `premium-${plan.id}`,
           badge: '/favicon.ico',
@@ -139,7 +134,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
       <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0 bg-background overflow-hidden">
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
           <DialogTitle className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-foreground font-brand">
-            Upgrade to Premium
+            Choose Your Membership
           </DialogTitle>
           {reason && (
             <p className="text-center text-muted-foreground text-xs sm:text-sm mt-2">
@@ -149,31 +144,32 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         </DialogHeader>
 
         <ScrollArea className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-            {plans.map((pkg) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {premiumPlans.map((pkg) => (
               <Card
                 key={pkg.id}
                 className={`relative overflow-hidden transition-all hover:shadow-lg flex flex-col ${pkg.highlight ? 'ring-2 ring-primary shadow-lg' : 'border-border'}`}
               >
                 {pkg.highlight && (
                   <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-bl-lg">
-                    POPULAR
+                    BEST VALUE
                   </div>
                 )}
 
                 <CardHeader className="pb-3 sm:pb-4 pt-4 sm:pt-5 px-3 sm:px-4">
                   <div className="flex items-start gap-2 sm:gap-3">
-                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${getPackageColor(pkg.name)} text-white shadow-md shrink-0`}>
-                      {getPackageIcon(pkg.name)}
+                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${getPackageColor(pkg.id)} text-white shadow-md shrink-0`}>
+                      {getPackageIcon(pkg.id)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <CardTitle className="text-sm sm:text-base lg:text-lg font-bold text-foreground mb-1 truncate">{pkg.name}</CardTitle>
+                      <CardTitle className="text-sm sm:text-base lg:text-lg font-bold text-foreground mb-1">{pkg.name}</CardTitle>
                       <div className="flex items-baseline gap-1 flex-wrap">
-                        <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">{pkg.price}</span>
-                        <span className="text-xs sm:text-sm text-muted-foreground">/month</span>
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">${pkg.price}</span>
+                        <span className="text-xs sm:text-sm text-muted-foreground">USD / {pkg.period}</span>
                       </div>
                     </div>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-2">{pkg.subtitle}</p>
                 </CardHeader>
 
                 <CardContent className="pt-0 flex-1 flex flex-col px-3 sm:px-4 pb-4">
@@ -186,13 +182,20 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                         </span>
                       </div>
                     ))}
+                    {/* AI assistant benefit */}
+                    <div className="flex items-start gap-1.5 sm:gap-2 pt-0.5">
+                      <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm text-foreground leading-tight">
+                        AI assistant for listings, descriptions, and discovering Tulum
+                      </span>
+                    </div>
                   </div>
 
                   <Button
-                    className={`w-full bg-gradient-to-r ${getPackageColor(pkg.name)} hover:opacity-90 text-white font-semibold text-xs sm:text-sm py-2 sm:py-2.5`}
+                    className={`w-full bg-gradient-to-r ${getPackageColor(pkg.id)} hover:opacity-90 text-white font-semibold text-xs sm:text-sm py-2 sm:py-2.5`}
                     onClick={() => handleSubscribe(pkg)}
                   >
-                    Buy Now
+                    {pkg.highlight ? 'Subscribe Now' : 'Subscribe'}
                   </Button>
                 </CardContent>
               </Card>
@@ -200,7 +203,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
           </div>
 
           <div className="text-center text-xs sm:text-sm text-muted-foreground mt-6 sm:mt-8 space-y-1 pb-2 sm:pb-4">
-            <p>✓ Cancel anytime · Secure payments powered by PayPal</p>
+            <p>Cancel anytime. Secure payments powered by PayPal.</p>
             <p>Questions? Contact support at <span className="text-primary">support@swipess.com</span></p>
           </div>
         </ScrollArea>
