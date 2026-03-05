@@ -103,7 +103,9 @@ export default function RetroRadioStation() {
   useEffect(() => { setMiniPlayerMode('expanded'); }, [setMiniPlayerMode]);
 
   const [showDrawer, setShowDrawer] = useState(false);
-  const cityTheme = cityThemes[state.currentCity];
+  const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
+
+  const cityTheme = cityThemes[state.currentCity] || cityThemes['new-york'];
   const isFav = state.currentStation ? isStationFavorite(state.currentStation.id) : false;
   const genre = state.currentStation?.genre ?? 'Radio';
 
@@ -116,7 +118,7 @@ export default function RetroRadioStation() {
       else if (e.key === 'ArrowLeft') changeStation('prev');
       else if (e.key === 'ArrowUp') { e.preventDefault(); setVolume(Math.min(1, state.volume + 0.1)); }
       else if (e.key === 'ArrowDown') { e.preventDefault(); setVolume(Math.max(0, state.volume - 0.1)); }
-      else if (e.key === 'm' || e.key === 'M') setShowDrawer(p => !p);
+      else if (e.key === 'm' || e.key === 'M') { setShowFavoritesDrawer(false); setShowDrawer(p => !p); }
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
@@ -312,7 +314,7 @@ export default function RetroRadioStation() {
 
       {/* REWIND → Previous station */}
       <Hotspot
-        top="66.5%" left="6%" width="17%" height="16%"
+        top="64.5%" left="6%" width="17%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('prev'); }}
         label="Previous station (Rewind)"
       >
@@ -321,7 +323,7 @@ export default function RetroRadioStation() {
 
       {/* PLAY → Play / Pause */}
       <Hotspot
-        top="66.5%" left="25%" width="16%" height="16%"
+        top="64.5%" left="25%" width="16%" height="16%"
         onClick={() => { triggerHaptic('medium'); togglePlayPause(); }}
         label={state.isPlaying ? 'Pause' : 'Play'}
       >
@@ -336,7 +338,7 @@ export default function RetroRadioStation() {
 
       {/* FAST FORWARD → Next station */}
       <Hotspot
-        top="66.5%" left="43%" width="16%" height="16%"
+        top="64.5%" left="43%" width="16%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('next'); }}
         label="Next station (Fast Forward)"
       >
@@ -345,8 +347,8 @@ export default function RetroRadioStation() {
 
       {/* STOP/EJECT → Open station drawer */}
       <Hotspot
-        top="66.5%" left="61%" width="17%" height="16%"
-        onClick={() => { triggerHaptic('light'); setShowDrawer(true); }}
+        top="64.5%" left="61%" width="17%" height="16%"
+        onClick={() => { triggerHaptic('light'); setShowFavoritesDrawer(false); setShowDrawer(true); }}
         label="Browse stations (Stop/Eject)"
       >
         {/* Neon Amber for Stop/Menu */}
@@ -355,7 +357,7 @@ export default function RetroRadioStation() {
 
       {/* RECORD → Favorite / Save */}
       <Hotspot
-        top="66.5%" left="81%" width="14%" height="16%"
+        top="64.5%" left="81%" width="14%" height="16%"
         onClick={() => {
           triggerHaptic('success');
           state.currentStation && toggleFavorite(state.currentStation.id);
@@ -390,7 +392,7 @@ export default function RetroRadioStation() {
       {/* Tap the label area to browse stations */}
       <Hotspot
         top="2%" left="5%" width="90%" height="22%"
-        onClick={() => { triggerHaptic('light'); setShowDrawer(true); }}
+        onClick={() => { triggerHaptic('light'); setShowFavoritesDrawer(false); setShowDrawer(true); }}
         label="Browse stations"
         showFlash={false}
       />
@@ -439,11 +441,32 @@ export default function RetroRadioStation() {
         <ArrowLeft className="w-4 h-4 text-white/70" />
       </motion.button>
 
+      {/* Liked Stations — top-right next to station list */}
+      <motion.button
+        aria-label="Liked stations"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => {
+          setShowDrawer(false);
+          setShowFavoritesDrawer(true);
+        }}
+        className="fixed top-3 right-14 z-50 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,0,255,0.3)',
+        }}
+      >
+        <Heart className="w-4 h-4 text-[#ff00ff] drop-shadow-[0_0_6px_#ff00ff]" fill="#ff00ff" />
+      </motion.button>
+
       {/* Station list — top-right */}
       <motion.button
         aria-label="Browse stations"
         whileTap={{ scale: 0.85 }}
-        onClick={() => setShowDrawer(true)}
+        onClick={() => {
+          setShowFavoritesDrawer(false);
+          setShowDrawer(true);
+        }}
         className="fixed top-3 right-3 z-50 w-9 h-9 rounded-full flex items-center justify-center"
         style={{
           background: 'rgba(0,0,0,0.5)',
@@ -479,8 +502,12 @@ export default function RetroRadioStation() {
 
       {/* Station Drawer */}
       <StationDrawer
-        isOpen={showDrawer}
-        onClose={() => setShowDrawer(false)}
+        isOpen={showDrawer || showFavoritesDrawer}
+        onClose={() => {
+          setShowDrawer(false);
+          setShowFavoritesDrawer(false);
+        }}
+        isFavoritesView={showFavoritesDrawer}
         currentCity={state.currentCity}
         currentStation={state.currentStation}
         isPlaying={state.isPlaying}

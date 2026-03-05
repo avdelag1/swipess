@@ -102,6 +102,42 @@ export const cityThemes: Record<CityLocation, CityTheme> = {
     accentColor: '#FF6B6B',
     gradient: 'linear-gradient(135deg, #232323 0%, #B8860B 50%, #FF6B6B 100%)',
     description: 'Smooth jazz and improvisations'
+  },
+  'arabic': {
+    id: 'arabic',
+    name: 'Arabic',
+    primaryColor: '#c5a059',
+    secondaryColor: '#8c1f28',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #c5a059 0%, #8c1f28 100%)',
+    description: 'Middle Eastern Sounds'
+  },
+  'persian': {
+    id: 'persian',
+    name: 'Persian',
+    primaryColor: '#00a86b',
+    secondaryColor: '#ffffff',
+    accentColor: '#ff0000',
+    gradient: 'linear-gradient(135deg, #00a86b 0%, #ff0000 100%)',
+    description: 'Iranian Melodies'
+  },
+  'meditation': {
+    id: 'meditation',
+    name: 'Meditation',
+    primaryColor: '#a18cd1',
+    secondaryColor: '#fbc2eb',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    description: 'Zen and Relaxation'
+  },
+  'bongs': {
+    id: 'bongs',
+    name: 'Bowls & Gongs',
+    primaryColor: '#d4af37',
+    secondaryColor: '#1a1a1a',
+    accentColor: '#ffffff',
+    gradient: 'linear-gradient(135deg, #d4af37 0%, #1a1a1a 100%)',
+    description: 'Sound Baths & Healing'
   }
 };
 
