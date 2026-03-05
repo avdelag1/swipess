@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SkipBack, SkipForward, Play, Pause } from 'lucide-react';
 import { CityTheme } from '@/types/radio';
 
@@ -14,13 +14,11 @@ interface CassetteDisplayProps {
 }
 
 /**
- * CassetteDisplay — Realistic cassette tape UI component.
+ * CassetteDisplay — HD Photorealistic cassette tape watermark.
  *
- * Features:
- * - Cassette body styled after a compact cassette tape
- * - Label area colored dynamically with the active city theme
- * - Animated spinning reels when playing
- * - Play / Pause / Skip controls overlaid on the cassette body
+ * Uses a high-definition retro cassette photograph as the visual centerpiece.
+ * The image is rendered as a semi-transparent watermark with controls overlaid.
+ * Station name and genre are displayed as dynamic text on top.
  */
 export function CassetteDisplay({
   isPlaying,
@@ -32,12 +30,8 @@ export function CassetteDisplay({
   onPrev,
   onNext,
 }: CassetteDisplayProps) {
-  // Standard compact cassette aspect ratio: ~96mm × 63mm ≈ 1.524:1
+  // Cassette aspect ratio (~1:0.655)
   const h = Math.round(width * 0.655);
-  const spoolSize = Math.round(width * 0.19);
-  const spoolTop = Math.round(h * 0.31);
-  const leftSpoolLeft = Math.round(width * 0.21);
-  const rightSpoolLeft = Math.round(width * 0.59);
 
   const controlBtnW = Math.round(width * 0.13);
   const controlBtnH = Math.round(controlBtnW * 0.68);
@@ -49,177 +43,267 @@ export function CassetteDisplay({
       className="relative select-none"
       style={{ width, height: h }}
     >
-      {/* ── Cassette body ─────────────────────────────────────── */}
-      <div
-        className="absolute inset-0 rounded-xl"
-        style={{
-          background: 'linear-gradient(160deg, #2e2e2e 0%, #1c1c1c 50%, #111 100%)',
-          boxShadow: '0 16px 48px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.09)',
-          border: '1.5px solid rgba(255,255,255,0.07)',
+      {/* ── HD Cassette Image (Watermark style) ──────────────── */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center"
+        animate={{
+          scale: isPlaying ? [1, 1.008, 1] : 1,
         }}
-      />
-
-      {/* ── Label ─────────────────────────────────────────────── */}
-      <div
-        className="absolute flex flex-col items-center justify-center overflow-hidden"
-        style={{
-          top: 0,
-          left: '9%',
-          right: '9%',
-          height: h * 0.365,
-          background: `linear-gradient(145deg, ${cityTheme.primaryColor}ee, ${cityTheme.secondaryColor}cc)`,
-          borderRadius: '0 0 14px 14px',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 10px rgba(0,0,0,0.35)',
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: 'easeInOut',
         }}
       >
-        {/* Thin decorative lines */}
-        <div className="absolute inset-x-4 top-1.5 h-px bg-white/15" />
-        <div className="absolute inset-x-4 bottom-1.5 h-px bg-white/15" />
+        <img
+          src="/images/retro-cassette-hd.png"
+          alt="Retro Cassette Tape"
+          className="w-full h-full object-contain"
+          style={{
+            opacity: 0.22,
+            filter: `
+              drop-shadow(0 0 30px ${cityTheme.primaryColor}40)
+              drop-shadow(0 0 60px ${cityTheme.primaryColor}20)
+            `,
+            mixBlendMode: 'screen',
+          }}
+          draggable={false}
+        />
+      </motion.div>
 
-        <span
-          className="text-white font-black tracking-wider leading-none drop-shadow-sm z-10"
-          style={{ fontSize: Math.max(11, width * 0.072) }}
+      {/* ── Second cassette layer for depth (slightly brighter) ── */}
+      <motion.div
+        className="absolute inset-0 flex items-center justify-center pointer-events-none"
+        animate={{
+          scale: isPlaying ? [1.005, 1, 1.005] : 1,
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      >
+        <img
+          src="/images/retro-cassette-hd.png"
+          alt=""
+          className="w-full h-full object-contain"
+          style={{
+            opacity: 0.12,
+            filter: `
+              drop-shadow(0 0 20px ${cityTheme.secondaryColor}30)
+              blur(1px)
+            `,
+            mixBlendMode: 'screen',
+          }}
+          draggable={false}
+        />
+      </motion.div>
+
+      {/* ── Ambient glow ring ──────────────────────────────────── */}
+      <AnimatePresence>
+        {isPlaying && (
+          <motion.div
+            className="absolute inset-0 pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div
+              className="absolute inset-0 rounded-2xl"
+              style={{
+                background: `
+                  radial-gradient(ellipse at 50% 40%, ${cityTheme.primaryColor}15 0%, transparent 65%),
+                  radial-gradient(ellipse at 50% 60%, ${cityTheme.secondaryColor}10 0%, transparent 55%)
+                `,
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Station label overlay ─────────────────────────────── */}
+      <div
+        className="absolute flex flex-col items-center justify-center z-20"
+        style={{
+          top: h * 0.12,
+          left: '15%',
+          right: '15%',
+          height: h * 0.32,
+        }}
+      >
+        {/* Station name - handwritten watermark style */}
+        <motion.span
+          key={stationName}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+          className="text-white/80 font-black tracking-wider leading-none drop-shadow-lg text-center"
+          style={{
+            fontSize: Math.max(14, width * 0.078),
+            textShadow: `
+              0 0 20px ${cityTheme.primaryColor}60,
+              0 0 40px ${cityTheme.primaryColor}30,
+              0 2px 4px rgba(0,0,0,0.8)
+            `,
+            fontFamily: "'Permanent Marker', cursive",
+          }}
         >
           {stationName}
-        </span>
-        <span
-          className="text-white/65 uppercase tracking-[0.22em] mt-1 z-10"
-          style={{ fontSize: Math.max(8, width * 0.042) }}
+        </motion.span>
+
+        {/* Genre tag */}
+        <motion.span
+          key={genre}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="uppercase tracking-[0.3em] mt-2"
+          style={{
+            fontSize: Math.max(8, width * 0.038),
+            color: cityTheme.primaryColor,
+            opacity: 0.7,
+            textShadow: `0 0 12px ${cityTheme.primaryColor}50`,
+          }}
         >
           {genre}
-        </span>
-
-        {/* Subtle gloss on label */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, transparent 60%)',
-            borderRadius: '0 0 14px 14px',
-          }}
-        />
+        </motion.span>
       </div>
 
-      {/* ── Tape window ──────────────────────────────────────── */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 overflow-hidden"
-        style={{
-          top: h * 0.40,
-          width: width * 0.73,
-          height: h * 0.34,
-          background: '#080808',
-          borderRadius: 8,
-          border: '1.5px solid rgba(255,255,255,0.07)',
-          boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.9)',
-        }}
-      >
-        {/* Tape strand */}
-        <div
-          className="absolute left-0 right-0"
-          style={{
-            top: '44%',
-            height: 3,
-            background: 'rgba(28,18,8,0.95)',
-          }}
-        />
-        {/* Bottom tape hub strip */}
-        <div
-          className="absolute bottom-0 left-0 right-0"
-          style={{
-            height: h * 0.055,
-            background: 'linear-gradient(180deg, #111, #050505)',
-          }}
-        />
-      </div>
+      {/* ── Spinning reel indicators ──────────────────────────── */}
+      <AnimatePresence>
+        {isPlaying && (
+          <>
+            <motion.div
+              className="absolute rounded-full border border-white/10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, rotate: 360 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                rotate: { duration: 3, repeat: Infinity, ease: 'linear' },
+                opacity: { duration: 0.4 },
+              }}
+              style={{
+                width: width * 0.14,
+                height: width * 0.14,
+                top: h * 0.42,
+                left: width * 0.23,
+                background: `radial-gradient(circle, ${cityTheme.primaryColor}15, transparent 70%)`,
+                boxShadow: `inset 0 0 12px ${cityTheme.primaryColor}20`,
+              }}
+            >
+              {/* Reel spokes */}
+              {[0, 60, 120, 180, 240, 300].map((angle) => (
+                <div
+                  key={angle}
+                  className="absolute bg-white/8 rounded-full"
+                  style={{
+                    width: '34%',
+                    height: 1.5,
+                    top: 'calc(50% - 0.75px)',
+                    left: '33%',
+                    transformOrigin: '0 50%',
+                    transform: `rotate(${angle}deg)`,
+                  }}
+                />
+              ))}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  width: '24%',
+                  height: '24%',
+                  top: '38%',
+                  left: '38%',
+                  background: `radial-gradient(circle, ${cityTheme.primaryColor}30, transparent)`,
+                }}
+              />
+            </motion.div>
 
-      {/* ── Corner screws ─────────────────────────────────────── */}
-      {[
-        { top: '5%', left: '3.5%' },
-        { top: '5%', right: '3.5%' },
-        { bottom: '5%', left: '3.5%' },
-        { bottom: '5%', right: '3.5%' },
-      ].map((pos, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            ...pos,
-            width: Math.max(8, width * 0.042),
-            height: Math.max(8, width * 0.042),
-            background: 'radial-gradient(circle at 35% 35%, #444, #111)',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.9)',
-            border: '1px solid rgba(255,255,255,0.05)',
-          }}
-        />
-      ))}
-
-      {/* ── Bottom tape slot ──────────────────────────────────── */}
-      <div
-        className="absolute"
-        style={{
-          bottom: 0,
-          left: '28%',
-          right: '28%',
-          height: h * 0.09,
-          background: '#000',
-          borderRadius: '5px 5px 0 0',
-        }}
-      />
-
-      {/* ── Left spool ────────────────────────────────────────── */}
-      <Spool
-        isPlaying={isPlaying}
-        size={spoolSize}
-        left={leftSpoolLeft}
-        top={spoolTop}
-        direction={1}
-      />
-
-      {/* ── Right spool ───────────────────────────────────────── */}
-      <Spool
-        isPlaying={isPlaying}
-        size={spoolSize}
-        left={rightSpoolLeft}
-        top={spoolTop}
-        direction={-1}
-      />
+            <motion.div
+              className="absolute rounded-full border border-white/10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, rotate: -360 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                rotate: { duration: 3, repeat: Infinity, ease: 'linear' },
+                opacity: { duration: 0.4 },
+              }}
+              style={{
+                width: width * 0.14,
+                height: width * 0.14,
+                top: h * 0.42,
+                right: width * 0.23,
+                background: `radial-gradient(circle, ${cityTheme.secondaryColor}15, transparent 70%)`,
+                boxShadow: `inset 0 0 12px ${cityTheme.secondaryColor}20`,
+              }}
+            >
+              {[0, 60, 120, 180, 240, 300].map((angle) => (
+                <div
+                  key={angle}
+                  className="absolute bg-white/8 rounded-full"
+                  style={{
+                    width: '34%',
+                    height: 1.5,
+                    top: 'calc(50% - 0.75px)',
+                    left: '33%',
+                    transformOrigin: '0 50%',
+                    transform: `rotate(${angle}deg)`,
+                  }}
+                />
+              ))}
+              <div
+                className="absolute rounded-full"
+                style={{
+                  width: '24%',
+                  height: '24%',
+                  top: '38%',
+                  left: '38%',
+                  background: `radial-gradient(circle, ${cityTheme.secondaryColor}30, transparent)`,
+                }}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── Controls overlay ──────────────────────────────────── */}
       <div
-        className="absolute left-0 right-0 flex items-center justify-center gap-2.5"
-        style={{ bottom: Math.max(6, h * 0.095) }}
+        className="absolute left-0 right-0 flex items-center justify-center gap-3 z-30"
+        style={{ bottom: Math.max(8, h * 0.1) }}
       >
         {/* Skip Back */}
         <motion.button
           whileTap={{ scale: 0.85 }}
+          whileHover={{ scale: 1.08 }}
           onClick={onPrev}
-          className="flex items-center justify-center rounded-md"
+          className="flex items-center justify-center rounded-xl backdrop-blur-xl"
           style={{
             width: controlBtnW,
             height: controlBtnH,
-            background: 'rgba(0,0,0,0.65)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.13)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
           }}
           aria-label="Previous station"
         >
           <SkipBack
             fill="white"
-            className="text-white"
-            style={{ width: Math.max(10, width * 0.058), height: Math.max(10, width * 0.058) }}
+            className="text-white/80"
+            style={{ width: Math.max(10, width * 0.055), height: Math.max(10, width * 0.055) }}
           />
         </motion.button>
 
         {/* Play / Pause */}
         <motion.button
           whileTap={{ scale: 0.88 }}
+          whileHover={{ scale: 1.06 }}
           onClick={onPlayPause}
-          className="flex items-center justify-center rounded-md"
+          className="flex items-center justify-center rounded-xl backdrop-blur-xl"
           style={{
             width: playBtnW,
             height: playBtnH,
-            background: `linear-gradient(135deg, ${cityTheme.primaryColor}, ${cityTheme.secondaryColor})`,
-            boxShadow: `0 4px 18px ${cityTheme.primaryColor}70`,
+            background: `linear-gradient(135deg, ${cityTheme.primaryColor}cc, ${cityTheme.secondaryColor}aa)`,
+            boxShadow: `0 6px 24px ${cityTheme.primaryColor}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
+            border: `1px solid ${cityTheme.primaryColor}40`,
           }}
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
@@ -227,13 +311,13 @@ export function CassetteDisplay({
             <Pause
               fill="white"
               className="text-white"
-              style={{ width: Math.max(12, width * 0.078), height: Math.max(12, width * 0.078) }}
+              style={{ width: Math.max(12, width * 0.075), height: Math.max(12, width * 0.075) }}
             />
           ) : (
             <Play
               fill="white"
               className="text-white"
-              style={{ width: Math.max(12, width * 0.078), height: Math.max(12, width * 0.078), marginLeft: 2 }}
+              style={{ width: Math.max(12, width * 0.075), height: Math.max(12, width * 0.075), marginLeft: 2 }}
             />
           )}
         </motion.button>
@@ -241,103 +325,57 @@ export function CassetteDisplay({
         {/* Skip Forward */}
         <motion.button
           whileTap={{ scale: 0.85 }}
+          whileHover={{ scale: 1.08 }}
           onClick={onNext}
-          className="flex items-center justify-center rounded-md"
+          className="flex items-center justify-center rounded-xl backdrop-blur-xl"
           style={{
             width: controlBtnW,
             height: controlBtnH,
-            background: 'rgba(0,0,0,0.65)',
-            backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.13)',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+            background: 'rgba(255,255,255,0.06)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)',
           }}
           aria-label="Next station"
         >
           <SkipForward
             fill="white"
-            className="text-white"
-            style={{ width: Math.max(10, width * 0.058), height: Math.max(10, width * 0.058) }}
+            className="text-white/80"
+            style={{ width: Math.max(10, width * 0.055), height: Math.max(10, width * 0.055) }}
           />
         </motion.button>
       </div>
+
+      {/* ── Tape progress line ─────────────────────────────────── */}
+      <AnimatePresence>
+        {isPlaying && (
+          <motion.div
+            className="absolute left-[15%] right-[15%] z-20"
+            style={{ top: h * 0.52 }}
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            exit={{ opacity: 0, scaleX: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="relative h-[1.5px] rounded-full overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
+            >
+              <motion.div
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{
+                  background: `linear-gradient(90deg, ${cityTheme.primaryColor}, ${cityTheme.secondaryColor})`,
+                  boxShadow: `0 0 8px ${cityTheme.primaryColor}60`,
+                }}
+                animate={{ width: ['0%', '100%'] }}
+                transition={{
+                  duration: 30,
+                  repeat: Infinity,
+                  ease: 'linear',
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  );
-}
-
-/* ── Spool sub-component ────────────────────────────────────── */
-
-function Spool({
-  isPlaying,
-  size,
-  left,
-  top,
-  direction,
-}: {
-  isPlaying: boolean;
-  size: number;
-  left: number;
-  top: number;
-  direction: 1 | -1;
-}) {
-  const spokeAngles = [0, 60, 120, 180, 240, 300];
-
-  return (
-    <motion.div
-      className="absolute rounded-full overflow-hidden"
-      style={{
-        width: size,
-        height: size,
-        left,
-        top,
-        background: 'radial-gradient(circle at 40% 38%, #3c3c3c, #191919)',
-        border: '2px solid rgba(255,255,255,0.12)',
-        boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)',
-      }}
-      animate={{ rotate: isPlaying ? direction * 360 : 0 }}
-      transition={{
-        duration: 2.4,
-        repeat: Infinity,
-        ease: 'linear',
-        repeatType: 'loop',
-      }}
-    >
-      {/* Spokes */}
-      {spokeAngles.map((angle) => (
-        <div
-          key={angle}
-          className="absolute bg-white/10 rounded-full"
-          style={{
-            width: '34%',
-            height: 2,
-            top: 'calc(50% - 1px)',
-            left: '33%',
-            transformOrigin: '0 50%',
-            transform: `rotate(${angle}deg)`,
-          }}
-        />
-      ))}
-
-      {/* Hub cap */}
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: '28%',
-          height: '28%',
-          top: '36%',
-          left: '36%',
-          background: 'radial-gradient(circle at 40% 38%, #252525, #0a0a0a)',
-          boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.8)',
-        }}
-      />
-
-      {/* Sheen */}
-      <div
-        className="absolute inset-0 rounded-full pointer-events-none"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 50%)',
-        }}
-      />
-    </motion.div>
   );
 }
