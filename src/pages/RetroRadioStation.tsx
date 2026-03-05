@@ -30,6 +30,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   ArrowLeft, ListMusic, Play, Pause, Heart,
+  SkipBack, SkipForward, Square, Circle
 } from 'lucide-react';
 
 // ── Font injection ──────────────────────────────────────────────────────────
@@ -46,11 +47,13 @@ if (typeof document !== 'undefined' && !document.getElementById('cassette-radio-
 function Hotspot({
   top, left, right, width, height,
   onClick, label, showFlash = true,
+  children,
 }: {
   top: string; left?: string; right?: string;
   width: string; height: string;
   onClick: () => void; label: string;
   showFlash?: boolean;
+  children?: React.ReactNode;
 }) {
   const [flash, setFlash] = useState(false);
 
@@ -76,8 +79,13 @@ function Hotspot({
         borderRadius: 4,
         transition: 'background 0.15s ease',
         zIndex: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
-    />
+    >
+      {children}
+    </motion.button>
   );
 }
 
@@ -97,7 +105,6 @@ export default function RetroRadioStation() {
   const [showDrawer, setShowDrawer] = useState(false);
   const cityTheme = cityThemes[state.currentCity];
   const isFav = state.currentStation ? isStationFavorite(state.currentStation.id) : false;
-  const stationName = state.currentStation?.name ?? 'SwipesS FM';
   const genre = state.currentStation?.genre ?? 'Radio';
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────────
@@ -152,7 +159,7 @@ export default function RetroRadioStation() {
       />
 
       {/* ═══════════════════════════════════════════════════════════════════
-          STATION NAME — overlaid on the cassette label area (top ~5-22%)
+          CITY NAME — overlaid on the cassette label area (top ~5-22%)
           Uses the cream/white label area of the cassette image as background.
           ═══════════════════════════════════════════════════════════════════ */}
       <div
@@ -166,7 +173,7 @@ export default function RetroRadioStation() {
       >
         <AnimatePresence mode="wait">
           <motion.div
-            key={state.currentStation?.id ?? 'empty'}
+            key={state.currentCity}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
@@ -176,10 +183,10 @@ export default function RetroRadioStation() {
             <span
               style={{
                 fontFamily: "'Permanent Marker', cursive",
-                fontSize: 'clamp(18px, 6vw, 36px)',
+                fontSize: 'clamp(24px, 8vw, 42px)',
                 color: '#1a1a1a',
                 textShadow: '0 1px 2px rgba(255,255,255,0.2)',
-                letterSpacing: '0.02em',
+                letterSpacing: '0.04em',
                 lineHeight: 1.1,
                 textAlign: 'center',
                 maxWidth: '100%',
@@ -188,19 +195,19 @@ export default function RetroRadioStation() {
                 whiteSpace: 'nowrap',
               }}
             >
-              {stationName}
+              {cityTheme.name}
             </span>
             <span
               style={{
                 fontFamily: "'Space Mono', monospace",
-                fontSize: 'clamp(8px, 2vw, 13px)',
+                fontSize: 'clamp(9px, 2.5vw, 14px)',
                 fontWeight: 700,
-                color: '#666',
+                color: '#444',
                 textTransform: 'uppercase',
-                letterSpacing: '0.2em',
+                letterSpacing: '0.25em',
               }}
             >
-              {genre} · SIDE A
+              {genre} · MIX
             </span>
           </motion.div>
         </AnimatePresence>
@@ -256,41 +263,6 @@ export default function RetroRadioStation() {
       </AnimatePresence>
 
 
-      {/* ═══════════════════════════════════════════════════════════════════
-          PLAY/PAUSE ICON OVERLAY — shows current state on the PLAY button
-          Positioned on top of the physical "PLAY" button in the photo.
-          ═══════════════════════════════════════════════════════════════════ */}
-      <div
-        className="absolute flex items-center justify-center pointer-events-none z-10"
-        style={{
-          top: '72%',
-          left: '24%',
-          width: '17%',
-          height: '12%',
-        }}
-      >
-        <motion.div
-          key={state.isPlaying ? 'pause' : 'play'}
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 0.9 }}
-          exit={{ scale: 0.5, opacity: 0 }}
-        >
-          {state.isPlaying ? (
-            <Pause
-              className="text-white drop-shadow-lg"
-              style={{ width: 'clamp(16px, 5vw, 28px)', height: 'clamp(16px, 5vw, 28px)' }}
-              fill="white"
-            />
-          ) : (
-            <Play
-              className="text-white drop-shadow-lg"
-              style={{ width: 'clamp(16px, 5vw, 28px)', height: 'clamp(16px, 5vw, 28px)', marginLeft: '8%' }}
-              fill="white"
-            />
-          )}
-        </motion.div>
-      </div>
-
       {/* ON AIR indicator — glowing red dot on the tape window */}
       <motion.div
         className="absolute pointer-events-none z-10"
@@ -331,48 +303,11 @@ export default function RetroRadioStation() {
         </motion.span>
       )}
 
-      {/* Saved badge — shows on the RECORD button when favorited */}
-      <AnimatePresence>
-        {isFav && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.7 }}
-            className="absolute flex items-center justify-center pointer-events-none z-10"
-            style={{
-              top: '72%',
-              right: '5%',
-              width: '15%',
-              height: '12%',
-            }}
-          >
-            <Heart
-              className="drop-shadow-lg"
-              style={{
-                width: 'clamp(14px, 4vw, 22px)',
-                height: 'clamp(14px, 4vw, 22px)',
-                color: cityTheme.primaryColor,
-                fill: cityTheme.primaryColor,
-                filter: `drop-shadow(0 0 6px ${cityTheme.primaryColor})`,
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
 
       {/* ═══════════════════════════════════════════════════════════════════
-          INVISIBLE HOTSPOT BUTTONS — positioned over the physical buttons
-          in the cassette player photo.
-
-          Button positions (based on the image layout):
-            REWIND      → left ~5%,   width ~18%  → Previous station
-            PLAY        → left ~24%,  width ~17%  → Play / Pause
-            FF          → left ~42%,  width ~17%  → Next station
-            STOP/EJECT  → left ~60%,  width ~18%  → Open station drawer
-            RECORD      → left ~80%,  width ~15%  → Favorite / Save
-
-          All at top ~70%, height ~16% (the button strip area)
+          HOTSPOT BUTTONS WITH NEON ICONS
+          Positioned EXACTLY over the physical buttons in the photo.
+          Now with electric glowing neon icons directly on the buttons.
           ═══════════════════════════════════════════════════════════════════ */}
 
       {/* REWIND → Previous station */}
@@ -380,28 +315,43 @@ export default function RetroRadioStation() {
         top="70%" left="5%" width="18%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('prev'); }}
         label="Previous station (Rewind)"
-      />
+      >
+        <SkipBack className="w-7 h-7 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
+      </Hotspot>
 
       {/* PLAY → Play / Pause */}
       <Hotspot
         top="70%" left="24%" width="17%" height="16%"
         onClick={() => { triggerHaptic('medium'); togglePlayPause(); }}
         label={state.isPlaying ? 'Pause' : 'Play'}
-      />
+      >
+        {state.isPlaying ? (
+          // Electric Cyan for Pause
+          <Pause className="w-8 h-8 text-[#00f0ff] drop-shadow-[0_0_16px_#00f0ff]" fill="#00f0ff" />
+        ) : (
+          // Neon Green for Play
+          <Play className="w-8 h-8 text-[#39ff14] drop-shadow-[0_0_16px_#39ff14]" fill="#39ff14" />
+        )}
+      </Hotspot>
 
       {/* FAST FORWARD → Next station */}
       <Hotspot
         top="70%" left="42%" width="17%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('next'); }}
         label="Next station (Fast Forward)"
-      />
+      >
+        <SkipForward className="w-7 h-7 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
+      </Hotspot>
 
       {/* STOP/EJECT → Open station drawer */}
       <Hotspot
         top="70%" left="60%" width="18%" height="16%"
         onClick={() => { triggerHaptic('light'); setShowDrawer(true); }}
         label="Browse stations (Stop/Eject)"
-      />
+      >
+        {/* Neon Amber for Stop/Menu */}
+        <Square className="w-6 h-6 text-[#ffbf00] drop-shadow-[0_0_12px_#ffbf00]" fill="#ffbf00" />
+      </Hotspot>
 
       {/* RECORD → Favorite / Save */}
       <Hotspot
@@ -411,7 +361,13 @@ export default function RetroRadioStation() {
           state.currentStation && toggleFavorite(state.currentStation.id);
         }}
         label={isFav ? 'Remove from favorites' : 'Save station (Record)'}
-      />
+      >
+        {/* Neon Pink for Record/Favorite */}
+        <Heart
+          className={`w-6 h-6 transition-colors duration-300 drop-shadow-[0_0_12px_#ff00ff] ${isFav ? 'text-[#ff00ff]' : 'text-white/80 drop-shadow-none'}`}
+          fill={isFav ? '#ff00ff' : 'transparent'}
+        />
+      </Hotspot>
 
       {/* VOLUME KNOB — tap left half to decrease, right half to increase */}
       <Hotspot
@@ -441,9 +397,9 @@ export default function RetroRadioStation() {
 
       {/* Volume indicator overlay on the knob area */}
       <div
-        className="absolute pointer-events-none z-10 flex items-center justify-center"
+        className="absolute pointer-events-none z-10 flex flex-col items-center justify-center"
         style={{
-          bottom: '2%',
+          bottom: '1%',
           left: '50%',
           transform: 'translateX(-50%)',
         }}
@@ -451,11 +407,11 @@ export default function RetroRadioStation() {
         <span
           style={{
             fontFamily: "'Space Mono', monospace",
-            fontSize: 'clamp(8px, 2vw, 12px)',
+            fontSize: 'clamp(8px, 2.5vw, 14px)',
             fontWeight: 700,
-            color: 'rgba(255,255,255,0.5)',
-            textShadow: '0 1px 3px rgba(0,0,0,0.8)',
-            letterSpacing: '0.1em',
+            color: cityTheme.primaryColor,
+            textShadow: `0 0 10px ${cityTheme.primaryColor}, 0 1px 3px rgba(0,0,0,0.8)`,
+            letterSpacing: '0.15em',
           }}
         >
           VOL {Math.round(state.volume * 10)}
