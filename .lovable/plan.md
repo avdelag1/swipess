@@ -1,28 +1,46 @@
 
 
-## Plan: Fix White Theme Rendering + Bottom Navigation Polish
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-### Problem 1: White theme looks dark
-The `ThemeProvider` defaults to `'black-matte'` and only loads the user's preference after login. On the landing page (unauthenticated), it always shows dark. When you select white-matte, the `--background` CSS variable correctly sets to `0 0% 96%` (near-white), but several components use hardcoded dark colors in their inline styles that override the theme.
+### 1. Replace App Icon with Fire S Logo
 
-**Fix in `src/components/BottomNavigation.tsx`:**
-- Dark mode pill backgrounds (`rgba(24, 24, 27, 0.8)` and `rgba(39, 39, 42, 0.95)`) are hardcoded and show dark pills on a white page
-- In light mode, the pills use `rgba(0, 0, 0, 0.08)` which is correct but the border `rgba(0, 0, 0, 0.12)` creates visible dark outlines
-- Fix: Make light-mode buttons fully transparent with no border (matching the "floating, borderless" design memory), and keep dark-mode pills as-is
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### Problem 2: Bottom nav doesn't fit the white aesthetic
-The current bottom nav uses individual pill containers per button with backgrounds, borders, and shadows. In white-matte mode, these pills create visual clutter against the clean white background.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Fix approach:**
-- Light mode: Remove individual button backgrounds, borders, and shadows entirely — icons and labels float cleanly on white
-- Dark mode: Keep the current frosted glass pill style (it works well on dark)
-- Both modes: Keep the active indicator dot and gradient icons for the active state
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### Files to change
-1. **`src/components/BottomNavigation.tsx`** — Conditionally remove backgrounds/borders/shadows for light mode buttons. The style block at lines 168-178 will be updated to set `bgDefault`, `bgActive`, `borderColor`, and `shadowColor` to transparent values in light mode.
+### 2. Profile Photo Already Shows in Top-Left
 
-### Scope
-- Single file edit (BottomNavigation.tsx)
-- Only visual changes — no logic, routing, or structural changes
-- Preserves all dark-mode styling
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
+
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+
+### 3. Fix Header Too Close to Top Edge
+
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+
+### 4. Fix MarketingSlide Build Error
+
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

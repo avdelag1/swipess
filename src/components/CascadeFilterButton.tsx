@@ -153,7 +153,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
           'border',
           isOpen || hasActiveFilters
             ? 'bg-primary text-primary-foreground border-primary'
-            : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-white text-black border-black/10 shadow-sm'
+            : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-card text-foreground border-border shadow-sm'
         )}
       >
         <Filter className="w-4 h-4" />
