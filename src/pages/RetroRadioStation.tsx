@@ -165,10 +165,10 @@ export default function RetroRadioStation() {
       <div
         className="absolute flex flex-col items-center justify-center pointer-events-none z-10"
         style={{
-          top: '5%',
+          top: '15%',
           left: '10%',
           right: '10%',
-          height: '18%',
+          height: '14%',
         }}
       >
         <AnimatePresence mode="wait">
@@ -312,7 +312,7 @@ export default function RetroRadioStation() {
 
       {/* REWIND → Previous station */}
       <Hotspot
-        top="70%" left="5%" width="18%" height="16%"
+        top="66.5%" left="6%" width="17%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('prev'); }}
         label="Previous station (Rewind)"
       >
@@ -321,7 +321,7 @@ export default function RetroRadioStation() {
 
       {/* PLAY → Play / Pause */}
       <Hotspot
-        top="70%" left="24%" width="17%" height="16%"
+        top="66.5%" left="25%" width="16%" height="16%"
         onClick={() => { triggerHaptic('medium'); togglePlayPause(); }}
         label={state.isPlaying ? 'Pause' : 'Play'}
       >
@@ -336,7 +336,7 @@ export default function RetroRadioStation() {
 
       {/* FAST FORWARD → Next station */}
       <Hotspot
-        top="70%" left="42%" width="17%" height="16%"
+        top="66.5%" left="43%" width="16%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('next'); }}
         label="Next station (Fast Forward)"
       >
@@ -345,7 +345,7 @@ export default function RetroRadioStation() {
 
       {/* STOP/EJECT → Open station drawer */}
       <Hotspot
-        top="70%" left="60%" width="18%" height="16%"
+        top="66.5%" left="61%" width="17%" height="16%"
         onClick={() => { triggerHaptic('light'); setShowDrawer(true); }}
         label="Browse stations (Stop/Eject)"
       >
@@ -355,7 +355,7 @@ export default function RetroRadioStation() {
 
       {/* RECORD → Favorite / Save */}
       <Hotspot
-        top="70%" left="80%" width="15%" height="16%"
+        top="66.5%" left="81%" width="14%" height="16%"
         onClick={() => {
           triggerHaptic('success');
           state.currentStation && toggleFavorite(state.currentStation.id);
