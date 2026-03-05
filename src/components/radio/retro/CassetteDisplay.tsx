@@ -391,6 +391,7 @@ export function CassetteDisplay({
             background: 'linear-gradient(135deg, #ff5722, #e64a19)',
             boxShadow: 'inset 0 1px 0 rgba(255,200,100,0.3)',
           }}
+          draggable={false}
         />
       ))}
 
@@ -526,7 +527,7 @@ export function CassetteDisplay({
 
       {/* ── TAPE AREA: Knobs + window + big skip buttons ─────────── */}
       <div
-        className="absolute"
+        className="absolute flex flex-col items-center justify-center z-20"
         style={{
           top: hs(0.37),
           left: s(0.04),
