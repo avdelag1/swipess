@@ -89,39 +89,6 @@ function Hotspot({
   );
 }
 
-// ── Spinning Tape Reel ───────────────────────────────────────────────────────
-// Simulates the cassette tape reels spinning when playing
-function SpinningReel({ left, top, isPlaying }: { left: string; top: string; isPlaying: boolean }) {
-  return (
-    <div
-      className="absolute pointer-events-none z-10"
-      style={{
-        left,
-        top,
-        width: '18vw',
-        height: '18vw',
-        transform: 'translate(-50%, -50%)',
-        mixBlendMode: 'overlay', // Blends gently into the background picture
-        animation: isPlaying ? 'spin 3s linear infinite' : 'none',
-      }}
-    >
-      {/* Outer rim */}
-      <div className="absolute inset-0 rounded-full border-[4px] border-white/60 shadow-[0_0_15px_rgba(255,255,255,0.4)]" />
-      {/* Inner hub */}
-      <div className="absolute top-[35%] bottom-[35%] left-[35%] right-[35%] rounded-full border-[4px] border-white/70" />
-
-      {/* 6 spokes for classic cassette reels. Rotate 0, 60, 120 (since one line spans both sides) */}
-      {[0, 60, 120].map((deg) => (
-        <div
-          key={deg}
-          className="absolute top-[10%] bottom-[10%] left-1/2 w-1.5 -translate-x-1/2 bg-white/60 shadow-[0_0_10px_rgba(255,255,255,0.3)]"
-          style={{ transform: `translateX(-50%) rotate(${deg}deg)` }}
-        />
-      ))}
-    </div>
-  );
-}
-
 // ── Main page ───────────────────────────────────────────────────────────────
 export default function RetroRadioStation() {
   const navigate = useNavigate();
@@ -259,39 +226,43 @@ export default function RetroRadioStation() {
             <motion.div
               className="absolute rounded-full pointer-events-none"
               initial={{ opacity: 0 }}
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              animate={{ opacity: [0.3, 0.6, 0.3], rotate: 360 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 2, repeat: Infinity }}
+              transition={{
+                opacity: { duration: 2, repeat: Infinity },
+                rotate: { duration: 3, repeat: Infinity, ease: 'linear' },
+              }}
               style={{
-                top: '43.5%', left: '29.5%',
-                width: '18vw', height: '18vw',
-                transform: 'translate(-50%, -50%)',
-                background: `radial-gradient(circle, ${cityTheme.primaryColor}50, transparent 70%)`,
-                boxShadow: `0 0 30px ${cityTheme.primaryColor}30`,
+                top: '33%',
+                left: '22%',
+                width: '15%',
+                height: '15%',
+                background: `radial-gradient(circle, ${cityTheme.primaryColor}30, transparent 70%)`,
+                boxShadow: `0 0 20px ${cityTheme.primaryColor}20`,
               }}
             />
             {/* Right reel glow */}
             <motion.div
               className="absolute rounded-full pointer-events-none"
               initial={{ opacity: 0 }}
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              animate={{ opacity: [0.3, 0.6, 0.3], rotate: -360 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+              transition={{
+                opacity: { duration: 2, repeat: Infinity, delay: 0.5 },
+                rotate: { duration: 3, repeat: Infinity, ease: 'linear' },
+              }}
               style={{
-                top: '43.5%', left: '70.5%',
-                width: '18vw', height: '18vw',
-                transform: 'translate(-50%, -50%)',
-                background: `radial-gradient(circle, ${cityTheme.secondaryColor}50, transparent 70%)`,
-                boxShadow: `0 0 30px ${cityTheme.secondaryColor}30`,
+                top: '33%',
+                right: '22%',
+                width: '15%',
+                height: '15%',
+                background: `radial-gradient(circle, ${cityTheme.secondaryColor}30, transparent 70%)`,
+                boxShadow: `0 0 20px ${cityTheme.secondaryColor}20`,
               }}
             />
           </>
         )}
       </AnimatePresence>
-
-      {/* 🌪️ ANIMATED SPINNING CASSETTE REELS 🌪️ */}
-      <SpinningReel left="29.5%" top="43.5%" isPlaying={state.isPlaying} />
-      <SpinningReel left="70.5%" top="43.5%" isPlaying={state.isPlaying} />
 
 
       {/* ON AIR indicator — glowing red dot on the tape window */}
@@ -343,50 +314,50 @@ export default function RetroRadioStation() {
 
       {/* REWIND → Previous station */}
       <Hotspot
-        top="75.5%" left="6.5%" width="17%" height="16%"
+        top="64.5%" left="6%" width="17%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('prev'); }}
         label="Previous station (Rewind)"
       >
-        <SkipBack className="w-7 h-7 text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
+        <SkipBack className="w-7 h-7 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
       </Hotspot>
 
       {/* PLAY → Play / Pause */}
       <Hotspot
-        top="75.5%" left="24.5%" width="16%" height="16%"
+        top="64.5%" left="25%" width="16%" height="16%"
         onClick={() => { triggerHaptic('medium'); togglePlayPause(); }}
         label={state.isPlaying ? 'Pause' : 'Play'}
       >
         {state.isPlaying ? (
           // Electric Cyan for Pause
-          <Pause className="w-8 h-8 text-[#00f0ff] drop-shadow-[0_0_20px_#00f0ff]" fill="#00f0ff" />
+          <Pause className="w-8 h-8 text-[#00f0ff] drop-shadow-[0_0_16px_#00f0ff]" fill="#00f0ff" />
         ) : (
           // Neon Green for Play
-          <Play className="w-8 h-8 text-[#39ff14] drop-shadow-[0_0_20px_#39ff14]" fill="#39ff14" />
+          <Play className="w-8 h-8 text-[#39ff14] drop-shadow-[0_0_16px_#39ff14]" fill="#39ff14" />
         )}
       </Hotspot>
 
       {/* FAST FORWARD → Next station */}
       <Hotspot
-        top="75.5%" left="43%" width="16%" height="16%"
+        top="64.5%" left="43%" width="16%" height="16%"
         onClick={() => { triggerHaptic('light'); changeStation('next'); }}
         label="Next station (Fast Forward)"
       >
-        <SkipForward className="w-7 h-7 text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
+        <SkipForward className="w-7 h-7 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
       </Hotspot>
 
       {/* STOP/EJECT → Open station drawer */}
       <Hotspot
-        top="75.5%" left="61%" width="17%" height="16%"
+        top="64.5%" left="61%" width="17%" height="16%"
         onClick={() => { triggerHaptic('light'); setShowFavoritesDrawer(false); setShowDrawer(true); }}
         label="Browse stations (Stop/Eject)"
       >
         {/* Neon Amber for Stop/Menu */}
-        <Square className="w-6 h-6 text-[#ffbf00] drop-shadow-[0_0_16px_#ffbf00]" fill="#ffbf00" />
+        <Square className="w-6 h-6 text-[#ffbf00] drop-shadow-[0_0_12px_#ffbf00]" fill="#ffbf00" />
       </Hotspot>
 
       {/* RECORD → Favorite / Save */}
       <Hotspot
-        top="75.5%" left="80%" width="14%" height="16%"
+        top="64.5%" left="81%" width="14%" height="16%"
         onClick={() => {
           triggerHaptic('success');
           state.currentStation && toggleFavorite(state.currentStation.id);
@@ -395,7 +366,7 @@ export default function RetroRadioStation() {
       >
         {/* Neon Pink for Record/Favorite */}
         <Heart
-          className={`w-6 h-6 transition-colors duration-300 drop-shadow-[0_0_16px_#ff00ff] ${isFav ? 'text-[#ff00ff]' : 'text-white/80 drop-shadow-none'}`}
+          className={`w-6 h-6 transition-colors duration-300 drop-shadow-[0_0_12px_#ff00ff] ${isFav ? 'text-[#ff00ff]' : 'text-white/80 drop-shadow-none'}`}
           fill={isFav ? '#ff00ff' : 'transparent'}
         />
       </Hotspot>
