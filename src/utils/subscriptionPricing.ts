@@ -35,17 +35,6 @@ export function formatPriceUSD(price: number): string {
 }
 
 /**
- * Format price in USD
- */
-export function formatPriceUSD(price: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-  }).format(price);
-}
-
-/**
  * Get package type label
  */
 export function getPackageTypeLabel(packageCategory: string): string {
