@@ -142,6 +142,27 @@ export default function PaymentSuccess() {
 
     if (subError) throw subError;
 
+    // Send a detailed notification with their new benefits based on the package
+    let benefitsMessage = "You now have access to premium features!";
+    if (pkg.id === 'client-unlimited' || pkg.id === 'yearly') {
+      benefitsMessage = "Benefits unlocked:\n• Global Social Ads (Insta/FB/TikTok)\n• Direct redirection to your profile/property\n• Maximum visibility algorithm (100% exposure)\n• Unlimited direct messages & superlikes\n• Guaranteed top placement in search";
+    } else if (pkg.id === 'client-premium-plus-plus' || pkg.id === 'six-month') {
+      benefitsMessage = "Benefits unlocked:\n• Targeted social media promotion boosts\n• High app-wide visibility algorithm\n• 12 direct messages per month\n• See who visited your profile\n• Highlighted profile and VIP badge";
+    } else if (pkg.id === 'client-premium' || pkg.id === 'monthly') {
+      benefitsMessage = "Benefits unlocked:\n• Basic internal & external distribution\n• Priority visibility algorithm (25% boost)\n• 6 direct messages per month\n• See who liked you\n• Advanced search filters";
+    }
+
+    try {
+      await (supabase as any).from('notifications').insert({
+        user_id: userId,
+        notification_type: 'subscription_active',
+        title: `Congratulations! ${pkg.name?.toUpperCase() || 'PREMIUM'} is Active`,
+        message: benefitsMessage,
+      });
+    } catch (notifWarn) {
+      logger.warn('Failed to insert premium notification', notifWarn);
+    }
+
     // Create tokens for monthly
     const resetDate = new Date();
     resetDate.setMonth(resetDate.getMonth() + 1);
