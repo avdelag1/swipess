@@ -98,7 +98,7 @@ export function useSaveOwnerProfile() {
 
       if (updates.profile_images !== undefined && (updates.profile_images?.length ?? 0) > 0) {
         syncPayload.images = updates.profile_images;
-        syncPayload.avatar_url = updates.profile_images[0];
+        syncPayload.avatar_url = (updates.profile_images as string[])[0];
       }
 
       if (updates.business_name !== undefined) {
