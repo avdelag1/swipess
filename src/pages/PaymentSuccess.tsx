@@ -148,32 +148,33 @@ export default function PaymentSuccess() {
     resetDate.setDate(1);
 
     const { error: activError } = await (supabase as any)
-      .from('tokens')
+      .from('message_activations')
       .insert({
         user_id: userId,
-        activation_type: 'monthly_subscription',
-        total_activations: pkg.tokens || 30,
-        remaining_activations: pkg.tokens || 30,
-        used_activations: 0,
-        reset_date: resetDate.toISOString().split('T')[0],
+        total_purchased: pkg.tokens || 30,
+        activations_remaining: pkg.tokens || 30,
       });
 
     if (activError) throw activError;
 
-    // Create legal document quota if included
+    // Create legal document quota if included (wrapped in try-catch as table might be missing)
     if (pkg.legal_documents_included && pkg.legal_documents_included > 0) {
-      const nextMonth = new Date();
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
-      nextMonth.setDate(1);
+      try {
+        const nextMonth = new Date();
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        nextMonth.setDate(1);
 
-      await (supabase as any)
-        .from('legal_document_quota')
-        .upsert({
-          user_id: userId,
-          monthly_limit: pkg.legal_documents_included,
-          used_this_month: 0,
-          reset_date: nextMonth.toISOString().split('T')[0],
-        });
+        await (supabase as any)
+          .from('legal_document_quota')
+          .upsert({
+            user_id: userId,
+            monthly_limit: pkg.legal_documents_included,
+            used_this_month: 0,
+            reset_date: nextMonth.toISOString().split('T')[0],
+          });
+      } catch (e) {
+        logger.error('[PaymentSuccess] Failed to update legal document quota:', e);
+      }
     }
   };
 
@@ -183,14 +184,11 @@ export default function PaymentSuccess() {
     expiresAt.setDate(expiresAt.getDate() + (pkg.duration_days || 30));
 
     const { error: activError } = await (supabase as any)
-      .from('tokens')
+      .from('message_activations')
       .insert({
         user_id: userId,
-        activation_type: 'pay_per_use',
-        total_activations: pkg.tokens,
-        remaining_activations: pkg.tokens,
-        used_activations: 0,
-        expires_at: expiresAt.toISOString(),
+        total_purchased: pkg.tokens,
+        activations_remaining: pkg.tokens,
       });
 
     if (activError) throw activError;
