@@ -194,6 +194,7 @@ export function useNotificationSystem() {
     return () => {
       // Properly unsubscribe before removing channel to prevent memory leaks
       notificationsChannel.unsubscribe();
+      supabase.removeChannel(notificationsChannel);
     };
   }, [user?.id]);
 

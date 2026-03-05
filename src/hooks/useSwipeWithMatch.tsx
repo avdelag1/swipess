@@ -453,7 +453,7 @@ async function detectAndCreateMatch({
     let match = null;
 
     for (let attempt = 1; attempt <= 3; attempt++) {
-      const { data: matchData, error: matchError } = await supabase
+      const { data: matchData, error: matchError } = await (supabase as any)
         .from('matches')
         .upsert({
           user_id: matchClientId,
@@ -524,7 +524,7 @@ async function detectAndCreateMatch({
           supabase
             .from('profiles')
             .select('*')
-            .eq('user_id', match.user_id)
+            .eq('user_id', match.client_id ?? match.user_id)
             .maybeSingle(),
           supabase
             .from('profiles')
