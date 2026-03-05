@@ -193,7 +193,7 @@ export default function SubscriptionPackagesPage() {
       tokens: pkg.tokens,
     }));
     window.open(pkg.paypalUrl, '_blank');
-    toast({ title: "Redirecting to PayPal", description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})` });
+    toast({ title: "Redirecting to PayPal", description: `Processing ${pkg.name} package (${formatPriceUSD(pkg.price)})` });
   };
 
   const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
@@ -374,38 +374,17 @@ export default function SubscriptionPackagesPage() {
                         <div className="absolute top-3 right-3 z-10">
                           <Badge className={`${styles.badge} border-none font-bold`}>{pkg.savings}</Badge>
                         </div>
-                      )}
-                      <CardHeader className={`text-center pb-2 ${isPopular ? 'pt-10' : 'pt-6'}`}>
-                        <div className={`mx-auto mb-3 p-4 rounded-2xl ${styles.badge} w-fit`}><Icon className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-bold text-foreground">{pkg.name}</h3>
-                        <div className="mt-2">
-                          <span className="text-4xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
-                          <span className="text-muted-foreground text-sm ml-1">MXN</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">Unlimited messages per chat</span>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">{formatPriceMXN(pkg.pricePerToken)} per token</p>
-                      </CardHeader>
-                      <CardContent className="flex-1 pt-4">
-                        <div className="text-center py-4 mb-4 rounded-xl bg-background/50 border border-border/50">
-                          <div className="text-5xl font-bold text-foreground">{pkg.tokens}</div>
-                          <div className="text-sm text-muted-foreground font-medium mt-1">Tokens</div>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Clock className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">{pkg.duration_days}-day validity</span>
                         </div>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Start {pkg.tokens} new conversations</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Unlimited messages per chat</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Clock className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">{pkg.duration_days}-day validity</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Shield className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Secure PayPal payment</span>
-                          </div>
+                        <div className="flex items-center gap-3 text-sm">
+                          <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Shield className="w-3 h-3 text-green-500" /></div>
+                          <span className="text-foreground">Secure PayPal payment</span>
                         </div>
                       </CardContent>
                       <CardFooter className="pt-4 pb-6">
