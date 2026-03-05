@@ -45,7 +45,7 @@ export function useUnreadMessageCount() {
           .select('conversation_id', { count: 'exact', head: true })
           .in('conversation_id', conversationIds)
           .neq('sender_id', user.id)
-          .is('read_at', null);
+          .eq('is_read', false);
 
         if (unreadError) throw unreadError;
 

@@ -453,7 +453,7 @@ async function detectAndCreateMatch({
     let match = null;
 
     for (let attempt = 1; attempt <= 3; attempt++) {
-      const { data: matchData, error: matchError } = await supabase
+      const { data: matchData, error: matchError } = await (supabase as any)
         .from('matches')
         .upsert({
           client_id: matchClientId,
@@ -509,7 +509,7 @@ async function detectAndCreateMatch({
         .from('conversations')
         .upsert({
           match_id: match.id,
-          client_id: match.client_id,
+          client_id: match.client_id ?? match.user_id,
           owner_id: match.owner_id,
           listing_id: match.listing_id,
           status: 'active'
@@ -525,7 +525,7 @@ async function detectAndCreateMatch({
           supabase
             .from('profiles')
             .select('*')
-            .eq('user_id', match.user_id)
+            .eq('user_id', match.client_id ?? match.user_id)
             .maybeSingle(),
           supabase
             .from('profiles')

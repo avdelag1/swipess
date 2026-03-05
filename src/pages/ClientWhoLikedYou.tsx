@@ -57,7 +57,7 @@ const ClientWhoLikedYou = () => {
         .select('*')
         .eq('target_id', user.id)
         .eq('target_type', 'profile')
-        .eq('direction', 'like')
+        .eq('direction', 'right')
         .order('created_at', { ascending: false });
 
       if (likesError) throw likesError;

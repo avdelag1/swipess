@@ -114,9 +114,9 @@ export function useProfileSetup() {
           .from('notifications')
           .insert([{
             user_id: referrerId,
-            type: 'system',
+            notification_type: 'system_announcement',
             title: 'Referral Reward',
-            content: 'You earned 1 free message for inviting a new user!',
+            message: 'You earned 1 free message for inviting a new user!',
             is_read: false,
           }])
           .then(() => { });
