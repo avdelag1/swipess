@@ -12,7 +12,7 @@ import json
 import urllib.request
 import urllib.error
 
-PROJECT_REF = "qegyisokrxdsszzswsqk"
+PROJECT_REF = "vplgtcguxujxwrgguxqq"
 FUNCTION_SLUG = "ai-orchestrator"
 FUNCTION_PATH = "supabase/functions/ai-orchestrator/index.ts"
 
