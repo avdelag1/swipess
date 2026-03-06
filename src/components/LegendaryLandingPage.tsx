@@ -113,26 +113,6 @@ const LandingView = memo(({
         </motion.div>
       </motion.div>
 
-      {/* Tagline */}
-      <motion.p
-        className="-mt-4 relative z-10 cursor-pointer"
-        onTap={handleTap}
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
-        <span
-          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
-          style={{
-            background: 'linear-gradient(to right, #E4007C, #FFD700)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          luxury meets precision
-        </span>
-      </motion.p>
-
       {/* Info chips */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -156,17 +136,6 @@ const LandingView = memo(({
           ))}
         </div>
       </motion.div>
-
-      {/* Tap hint */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="mt-7 text-white/25 text-xs tracking-widest uppercase cursor-pointer select-none"
-        onClick={handleTap}
-      >
-        tap to enter
-      </motion.p>
 
       {/* Effects toggle */}
       <motion.button

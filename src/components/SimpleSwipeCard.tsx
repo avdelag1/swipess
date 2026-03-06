@@ -108,20 +108,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const images = useMemo(() => {
     let result: string[] = [];
-    if ((listing as any).video_url) {
+    if (listing.video_url) {
       result.push('video_attachment');
     }
     if (Array.isArray(listing.images) && listing.images.length > 0) {
       result = [...result, ...listing.images];
-    } else if ((listing as any).image_url) {
-      result.push((listing as any).image_url);
+    } else if (listing.image_url) {
+      result.push(listing.image_url);
     }
 
     if (result.length === 0) {
       return [FALLBACK_PLACEHOLDER];
     }
     return result;
-  }, [listing.images, (listing as any).image_url, (listing as any).video_url]);
+  }, [listing.images, listing.image_url, listing.video_url]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
@@ -167,7 +167,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   });
 
   // Fetch rating aggregate for this listing
-  const categoryId = listing.category === 'vehicle' || listing.vehicle_type ? 'vehicle' : 'property';
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, categoryId);
 
   // Parallax store for ambient background effect
@@ -383,7 +382,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Format price
   // Format price - moved before conditional render to avoid hook order issues
-  const rentalType = (listing as any).rental_duration_type;
+  const rentalType = listing.rental_duration_type;
   const formattedPrice = listing.price
     ? `$${listing.price.toLocaleString()}${rentalType === 'monthly' ? '/mo' : rentalType === 'daily' ? '/day' : ''}`
     : null;
@@ -398,9 +397,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           pointerEvents: 'none',
         }}
       >
-        {currentImage === 'video_attachment' && (listing as any).video_url ? (
+        {currentImage === 'video_attachment' && listing.video_url ? (
           <video
-            src={(listing as any).video_url}
+            src={listing.video_url}
             autoPlay
             muted
             loop
@@ -461,9 +460,9 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           }}
         >
           {/* PHOTO OR VIDEO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
-          {currentImage === 'video_attachment' && (listing as any).video_url ? (
+          {currentImage === 'video_attachment' && listing.video_url ? (
             <video
-              src={(listing as any).video_url}
+              src={listing.video_url}
               autoPlay
               muted
               loop
@@ -558,39 +557,39 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {listing.category === 'vehicle' || listing.vehicle_type ? (
             <VehicleCardInfo
               price={listing.price || 0}
-              priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
-              make={(listing as any).vehicle_brand}
-              model={(listing as any).vehicle_model}
+              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
+              make={listing.vehicle_brand}
+              model={listing.vehicle_model}
               year={listing.year}
               location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              isVerified={listing.has_verified_documents}
               photoIndex={currentImageIndex}
             />
-          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_type ? (
+          ) : listing.category === 'worker' || listing.category === 'services' || listing.service_type ? (
             <ServiceCardInfo
-              hourlyRate={(listing as any).hourly_rate}
-              serviceName={(listing as any).service_type || listing.title || 'Service'}
-              name={(listing as any).provider_name}
+              hourlyRate={listing.hourly_rate}
+              serviceName={listing.service_type || listing.title || 'Service'}
+              name={listing.provider_name}
               location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              isVerified={listing.has_verified_documents}
               photoIndex={currentImageIndex}
             />
           ) : (
             <PropertyCardInfo
               price={listing.price || 0}
-              priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
               propertyType={listing.property_type}
               beds={listing.beds}
               baths={listing.baths}
               location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              isVerified={listing.has_verified_documents}
               photoIndex={currentImageIndex}
             />
           )}
         </div>
 
         {/* Verified badge - now using TrustSignals component */}
-        {(listing as any).has_verified_documents && (
+        {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
               backgroundColor: 'rgba(0, 0, 0, 0.35)',
