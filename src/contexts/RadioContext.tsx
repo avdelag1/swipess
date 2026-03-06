@@ -197,7 +197,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
           ...prev,
           currentStation: currentStation || defaultStation,
           // Handle missing column gracefully
-          isPoweredOn: (data as any).radio_is_powered_on ?? prev.isPoweredOn
+          isPoweredOn: (data as any).radio_is_powered_on ?? prev.isPoweredOn,
+          skin: (data as any).radio_last_skin ?? prev.skin
         }));
       }
     } catch (err) {
@@ -214,6 +215,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       // Only persist the station column that exists in the schema
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
       if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
+      if (updates.skin !== undefined) dbUpdates.radio_last_skin = updates.skin;
 
       await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {

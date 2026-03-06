@@ -32,6 +32,7 @@ import {
   ArrowLeft, ListMusic, Play, Pause, Heart,
   SkipBack, SkipForward, Square, Circle, Shuffle
 } from 'lucide-react';
+import CheetahBackground from '../components/CheetahBackground';
 
 // ── Font injection ──────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('cassette-radio-fonts')) {
@@ -101,6 +102,12 @@ export default function RetroRadioStation() {
   } = useRadio();
 
   useEffect(() => { setMiniPlayerMode('expanded'); }, [setMiniPlayerMode]);
+  const { setSkin } = useRadio();
+
+  const toggleSkin = useCallback(() => {
+    triggerHaptic('medium');
+    setSkin(state.skin === 'cheetah' ? 'retro' : 'cheetah');
+  }, [state.skin, setSkin]);
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
@@ -136,17 +143,25 @@ export default function RetroRadioStation() {
           THE CASSETTE PLAYER IMAGE — fills the ENTIRE screen
           object-fit: cover ensures no gaps, image crops to fill viewport
           ═══════════════════════════════════════════════════════════════════ */}
-      <img
-        src="/images/cassette-player-bg.png"
-        alt="Cassette Player"
-        draggable={false}
-        className="absolute inset-0 w-full h-full select-none"
-        style={{
-          objectFit: 'cover',
-          objectPosition: 'center center',
-          pointerEvents: 'none',
-        }}
-      />
+      {/* ═══════════════════════════════════════════════════════════════════
+          BACKGROUND — Cassette or Cheetah
+          ═══════════════════════════════════════════════════════════════════ */}
+      {state.skin === 'cheetah' ? (
+        <CheetahBackground />
+      ) : (
+        <img
+          src="/images/cassette-player-bg.png"
+          alt="Cassette Player"
+          draggable={false}
+          className="absolute inset-0 w-full h-full select-none"
+          style={{
+            objectFit: 'cover',
+            objectPosition: 'center center',
+            pointerEvents: 'none',
+            filter: state.skin === 'retro' ? 'none' : 'grayscale(0.4) brightness(0.7)'
+          }}
+        />
+      )}
 
       {/* Subtle color tint overlay from city theme */}
       <div
@@ -165,7 +180,7 @@ export default function RetroRadioStation() {
           Uses the cream/white label area of the cassette image as background.
           ═══════════════════════════════════════════════════════════════════ */}
       <div
-        className="absolute flex flex-col items-center justify-center pointer-events-none z-10"
+        className={`absolute flex flex-col items-center justify-center pointer-events-none z-10 transition-all duration-500 ${state.skin === 'cheetah' ? 'bg-black/30 backdrop-blur-md rounded-2xl border border-white/10 px-6' : ''}`}
         style={{
           top: '15%',
           left: '10%',
@@ -186,8 +201,8 @@ export default function RetroRadioStation() {
               style={{
                 fontFamily: "'Permanent Marker', cursive",
                 fontSize: 'clamp(24px, 8vw, 42px)',
-                color: '#1a1a1a',
-                textShadow: '0 1px 2px rgba(255,255,255,0.2)',
+                color: state.skin === 'cheetah' ? '#F59E0B' : '#1a1a1a',
+                textShadow: state.skin === 'cheetah' ? '0 0 12px rgba(245, 158, 11, 0.4)' : '0 1px 2px rgba(255,255,255,0.2)',
                 letterSpacing: '0.04em',
                 lineHeight: 1.1,
                 textAlign: 'center',
@@ -204,7 +219,7 @@ export default function RetroRadioStation() {
                 fontFamily: "'Space Mono', monospace",
                 fontSize: 'clamp(9px, 2.5vw, 14px)',
                 fontWeight: 700,
-                color: '#444',
+                color: state.skin === 'cheetah' ? '#FDE68A' : '#444',
                 textTransform: 'uppercase',
                 letterSpacing: '0.25em',
               }}
@@ -475,6 +490,23 @@ export default function RetroRadioStation() {
         }}
       >
         <ListMusic className="w-4 h-4 text-white/70" />
+      </motion.button>
+
+      {/* Skin Toggle (Cheetah/Retro) — top-right */}
+      <motion.button
+        aria-label="Toggle skin"
+        whileTap={{ scale: 0.85 }}
+        onClick={toggleSkin}
+        className="fixed top-3 right-[9.5rem] z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: state.skin === 'cheetah' ? `1px solid #F59E0B` : '1px solid rgba(255,255,255,0.1)',
+        }}
+      >
+        <span className="text-sm" style={{ filter: state.skin === 'cheetah' ? 'drop-shadow(0 0 8px #F59E0B)' : 'none' }}>
+          {state.skin === 'cheetah' ? '🐆' : '📻'}
+        </span>
       </motion.button>
 
       {/* Shuffle button — top-right */}
