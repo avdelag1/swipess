@@ -107,14 +107,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const [magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
+    let result: string[] = [];
+    if ((listing as any).video_url) {
+      result.push('video_attachment');
+    }
     if (Array.isArray(listing.images) && listing.images.length > 0) {
-      return listing.images;
+      result = [...result, ...listing.images];
+    } else if ((listing as any).image_url) {
+      result.push((listing as any).image_url);
     }
-    if ((listing as any).image_url) {
-      return [(listing as any).image_url];
+
+    if (result.length === 0) {
+      return [FALLBACK_PLACEHOLDER];
     }
-    return [FALLBACK_PLACEHOLDER];
-  }, [listing.images, (listing as any).image_url]);
+    return result;
+  }, [listing.images, (listing as any).image_url, (listing as any).video_url]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
@@ -391,7 +398,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           pointerEvents: 'none',
         }}
       >
-        <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+        {currentImage === 'video_attachment' && (listing as any).video_url ? (
+          <video
+            src={(listing as any).video_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-[1]"
+            style={{ pointerEvents: 'none', zIndex: 1 }}
+          />
+        ) : (
+          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+        )}
         {/* No gradient - full-bleed cards */}
       </div>
     );
@@ -441,8 +460,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             userSelect: 'none',
           }}
         >
-          {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
-          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+          {/* PHOTO OR VIDEO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
+          {currentImage === 'video_attachment' && (listing as any).video_url ? (
+            <video
+              src={(listing as any).video_url}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover z-[1]"
+              style={{ pointerEvents: 'none', zIndex: 1 }}
+            />
+          ) : (
+            <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+          )}
 
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (

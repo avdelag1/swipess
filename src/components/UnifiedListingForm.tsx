@@ -25,6 +25,7 @@ import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
+import { ListingVideoUpload } from './video/ListingVideoUpload';
 
 interface EditingListing {
   id?: string;
@@ -57,6 +58,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [location, setLocation] = useState<{ lat?: number; lng?: number }>({});
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -93,6 +95,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setImageFiles([]);
       setFormData(editingProperty);
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
+      setVideoUrl((editingProperty.video_url as string) || null);
     } else if (editingProperty?.category) {
       setEditingId(null);
       setSelectedCategory(editingProperty.category);
@@ -101,6 +104,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setImageFiles([]);
       setFormData(editingProperty.images ? editingProperty : { mode: editingProperty.mode || 'rent' });
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
+      setVideoUrl((editingProperty.video_url as string) || null);
     } else {
       setEditingId(null);
       setSelectedCategory('property');
@@ -109,6 +113,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setImageFiles([]);
       setFormData({ mode: 'rent' });
       setLocation({});
+      setVideoUrl(null);
     }
   }, [editingProperty, isOpen]);
 
@@ -167,6 +172,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         address: formData.address,
         latitude: selectedCategory === 'property' ? null : (location.lat || null),
         longitude: selectedCategory === 'property' ? null : (location.lng || null),
+        video_url: videoUrl,
         // JSONB arrays
         images: allImages,
         amenities,
@@ -521,6 +527,25 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <p className="text-xs text-center text-muted-foreground opacity-60">
                     High quality JPG or PNG, max 10MB per file
                   </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Video Looper Section */}
+            <motion.div variants={itemFadeScale}>
+              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <span>10-Second Loop Video <span className="text-xs font-normal text-muted-foreground ml-2">(Optional)</span></span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                  <ListingVideoUpload
+                    userId={user?.user?.id || ''}
+                    videoUrl={videoUrl}
+                    onUploadSuccess={setVideoUrl}
+                    onRemove={() => setVideoUrl(null)}
+                  />
                 </CardContent>
               </Card>
             </motion.div>
