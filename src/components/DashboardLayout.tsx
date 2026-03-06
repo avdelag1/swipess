@@ -19,7 +19,6 @@ import { AdvancedFilters } from '@/components/AdvancedFilters'
 // DISABLED: LiveHDBackground was causing performance issues
 // import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
-import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
@@ -43,6 +42,7 @@ const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog'
 const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
+const AIChatDialog = lazy(() => import('@/components/AIChatDialog').then(m => ({ default: m.AIChatDialog })))
 
 // Hooks
 import { useListings } from "@/hooks/useListings"
@@ -135,8 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
-  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
-
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false)
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
@@ -569,7 +568,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
-          onAISearchClick={() => setIsAISearchOpen(true)}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
           transparent={isImmersiveDashboard}
@@ -617,7 +615,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
-          onAISearchClick={() => setIsAISearchOpen(true)}
         />
       )}
 
@@ -769,12 +766,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
-      {/* AI Search Dialog */}
-      <AISearchDialog
-        isOpen={isAISearchOpen}
-        onClose={() => setIsAISearchOpen(false)}
-        userRole={userRole}
-      />
 
       {/* Push Notification Permission Prompt */}
       <Suspense fallback={null}>
@@ -788,6 +779,31 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onClose={dismissWelcome}
         />
       </Suspense>
+      {/* AIChatDialog (lazy loaded) */}
+      <Suspense fallback={null}>
+        <AIChatDialog isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
+      </Suspense>
+
+      {/* Floating Action Button for AI Chat */}
+      {!isCameraRoute && !isRadioRoute && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsAIChatOpen(true)}
+          className="fixed z-50 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 p-3.5 sm:p-4 text-white shadow-xl shadow-pink-500/30 touch-manipulation cursor-pointer"
+          style={{
+            bottom: isImmersiveDashboard ? 'max(var(--safe-bottom, 24px), 24px)' : `calc(${bottomNavHeight}px + var(--safe-bottom, 16px) + 16px)`,
+            right: 'max(var(--safe-right, 16px), 16px)',
+          }}
+          aria-label="Chat with AI"
+        >
+          <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" className="drop-shadow-sm" />
+          </svg>
+        </motion.button>
+      )}
     </div>
   )
 }

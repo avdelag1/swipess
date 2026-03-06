@@ -20,7 +20,6 @@ import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
-import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
 
 // Tier styling for package cards
@@ -57,7 +56,6 @@ interface TopBarProps {
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
-  onAISearchClick?: () => void;
 }
 
 function TopBarComponent({
@@ -69,7 +67,6 @@ function TopBarComponent({
   transparent = false,
   hideOnScroll = false,
   title,
-  onAISearchClick,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();

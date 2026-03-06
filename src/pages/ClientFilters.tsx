@@ -1,8 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap, ShoppingBag, Building2, Users } from 'lucide-react';
-import { AISearchDialog } from '@/components/AISearchDialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -68,7 +66,6 @@ const categories: {
 export default function ClientFilters() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [showAISearch, setShowAISearch] = useState(false);
   const queryClient = useQueryClient();
   const { theme } = useTheme();
 
@@ -151,29 +148,7 @@ export default function ClientFilters() {
 
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="px-4 py-6 space-y-8 pb-36">
-          {/* AI Suggestions Banner - M3 Tonal Style */}
-          <section>
-            <div className="relative overflow-hidden rounded-[2rem] p-6 bg-primary/5 border border-primary/10">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                <Sparkles className="w-20 h-20 text-primary" />
-              </div>
-              <div className="relative z-10 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <Zap className="w-4 h-4 text-primary" />
-                  </div>
-                  <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary font-bold">SMART AI</Badge>
-                </div>
-                <h2 className="text-xl font-bold text-foreground">AI Guided Search</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Let our AI Listing Assistant help you find the perfect match based on your preferences and viewing history.
-                </p>
-                 <Button variant="default" className="rounded-full px-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20" onClick={() => setShowAISearch(true)}>
-                   Try AI Search
-                 </Button>
-              </div>
-            </div>
-          </section>
+
 
           {/* Categories Section */}
           <section className="space-y-4">
@@ -317,7 +292,6 @@ export default function ClientFilters() {
         </div>
       </div>
 
-      <AISearchDialog isOpen={showAISearch} onClose={() => setShowAISearch(false)} userRole="client" />
     </div>
   );
 }

@@ -17,7 +17,6 @@ import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { OwnerListingsStats } from '@/components/OwnerListingsStats';
 import { ShareDialog } from '@/components/ShareDialog';
-import { AIListingAssistant } from '@/components/AIListingAssistant';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -51,7 +50,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [sharingListing, setSharingListing] = useState<any>(null);
-  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
 
@@ -99,17 +97,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const handleAddProperty = () => {
     setEditingProperty(null);
     setShowCategoryDialog(true);
-  };
-
-  const handleAIComplete = (data: { category: string; images: string[]; formData: Record<string, unknown> }) => {
-    setEditingProperty({
-      category: data.category,
-      mode: data.formData.mode || 'rent',
-      images: data.images,
-      ...data.formData,
-    });
-    setShowAIAssistant(false);
-    setIsFormOpen(true);
   };
 
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
@@ -274,14 +261,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             </div>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              className="gap-2 border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide"
-              onClick={() => setShowAIAssistant(true)}
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>AI</span>
-            </Button>
             <Button
               className="gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95"
               onClick={handleAddProperty}
@@ -586,11 +565,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         description={`${sharingListing?.title} - $${sharingListing?.price?.toLocaleString() || ''}`}
       />
 
-      <AIListingAssistant
-        isOpen={showAIAssistant}
-        onClose={() => setShowAIAssistant(false)}
-        onComplete={handleAIComplete}
-      />
     </div>
   );
 });
