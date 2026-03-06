@@ -14,7 +14,7 @@ export function useMessageActivations() {
 
       try {
         const { data, error } = await (supabase as any)
-          .from('message_activations')
+          .from('tokens')
           .select('*')
           .eq('user_id', user.id);
 

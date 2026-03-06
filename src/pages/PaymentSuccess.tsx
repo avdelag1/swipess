@@ -30,7 +30,7 @@ export default function PaymentSuccess() {
 
     const processPayment = async () => {
       const pendingPurchase = localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-        localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
+                               localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
       const returnPath = localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
       if (!pendingPurchase) {
@@ -46,23 +46,12 @@ export default function PaymentSuccess() {
 
         // Fetch package based on what info we have
         if (purchase.packageId) {
-          // Check for hardcoded token IDs first
-          const hardcodedTokens: Record<string, any> = {
-            'tokens-15': { id: 'tokens-15', name: 'Explorer Premium', tokens: 15, package_category: 'client_pay_per_use', duration_days: 365 },
-            'tokens-10': { id: 'tokens-10', name: 'Explorer Standard', tokens: 10, package_category: 'client_pay_per_use', duration_days: 180 },
-            'tokens-3': { id: 'tokens-3', name: 'Explorer Starter', tokens: 3, package_category: 'client_pay_per_use', duration_days: 90 },
-          };
-
-          if (hardcodedTokens[purchase.packageId]) {
-            pkg = hardcodedTokens[purchase.packageId];
-          } else {
-            const { data } = await supabase
-              .from('subscription_packages')
-              .select('*')
-              .eq('id', purchase.packageId)
-              .maybeSingle();
-            pkg = data;
-          }
+          const { data } = await supabase
+            .from('subscription_packages')
+            .select('*')
+            .eq('id', purchase.packageId)
+            .single();
+          pkg = data;
         } else if (purchase.planId) {
           pkg = await mapMonthlyPlanToPackage(purchase.planId);
         }
@@ -142,60 +131,38 @@ export default function PaymentSuccess() {
 
     if (subError) throw subError;
 
-    // Send a detailed notification with their new benefits based on the package
-    let benefitsMessage = "You now have access to premium features!";
-    if (pkg.id === 'client-unlimited' || pkg.id === 'yearly') {
-      benefitsMessage = "Benefits unlocked:\n• Global Social Ads (Insta/FB/TikTok)\n• Direct redirection to your profile/property\n• Maximum visibility algorithm (100% exposure)\n• Unlimited direct messages & superlikes\n• Guaranteed top placement in search";
-    } else if (pkg.id === 'client-premium-plus-plus' || pkg.id === 'six-month') {
-      benefitsMessage = "Benefits unlocked:\n• Targeted social media promotion boosts\n• High app-wide visibility algorithm\n• 12 direct messages per month\n• See who visited your profile\n• Highlighted profile and VIP badge";
-    } else if (pkg.id === 'client-premium' || pkg.id === 'monthly') {
-      benefitsMessage = "Benefits unlocked:\n• Basic internal & external distribution\n• Priority visibility algorithm (25% boost)\n• 6 direct messages per month\n• See who liked you\n• Advanced search filters";
-    }
-
-    try {
-      await (supabase as any).from('notifications').insert({
-        user_id: userId,
-        notification_type: 'subscription_active',
-        title: `Congratulations! ${pkg.name?.toUpperCase() || 'PREMIUM'} is Active`,
-        message: benefitsMessage,
-      });
-    } catch (notifWarn) {
-      logger.warn('Failed to insert premium notification', notifWarn);
-    }
-
     // Create tokens for monthly
     const resetDate = new Date();
     resetDate.setMonth(resetDate.getMonth() + 1);
     resetDate.setDate(1);
 
     const { error: activError } = await (supabase as any)
-      .from('message_activations')
+      .from('tokens')
       .insert({
         user_id: userId,
-        total_purchased: pkg.tokens || 30,
-        activations_remaining: pkg.tokens || 30,
+        activation_type: 'monthly_subscription',
+        total_activations: pkg.tokens || 30,
+        remaining_activations: pkg.tokens || 30,
+        used_activations: 0,
+        reset_date: resetDate.toISOString().split('T')[0],
       });
 
     if (activError) throw activError;
 
-    // Create legal document quota if included (wrapped in try-catch as table might be missing)
+    // Create legal document quota if included
     if (pkg.legal_documents_included && pkg.legal_documents_included > 0) {
-      try {
-        const nextMonth = new Date();
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
-        nextMonth.setDate(1);
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      nextMonth.setDate(1);
 
-        await (supabase as any)
-          .from('legal_document_quota')
-          .upsert({
-            user_id: userId,
-            monthly_limit: pkg.legal_documents_included,
-            used_this_month: 0,
-            reset_date: nextMonth.toISOString().split('T')[0],
-          });
-      } catch (e) {
-        logger.error('[PaymentSuccess] Failed to update legal document quota:', e);
-      }
+      await (supabase as any)
+        .from('legal_document_quota')
+        .upsert({
+          user_id: userId,
+          monthly_limit: pkg.legal_documents_included,
+          used_this_month: 0,
+          reset_date: nextMonth.toISOString().split('T')[0],
+        });
     }
   };
 
@@ -205,47 +172,21 @@ export default function PaymentSuccess() {
     expiresAt.setDate(expiresAt.getDate() + (pkg.duration_days || 30));
 
     const { error: activError } = await (supabase as any)
-      .from('message_activations')
+      .from('tokens')
       .insert({
         user_id: userId,
-        total_purchased: pkg.tokens,
-        activations_remaining: pkg.tokens,
+        activation_type: 'pay_per_use',
+        total_activations: pkg.tokens,
+        remaining_activations: pkg.tokens,
+        used_activations: 0,
+        expires_at: expiresAt.toISOString(),
       });
 
     if (activError) throw activError;
   };
 
-  // Map legacy plan IDs and new hardcoded IDs to package data
+  // Map legacy plan IDs to new package names
   const mapMonthlyPlanToPackage = async (planId: string) => {
-    // Hardcoded package data for "client-side only" strategy
-    const hardcodedPackages: Record<string, any> = {
-      'client-unlimited': {
-        id: 'client-unlimited',
-        name: 'Ultimate Seeker',
-        package_category: 'client_monthly',
-        tokens: 30,
-        legal_documents_included: 3
-      },
-      'client-premium-plus-plus': {
-        id: 'client-premium-plus-plus',
-        name: 'Multi-Matcher',
-        package_category: 'client_monthly',
-        tokens: 12,
-        legal_documents_included: 1
-      },
-      'client-premium': {
-        id: 'client-premium',
-        name: 'Basic Explorer',
-        package_category: 'client_monthly',
-        tokens: 6,
-        legal_documents_included: 0
-      }
-    };
-
-    if (hardcodedPackages[planId]) {
-      return hardcodedPackages[planId];
-    }
-
     const planMap: Record<string, string> = {
       'client-unlimited': 'Ultimate Seeker',
       'client-premium-plus-plus': 'Multi-Matcher',

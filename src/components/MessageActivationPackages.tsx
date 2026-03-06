@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { formatPriceUSD } from "@/utils/subscriptionPricing";
+import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
@@ -33,53 +33,6 @@ interface MessageActivationPackagesProps {
   userRole?: 'client' | 'owner' | 'admin';
 }
 
-const hardcodedPackagesUI: TokenPackage[] = [
-  {
-    id: 1,
-    name: 'Starter',
-    tokens: 3,
-    price: 3.99,
-    pricePerToken: 3.99 / 3,
-    tier: 'starter',
-    icon: MessageCircle,
-    duration_days: 30,
-    package_category: 'client_pay_per_use',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/VNM2QVBFG6TA4',
-    features: ['3 tokens', '30 days validity'],
-    legal_documents: 0,
-  },
-  {
-    id: 2,
-    name: 'Standard',
-    tokens: 10,
-    price: 9.99,
-    pricePerToken: 9.99 / 10,
-    savings: 'Save 25%',
-    tier: 'standard',
-    icon: Zap,
-    duration_days: 90,
-    package_category: 'client_pay_per_use',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/VG2C7QMAC8N6A',
-    features: ['10 tokens', '90 days validity'],
-    legal_documents: 0,
-  },
-  {
-    id: 3,
-    name: 'Premium',
-    tokens: 15,
-    price: 13.99,
-    pricePerToken: 13.99 / 15,
-    savings: 'Save 30%',
-    tier: 'premium',
-    icon: Crown,
-    duration_days: 180,
-    package_category: 'client_pay_per_use',
-    paypalUrl: 'https://www.paypal.com/ncp/payment/9NBGA9X3BJ5UA',
-    features: ['15 tokens', '180 days validity'],
-    legal_documents: 0,
-  }
-];
-
 export function MessageActivationPackages({
   isOpen = true,
   onClose,
@@ -89,9 +42,82 @@ export function MessageActivationPackages({
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const currentUserRole = 'client'; // Hardcoded since we only support client side tokens now
-  const packageCategory = 'client_pay_per_use';
-  const packagesUI = hardcodedPackagesUI;
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && !userRole,
+  });
+
+  const currentUserRole = userRole || userProfile?.role || 'client';
+  const packageCategory = currentUserRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
+
+  const { data: packages, isLoading } = useQuery({
+    queryKey: ['activation-packages', packageCategory],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('subscription_packages')
+        .select('*')
+        .eq('package_category', packageCategory)
+        .eq('is_active', true)
+        .order('message_activations', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const convertPackages = (dbPackages: any[] | undefined): TokenPackage[] => {
+    if (!dbPackages || dbPackages.length === 0) return [];
+
+    return dbPackages.map((pkg, index) => {
+      const tokens = pkg.message_activations || 0;
+      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
+
+      const tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
+      const tier = tierMap[index] || 'starter';
+
+      let savings: string | undefined;
+      if (index > 0 && dbPackages[0]) {
+        const firstTokens = dbPackages[0].message_activations || 1;
+        const firstPricePerToken = dbPackages[0].price / firstTokens;
+        const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
+        if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
+      }
+
+      let features: string[] = [];
+      try {
+        features = Array.isArray(pkg.features) ? pkg.features : JSON.parse(pkg.features || '[]');
+      } catch {
+        features = [`${tokens} tokens`, `${pkg.duration_days || 30} days validity`];
+      }
+
+      const iconMap = { starter: MessageCircle, standard: Zap, premium: Crown };
+
+      return {
+        id: pkg.id,
+        name: pkg.name || (tier.charAt(0).toUpperCase() + tier.slice(1)),
+        tokens,
+        price: pkg.price,
+        pricePerToken,
+        savings,
+        tier,
+        icon: iconMap[tier],
+        duration_days: pkg.duration_days || 30,
+        package_category: pkg.package_category,
+        paypalUrl: pkg.paypal_link || '',
+        features,
+        legal_documents: pkg.legal_documents_included || 0,
+      };
+    });
+  };
 
   const handlePurchase = async (pkg: TokenPackage) => {
     localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
@@ -106,7 +132,7 @@ export function MessageActivationPackages({
       window.open(pkg.paypalUrl, '_blank');
       toast({
         title: "Redirecting to PayPal",
-        description: `Processing ${pkg.name} package (${formatPriceUSD(pkg.price)})`,
+        description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})`,
       });
 
       if (user?.id) {
@@ -114,13 +140,13 @@ export function MessageActivationPackages({
           user_id: user.id,
           notification_type: 'payment_received',
           title: 'Tokens Selected!',
-          message: `You selected the ${pkg.name} package with ${pkg.tokens} tokens (${formatPriceUSD(pkg.price)}). Complete payment to activate!`,
+          message: `You selected the ${pkg.name} package with ${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}). Complete payment to activate!`,
           is_read: false
         }]).then(() => { }, () => { });
 
         if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
           const notification = new Notification('Tokens Selected!', {
-            body: `${pkg.tokens} tokens (${formatPriceUSD(pkg.price)}) - Complete payment to start messaging`,
+            body: `${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}) - Complete payment to start messaging`,
             icon: '/favicon.ico',
             tag: `activation-${pkg.id}`,
             badge: '/favicon.ico',
@@ -137,8 +163,12 @@ export function MessageActivationPackages({
     }
   };
 
-  const roleLabel = 'Explorer';
-  const roleDescription = 'Start conversations with providers about their listings';
+  const packagesUI = convertPackages(packages);
+
+  const roleLabel = currentUserRole === 'owner' ? 'Provider' : 'Explorer';
+  const roleDescription = currentUserRole === 'owner'
+    ? 'Connect with potential explorers interested in your listings'
+    : 'Start conversations with providers about their listings';
 
   const getTierStyles = (tier: string) => {
     switch (tier) {
@@ -205,7 +235,13 @@ export function MessageActivationPackages({
       </motion.div>
 
       {/* Packages Grid */}
-      {packagesUI.length === 0 ? (
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-64 rounded-xl bg-muted/50 animate-pulse" />
+          ))}
+        </div>
+      ) : packagesUI.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground text-sm">No packages available at this time.</p>
         </div>
@@ -248,12 +284,12 @@ export function MessageActivationPackages({
                     <h3 className="text-sm font-bold text-foreground">{pkg.name}</h3>
 
                     <div className="mt-1">
-                      <span className="text-2xl font-bold text-foreground">{formatPriceUSD(pkg.price)}</span>
-                      <span className="text-muted-foreground text-[10px] ml-1">USD</span>
+                      <span className="text-2xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
+                      <span className="text-muted-foreground text-[10px] ml-1">MXN</span>
                     </div>
 
                     <p className="text-[10px] text-muted-foreground">
-                      {formatPriceUSD(pkg.pricePerToken)} per token
+                      {formatPriceMXN(pkg.pricePerToken)} per token
                     </p>
                   </CardHeader>
 

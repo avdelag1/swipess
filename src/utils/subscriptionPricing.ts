@@ -24,12 +24,12 @@ export function calculateBundlePrice(clientPrice: number, ownerPrice: number): n
 }
 
 /**
- * Format price in USD
+ * Format price in MXN
  */
-export function formatPriceUSD(price: number): string {
-  return new Intl.NumberFormat('en-US', {
+export function formatPriceMXN(price: number): string {
+  return new Intl.NumberFormat('es-MX', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'MXN',
     minimumFractionDigits: 0,
   }).format(price);
 }
@@ -59,10 +59,10 @@ export async function checkBundleEligibility(userId: string, supabase: any): Pro
 
   if (!subscriptions || subscriptions.length < 2) return false;
 
-  const hasClient = subscriptions.some((s: any) =>
+  const hasClient = subscriptions.some((s: any) => 
     s.subscription_packages?.package_category?.includes('client_monthly')
   );
-  const hasOwner = subscriptions.some((s: any) =>
+  const hasOwner = subscriptions.some((s: any) => 
     s.subscription_packages?.package_category?.includes('owner_monthly')
   );
 
