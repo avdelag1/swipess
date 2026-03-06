@@ -234,16 +234,46 @@ export function useSmartListingMatching(
                     }));
                 }
 
+                // FETCH OWNER PREMIUM TIERS FOR ALGORITHM BOOST
+                const ownerIds = Array.from(new Set(filteredListings.map(l => l.owner_id)));
+
+                const { data: ownerSubscriptions } = await supabase
+                    .from('user_subscriptions')
+                    .select(`
+                        user_id,
+                        subscription_packages (
+                            tier
+                        )
+                    `)
+                    .in('user_id', ownerIds)
+                    .eq('is_active', true);
+
+                const ownerTierMap: Record<string, string> = {};
+                ownerSubscriptions?.forEach((sub: any) => {
+                    ownerTierMap[sub.user_id] = sub.subscription_packages?.tier || 'free';
+                });
+
                 // Calculate match percentage for each listing
                 const matchedListings: MatchedListing[] = filteredListings.map(listing => {
                     const match = calculateListingMatch(preferences as any, listing as Listing);
+                    const tier = ownerTierMap[listing.owner_id] || 'free';
+
+                    // Determine visibility boost multiplier
+                    const boostMap: Record<string, number> = {
+                        unlimited: 1.0,      // 100% exposure
+                        premium_plus: 0.8,
+                        premium: 0.5,
+                        basic: 0.25,
+                        free: 0
+                    };
+
                     return {
                         ...listing as Listing,
                         matchPercentage: match.percentage,
                         matchReasons: match.reasons,
                         incompatibleReasons: match.incompatible,
-                        _premiumTier: 'free',
-                        _visibilityBoost: 0
+                        _premiumTier: tier,
+                        _visibilityBoost: boostMap[tier] || 0
                     };
                 });
 

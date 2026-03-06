@@ -63,7 +63,6 @@ export function PersistentDashboardLayout() {
   // Auto-sync activeMode when navigating to explicit client/owner routes
   // This ensures that shared routes (messages, notifications) use the correct mode
   useEffect(() => {
-    if (import.meta.env.DEV) console.log('[PersistentDashboardLayout] Mounting/Updating. Path:', location.pathname, 'userRole:', userRole, 'activeMode:', activeMode);
     if (location.pathname.startsWith('/client/') && activeMode !== 'client') {
       syncMode('client');
     } else if (location.pathname.startsWith('/owner/') && activeMode !== 'owner') {

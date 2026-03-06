@@ -1,5 +1,3 @@
-console.log("[Main] Initialization starting...");
-
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
@@ -13,7 +11,6 @@ import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('clear-cache') === '1') {
-  console.log("[Main] Cache clear requested...");
   // Unregister all service workers
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -38,11 +35,9 @@ if (urlParams.get('clear-cache') === '1') {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // FAST INITIAL RENDER - Quita el loader apenas carga la página
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-console.log("[Main] Removing initial loader...");
 const initialLoader = document.getElementById("initial-loader");
 if (initialLoader) {
   initialLoader.remove(); // Instant removal — no fade delay
-  console.log("[Main] Loader removed.");
 }
 
 // Arranca la app normalmente
@@ -117,7 +112,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
           if (newWorker) {
             newWorker.addEventListener("statechange", () => {
               if (newWorker.state === "installed") {
-                console.log('[SW] New version installed');
+                // New version installed
               }
             });
           }
@@ -135,7 +130,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
 
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data?.type === 'SW_UPDATED') {
-        console.log('[SW] Update notification received:', event.data.version);
+        // Update notification received
       }
     });
   });
