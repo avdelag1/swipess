@@ -11,6 +11,8 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import "./styles/responsive.css";
+import "./styles/PremiumShine.css";
+
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 import { logger } from "@/utils/logger";
 
