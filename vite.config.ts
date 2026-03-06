@@ -11,8 +11,8 @@ function buildVersionPlugin() {
     transformIndexHtml(html: string) {
       // Inject version, preconnect hints, and performance optimizations
       const preconnects = `
-    <link rel="preconnect" href="https://qegyisokrxdsszzswsqk.supabase.co" crossorigin>
-    <link rel="dns-prefetch" href="https://qegyisokrxdsszzswsqk.supabase.co">
+    <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
     <meta name="app-version" content="${buildTime}" />`;
       return html.replace('</head>', `${preconnects}\n</head>`);
     },
@@ -126,9 +126,9 @@ export default defineConfig(({ mode }) => ({
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
     // CRITICAL: Force correct Supabase credentials to prevent "Invalid API key" errors
-    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('https://qegyisokrxdsszzswsqk.supabase.co'),
-    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU'),
-    'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify('qegyisokrxdsszzswsqk'),
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('https://vplgtcguxujxwrgguxqq.supabase.co'),
+    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU'),
+    'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify('vplgtcguxujxwrgguxqq'),
   },
   server: {
     host: "::",
