@@ -568,6 +568,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
+          onAIChatClick={() => setIsAIChatOpen(true)}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
           transparent={isImmersiveDashboard}
@@ -783,27 +784,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <Suspense fallback={null}>
         <AIChatDialog isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
       </Suspense>
-
-      {/* Floating Action Button for AI Chat */}
-      {!isCameraRoute && !isRadioRoute && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setIsAIChatOpen(true)}
-          className="fixed z-50 rounded-full bg-gradient-to-r from-pink-500 to-orange-500 p-3.5 sm:p-4 text-white shadow-xl shadow-pink-500/30 touch-manipulation cursor-pointer"
-          style={{
-            bottom: isImmersiveDashboard ? 'max(var(--safe-bottom, 24px), 24px)' : `calc(${bottomNavHeight}px + var(--safe-bottom, 16px) + 16px)`,
-            right: 'max(var(--safe-right, 16px), 16px)',
-          }}
-          aria-label="Chat with AI"
-        >
-          <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" className="drop-shadow-sm" />
-          </svg>
-        </motion.button>
-      )}
     </div>
   )
 }
