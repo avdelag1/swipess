@@ -134,17 +134,15 @@ export default function RadioPlayer() {
           </AnimatePresence>
 
           <motion.div
-            className="relative mb-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] w-60 h-40 rounded-xl"
+            className="relative mb-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] w-[340px] h-[220px] rounded-xl overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #A0522D 0%, #6B4423 50%, #8B4513 100%)',
-              border: '8px solid #DEB887',
+              background: 'linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 50%, #111111 100%)',
+              border: '4px solid #333',
             }}
             animate={{
-              rotate: state.isPlaying ? 360 : 0,
-              scale: state.isPlaying ? [1, 1.03, 1] : 1
+              scale: state.isPlaying ? [1, 1.02, 1] : 1
             }}
             transition={{
-              rotate: { duration: state.isPlaying ? 10 : 0, repeat: Infinity, ease: "linear" },
               scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
             }}
           >
@@ -155,16 +153,7 @@ export default function RadioPlayer() {
               genre={state.currentStation?.genre}
             />
 
-            {/* Center label - Station info */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white flex flex-col items-center justify-center shadow-2xl w-16 h-16">
-              <span className="text-base font-black text-black leading-none mb-0.5">{state.currentStation?.frequency || '--.-'}</span>
-              <span className="text-[8px] text-black/50 font-bold uppercase tracking-widest">{state.currentStation?.genre || '---'}</span>
-            </div>
-
-            {/* Center hole */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="rounded-full bg-black shadow-lg w-4 h-4" />
-            </div>
+            {/* Center hole removed - not applicable to cassette skin */}
           </motion.div>
         </div>
 
