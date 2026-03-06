@@ -17,12 +17,11 @@ import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
 import CheetahBackground from './CheetahBackground';
-import SilverBackground from './SilverBackground';
 import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah' | 'silver';
+type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -526,21 +525,19 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
 
-  // Cycle: orbs → stars → cheetah → silver → off (dark) → orbs
+  // Cycle: orbs → stars → cheetah → off (dark) → orbs
   const cycleEffect = () => setEffectMode((p) => {
     if (p === 'orbs') return 'stars';
     if (p === 'stars') return 'cheetah';
-    if (p === 'cheetah') return 'silver';
-    if (p === 'silver') return 'off';
+    if (p === 'cheetah') return 'off';
     return 'orbs';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : effectMode === 'silver' ? '⛓️' : '◼';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={(view === 'auth' || effectMode === 'cheetah' || effectMode === 'silver') ? 'off' : effectMode} />
+      <LandingBackgroundEffects mode={(view === 'auth' || effectMode === 'cheetah') ? 'off' : effectMode} />
       {view !== 'auth' && effectMode === 'cheetah' && <CheetahBackground />}
-      {view !== 'auth' && effectMode === 'silver' && <SilverBackground />}
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
