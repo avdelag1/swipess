@@ -25,6 +25,7 @@ import {
   Sparkles, ArrowRight, BadgeCheck, DollarSign, RotateCcw, ChevronLeft,
   Flame, ThumbsDown,
 } from 'lucide-react';
+import { SwipessLogo } from '@/components/SwipessLogo';
 import {
   tutorialListings,
   tutorialClientProfiles,
@@ -49,14 +50,14 @@ const getExitX = () =>
 
 // ── Category metadata ─────────────────────────────────────────────────────────
 const LISTING_CATS = [
-  { key: 'property' as TutorialCategory,   label: 'Properties', Icon: Home,  activeColor: '#60a5fa' },
-  { key: 'worker'   as TutorialCategory,   label: 'Workers',    Icon: Wrench, activeColor: '#c084fc' },
-  { key: 'motorcycle' as TutorialCategory, label: 'Motos',      Icon: Car,    activeColor: '#fb923c' },
-  { key: 'bicycle'  as TutorialCategory,   label: 'Bicycles',   Icon: Bike,   activeColor: '#4ade80' },
+  { key: 'property' as TutorialCategory, label: 'Properties', Icon: Home, activeColor: '#60a5fa' },
+  { key: 'worker' as TutorialCategory, label: 'Workers', Icon: Wrench, activeColor: '#c084fc' },
+  { key: 'motorcycle' as TutorialCategory, label: 'Motos', Icon: Car, activeColor: '#fb923c' },
+  { key: 'bicycle' as TutorialCategory, label: 'Bicycles', Icon: Bike, activeColor: '#4ade80' },
 ];
 
 const CLIENT_CATS = [
-  { key: 'male'   as ClientGender, label: 'Men',   Icon: User,  activeColor: '#22d3ee' },
+  { key: 'male' as ClientGender, label: 'Men', Icon: User, activeColor: '#22d3ee' },
   { key: 'female' as ClientGender, label: 'Women', Icon: Users, activeColor: '#f472b6' },
 ];
 
@@ -654,8 +655,10 @@ function GlassActionButton({
         }}
       />
       {nodes}
-      <span style={{ color: iconColor, position: 'relative', zIndex: 3,
-        filter: `drop-shadow(0 0 6px rgba(${glowColor},0.55))` }}>
+      <span style={{
+        color: iconColor, position: 'relative', zIndex: 3,
+        filter: `drop-shadow(0 0 6px rgba(${glowColor},0.55))`
+      }}>
         {children}
       </span>
     </motion.button>
@@ -802,12 +805,15 @@ export default function TutorialSwipePage() {
                 <ChevronLeft className="w-6 h-6 text-white relative z-10" />
               </motion.button>
 
-              <div>
+              <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
-                  <span className="text-2xl font-black text-white tracking-tight">How It Works</span>
+                  <SwipessLogo size="sm" />
+                  <span className="text-2xl font-black text-white tracking-tight">Swipess</span>
                 </div>
-                <p className="text-[11px] uppercase font-black tracking-widest text-white/40 mt-0.5">Interactive Tutorial</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <p className="text-[11px] uppercase font-black tracking-widest text-[#E4007C]">Premium Network</p>
+                </div>
               </div>
             </div>
 
@@ -841,7 +847,7 @@ export default function TutorialSwipePage() {
             }}>
             {([
               { val: 'client' as ViewMode, Icon: Home, label: 'Browsing' },
-              { val: 'owner'  as ViewMode, Icon: Users, label: 'Profiles' },
+              { val: 'owner' as ViewMode, Icon: Users, label: 'Profiles' },
             ] as const).map(({ val, Icon, label }) => {
               const active = mode === val;
               return (
