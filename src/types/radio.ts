@@ -14,7 +14,13 @@ export type CityLocation =
   | 'texas'
   | 'french'
   | 'italy'
-  | 'podcasts';
+  | 'podcasts'
+  | 'reggae'
+  | 'jazz'
+  | 'arabic'
+  | 'persian'
+  | 'meditation'
+  | 'bongs';
 
 export interface RadioStation {
   id: string;
@@ -55,10 +61,12 @@ export interface UserPlaylist {
 
 export interface RadioPlayerState {
   isPlaying: boolean;
+  isPoweredOn: boolean;
   currentStation: RadioStation | null;
   currentCity: CityLocation;
   volume: number;
   isShuffle: boolean;
   skin: RadioSkin;
   favorites: string[]; // station IDs
+  miniPlayerMode: 'expanded' | 'minimized' | 'closed';
 }

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +8,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
+import { useTheme } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
 
 type TokenPackage = {
   id: number;
@@ -34,14 +36,16 @@ interface MessageActivationPackagesProps {
   userRole?: 'client' | 'owner' | 'admin';
 }
 
-export function MessageActivationPackages({ 
-  isOpen = true, 
+export function MessageActivationPackages({
+  isOpen = true,
   onClose,
   showAsPage = false,
   userRole
 }: MessageActivationPackagesProps) {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -60,7 +64,7 @@ export function MessageActivationPackages({
 
   const currentUserRole = userRole || userProfile?.role || 'client';
   const packageCategory = currentUserRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
-  
+
   const { data: packages, isLoading } = useQuery({
     queryKey: ['activation-packages', packageCategory],
     queryFn: async () => {
@@ -79,15 +83,22 @@ export function MessageActivationPackages({
     if (!dbPackages || dbPackages.length === 0) return [];
 
     return dbPackages.map((pkg, index) => {
-      const tokens = pkg.message_activations || 0;
+      // FIX: Use message_activations as the primary field for tokens, fallback to tokens
+      const tokens = pkg.message_activations || pkg.tokens || 0;
       const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
 
       const tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
-      const tier = tierMap[index] || 'starter';
+      // If we have packages with specific tiers in DB, use them, otherwise map by index
+      let tier: 'starter' | 'standard' | 'premium' = 'starter';
+
+      const dbTier = pkg.tier?.toLowerCase();
+      if (dbTier === 'premium' || tokens >= 15) tier = 'premium';
+      else if (dbTier === 'standard' || tokens >= 10) tier = 'standard';
+      else tier = 'starter';
 
       let savings: string | undefined;
       if (index > 0 && dbPackages[0]) {
-        const firstTokens = dbPackages[0].message_activations || 1;
+        const firstTokens = dbPackages[0].message_activations || dbPackages[0].tokens || 1;
         const firstPricePerToken = dbPackages[0].price / firstTokens;
         const savingsPercent = Math.round(((firstPricePerToken - pricePerToken) / firstPricePerToken) * 100);
         if (savingsPercent > 0) savings = `Save ${savingsPercent}%`;
@@ -117,7 +128,7 @@ export function MessageActivationPackages({
         features,
         legal_documents: pkg.legal_documents_included || 0,
       };
-    });
+    }).sort((a, b) => a.tokens - b.tokens);
   };
 
   const handlePurchase = async (pkg: TokenPackage) => {
@@ -139,21 +150,11 @@ export function MessageActivationPackages({
       if (user?.id) {
         await supabase.from('notifications').insert([{
           user_id: user.id,
-          notification_type: 'payment_received',
+          notification_type: 'payment',
           title: 'Tokens Selected!',
           message: `You selected the ${pkg.name} package with ${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}). Complete payment to activate!`,
           is_read: false
-        }]).then(() => {}, () => {});
-
-        if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-          const notification = new Notification('Tokens Selected!', {
-            body: `${pkg.tokens} tokens (${formatPriceMXN(pkg.price)}) - Complete payment to start messaging`,
-            icon: '/favicon.ico',
-            tag: `activation-${pkg.id}`,
-            badge: '/favicon.ico',
-          });
-          setTimeout(() => notification.close(), 5000);
-        }
+        }]).then(() => { }, () => { });
       }
     } else {
       toast({
@@ -165,7 +166,7 @@ export function MessageActivationPackages({
   };
 
   const packagesUI = convertPackages(packages);
-  
+
   const roleLabel = currentUserRole === 'owner' ? 'Provider' : 'Explorer';
   const roleDescription = currentUserRole === 'owner'
     ? 'Connect with potential explorers interested in your listings'
@@ -175,27 +176,30 @@ export function MessageActivationPackages({
     switch (tier) {
       case 'starter':
         return {
-          gradient: 'from-slate-500/20 to-slate-600/10',
-          border: 'border-slate-500/30 hover:border-slate-400/50',
-          badge: 'bg-slate-500/20 text-slate-300',
-          button: 'bg-slate-600 hover:bg-slate-500',
+          gradient: 'from-slate-500/10 to-slate-800/20',
+          border: isDark ? 'border-slate-500/30 hover:border-slate-400/50' : 'border-slate-200 hover:border-slate-300',
+          badge: isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700',
+          button: isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-800 hover:bg-slate-700 text-white',
           glow: '',
+          cardClass: isDark ? 'bg-slate-900/40 backdrop-blur-md' : 'bg-white border-slate-200',
         };
       case 'standard':
         return {
-          gradient: 'from-primary/30 to-primary/10',
-          border: 'border-primary/50 hover:border-primary ring-2 ring-primary/30',
-          badge: 'bg-primary/20 text-primary',
-          button: 'bg-primary hover:bg-primary/90',
-          glow: 'shadow-lg shadow-primary/20',
+          gradient: 'from-blue-600/20 via-blue-900/10 to-transparent',
+          border: isDark ? 'border-blue-500/50 hover:border-blue-400 ring-1 ring-blue-500/20' : 'border-blue-200 hover:border-blue-300 ring-1 ring-blue-100',
+          badge: isDark ? 'bg-blue-500/30 text-blue-200 border border-blue-400/30' : 'bg-blue-50 text-blue-700 border border-blue-200',
+          button: isDark ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md',
+          glow: isDark ? 'shadow-lg shadow-blue-500/10' : 'shadow-xl shadow-blue-500/5',
+          cardClass: isDark ? 'bg-blue-950/20 backdrop-blur-lg' : 'bg-white border-blue-100',
         };
       case 'premium':
         return {
-          gradient: 'from-amber-500/20 to-orange-500/10',
-          border: 'border-amber-500/40 hover:border-amber-400/60',
-          badge: 'bg-amber-500/20 text-amber-400',
-          button: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400',
-          glow: 'shadow-lg shadow-amber-500/20',
+          gradient: 'from-amber-500/20 via-orange-950/30 to-black',
+          border: isDark ? 'border-amber-500/50' : 'border-amber-200',
+          badge: isDark ? 'bg-amber-500/20 text-amber-200 border border-amber-400/30' : 'bg-amber-50 text-amber-700 border border-amber-200',
+          button: isDark ? 'premium-btn-wow' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg',
+          glow: isDark ? 'shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 'shadow-xl shadow-amber-500/10',
+          cardClass: isDark ? 'premium-card-lux' : 'bg-white border-amber-100',
         };
       default:
         return {
@@ -204,126 +208,143 @@ export function MessageActivationPackages({
           badge: 'bg-muted text-muted-foreground',
           button: '',
           glow: '',
+          cardClass: '',
         };
     }
   };
 
   const content = (
-    <div className="space-y-4 p-3 sm:p-4">
-      {/* Header - compact */}
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }}
+    <div className={cn("space-y-6 p-4 sm:p-8 rounded-2xl overflow-hidden relative", isDark ? "bg-[#050505]" : "bg-white shadow-xl border border-gray-100")}>
+      {/* Background ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-2"
+        className="text-center space-y-3 relative z-10"
       >
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-          <MessageCircle className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold text-primary">{roleLabel} Packages</span>
+        <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border backdrop-blur-md", isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-gray-50 border-gray-200 shadow-sm")}>
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span className={cn("text-xs font-bold tracking-wider uppercase", isDark ? "text-white/90" : "text-gray-900")}>{roleLabel} Privilege</span>
         </div>
-        
-        <h2 className="text-lg sm:text-xl font-bold text-foreground">
-          Token Packages
+
+        <h2 className={cn("text-3xl sm:text-4xl font-black tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
+          Elevate Your <span className="luxury-text-gradient">Experience</span>
         </h2>
 
-        <p className="text-muted-foreground text-xs max-w-md mx-auto">
-          {roleDescription}
+        <p className={cn("text-sm max-w-lg mx-auto font-medium", isDark ? "text-white/60" : "text-gray-600")}>
+          {roleDescription}. Choose the package that suits your goals.
         </p>
 
-        <div className="flex items-center justify-center gap-1.5 text-xs">
-          <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-          <span className="text-foreground font-medium">New users get 3 FREE tokens!</span>
+        <div className="flex items-center justify-center gap-2">
+          <div className="h-px w-8 bg-gradient-to-r from-transparent to-amber-500/50" />
+          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 uppercase tracking-widest">
+            <Star className="w-3.5 h-3.5 fill-current" />
+            <span>New Member Bonus: 3 Tokens Included</span>
+          </div>
+          <div className="h-px w-8 bg-gradient-to-l from-transparent to-amber-500/50" />
         </div>
       </motion.div>
 
       {/* Packages Grid */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-64 rounded-xl bg-muted/50 animate-pulse" />
+            <div key={i} className={cn("h-[450px] rounded-3xl animate-pulse border", isDark ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200")} />
           ))}
         </div>
       ) : packagesUI.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground text-sm">No packages available at this time.</p>
+        <div className={cn("text-center py-16 rounded-3xl border", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}>
+          <p className={cn("text-lg font-medium", isDark ? "text-white/40" : "text-gray-500")}>No premium packages available at this time.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 lg:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative z-10">
           {packagesUI.map((pkg, index) => {
             const Icon = pkg.icon;
             const styles = getTierStyles(pkg.tier);
-            const isPopular = pkg.tier === 'standard';
-            
+            const isPremium = pkg.tier === 'premium';
+            const isStandard = pkg.tier === 'standard';
+
             return (
               <motion.div
                 key={pkg.id}
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.08 }}
+                transition={{
+                  delay: index * 0.15,
+                  type: 'spring',
+                  stiffness: 100,
+                  damping: 20
+                }}
+                className="h-full"
               >
-                <Card 
-                  className={`relative h-full flex flex-col overflow-hidden bg-gradient-to-br ${styles.gradient} ${styles.border} ${styles.glow} transition-all duration-300`}
+                <Card
+                  className={cn("relative h-full flex flex-col border rounded-[2.5rem] transition-all duration-500 group hover:shadow-2xl overflow-hidden", styles.cardClass, styles.glow)}
                 >
-                  {isPopular && (
-                    <div className="absolute -top-0 left-0 right-0">
-                      <div className="bg-primary text-primary-foreground text-[10px] font-bold py-1 text-center">
-                        ⭐ BEST VALUE
-                      </div>
+                  {isPremium && <div className="premium-shine-overlay" />}
+
+                  {isStandard && (
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                      <Badge className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-white/10 uppercase tracking-tighter">
+                        Most Popular Choice
+                      </Badge>
                     </div>
                   )}
 
-                  {pkg.savings && !isPopular && (
-                    <div className="absolute top-2 right-2">
-                      <Badge className={`${styles.badge} text-[10px] px-1.5 py-0.5`}>{pkg.savings}</Badge>
+                  {pkg.savings && isPremium && (
+                    <div className="absolute top-6 right-6 z-20">
+                      <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-3 py-1 rounded-full backdrop-blur-md">
+                        {pkg.savings} Best Value
+                      </Badge>
                     </div>
                   )}
-                  
-                  <CardHeader className={`text-center pb-1 ${isPopular ? 'pt-7' : 'pt-4'} px-3`}>
-                    <div className={`mx-auto mb-2 p-2.5 rounded-xl ${styles.badge} w-fit`}>
-                      <Icon className="w-5 h-5" />
+
+                  <CardHeader className={`text-center space-y-4 pb-2 px-8 ${isStandard ? 'pt-10' : 'pt-8'}`}>
+                    <div className={`mx-auto p-4 rounded-3xl ${styles.badge} w-fit shadow-inner ${isPremium ? 'premium-crown-pulse' : ''}`}>
+                      <Icon className={`w-8 h-8 ${isPremium ? 'text-amber-400' : ''}`} />
                     </div>
-                    
-                    <h3 className="text-sm font-bold text-foreground">{pkg.name}</h3>
-                    
-                    <div className="mt-1">
-                      <span className="text-2xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
-                      <span className="text-muted-foreground text-[10px] ml-1">MXN</span>
+
+                    <div className="space-y-1">
+                      <h3 className={cn("text-xl font-black tracking-tighter uppercase", isPremium ? 'luxury-text-gradient' : isDark ? 'text-white' : 'text-gray-900')}>
+                        {pkg.name}
+                      </h3>
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
+                          {formatPriceMXN(pkg.price)}
+                        </span>
+                        <span className={cn("text-xs font-bold", isDark ? "text-white/40" : "text-gray-500")}>MXN</span>
+                      </div>
+                      <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-500")}>
+                        {formatPriceMXN(pkg.pricePerToken)} per connection
+                      </p>
                     </div>
-                    
-                    <p className="text-[10px] text-muted-foreground">
-                      {formatPriceMXN(pkg.pricePerToken)} per token
-                    </p>
                   </CardHeader>
 
-                  <CardContent className="flex-1 pt-2 px-3">
+                  <CardContent className="flex-1 px-8 py-6 space-y-6">
                     {/* Tokens Display */}
-                    <div className="text-center py-2 mb-2 rounded-lg bg-background/50 border border-border/50">
-                      <div className="text-3xl font-bold text-foreground">{pkg.tokens}</div>
-                      <div className="text-[10px] text-muted-foreground font-medium">Tokens</div>
+                    <div className={cn("text-center py-6 rounded-3xl border shadow-inner transition-transform duration-500 group-hover:scale-[1.03]", isDark ? "bg-black/40 border-white/5" : "bg-gray-50 border-gray-100")}>
+                      <div className={cn("text-5xl font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>{pkg.tokens}</div>
+                      <div className={cn("text-xs font-black uppercase tracking-[0.2em]", isDark ? "text-white/30" : "text-gray-400")}>Activations</div>
                     </div>
 
                     {/* Features */}
-                    <div className="space-y-1.5">
-                      <Feature text={`Start ${pkg.tokens} new conversations`} />
-                      <Feature text="Unlimited messages per chat" />
-                      <Feature text={`${pkg.duration_days}-day validity`} icon={<Clock className="w-2.5 h-2.5 text-green-500" />} />
-                      {pkg.legal_documents > 0 && (
-                        <Feature text={`${pkg.legal_documents} legal document${pkg.legal_documents > 1 ? 's' : ''}`} />
-                      )}
-                      <Feature text="Secure PayPal payment" icon={<Shield className="w-2.5 h-2.5 text-green-500" />} />
+                    <div className="space-y-3">
+                      {pkg.features.map((feature, i) => (
+                        <Feature key={i} text={feature} isPremium={isPremium} />
+                      ))}
                     </div>
                   </CardContent>
 
-                  <CardFooter className="pt-2 pb-3 px-3">
+                  <CardFooter className="pb-8 px-8">
                     <Button
                       onClick={() => handlePurchase(pkg)}
-                      className={`w-full h-10 font-semibold text-sm ${styles.button} rounded-lg`}
-                      size="default"
+                      className={`w-full h-14 rounded-2xl text-base font-black uppercase tracking-tighter transition-all duration-300 ${styles.button}`}
                     >
-                      {/* PayPal branding */}
-                      <svg className="w-4 h-4 mr-1.5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z"/>
+                      <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797H9.603c-.564 0-1.04.408-1.13.964L7.076 21.337z" />
                       </svg>
-                      Pay with PayPal
+                      Secure Purchase
                     </Button>
                   </CardFooter>
                 </Card>
@@ -334,54 +355,84 @@ export function MessageActivationPackages({
       )}
 
       {/* Trust Badges */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="flex flex-wrap items-center justify-center gap-4 pt-3 border-t border-border/50"
+        transition={{ delay: 0.6 }}
+        className={cn("flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}
       >
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Shield className="w-3.5 h-3.5 text-green-500" />
-          <span>Secure Payment</span>
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+            <Shield className="w-4 h-4 text-emerald-500" />
+          </div>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Clock className="w-3.5 h-3.5 text-primary" />
-          <span>Instant Activation</span>
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
+            <Clock className="w-4 h-4 text-blue-500" />
+          </div>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Instant Activation</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-          <span>No Hidden Fees</span>
+        <div className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
+            <Zap className="w-4 h-4 text-amber-500" />
+          </div>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
         </div>
       </motion.div>
     </div>
   );
 
-  if (showAsPage) return content;
+  if (showAsPage) return <div className={cn("min-h-screen", isDark ? "bg-black" : "bg-gray-50")}>{content}</div>;
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm">
-      <div className="fixed inset-x-2 sm:inset-x-4 top-[5%] sm:top-[10%] bottom-[5%] sm:bottom-[10%] z-[100] overflow-auto">
-        <div className="relative bg-background rounded-2xl border shadow-2xl max-w-4xl mx-auto">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className={cn("absolute inset-0 backdrop-blur-xl", isDark ? "bg-black/90" : "bg-white/80")}
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        className="relative z-[110] w-full max-w-6xl max-h-[90vh] overflow-y-auto"
+      >
+        <div className={cn("relative rounded-[2rem] border overflow-hidden", isDark ? "bg-[#050505] border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]" : "bg-white border-gray-200 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]")}>
           {onClose && (
-            <Button variant="ghost" size="sm" className="absolute right-3 top-3 z-10" onClick={onClose}>
-              ✕
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn("absolute right-6 top-6 z-[120] rounded-full border transition-all hover:rotate-90", isDark ? "bg-white/5 hover:bg-white/10 text-white border-white/10" : "bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200")}
+              onClick={onClose}
+            >
+              <X className="w-5 h-5" />
             </Button>
           )}
           {content}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-function Feature({ text, icon }: { text: string; icon?: React.ReactNode }) {
+function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
+
   return (
-    <div className="flex items-center gap-2 text-[11px]">
-      <div className="flex-shrink-0 w-4 h-4 rounded-full bg-green-500/20 flex items-center justify-center">
-        {icon || <Check className="w-2.5 h-2.5 text-green-500" />}
+    <div className="flex items-center gap-3 text-xs group">
+      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${isPremium
+        ? 'bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+        : 'bg-emerald-500/10'
+        }`}>
+        <Check className={`w-3 h-3 ${isPremium ? 'text-amber-500' : 'text-emerald-500'}`} />
       </div>
-      <span className="text-foreground">{text}</span>
+      <span className={cn("font-bold transition-colors", isDark ? "text-white/70 group-hover:text-white" : "text-gray-600 group-hover:text-gray-900")}>{text}</span>
     </div>
   );
 }
+

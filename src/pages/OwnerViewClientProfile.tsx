@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { Button } from '@/components/ui/button';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -55,7 +54,7 @@ export default function OwnerViewClientProfile() {
         .maybeSingle();
 
       // Merge: Use profile_images from client_profiles if available (newer), otherwise use profiles.images
-      if (clientProfile?.profile_images && clientProfile.profile_images.length > 0) {
+      if (clientProfile?.profile_images && Array.isArray(clientProfile.profile_images) && clientProfile.profile_images.length > 0) {
         profileData.images = clientProfile.profile_images;
       }
 
@@ -76,7 +75,7 @@ export default function OwnerViewClientProfile() {
       const { data, error } = await supabase
         .from('client_filter_preferences')
         .select('*')
-        .eq('user_id', clientId)
+        .eq('user_id', clientId!)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;

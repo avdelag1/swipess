@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +12,7 @@ interface RadioContextType {
   play: (station?: RadioStation) => Promise<void>;
   pause: () => void;
   togglePlayPause: () => void;
+  togglePower: () => void;
   changeStation: (direction: 'next' | 'prev') => void;
   setCity: (city: CityLocation) => void;
   setVolume: (volume: number) => void;
@@ -22,6 +22,7 @@ interface RadioContextType {
   isStationFavorite: (stationId: string) => boolean;
   playPlaylist: (stationIds: string[]) => void;
   playFavorites: () => void;
+  setMiniPlayerMode: (mode: 'expanded' | 'minimized' | 'closed') => void;
 }
 
 const RadioContext = createContext<RadioContextType | undefined>(undefined);
@@ -32,12 +33,14 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const [state, setState] = useState<RadioPlayerState>({
     isPlaying: false,
+    isPoweredOn: true,
     currentStation: null,
     currentCity: 'tulum',
     volume: 0.7,
     isShuffle: false,
-    skin: 'modern',
-    favorites: []
+    skin: 'retro',
+    favorites: [],
+    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'expanded',
   });
 
   // Set loading to false immediately - don't block UI for preferences
@@ -64,37 +67,42 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Track failed stations to avoid infinite loops
+  // Track failed stations to avoid infinite loops (bounded to max 20 entries)
   const failedStationsRef = useRef<Set<string>>(new Set());
   const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Update listeners when state changes to have access to latest state
+  // Refs to hold latest callbacks for event handlers (avoids stale closures)
+  const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => { });
+
+  // Set up audio event listeners ONCE (use refs for latest callbacks)
   useEffect(() => {
     if (!audioRef.current) return;
 
     const handleTrackEnded = () => {
-      changeStation('next');
+      changeStationRef.current('next');
     };
 
     const handleAudioError = (e: Event) => {
-      const currentStationId = state.currentStation?.id;
-      if (currentStationId) {
-        failedStationsRef.current.add(currentStationId);
-        logger.error(`[RadioPlayer] Station ${currentStationId} failed:`, e);
+      // Read current station from the audio element's src to avoid stale closure
+      const audio = audioRef.current;
+      if (audio?.src) {
+        logger.error(`[RadioPlayer] Audio error on ${audio.src}:`, e);
       }
 
-      setError('Station unavailable, switching...');
+      setError('Station unavailable - automatically skipping...');
 
       // Immediately cancel the current stream
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
+      if (audio) {
+        audio.pause();
+        audio.src = '';
       }
 
-      // Skip to next station immediately (reduced from 3000ms to 500ms)
-      setTimeout(() => {
+      // Skip to next station immediately
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = setTimeout(() => {
         setError(null);
-        changeStation('next');
+        changeStationRef.current('next');
       }, 500);
     };
 
@@ -118,12 +126,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     audioRef.current.addEventListener('stalled', handleStalled);
 
     return () => {
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
       audioRef.current?.removeEventListener('ended', handleTrackEnded);
       audioRef.current?.removeEventListener('error', handleAudioError);
       audioRef.current?.removeEventListener('canplay', handleCanPlay);
       audioRef.current?.removeEventListener('stalled', handleStalled);
     };
-  }, [state.isPlaying, state.currentStation, state.isShuffle, state.currentCity]);
+  }, []); // Only run once - handlers use refs for latest state
 
   // Load user preferences from Supabase
   useEffect(() => {
@@ -141,7 +150,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     // Set default station immediately
     const defaultStations = getStationsByCity('tulum');
     const defaultStation = defaultStations.length > 0 ? defaultStations[0] : null;
-    
+
     if (!user?.id) {
       if (defaultStation) {
         setState(prev => ({ ...prev, currentStation: defaultStation }));
@@ -157,11 +166,18 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }));
 
     try {
+      // Use a safer query that handles missing columns
       const { data, error } = await supabase
         .from('profiles')
-        .select('radio_current_station_id')
-        .eq('id', user.id)
-        .single();
+        .select('*') // Selecting * is safer against 406 when specific columns are missing, or we can catch the error
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) {
+        logger.warn('[RadioPlayer] Error loading preferences (possibly missing columns):', error);
+        setLoading(false);
+        return;
+      }
 
       if (error) {
         setLoading(false);
@@ -169,7 +185,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
-        const currentStationId = data.radio_current_station_id;
+        const currentStationId = (data as any).radio_current_station_id;
         let currentStation = currentStationId ? getStationById(currentStationId) : null;
 
         if (!currentStation) {
@@ -180,6 +196,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         setState(prev => ({
           ...prev,
           currentStation: currentStation || defaultStation,
+          // Handle missing column gracefully
+          isPoweredOn: (data as any).radio_is_powered_on ?? prev.isPoweredOn
         }));
       }
     } catch (err) {
@@ -195,6 +213,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       const dbUpdates: any = {};
       // Only persist the station column that exists in the schema
       if (updates.currentStation !== undefined) dbUpdates.radio_current_station_id = updates.currentStation?.id || null;
+      if (updates.isPoweredOn !== undefined) dbUpdates.radio_is_powered_on = updates.isPoweredOn;
 
       await supabase.from('profiles').update(dbUpdates).eq('user_id', user.id);
     } catch (err) {
@@ -213,6 +232,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       setTimeout(() => {
         failedStationsRef.current.delete(targetStation.id);
       }, 60000); // Allow retry after 1 minute
+      // Evict oldest entries if set grows too large (prevents memory leak)
+      if (failedStationsRef.current.size > 20) {
+        const first = failedStationsRef.current.values().next().value;
+        if (first) failedStationsRef.current.delete(first);
+      }
       changeStation('next');
       return;
     }
@@ -228,10 +252,12 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current.load();
 
         // Update station AND city (important for shuffle mode)
+        // Also reset miniPlayerMode to expanded so it shows when navigating away
         setState(prev => ({
           ...prev,
           currentStation: targetStation,
-          currentCity: targetStation.city // Update city to match the station
+          currentCity: targetStation.city, // Update city to match the station
+          miniPlayerMode: 'expanded' // Reset mini player to show when navigating away
         }));
         savePreferences({
           currentStation: targetStation,
@@ -288,9 +314,30 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (state.isPlaying) {
       pause();
     } else {
+      // Automatically power on if playing
+      if (!state.isPoweredOn) {
+        setState(prev => ({ ...prev, isPoweredOn: true }));
+        savePreferences({ isPoweredOn: true });
+      }
       play();
     }
-  }, [state.isPlaying, play, pause]);
+  }, [state.isPlaying, state.isPoweredOn, play, pause]);
+
+  const togglePower = useCallback(() => {
+    const newPower = !state.isPoweredOn;
+    setState(prev => ({
+      ...prev,
+      isPoweredOn: newPower,
+      isPlaying: newPower ? prev.isPlaying : false, // Stop playing if powered off
+      miniPlayerMode: newPower ? prev.miniPlayerMode : 'closed' // Close mini player when powered off
+    }));
+
+    if (!newPower && audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    savePreferences({ isPoweredOn: newPower });
+  }, [state.isPoweredOn]);
 
   const changeStation = useCallback((direction: 'next' | 'prev') => {
     const city = state.currentCity;
@@ -302,7 +349,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const currentIndex = state.currentStation 
+    const currentIndex = state.currentStation
       ? stations.findIndex(s => s.id === state.currentStation?.id)
       : -1;
 
@@ -315,6 +362,9 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
     play(stations[nextIndex]);
   }, [state.currentStation, state.currentCity, state.isShuffle, play]);
+
+  // Keep ref in sync with latest changeStation callback
+  changeStationRef.current = changeStation;
 
   const setCity = useCallback((city: CityLocation) => {
     if (city === state.currentCity) return;
@@ -366,6 +416,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     playPlaylist(state.favorites);
   }, [state.favorites, playPlaylist]);
 
+  const setMiniPlayerMode = useCallback((mode: 'expanded' | 'minimized' | 'closed') => {
+    setState(prev => ({ ...prev, miniPlayerMode: mode }));
+    localStorage.setItem('swipess_radio_mini_player_mode', mode);
+  }, []);
+
   const value = {
     state,
     loading,
@@ -373,6 +428,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     play,
     pause,
     togglePlayPause,
+    togglePower,
     changeStation,
     setCity,
     setVolume,
@@ -381,7 +437,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     toggleFavorite,
     isStationFavorite: (stationId: string) => state.favorites.includes(stationId),
     playPlaylist,
-    playFavorites
+    playFavorites,
+    setMiniPlayerMode,
   };
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;

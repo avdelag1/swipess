@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell } from 'lucide-react';
+import { X, Bell, MessageCircle, Heart, Star, UserPlus, Zap, Crown } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 type NotificationType = 'like' | 'message' | 'super_like' | 'match' | 'new_user' | 'premium_purchase' | 'activation_purchase';
 
@@ -27,17 +29,37 @@ interface NotificationBarProps {
   onNotificationClick: (notification: Notification) => void;
 }
 
+const typeConfigs: Record<NotificationType, { icon: any, color: string, ring: string }> = {
+  like: { icon: Heart, color: 'text-pink-500', ring: 'ring-pink-500/20' },
+  match: { icon: SparklesIcon, color: 'text-[#E4007C]', ring: 'ring-[#E4007C]/20' },
+  super_like: { icon: Star, color: 'text-amber-400', ring: 'ring-amber-400/20' },
+  message: { icon: MessageCircle, color: 'text-blue-400', ring: 'ring-blue-400/20' },
+  new_user: { icon: UserPlus, color: 'text-emerald-400', ring: 'ring-emerald-400/20' },
+  premium_purchase: { icon: Crown, color: 'text-purple-400', ring: 'ring-purple-400/20' },
+  activation_purchase: { icon: Zap, color: 'text-orange-400', ring: 'ring-orange-400/20' },
+};
+
+function SparklesIcon(props: any) {
+  return (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+      <path d="M5 3v4" /><path d="M19 17v4" /><path d="M3 5h4" /><path d="M17 19h4" />
+    </svg>
+  );
+}
+
 export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNotificationClick }: NotificationBarProps) {
   const [visible, setVisible] = useState(false);
   const dismissedRef = useRef(false);
   const prevUnreadCountRef = useRef(0);
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
 
   const unreadNotifications = useMemo(() => notifications.filter(n => !n.read), [notifications]);
   const unreadCount = unreadNotifications.length;
 
   useEffect(() => {
     if (unreadCount > 0) {
-      // Show banner only on first appearance or when genuinely new notifications arrive
       if (!dismissedRef.current || unreadCount > prevUnreadCountRef.current) {
         setVisible(true);
         dismissedRef.current = false;
@@ -46,7 +68,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
         const timer = setTimeout(() => {
           setVisible(false);
           dismissedRef.current = true;
-        }, 3000);
+        }, 5000); // 5 seconds visibility for better readability
         return () => clearTimeout(timer);
       }
     } else {
@@ -61,41 +83,60 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
     dismissedRef.current = true;
   };
 
+  const currentNotification = unreadNotifications[0];
+  const config = currentNotification ? typeConfigs[currentNotification.type] : typeConfigs.like;
+  const Icon = config.icon;
+
   return (
     <AnimatePresence>
-      {visible && (
+      {visible && currentNotification && (
         <motion.div
-          initial={{ y: -36, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -36, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          className="fixed top-14 left-0 right-0 z-40 px-3 sm:px-4"
+          initial={{ y: -60, opacity: 0, scale: 0.9 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: -60, opacity: 0, scale: 0.9 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          className="fixed top-2 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
         >
-          <div
-            className="mx-auto max-w-sm flex items-center gap-2.5 px-3 py-2 rounded-xl bg-gray-900/92 backdrop-blur-xl border border-white/10 shadow-lg cursor-pointer hover:bg-gray-900 transition-colors"
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className={cn(
+              "pointer-events-auto flex items-center min-w-[280px] max-w-[90vw] h-12 gap-3 px-4 rounded-full",
+              "bg-black/80 dark:bg-[#0e0e11]/90 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] cursor-pointer group",
+              !isDark && "bg-white/90 border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+            )}
             onClick={() => {
-              if (unreadNotifications.length > 0) {
-                onNotificationClick(unreadNotifications[0]);
-              }
+              onNotificationClick(currentNotification);
               handleDismiss();
             }}
           >
-            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center">
-              <Bell className="w-3 h-3 text-primary" />
+            {/* Visual Indicator - Glowing Circle */}
+            <div className={cn("relative flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ring-4 transition-all duration-300", config.ring)}>
+              <Icon className={cn("w-3.5 h-3.5", config.color)} />
+              {/* Type-specific glow */}
+              <div className={cn("absolute inset-0 rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity", config.color.replace('text-', 'bg-'))} />
             </div>
-            <p className="flex-1 text-xs text-white font-medium truncate">
-              {unreadCount === 1
-                ? unreadNotifications[0].title
-                : `${unreadCount} new notifications`}
-            </p>
+
+            <div className="flex-1 min-w-0 pr-2">
+              <h4 className={cn("text-[11px] font-black uppercase tracking-wider leading-none mb-0.5 truncate", isDark ? "text-white" : "text-black")}>
+                {unreadCount > 1 ? `(${unreadCount}) Swipess Alerts` : currentNotification.title}
+              </h4>
+              <p className={cn("text-[10px] font-bold truncate leading-tight", isDark ? "text-white/50" : "text-black/50")}>
+                {unreadCount > 1 ? 'Check your notifications center' : currentNotification.message}
+              </p>
+            </div>
+
             <button
               onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
-              className="flex-shrink-0 text-gray-400 hover:text-white transition-colors"
+              className={cn(
+                "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors",
+                isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
+              )}
               aria-label="Dismiss"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className={cn("w-3 h-3", isDark ? "text-white/40 group-hover:text-white" : "text-black/40 group-hover:text-black")} />
             </button>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

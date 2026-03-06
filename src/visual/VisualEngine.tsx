@@ -14,76 +14,20 @@ import { SwipessSPattern } from "@/components/SwipessSWatermark";
  */
 export const VisualEngine = () => {
   const { theme } = useTheme();
-  const isDark = theme === "black-matte";
+  const isDark = theme !== "white-matte";
   const shouldReduceMotion = useReducedMotion();
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* Base gradient - adapts to theme */}
       <div
-        className={`absolute inset-0 transition-colors duration-500 ${
-          isDark
-            ? "bg-gradient-to-br from-slate-900 via-slate-950 to-black"
-            : "bg-gradient-to-br from-slate-50 via-white to-slate-100"
-        }`}
+        className={`absolute inset-0 transition-colors duration-500 ${isDark
+            ? "bg-[#050505]"
+            : "bg-background"
+          }`}
       />
 
-      {/* Primary animated glow - soft purple (luxury accent) */}
-      {shouldReduceMotion ? (
-        <div
-          className={`absolute w-[600px] h-[600px] rounded-full blur-3xl ${
-            isDark ? "bg-purple-600/20" : "bg-purple-400/10"
-          }`}
-          style={{ top: "-200px", left: "-100px" }}
-        />
-      ) : (
-        <motion.div
-          className={`absolute w-[600px] h-[600px] rounded-full blur-3xl ${
-            isDark ? "bg-purple-600/20" : "bg-purple-400/10"
-          }`}
-          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          style={{ top: "-200px", left: "-100px", willChange: "transform" }}
-        />
-      )}
-
-      {/* Secondary glow - soft blue (depth) */}
-      {shouldReduceMotion ? (
-        <div
-          className={`absolute w-[500px] h-[500px] rounded-full blur-3xl ${
-            isDark ? "bg-blue-500/15" : "bg-blue-300/8"
-          }`}
-          style={{ bottom: "-150px", right: "-100px" }}
-        />
-      ) : (
-        <motion.div
-          className={`absolute w-[500px] h-[500px] rounded-full blur-3xl ${
-            isDark ? "bg-blue-500/15" : "bg-blue-300/8"
-          }`}
-          animate={{ x: [0, -40, 0], y: [0, -20, 0] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          style={{ bottom: "-150px", right: "-100px", willChange: "transform" }}
-        />
-      )}
-
-      {/* Tertiary glow - soft indigo (cinematic touch) */}
-      {shouldReduceMotion ? (
-        <div
-          className={`absolute w-[400px] h-[400px] rounded-full blur-3xl ${
-            isDark ? "bg-indigo-500/10" : "bg-indigo-300/6"
-          }`}
-          style={{ top: "50%", right: "20%" }}
-        />
-      ) : (
-        <motion.div
-          className={`absolute w-[400px] h-[400px] rounded-full blur-3xl ${
-            isDark ? "bg-indigo-500/10" : "bg-indigo-300/6"
-          }`}
-          animate={{ x: [0, 30, 0], y: [0, 40, 0] }}
-          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
-          style={{ top: "50%", right: "20%", willChange: "transform" }}
-        />
-      )}
+      {/* Glows removed to allow for the 'Organic Frame' and 'Vanishing Shade' aesthetics */}
 
       {/* Subtle noise overlay for texture (premium detail) */}
       <div
@@ -112,7 +56,7 @@ interface ReactiveBackgroundProps {
 
 export const ReactiveBackground = ({ sentiment = "neutral" }: ReactiveBackgroundProps) => {
   const { theme } = useTheme();
-  const isDark = theme === "black-matte";
+  const isDark = theme !== "white-matte";
 
   // Subtle color shift based on user action (e.g., swipe direction)
   const getSentimentGlow = () => {

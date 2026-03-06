@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +6,7 @@ import { MapPin, User, Calendar, MessageCircle, CheckCircle, Trash2, Ban, Flag, 
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { useState, useEffect, useCallback, memo } from 'react';
 import { logger } from '@/utils/prodLogger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -124,7 +123,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error: blockError } = await supabase
+      const { error: blockError } = await (supabase as any)
         .from('user_blocks')
         .insert({
           blocker_id: user.user.id,
@@ -172,7 +171,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_reports')
         .insert({
           reporter_id: user.user.id,

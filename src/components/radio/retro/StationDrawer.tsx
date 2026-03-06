@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Heart, Radio, Play, Pause, ChevronRight } from 'lucide-react';
 import { RadioStation, CityLocation } from '@/types/radio';
 import { CityTheme } from '@/types/radio';
-import { getStationsByCity, cityThemes } from '@/data/radioStations';
+import { getStationsByCity, cityThemes, radioStations } from '@/data/radioStations';
 
 interface StationDrawerProps {
   isOpen: boolean;
@@ -14,6 +14,7 @@ interface StationDrawerProps {
   onCitySelect: (city: CityLocation) => void;
   onStationSelect: (station: RadioStation) => void;
   onToggleFavorite: (stationId: string) => void;
+  isFavoritesView?: boolean;
 }
 
 const CITY_ICONS: Record<CityLocation, string> = {
@@ -26,6 +27,12 @@ const CITY_ICONS: Record<CityLocation, string> = {
   'french': 'FR',
   'podcasts': 'PD',
   'italy': 'IT',
+  'jazz': 'JZ',
+  'reggae': 'RG',
+  'arabic': 'AR',
+  'persian': 'PR',
+  'meditation': 'MD',
+  'bongs': 'BG',
 };
 
 /**
@@ -42,9 +49,13 @@ export function StationDrawer({
   onCitySelect,
   onStationSelect,
   onToggleFavorite,
+  isFavoritesView = false,
 }: StationDrawerProps) {
-  const stations = getStationsByCity(currentCity);
-  const theme = cityThemes[currentCity];
+  const stations = isFavoritesView
+    ? radioStations.filter(s => favorites.includes(s.id))
+    : getStationsByCity(currentCity);
+
+  const theme = isFavoritesView ? null : cityThemes[currentCity];
   const allCities = Object.keys(cityThemes) as CityLocation[];
 
   return (
@@ -85,8 +96,8 @@ export function StationDrawer({
             {/* Header */}
             <div className="flex items-center justify-between px-5 pb-4">
               <div>
-                <h2 className="text-white text-lg font-bold">Stations</h2>
-                <p className="text-white/40 text-xs">{theme.name} - {stations.length} available</p>
+                <h2 className="text-white text-lg font-bold">{isFavoritesView ? 'Liked Stations' : 'Stations'}</h2>
+                <p className="text-white/40 text-xs">{isFavoritesView ? 'Your favorites' : theme?.name} - {stations.length} available</p>
               </div>
               <motion.button
                 whileTap={{ scale: 0.9 }}
@@ -99,34 +110,35 @@ export function StationDrawer({
             </div>
 
             {/* City tabs - horizontal scroll */}
-            <div className="px-5 pb-4">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-                {allCities.map((city) => {
-                  const ct = cityThemes[city];
-                  const isActive = city === currentCity;
-                  return (
-                    <motion.button
-                      key={city}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => onCitySelect(city)}
-                      className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                        isActive
-                          ? 'text-white'
-                          : 'bg-white/5 text-white/50 hover:bg-white/10'
-                      }`}
-                      style={isActive ? {
-                        background: `linear-gradient(135deg, ${ct.primaryColor}80, ${ct.secondaryColor}60)`,
-                      } : undefined}
-                    >
-                      <span className="text-[10px] font-bold opacity-60">
-                        {CITY_ICONS[city]}
-                      </span>
-                      {ct.name}
-                    </motion.button>
-                  );
-                })}
+            {!isFavoritesView && (
+              <div className="px-5 pb-4">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                  {allCities.map((city) => {
+                    const ct = cityThemes[city];
+                    const isActive = city === currentCity;
+                    return (
+                      <motion.button
+                        key={city}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => onCitySelect(city)}
+                        className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${isActive
+                            ? 'text-white'
+                            : 'bg-white/5 text-white/50 hover:bg-white/10'
+                          }`}
+                        style={isActive ? {
+                          background: `linear-gradient(135deg, ${ct.primaryColor}80, ${ct.secondaryColor}60)`,
+                        } : undefined}
+                      >
+                        <span className="text-[10px] font-bold opacity-60">
+                          {CITY_ICONS[city]}
+                        </span>
+                        {ct.name}
+                      </motion.button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Station list */}
             <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-1.5" style={{ maxHeight: 'calc(85vh - 180px)' }}>
@@ -146,17 +158,16 @@ export function StationDrawer({
                         onStationSelect(station);
                         onClose();
                       }}
-                      className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${
-                        isCurrent
+                      className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${isCurrent
                           ? 'bg-white/10 border border-white/10'
                           : 'hover:bg-white/5'
-                      }`}
+                        }`}
                     >
                       {/* Station icon */}
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background: `linear-gradient(135deg, ${theme.primaryColor}40, ${theme.secondaryColor}30)`,
+                        style={isFavoritesView ? { background: 'linear-gradient(135deg, #ff00ff40, #ff005530)' } : {
+                          background: `linear-gradient(135deg, ${theme?.primaryColor}40, ${theme?.secondaryColor}30)`,
                         }}
                       >
                         {isCurrent && isPlaying ? (
@@ -203,9 +214,8 @@ export function StationDrawer({
                         aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Heart
-                          className={`w-4 h-4 transition-colors ${
-                            isFav ? 'text-red-400 fill-red-400' : 'text-white/20'
-                          }`}
+                          className={`w-4 h-4 transition-colors ${isFav ? 'text-red-400 fill-red-400' : 'text-white/20'
+                            }`}
                         />
                       </motion.button>
 

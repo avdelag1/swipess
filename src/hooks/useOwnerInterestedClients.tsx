@@ -1,4 +1,3 @@
-// @ts-nocheck
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -120,7 +119,7 @@ export function useOwnerInterestedClients() {
             id: like.id,
             created_at: like.created_at,
             user: {
-              id: profile.id,
+              id: profile.user_id,
               full_name: profile.full_name || 'Anonymous',
               avatar: profile.avatar_url
             },

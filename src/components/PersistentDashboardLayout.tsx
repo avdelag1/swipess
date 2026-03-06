@@ -1,5 +1,6 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import { useFilterPersistence } from '@/hooks/useFilterPersistence';
 import { useMemo, useEffect } from 'react';
@@ -27,28 +28,28 @@ import { useMemo, useEffect } from 'react';
  * INSTANT role derivation from path
  * No async calls, no loading states, no flicker
  */
-function getRoleFromPath(pathname: string): 'client' | 'owner' {
+function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'client' | 'owner' {
   if (pathname.startsWith('/owner/')) {
     return 'owner';
   }
   if (pathname.startsWith('/client/')) {
     return 'client';
   }
-  // For shared routes (messages, notifications), use activeMode
-  return 'client'; // Default, will be overridden by activeMode
+  // For shared routes (messages, notifications, etc.), the activeMode is our source of truth
+  return activeMode;
 }
 
 export function PersistentDashboardLayout() {
   const location = useLocation();
   const { activeMode, syncMode } = useActiveMode();
-  
+
   // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
   useFilterPersistence();
 
   // SPEED OF LIGHT: Derive role from path INSTANTLY
   // No async calls, no loading states, no skeleton
   const userRole = useMemo(() => {
-    const pathRole = getRoleFromPath(location.pathname);
+    const pathRole = getRoleFromPath(location.pathname, activeMode);
 
     // For explicit client/owner routes, use the path
     if (location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) {
@@ -69,9 +70,10 @@ export function PersistentDashboardLayout() {
     }
   }, [location.pathname, activeMode, syncMode]);
 
+
   return (
     <DashboardLayout userRole={userRole}>
-      <Outlet />
+      <AnimatedOutlet />
     </DashboardLayout>
   );
 }

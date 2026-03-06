@@ -2,7 +2,9 @@ import { memo, useCallback, useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
+import { getCategoryColorClass } from '@/types/filters';
 
 // Re-export from CascadeFilterButton for backwards compatibility
 export { CascadeFilterButton } from './CascadeFilterButton';
@@ -81,14 +83,14 @@ const smoothButtonClass = cn(
 );
 
 // Dropdown component for compact filters - instant response, no delays
-function FilterDropdown({ 
-  label, 
-  icon, 
-  options, 
-  value, 
-  onChange, 
-  isActive 
-}: { 
+function FilterDropdown({
+  label,
+  icon,
+  options,
+  value,
+  onChange,
+  isActive
+}: {
   label: string;
   icon?: React.ReactNode;
   options: { id: string; label: string; icon?: React.ReactNode }[];
@@ -101,7 +103,7 @@ function FilterDropdown({
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
@@ -130,7 +132,7 @@ function FilterDropdown({
           'border',
           isActive
             ? 'bg-orange-500 text-white border-orange-500'
-            : 'bg-white/15 text-white border-white/30'
+            : 'bg-muted text-foreground border-border hover:bg-muted/80'
         )}
       >
         {icon}
@@ -140,7 +142,7 @@ function FilterDropdown({
 
       {isOpen && (
         <div
-          className="absolute top-full left-0 mt-1 z-[9999] min-w-[120px] bg-gray-900 border border-white/20 rounded-lg overflow-hidden pointer-events-auto shadow-xl"
+          className="absolute top-full left-0 mt-1 z-[9999] min-w-[120px] bg-background border border-border rounded-lg overflow-hidden pointer-events-auto shadow-xl"
         >
           {options.map((option) => (
             <button
@@ -155,7 +157,7 @@ function FilterDropdown({
                 'w-full flex items-center gap-2 px-3 py-2.5 text-xs text-left',
                 value === option.id
                   ? 'bg-orange-500 text-white'
-                  : 'text-white hover:bg-white/10'
+                  : 'text-foreground hover:bg-muted'
               )}
             >
               {option.icon}
@@ -169,6 +171,8 @@ function FilterDropdown({
 }
 
 function QuickFilterBarComponent({ filters, onChange, className, userRole = 'client' }: QuickFilterBarProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
@@ -221,7 +225,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     return (
       <div
         className={cn(
-          'bg-background/80 backdrop-blur-xl border-b border-white/5 px-3 py-2',
+          isDark ? 'bg-background/50' : 'bg-white/80',
+          'backdrop-blur-xl border-b border-border px-3 py-2',
           className
         )}
       >
@@ -248,13 +253,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             />
 
             {/* Divider */}
-            <div className="w-px h-6 bg-white/20 flex-shrink-0" />
+            <div className="w-px h-6 bg-border flex-shrink-0" />
 
             {/* Category chips */}
             <div className="flex items-center gap-1 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
-                const isServices = category.id === 'services';
+                const colorClass = getCategoryColorClass(category.id, isDark);
                 return (
                   <button
                     key={category.id}
@@ -264,10 +269,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                       'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                       'border',
                       isActive
-                        ? isServices
-                          ? 'bg-emerald-500 text-white border-emerald-500'
-                          : 'bg-orange-500 text-white border-orange-500'
-                        : 'bg-white/15 text-white border-white/30'
+                        ? cn(colorClass, 'text-white border-current')
+                        : 'bg-muted text-foreground border-border hover:bg-muted/80'
                     )}
                   >
                     {category.icon}
@@ -301,7 +304,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   return (
     <div
       className={cn(
-        'bg-background/80 backdrop-blur-xl border-b border-white/5 px-3 py-2',
+        isDark ? 'bg-background/50' : 'bg-white/80',
+        'backdrop-blur-xl border-b border-border px-3 py-2',
         className
       )}
     >
@@ -326,8 +330,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                 'border',
                 filters.categories.length === allCategories.length
-                  ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500 text-white border-transparent'
-                  : 'bg-white/15 text-white border-white/30'
+                  ? isDark
+                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 text-white border-transparent'
+                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 text-white border-transparent'
+                  : 'bg-muted text-foreground border-border hover:bg-muted/80'
               )}
             >
               <Globe className="w-4 h-4" />
@@ -339,13 +345,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           )}
 
           {/* Divider */}
-          <div className="w-px h-6 bg-white/20 flex-shrink-0" />
+          <div className="w-px h-6 bg-border flex-shrink-0" />
 
           {/* Category chips - all listing types including services */}
           <div className="flex items-center gap-1 flex-shrink-0">
             {categories.map((category) => {
               const isActive = filters.categories.includes(category.id);
-              const isServices = category.id === 'services';
+              const colorClass = getCategoryColorClass(category.id, isDark);
               return (
                 <button
                   key={category.id}
@@ -355,10 +361,8 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                     'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
                     'border',
                     isActive
-                      ? isServices
-                        ? 'bg-emerald-500 text-white border-emerald-500'
-                        : 'bg-orange-500 text-white border-orange-500'
-                      : 'bg-white/15 text-white border-white/30'
+                      ? cn(colorClass, 'text-white border-current')
+                      : 'bg-muted text-foreground border-border hover:bg-muted/80'
                   )}
                 >
                   {category.icon}
@@ -369,7 +373,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           </div>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-white/20 flex-shrink-0" />
+          <div className="w-px h-6 bg-border flex-shrink-0" />
 
           {/* Listing type dropdown - compact */}
           <FilterDropdown
@@ -381,19 +385,19 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
           />
 
           {/* Reset button - only show when filters are active */}
-           {hasActiveFilters && (
-             <button
-               onClick={handleReset}
-               className={cn(
-                 smoothButtonClass,
-                 'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold',
-                 'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
-               )}
-             >
-               <RotateCcw className="w-3 h-3" />
-               <span>Clear</span>
-             </button>
-           )}
+          {hasActiveFilters && (
+            <button
+              onClick={handleReset}
+              className={cn(
+                smoothButtonClass,
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold',
+                'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
+              )}
+            >
+              <RotateCcw className="w-3 h-3" />
+              <span>Clear</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

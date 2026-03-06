@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,21 +11,26 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPriceMXN } from '@/utils/subscriptionPricing';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
+import { haptics } from '@/utils/microPolish';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
+import { ThemeToggle } from './ThemeToggle';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
+import { SwipessLogo } from './SwipessLogo';
 
 // Tier styling for package cards
 const tierConfig = {
   starter: {
     icon: MessageCircle,
-    gradient: 'from-slate-500/30 to-slate-600/20',
-    border: 'border-slate-500/40',
-    iconBg: 'bg-slate-500/20 text-slate-300',
-    button: 'bg-slate-600 hover:bg-slate-500 text-white',
+    gradient: 'from-purple-500/30 to-purple-600/20',
+    border: 'border-purple-500/40',
+    iconBg: 'bg-purple-500/20 text-purple-300',
+    button: 'bg-purple-600 hover:bg-purple-500 text-white',
   },
   standard: {
     icon: Zap,
@@ -37,10 +41,10 @@ const tierConfig = {
   },
   premium: {
     icon: Crown,
-    gradient: 'from-amber-500/30 to-orange-500/20',
-    border: 'border-amber-500/40',
-    iconBg: 'bg-amber-500/20 text-amber-400',
-    button: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white',
+    gradient: 'from-brand-accent-2/30 to-brand-accent-2/20',
+    border: 'border-brand-accent-2/40',
+    iconBg: 'bg-brand-accent-2/20 text-pink-300',
+    button: 'bg-gradient-to-r from-brand-accent-2 to-[#B0005E] hover:from-pink-500 hover:to-brand-accent-2 text-white',
   },
 } as const;
 
@@ -53,6 +57,7 @@ interface TopBarProps {
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
+  onAISearchClick?: () => void;
 }
 
 function TopBarComponent({
@@ -64,20 +69,32 @@ function TopBarComponent({
   transparent = false,
   hideOnScroll = false,
   title,
+  onAISearchClick,
 }: TopBarProps) {
-  const { isVisible } = useScrollDirection({
-    threshold: 15,
-    showAtTop: true,
-    targetSelector: '#dashboard-scroll-container',
-  });
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
-  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
+
+  const glassBg = isDark
+    ? 'var(--glass-bg)'
+    : 'rgba(0, 0, 0, 0.07)';
+  const glassBorder = isDark
+    ? '1.5px solid var(--glass-border)'
+    : '1.5px solid rgba(0, 0, 0, 0.15)';
+  const floatingShadow = isDark
+    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
+    : '0 2px 10px rgba(0,0,0,0.08)';
+  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'none';
+  const headerBackgroundClass = isDark
+    ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
+    : 'bg-transparent border-transparent';
 
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -91,6 +108,21 @@ function TopBarComponent({
         .eq('package_category', packageCategory)
         .eq('is_active', true)
         .order('message_activations', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch the user profile to display the avatar
+  const { data: profile } = useQuery({
+    queryKey: ['topbar-user-profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('avatar_url, full_name')
+        .eq('user_id', user!.id)
+        .maybeSingle();
       if (error) throw error;
       return data;
     },
@@ -128,23 +160,50 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          'bg-transparent border-transparent',
+          headerBackgroundClass,
           shouldHide && 'header-hidden',
           className
         )}
       >
-        <div className="flex items-center justify-between h-12 max-w-screen-xl mx-auto gap-2">
-          {/* Left section: Title + Mode switcher + filters */}
-          <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
-            {title && (
-              <div className="flex-shrink-0 font-bold text-sm sm:text-base text-foreground whitespace-nowrap">
-                {title}
-              </div>
+        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
+          {/* Left section: Avatar + Mode switcher + filters */}
+          <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+            {/* User Avatar - Tapping navigates to profile */}
+            {user ? (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.tap();
+                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                  navigate(profilePath);
+                }}
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
+                aria-label="Go to profile"
+              >
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
+                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.button>
+            ) : (
+              <>
+                {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
+                {title && (
+                  <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
+                    {title}
+                  </div>
+                )}
+              </>
             )}
 
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <ThemeToggle />
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
-              <ModeSwitcher variant="pill" size="md" className="hidden md:flex" />
+              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
             </div>
 
             {showFilters && userRole && (
@@ -159,6 +218,7 @@ function TopBarComponent({
             className="flex-1 h-full cursor-pointer"
             onPointerDown={(e) => {
               e.preventDefault();
+              haptics.tap();
               const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
               navigate(dashboardPath);
             }}
@@ -167,33 +227,8 @@ function TopBarComponent({
           />
 
           {/* Right section: Actions */}
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button - Only show for clients */}
-            {userRole === 'client' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
-                  "active:scale-[0.95]",
-                  "touch-manipulation",
-                  "-webkit-tap-highlight-color-transparent",
-                  "group flex-shrink-0"
-                )}
-                style={{
-                  background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.18))',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(99,102,241,0.35)',
-                  boxShadow: 'inset 0 1px 0 rgba(99,102,241,0.25), 0 4px 14px rgba(59,130,246,0.25)',
-                }}
-                onPointerDown={(e) => { e.preventDefault(); setIsAISearchOpen(true); }}
-                onClick={(e) => e.preventDefault()}
-                aria-label="AI Search"
-              >
-                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 text-blue-300 group-hover:text-blue-100 transition-colors" />
-              </Button>
-            )}
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
+            {/* AI Search Button - Moved to BottomNavigation */}
 
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
@@ -201,25 +236,25 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-9 sm:h-10 md:h-11 px-2 sm:px-3 md:px-4 rounded-xl transition-all duration-100 ease-out",
+                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1.5"
+                    "flex items-center gap-1"
                   )}
                   style={{
-                    background: 'linear-gradient(135deg, rgba(245,158,11,0.25), rgba(249,115,22,0.18))',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(245,158,11,0.35)',
-                    boxShadow: 'inset 0 1px 0 rgba(245,158,11,0.25), 0 4px 14px rgba(249,115,22,0.2)',
+                    backgroundColor: glassBg,
+                    backdropFilter: controlBlur,
+                    WebkitBackdropFilter: controlBlur,
+                    border: glassBorder,
+                    boxShadow: floatingShadow,
                   }}
-                  onPointerDown={(e) => { e.preventDefault(); setTokensOpen(true); }}
+                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-300" />
-                   <span className="hidden sm:inline font-bold text-sm tracking-tight text-foreground whitespace-nowrap">
+                  <Zap strokeWidth={4} className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isDark ? "text-amber-300" : "text-amber-600")} />
+                  <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
                     Tokens
                   </span>
                 </Button>
@@ -227,17 +262,17 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-white/10 bg-[#1C1C1E]/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl"
               >
                 {/* Popover Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-white/10">
+                <div className="px-4 pt-4 pb-3 border-b border-border">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-white text-base">Token Packages</h3>
-                    <span className="text-xs text-white/50">
+                    <h3 className="font-bold text-foreground text-base">Token Packages</h3>
+                    <span className="text-xs text-muted-foreground">
                       {userRole === 'owner' ? 'Provider' : 'Explorer'}
                     </span>
                   </div>
-                  <p className="text-xs text-white/40 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {userRole === 'owner'
                       ? 'Connect with potential explorers'
                       : 'Start conversations with providers'}
@@ -282,12 +317,12 @@ function TopBarComponent({
                             {/* Info */}
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-1.5">
-                                <span className="font-bold text-white text-sm capitalize">{tier}</span>
-                                <span className="text-white/60 text-xs">{tokens} tokens</span>
+                                <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
+                                <span className="text-muted-foreground text-xs">{tokens} tokens</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
-                                <span className="font-bold text-white text-base">{formatPriceMXN(pkg.price)}</span>
-                                <span className="text-white/40 text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
+                                <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
                               </div>
                             </div>
 
@@ -314,18 +349,18 @@ function TopBarComponent({
                     <div className="py-6 text-center">
                       <div className="flex justify-center gap-2 mb-3">
                         {[0, 1, 2].map((i) => (
-                          <div key={i} className="h-12 w-full rounded-lg bg-white/5 animate-pulse" />
+                          <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
                         ))}
                       </div>
-                      <p className="text-white/40 text-xs">Loading packages...</p>
+                      <p className="text-muted-foreground text-xs">Loading packages...</p>
                     </div>
                   )}
                 </div>
 
                 {/* Footer: View All link */}
-                <div className="px-4 pb-3 pt-1 border-t border-white/10">
+                <div className="px-4 pb-3 pt-1 border-t border-border">
                   <button
-                    className="w-full text-center text-xs text-blue-400 hover:text-blue-300 font-medium py-1.5 transition-colors"
+                    className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
                     onClick={() => {
                       setTokensOpen(false);
                       onMessageActivationsClick?.();
@@ -342,45 +377,36 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11 rounded-xl transition-all duration-100 ease-out",
+                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
                 "group flex-shrink-0",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent"
               )}
               style={{
-                background: 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(249,115,22,0.18))',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                border: '1px solid rgba(239,68,68,0.35)',
-                boxShadow: 'inset 0 1px 0 rgba(239,68,68,0.25), 0 4px 14px rgba(239,68,68,0.2)',
+                backgroundColor: glassBg,
+                backdropFilter: controlBlur,
+                WebkitBackdropFilter: controlBlur,
+                border: glassBorder,
+                boxShadow: floatingShadow,
               }}
-              onPointerDown={(e) => { e.preventDefault(); onNotificationsClick?.(); }}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
                 <Bell
+                  strokeWidth={4}
                   className={cn(
-                    "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-150",
+                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
                     notificationCount > 0
-                      ? "text-orange-200 group-hover:text-orange-100"
-                      : "text-gray-50 group-hover:text-white"
+                      ? (isDark ? "text-orange-200 group-hover:text-orange-100" : "text-orange-600 group-hover:text-orange-700")
+                      : (isDark ? "text-gray-50 group-hover:text-white" : "text-foreground group-hover:text-foreground")
                   )}
                 />
                 <AnimatePresence>
                   {notificationCount > 0 && (
-                    <motion.div
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1.2, opacity: 0 }}
-                      exit={{ scale: 1.5, opacity: 0 }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeOut"
-                      }}
-                      className="absolute inset-0 rounded-full border-2 border-pink-500"
-                    />
+                    <div className="absolute inset-0 rounded-full border border-pink-500/30" />
                   )}
                 </AnimatePresence>
               </div>
@@ -392,7 +418,7 @@ function TopBarComponent({
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-[#1C1C1E]"
+                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-background"
                     style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                   >
                     {notificationCount > 99 ? '99+' : notificationCount}
@@ -403,13 +429,6 @@ function TopBarComponent({
           </div>
         </div>
       </header>
-
-      {/* AI Search Dialog */}
-      <AISearchDialog
-        isOpen={isAISearchOpen}
-        onClose={() => setIsAISearchOpen(false)}
-        userRole={userRole}
-      />
     </>
   );
 }

@@ -1,9 +1,10 @@
 import { memo, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Briefcase, ArrowLeftRight, Loader2 } from 'lucide-react';
+import { User, UserCog, ArrowLeftRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -13,7 +14,15 @@ interface ModeSwitcherProps {
 
 function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const lastClickTime = useRef(0);
+
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+  const floatingShadow = isDark
+    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
     const now = Date.now();
@@ -34,9 +43,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   }, [activeMode, handleModeSwitch]);
 
   const sizeClasses = {
-    sm: 'h-8 text-xs',
-    md: 'h-9 text-sm',
-    lg: 'h-10 text-base',
+    sm: 'h-7 text-[10px]',
+    md: 'h-8 text-xs',
+    lg: 'h-9 text-sm',
   };
 
   if (variant === 'icon') {
@@ -45,23 +54,23 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
-          'relative flex items-center justify-center rounded-xl',
+          'relative flex items-center justify-center rounded-lg',
           'transition-all duration-100 ease-out',
           'active:scale-[0.9]',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           'touch-manipulation',
           '-webkit-tap-highlight-color-transparent',
-          size === 'sm' ? 'h-8 w-8' : size === 'md' ? 'h-9 w-9' : 'h-10 w-10',
+          size === 'sm' ? 'h-7 w-7' : size === 'md' ? 'h-8 w-8' : 'h-9 w-9',
           className
         )}
         style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+          backgroundColor: glassBg,
           backdropFilter: 'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+          border: glassBorder,
+          boxShadow: floatingShadow,
         }}
-        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
+        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
       >
         <AnimatePresence mode="wait">
           {isSwitching ? (
@@ -72,7 +81,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             </motion.div>
           ) : (
             <motion.div
@@ -84,9 +93,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             >
               {/* HIGH CONTRAST: Clear icon colors */}
               {activeMode === 'client' ? (
-                <Briefcase className="h-4 w-4 text-teal-400" />
+                <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
               ) : (
-                <Search className="h-4 w-4 text-orange-400" />
+                <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
               )}
             </motion.div>
           )}
@@ -101,7 +110,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
-          'relative flex items-center gap-2 rounded-full px-3 py-1.5',
+          'relative flex items-center gap-1.5 rounded-full px-2 py-1',
           'bg-white/5',
           'hover:bg-white/10',
           'transition-all duration-100 ease-out',
@@ -112,34 +121,36 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           sizeClasses[size],
           className
         )}
-        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
+        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
       >
         <motion.div
-          className="absolute inset-y-1 rounded-full bg-gradient-to-r from-primary/30 to-primary/20"
+          className="absolute inset-y-1 rounded-full bg-gradient-to-r shadow-sm"
           initial={false}
           animate={{
-            left: activeMode === 'client' ? '4px' : '50%',
-            right: activeMode === 'client' ? '50%' : '4px',
+            left: activeMode === 'client' ? '3px' : '50%',
+            right: activeMode === 'client' ? '50%' : '3px',
+            backgroundColor: activeMode === 'client' ? 'rgba(45, 212, 191, 0.2)' : 'rgba(251, 146, 60, 0.2)',
+            boxShadow: 'none'
           }}
-          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-          style={{ willChange: 'left, right' }}
+          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+          style={{ willChange: 'left, right, background-color' }}
         />
 
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
-          'relative z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-colors duration-200',
-          activeMode === 'client' ? 'text-teal-400 font-semibold' : 'text-white/60'
+          'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
+          activeMode === 'client' ? 'text-teal-400 font-black scale-105' : (isDark ? 'text-white/50 hover:text-white/80' : 'text-foreground/50 hover:text-foreground/80')
         )}>
-          <Briefcase className="h-3.5 w-3.5" />
-          <span className="font-bold">Client Side</span>
+          <User strokeWidth={4} className="h-3 w-3" />
+          <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Client</span>
         </div>
 
         <div className={cn(
-          'relative z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full transition-colors duration-200',
-          activeMode === 'owner' ? 'text-orange-400 font-semibold' : 'text-white/60'
+          'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
+          activeMode === 'owner' ? 'text-orange-400 font-black scale-105' : (isDark ? 'text-white/50 hover:text-white/80' : 'text-foreground/50 hover:text-foreground/80')
         )}>
-          <Search className="h-3.5 w-3.5" />
-          <span className="font-bold">Owner Side</span>
+          <UserCog strokeWidth={4} className="h-3 w-3" />
+          <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Business</span>
         </div>
 
         <AnimatePresence>
@@ -150,7 +161,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               exit={{ opacity: 0 }}
               className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full"
             >
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -163,7 +174,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       onClick={(e) => handleToggle(e)}
       disabled={isSwitching || !canSwitchMode}
       className={cn(
-        'relative flex items-center gap-1.5 rounded-xl px-2.5',
+        'relative flex items-center gap-1 rounded-lg px-2',
         'transition-all duration-100 ease-out',
         'active:scale-[0.95]',
         'disabled:opacity-50 disabled:cursor-not-allowed',
@@ -173,13 +184,13 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         className
       )}
       style={{
-        backgroundColor: 'rgba(255, 255, 255, 0.06)',
+        backgroundColor: glassBg,
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+        border: glassBorder,
+        boxShadow: floatingShadow,
       }}
-      aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Owner Side'} mode`}
+      aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
     >
       <AnimatePresence mode="wait">
         <motion.div
@@ -192,22 +203,22 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}
           {isSwitching ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+            <Loader2 className={cn("h-3.5 w-3.5 animate-spin", isDark ? "text-white" : "text-foreground")} />
           ) : activeMode === 'client' ? (
             <>
-              <Briefcase className="h-3.5 w-3.5 text-teal-400" />
-              <span className="font-bold text-teal-400">Client Side</span>
+              <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
+              <span className="font-black text-teal-400 uppercase tracking-tight">Client Side</span>
             </>
           ) : (
             <>
-              <Search className="h-3.5 w-3.5 text-orange-400" />
-              <span className="font-bold text-orange-400">Owner Side</span>
+              <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
+              <span className="font-black text-orange-400 uppercase tracking-tight">Business Side</span>
             </>
           )}
         </motion.div>
       </AnimatePresence>
 
-      <ArrowLeftRight className="h-3 w-3 text-white/80" />
+      <ArrowLeftRight className={cn("h-3 w-3", isDark ? "text-white/80" : "text-foreground/60")} />
     </button>
   );
 }

@@ -57,7 +57,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-3xl mx-auto px-4 py-8 pb-32">
+      <div className="max-w-3xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <PageHeader
           title="About Swipess"
           subtitle="Connecting property owners with the perfect tenants"

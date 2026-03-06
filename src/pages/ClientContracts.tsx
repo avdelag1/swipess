@@ -1,4 +1,3 @@
-// @ts-nocheck
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,15 +68,15 @@ const ClientContracts = () => {
 
   return (
     <>
-      <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-24 sm:pb-8">
+      <div className="w-full overflow-x-hidden p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-6 lg:p-8 pb-24 sm:pb-8">
         <div className="max-w-6xl mx-auto">
           <motion.button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/client/settings')}
             whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
             className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150 mb-4 px-1"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back
+            Settings
           </motion.button>
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-4">My Contracts</h1>
@@ -124,7 +123,7 @@ const ClientContracts = () => {
             <div className="mb-6 sm:mb-8">
               <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Pending Signatures</h2>
               <div className="grid gap-3 sm:gap-4">
-                {activeDeals.map((deal) => (
+                {activeDeals.map((deal: any) => (
                   <Card key={deal.id} className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
                     <CardContent className="p-4 sm:p-6">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">

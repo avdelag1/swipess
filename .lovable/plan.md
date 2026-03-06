@@ -1,95 +1,46 @@
 
 
-# Fix White Theme on Owner Pages, Swipe Card Position, and Listing Upload
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Overview
+### 1. Replace App Icon with Fire S Logo
 
-Multiple issues need fixing:
-1. Several owner-side pages (PropertyManagement, LikedClients, ClientLikedProperties) have hardcoded dark backgrounds that don't adapt to white-matte theme
-2. Swipe card info (rating, name) overlaps with action buttons on mobile
-3. PropertyManagement still uses old `toast()` syntax causing build errors
-4. Email signup works correctly (confirmed 11 email users in database with profiles + roles) -- no backend fix needed
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
----
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-## Part 1: White Theme Fixes
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### PropertyManagement.tsx (Owner Listings Page)
-The entire component uses hardcoded `bg-gray-900`, `bg-gray-800`, `text-white` classes. Needs theme-aware styling:
-- Import `useTheme` hook, create `isLight` flag
-- Replace `bg-gray-900` with `isLight ? 'bg-[#f5f5f5]' : 'bg-gray-900'`
-- Replace `bg-gray-800` cards with `isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700'`
-- Replace `text-white` headings with `text-foreground`
-- Replace `text-white/60` subtitles with `text-muted-foreground`
-- Update search input, tabs, loading and error states
+### 2. Profile Photo Already Shows in Top-Left
 
-### OwnerListingsStats.tsx
-Uses `bg-gray-800/40`, `text-white`, `text-white/60` throughout. Needs:
-- Import `useTheme`, pass `isLight` to stat card rendering
-- Replace glass surfaces with theme-aware equivalents
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### LikedClients.tsx (Owner Liked Clients)
-Hardcoded `background: '#070709'` on the root div, plus `text-white`, `rgba(255,255,255,...)` everywhere. Needs:
-- Import `useTheme`, build theme-aware `colors` object (same pattern as OwnerFilters)
-- Update root background, header, search bar, category pills, client cards, empty state
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### ClientLikedProperties.tsx (Client Liked Properties)
-Hardcoded `rgba(255,255,255,...)` patterns in refresh button, category tabs, count indicator, card body, empty state. Needs:
-- Import `useTheme`, add `isLight` conditional styling
-- Update tab pills: inactive state uses `text-white/60` and `rgba(255,255,255,0.06)` -- swap to dark equivalents in light theme
-- Update card body metadata pills, amenity badges, empty state
+### 3. Fix Header Too Close to Top Edge
 
----
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-## Part 2: Swipe Card Info Position Fix
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-### Problem
-On the owner swipe deck (`/owner/liked-clients` screenshot), the rating badge + name "New User" sits at `bottom-24` which puts it right behind the action buttons (Like, Dislike, Share, etc.) on mobile phones.
+### 4. Fix MarketingSlide Build Error
 
-### Fix (SimpleSwipeCard.tsx + SimpleOwnerSwipeCard.tsx)
-Both files have the content overlay positioned at `bottom-24` (line 505 in SimpleSwipeCard, line 662 in SimpleOwnerSwipeCard). Change to `bottom-32` to push the info section higher, creating comfortable clearance above the floating action buttons.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-This is a single class change per file -- no layout restructuring needed.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
----
-
-## Part 3: Fix Toast Syntax in PropertyManagement.tsx
-
-Lines 157, 170, 180, 193, 209, 219 still use the old `toast({ title, description, variant })` syntax. Convert to sonner syntax:
-- `toast({ title: 'Deleting...', description: '...' })` becomes `toast('Deleting...', { description: '...' })`
-- `toast({ title: 'Error', variant: 'destructive' })` becomes `toast.error('Error', { description: '...' })`
-
----
-
-## Part 4: Email Signup Backend Verification
-
-After checking the database, email signups ARE working correctly:
-- 11 email-provider users exist in `auth.users`
-- All have matching `profiles` records (via `handle_new_user` trigger)
-- All have `user_roles` entries (role: client)
-- The `signUp` function in `useAuth.tsx` correctly calls `supabase.auth.signUp()` and `createProfileIfMissing()`
-
-No backend changes needed -- the user might have been checking a different database or the data wasn't visible due to the backend UI.
-
----
-
-## Files to Change
-
-| File | Change |
-|------|--------|
-| `src/components/PropertyManagement.tsx` | Theme-aware colors + fix toast syntax |
-| `src/components/OwnerListingsStats.tsx` | Theme-aware colors |
-| `src/components/LikedClients.tsx` | Theme-aware colors (full page) |
-| `src/pages/ClientLikedProperties.tsx` | Theme-aware colors |
-| `src/components/SimpleSwipeCard.tsx` | Move content overlay from `bottom-24` to `bottom-32` |
-| `src/components/SimpleOwnerSwipeCard.tsx` | Move content overlay from `bottom-24` to `bottom-32` |
-
-## What Stays Unchanged
-- All swipe physics and card interaction logic
-- Authentication flow (signup, signin, OAuth)
-- Database schema and RLS policies
-- Routing architecture
-- Owner Filters page (already has full theme support)
-- Owner Profile page (already has theme support)
-- Client Profile page (already has theme support)
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

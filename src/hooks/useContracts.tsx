@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -67,7 +66,7 @@ export function useContracts() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as (DigitalContract & { 
+      return (data as unknown) as (DigitalContract & { 
         signatures: ContractSignature[];
         deal_status: DealStatus[];
       })[];
@@ -103,7 +102,7 @@ export function useCreateContract() {
       if (uploadError) throw uploadError;
 
       // Create contract record
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('digital_contracts')
         .insert({
           title: contractData.title,
@@ -125,7 +124,7 @@ export function useCreateContract() {
 
       // Create deal status record
       if (contractData.client_id) {
-        await supabase
+        await (supabase as any)
           .from('deal_status_tracking')
           .insert({
             contract_id: data.id,
@@ -166,7 +165,7 @@ export function useSignContract() {
       if (!user?.id) throw new Error('User not authenticated');
 
       // Create signature record
-      const { data: signature, error: signatureError } = await supabase
+      const { data: signature, error: signatureError } = await (supabase as any)
         .from('contract_signatures')
         .insert({
           contract_id: contractId,
@@ -202,7 +201,7 @@ export function useSignContract() {
         updateData.signed_by_owner_at = new Date().toISOString();
       } else if (isClient) {
         // Check if owner already signed
-        const { data: ownerSignature } = await supabase
+        const { data: ownerSignature } = await (supabase as any)
           .from('contract_signatures')
           .select('*')
           .eq('contract_id', contractId)
@@ -223,7 +222,7 @@ export function useSignContract() {
       updateData.status = newStatus as 'pending' | 'signed_by_owner' | 'signed_by_client' | 'completed' | 'cancelled' | 'disputed';
 
       // Update deal status
-      await supabase
+      await (supabase as any)
         .from('deal_status_tracking')
         .update(updateData)
         .eq('contract_id', contractId);
@@ -255,7 +254,7 @@ export function useActiveDeals() {
     queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('deal_status_tracking')
         .select(`
           *,
@@ -290,7 +289,7 @@ export function useCreateDisputeReport() {
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('dispute_reports')
         .insert({
           contract_id: contractId,

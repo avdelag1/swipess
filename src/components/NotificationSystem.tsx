@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -209,7 +208,9 @@ export function NotificationSystem() {
       // FIX: Use .unsubscribe() instead of .removeChannel() for proper cleanup
       // .unsubscribe() properly stops event listening and prevents memory leaks
       messagesChannel.unsubscribe();
+      supabase.removeChannel(messagesChannel);
       likesChannel.unsubscribe();
+      supabase.removeChannel(likesChannel);
     };
   }, [user?.id, queryClient]);
 

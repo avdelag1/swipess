@@ -1,17 +1,54 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ─── Zod Schemas ──────────────────────────────────────────────────
+
+const ListingSchema = z.object({
+  title: z.string().min(1).max(100),
+  description: z.string().min(1),
+  price: z.number().nullable().optional(),
+  city: z.string().optional(),
+  neighborhood: z.string().optional(),
+}).passthrough();
+
+const ProfileSchema = z.object({
+  bio: z.string().min(1),
+  lifestyle: z.string().optional(),
+  interests_enhanced: z.array(z.string()).optional(),
+}).passthrough();
+
+const SearchSchema = z.object({
+  category: z.string().nullable(),
+  priceMin: z.number().nullable().optional(),
+  priceMax: z.number().nullable().optional(),
+  keywords: z.array(z.string()).optional(),
+  language: z.string().optional(),
+  suggestion: z.string().optional(),
+}).passthrough();
+
+const EnhanceSchema = z.object({
+  text: z.string().min(1),
+}).passthrough();
+
+const ConversationSchema = z.object({
+  message: z.string().min(1),
+  extractedData: z.record(z.any()),
+  isComplete: z.boolean(),
+  nextSteps: z.string().optional(),
+}).passthrough();
+
 // Google Gemini via Lovable Gateway (Primary)
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const LOVABLE_MODEL = "google/gemini-3-flash-preview";
 
-// MiniMax (Fallback)
-const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2";
-const MINIMAX_MODEL = "MiniMax-M1";
+// MiniMax — international OpenAI-compatible API
+const MINIMAX_ENDPOINT = "https://api.minimax.io/v1/chat/completions";
+const MINIMAX_MODEL = "MiniMax-Text-01";
 
 // ─── Provider Calls ───────────────────────────────────────────────
 
@@ -91,20 +128,31 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  try {
-    // Primary: Google Gemini
-    return await callGemini(messages, maxTokens);
-  } catch (err) {
-    const isRetryable = err instanceof ProviderError && (err.status === 429 || err.status >= 500);
-    if (!isRetryable) throw err;
+  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
+  const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
 
-    console.warn("Gemini failed, trying MiniMax fallback...");
+  if (!hasLovable && !hasMinimax) {
+    throw new ProviderError("No AI provider is configured.", 503);
+  }
+
+  // Try Gemini (Lovable) first only if key is present
+  if (hasLovable) {
     try {
-      return await callMinimax(messages, maxTokens);
-    } catch (fallbackErr) {
-      console.error("MiniMax fallback also failed:", fallbackErr);
-      throw err; // throw original error
+      console.log("[AI Orchestrator] Attempting Gemini (Lovable AI)...");
+      return await callGemini(messages, maxTokens);
+    } catch (err) {
+      if (!hasMinimax) throw err;
+      console.warn("[AI Orchestrator] Gemini failed, falling back to MiniMax...", err);
     }
+  }
+
+  // Use MiniMax directly (primary when no Lovable key, or as fallback)
+  try {
+    console.log("[AI Orchestrator] Attempting MiniMax...");
+    return await callMinimax(messages, maxTokens);
+  } catch (fallbackErr) {
+    console.error("[AI Orchestrator] MiniMax failed:", fallbackErr);
+    throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
   }
 }
 
@@ -125,9 +173,15 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const desc = (data.description as string) || "";
   const price = (data.price as string) || "";
   const location = (data.location as string) || "";
+  const city = (data.city as string) || "";
+  const neighborhood = (data.neighborhood as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
-  const system = `You are an expert real estate and marketplace listing creator. Generate compelling, detailed listings. Always respond with valid JSON only.`;
+  const system = `You are a legendary real estate copywriter and luxury marketplace expert.
+Your goal is to transform basic user data into a high-converting, aspirational, and premium listing.
+Use vibrant, descriptive language that "sells the dream".
+Always respond in the language the user is speaking.
+ALWAYS respond with valid JSON ONLY.`;
 
   let userPrompt = "";
 
@@ -135,7 +189,7 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
     userPrompt = `Create a property listing:
 Description: ${desc}
 Price: ${price}
-Location: ${location}
+Location: ${location || `${neighborhood}, ${city}`}
 Photos: ${imageCount}
 
 Return JSON:
@@ -148,7 +202,8 @@ Return JSON:
   "furnished": boolean,
   "pet_friendly": boolean,
   "price": number or null,
-  "city": "city name"
+  "city": "city name",
+  "neighborhood": "neighborhood name"
 }`;
   } else if (cat === "motorcycle") {
     userPrompt = `Create a motorcycle listing:
@@ -210,8 +265,14 @@ Return JSON:
 
 function buildProfilePrompt(data: Record<string, unknown>): Message[] {
   return [
-    { role: "system", content: `You are a profile writing expert. Create warm, genuine profiles. Always respond with valid JSON only.` },
-    { role: "user", content: `Enhance this profile:
+    {
+      role: "system", content: `You are a high-end personal branding expert and charisma coach. 
+Create warm, authentic, and magnetic profiles that make people want to connect instantly.
+Focus on "lived experiences" and "personal vibe" rather than just dry facts.
+Always respond in the user's language.
+ALWAYS respond with valid JSON ONLY.` },
+    {
+      role: "user", content: `Enhance this profile:
 Name: ${data.name || ""}
 Age: ${data.age || ""}
 Bio: ${data.currentBio || ""}
@@ -229,7 +290,8 @@ Return JSON:
 function buildSearchPrompt(data: Record<string, unknown>): Message[] {
   return [
     { role: "system", content: `You are a smart search assistant for a marketplace (properties, motorcycles, bicycles, services). Convert natural language to filters. Always respond with valid JSON only.` },
-    { role: "user", content: `User is searching for: "${data.query}"
+    {
+      role: "user", content: `User is searching for: "${data.query}"
 
 Return JSON:
 {
@@ -248,7 +310,8 @@ function buildEnhancePrompt(data: Record<string, unknown>): Message[] {
   const text = (data.text as string) || "";
   return [
     { role: "system", content: `You are a premium copywriter. Enhance text to sound more ${tone}. Always respond with valid JSON only.` },
-    { role: "user", content: `Enhance: "${text}"
+    {
+      role: "user", content: `Enhance: "${text}"
 
 Return JSON:
 {
@@ -263,23 +326,29 @@ function buildConversationMessages(data: Record<string, unknown>): Message[] {
   const extractedData = (data.extractedData as Record<string, unknown>) || {};
   const messages = (data.messages as Message[]) || [];
 
-  const baseInstructions = `You are a friendly AI helping create a ${category} listing. You have ${imageCount} photos.
+  const baseInstructions = `You are an ultra-competent and professional "Personal Listing Concierge".
+You are helping the user create a truly "Legendary" ${category} listing. You have ${imageCount} photos to work with.
 
-Job:
-1. Have a natural conversation
-2. Ask follow-up questions
-3. Extract structured data
-4. Be conversational and helpful
+PERSONALITY & VOICE:
+- Professional, efficient, and supportive. Use professional confidence and empathy.
+- Clear and direct. Don't sound like a generic bot, but prioritize utility over humor.
+- If the user provides info, acknowledge it professionally and ask a smart, relevant follow-up.
+- Use emojis very sparingly to maintain a premium, high-end feel.
 
-Respond with valid JSON:
+GOALS:
+1. Have a natural, flowing conversation (the user shouldn't feel like they're filling a form).
+2. Subtlely extract data: title, description, price, city, neighborhood, etc.
+3. Be genuinely helpful and aspirational.
+
+EXPECTED JSON FORMAT (STRICTLY REQUIRED):
 {
-  "message": "Your response or question",
-  "extractedData": { /* all fields extracted */ },
-  "isComplete": false or true,
-  "nextSteps": "What's still needed"
+  "message": "Your witty and helpful response",
+  "extractedData": { /* current key-value extraction */ },
+  "isComplete": boolean,
+  "nextSteps": "the ONE next thing we need"
 }
 
-Current extracted: ${JSON.stringify(extractedData, null, 2)}
+Current extracted state: ${JSON.stringify(extractedData, null, 2)}
 `;
 
   let categoryPrompt = "";
@@ -312,6 +381,49 @@ serve(async (req) => {
   }
 
   try {
+    // Handle unauthenticated GET ping — no auth required
+    if (req.method === "GET") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator is alive",
+          gemini_configured: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Read body once up-front so we can check task before auth
+    const body = await req.json();
+    const task: string = body.task || body.type;
+    const data: Record<string, unknown> = body.data || body;
+
+    // Handle ping — no auth required
+    if (task === "ping") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator is alive",
+          gemini_configured: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate required environment variables
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("[AI Orchestrator] Missing core configuration: SUPABASE_URL or SUPABASE_ANON_KEY");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Authenticate the request
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
@@ -322,9 +434,7 @@ serve(async (req) => {
     }
 
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey,
       { global: { headers: { Authorization: authHeader } } }
     );
 
@@ -335,10 +445,6 @@ serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    const body = await req.json();
-    const task: string = body.task || body.type;
-    const data: Record<string, unknown> = body.data || body;
 
     let messages: Message[];
     let maxTokens = 1000;
@@ -356,6 +462,29 @@ serve(async (req) => {
       case "enhance":
         messages = buildEnhancePrompt(data);
         break;
+      case "chat":
+        messages = [
+          {
+            role: "system",
+            content: `You are the "Swipess Oracle" — an ultra-competent, professional, and deeply knowledgeable expert on the Swipess ecosystem.
+PERSONALITY & TONE:
+- Professional, helpful, and concise. Your goal is to provide accurate information and guide the user effectively.
+- Proactive but grounded. Focus on utility over wittiness.
+- Use clear, premium language. You are an elite concierge for the app.
+- You are an expert on:
+  * MATCHING: The core purpose of the app. Finding connections through swiping.
+  * TOKENS: Conversations are powered by tokens. Clients spend them; owners earn them.
+  * RADIO: 10 global stations per city, providing high-end atmosphere.
+  * PRIVACY: Elite security and trust-based architecture.
+  * NAVIGATION: Swiping titles to switch views, TopBar for actions.
+- Use emojis sparingly (✨, 💎, 🚀) to maintain a premium feel.
+
+GOAL: Provide direct answers and helpful guidance. If you don't have specific data for a query, politely explain your scope and offer related help.`
+          },
+          ...(data.messages as Message[] || [{ role: "user", content: data.query as string }])
+        ];
+        maxTokens = 2000;
+        break;
       case "conversation":
         messages = buildConversationMessages(data);
         maxTokens = 1500;
@@ -368,20 +497,51 @@ serve(async (req) => {
     }
 
     const aiResult = await callAI(messages, maxTokens);
+    console.log(`[AI Orchestrator] Success via ${aiResult.provider}, task: ${task}, content length: ${aiResult.content.length}`);
 
     let result: Record<string, unknown>;
-    const parsed = parseJSON(aiResult.content);
 
-    if (parsed) {
-      result = parsed;
-    } else if (task === "conversation") {
-      result = {
-        message: aiResult.content,
-        extractedData: data.extractedData || {},
-        isComplete: false,
-      };
+    // For chat task, always return plain text — no JSON parsing needed
+    if (task === "chat") {
+      result = { text: aiResult.content, message: aiResult.content };
     } else {
-      result = { text: aiResult.content };
+      const parsed = parseJSON(aiResult.content);
+
+      if (parsed) {
+        // Validate with Zod based on task to ensure structured output
+        try {
+          switch (task) {
+            case "listing":
+              result = ListingSchema.parse(parsed);
+              break;
+            case "profile":
+              result = ProfileSchema.parse(parsed);
+              break;
+            case "search":
+              result = SearchSchema.parse(parsed);
+              break;
+            case "enhance":
+              result = EnhanceSchema.parse(parsed);
+              break;
+            case "conversation":
+              result = ConversationSchema.parse(parsed);
+              break;
+            default:
+              result = parsed;
+          }
+        } catch (validationErr) {
+          console.error(`[AI Orchestrator] Validation failed for task "${task}":`, validationErr);
+          result = parsed;
+        }
+      } else if (task === "conversation") {
+        result = {
+          message: aiResult.content,
+          extractedData: data.extractedData || {},
+          isComplete: false,
+        };
+      } else {
+        result = { text: aiResult.content };
+      }
     }
 
     return new Response(
@@ -395,8 +555,8 @@ serve(async (req) => {
     const message = err instanceof ProviderError && err.status === 429
       ? "AI rate limit reached. Please try again."
       : err instanceof ProviderError && err.status === 402
-      ? "AI credits exhausted. Please add funds."
-      : err instanceof Error ? err.message : "Unknown error";
+        ? "AI credits exhausted. Please add funds."
+        : err instanceof Error ? err.message : "Unknown error";
 
     return new Response(
       JSON.stringify({ error: message }),

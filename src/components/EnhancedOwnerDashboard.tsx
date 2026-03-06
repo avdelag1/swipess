@@ -1,14 +1,16 @@
-/** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { useState, memo } from 'react';
+import { useState, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-import { ClientInsightsDialog } from '@/components/ClientInsightsDialog';
-import { MatchCelebration } from '@/components/MatchCelebration';
+// Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
+const ClientInsightsDialog = lazy(() =>
+  import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
+);
 import { NotificationBar } from '@/components/NotificationBar';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
+import { useFilterStore } from '@/state/filterStore';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -21,26 +23,38 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const [insightsOpen, setInsightsOpen] = useState(false);
 
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [matchCelebration, setMatchCelebration] = useState<{
-    isOpen: boolean;
-    clientProfile?: any;
-    ownerProfile?: any;
-  }>({ isOpen: false });
 
   const navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
+
+  // Connect filter store to swipe container (fixes missing filters when rendered as a route)
+  const filterVersion = useFilterStore((s) => s.filterVersion);
+  const getListingFilters = useFilterStore((s) => s.getListingFilters);
+  const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
+  const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
+
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
-  const filterCategory = filters?.categories?.[0] || filters?.category || undefined;
+  const filterCategory = mergedFilters?.categories?.[0] || mergedFilters?.category || undefined;
+  if (import.meta.env.DEV) console.log('[EnhancedOwnerDashboard] Rendering with filters:', mergedFilters);
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
-    filterCategory,
+    filterCategory as any,
     0,      // page
     50,     // limit
     false,  // isRefreshMode
-    filters // FIX: Now includes filters!
+    mergedFilters as any // FIX: Now includes synced filters!
   );
+
+  if (import.meta.env.DEV) {
+    if (error) {
+      console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
+    } else {
+      console.log('[EnhancedOwnerDashboard] Fetched profiles count:', clientProfiles.length);
+    }
+  }
+
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
 
   const handleClientTap = (clientId: string) => {
@@ -54,10 +68,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     if (onClientInsights) {
       onClientInsights(clientId);
     }
-  };
-
-  const handleStartConversation = () => {
-    navigate('/messages');
   };
 
   const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
@@ -82,27 +92,18 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         isLoading={isLoading}
         error={error}
         insightsOpen={insightsOpen}
-        filters={filters}
+        filters={mergedFilters}
       />
 
       {selectedClient && (
-        <ClientInsightsDialog
-          open={insightsOpen}
-          onOpenChange={setInsightsOpen}
-          profile={selectedClient}
-        />
+        <Suspense fallback={null}>
+          <ClientInsightsDialog
+            open={insightsOpen}
+            onOpenChange={setInsightsOpen}
+            profile={selectedClient}
+          />
+        </Suspense>
       )}
-
-      <MatchCelebration
-        isOpen={matchCelebration.isOpen}
-        onClose={() => setMatchCelebration({ isOpen: false })}
-        matchedUser={{
-          name: matchCelebration.clientProfile?.name || 'User',
-          avatar: matchCelebration.clientProfile?.images?.[0],
-          role: 'client'
-        }}
-        onMessage={handleStartConversation}
-      />
 
       <CategorySelectionDialog
         open={showCategoryDialog}

@@ -8,11 +8,9 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .glass-enhanced {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.04) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.04) 100%);
   backdrop-filter: blur(var(--glass-blur-lg)) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow:
@@ -98,12 +96,12 @@
   transition: transform 100ms ease-out;
 }
 
-/* Enhanced focus ring */
+/* Enhanced focus ring — uses brand token */
 .focus-enhanced:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 4px rgba(255, 77, 0, 0.2),
-    0 0 0 2px #FF4D00;
+    0 0 0 4px var(--focus-ring-color),
+    0 0 0 2px var(--color-brand-primary);
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -117,10 +115,12 @@
     transform: translateY(12px) scale(0.98);
     filter: blur(4px);
   }
+
   60% {
     opacity: 1;
     filter: blur(0);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -132,12 +132,71 @@
   animation: view-entry-premium 500ms var(--ease-out-expo);
 }
 
+/* ━━━ Haptic Burst & Prism Effects ━━━ */
+@keyframes haptic-burst {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+    transform: scale(1);
+  }
+
+  10% {
+    box-shadow: 0 0 20px 10px rgba(255, 255, 255, 0.2);
+    transform: scale(0.96);
+  }
+
+  100% {
+    box-shadow: 0 0 40px 20px rgba(255, 255, 255, 0);
+    transform: scale(1);
+  }
+}
+
+.button-haptic-burst:active {
+  animation: haptic-burst 0.4s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+@keyframes prism-blur-in {
+  0% {
+    filter: blur(12px) saturate(200%) contrast(120%);
+    opacity: 0;
+    transform: scale(1.05) translateZ(0);
+  }
+
+  100% {
+    filter: blur(0px) saturate(100%) contrast(100%);
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes prism-blur-out {
+  0% {
+    filter: blur(0px) saturate(100%) contrast(100%);
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+
+  100% {
+    filter: blur(12px) saturate(200%) contrast(120%);
+    opacity: 0;
+    transform: scale(0.95) translateZ(0);
+  }
+}
+
+.prism-transition-in {
+  animation: prism-blur-in 0.6s var(--ease-out-expo) forwards;
+}
+
+.prism-transition-out {
+  animation: prism-blur-out 0.5s var(--ease-in-expo) forwards;
+}
+
 /* Modal entry animation */
 @keyframes modal-entry-premium {
   0% {
     opacity: 0;
     transform: scale(0.92) translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -150,8 +209,15 @@
 
 /* Gradient shift animation (subtle) */
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .gradient-animated {
@@ -161,9 +227,19 @@
 
 /* Ambient orb float (optional) */
 @keyframes orb-float {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(20px, -30px); }
-  66% { transform: translate(-15px, 20px); }
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  33% {
+    transform: translate(20px, -30px);
+  }
+
+  66% {
+    transform: translate(-15px, 20px);
+  }
 }
 
 .ambient-orb {
@@ -171,11 +247,9 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 140, 66, 0.8),
-    rgba(255, 77, 0, 0.4)
-  );
+  background: radial-gradient(circle at 30% 30%,
+      rgba(255, 140, 66, 0.8),
+      rgba(255, 77, 0, 0.4));
   filter: blur(2px);
   opacity: 0.2;
   animation: orb-float 15s ease-in-out infinite;
@@ -203,7 +277,7 @@
 
 .text-body-premium {
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 600;
   letter-spacing: 0;
   line-height: 1.5;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -211,7 +285,7 @@
 
 .text-caption-premium {
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.01em;
   line-height: 1.4;
   opacity: 0.7;
@@ -237,11 +311,9 @@
   inset: 0;
   border-radius: 24px;
   padding: 1px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08),
-    rgba(255, 255, 255, 0.02)
-  );
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.02));
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -252,11 +324,9 @@
 
 /* Premium button with gradient */
 .btn-primary-enhanced {
-  background: linear-gradient(
-    135deg,
-    #FF4D00 0%,
-    #FF6B35 100%
-  );
+  background: linear-gradient(135deg,
+      #FF4D00 0%,
+      #FF6B35 100%);
   box-shadow:
     0 2px 8px rgba(255, 77, 0, 0.3),
     0 4px 16px rgba(255, 77, 0, 0.15);
@@ -276,11 +346,9 @@
 
 /* Modal premium styling */
 .modal-premium {
-  background: linear-gradient(
-    145deg,
-    rgba(17, 17, 17, 0.98) 0%,
-    rgba(26, 26, 26, 0.95) 100%
-  );
+  background: linear-gradient(145deg,
+      rgba(17, 17, 17, 0.98) 0%,
+      rgba(26, 26, 26, 0.95) 100%);
   backdrop-filter: blur(var(--glass-blur-xl)) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-xl);
@@ -292,11 +360,9 @@
 
 /* Bottom action bar enhancement */
 .action-bar-premium {
-  background: linear-gradient(
-    180deg,
-    rgba(10, 10, 10, 0.98) 0%,
-    rgba(5, 5, 5, 0.95) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(10, 10, 10, 0.98) 0%,
+      rgba(5, 5, 5, 0.95) 100%);
   backdrop-filter: blur(var(--glass-blur-lg)) saturate(140%);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -311,23 +377,19 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .swipess-logo-enhanced {
-  background: linear-gradient(
-    135deg,
-    #FF8C42 0%,
-    #FFB347 25%,
-    #FF6B35 50%,
-    #FF4D00 75%,
-    #FF8C42 100%
-  );
+  background: linear-gradient(135deg,
+      #FF8C42 0%,
+      #FFB347 25%,
+      #FF6B35 50%,
+      #FF4D00 75%,
+      #FF8C42 100%);
   background-size: 200% 200%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: gradient-shift 8s ease-in-out infinite;
   filter:
-    drop-shadow(0 0 20px rgba(255, 77, 0, 0.6))
-    drop-shadow(0 0 40px rgba(255, 107, 53, 0.3))
-    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    drop-shadow(0 0 20px rgba(255, 77, 0, 0.6)) drop-shadow(0 0 40px rgba(255, 107, 53, 0.3)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -336,6 +398,7 @@
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -347,6 +410,7 @@
 
 /* Disable expensive effects on low-end devices */
 @media (max-width: 640px) and (max-resolution: 192dpi) {
+
   .glass-enhanced,
   .glass-level-2,
   .glass-level-3,
@@ -389,26 +453,439 @@
 }
 
 /* Spacing utilities */
-.space-xs { margin: var(--space-xs); }
-.space-sm { margin: var(--space-sm); }
-.space-md { margin: var(--space-md); }
-.space-lg { margin: var(--space-lg); }
-.space-xl { margin: var(--space-xl); }
-.space-2xl { margin: var(--space-2xl); }
-.space-3xl { margin: var(--space-3xl); }
-.space-4xl { margin: var(--space-4xl); }
+.space-xs {
+  margin: var(--space-xs);
+}
+
+.space-sm {
+  margin: var(--space-sm);
+}
+
+.space-md {
+  margin: var(--space-md);
+}
+
+.space-lg {
+  margin: var(--space-lg);
+}
+
+.space-xl {
+  margin: var(--space-xl);
+}
+
+.space-2xl {
+  margin: var(--space-2xl);
+}
+
+.space-3xl {
+  margin: var(--space-3xl);
+}
+
+.space-4xl {
+  margin: var(--space-4xl);
+}
 
 /* Padding utilities */
-.p-xs { padding: var(--space-xs); }
-.p-sm { padding: var(--space-sm); }
-.p-md { padding: var(--space-md); }
-.p-lg { padding: var(--space-lg); }
-.p-xl { padding: var(--space-xl); }
-.p-2xl { padding: var(--space-2xl); }
-.p-3xl { padding: var(--space-3xl); }
-.p-4xl { padding: var(--space-4xl); }
+.p-xs {
+  padding: var(--space-xs);
+}
+
+.p-sm {
+  padding: var(--space-sm);
+}
+
+.p-md {
+  padding: var(--space-md);
+}
+
+.p-lg {
+  padding: var(--space-lg);
+}
+
+.p-xl {
+  padding: var(--space-xl);
+}
+
+.p-2xl {
+  padding: var(--space-2xl);
+}
+
+.p-3xl {
+  padding: var(--space-3xl);
+}
+
+.p-4xl {
+  padding: var(--space-4xl);
+}
 
 /* Enhanced border radius */
 .rounded-2xl {
   border-radius: var(--radius-2xl);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  9. RADIO PLAYER CUSTOM UI                                              */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.radio-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 4px;
+  outline: none;
+  position: relative;
+  z-index: 10;
+  display: block;
+  margin: 0 auto;
+}
+
+.radio-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px !important;
+  height: 18px !important;
+  background: #fff !important;
+  border-radius: 50% !important;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
+  /* Visual alignment fix */
+  margin-top: -7px;
+}
+
+.radio-slider::-moz-range-thumb {
+  width: 18px !important;
+  height: 18px !important;
+  background: #fff !important;
+  border-radius: 50% !important;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.15) !important;
+  border: none !important;
+}
+
+/* Dial variant */
+.radio-dial {
+  height: 6px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.radio-dial::-webkit-slider-thumb {
+  width: 22px !important;
+  height: 22px !important;
+  background: #E4007C !important;
+  box-shadow: 0 0 20px rgba(228, 0, 124, 0.6), 0 0 0 4px rgba(228, 0, 124, 0.2) !important;
+  margin-top: -8px;
+}
+
+.radio-dial::-moz-range-thumb {
+  width: 22px !important;
+  height: 22px !important;
+  background: #E4007C !important;
+  box-shadow: 0 0 20px rgba(228, 0, 124, 0.6), 0 0 0 4px rgba(228, 0, 124, 0.2) !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  10. LIQUID GLASS — 2026 DESIGN SYSTEM                               */
+/*                                                                       */
+/*  Apple-style Liquid Glass: the "liquid" appearance comes from a       */
+/*  slowly-drifting radial-gradient highlight that mimics light          */
+/*  refracting through water or thick curved glass.                      */
+/*                                                                       */
+/*  Three CSS layers create the effect:                                  */
+/*    1. backdrop-filter blur + semi-transparent fill (the glass body)   */
+/*    2. top-edge border glow (the glass rim catch-light)                */
+/*    3. animated radial gradient (the liquid refraction shimmer)        */
+/*                                                                       */
+/*  Classes:                                                             */
+/*    .liquid-glass-highlight           — the static overlay             */
+/*    .liquid-glass-highlight--animated — adds the drift keyframe        */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/**
+ * LIQUID-FLOW keyframe
+ *
+ * Moves the radial gradient's background-position in a slow, organic
+ * figure-eight path (0% 0% → 65% 20% → 80% 65% → 35% 90% → back).
+ * Duration: 10–12s feels water-like without being distracting.
+ * We also slightly pulse the opacity so the highlight breathes.
+ */
+@keyframes liquid-flow {
+
+  0%,
+  100% {
+    background-position: 22% 0%, 88% 108%;
+    opacity: 1;
+  }
+
+  22% {
+    background-position: 65% 18%, 18% 82%;
+    opacity: 0.80;
+  }
+
+  50% {
+    background-position: 80% 62%, 8% 22%;
+    opacity: 1;
+  }
+
+  75% {
+    background-position: 35% 88%, 82% 12%;
+    opacity: 0.88;
+  }
+}
+
+/**
+ * The liquid highlight overlay itself.
+ * Background is a two-part radial gradient:
+ *   PRIMARY   — large bright ellipse toward top-left (main catch-light)
+ *   SECONDARY — smaller faint ellipse at bottom-right (counter-reflection)
+ *
+ * backgroundSize is set large (220% × 220%) on the primary so the
+ * background-position animation moves it visibly across the surface.
+ */
+.liquid-glass-highlight {
+  background:
+    radial-gradient(ellipse 140% 60% at 22% 0%,
+      rgba(255, 255, 255, 0.18) 0%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
+      rgba(255, 255, 255, 0.07) 0%,
+      transparent 58%);
+  background-size: 220% 220%, 100% 100%;
+}
+
+/* Light-mode version: much brighter highlights since the bg is white */
+.white-matte .liquid-glass-highlight {
+  background:
+    radial-gradient(ellipse 140% 60% at 22% 0%,
+      rgba(255, 255, 255, 0.72) 0%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
+      rgba(255, 255, 255, 0.30) 0%,
+      transparent 58%);
+  background-size: 220% 220%, 100% 100%;
+}
+
+/* Animated version — adds the drift */
+.liquid-glass-highlight--animated {
+  background:
+    radial-gradient(ellipse 140% 60% at 22% 0%,
+      rgba(255, 255, 255, 0.18) 0%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
+      rgba(255, 255, 255, 0.07) 0%,
+      transparent 58%);
+  background-size: 220% 220%, 100% 100%;
+  animation: liquid-flow 11s ease-in-out infinite;
+  will-change: background-position, opacity;
+}
+
+.white-matte .liquid-glass-highlight--animated {
+  background:
+    radial-gradient(ellipse 140% 60% at 22% 0%,
+      rgba(255, 255, 255, 0.72) 0%,
+      transparent 62%),
+    radial-gradient(ellipse 80% 45% at 88% 108%,
+      rgba(255, 255, 255, 0.30) 0%,
+      transparent 58%);
+  background-size: 220% 220%, 100% 100%;
+  animation: liquid-flow 11s ease-in-out infinite;
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/*  LIQUID RIPPLE                                                        */
+/*  CSS-only press ripple — spawned as a <span> from React on click.    */
+/*  Using CSS rather than Framer Motion keeps it off the JS thread,     */
+/*  preserving swipe card animation budget.                              */
+/* ──────────────────────────────────────────────────────────────────── */
+
+@keyframes liquid-ripple {
+  0% {
+    transform: scale(0) translateZ(0);
+    opacity: 0.48;
+  }
+
+  75% {
+    opacity: 0.12;
+  }
+
+  100% {
+    transform: scale(4.5) translateZ(0);
+    opacity: 0;
+  }
+}
+
+.liquid-ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-left: -20px;
+  margin-top: -20px;
+  pointer-events: none;
+  /* background is set inline from React (variant-matched colour) */
+  animation: liquid-ripple 0.62s cubic-bezier(0, 0.55, 0.45, 1) forwards;
+  will-change: transform, opacity;
+  z-index: 10;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  11. 2026 PAGE SPRING TRANSITIONS — STAGGER CHILDREN                 */
+/*                                                                       */
+/*  CSS-only stagger utility. Apply .stagger-enter to a container and   */
+/*  its direct children receive progressive animation delays, creating   */
+/*  the "wave" entrance effect without Framer Motion in the children.   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/**
+ * STAGGER-ITEM-ENTER keyframe
+ *
+ * Each item rises from 20px below with a spring-like overshoot
+ * (handled by cubic-bezier(0.34, 1.56, 0.64, 1) — this is the CSS
+ * equivalent of a spring with slight overshoot, same as framer-motion's
+ * default spring feel).
+ * Filter blur clears by 60% of the animation, matching how the
+ * PageTransition springAlive variant behaves.
+ */
+@keyframes stagger-item-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96) translateZ(0);
+    filter: blur(5px);
+  }
+
+  60% {
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) translateZ(0);
+    filter: blur(0);
+  }
+}
+
+/* Container: all direct children get the animation */
+.stagger-enter>* {
+  opacity: 0;
+  animation: stagger-item-enter 0.52s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Progressive delays — creates the visual wave */
+.stagger-enter>*:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.stagger-enter>*:nth-child(2) {
+  animation-delay: 52ms;
+}
+
+.stagger-enter>*:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.stagger-enter>*:nth-child(4) {
+  animation-delay: 122ms;
+}
+
+.stagger-enter>*:nth-child(5) {
+  animation-delay: 150ms;
+}
+
+.stagger-enter>*:nth-child(6) {
+  animation-delay: 174ms;
+}
+
+.stagger-enter>*:nth-child(7) {
+  animation-delay: 194ms;
+}
+
+.stagger-enter>*:nth-child(8) {
+  animation-delay: 210ms;
+}
+
+.stagger-enter>*:nth-child(9) {
+  animation-delay: 224ms;
+}
+
+.stagger-enter>*:nth-child(10) {
+  animation-delay: 236ms;
+}
+
+.stagger-enter>*:nth-child(n+11) {
+  animation-delay: 245ms;
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/*  MODAL LIQUID GLASS                                                   */
+/*  Enhanced modal container styling for dialogs and sheets.            */
+/* ──────────────────────────────────────────────────────────────────── */
+
+.modal-liquid-glass {
+  background: linear-gradient(145deg,
+      rgba(18, 18, 22, 0.92) 0%,
+      rgba(24, 24, 30, 0.88) 100%);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    0 28px 80px rgba(0, 0, 0, 0.45),
+    0 12px 40px rgba(0, 0, 0, 0.22);
+  position: relative;
+  overflow: hidden;
+}
+
+.white-matte .modal-liquid-glass {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    0 20px 60px rgba(0, 0, 0, 0.10),
+    0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* ──────────────────────────────────────────────────────────────────── */
+/*  DISABLE LIQUID ANIMATIONS ON REDUCED MOTION / LOW-END DEVICES       */
+/* ──────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass-highlight--animated {
+    animation: none !important;
+  }
+
+  .liquid-ripple {
+    animation-duration: 0.01ms !important;
+  }
+
+  .stagger-enter>* {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Low-end: kill expensive backdrop on very small + low-res screens */
+@media (max-width: 380px) and (max-resolution: 150dpi) {
+  .liquid-glass-highlight--animated {
+    animation: none !important;
+  }
 }

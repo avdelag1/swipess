@@ -304,9 +304,9 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                 <MapPin className="w-4 h-4" />
                 <span>{[listing.address, listing.neighborhood, listing.city].filter(Boolean).join(', ')}</span>
               </div>
-              {propertyInsights?.listingAge !== null && (
+              {propertyInsights?.listingAge != null && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Listed {propertyInsights.listingAge === 0 ? 'today' : propertyInsights.listingAge === 1 ? 'yesterday' : `${propertyInsights.listingAge} days ago`}
+                  Listed {propertyInsights!.listingAge === 0 ? 'today' : propertyInsights!.listingAge === 1 ? 'yesterday' : `${propertyInsights!.listingAge} days ago`}
                 </p>
               )}
             </div>

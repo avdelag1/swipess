@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,7 +23,7 @@ export function useRadioPlaylists() {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_radio_playlists')
         .select('*')
         .eq('user_id', user.id)
@@ -53,7 +52,7 @@ export function useRadioPlaylists() {
     }
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_radio_playlists')
         .insert({
           user_id: user.id,
@@ -84,7 +83,7 @@ export function useRadioPlaylists() {
     if (!user?.id) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_radio_playlists')
         .delete()
         .eq('id', playlistId)
@@ -119,7 +118,7 @@ export function useRadioPlaylists() {
 
       const updatedStationIds = [...playlist.station_ids, stationId];
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_radio_playlists')
         .update({ station_ids: updatedStationIds })
         .eq('id', playlistId)
@@ -152,7 +151,7 @@ export function useRadioPlaylists() {
 
       const updatedStationIds = playlist.station_ids.filter(id => id !== stationId);
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_radio_playlists')
         .update({ station_ids: updatedStationIds })
         .eq('id', playlistId)
@@ -180,7 +179,7 @@ export function useRadioPlaylists() {
     if (!user?.id) return;
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('user_radio_playlists')
         .update(updates)
         .eq('id', playlistId)

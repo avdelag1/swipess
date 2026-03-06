@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -186,7 +185,7 @@ export function usePrefetchManager() {
         const { data } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .single();
         return data;
       },

@@ -7,7 +7,7 @@ import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
-import { lovable } from '@/integrations/lovable/index';
+
 
 interface AuthContextType {
   user: User | null;
@@ -35,6 +35,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Prevent duplicate OAuth setup calls
   const processingOAuthRef = useRef(false);
   const processedUserIdRef = useRef<string | null>(null);
+  // Track OAuth timeout for cleanup on unmount
+  const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -114,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             processingOAuthRef.current = true;
             processedUserIdRef.current = session.user.id;
 
-            const oauthSetupTimeout = setTimeout(() => {
+            oauthTimeoutRef.current = setTimeout(() => {
               if (processingOAuthRef.current) {
                 logger.warn('[Auth] OAuth setup timeout - resetting state');
                 processingOAuthRef.current = false;
@@ -127,7 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 toast.error('Profile Setup Issue', { description: 'There was an issue setting up your profile. Please try refreshing the page.' });
               })
               .finally(() => {
-                clearTimeout(oauthSetupTimeout);
+                if (oauthTimeoutRef.current) {
+                  clearTimeout(oauthTimeoutRef.current);
+                  oauthTimeoutRef.current = null;
+                }
                 processingOAuthRef.current = false;
               });
           } else if (!isOAuthUser && processedUserIdRef.current !== session.user.id) {
@@ -152,6 +157,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      // Clean up OAuth timeout on unmount to prevent state updates after unmount
+      if (oauthTimeoutRef.current) {
+        clearTimeout(oauthTimeoutRef.current);
+        oauthTimeoutRef.current = null;
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -442,9 +452,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Use current origin as fallback to support all environments (dev, staging, production)
       const redirectUrl = import.meta.env.VITE_APP_URL || window.location.origin;
 
-      const { error } = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: redirectUrl,
-        extraParams: queryParams,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: queryParams,
+        },
       });
 
       if (error) {

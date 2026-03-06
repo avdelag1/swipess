@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
@@ -137,7 +136,7 @@ export default function PaymentSuccess() {
     resetDate.setMonth(resetDate.getMonth() + 1);
     resetDate.setDate(1);
 
-    const { error: activError } = await supabase
+    const { error: activError } = await (supabase as any)
       .from('tokens')
       .insert({
         user_id: userId,
@@ -156,7 +155,7 @@ export default function PaymentSuccess() {
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       nextMonth.setDate(1);
 
-      await supabase
+      await (supabase as any)
         .from('legal_document_quota')
         .upsert({
           user_id: userId,
@@ -172,7 +171,7 @@ export default function PaymentSuccess() {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + (pkg.duration_days || 30));
 
-    const { error: activError } = await supabase
+    const { error: activError } = await (supabase as any)
       .from('tokens')
       .insert({
         user_id: userId,

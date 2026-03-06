@@ -9,6 +9,7 @@ interface PageHeaderProps {
   subtitle?: string;
   showBack?: boolean;
   onBack?: () => void;
+  backTo?: string;
   actions?: ReactNode;
   className?: string;
 }
@@ -18,6 +19,7 @@ export function PageHeader({
   subtitle,
   showBack = true,
   onBack,
+  backTo,
   actions,
   className = ""
 }: PageHeaderProps) {
@@ -28,6 +30,8 @@ export function PageHeader({
   const handleBack = () => {
     if (onBack) {
       onBack();
+    } else if (backTo) {
+      navigate(backTo);
     } else {
       navigate(-1);
     }
@@ -42,19 +46,15 @@ export function PageHeader({
             whileTap={{ scale: 0.9, transition: { type: 'spring', stiffness: 400, damping: 17 } }}
             className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all duration-150 active:scale-95 touch-manipulation"
             style={isLight ? {
-              color: 'hsl(0, 0%, 15%)',
-              background: 'rgba(0,0,0,0.06)',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(0,0,0,0.1)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.08)',
+              color: '#000000',
+              background: 'rgba(255,255,255,1.0)',
+              border: '1.5px solid rgba(0,0,0,0.18)',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
             } : {
               color: 'white',
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06))',
-              backdropFilter: 'blur(10px)',
-              WebkitBackdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+              background: 'rgba(255,255,255,0.15)',
+              border: '1.5px solid rgba(255,255,255,0.25)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
             }}
           >
             <ArrowLeft className="w-4 h-4" />

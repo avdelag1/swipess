@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   User, MapPin, DollarSign, Home, Bike, Ship, Car,
-  ExternalLink, MessageCircle, Bed, Bath, Square, Star, Heart, TrendingUp
+  ExternalLink, MessageCircle, Star, Heart, TrendingUp, X
 } from 'lucide-react';
 import { ImageCarousel } from '@/components/ImageCarousel';
 
@@ -88,22 +88,69 @@ export function ChatPreviewSheet({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent
         side="bottom"
-        className="h-[85vh] rounded-t-[20px] bg-[#1C1C1E] border-t border-[#38383A] p-0"
+        className="h-[88vh] rounded-t-[28px] p-0 flex flex-col overflow-hidden border-0 [&>button]:hidden"
+        style={{
+          background: 'linear-gradient(180deg, #1A1A1E 0%, #141416 100%)',
+          boxShadow: '0 -8px 40px rgba(0,0,0,0.6), 0 -1px 0 rgba(255,255,255,0.08)',
+        }}
       >
-        <div className="w-12 h-1 bg-[#48484A] rounded-full mx-auto mt-3 mb-2" />
+        {/* Drag handle + header - sticky, never scrolls */}
+        <div
+          className="shrink-0 flex flex-col"
+          style={{
+            background: 'linear-gradient(180deg, #222226 0%, #1A1A1E 100%)',
+            borderBottom: '1px solid rgba(255,255,255,0.08)',
+          }}
+        >
+          {/* Drag handle */}
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-10 h-[5px] bg-white/20 rounded-full" />
+          </div>
 
-        <SheetHeader className="px-4 pb-3 border-b border-[#38383A]">
-          <SheetTitle className="text-white text-lg font-semibold text-center">
-            Chat Details
-          </SheetTitle>
-        </SheetHeader>
+          {/* Header row */}
+          <div className="flex items-center justify-between px-5 py-3">
+            <div className="flex items-center gap-3">
+              <div className={`p-[1.5px] rounded-full ${
+                otherUser.role === 'owner'
+                  ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                  : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+              }`}>
+                <Avatar className="w-8 h-8 border border-[#1A1A1E]">
+                  <AvatarImage src={otherUser.avatar_url} />
+                  <AvatarFallback className={`text-xs font-bold text-white ${
+                    otherUser.role === 'owner'
+                      ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                      : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                  }`}>
+                    {otherUser.full_name?.charAt(0) || '?'}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+              <div>
+                <p className="text-white font-semibold text-[15px] leading-tight">{otherUser.full_name}</p>
+                <p className="text-white/40 text-[11px]">Chat Details</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-colors active:scale-90"
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.1)' }}
+            >
+              <X className="w-4 h-4 text-white/60" />
+            </button>
+          </div>
+        </div>
 
-        <ScrollArea className="flex-1 h-[calc(85vh-80px)]">
-          <div className="p-4 space-y-6">
+        {/* Scrollable content */}
+        <ScrollArea className="flex-1 min-h-0">
+          <div className="p-4 space-y-4 pb-8">
             {/* User Profile Section */}
-            <div className="bg-[#2C2C2E] rounded-2xl p-4">
+            <div
+              className="rounded-2xl p-4"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
               <div className="flex items-center gap-4 mb-4">
-                <Avatar className={`w-16 h-16 ring-2 ring-offset-2 ring-offset-[#2C2C2E] ${
+                <Avatar className={`w-16 h-16 ring-2 ring-offset-2 ring-offset-[#1A1A1E] ${
                   otherUser.role === 'owner' ? 'ring-[#8B5CF6]' : 'ring-[#007AFF]'
                 }`}>
                   <AvatarImage src={otherUser.avatar_url} />
@@ -128,27 +175,30 @@ export function ChatPreviewSheet({
                       {otherUser.role === 'client' ? 'Explorer' : 'Provider'}
                     </Badge>
                     <span className="text-[10px] text-[#34C759] font-medium flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-[#34C759] rounded-full"></span>
+                      <span className="w-1.5 h-1.5 bg-[#34C759] rounded-full" />
                       Online
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Rating Insights - Compact */}
-              <div className="bg-[#1C1C1E] rounded-xl p-3 mb-3">
+              {/* Rating Insights */}
+              <div
+                className="rounded-xl p-3 mb-3"
+                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-1">
                     <Star className="w-4 h-4 text-[#FFD60A] fill-[#FFD60A]" />
                     <span className="text-sm font-semibold text-white">4.8</span>
-                    <span className="text-[10px] text-[#8E8E93]">(24)</span>
+                    <span className="text-[10px] text-white/40">(24)</span>
                   </div>
-                  <div className="h-4 w-px bg-[#38383A]" />
-                  <div className="flex items-center gap-1.5 text-[11px] text-[#8E8E93]">
+                  <div className="h-4 w-px bg-white/10" />
+                  <div className="flex items-center gap-1.5 text-[11px] text-white/50">
                     <Heart className="w-3 h-3 text-[#FF453A]" />
                     <span>98% Response</span>
                   </div>
-                  <div className="h-4 w-px bg-[#38383A]" />
+                  <div className="h-4 w-px bg-white/10" />
                   <div className="flex items-center gap-1.5 text-[11px] text-[#34C759]">
                     <TrendingUp className="w-3 h-3" />
                     <span>Verified</span>
@@ -156,13 +206,16 @@ export function ChatPreviewSheet({
                 </div>
               </div>
 
-              {/* Match Context - How you connected */}
-              <div className="bg-[#1C1C1E] rounded-xl p-3 mb-3">
+              {/* Match Context */}
+              <div
+                className="rounded-xl p-3 mb-3"
+                style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}
+              >
                 <div className="flex items-center gap-2 mb-1.5">
                   <Heart className="w-3 h-3 text-[#FF453A]" />
-                  <span className="text-[10px] font-medium text-[#8E8E93]">HOW YOU CONNECTED</span>
+                  <span className="text-[10px] font-medium text-white/40 uppercase tracking-wide">How You Connected</span>
                 </div>
-                <p className="text-xs text-white">
+                <p className="text-xs text-white/70">
                   {otherUser.role === 'owner'
                     ? `You liked their listing${listing ? ` "${listing.title.substring(0, 30)}..."` : ''} and they liked your profile back`
                     : 'They liked your profile and you matched'
@@ -172,7 +225,8 @@ export function ChatPreviewSheet({
 
               <Button
                 onClick={handleViewFullProfile}
-                className="w-full bg-[#3A3A3C] hover:bg-[#48484A] text-white border-0 rounded-xl"
+                className="w-full rounded-xl border-0 font-semibold transition-all active:scale-[0.98]"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'white' }}
               >
                 <User className="w-4 h-4 mr-2" />
                 View Full Profile
@@ -180,10 +234,13 @@ export function ChatPreviewSheet({
               </Button>
             </div>
 
-            {/* Listing Section - Only show for clients viewing owner's listing */}
+            {/* Listing Section */}
             {listing && isClient && (
-              <div className="bg-[#2C2C2E] rounded-2xl overflow-hidden">
-                <div className="p-4 border-b border-[#38383A]">
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                <div className="p-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                   <div className="flex items-center gap-2 mb-1">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                       listing.category === 'property'
@@ -192,13 +249,12 @@ export function ChatPreviewSheet({
                     }`}>
                       {getCategoryIcon(listing.category)}
                     </div>
-                    <span className="text-sm font-medium text-[#8E8E93]">
+                    <span className="text-sm font-medium text-white/50">
                       {getCategoryLabel(listing.category)} Listing
                     </span>
                   </div>
                 </div>
 
-                {/* Listing Images */}
                 {listing.images && listing.images.length > 0 && (
                   <div className="h-48 w-full">
                     <ImageCarousel
@@ -214,7 +270,7 @@ export function ChatPreviewSheet({
                   </h3>
 
                   {(listing.address || listing.city) && (
-                    <div className="flex items-center gap-2 text-[#8E8E93]">
+                    <div className="flex items-center gap-2 text-white/50">
                       <MapPin className="w-4 h-4 shrink-0" />
                       <span className="text-sm">
                         {listing.address ? `${listing.address}, ` : ''}{listing.city || ''}
@@ -228,14 +284,17 @@ export function ChatPreviewSheet({
                         <DollarSign className="w-5 h-5" />
                         {listing.price.toLocaleString()}
                       </div>
-                      <span className="text-sm text-[#8E8E93]">
+                      <span className="text-sm text-white/40">
                         {listing.mode === 'rent' ? '/month' : listing.mode === 'sale' ? 'total' : ''}
                       </span>
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-2">
-                    <Badge className="bg-[#3A3A3C] text-white border-0">
+                  <div className="flex gap-2 pt-1">
+                    <Badge
+                      className="border-0 text-white/70"
+                      style={{ background: 'rgba(255,255,255,0.08)' }}
+                    >
                       {listing.mode === 'rent' ? 'For Rent' :
                        listing.mode === 'sale' ? 'For Sale' :
                        listing.mode === 'both' ? 'Sale & Rent' : 'Available'}
@@ -244,7 +303,8 @@ export function ChatPreviewSheet({
 
                   <Button
                     onClick={handleViewFullListing}
-                    className="w-full mt-4 bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] hover:from-[#7C3AED] hover:to-[#4F46E5] text-white border-0 rounded-xl"
+                    className="w-full mt-3 rounded-xl border-0 text-white font-semibold transition-all active:scale-[0.98]"
+                    style={{ background: 'linear-gradient(135deg, #8B5CF6, #6366F1)' }}
                   >
                     <Home className="w-4 h-4 mr-2" />
                     View Full Listing
@@ -254,38 +314,50 @@ export function ChatPreviewSheet({
               </div>
             )}
 
-            {/* Show message for owners about the client they're chatting with */}
+            {/* Owner view: potential client info */}
             {isOwner && !listing && (
-              <div className="bg-[#2C2C2E] rounded-2xl p-4">
+              <div
+                className="rounded-2xl p-4"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#007AFF]/20 flex items-center justify-center">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: 'rgba(0,122,255,0.15)' }}
+                  >
                     <MessageCircle className="w-5 h-5 text-[#007AFF]" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-white">Potential Client</h4>
-                    <p className="text-xs text-[#8E8E93]">View their full profile to see preferences</p>
+                    <h4 className="text-sm font-semibold text-white">Potential Client</h4>
+                    <p className="text-xs text-white/40">View their full profile to see preferences</p>
                   </div>
                 </div>
-                <p className="text-sm text-[#8E8E93] leading-relaxed">
+                <p className="text-sm text-white/50 leading-relaxed">
                   This client is interested in connecting with you. View their full profile to see their
                   budget, preferences, and what they're looking for.
                 </p>
               </div>
             )}
 
-            {/* No listing available message for clients */}
+            {/* Client view: no listing */}
             {isClient && !listing && (
-              <div className="bg-[#2C2C2E] rounded-2xl p-4">
+              <div
+                className="rounded-2xl p-4"
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#8B5CF6]/20 flex items-center justify-center">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: 'rgba(139,92,246,0.15)' }}
+                  >
                     <Home className="w-5 h-5 text-[#8B5CF6]" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium text-white">Direct Conversation</h4>
-                    <p className="text-xs text-[#8E8E93]">No specific listing attached</p>
+                    <h4 className="text-sm font-semibold text-white">Direct Conversation</h4>
+                    <p className="text-xs text-white/40">No specific listing attached</p>
                   </div>
                 </div>
-                <p className="text-sm text-[#8E8E93] leading-relaxed">
+                <p className="text-sm text-white/50 leading-relaxed">
                   This conversation isn't linked to a specific listing. Ask the owner about their
                   available properties or browse their profile for more information.
                 </p>

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -174,7 +173,7 @@ export function useSwipeAnalytics(userRole: 'client' | 'owner') {
 
   // Get insights and recommendations
   const getInsights = () => {
-    const insights = [];
+    const insights: Array<{ type: string; title: string; message: string; action: string }> = [];
     
     if (!metrics) return insights;
 

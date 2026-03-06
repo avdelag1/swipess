@@ -38,18 +38,18 @@ export function useAccountLinking() {
         return { profile: null, hasConflict: false };
       }
 
-      if (!data?.exists) {
+      if (!(data as any)?.exists) {
         return { profile: null, hasConflict: false };
       }
 
       return {
         profile: {
-          id: data.id,
-          email: data.email,
-          full_name: data.full_name,
-          role: data.role as 'client' | 'owner' | undefined,
-          avatar_url: data.avatar_url,
-          created_at: data.created_at,
+          id: (data as any).id,
+          email: (data as any).email,
+          full_name: (data as any).full_name,
+          role: (data as any).role as 'client' | 'owner' | undefined,
+          avatar_url: (data as any).avatar_url,
+          created_at: (data as any).created_at,
         } as ExistingProfile,
         hasConflict: false,
       };

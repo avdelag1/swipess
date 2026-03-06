@@ -149,7 +149,7 @@ const OwnerLawyerServices = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/owner/settings')}
             className="mb-4 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -251,7 +251,7 @@ const OwnerLawyerServices = () => {
                   <Button variant="outline" onClick={handleReset} className="border-gray-600">
                     Submit Another Request
                   </Button>
-                  <Button onClick={() => navigate(-1)} className="bg-green-600 hover:bg-green-700">
+                  <Button onClick={() => navigate('/owner/settings')} className="bg-green-600 hover:bg-green-700">
                     Back to Profile
                   </Button>
                 </div>
@@ -305,15 +305,13 @@ const OwnerLawyerServices = () => {
                                 <button
                                   key={sub.id}
                                   onClick={() => handleSubcategorySelect(category.id, sub.id)}
-                                  className={`w-full pl-16 pr-4 py-3 flex items-center gap-3 hover:bg-gray-700/30 transition-colors text-left ${
-                                    selectedIssue?.subcategory === sub.id ? 'bg-purple-500/20' : ''
-                                  }`}
+                                  className={`w-full pl-16 pr-4 py-3 flex items-center gap-3 hover:bg-gray-700/30 transition-colors text-left ${selectedIssue?.subcategory === sub.id ? 'bg-purple-500/20' : ''
+                                    }`}
                                 >
-                                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                                    selectedIssue?.subcategory === sub.id
+                                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selectedIssue?.subcategory === sub.id
                                       ? 'border-purple-500 bg-purple-500'
                                       : 'border-gray-500'
-                                  }`}>
+                                    }`}>
                                     {selectedIssue?.subcategory === sub.id && (
                                       <div className="w-2 h-2 bg-white rounded-full" />
                                     )}

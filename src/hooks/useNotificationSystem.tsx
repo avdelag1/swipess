@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -147,6 +146,7 @@ export function useNotificationSystem() {
         },
         async (payload) => {
           const dbNotification = payload.new as any;
+          if (!dbNotification) return;
 
           // Map database notification to frontend format
           const notificationTypeMap: Record<string, NotificationType> = {
@@ -189,11 +189,42 @@ export function useNotificationSystem() {
           setPendingNotifications(prev => [...prev, notification]);
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as any;
+          if (updated) {
+            setNotifications(prev => prev.map(n => n.id === updated.id ? { ...n, read: updated.is_read } : n));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const deleted = payload.old as any;
+          if (deleted) {
+            setNotifications(prev => prev.filter(n => n.id !== deleted.id));
+          }
+        }
+      )
       .subscribe();
 
     return () => {
       // Properly unsubscribe before removing channel to prevent memory leaks
       notificationsChannel.unsubscribe();
+      supabase.removeChannel(notificationsChannel);
     };
   }, [user?.id]);
 
@@ -211,15 +242,25 @@ export function useNotificationSystem() {
           .update({ is_read: true })
           .eq('user_id', user.id)
           .eq('is_read', false)
-      ).catch(() => {});
+      ).catch(() => { });
     }
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    // Mark as read
-    setNotifications(prev => 
+    // Mark as read locally
+    setNotifications(prev =>
       prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
     );
+
+    // Persist to database to maintain state consistency
+    if (user?.id && !notification.read) {
+      Promise.resolve(
+        supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', notification.id)
+      ).catch((err) => logger.error('[Notifications] Failed to mark as read', err));
+    }
 
     // Navigate to appropriate page
     if (notification.actionUrl) {

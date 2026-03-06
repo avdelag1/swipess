@@ -81,8 +81,9 @@ export function useUnreadNotifications() {
       if (refetchTimeoutRef.current) {
         clearTimeout(refetchTimeoutRef.current);
       }
-      // Properly unsubscribe before removing channel
+      // Properly unsubscribe AND remove channel to prevent memory leaks
       channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [user?.id, fetchUnreadCount, debouncedRefetch]);
 

@@ -77,37 +77,143 @@ export interface CategoryConfig {
   icon: string;
   color: string;
   description: string;
+  colorClassName: {
+    dark: string;
+    light: string;
+  };
+  gradientClassName: {
+    dark: string;
+    light: string;
+  };
+  textColorClassName: {
+    dark: string;
+    light: string;
+  };
 }
 
 /**
  * Category display configuration map
+ * Colors are theme-aware and work well in both dark (black-matte) and light (white-matte) modes
  */
 export const categoryConfig: Record<QuickFilterCategory, CategoryConfig> = {
   property: {
     label: 'Property',
     icon: '🏠',
-    color: 'bg-blue-500',
+    color: 'bg-blue-500', // Legacy fallback
+    colorClassName: {
+      dark: 'bg-blue-600',
+      light: 'bg-blue-500'
+    },
+    gradientClassName: {
+      dark: 'from-blue-600 to-cyan-600',
+      light: 'from-blue-500 to-cyan-500'
+    },
+    textColorClassName: {
+      dark: 'text-blue-400',
+      light: 'text-blue-600'
+    },
     description: 'Houses, apartments, rooms'
   },
   motorcycle: {
     label: 'Motorcycle',
     icon: '🏍️',
-    color: 'bg-slate-500',
+    color: 'bg-slate-500', // Legacy fallback
+    colorClassName: {
+      dark: 'bg-slate-600',
+      light: 'bg-slate-500'
+    },
+    gradientClassName: {
+      dark: 'from-slate-600 to-zinc-600',
+      light: 'from-slate-500 to-zinc-500'
+    },
+    textColorClassName: {
+      dark: 'text-slate-400',
+      light: 'text-slate-600'
+    },
     description: 'Motorcycles, scooters, bikes'
   },
   bicycle: {
     label: 'Bicycle',
     icon: '🚴',
-    color: 'bg-yellow-500',
+    color: 'bg-yellow-500', // Legacy fallback
+    colorClassName: {
+      dark: 'bg-amber-500',
+      light: 'bg-yellow-500'
+    },
+    gradientClassName: {
+      dark: 'from-amber-600 to-yellow-600',
+      light: 'from-yellow-500 to-amber-500'
+    },
+    textColorClassName: {
+      dark: 'text-amber-400',
+      light: 'text-amber-600'
+    },
     description: 'Bicycles, e-bikes'
   },
   services: {
     label: 'Services',
     icon: '🛠️',
-    color: 'bg-purple-500',
+    color: 'bg-purple-500', // Legacy fallback
+    colorClassName: {
+      dark: 'bg-emerald-600',
+      light: 'bg-emerald-500'
+    },
+    gradientClassName: {
+      dark: 'from-emerald-600 to-green-600',
+      light: 'from-emerald-500 to-green-500'
+    },
+    textColorClassName: {
+      dark: 'text-emerald-400',
+      light: 'text-emerald-600'
+    },
     description: 'Workers, contractors, services'
   }
 };
+
+/**
+ * Get the theme-aware color class for a category
+ * @param category The category to get color for
+ * @param isDarkTheme Whether the current theme is dark mode
+ * @returns The Tailwind color class for the category in the current theme
+ */
+export function getCategoryColorClass(
+  category: QuickFilterCategory,
+  isDarkTheme: boolean = true
+): string {
+  const config = categoryConfig[category];
+  if (!config) return 'bg-gray-500';
+  return config.colorClassName[isDarkTheme ? 'dark' : 'light'];
+}
+
+/**
+ * Get the theme-aware gradient class for a category
+ * @param category The category to get gradient for
+ * @param isDarkTheme Whether the current theme is dark mode
+ * @returns The Tailwind gradient class for the category in the current theme
+ */
+export function getCategoryGradientClass(
+  category: QuickFilterCategory,
+  isDarkTheme: boolean = true
+): string {
+  const config = categoryConfig[category];
+  if (!config) return 'from-gray-500 to-slate-500';
+  return config.gradientClassName[isDarkTheme ? 'dark' : 'light'];
+}
+
+/**
+ * Get the theme-aware text color class for a category
+ * @param category The category to get text color for
+ * @param isDarkTheme Whether the current theme is dark mode
+ * @returns The Tailwind text color class for the category in the current theme
+ */
+export function getCategoryTextColorClass(
+  category: QuickFilterCategory,
+  isDarkTheme: boolean = true
+): string {
+  const config = categoryConfig[category];
+  if (!config) return 'text-gray-400';
+  return config.textColorClassName[isDarkTheme ? 'dark' : 'light'];
+}
 
 /**
  * Maps UI category names to database category names
@@ -127,7 +233,10 @@ export const categoryToDatabase: Record<string, string> = {
  */
 export function normalizeCategoryName(category: string | undefined): string | undefined {
   if (!category) return undefined;
-  return categoryToDatabase[category.toLowerCase()] || category;
+  const normalized = category.toLowerCase().trim();
+  // Remove trailing 's' if not 'services' to handle plurals
+  const singular = normalized === 'services' ? normalized : normalized.replace(/s$/, '');
+  return categoryToDatabase[singular] || categoryToDatabase[normalized] || normalized;
 }
 
 /**
@@ -138,10 +247,10 @@ export interface ListingFilters {
   // Category filters
   category?: QuickFilterCategory | string;
   categories?: (QuickFilterCategory | string)[];
-  
+
   // Listing type
   listingType?: QuickFilterListingType;
-  
+
   // Property-specific filters
   propertyType?: string[];
   priceRange?: [number, number];
@@ -149,20 +258,20 @@ export interface ListingFilters {
   bathrooms?: number[];
   amenities?: string[];
   distance?: number;
-  
+
   // Boolean flags
   premiumOnly?: boolean;
   verified?: boolean;
   petFriendly?: boolean;
   furnished?: boolean;
-  
+
   // Lifestyle filters
   lifestyleTags?: string[];
   dietaryPreferences?: string[];
-  
+
   // Services/worker filter
   showHireServices?: boolean;
-  
+
   // Owner client filters
   clientGender?: ClientGender;
   clientType?: ClientType;

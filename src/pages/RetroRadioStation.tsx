@@ -1,311 +1,537 @@
-// @ts-nocheck
+/**
+ * RetroRadioStation — IMMERSIVE full-screen cassette player.
+ *
+ * The cassette player photo fills the ENTIRE viewport edge-to-edge.
+ * All controls are invisible hotspot buttons positioned exactly over
+ * the physical buttons visible in the cassette player photograph.
+ * Dynamic text (station name, genre) is composited onto the label area.
+ *
+ * IMAGE LAYOUT (cassette-player-bg.png)
+ * ─────────────────────────────────────────────────
+ *  Top 0-25%    : Label area (cream/white with red stripes)
+ *                 → Station name overlay goes here
+ *  25-60%       : Tape window with visible reels
+ *                 → Animated reel glow overlay when playing
+ *  60-70%       : Button labels (REWIND, PLAY, etc)
+ *  70-88%       : Physical button row
+ *                 → REWIND (left),  PLAY,  FF,  STOP,  RECORD (right)
+ *                 → Mapped to: prev, play/pause, next, browse, favorite
+ *  88-100%      : Volume knob area
+ *                 → Tap left/right of center to decrease/increase volume
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
-import { cityThemes, getStationsByCity } from '@/data/radioStations';
+import { cityThemes } from '@/data/radioStations';
 import { CityLocation } from '@/types/radio';
-import { VinylDisc } from '@/components/radio/retro/VinylDisc';
-import { NowPlayingInfo } from '@/components/radio/retro/NowPlayingInfo';
-import { VolumeSlider } from '@/components/radio/retro/VolumeSlider';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
+import { triggerHaptic } from '@/utils/haptics';
 import {
-  ArrowLeft,
-  Heart,
-  Shuffle,
-  ListMusic,
-  Disc3,
-  SkipBack,
-  SkipForward,
-  Play,
-  Pause,
+  ArrowLeft, ListMusic, Play, Pause, Heart,
+  SkipBack, SkipForward, Square, Circle, Shuffle
 } from 'lucide-react';
 
-/**
- * RetroRadioStation — Immersive retro radio experience.
- *
- * Hybrid design combining:
- *   - A realistic spinning vinyl record (visual centerpiece)
- *   - An iPod Classic click wheel (physical-feeling controls)
- *   - Modern info display + station switching drawer
- *   - Premium dark aesthetic with city-themed accents
- *
- * This replaces the previous RadioPlayer page.
- */
+// ── Font injection ──────────────────────────────────────────────────────────
+if (typeof document !== 'undefined' && !document.getElementById('cassette-radio-fonts')) {
+  const s = document.createElement('style');
+  s.id = 'cassette-radio-fonts';
+  s.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap');`;
+  document.head.appendChild(s);
+}
+
+// ── Hotspot button ──────────────────────────────────────────────────────────
+// Renders an invisible button positioned over a physical button in the photo.
+// A brief visual flash on tap gives tactile feedback.
+function Hotspot({
+  top, left, right, width, height,
+  onClick, label, showFlash = true,
+  children,
+}: {
+  top: string; left?: string; right?: string;
+  width: string; height: string;
+  onClick: () => void; label: string;
+  showFlash?: boolean;
+  children?: React.ReactNode;
+}) {
+  const [flash, setFlash] = useState(false);
+
+  const handleClick = () => {
+    onClick();
+    if (showFlash) {
+      setFlash(true);
+      setTimeout(() => setFlash(false), 200);
+    }
+  };
+
+  return (
+    <motion.button
+      aria-label={label}
+      whileTap={{ scale: 0.93 }}
+      onClick={handleClick}
+      style={{
+        position: 'absolute',
+        top, left, right, width, height,
+        background: flash ? 'rgba(255,255,255,0.12)' : 'transparent',
+        border: 'none',
+        cursor: 'pointer',
+        borderRadius: 4,
+        transition: 'background 0.15s ease',
+        zIndex: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+// ── Main page ───────────────────────────────────────────────────────────────
 export default function RetroRadioStation() {
   const navigate = useNavigate();
   const {
-    state,
-    error,
-    togglePlayPause,
-    changeStation,
-    setCity,
-    setVolume,
-    toggleShuffle,
-    toggleFavorite,
-    isStationFavorite,
-    play,
+    state, error,
+    togglePlayPause, changeStation,
+    setCity, setVolume,
+    toggleFavorite, isStationFavorite,
+    play, setMiniPlayerMode, toggleShuffle
   } = useRadio();
 
-  const [showStationDrawer, setShowStationDrawer] = useState(false);
-  const cityTheme = cityThemes[state.currentCity];
-  const isFav = state.currentStation ? isStationFavorite(state.currentStation.id) : false;
+  useEffect(() => { setMiniPlayerMode('expanded'); }, [setMiniPlayerMode]);
 
-  // Keyboard controls
+  const [showDrawer, setShowDrawer] = useState(false);
+  const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);
+
+  const cityTheme = cityThemes[state.currentCity] || cityThemes['new-york'];
+  const isFav = state.currentStation ? isStationFavorite(state.currentStation.id) : false;
+  const genre = state.currentStation?.genre ?? 'Radio';
+
+  // ── Keyboard shortcuts ────────────────────────────────────────────────────
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handle = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      switch (e.key) {
-        case ' ':
-          e.preventDefault();
-          togglePlayPause();
-          break;
-        case 'ArrowRight':
-          changeStation('next');
-          break;
-        case 'ArrowLeft':
-          changeStation('prev');
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          setVolume(Math.min(1, state.volume + 0.1));
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          setVolume(Math.max(0, state.volume - 0.1));
-          break;
-        case 'm':
-        case 'M':
-          setShowStationDrawer((p) => !p);
-          break;
-      }
+      if (e.key === ' ') { e.preventDefault(); togglePlayPause(); }
+      else if (e.key === 'ArrowRight') changeStation('next');
+      else if (e.key === 'ArrowLeft') changeStation('prev');
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setVolume(Math.min(1, state.volume + 0.1)); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setVolume(Math.max(0, state.volume - 0.1)); }
+      else if (e.key === 'm' || e.key === 'M') { setShowFavoritesDrawer(false); setShowDrawer(p => !p); }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
   }, [togglePlayPause, changeStation, setVolume, state.volume]);
 
-  const handleCitySelect = useCallback((city: CityLocation) => {
-    setCity(city);
-  }, [setCity]);
-
-  const handleStationSelect = useCallback((station: any) => {
-    play(station);
-  }, [play]);
+  const handleCitySelect = useCallback((city: CityLocation) => setCity(city), [setCity]);
+  const handleStationSelect = useCallback((s: any) => play(s), [play]);
 
   return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden select-none">
-      {/* Background - vibrant gradient based on city theme */}
+    <div
+      className="fixed inset-0 overflow-hidden"
+      style={{ background: '#0a0a0a', touchAction: 'none' }}
+    >
+      {/* ═══════════════════════════════════════════════════════════════════
+          THE CASSETTE PLAYER IMAGE — fills the ENTIRE screen
+          object-fit: cover ensures no gaps, image crops to fill viewport
+          ═══════════════════════════════════════════════════════════════════ */}
+      <img
+        src="/images/cassette-player-bg.png"
+        alt="Cassette Player"
+        draggable={false}
+        className="absolute inset-0 w-full h-full select-none"
+        style={{
+          objectFit: 'cover',
+          objectPosition: 'center center',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Subtle color tint overlay from city theme */}
       <div
-        className="absolute inset-0 transition-all duration-1000"
+        className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 30%, ${cityTheme.primaryColor}35 0%, transparent 70%),
-            radial-gradient(ellipse at 80% 80%, ${cityTheme.secondaryColor}25 0%, transparent 60%),
-            linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)
+            linear-gradient(180deg, ${cityTheme.primaryColor}08 0%, transparent 30%),
+            linear-gradient(0deg, rgba(0,0,0,0.3) 0%, transparent 15%)
           `,
+          mixBlendMode: 'overlay',
         }}
       />
 
-      {/* Noise texture overlay for analog feel */}
+      {/* ═══════════════════════════════════════════════════════════════════
+          CITY NAME — overlaid on the cassette label area (top ~5-22%)
+          Uses the cream/white label area of the cassette image as background.
+          ═══════════════════════════════════════════════════════════════════ */}
       <div
-        className="absolute inset-0 opacity-[0.015] pointer-events-none"
+        className="absolute flex flex-col items-center justify-center pointer-events-none z-10"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '150px 150px',
+          top: '15%',
+          left: '10%',
+          right: '10%',
+          height: '14%',
         }}
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={state.currentCity}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-col items-center gap-1"
+          >
+            <span
+              style={{
+                fontFamily: "'Permanent Marker', cursive",
+                fontSize: 'clamp(24px, 8vw, 42px)',
+                color: '#1a1a1a',
+                textShadow: '0 1px 2px rgba(255,255,255,0.2)',
+                letterSpacing: '0.04em',
+                lineHeight: 1.1,
+                textAlign: 'center',
+                maxWidth: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {cityTheme.name}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Space Mono', monospace",
+                fontSize: 'clamp(9px, 2.5vw, 14px)',
+                fontWeight: 700,
+                color: '#444',
+                textTransform: 'uppercase',
+                letterSpacing: '0.25em',
+              }}
+            >
+              {genre} · MIX
+            </span>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          TAPE REEL GLOW — animated glow on the tape window when playing
+          ═══════════════════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {state.isPlaying && (
+          <>
+            {/* Left reel glow */}
+            <motion.div
+              className="absolute rounded-full pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0.3, 0.6, 0.3], rotate: 360 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                opacity: { duration: 2, repeat: Infinity },
+                rotate: { duration: 3, repeat: Infinity, ease: 'linear' },
+              }}
+              style={{
+                top: '33%',
+                left: '22%',
+                width: '15%',
+                height: '15%',
+                background: `radial-gradient(circle, ${cityTheme.primaryColor}30, transparent 70%)`,
+                boxShadow: `0 0 20px ${cityTheme.primaryColor}20`,
+              }}
+            />
+            {/* Right reel glow */}
+            <motion.div
+              className="absolute rounded-full pointer-events-none"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0.3, 0.6, 0.3], rotate: -360 }}
+              exit={{ opacity: 0 }}
+              transition={{
+                opacity: { duration: 2, repeat: Infinity, delay: 0.5 },
+                rotate: { duration: 3, repeat: Infinity, ease: 'linear' },
+              }}
+              style={{
+                top: '33%',
+                right: '22%',
+                width: '15%',
+                height: '15%',
+                background: `radial-gradient(circle, ${cityTheme.secondaryColor}30, transparent 70%)`,
+                boxShadow: `0 0 20px ${cityTheme.secondaryColor}20`,
+              }}
+            />
+          </>
+        )}
+      </AnimatePresence>
+
+
+      {/* ON AIR indicator — glowing red dot on the tape window */}
+      <motion.div
+        className="absolute pointer-events-none z-10"
+        style={{
+          top: '56%',
+          right: '12%',
+          width: 'clamp(6px, 2vw, 12px)',
+          height: 'clamp(6px, 2vw, 12px)',
+          borderRadius: '50%',
+          background: state.isPlaying ? '#ff2020' : '#330000',
+          boxShadow: state.isPlaying
+            ? '0 0 8px #ff2020, 0 0 20px rgba(255,32,32,0.6)'
+            : 'none',
+        }}
+        animate={state.isPlaying ? { opacity: [1, 0.2, 1] } : { opacity: 0.3 }}
+        transition={{ duration: 1.2, repeat: Infinity }}
       />
 
-      {/* Content - viewport locked, no scrolling */}
-      <div className="relative z-10 flex-1 flex flex-col items-center overflow-hidden">
+      {/* ON AIR text */}
+      {state.isPlaying && (
+        <motion.span
+          className="absolute pointer-events-none z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.8 }}
+          style={{
+            top: '57%',
+            right: '16%',
+            fontFamily: "'Space Mono', monospace",
+            fontSize: 'clamp(6px, 1.5vw, 10px)',
+            fontWeight: 700,
+            color: '#ff3b30',
+            textTransform: 'uppercase',
+            letterSpacing: '0.15em',
+            textShadow: '0 0 8px rgba(255,59,48,0.5)',
+          }}
+        >
+          ON AIR
+        </motion.span>
+      )}
 
-        {/* Header */}
-        <div className="w-full flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            aria-label="Go back"
-          >
-            <ArrowLeft className="w-5 h-5 text-white/70" />
-          </motion.button>
 
-          <div className="flex items-center gap-1.5">
-            <Disc3 className="w-4 h-4 text-white/40" />
-            <span className="text-white/40 text-[10px] tracking-[0.15em] uppercase font-medium">
-              Radio
-            </span>
-          </div>
+      {/* ═══════════════════════════════════════════════════════════════════
+          HOTSPOT BUTTONS WITH NEON ICONS
+          Positioned EXACTLY over the physical buttons in the photo.
+          Now with electric glowing neon icons directly on the buttons.
+          ═══════════════════════════════════════════════════════════════════ */}
 
-          {/* Live indicator */}
-          <div className="px-3 py-1 rounded-full text-[10px]">
-            <div className="flex items-center gap-1.5">
-              <motion.div
-                className={`w-1.5 h-1.5 rounded-full ${state.isPlaying ? 'bg-orange-500' : 'bg-white/30'}`}
-                animate={state.isPlaying ? { opacity: [1, 0.3, 1] } : {}}
-                transition={{ duration: 1.5, repeat: Infinity }}
-              />
-              <span className={`font-medium tracking-wider ${state.isPlaying ? 'text-white/70' : 'text-white/40'}`}>
-                {state.isPlaying ? 'LIVE' : 'OFF'}
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* REWIND → Previous station */}
+      <Hotspot
+        top="64.5%" left="6%" width="17%" height="16%"
+        onClick={() => { triggerHaptic('light'); changeStation('prev'); }}
+        label="Previous station (Rewind)"
+      >
+        <SkipBack className="w-7 h-7 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
+      </Hotspot>
 
-        {/* Quick actions row */}
-        <div className="flex items-center justify-center gap-4 py-3 flex-shrink-0">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={toggleShuffle}
-            className="p-2.5 rounded-full transition-all"
-            style={state.isShuffle ? {
-              background: `linear-gradient(135deg, ${cityTheme.primaryColor}30, ${cityTheme.secondaryColor}20)`,
-              boxShadow: `0 4px 16px ${cityTheme.primaryColor}25`,
-            } : {}}
-            aria-label={state.isShuffle ? 'Disable shuffle' : 'Enable shuffle'}
-          >
-            <Shuffle className={`w-5 h-5 ${state.isShuffle ? 'text-white' : 'text-white/50'}`} />
-          </motion.button>
+      {/* PLAY → Play / Pause */}
+      <Hotspot
+        top="64.5%" left="25%" width="16%" height="16%"
+        onClick={() => { triggerHaptic('medium'); togglePlayPause(); }}
+        label={state.isPlaying ? 'Pause' : 'Play'}
+      >
+        {state.isPlaying ? (
+          // Electric Cyan for Pause
+          <Pause className="w-8 h-8 text-[#00f0ff] drop-shadow-[0_0_16px_#00f0ff]" fill="#00f0ff" />
+        ) : (
+          // Neon Green for Play
+          <Play className="w-8 h-8 text-[#39ff14] drop-shadow-[0_0_16px_#39ff14]" fill="#39ff14" />
+        )}
+      </Hotspot>
 
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={() => setShowStationDrawer(true)}
-            className="p-2.5 rounded-full transition-all"
-            aria-label="Browse stations"
-          >
-            <ListMusic className="w-5 h-5 text-white/50" />
-          </motion.button>
+      {/* FAST FORWARD → Next station */}
+      <Hotspot
+        top="64.5%" left="43%" width="16%" height="16%"
+        onClick={() => { triggerHaptic('light'); changeStation('next'); }}
+        label="Next station (Fast Forward)"
+      >
+        <SkipForward className="w-7 h-7 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]" fill="rgba(255,255,255,0.8)" />
+      </Hotspot>
 
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={() => state.currentStation && toggleFavorite(state.currentStation.id)}
-            className="p-2.5 rounded-full transition-all"
-            style={isFav ? {
-              background: `linear-gradient(135deg, ${cityTheme.primaryColor}30, ${cityTheme.secondaryColor}20)`,
-              boxShadow: `0 4px 16px ${cityTheme.primaryColor}25`,
-            } : {}}
-            aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Heart
-              className={`w-5 h-5 transition-colors ${isFav ? 'text-white fill-white' : 'text-white/50'}`}
-            />
-          </motion.button>
-        </div>
+      {/* STOP/EJECT → Open station drawer */}
+      <Hotspot
+        top="64.5%" left="61%" width="17%" height="16%"
+        onClick={() => { triggerHaptic('light'); setShowFavoritesDrawer(false); setShowDrawer(true); }}
+        label="Browse stations (Stop/Eject)"
+      >
+        {/* Neon Amber for Stop/Menu */}
+        <Square className="w-6 h-6 text-[#ffbf00] drop-shadow-[0_0_12px_#ffbf00]" fill="#ffbf00" />
+      </Hotspot>
 
-        {/* Main Content - Centered Vinyl with Controls */}
-        <div className="flex-1 flex flex-col items-center justify-center py-6 gap-8">
-          {/* Vinyl Record - Large and Centered */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={state.currentStation?.id ?? 'empty'}
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.92 }}
-              transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
-            >
-              <VinylDisc
-                isPlaying={state.isPlaying}
-                stationName={state.currentStation?.name ?? 'SwipesS'}
-                genre={state.currentStation?.genre ?? 'Radio'}
-                cityTheme={cityTheme}
-                size={getVinylSize()}
-              />
-            </motion.div>
-          </AnimatePresence>
+      {/* RECORD → Favorite / Save */}
+      <Hotspot
+        top="64.5%" left="81%" width="14%" height="16%"
+        onClick={() => {
+          triggerHaptic('success');
+          state.currentStation && toggleFavorite(state.currentStation.id);
+        }}
+        label={isFav ? 'Remove from favorites' : 'Save station (Record)'}
+      >
+        {/* Neon Pink for Record/Favorite */}
+        <Heart
+          className={`w-6 h-6 transition-colors duration-300 drop-shadow-[0_0_12px_#ff00ff] ${isFav ? 'text-[#ff00ff]' : 'text-white/80 drop-shadow-none'}`}
+          fill={isFav ? '#ff00ff' : 'transparent'}
+        />
+      </Hotspot>
 
-          {/* Now Playing Info */}
-          <div className="flex-shrink-0">
-            <NowPlayingInfo
-              station={state.currentStation}
-              isPlaying={state.isPlaying}
-              cityTheme={cityTheme}
-            />
-          </div>
+      {/* VOLUME KNOB — tap left half to decrease, right half to increase */}
+      <Hotspot
+        top="87%" left="0%" width="50%" height="13%"
+        onClick={() => {
+          triggerHaptic('light');
+          setVolume(Math.max(0, state.volume - 0.1));
+        }}
+        label="Volume down"
+      />
+      <Hotspot
+        top="87%" left="50%" width="50%" height="13%"
+        onClick={() => {
+          triggerHaptic('light');
+          setVolume(Math.min(1, state.volume + 0.1));
+        }}
+        label="Volume up"
+      />
 
-          {/* Error message */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="px-4 flex-shrink-0"
-              >
-                <p className="text-red-400/70 text-xs text-center font-medium">{error}</p>
-              </motion.div>
-            )}
-          </AnimatePresence>
+      {/* Tap the label area to browse stations */}
+      <Hotspot
+        top="2%" left="5%" width="90%" height="22%"
+        onClick={() => { triggerHaptic('light'); setShowFavoritesDrawer(false); setShowDrawer(true); }}
+        label="Browse stations"
+        showFlash={false}
+      />
 
-          {/* Minimalist Control Buttons */}
-          <div className="flex items-center justify-center gap-6">
-            {/* Previous Button */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => changeStation('prev')}
-              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
-              style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}25, ${cityTheme.secondaryColor}20)`,
-                backdropFilter: 'blur(10px)',
-                boxShadow: `0 4px 20px ${cityTheme.primaryColor}30`,
-              }}
-              aria-label="Previous station"
-            >
-              <SkipBack className="w-6 h-6 text-white" fill="white" />
-            </motion.button>
-
-            {/* Play/Pause Button - Larger and Centered */}
-            <motion.button
-              whileTap={{ scale: 0.92 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={togglePlayPause}
-              className="w-24 h-24 rounded-full flex items-center justify-center transition-all"
-              style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}, ${cityTheme.secondaryColor})`,
-                boxShadow: `0 8px 32px ${cityTheme.primaryColor}50, 0 0 60px ${cityTheme.primaryColor}35`,
-              }}
-              aria-label={state.isPlaying ? 'Pause' : 'Play'}
-            >
-              {state.isPlaying ? (
-                <Pause className="w-9 h-9 text-white" fill="white" />
-              ) : (
-                <Play className="w-9 h-9 text-white ml-1" fill="white" />
-              )}
-            </motion.button>
-
-            {/* Next Button */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => changeStation('next')}
-              className="w-16 h-16 rounded-full flex items-center justify-center transition-all"
-              style={{
-                background: `linear-gradient(135deg, ${cityTheme.primaryColor}25, ${cityTheme.secondaryColor}20)`,
-                backdropFilter: 'blur(10px)',
-                boxShadow: `0 4px 20px ${cityTheme.primaryColor}30`,
-              }}
-              aria-label="Next station"
-            >
-              <SkipForward className="w-6 h-6 text-white" fill="white" />
-            </motion.button>
-          </div>
-        </div>
-
-        {/* Volume Slider */}
-        <div className="flex-shrink-0 px-8 py-4 w-full">
-          <VolumeSlider volume={state.volume} onVolumeChange={setVolume} />
-        </div>
-
-        {/* Bottom spacer for safe area */}
-        <div className="flex-shrink-0 h-8" />
+      {/* Volume indicator overlay on the knob area */}
+      <div
+        className="absolute pointer-events-none z-10 flex flex-col items-center justify-center"
+        style={{
+          bottom: '1%',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "'Space Mono', monospace",
+            fontSize: 'clamp(8px, 2.5vw, 14px)',
+            fontWeight: 700,
+            color: cityTheme.primaryColor,
+            textShadow: `0 0 10px ${cityTheme.primaryColor}, 0 1px 3px rgba(0,0,0,0.8)`,
+            letterSpacing: '0.15em',
+          }}
+        >
+          VOL {Math.round(state.volume * 10)}
+        </span>
       </div>
+
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          FLOATING CHROME — small utility buttons at the corners
+          Fixed to viewport, always accessible.
+          ═══════════════════════════════════════════════════════════════════ */}
+
+      {/* Back button — top-left */}
+      <motion.button
+        aria-label="Go back"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => navigate(-1)}
+        className="fixed top-3 left-3 z-50 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+        }}
+      >
+        <ArrowLeft className="w-4 h-4 text-white/70" />
+      </motion.button>
+
+      {/* Liked Stations — top-right next to station list */}
+      <motion.button
+        aria-label="Liked stations"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => {
+          setShowDrawer(false);
+          setShowFavoritesDrawer(true);
+        }}
+        className="fixed top-3 right-14 z-50 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,0,255,0.3)',
+        }}
+      >
+        <Heart className="w-4 h-4 text-[#ff00ff] drop-shadow-[0_0_6px_#ff00ff]" fill="#ff00ff" />
+      </motion.button>
+
+      {/* Station list — top-right */}
+      <motion.button
+        aria-label="Browse stations"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => {
+          setShowFavoritesDrawer(false);
+          setShowDrawer(true);
+        }}
+        className="fixed top-3 right-3 z-50 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+        }}
+      >
+        <ListMusic className="w-4 h-4 text-white/70" />
+      </motion.button>
+
+      {/* Shuffle button — top-right */}
+      <motion.button
+        aria-label="Toggle shuffle"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => {
+          triggerHaptic('light');
+          toggleShuffle();
+        }}
+        className="fixed top-3 right-[6.5rem] z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
+        style={{
+          background: 'rgba(0,0,0,0.5)',
+          backdropFilter: 'blur(12px)',
+          border: state.isShuffle ? `1px solid ${cityTheme.primaryColor}` : '1px solid rgba(255,255,255,0.1)',
+        }}
+      >
+        <Shuffle
+          className="w-4 h-4 transition-colors"
+          style={{
+            color: state.isShuffle ? cityTheme.primaryColor : 'rgba(255,255,255,0.4)',
+            filter: state.isShuffle ? `drop-shadow(0 0 6px ${cityTheme.primaryColor})` : 'none',
+          }}
+        />
+      </motion.button>
+
+      {/* Error toast */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed top-14 left-4 right-4 z-50 text-center"
+          >
+            <span
+              className="inline-block px-4 py-2 rounded-full text-xs font-medium text-red-300"
+              style={{
+                background: 'rgba(0,0,0,0.7)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,59,48,0.3)',
+              }}
+            >
+              {error}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Station Drawer */}
       <StationDrawer
-        isOpen={showStationDrawer}
-        onClose={() => setShowStationDrawer(false)}
+        isOpen={showDrawer || showFavoritesDrawer}
+        onClose={() => {
+          setShowDrawer(false);
+          setShowFavoritesDrawer(false);
+        }}
+        isFavoritesView={showFavoritesDrawer}
         currentCity={state.currentCity}
         currentStation={state.currentStation}
         isPlaying={state.isPlaying}
@@ -316,19 +542,4 @@ export default function RetroRadioStation() {
       />
     </div>
   );
-}
-
-/**
- * Responsive vinyl size based on viewport - larger for centered design
- */
-function getVinylSize(): number {
-  if (typeof window === 'undefined') return 140;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  if (vw < 380) return 100;
-  if (vw < 480) return 120;
-  if (vh < 600) return 100;
-  if (vw < 768) return 140;
-  return 180;
 }

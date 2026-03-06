@@ -1,8 +1,8 @@
-// @ts-nocheck
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
+
 type Theme = 'black-matte' | 'white-matte';
 
 interface ThemeContextType {
@@ -13,7 +13,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('white-matte');
+  const [theme, setThemeState] = useState<Theme>('black-matte');
   const { user } = useAuth();
 
   // Load theme from database when user logs in
@@ -24,72 +24,72 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           const { data, error } = await supabase
             .from('profiles')
             .select('theme_preference')
-          .eq('user_id', user.id)
-          .maybeSingle();
+            .eq('user_id', user.id)
+            .maybeSingle();
 
           if (error) throw error;
 
-          // Support both old and new theme names for backwards compatibility
           const validThemes = ['black-matte', 'white-matte'];
-          const legacyThemeMap: Record<string, Theme> = {
-            'default': 'black-matte',
-            'dark': 'black-matte',
-            'grey-matte': 'black-matte',
-            'amber': 'black-matte',
-            'amber-matte': 'black-matte',
-            'red': 'black-matte',
-            'red-matte': 'black-matte'
-          };
-
-          if (data?.theme_preference) {
-            const preferredTheme = data.theme_preference;
-            if (validThemes.includes(preferredTheme)) {
-              setThemeState(preferredTheme as Theme);
-            } else if (legacyThemeMap[preferredTheme]) {
-              setThemeState(legacyThemeMap[preferredTheme]);
-            }
+          if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
+            setThemeState(data.theme_preference as Theme);
           }
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
-          setThemeState('white-matte');
+          setThemeState('black-matte');
         }
       };
       loadUserTheme();
     } else {
-      // Reset to white-matte when logged out
-      setThemeState('white-matte');
+      setThemeState('black-matte');
     }
   }, [user?.id]);
 
   // Apply theme class to document and update status bar
   useEffect(() => {
     const root = window.document.documentElement;
-    // Remove all theme classes
-    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'dark', 'amber', 'red');
+
+    // Remove all theme classes safely
+    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
 
     // Add current theme class
     root.classList.add(theme);
-
-    // Update status bar color based on theme
-    const themeColors: Record<string, string> = {
-      'black-matte': '#000000',
-      'white-matte': '#f5f5f5',
-    };
-
-    const color = themeColors[theme] || '#1a1a1a';
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     
+    // Only add 'dark' class for dark themes
+    if (theme !== 'white-matte') {
+      root.classList.add('dark');
+    }
+
+    // Update status bar base color according to theme
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
       metaThemeColor.setAttribute('name', 'theme-color');
       document.head.appendChild(metaThemeColor);
     }
-    
-    metaThemeColor.setAttribute('content', color);
+
+    if (theme === 'white-matte') {
+      metaThemeColor.setAttribute('content', '#ffffff');
+    } else {
+      metaThemeColor.setAttribute('content', '#000000');
+    }
   }, [theme]);
 
   // Save theme to database and update state
   const setTheme = async (newTheme: Theme) => {
+    // Apply CSS class immediately so CSS variables update before React re-renders
+    // This prevents the "black flash" where CSS vars are stale during the re-render
+    const root = window.document.documentElement;
+    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
+    root.classList.add(newTheme);
+    if (newTheme !== 'white-matte') {
+      root.classList.add('dark');
+    }
+    // Update status bar meta immediately too
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', newTheme === 'white-matte' ? '#ffffff' : '#000000');
+    }
+
     setThemeState(newTheme);
 
     if (user?.id) {

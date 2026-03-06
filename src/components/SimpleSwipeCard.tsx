@@ -34,10 +34,10 @@ export interface SimpleSwipeCardRef {
 // Tinder-style thresholds
 const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
-const FALLBACK_PLACEHOLDER = '/placeholder.svg';
+const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 12;
+const MAX_ROTATION = 18; // Increased from 12 for more dramatic swing
 
 // Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -50,11 +50,11 @@ const SPRING_CONFIGS = {
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
   // NATIVE: iOS-like balanced feel (DEFAULT)
   NATIVE: { stiffness: 400, damping: 28, mass: 1 },
-  // SOFT: Playful with bounce
-  SOFT: { stiffness: 300, damping: 22, mass: 1.2 },
+  // SOFT: Playful with bounce - EXTREMELY FUN FEEL
+  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE;
+const ACTIVE_SPRING = SPRING_CONFIGS.SOFT; // Changed to SOFT for purely fun swipe feedback
 
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;
@@ -107,14 +107,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const [magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
+    let result: string[] = [];
+    if (listing.video_url) {
+      result.push('video_attachment');
+    }
     if (Array.isArray(listing.images) && listing.images.length > 0) {
-      return listing.images;
+      result = [...result, ...listing.images];
+    } else if (listing.image_url) {
+      result.push(listing.image_url);
     }
-    if ((listing as any).image_url) {
-      return [(listing as any).image_url];
+
+    if (result.length === 0) {
+      return [FALLBACK_PLACEHOLDER];
     }
-    return [FALLBACK_PLACEHOLDER];
-  }, [listing.images, (listing as any).image_url]);
+    return result;
+  }, [listing.images, listing.image_url, listing.video_url]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
@@ -160,7 +167,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   });
 
   // Fetch rating aggregate for this listing
-  const categoryId = listing.category === 'vehicle' || listing.vehicle_type ? 'vehicle' : 'property';
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, categoryId);
 
   // Parallax store for ambient background effect
@@ -238,7 +244,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     endParallaxDrag();
-    
+
     if (hasExited.current) return;
 
     const offsetX = info.offset.x;
@@ -259,7 +265,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       // Exit in the SAME direction of the swipe gesture (diagonal physics)
       const exitDistance = getExitDistance();
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
-      
+
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
@@ -275,7 +281,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           onSwipe(direction);
         },
       });
-      
+
       // Animate Y in parallel
       animate(y, Math.min(Math.max(exitY, -300), 300), {
         type: 'spring',
@@ -357,7 +363,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       damping: 30,
       onComplete: fireSwipe,
     });
-    
+
     // Slight upward arc for button swipes
     animate(y, -50, {
       type: 'spring',
@@ -376,7 +382,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Format price
   // Format price - moved before conditional render to avoid hook order issues
-  const rentalType = (listing as any).rental_duration_type;
+  const rentalType = listing.rental_duration_type;
   const formattedPrice = listing.price
     ? `$${listing.price.toLocaleString()}${rentalType === 'monthly' ? '/mo' : rentalType === 'daily' ? '/day' : ''}`
     : null;
@@ -391,7 +397,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           pointerEvents: 'none',
         }}
       >
-        <CardImage src={currentImage} alt={listing.title || 'Listing'} />
+        {currentImage === 'video_attachment' && listing.video_url ? (
+          <video
+            src={listing.video_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-[1]"
+            style={{ pointerEvents: 'none', zIndex: 1 }}
+          />
+        ) : (
+          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+        )}
         {/* No gradient - full-bleed cards */}
       </div>
     );
@@ -441,8 +459,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             userSelect: 'none',
           }}
         >
-          {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
-          <CardImage src={currentImage} alt={listing.title || 'Listing'} />
+          {/* PHOTO OR VIDEO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
+          {currentImage === 'video_attachment' && listing.video_url ? (
+            <video
+              src={listing.video_url}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover z-[1]"
+              style={{ pointerEvents: 'none', zIndex: 1 }}
+            />
+          ) : (
+            <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+          )}
 
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
@@ -456,7 +486,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             </div>
           )}
         </div>
-        
+
         {/* YES! overlay */}
         <motion.div
           className="absolute top-8 left-8 z-30 pointer-events-none"
@@ -500,7 +530,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             NOPE
           </div>
         </motion.div>
-        
+
         {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
         <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
           {/* Rating Display - Glass-pill tactile badge */}
@@ -516,7 +546,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               }}
             >
               <CompactRatingDisplay
-                aggregate={ratingAggregate}
+                aggregate={ratingAggregate as any}
                 isLoading={isRatingLoading}
                 showReviews={false}
                 className="text-white"
@@ -527,39 +557,39 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {listing.category === 'vehicle' || listing.vehicle_type ? (
             <VehicleCardInfo
               price={listing.price || 0}
-              priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
-              make={(listing as any).vehicle_brand}
-              model={(listing as any).vehicle_model}
+              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
+              make={listing.vehicle_brand}
+              model={listing.vehicle_model}
               year={listing.year}
               location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              isVerified={listing.has_verified_documents}
               photoIndex={currentImageIndex}
             />
-          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_type ? (
+          ) : listing.category === 'worker' || listing.category === 'services' || listing.service_type ? (
             <ServiceCardInfo
-              hourlyRate={(listing as any).hourly_rate}
-              serviceName={(listing as any).service_type || listing.title || 'Service'}
-              name={(listing as any).provider_name}
+              hourlyRate={listing.hourly_rate}
+              serviceName={listing.service_type || listing.title || 'Service'}
+              name={listing.provider_name}
               location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              isVerified={listing.has_verified_documents}
               photoIndex={currentImageIndex}
             />
           ) : (
             <PropertyCardInfo
               price={listing.price || 0}
-              priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
+              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
               propertyType={listing.property_type}
               beds={listing.beds}
               baths={listing.baths}
               location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              isVerified={listing.has_verified_documents}
               photoIndex={currentImageIndex}
             />
           )}
         </div>
-        
+
         {/* Verified badge - now using TrustSignals component */}
-        {(listing as any).has_verified_documents && (
+        {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
               backgroundColor: 'rgba(0, 0, 0, 0.35)',

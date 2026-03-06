@@ -27,7 +27,7 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     setIsDragging(true);
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    trackRef.current?.setPointerCapture(e.pointerId);
     updateVolume(e.clientX);
   }, [updateVolume]);
 
@@ -57,7 +57,7 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
       {/* Track */}
       <div
         ref={trackRef}
-        className="flex-1 h-6 flex items-center cursor-pointer touch-none"
+        className="flex-1 h-6 relative cursor-pointer touch-none"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -68,7 +68,8 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
         aria-valuemax={100}
         aria-valuenow={Math.round(volume * 100)}
       >
-        <div className="w-full h-0.5 bg-white/10 rounded-full relative">
+        {/* Track line — absolutely centered in the h-6 container */}
+        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-0.5 bg-white/10 rounded-full">
           {/* Fill */}
           <div
             className="absolute left-0 top-0 h-full rounded-full transition-[width] duration-75"
@@ -77,20 +78,20 @@ export function VolumeSlider({ volume, onVolumeChange }: VolumeSliderProps) {
               background: 'linear-gradient(90deg, #FF4D00, #FFB347)',
             }}
           />
-
-          {/* Thumb */}
-          <motion.div
-            className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white"
-            style={{
-              left: `calc(${volume * 100}% - 5px)`,
-              boxShadow: isDragging
-                ? '0 0 12px rgba(255, 77, 0, 0.5), 0 0 6px rgba(255, 77, 0, 0.7)'
-                : '0 1px 3px rgba(0,0,0,0.3), 0 0 3px rgba(255, 77, 0, 0.2)',
-            }}
-            animate={{ scale: isDragging ? 1.1 : 1 }}
-            transition={{ duration: 0.15 }}
-          />
         </div>
+
+        {/* Thumb — positioned relative to the h-6 container for perfect centering */}
+        <motion.div
+          className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white"
+          style={{
+            left: `calc(${volume * 100}% - 6px)`,
+            boxShadow: isDragging
+              ? '0 0 14px rgba(255, 77, 0, 0.6), 0 0 7px rgba(255, 77, 0, 0.8)'
+              : '0 1px 4px rgba(0,0,0,0.4), 0 0 4px rgba(255, 77, 0, 0.25)',
+          }}
+          animate={{ scale: isDragging ? 1.2 : 1 }}
+          transition={{ duration: 0.15 }}
+        />
       </div>
 
       {/* Percentage */}

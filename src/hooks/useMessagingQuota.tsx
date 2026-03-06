@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { useUserSubscription } from './useSubscription';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +35,7 @@ export function useMessagingQuota() {
     queryFn: async () => {
       if (!user?.id) return { amount: 0, token_type: null };
       
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tokens')
         .select('amount, token_type, source')
         .eq('user_id', user.id)

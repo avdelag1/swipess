@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { useState, useCallback, useEffect, createContext, useContext, ReactNode, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
@@ -64,6 +63,7 @@ const PAGE_MAPPING: Record<string, Record<string, string>> = {
     security: '/client/security',
     contracts: '/client/contracts',
     listings: '/client/dashboard',
+    properties: '/client/dashboard',
     'new-listing': '/client/dashboard',
   },
 };
@@ -103,7 +103,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from('profiles')
         .select('active_mode')
-        .eq('id', user.id)
+        .eq('user_id', user.id)
         .maybeSingle();
 
       if (error) {
@@ -141,7 +141,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
           active_mode: newMode,
           updated_at: new Date().toISOString()
         })
-        .eq('id', user.id);
+        .eq('user_id', user.id);
 
       // Update query cache
       queryClient.setQueryData(['active-mode', user.id], newMode);
@@ -152,26 +152,32 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   }, [user?.id, queryClient]);
 
   // Get target path for navigation
-  // Get target path for navigation
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
     const currentPath = location.pathname;
-    
+    if (import.meta.env.DEV) console.log(`[getTargetPath] newMode: ${newMode}, currentPath: ${currentPath}`);
+
     // Default paths
     const defaultPaths = {
       client: '/client/dashboard',
       owner: '/owner/dashboard'
     };
 
+    // If currently on a client/owner explicit route, try to map it
     if (currentPath.includes('/client/') || currentPath.includes('/owner/')) {
-      // Extract the page type from path - handle both /client/page and /client/page/
-      const pathParts = currentPath.split('/').filter(Boolean);
-      const currentPageType = pathParts[1] === 'client' || pathParts[1] === 'owner' 
-        ? pathParts[2] || 'dashboard' 
-        : 'dashboard';
       const fromMode = currentPath.includes('/client/') ? 'client' : 'owner';
 
-      // Try to get mapped path, fallback to default
+      // If we're already on the correct mode path due to some race condition, just return it
+      if (fromMode === newMode) return currentPath;
+
+      // Extract the specific page name after /client/ or /owner/
+      // E.g., /client/dashboard -> dashboard, /owner/settings -> settings
+      const pathParts = currentPath.split('/');
+      const modeIdx = pathParts.indexOf(fromMode);
+      const currentPageType = pathParts[modeIdx + 1] || 'dashboard';
+
+      // Look up where this page maps to in the OTHER mode
       const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
+      if (import.meta.env.DEV) console.log(`[getTargetPath] fromMode: ${fromMode}, currentPageType: ${currentPageType}, mappedPath: ${mappedPath}`);
       if (mappedPath) {
         return mappedPath;
       }
@@ -224,14 +230,19 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     // 7. Navigate with error handling
     try {
       const targetPath = getTargetPath(newMode);
+      if (import.meta.env.DEV) console.log(`[switchMode] Navigating to targetPath: ${targetPath}`);
       navigate(targetPath, { replace: true });
     } catch (navError) {
       logger.error('[ActiveMode] Navigation failed:', navError);
+      console.error('[switchMode] Navigation failed:', navError);
       // Fallback navigation
       try {
-        navigate(newMode === 'client' ? '/client/dashboard' : '/owner/dashboard', { replace: true });
+        const fallbackPath = newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
+        if (import.meta.env.DEV) console.log(`[switchMode] Fallback navigating to: ${fallbackPath}`);
+        navigate(fallbackPath, { replace: true });
       } catch (fallbackError) {
         logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
+        console.error('[switchMode] Fallback navigation also failed:', fallbackError);
       }
     }
 
@@ -321,7 +332,7 @@ export function useActiveModeQuery(userId: string | undefined) {
       const { data, error } = await supabase
         .from('profiles')
         .select('active_mode')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (error) {

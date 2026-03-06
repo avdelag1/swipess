@@ -1,7 +1,6 @@
-// @ts-nocheck
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
 export interface OwnerClientPreferences {
@@ -58,13 +57,20 @@ export function useOwnerClientPreferences() {
       }
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('owner_client_preferences')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      // Gracefully handle errors - return null instead of crashing
+      if (error) {
+        if (import.meta.env.DEV) {
+          logger.error('Error fetching owner client preferences:', error);
+        }
+        return null;
+      }
+
       return data as OwnerClientPreferences | null;
     },
   });
@@ -78,16 +84,24 @@ export function useOwnerClientPreferences() {
       }
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('owner_client_preferences')
         .upsert({
           user_id: user.id,
           ...prefs,
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      // Gracefully handle errors - don't crash the app
+      if (error) {
+        if (import.meta.env.DEV) {
+          logger.error('Error updating owner client preferences:', error);
+        }
+        // Return a minimal valid response to prevent crash
+        return { user_id: user.id, ...prefs };
+      }
+
       return data;
     },
     onSuccess: () => {

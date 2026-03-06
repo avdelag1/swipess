@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
@@ -70,9 +69,9 @@ export function LikeNotificationPreview({
           setLikerInfo({
             id: likerId,
             type: 'client',
-            locationCity: profile?.city,
-            preferencesPropertyType: preferences?.property_types?.[0],
-            preferencesLocationZones: preferences?.location_zones || [],
+            locationCity: profile?.city ?? undefined,
+            preferencesPropertyType: (preferences as any)?.property_types?.[0],
+            preferencesLocationZones: (preferences as any)?.location_zones || [],
           });
         } else {
           // Show owner's listings preview

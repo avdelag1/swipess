@@ -1,13 +1,13 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
-import { getStationById } from '@/data/radioStations';
-import { ArrowLeft, Heart, Shuffle, Play, X } from 'lucide-react';
+import { getStationById, cityThemes } from '@/data/radioStations';
+import { ArrowLeft, Heart, Shuffle, Play, Pause, X, Radio } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 export default function RadioFavoritesPage() {
   const navigate = useNavigate();
-  const { state, play, toggleShuffle, toggleFavorite } = useRadio();
+  const { state, play, toggleShuffle, toggleFavorite, togglePlayPause } = useRadio();
 
   const handleShufflePlay = () => {
     if (state.favorites.length === 0) return;
@@ -28,88 +28,200 @@ export default function RadioFavoritesPage() {
   const handleRemoveFavorite = (stationId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     toggleFavorite(stationId);
-    toast.success('Removed from favorites');
+    toast.success('Removed from liked stations');
   };
 
   const favoriteStations = state.favorites
     .map((id) => getStationById(id))
     .filter((s) => s !== undefined);
 
+  const currentStationId = state.currentStation?.id;
+
   return (
-    <div className="fixed inset-0 bg-black overflow-y-auto">
+    <div className="fixed inset-0 overflow-y-auto z-40" style={{ background: 'linear-gradient(180deg, #1a1a1a 0%, #0a0a0a 100%)' }}>
+      {/* Subtle noise texture */}
+      <div
+        className="fixed inset-0 opacity-[0.015] pointer-events-none z-0"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: '150px 150px',
+        }}
+      />
+
       {/* Header */}
-      <div className="sticky top-0 bg-black/80 backdrop-blur-lg z-10 border-b border-white/10 px-4 py-4">
+      <div className="sticky top-0 z-10 backdrop-blur-xl border-b border-white/8 px-4 py-4" style={{ background: 'rgba(20,20,20,0.85)' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate('/radio')}
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
             >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-xl font-bold text-white">Liked Stations</h1>
+              <ArrowLeft className="w-5 h-5 text-white/70" />
+            </motion.button>
+            <div>
+              <h1 className="text-lg font-bold text-white leading-none">Liked Stations</h1>
+              <p className="text-[11px] text-white/40 mt-0.5">
+                {favoriteStations.length} {favoriteStations.length === 1 ? 'station' : 'stations'}
+              </p>
+            </div>
           </div>
-          <button
+
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleShufflePlay}
-            disabled={state.favorites.length === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 rounded-full text-white text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed"
+            disabled={favoriteStations.length === 0}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-white text-sm font-semibold disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ background: 'linear-gradient(135deg, #FF4D00, #FFB347)' }}
           >
             <Shuffle className="w-4 h-4" />
             Shuffle
-          </button>
+          </motion.button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 pb-24">
+      <div className="relative z-10 p-4 pb-28">
         {/* Empty State */}
-        {favoriteStations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-white/30">
-            <Heart className="w-16 h-16 mb-4 opacity-20" />
-            <p className="text-xl font-medium mb-2">No Liked Stations</p>
-            <p className="text-sm text-center max-w-xs">Heart your favorite stations while listening to add them here</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {favoriteStations.map((station, index) => (
-              <motion.div
-                key={station!.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                onClick={() => handlePlayStation(station!.id)}
-                className="group flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer"
+        <AnimatePresence mode="wait">
+          {favoriteStations.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center py-24 text-white/40"
+            >
+              <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                <Heart className="w-9 h-9" />
+              </div>
+              <p className="text-xl font-bold text-white/60 mb-2">No liked stations yet</p>
+              <p className="text-sm text-center max-w-xs leading-relaxed">
+                Heart your favorite stations while listening to save them here
+              </p>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => navigate('/radio')}
+                className="mt-8 flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white"
+                style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.12)' }}
               >
-                {/* Station Icon */}
-                <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
-                  {station!.name[0]}
-                </div>
+                <Radio className="w-4 h-4" />
+                Go to Radio
+              </motion.button>
+            </motion.div>
+          ) : (
+            <motion.div key="list" className="space-y-2.5">
+              {favoriteStations.map((station, index) => {
+                const theme = cityThemes[station!.city];
+                const isCurrentlyPlaying = currentStationId === station!.id && state.isPlaying;
+                const isCurrentStation = currentStationId === station!.id;
 
-                {/* Station Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-white truncate">{station!.name}</h3>
-                  <p className="text-sm text-white/40 truncate">{station!.genre} • {station!.frequency}</p>
-                </div>
+                return (
+                  <motion.div
+                    key={station!.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: index * 0.04, duration: 0.3 }}
+                    onClick={() => handlePlayStation(station!.id)}
+                    className="flex items-center gap-3.5 p-3.5 rounded-2xl cursor-pointer transition-all active:scale-[0.98]"
+                    style={{
+                      background: isCurrentStation
+                        ? `linear-gradient(135deg, ${theme.primaryColor}25, ${theme.secondaryColor}12)`
+                        : 'rgba(255,255,255,0.05)',
+                      border: isCurrentStation
+                        ? `1px solid ${theme.primaryColor}40`
+                        : '1px solid rgba(255,255,255,0.07)',
+                    }}
+                  >
+                    {/* Station Icon */}
+                    <div
+                      className="relative w-13 h-13 rounded-xl flex items-center justify-center text-white font-black text-lg shadow-lg flex-shrink-0"
+                      style={{
+                        width: 52,
+                        height: 52,
+                        background: `linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor})`,
+                        boxShadow: isCurrentStation ? `0 4px 20px ${theme.primaryColor}50` : '0 2px 8px rgba(0,0,0,0.4)',
+                      }}
+                    >
+                      {station!.name[0]}
 
-                {/* Actions */}
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => handleRemoveFavorite(station!.id, e)}
-                    className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 hover:bg-red-500/30"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handlePlayStation(station!.id); }}
-                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"
-                  >
-                    <Play className="w-4 h-4" fill="currentColor" />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                      {/* Equalizer animation for playing station */}
+                      {isCurrentlyPlaying && (
+                        <div className="absolute inset-0 flex items-end justify-center gap-0.5 pb-1 rounded-xl overflow-hidden bg-black/30">
+                          {[1, 2, 3].map((i) => (
+                            <motion.div
+                              key={i}
+                              className="w-1 rounded-full bg-white"
+                              animate={{ height: ['40%', '80%', '40%'] }}
+                              transition={{ duration: 0.6, delay: i * 0.15, repeat: Infinity, ease: 'easeInOut' }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Station Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-white truncate text-sm">{station!.name}</h3>
+                        {isCurrentStation && (
+                          <span
+                            className="text-[9px] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                            style={{ background: `${theme.primaryColor}30`, color: theme.primaryColor }}
+                          >
+                            {isCurrentlyPlaying ? 'LIVE' : 'PAUSED'}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-white/45 mt-0.5 truncate">
+                        {station!.genre} · {station!.frequency} FM · {theme.name}
+                      </p>
+                    </div>
+
+                    {/* Action buttons — always visible for touch */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <motion.button
+                        whileTap={{ scale: 0.85 }}
+                        onClick={(e) => handleRemoveFavorite(station!.id, e)}
+                        className="w-9 h-9 rounded-full flex items-center justify-center"
+                        style={{ background: 'rgba(255,77,77,0.15)' }}
+                        aria-label="Remove from liked"
+                      >
+                        <X className="w-3.5 h-3.5 text-red-400" />
+                      </motion.button>
+
+                      <motion.button
+                        whileTap={{ scale: 0.85 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (isCurrentStation) {
+                            togglePlayPause();
+                          } else {
+                            handlePlayStation(station!.id);
+                          }
+                        }}
+                        className="w-9 h-9 rounded-full flex items-center justify-center"
+                        style={{
+                          background: isCurrentStation
+                            ? `linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor})`
+                            : 'rgba(255,255,255,0.1)',
+                        }}
+                        aria-label={isCurrentlyPlaying ? 'Pause' : 'Play'}
+                      >
+                        {isCurrentlyPlaying ? (
+                          <Pause className="w-3.5 h-3.5 text-white" fill="white" />
+                        ) : (
+                          <Play className="w-3.5 h-3.5 text-white ml-0.5" fill="white" />
+                        )}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

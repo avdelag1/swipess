@@ -1,11 +1,10 @@
-// @ts-nocheck
 
 import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from 'sonner'
+import { toast } from '@/hooks/use-toast'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
@@ -20,6 +19,7 @@ import { AdvancedFilters } from '@/components/AdvancedFilters'
 // DISABLED: LiveHDBackground was causing performance issues
 // import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
+import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
@@ -105,7 +105,7 @@ function clearOnboardingCache(): void {
 
 interface DashboardLayoutProps {
   children: ReactNode
-  userRole: 'client' | 'owner' | 'admin'
+  userRole: 'client' | 'owner'
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
@@ -135,6 +135,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
+  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
@@ -221,7 +222,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         const { data, error } = await supabase
           .from('profiles')
           .select('onboarding_completed, full_name, city, age')
-          .eq('id', userId)
+          .eq('user_id', userId)
           .maybeSingle();
 
         if (error) {
@@ -303,7 +304,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
-  // (survives localStorage clears from Lovable preview URLs)
+  // (survives localStorage clears from external preview URLs)
 
   const selectedListing = selectedListingId ? listings.find(l => l.id === selectedListingId) : null;
   const selectedProfile = selectedProfileId ? profiles.find(p => p.user_id === selectedProfileId) : null;
@@ -383,8 +384,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       ...filters,
       propertyType: filters.propertyTypes, // propertyTypes -> propertyType
       listingType: filters.listingTypes?.length === 1 ? filters.listingTypes[0] :
-                   filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
-                   filters.listingTypes?.[0] || 'rent',
+        filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
+          filters.listingTypes?.[0] || 'rent',
       petFriendly: filters.petFriendly === 'yes' || filters.petFriendly === true,
       furnished: filters.furnished === 'yes' || filters.furnished === true,
       verified: filters.verified || false,
@@ -468,7 +469,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
-                            (userRole === 'owner' && location.pathname === '/owner/dashboard');
+    (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
   // FIX: Memoize cloned children to prevent infinite re-renders
   const enhancedChildren = useMemo(() => {
@@ -494,14 +495,31 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // On these routes, TopBar becomes transparent and content extends behind it
   const isImmersiveDashboard = useMemo(() => {
     const path = location.pathname;
-    return path === '/client/dashboard' ||
-           path === '/owner/dashboard' ||
-           path.includes('discovery');
+    // Core routes that should go full-bleed behind the header
+    const immersiveRoutes = [
+      '/client/dashboard',
+      '/owner/dashboard',
+      '/client/profile',
+      '/owner/profile',
+      '/client/liked-properties',
+      '/owner/liked-clients',
+      '/client/filters',
+      '/owner/filters',
+      '/owner/properties',
+      '/client/services',
+      '/messages',
+      '/notifications',
+      '/settings'
+    ];
+
+    return immersiveRoutes.some(route => path === route || path.startsWith(route + '/')) ||
+      path.includes('discovery') ||
+      path.includes('view-client');
   }, [location.pathname]);
 
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
-  
+
   const pageTitle = useMemo(() => {
     const path = location.pathname;
 
@@ -519,6 +537,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (path.includes('/settings')) return 'Settings';
     if (path.includes('/messages')) return 'Messages';
     if (path.includes('/notifications')) return 'Notifications';
+    if (path.includes('/liked-clients')) return 'Liked Clients';
     if (path.includes('/liked')) return 'Liked';
     if (path.includes('/properties')) return 'Properties';
     if (path.includes('/listings')) return 'Listings';
@@ -550,8 +569,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
           showFilters={isOnDiscoveryPage}
-          userRole={userRole === 'admin' ? 'client' : userRole}
+          userRole={userRole}
           transparent={isImmersiveDashboard}
           hideOnScroll={true}
           title={pageTitle}
@@ -562,7 +582,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
-        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum"
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
         style={{
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
             ? '0px'
@@ -597,11 +617,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
         />
       )}
-
-      {/* Radio Mini Player */}
-      <RadioMiniPlayer />
 
       {/* Advanced Filters Dialog */}
       <AdvancedFilters
@@ -627,7 +645,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <MessageActivationPackages
           isOpen={showMessageActivations}
           onClose={() => setShowMessageActivations(false)}
-          userRole={userRole === 'admin' ? 'client' : userRole}
+          userRole={userRole}
         />
       </Suspense>
 
@@ -739,17 +757,24 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <Suspense fallback={null}>
         <OnboardingFlow
           open={showOnboarding}
-            onComplete={() => {
-              setShowOnboarding(false);
-              // Clear cache so we don't show onboarding again
-              clearOnboardingCache();
-              toast({
-                title: 'Profile Complete!',
-                description: 'Start exploring and find your perfect match!',
-              });
+          onComplete={() => {
+            setShowOnboarding(false);
+            // Clear cache so we don't show onboarding again
+            clearOnboardingCache();
+            toast({
+              title: 'Profile Complete!',
+              description: 'Start exploring and find your perfect match!',
+            });
           }}
         />
       </Suspense>
+
+      {/* AI Search Dialog */}
+      <AISearchDialog
+        isOpen={isAISearchOpen}
+        onClose={() => setIsAISearchOpen(false)}
+        userRole={userRole}
+      />
 
       {/* Push Notification Permission Prompt */}
       <Suspense fallback={null}>

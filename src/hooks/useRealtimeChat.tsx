@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,7 +59,7 @@ export function useRealtimeChat(conversationId: string) {
           userName: user.user_metadata?.full_name || 'User',
           isTyping: false,
           timestamp: Date.now()
-        }).catch((err) => logger.error('Typing indicator error:', err));
+        }).catch((err: any) => logger.error('Typing indicator error:', err));
       }, 3000);
       return;
     }
@@ -82,7 +81,7 @@ export function useRealtimeChat(conversationId: string) {
         userName: user.user_metadata?.full_name || 'User',
         isTyping: true,
         timestamp: now
-      }).catch((err) => logger.error('Typing indicator error:', err));
+      }).catch((err: any) => logger.error('Typing indicator error:', err));
     }
 
     // Set timeout to stop typing after 3 seconds of inactivity
@@ -94,7 +93,7 @@ export function useRealtimeChat(conversationId: string) {
         userName: user.user_metadata?.full_name || 'User',
         isTyping: false,
         timestamp: Date.now()
-      }).catch((err) => logger.error('Typing indicator error:', err));
+      }).catch((err: any) => logger.error('Typing indicator error:', err));
     }, 3000);
   }, [conversationId, user?.id, user?.user_metadata?.full_name]);
 
@@ -158,32 +157,32 @@ export function useRealtimeChat(conversationId: string) {
               avatar_url: null
             }
           };
-          
+
           // Update messages immediately
           queryClient.setQueryData(['conversation-messages', conversationId], (oldData: any) => {
             if (!oldData) return [completeMessage];
-            
+
             // Check for both real IDs and temporary optimistic IDs
-            const exists = oldData.some((msg: any) => 
-              msg.id === newMessage.id || 
+            const exists = oldData.some((msg: any) =>
+              msg.id === newMessage.id ||
               (msg.id.toString().startsWith('temp-') && msg.message_text === newMessage.message_text && msg.sender_id === newMessage.sender_id)
             );
-            
+
             if (exists) {
               // Replace optimistic message with real message if it exists
-              return oldData.map((msg: any) => 
+              return oldData.map((msg: any) =>
                 msg.id.toString().startsWith('temp-') && msg.message_text === newMessage.message_text && msg.sender_id === newMessage.sender_id
                   ? completeMessage
                   : msg
               );
             }
-            
+
             return [...oldData, completeMessage];
           });
 
           // Clear typing status for sender
           setTypingUsers(prev => prev.filter(u => u.userId !== newMessage.sender_id));
-          
+
           // Dispatch custom event for notifications
           window.dispatchEvent(new CustomEvent('new-message', { detail: newMessage }));
         }
@@ -280,9 +279,11 @@ export function useRealtimeChat(conversationId: string) {
       isTypingRef.current = false;
       setIsTyping(false);
 
-      // Properly unsubscribe channels
+      // Properly unsubscribe AND remove channels to prevent memory leaks
       messagesChannel.unsubscribe();
       typingChannel.unsubscribe();
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(typingChannel);
 
       // Clear state
       setTypingUsers([]);

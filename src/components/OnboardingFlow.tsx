@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { SwipessLogo } from './SwipessLogo';
 import { logger } from '@/utils/prodLogger';
 
@@ -54,7 +53,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
   const [hasChildren, setHasChildren] = useState(false);
   const [interests, setInterests] = useState<string[]>([]);
 
-const steps = [
+  const steps = [
     { title: 'Welcome', icon: Sparkles, description: 'Get started' },
     { title: 'Photos', icon: Camera, description: 'Add your profile photos' },
     { title: 'Basic Info', icon: User, description: 'Tell us about yourself' },
@@ -160,7 +159,7 @@ const steps = [
           onboarding_step: 5,
           onboarding_completed_at: new Date().toISOString(),
         })
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id ?? '');
 
       if (error) throw error;
 
@@ -193,7 +192,8 @@ const steps = [
             className="text-center space-y-6 py-8"
           >
             <div className="flex justify-center mb-4">
-              <SwipessLogo size="lg" />
+              {/* Visual verification: Logo removed per user request */}
+              {/* <SwipessLogo size="lg" /> */}
             </div>
             <div>
               <h2 className="text-2xl font-bold text-white mb-3">
@@ -335,11 +335,10 @@ const steps = [
                     <Badge
                       key={lang}
                       variant={languages.includes(lang) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${
-                        languages.includes(lang)
+                      className={`cursor-pointer transition-all ${languages.includes(lang)
                           ? 'bg-gradient-to-r from-blue-500 to-purple-500'
                           : 'hover:border-blue-400'
-                      }`}
+                        }`}
                       onClick={() => toggleLanguage(lang)}
                     >
                       {lang}
@@ -381,11 +380,10 @@ const steps = [
                   <Badge
                     key={interest}
                     variant={interests.includes(interest) ? 'default' : 'outline'}
-                    className={`cursor-pointer transition-all ${
-                      interests.includes(interest)
+                    className={`cursor-pointer transition-all ${interests.includes(interest)
                         ? 'bg-gradient-to-r from-red-600 to-amber-500'
                         : 'hover:border-red-400'
-                    }`}
+                      }`}
                     onClick={() => toggleInterest(interest)}
                   >
                     {interest}
@@ -447,7 +445,7 @@ const steps = [
           onboarding_completed: true,
           onboarding_step: currentStep,
         })
-        .eq('user_id', user?.id);
+        .eq('user_id', user?.id ?? '');
 
       onComplete();
     } catch (error) {

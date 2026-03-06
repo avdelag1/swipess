@@ -2,17 +2,22 @@ import React, { memo, useEffect, useMemo, useState } from 'react';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+// [NEW] Import MarketingSlide
+import { MarketingSlide } from './MarketingSlide';
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
 const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string; name?: string }) => {
-  const optimizedSrc = getCardImageUrl(src ?? '');
-  // CRITICAL: re-check cache whenever `src` changes
-  const wasInCache = useMemo(() => (src ? imageCache.has(src) : false), [src]);
+  // [NEW] Check if the src is a marketing slide identifier instead of a URL
+  const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
-  const [loaded, setLoaded] = useState<boolean>(() => !!(src && imageCache.has(src)));
+  const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
+  // CRITICAL: re-check cache whenever `src` changes
+  const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
+
+  const [loaded, setLoaded] = useState<boolean>(() => !!(src && (isMarketingSlide || imageCache.has(src))));
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -22,6 +27,12 @@ const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string;
     // nothing to do for empty source
     if (!src) {
       setLoaded(false);
+      return;
+    }
+
+    // [NEW] Marketing slides don't need to load an image from the network
+    if (isMarketingSlide) {
+      setLoaded(true);
       return;
     }
 
@@ -60,10 +71,15 @@ const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string;
       img.onload = null;
       img.onerror = null;
     };
-  }, [src, optimizedSrc]);
+  }, [src, optimizedSrc, isMarketingSlide]);
 
   if (!src || error) {
     return <PlaceholderImage name={name} />;
+  }
+
+  // [NEW] Render the MarketingSlide component if identified
+  if (isMarketingSlide) {
+    return <MarketingSlide slideId={src} />;
   }
 
   const transition = wasInCache ? 'none' : 'opacity 220ms ease';

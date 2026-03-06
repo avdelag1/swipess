@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -246,14 +247,14 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center" style={{ background: '#080808' }}>
+      <div className="flex-1 flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="flex items-center justify-center gap-1 mb-3">
-            <span className="w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-white/30 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <span className="w-2 h-2 bg-foreground/20 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2 h-2 bg-foreground/20 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2 h-2 bg-foreground/20 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
           </div>
-          <p className="text-white/40 text-sm">Loading conversation...</p>
+          <p className="text-muted-foreground text-sm">Loading conversation...</p>
         </div>
       </div>
     );
@@ -269,15 +270,15 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         variant="activation-required"
       />
 
-      <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: '#080808' }}>
+      <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
         {/* Premium Header */}
         <div
           className="shrink-0 border-b px-3 py-2.5"
           style={{
-            background: 'rgba(8,8,8,0.97)',
+            background: 'hsl(var(--background) / 0.97)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
-            borderColor: 'rgba(255,255,255,0.08)',
+            borderColor: 'hsl(var(--border))',
           }}
         >
           <div className="flex items-center gap-2">
@@ -415,9 +416,9 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           onSubmit={handleSendMessage}
           className="px-3 py-3 shrink-0"
           style={{
-            background: 'rgba(12,12,12,0.95)',
+            background: 'hsl(var(--background) / 0.95)',
             backdropFilter: 'blur(20px)',
-            borderTop: '1px solid rgba(255,255,255,0.07)',
+            borderTop: '1px solid hsl(var(--border))',
           }}
         >
           <div className="flex gap-2 items-center">
@@ -430,10 +431,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                   else stopTyping();
                 }}
                 placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
-                className="w-full text-[15px] px-4 py-2.5 rounded-full text-white placeholder:text-white/30 outline-none transition-all"
+                className="w-full text-[15px] px-4 py-2.5 rounded-full text-foreground placeholder:text-muted-foreground outline-none transition-all"
                 style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.11)',
+                  background: 'hsl(var(--muted))',
+                  border: '1px solid hsl(var(--border))',
                   minHeight: '42px',
                 }}
                 disabled={sendMessage.isPending || isAtLimit}
@@ -451,10 +452,12 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                 </span>
               )}
             </div>
-            <button
+            <motion.button
               type="submit"
               disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all active:scale-90"
+              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+              whileTap={{ scale: 0.82, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 10, mass: 0.7 } }}
+              whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 300, damping: 15 } }}
               style={{
                 background: newMessage.trim() && !isAtLimit
                   ? 'linear-gradient(135deg, #ec4899, #f97316)'
@@ -464,7 +467,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
               }}
             >
               <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
-            </button>
+            </motion.button>
           </div>
         </form>
 

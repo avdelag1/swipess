@@ -126,33 +126,19 @@ export const durations = {
 
 // Pre-configured transition objects for common use cases
 export const transitions = {
-  // For micro-interactions (hover, focus, tap)
   micro: {
-    type: 'spring' as const,
     ...springConfigs.instant,
   },
-
-  // For UI element state changes
   state: {
-    type: 'spring' as const,
     ...springConfigs.snappy,
   },
-
-  // For page/view transitions
   page: {
-    type: 'spring' as const,
     ...springConfigs.ultraSmooth,
   },
-
-  // For modal/overlay appearances
   overlay: {
-    type: 'spring' as const,
     ...springConfigs.smooth,
   },
-
-  // For card interactions
   card: {
-    type: 'spring' as const,
     ...springConfigs.gameLike,
   },
 } as const;
