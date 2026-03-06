@@ -1,3 +1,5 @@
+console.log("[Main] Initialization starting...");
+
 import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
@@ -11,6 +13,7 @@ import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('clear-cache') === '1') {
+  console.log("[Main] Cache clear requested...");
   // Unregister all service workers
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -35,15 +38,15 @@ if (urlParams.get('clear-cache') === '1') {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // FAST INITIAL RENDER - Quita el loader apenas carga la página
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+console.log("[Main] Removing initial loader...");
 const initialLoader = document.getElementById("initial-loader");
 if (initialLoader) {
   initialLoader.remove(); // Instant removal — no fade delay
+  console.log("[Main] Loader removed.");
 }
 
 // Arranca la app normalmente
 // NOTE: StrictMode REMOVED intentionally for production-like performance
-// StrictMode double-mounts components causing: dashboard flicker, duplicate fetches,
-// delayed UI completion, subscription thrash. Preview must match production behavior.
 const root = createRoot(document.getElementById("root")!);
 root.render(
   <ErrorBoundaryWrapper>
@@ -61,10 +64,6 @@ const deferredInit = (callback: () => void, timeout = 3000) => {
     setTimeout(callback, timeout);
   }
 };
-
-// SPEED OF LIGHT: Do NOT prefetch routes on startup
-// Route prefetching now happens inside DashboardLayout ONLY after first paint
-// via requestIdleCallback. This ensures initial render is never blocked.
 
 // Priority 2: Herramientas de rendimiento + Offline Sync
 deferredInit(async () => {
@@ -84,15 +83,12 @@ deferredInit(async () => {
     ]);
     logBundleSize();
     checkAppVersion();
-    // Check for updates every 60 seconds (more aggressive)
     setupUpdateChecker(60000);
     initPerformanceOptimizations();
     initWebVitalsMonitoring();
-    initOfflineSync(); // PERF: Sync queued swipes when back online
-  } catch {
-    // Silently ignore - these are optional optimizations
-  }
-}, 2000); // Start earlier (2s instead of 3s)
+    initOfflineSync();
+  } catch { }
+}, 2000);
 
 // Priority 3: Configuración nativa (solo en app móvil)
 deferredInit(async () => {
@@ -104,35 +100,24 @@ deferredInit(async () => {
       await StatusBar.setStyle({ style: Style.Light });
       await StatusBar.setBackgroundColor({ color: "#FF0000" });
     }
-  } catch {
-    // Silently ignore - only applies to native mobile platforms
-  }
+  } catch { }
 }, 5000);
 
 // Service Worker with AGGRESSIVE update handling for PWA
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
+      .register("/sw.js", { updateViaCache: 'none' })
       .then((registration) => {
         console.log('[SW] Registered successfully');
-        
-        // Check for updates immediately
         registration.update();
-        
-        // Check for updates frequently (every 60 seconds)
         setInterval(() => registration.update(), 60000);
-
-        // Handle new SW waiting to activate
         registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
-            console.log('[SW] New version installing...');
             newWorker.addEventListener("statechange", () => {
               if (newWorker.state === "installed") {
                 console.log('[SW] New version installed');
-                // If there's a waiting worker, it will auto-activate via skipWaiting()
-                // The page will reload when controllerchange fires
               }
             });
           }
@@ -140,17 +125,14 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
       })
       .catch((err) => console.error('[SW] Registration failed:', err));
 
-    // Reload when new SW takes control (regardless of previous state)
     let refreshing = false;
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!refreshing) {
         refreshing = true;
-        console.log('[SW] New version active, reloading...');
         window.location.reload();
       }
     });
 
-    // Listen for update messages from SW
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data?.type === 'SW_UPDATED') {
         console.log('[SW] Update notification received:', event.data.version);
