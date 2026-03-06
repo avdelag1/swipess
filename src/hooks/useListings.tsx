@@ -241,6 +241,7 @@ export function useOwnerListings() {
       isMounted = false;
       if (subscription) {
         subscription.unsubscribe();
+        supabase.removeChannel(subscription);
       }
     };
   }, [queryClient]);

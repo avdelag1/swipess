@@ -12,6 +12,7 @@ import App from "./App.tsx";
 import "./index.css";
 import "./styles/responsive.css";
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
+import { logger } from "@/utils/logger";
 
 // Arranca la app normalmente
 // NOTE: StrictMode REMOVED intentionally for production-like performance
@@ -88,7 +89,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
     navigator.serviceWorker
       .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
       .then((registration) => {
-        console.log('[SW] Registered successfully');
+        logger.info('[SW] Registered successfully');
 
         // Check for updates immediately
         registration.update();
@@ -100,10 +101,10 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
         registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
-            console.log('[SW] New version installing...');
+            logger.info('[SW] New version installing...');
             newWorker.addEventListener("statechange", () => {
               if (newWorker.state === "installed") {
-                console.log('[SW] New version installed');
+                logger.info('[SW] New version installed');
                 // If there's a waiting worker, it will auto-activate via skipWaiting()
                 // The page will reload when controllerchange fires
               }
@@ -118,7 +119,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!refreshing) {
         refreshing = true;
-        console.log('[SW] New version active, reloading...');
+        logger.info('[SW] New version active, reloading...');
         window.location.reload();
       }
     });
