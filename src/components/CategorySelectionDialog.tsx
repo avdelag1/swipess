@@ -12,6 +12,7 @@ interface CategorySelectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCategorySelect?: (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => void;
+  onAIOpen?: () => void;
   navigateToNewPage?: boolean;
 }
 
@@ -67,10 +68,11 @@ const modes = [
   { id: 'both' as const, label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
 ];
 
-export function CategorySelectionDialog({
-  open,
-  onOpenChange,
+export function CategorySelectionDialog({ 
+  open, 
+  onOpenChange, 
   onCategorySelect,
+  onAIOpen,
   navigateToNewPage = false
 }: CategorySelectionDialogProps) {
   const navigate = useNavigate();
@@ -122,7 +124,7 @@ export function CategorySelectionDialog({
       }
       onOpenChange(false);
     }
-
+    
     // Reset state
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     resetTimeoutRef.current = setTimeout(() => {
@@ -147,6 +149,13 @@ export function CategorySelectionDialog({
     }
   };
 
+  const handleOpenAI = () => {
+    onOpenChange(false);
+    if (onAIOpen) {
+      onAIOpen();
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
@@ -157,7 +166,17 @@ export function CategorySelectionDialog({
         "flex flex-col p-0 gap-0 overflow-hidden"
       )}>
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-background">
-
+          
+          {/* AI BUTTON - Prominent at top */}
+          <Button
+            onClick={handleOpenAI}
+            className="w-full mb-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/25"
+            size="lg"
+          >
+            <Zap className="w-5 h-5 mr-2" />
+            ✨ Generate Listing with AI
+          </Button>
+          
           <div className="flex items-center gap-3">
             <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10">
               <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />

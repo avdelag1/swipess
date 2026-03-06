@@ -36,6 +36,7 @@ interface BottomNavigationProps {
   onFilterClick?: () => void;
   onAddListingClick?: () => void;
   onListingsClick?: () => void;
+  onAISearchClick?: () => void;
 }
 
 interface NavItem {
@@ -69,6 +70,7 @@ export function BottomNavigation({
   onFilterClick,
   onAddListingClick,
   onListingsClick,
+  onAISearchClick,
 }: BottomNavigationProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -88,6 +90,7 @@ export function BottomNavigation({
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
     { id: 'filter', icon: Search, label: 'Filters', path: '/client/filters' },
   ];
 
@@ -98,6 +101,7 @@ export function BottomNavigation({
     { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
     { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
+    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
     { id: 'filter', icon: SlidersHorizontal, label: 'Filters', path: '/owner/filters' },
   ];
 

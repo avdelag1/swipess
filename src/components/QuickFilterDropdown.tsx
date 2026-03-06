@@ -135,11 +135,15 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
+      // FIX: Ignore clicks on AI search button to prevent it from closing filters
+      const isAISearchClick = target.closest('#ai-search-button');
+
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&
         buttonRef.current &&
-        !buttonRef.current.contains(target)
+        !buttonRef.current.contains(target) &&
+        !isAISearchClick
       ) {
         setIsOpen(false);
         setClickedCategory(null);
@@ -286,75 +290,75 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
           {categoryOptionBase.map((category, index) => {
             const gradientClass = getCategoryGradientClass(category.id, isDark);
             return (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="relative"
+            <motion.div
+              key={category.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="relative"
+            >
+              <button
+                onClick={() => handleCategoryClick(category.id)}
+                className={cn(
+                  'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                  categories.includes(category.id)
+                    ? cn('bg-gradient-to-r', gradientClass, 'text-white')
+                    : 'text-foreground hover:bg-white/10'
+                )}
               >
-                <button
-                  onClick={() => handleCategoryClick(category.id)}
-                  className={cn(
-                    'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className={cn(
+                    'p-1.5 sm:p-2 rounded-lg',
                     categories.includes(category.id)
-                      ? cn('bg-gradient-to-r', gradientClass, 'text-white')
-                      : 'text-foreground hover:bg-white/10'
-                  )}
-                >
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <span className={cn(
-                      'p-1.5 sm:p-2 rounded-lg',
-                      categories.includes(category.id)
-                        ? 'bg-white/20 text-white'
-                        : 'bg-white/5 text-foreground'
-                    )}>
-                      {category.icon}
-                    </span>
-                    <span className="font-medium text-sm sm:text-base">{category.label}</span>
-                  </div>
-                  {category.hasSubOptions && (
-                    <ChevronRight strokeWidth={3} className={cn(
-                      "w-5 h-5 text-muted-foreground transition-transform",
-                      clickedCategory === category.id && "rotate-90"
-                    )} />
-                  )}
-                </button>
+                      ? 'bg-white/20 text-white'
+                      : 'bg-white/5 text-foreground'
+                  )}>
+                    {category.icon}
+                  </span>
+                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
+                </div>
+                {category.hasSubOptions && (
+                  <ChevronRight strokeWidth={3} className={cn(
+                    "w-5 h-5 text-muted-foreground transition-transform",
+                    clickedCategory === category.id && "rotate-90"
+                  )} />
+                )}
+              </button>
 
-                {/* Sub-menu for listing type - skip for workers/services */}
-                <AnimatePresence>
-                  {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ type: 'spring', stiffness: 600, damping: 30 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pl-12 sm:pl-14 pr-4 pb-2">
-                        {listingTypeOptions.map((ltOption, ltIndex) => (
-                          <motion.button
-                            key={ltOption.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: ltIndex * 0.05 }}
-                            onClick={() => handleCategorySelect(category.id, ltOption.id)}
-                            className={cn(
-                              'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
-                              categories.includes(category.id) && listingType === ltOption.id
-                                ? cn('bg-gradient-to-r', gradientClass, 'text-white')
-                                : 'text-foreground hover:bg-white/10 bg-white/5'
-                            )}
-                          >
-                            <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
-                          </motion.button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
+              {/* Sub-menu for listing type - skip for workers/services */}
+              <AnimatePresence>
+                {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ type: 'spring', stiffness: 600, damping: 30 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-12 sm:pl-14 pr-4 pb-2">
+                      {listingTypeOptions.map((ltOption, ltIndex) => (
+                        <motion.button
+                          key={ltOption.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: ltIndex * 0.05 }}
+                          onClick={() => handleCategorySelect(category.id, ltOption.id)}
+                          className={cn(
+                            'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
+                            categories.includes(category.id) && listingType === ltOption.id
+                              ? cn('bg-gradient-to-r', gradientClass, 'text-white')
+                              : 'text-foreground hover:bg-white/10 bg-white/5'
+                          )}
+                        >
+                          <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
           })}
         </div>
       </div>

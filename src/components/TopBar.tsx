@@ -20,6 +20,7 @@ import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
 
 // Tier styling for package cards
@@ -56,7 +57,7 @@ interface TopBarProps {
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
-  onAIChatClick?: () => void;
+  onAISearchClick?: () => void;
 }
 
 function TopBarComponent({
@@ -68,7 +69,7 @@ function TopBarComponent({
   transparent = false,
   hideOnScroll = false,
   title,
-  onAIChatClick,
+  onAISearchClick,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
@@ -370,37 +371,6 @@ function TopBarComponent({
                 </div>
               </PopoverContent>
             </Popover>
-
-            {/* AI Chat Button */}
-            <Button
-              variant="ghost"
-              className={cn(
-                "relative h-7 sm:h-8 px-1.5 sm:px-2 rounded-md transition-all duration-100 ease-out",
-                "active:scale-[0.95]",
-                "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent",
-                "flex items-center gap-1",
-                isDark ? "bg-gradient-to-r from-pink-500/20 to-orange-500/20 hover:from-pink-500/30 hover:to-orange-500/30" : "bg-gradient-to-r from-pink-500/10 to-orange-500/10 hover:from-pink-500/20 hover:to-orange-500/20"
-              )}
-              style={{
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                haptics.tap();
-                onAIChatClick?.();
-              }}
-              aria-label="AI Helper"
-            >
-              <Sparkles strokeWidth={3} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-pink-500" />
-              <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
-                AI
-              </span>
-            </Button>
 
             {/* Notifications Button */}
             <Button

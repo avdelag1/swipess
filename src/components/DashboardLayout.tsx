@@ -19,6 +19,7 @@ import { AdvancedFilters } from '@/components/AdvancedFilters'
 // DISABLED: LiveHDBackground was causing performance issues
 // import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
+import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
@@ -42,7 +43,6 @@ const SavedSearchesDialog = lazy(() => import('@/components/SavedSearchesDialog'
 const MessageActivationPackages = lazy(() => import('@/components/MessageActivationPackages').then(m => ({ default: m.MessageActivationPackages })))
 const PushNotificationPrompt = lazy(() => import('@/components/PushNotificationPrompt').then(m => ({ default: m.PushNotificationPrompt })))
 const WelcomeNotification = lazy(() => import('@/components/WelcomeNotification').then(m => ({ default: m.WelcomeNotification })))
-const AIChatDialog = lazy(() => import('@/components/AIChatDialog').then(m => ({ default: m.AIChatDialog })))
 
 // Hooks
 import { useListings } from "@/hooks/useListings"
@@ -135,7 +135,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showCategoryDialog, setShowCategoryDialog] = useState(false)
   const [showSavedSearches, setShowSavedSearches] = useState(false)
   const [showMessageActivations, setShowMessageActivations] = useState(false)
-  const [isAIChatOpen, setIsAIChatOpen] = useState(false)
+  const [isAISearchOpen, setIsAISearchOpen] = useState(false);
+
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
@@ -568,7 +569,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
-          onAIChatClick={() => setIsAIChatOpen(true)}
+          onAISearchClick={() => setIsAISearchOpen(true)}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
           transparent={isImmersiveDashboard}
@@ -616,6 +617,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
+          onAISearchClick={() => setIsAISearchOpen(true)}
         />
       )}
 
@@ -767,6 +769,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
+      {/* AI Search Dialog */}
+      <AISearchDialog
+        isOpen={isAISearchOpen}
+        onClose={() => setIsAISearchOpen(false)}
+        userRole={userRole}
+      />
 
       {/* Push Notification Permission Prompt */}
       <Suspense fallback={null}>
@@ -779,10 +787,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isOpen={shouldShowWelcome}
           onClose={dismissWelcome}
         />
-      </Suspense>
-      {/* AIChatDialog (lazy loaded) */}
-      <Suspense fallback={null}>
-        <AIChatDialog isOpen={isAIChatOpen} onClose={() => setIsAIChatOpen(false)} />
       </Suspense>
     </div>
   )

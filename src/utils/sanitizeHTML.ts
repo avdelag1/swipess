@@ -23,7 +23,7 @@ export function sanitizeHTML(html: string): string {
   if (!html) return '';
 
   const purify = getDOMPurify();
-
+  
   return purify.sanitize(html, {
     // Allow common rich-text formatting tags
     ALLOWED_TAGS: [
@@ -38,7 +38,7 @@ export function sanitizeHTML(html: string): string {
     ALLOWED_ATTR: [
       'href', 'src', 'alt', 'title', 'class', 'id',
       'width', 'height', 'target', 'rel',
-      'colspan', 'rowspan', 'style',
+      'colspan', 'rowspan',
     ],
     // Force all links to be safe
     FORCE_BODY: false,
