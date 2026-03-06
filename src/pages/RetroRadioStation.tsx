@@ -25,7 +25,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useRadio } from '@/contexts/RadioContext';
 import { cityThemes } from '@/data/radioStations';
-import { CityLocation } from '@/types/radio';
+import { CityLocation, RadioSkin } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
@@ -33,6 +33,7 @@ import {
   SkipBack, SkipForward, Square, Circle, Shuffle
 } from 'lucide-react';
 import CheetahBackground from '../components/CheetahBackground';
+import SilverBackground from '../components/SilverBackground';
 
 // ── Font injection ──────────────────────────────────────────────────────────
 if (typeof document !== 'undefined' && !document.getElementById('cassette-radio-fonts')) {
@@ -106,7 +107,10 @@ export default function RetroRadioStation() {
 
   const toggleSkin = useCallback(() => {
     triggerHaptic('medium');
-    setSkin(state.skin === 'cheetah' ? 'retro' : 'cheetah');
+    const cycle: RadioSkin[] = ['retro', 'modern', 'vinyl', 'cheetah', 'silver'];
+    const currentIndex = cycle.indexOf(state.skin);
+    const nextSkin = cycle[(currentIndex + 1) % cycle.length];
+    setSkin(nextSkin);
   }, [state.skin, setSkin]);
 
   const [showDrawer, setShowDrawer] = useState(false);
@@ -148,6 +152,8 @@ export default function RetroRadioStation() {
           ═══════════════════════════════════════════════════════════════════ */}
       {state.skin === 'cheetah' ? (
         <CheetahBackground />
+      ) : state.skin === 'silver' ? (
+        <SilverBackground />
       ) : (
         <img
           src="/images/cassette-player-bg.png"
@@ -201,8 +207,8 @@ export default function RetroRadioStation() {
               style={{
                 fontFamily: "'Permanent Marker', cursive",
                 fontSize: 'clamp(24px, 8vw, 42px)',
-                color: state.skin === 'cheetah' ? '#F59E0B' : '#1a1a1a',
-                textShadow: state.skin === 'cheetah' ? '0 0 12px rgba(245, 158, 11, 0.4)' : '0 1px 2px rgba(255,255,255,0.2)',
+                color: state.skin === 'cheetah' ? '#F59E0B' : state.skin === 'silver' ? '#000000' : '#1a1a1a',
+                textShadow: state.skin === 'cheetah' ? '0 0 12px rgba(245, 158, 11, 0.4)' : state.skin === 'silver' ? '0 1px 2px rgba(255,255,255,0.5)' : '0 1px 2px rgba(255,255,255,0.2)',
                 letterSpacing: '0.04em',
                 lineHeight: 1.1,
                 textAlign: 'center',
@@ -219,7 +225,7 @@ export default function RetroRadioStation() {
                 fontFamily: "'Space Mono', monospace",
                 fontSize: 'clamp(9px, 2.5vw, 14px)',
                 fontWeight: 700,
-                color: state.skin === 'cheetah' ? '#FDE68A' : '#444',
+                color: state.skin === 'cheetah' ? '#FDE68A' : state.skin === 'silver' ? '#333333' : '#444',
                 textTransform: 'uppercase',
                 letterSpacing: '0.25em',
               }}
@@ -501,11 +507,11 @@ export default function RetroRadioStation() {
         style={{
           background: 'rgba(0,0,0,0.5)',
           backdropFilter: 'blur(12px)',
-          border: state.skin === 'cheetah' ? `1px solid #F59E0B` : '1px solid rgba(255,255,255,0.1)',
+          border: (state.skin === 'cheetah' || state.skin === 'silver') ? `1px solid ${state.skin === 'cheetah' ? '#F59E0B' : '#FFFFFF'}` : '1px solid rgba(255,255,255,0.1)',
         }}
       >
-        <span className="text-sm" style={{ filter: state.skin === 'cheetah' ? 'drop-shadow(0 0 8px #F59E0B)' : 'none' }}>
-          {state.skin === 'cheetah' ? '🐆' : '📻'}
+        <span className="text-sm" style={{ filter: (state.skin === 'cheetah' || state.skin === 'silver') ? `drop-shadow(0 0 8px ${state.skin === 'cheetah' ? '#F59E0B' : '#FFFFFF'})` : 'none' }}>
+          {state.skin === 'cheetah' ? '🐆' : state.skin === 'silver' ? '⛓️' : '📻'}
         </span>
       </motion.button>
 

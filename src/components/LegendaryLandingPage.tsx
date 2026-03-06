@@ -17,11 +17,12 @@ import { Capacitor } from '@capacitor/core';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
 import CheetahBackground from './CheetahBackground';
+import SilverBackground from './SilverBackground';
 import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah';
+type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah' | 'silver';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -83,7 +84,7 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       style={{ paddingBottom: '10vh' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
@@ -525,19 +526,21 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
 
-  // Cycle: orbs → stars → cheetah → off (dark) → orbs
+  // Cycle: orbs → stars → cheetah → silver → off (dark) → orbs
   const cycleEffect = () => setEffectMode((p) => {
     if (p === 'orbs') return 'stars';
     if (p === 'stars') return 'cheetah';
-    if (p === 'cheetah') return 'off';
+    if (p === 'cheetah') return 'silver';
+    if (p === 'silver') return 'off';
     return 'orbs';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : '◼';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : effectMode === 'silver' ? '⛓️' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : (effectMode === 'cheetah' ? 'off' : effectMode)} />
+      <LandingBackgroundEffects mode={(view === 'auth' || effectMode === 'cheetah' || effectMode === 'silver') ? 'off' : effectMode} />
       {view !== 'auth' && effectMode === 'cheetah' && <CheetahBackground />}
+      {view !== 'auth' && effectMode === 'silver' && <SilverBackground />}
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
