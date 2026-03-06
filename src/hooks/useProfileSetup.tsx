@@ -69,13 +69,34 @@ export function useProfileSetup() {
         return;
       }
 
-      // Grant referral bonus activation - aligned with message_activations schema
+      // Check if reward already granted (prevent abuse)
+      const { data: existingReward } = await (supabase as any)
+        .from('tokens')
+        .select('id')
+        .eq('user_id', referrerId)
+        .eq('activation_type', 'referral_bonus')
+        .like('notes', `%referred_user:${newUserId}%`)
+        .maybeSingle();
+
+      if (existingReward) {
+        localStorage.removeItem(STORAGE.REFERRAL_CODE_KEY);
+        return;
+      }
+
+      // Grant referral bonus activation
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 60);
+
       const { data: activationData, error: activError } = await (supabase as any)
-        .from('message_activations')
+        .from('tokens')
         .insert({
           user_id: referrerId,
-          total_purchased: REFERRAL.FREE_MESSAGES_PER_REFERRAL,
-          activations_remaining: REFERRAL.FREE_MESSAGES_PER_REFERRAL,
+          activation_type: 'referral_bonus',
+          total_activations: REFERRAL.FREE_MESSAGES_PER_REFERRAL,
+          remaining_activations: REFERRAL.FREE_MESSAGES_PER_REFERRAL,
+          used_activations: 0,
+          expires_at: expiresAt.toISOString(),
+          notes: `Referral reward - referred_user:${newUserId}`,
         })
         .select()
         .single();
@@ -382,9 +403,17 @@ export function useProfileSetup() {
       // This gives them 1 free token to start (or 2 if they signed up via referral)
       const grantWelcomeActivation = async (userId: string) => {
         try {
-          // Grant free tokens - aligned with message_activations schema
-          // We skip the 'already exists' check because message_activations 
-          // doesn't have a way to distinguish welcome tokens without extra columns
+          // Check if welcome activation already granted - escape deep type inference
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const welcomeResult = await (supabase as any)
+            .from('tokens')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('activation_type', 'welcome')
+            .maybeSingle();
+          const existingWelcome = welcomeResult?.data;
+
+          if (existingWelcome) return;
 
           // Check if user signed up via referral code
           const storedData = localStorage.getItem(STORAGE.REFERRAL_CODE_KEY);
@@ -418,18 +447,28 @@ export function useProfileSetup() {
             }
           }
 
-          // Grant free tokens
+          // Grant free tokens (expires in 90 days)
           // - 2 tokens if signed up via referral
           // - 1 token if normal signup
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 90);
+
           const activationCount = hasReferralCode ? 2 : 1;
+          const notesText = hasReferralCode
+            ? 'Welcome bonus - referral signup (2 free tokens)'
+            : 'Welcome bonus - first token free';
 
           const insertData = {
             user_id: userId,
-            total_purchased: activationCount,
-            activations_remaining: activationCount,
+            activation_type: 'welcome' as const,
+            total_activations: activationCount,
+            remaining_activations: activationCount,
+            used_activations: 0,
+            expires_at: expiresAt.toISOString(),
+            notes: notesText,
           };
           const { error: activError } = await (supabase as any)
-            .from('message_activations')
+            .from('tokens')
             .insert(insertData);
 
           if (!activError) {

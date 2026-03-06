@@ -640,16 +640,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         />
       </Suspense>
 
-      {/* Token Packages — client only */}
-      {userRole !== 'owner' && (
-        <Suspense fallback={null}>
-          <MessageActivationPackages
-            isOpen={showMessageActivations}
-            onClose={() => setShowMessageActivations(false)}
-            userRole={userRole}
-          />
-        </Suspense>
-      )}
+      {/* Token Packages */}
+      <Suspense fallback={null}>
+        <MessageActivationPackages
+          isOpen={showMessageActivations}
+          onClose={() => setShowMessageActivations(false)}
+          userRole={userRole}
+        />
+      </Suspense>
 
       {userRole === 'client' && (
         <Suspense fallback={null}>
