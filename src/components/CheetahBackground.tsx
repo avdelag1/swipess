@@ -74,20 +74,28 @@ const CheetahBackground = () => {
 
             // Breathing color shift
             const breathingInt = Math.sin(frame) * 0.5 + 0.5; // 0 to 1
-            const darkGold = `rgba(${15 + breathingInt * 10}, ${10 + breathingInt * 5}, 5, 0.95)`;
-            const deepBlack = `rgba(5, 5, 5, 1)`;
+            const baseGold = `rgba(${218 + breathingInt * 20}, ${165 + breathingInt * 15}, 32, 1)`;
+            const lightAmber = `rgba(${251}, ${191}, ${36}, 0.8)`;
+            const deepBlack = `rgba(15, 10, 5, 1)`;
 
             ctx.fillStyle = deepBlack;
             ctx.fillRect(0, 0, w, h);
 
-            ctx.fillStyle = baseGradient;
-            baseGradient.addColorStop(0, darkGold);
-            baseGradient.addColorStop(1, deepBlack);
+            // Create a rich, organic base skin gradient
+            const skinGradient = ctx.createRadialGradient(
+                w / 2, h / 2, 0,
+                w / 2, h / 2, w * 0.9
+            );
+            skinGradient.addColorStop(0, lightAmber);
+            skinGradient.addColorStop(0.6, baseGold);
+            skinGradient.addColorStop(1, deepBlack);
+
+            ctx.fillStyle = skinGradient;
             ctx.fillRect(0, 0, w, h);
 
             // Animation params
-            const breathingScale = 1 + Math.sin(frame) * 0.03;
-            const breathingY = Math.sin(frame) * 15;
+            const breathingScale = 1 + Math.sin(frame) * 0.02;
+            const breathingY = Math.sin(frame) * 10;
 
             ctx.save();
             ctx.translate(w / 2, h / 2);
@@ -111,14 +119,14 @@ const CheetahBackground = () => {
                 }
                 ctx.closePath();
 
-                // Spot color - rich, dark chocolate with breathing depth
-                const spotAlpha = spot.opacity * (0.8 + breathingInt * 0.2);
-                ctx.fillStyle = `rgba(15, 10, 5, ${spotAlpha})`;
+                // Spot color - Pitch black with varying depth
+                const spotAlpha = spot.opacity * (0.9 + breathingInt * 0.1);
+                ctx.fillStyle = `rgba(5, 5, 5, ${spotAlpha})`;
                 ctx.fill();
 
                 // Slight inner glow for the "muscle" effect
-                ctx.strokeStyle = `rgba(245, 158, 11, ${breathingInt * 0.05})`;
-                ctx.lineWidth = 1;
+                ctx.strokeStyle = `rgba(218, 165, 32, ${breathingInt * 0.15})`;
+                ctx.lineWidth = 1.5;
                 ctx.stroke();
 
                 ctx.restore();
@@ -126,9 +134,9 @@ const CheetahBackground = () => {
             ctx.restore();
 
             // Vignette to pull it together
-            const vignette = ctx.createRadialGradient(w / 2, h / 2, w * 0.2, w / 2, h / 2, w * 0.9);
+            const vignette = ctx.createRadialGradient(w / 2, h / 2, w * 0.3, w / 2, h / 2, w * 1.1);
             vignette.addColorStop(0, 'rgba(0,0,0,0)');
-            vignette.addColorStop(1, 'rgba(0,0,0,0.8)');
+            vignette.addColorStop(1, 'rgba(0,0,0,0.6)');
             ctx.fillStyle = vignette;
             ctx.fillRect(0, 0, w, h);
 
@@ -146,8 +154,8 @@ const CheetahBackground = () => {
     return (
         <canvas
             ref={canvasRef}
-            className="absolute inset-0 z-0 pointer-events-none"
-            style={{ filter: 'contrast(1.2) brightness(0.8)' }}
+            className="absolute inset-0 z-[1] pointer-events-none"
+            style={{ filter: 'contrast(1.1) brightness(0.9) saturate(1.2)' }}
         />
     );
 };
