@@ -153,7 +153,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
     // Listen for update messages from SW
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data?.type === 'SW_UPDATED') {
-        console.log('[SW] Update notification received:', event.data.version);
+        // Update notification received
       }
     });
   });
