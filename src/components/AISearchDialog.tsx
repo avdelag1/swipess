@@ -150,7 +150,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0"
+        className={cn("sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-border" : "bg-white border-gray-100")}
         hideCloseButton={true}
       >
         {/* Header */}
@@ -165,7 +165,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </div>
 
             <div>
-              <h2 className="text-foreground font-black text-sm tracking-tight leading-none mb-0.5">Swipess AI</h2>
+              <h2 className={cn("font-black text-sm tracking-tight leading-none mb-0.5", isDark ? "text-foreground" : "text-gray-900")}>Swipess AI</h2>
               <div className="flex items-center gap-1.5">
                 <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
                 <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Concierge</p>
@@ -179,7 +179,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             onClick={handleClose}
             className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
           >
-            <X className="w-4 h-4 text-foreground/60" />
+            <X className={cn("w-4 h-4", isDark ? "text-foreground/60" : "text-gray-500")} />
           </Button>
         </div>
 
@@ -234,9 +234,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                     message.role === 'user'
                       ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
                       : cn(
-                          "text-foreground rounded-tl-sm border backdrop-blur-xl",
-                          isDark ? "bg-zinc-900/50 border-white/5" : "bg-gray-50 border-black/8"
-                        )
+                        "rounded-tl-sm border backdrop-blur-xl",
+                        isDark ? "bg-zinc-900/50 border-white/5 text-foreground" : "bg-gray-50 border-black/5 text-gray-800 shadow-sm"
+                      )
                   )}>
                     {message.content}
                   </div>
@@ -283,7 +283,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] bg-muted border border-border rounded-full text-muted-foreground hover:text-foreground transition-all font-bold uppercase tracking-wider"
+                  className={cn("flex items-center gap-1.5 px-3 py-1.5 text-[10px] rounded-full transition-all font-bold uppercase tracking-wider", isDark ? "bg-muted border border-border text-muted-foreground hover:text-foreground" : "bg-gray-50 border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-100 shadow-sm")}
                 >
                   <prompt.icon className="w-3 h-3 text-orange-500" />
                   {prompt.label}
@@ -303,7 +303,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="pr-20 h-12 bg-muted border-border text-foreground placeholder:text-muted-foreground rounded-2xl focus:ring-1 focus:border-orange-500/40 font-bold"
+              className={cn("pr-20 h-12 rounded-2xl focus:ring-1 focus:border-orange-500/40 font-bold", isDark ? "bg-muted border-border text-foreground placeholder:text-muted-foreground" : "bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 shadow-inner")}
               disabled={isSearching}
             />
 

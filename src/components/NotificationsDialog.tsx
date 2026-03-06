@@ -177,12 +177,12 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                       <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-xl scale-150" />
                       <div className={cn(
                         "relative p-4 sm:p-5 rounded-full border shadow-lg",
-                        isDark ? "bg-gradient-to-br from-gray-800 to-gray-900 border-white/10" : "bg-card border-border/30"
+                        isDark ? "bg-gradient-to-br from-gray-800 to-gray-900 border-white/10" : "bg-gradient-to-br from-white to-gray-50 border-black/5 shadow-sm"
                       )}>
-                        <Bell className={cn("w-8 h-8 sm:w-9 sm:h-9", isDark ? "text-white/50" : "text-muted-foreground/50")} />
+                        <Bell className={cn("w-8 h-8 sm:w-9 sm:h-9", isDark ? "text-white/50" : "text-gray-400")} />
                       </div>
                     </div>
-                    <h3 className={cn("text-sm sm:text-base font-bold mb-1", isDark ? "text-white" : "text-foreground")}>
+                    <h3 className={cn("text-sm sm:text-base font-bold mb-1", isDark ? "text-white" : "text-gray-900")}>
                       {activeFilter === 'all' ? 'No notifications yet' : `No ${activeFilter} notifications`}
                     </h3>
                     <p className={cn("text-xs max-w-[200px]", isDark ? "text-gray-400" : "text-muted-foreground")}>
@@ -203,14 +203,12 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                             transition={{ delay: index * 0.03 }}
                           >
                             <Card
-                              className={`
-                                group cursor-pointer transition-all duration-200 border overflow-hidden
-                                hover:shadow-md hover:-translate-y-0.5
-                                ${!notification.read
-                                  ? 'bg-gradient-to-r from-primary/5 via-card to-card border-primary/20'
-                                  : 'hover:bg-accent/30 border-border/50'
-                                }
-                              `}
+                              className={cn(
+                                "group cursor-pointer transition-all duration-200 border overflow-hidden hover:shadow-md hover:-translate-y-0.5",
+                                !notification.read
+                                  ? isDark ? 'bg-gradient-to-r from-primary/5 via-card to-card border-primary/20' : 'bg-gradient-to-r from-primary/5 via-white to-white border-primary/20 shadow-sm'
+                                  : isDark ? 'hover:bg-accent/10 border-border/50 bg-card' : 'hover:bg-gray-50 border-gray-100 bg-white'
+                              )}
                               onClick={() => {
                                 handleNotificationClick(notification);
                                 onClose();
@@ -258,7 +256,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                                       </Button>
                                     </div>
 
-                                    <p className={cn("text-xs line-clamp-2 mb-1.5", isDark ? "text-gray-300" : "text-foreground/70 font-medium")}>
+                                    <p className={cn("text-xs line-clamp-2 mb-1.5", isDark ? "text-gray-300" : "text-gray-600 font-medium")}>
                                       {notification.message}
                                     </p>
 

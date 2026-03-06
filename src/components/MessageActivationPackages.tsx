@@ -8,7 +8,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
+import { useTheme } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
 
 type TokenPackage = {
   id: number;
@@ -41,6 +44,8 @@ export function MessageActivationPackages({
 }: MessageActivationPackagesProps) {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -172,29 +177,29 @@ export function MessageActivationPackages({
       case 'starter':
         return {
           gradient: 'from-slate-500/10 to-slate-800/20',
-          border: 'border-slate-500/30 hover:border-slate-400/50',
-          badge: 'bg-slate-500/20 text-slate-300',
-          button: 'bg-slate-700 hover:bg-slate-600',
+          border: isDark ? 'border-slate-500/30 hover:border-slate-400/50' : 'border-slate-200 hover:border-slate-300',
+          badge: isDark ? 'bg-slate-500/20 text-slate-300' : 'bg-slate-100 text-slate-700',
+          button: isDark ? 'bg-slate-700 hover:bg-slate-600' : 'bg-slate-800 hover:bg-slate-700 text-white',
           glow: '',
-          cardClass: 'bg-slate-900/40 backdrop-blur-md',
+          cardClass: isDark ? 'bg-slate-900/40 backdrop-blur-md' : 'bg-white border-slate-200',
         };
       case 'standard':
         return {
           gradient: 'from-blue-600/20 via-blue-900/10 to-transparent',
-          border: 'border-blue-500/50 hover:border-blue-400 ring-1 ring-blue-500/20',
-          badge: 'bg-blue-500/30 text-blue-200 border border-blue-400/30',
-          button: 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)]',
-          glow: 'shadow-lg shadow-blue-500/10',
-          cardClass: 'bg-blue-950/20 backdrop-blur-lg',
+          border: isDark ? 'border-blue-500/50 hover:border-blue-400 ring-1 ring-blue-500/20' : 'border-blue-200 hover:border-blue-300 ring-1 ring-blue-100',
+          badge: isDark ? 'bg-blue-500/30 text-blue-200 border border-blue-400/30' : 'bg-blue-50 text-blue-700 border border-blue-200',
+          button: isDark ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md',
+          glow: isDark ? 'shadow-lg shadow-blue-500/10' : 'shadow-xl shadow-blue-500/5',
+          cardClass: isDark ? 'bg-blue-950/20 backdrop-blur-lg' : 'bg-white border-blue-100',
         };
       case 'premium':
         return {
           gradient: 'from-amber-500/20 via-orange-950/30 to-black',
-          border: 'border-amber-500/50',
-          badge: 'bg-amber-500/20 text-amber-200 border border-amber-400/30',
-          button: 'premium-btn-wow',
-          glow: 'shadow-[0_0_30px_rgba(245,158,11,0.15)]',
-          cardClass: 'premium-card-lux',
+          border: isDark ? 'border-amber-500/50' : 'border-amber-200',
+          badge: isDark ? 'bg-amber-500/20 text-amber-200 border border-amber-400/30' : 'bg-amber-50 text-amber-700 border border-amber-200',
+          button: isDark ? 'premium-btn-wow' : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg',
+          glow: isDark ? 'shadow-[0_0_30px_rgba(245,158,11,0.15)]' : 'shadow-xl shadow-amber-500/10',
+          cardClass: isDark ? 'premium-card-lux' : 'bg-white border-amber-100',
         };
       default:
         return {
@@ -209,7 +214,7 @@ export function MessageActivationPackages({
   };
 
   const content = (
-    <div className="space-y-6 p-4 sm:p-8 bg-[#050505] rounded-2xl overflow-hidden relative">
+    <div className={cn("space-y-6 p-4 sm:p-8 rounded-2xl overflow-hidden relative", isDark ? "bg-[#050505]" : "bg-white shadow-xl border border-gray-100")}>
       {/* Background ambient glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
 
@@ -219,16 +224,16 @@ export function MessageActivationPackages({
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-3 relative z-10"
       >
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-xl">
-          <Sparkles className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold tracking-wider uppercase text-white/90">{roleLabel} Privilege</span>
+        <div className={cn("inline-flex items-center gap-2 px-4 py-1.5 rounded-full border backdrop-blur-md", isDark ? "bg-white/5 border-white/10 shadow-xl" : "bg-gray-50 border-gray-200 shadow-sm")}>
+          <Sparkles className="w-4 h-4 text-amber-500" />
+          <span className={cn("text-xs font-bold tracking-wider uppercase", isDark ? "text-white/90" : "text-gray-900")}>{roleLabel} Privilege</span>
         </div>
 
-        <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tighter">
+        <h2 className={cn("text-3xl sm:text-4xl font-black tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
           Elevate Your <span className="luxury-text-gradient">Experience</span>
         </h2>
 
-        <p className="text-white/60 text-sm max-w-lg mx-auto font-medium">
+        <p className={cn("text-sm max-w-lg mx-auto font-medium", isDark ? "text-white/60" : "text-gray-600")}>
           {roleDescription}. Choose the package that suits your goals.
         </p>
 
@@ -246,12 +251,12 @@ export function MessageActivationPackages({
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-[450px] rounded-3xl bg-white/5 animate-pulse border border-white/10" />
+            <div key={i} className={cn("h-[450px] rounded-3xl animate-pulse border", isDark ? "bg-white/5 border-white/10" : "bg-gray-100 border-gray-200")} />
           ))}
         </div>
       ) : packagesUI.length === 0 ? (
-        <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10">
-          <p className="text-white/40 text-lg font-medium">No premium packages available at this time.</p>
+        <div className={cn("text-center py-16 rounded-3xl border", isDark ? "bg-white/5 border-white/10" : "bg-gray-50 border-gray-200")}>
+          <p className={cn("text-lg font-medium", isDark ? "text-white/40" : "text-gray-500")}>No premium packages available at this time.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 relative z-10">
@@ -275,7 +280,7 @@ export function MessageActivationPackages({
                 className="h-full"
               >
                 <Card
-                  className={`relative h-full flex flex-col border-0 rounded-[2.5rem] transition-all duration-500 ${styles.cardClass} ${styles.glow} group hover:shadow-2xl`}
+                  className={cn("relative h-full flex flex-col border rounded-[2.5rem] transition-all duration-500 group hover:shadow-2xl overflow-hidden", styles.cardClass, styles.glow)}
                 >
                   {isPremium && <div className="premium-shine-overlay" />}
 
@@ -301,16 +306,16 @@ export function MessageActivationPackages({
                     </div>
 
                     <div className="space-y-1">
-                      <h3 className={`text-xl font-black tracking-tighter uppercase ${isPremium ? 'luxury-text-gradient' : 'text-white'}`}>
+                      <h3 className={cn("text-xl font-black tracking-tighter uppercase", isPremium ? 'luxury-text-gradient' : isDark ? 'text-white' : 'text-gray-900')}>
                         {pkg.name}
                       </h3>
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-black text-white italic tracking-tighter">
+                        <span className={cn("text-4xl font-black italic tracking-tighter", isDark ? "text-white" : "text-gray-900")}>
                           {formatPriceMXN(pkg.price)}
                         </span>
-                        <span className="text-white/40 text-xs font-bold">MXN</span>
+                        <span className={cn("text-xs font-bold", isDark ? "text-white/40" : "text-gray-500")}>MXN</span>
                       </div>
-                      <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
+                      <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-500")}>
                         {formatPriceMXN(pkg.pricePerToken)} per connection
                       </p>
                     </div>
@@ -318,9 +323,9 @@ export function MessageActivationPackages({
 
                   <CardContent className="flex-1 px-8 py-6 space-y-6">
                     {/* Tokens Display */}
-                    <div className={`text-center py-6 rounded-3xl bg-black/40 border border-white/5 shadow-inner transition-transform duration-500 group-hover:scale-[1.03]`}>
-                      <div className="text-5xl font-black text-white tracking-tighter mb-1">{pkg.tokens}</div>
-                      <div className="text-xs font-black text-white/30 uppercase tracking-[0.2em]">Activations</div>
+                    <div className={cn("text-center py-6 rounded-3xl border shadow-inner transition-transform duration-500 group-hover:scale-[1.03]", isDark ? "bg-black/40 border-white/5" : "bg-gray-50 border-gray-100")}>
+                      <div className={cn("text-5xl font-black tracking-tighter mb-1", isDark ? "text-white" : "text-gray-900")}>{pkg.tokens}</div>
+                      <div className={cn("text-xs font-black uppercase tracking-[0.2em]", isDark ? "text-white/30" : "text-gray-400")}>Activations</div>
                     </div>
 
                     {/* Features */}
@@ -354,31 +359,31 @@ export function MessageActivationPackages({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
-        className="flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t border-white/5"
+        className={cn("flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}
       >
         <div className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
-            <Shield className="w-4 h-4 text-emerald-400" />
+            <Shield className="w-4 h-4 text-emerald-500" />
           </div>
-          <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Bank-Level Security</span>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
         </div>
         <div className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-            <Clock className="w-4 h-4 text-blue-400" />
+            <Clock className="w-4 h-4 text-blue-500" />
           </div>
-          <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Instant Activation</span>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Instant Activation</span>
         </div>
         <div className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
-            <Zap className="w-4 h-4 text-amber-400" />
+            <Zap className="w-4 h-4 text-amber-500" />
           </div>
-          <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Elite Support 24/7</span>
+          <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Elite Support 24/7</span>
         </div>
       </motion.div>
     </div>
   );
 
-  if (showAsPage) return <div className="min-h-screen bg-black">{content}</div>;
+  if (showAsPage) return <div className={cn("min-h-screen", isDark ? "bg-black" : "bg-gray-50")}>{content}</div>;
   if (!isOpen) return null;
 
   return (
@@ -387,7 +392,7 @@ export function MessageActivationPackages({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+        className={cn("absolute inset-0 backdrop-blur-xl", isDark ? "bg-black/90" : "bg-white/80")}
         onClick={onClose}
       />
       <motion.div
@@ -396,12 +401,12 @@ export function MessageActivationPackages({
         exit={{ scale: 0.9, opacity: 0, y: 20 }}
         className="relative z-[110] w-full max-w-6xl max-h-[90vh] overflow-y-auto"
       >
-        <div className="relative bg-[#050505] rounded-[2rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)] overflow-hidden">
+        <div className={cn("relative rounded-[2rem] border overflow-hidden", isDark ? "bg-[#050505] border-white/10 shadow-[0_0_100px_rgba(0,0,0,1)]" : "bg-white border-gray-200 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)]")}>
           {onClose && (
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-6 top-6 z-[120] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-all hover:rotate-90"
+              className={cn("absolute right-6 top-6 z-[120] rounded-full border transition-all hover:rotate-90", isDark ? "bg-white/5 hover:bg-white/10 text-white border-white/10" : "bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200")}
               onClick={onClose}
             >
               <X className="w-5 h-5" />
@@ -415,15 +420,18 @@ export function MessageActivationPackages({
 }
 
 function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
+
   return (
     <div className="flex items-center gap-3 text-xs group">
       <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${isPremium
-          ? 'bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-          : 'bg-emerald-500/10'
+        ? 'bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
+        : 'bg-emerald-500/10'
         }`}>
-        <Check className={`w-3 h-3 ${isPremium ? 'text-amber-400' : 'text-emerald-400'}`} />
+        <Check className={`w-3 h-3 ${isPremium ? 'text-amber-500' : 'text-emerald-500'}`} />
       </div>
-      <span className="text-white/70 font-bold group-hover:text-white transition-colors">{text}</span>
+      <span className={cn("font-bold transition-colors", isDark ? "text-white/70 group-hover:text-white" : "text-gray-600 group-hover:text-gray-900")}>{text}</span>
     </div>
   );
 }
