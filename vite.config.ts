@@ -125,8 +125,12 @@ export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
-    // Ensure Supabase env vars are present (fallback removed to favor .env)
-    ...({}),
+    // Ensure Supabase env vars are always available (fallback for Lovable/remote deployments)
+    ...((!process.env.VITE_SUPABASE_URL) ? {
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('https://vplgtcguxujxwrgguxqq.supabase.co'),
+      'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU'),
+      'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify('vplgtcguxujxwrgguxqq'),
+    } : {}),
   },
   server: {
     host: "::",
