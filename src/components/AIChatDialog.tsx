@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, Send, Bot, User, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { ScrollArea } from './ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 
 interface Message {
@@ -16,13 +14,11 @@ interface Message {
 
 export function AIChatDialog({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const [messages, setMessages] = useState<Message[]>([
-        { role: 'system', content: 'You are a helpful, professional AI assistant for Swipess, a marketplace for renting and buying properties, motorcycles, bicycles, and hiring workers. You help users navigate the app and answer any questions.' },
-        { role: 'assistant', content: 'Hello! I am your Swipess AI Assistant. How can I help you today?' }
+        { role: 'assistant', content: 'Swipess AI is currently under maintenance. We are building something legendary for you! \n\nStay tuned for the new AI Concierge experience.' }
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
-    const { toast } = useToast();
     const { theme } = useTheme();
     const isDark = theme !== 'white-matte';
 
@@ -32,38 +28,25 @@ export function AIChatDialog({ isOpen, onClose }: { isOpen: boolean; onClose: ()
         }
     }, [messages, isLoading]);
 
-    const handleSubmit = async (e?: React.FormEvent) => {
+    const handleSubmit = (e?: React.FormEvent) => {
         e?.preventDefault();
         if (!input.trim() || isLoading) return;
 
         const userMessage = input.trim();
         setInput('');
-        const newMessages = [...messages, { role: 'user' as const, content: userMessage }];
-        setMessages(newMessages);
+
+        // Add user message
+        setMessages(prev => [...prev, { role: 'user' as const, content: userMessage }]);
+
+        // Simulator response
         setIsLoading(true);
-
-        try {
-            const { data, error } = await supabase.functions.invoke('Minimax-chat', {
-                body: { messages: newMessages },
-            });
-
-            if (error || !data?.success) {
-                throw new Error(data?.error || error?.message || 'Failed to get a response');
-            }
-
-            setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
-        } catch (err: any) {
-            console.error('[AIChatDialog] Error:', err);
-            toast({
-                title: 'Error',
-                description: err.message || 'Something went wrong while contacting the AI.',
-                variant: 'destructive',
-            });
-            // Optionally remove the user's message on failure or show an error bubble
-            setMessages([...newMessages, { role: 'assistant', content: "I'm sorry, I'm having trouble connecting right now. Please try again later." }]);
-        } finally {
+        setTimeout(() => {
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: "Our AI systems are being upgraded. Your feedback has been noted and will help us build a better Swipess!"
+            }]);
             setIsLoading(false);
-        }
+        }, 1000);
     };
 
     if (!isOpen) return null;
@@ -96,12 +79,12 @@ export function AIChatDialog({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                             <Sparkles className="w-5 h-5 text-pink-500" />
                         </div>
                         <div>
-                            <h2 className="font-bold text-foreground">AI Assistant</h2>
-                            <p className="text-xs text-muted-foreground">Powered by Minimax</p>
+                            <h2 className="font-bold text-foreground lowercase tracking-tighter">swipess AI</h2>
+                            <p className="text-[10px] opacity-50 uppercase font-black tracking-widest">Offline Mode</p>
                         </div>
                     </div>
-                    <Button variant="ghost" size="icon" className="rounded-full" onClick={onClose}>
-                        <X className="w-5 h-5" />
+                    <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" onClick={onClose}>
+                        <X className="w-4 h-4" />
                     </Button>
                 </div>
 
@@ -130,7 +113,7 @@ export function AIChatDialog({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                                     "px-4 py-3 rounded-2xl text-sm whitespace-pre-wrap",
                                     message.role === 'user'
                                         ? "bg-gradient-to-br from-pink-500/90 to-orange-500/90 text-white rounded-tr-none"
-                                        : "bg-muted text-foreground rounded-tl-none"
+                                        : "bg-muted text-foreground rounded-tl-none shadow-sm"
                                 )}>
                                     {message.content}
                                 </div>
@@ -162,8 +145,8 @@ export function AIChatDialog({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                         <Textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder="Type your message..."
-                            className="min-h-[44px] max-h-[120px] rounded-2xl resize-none py-3 px-4 flex-1 focus-visible:ring-1 focus-visible:ring-pink-500 border-border"
+                            placeholder="Type a message..."
+                            className="min-h-[44px] max-h-[120px] rounded-2xl resize-none py-3 px-4 flex-1 focus-visible:ring-1 focus-visible:ring-pink-500 border-border bg-background/50"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                     e.preventDefault();
@@ -175,7 +158,7 @@ export function AIChatDialog({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                             type="submit"
                             size="icon"
                             disabled={!input.trim() || isLoading}
-                            className="w-11 h-11 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-lg flex-shrink-0"
+                            className="w-11 h-11 rounded-xl bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-lg flex-shrink-0 active:scale-95 transition-transform"
                         >
                             <Send className="w-5 h-5" />
                         </Button>
