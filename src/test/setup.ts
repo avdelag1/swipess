@@ -13,3 +13,14 @@ if (typeof window.matchMedia !== 'function') {
         dispatchEvent: () => false,
     });
 }
+
+class LocalStorageMock {
+    store: Record<string, string> = {};
+    clear() { this.store = {}; }
+    getItem(key: string) { return this.store[key] || null; }
+    setItem(key: string, value: string) { this.store[key] = String(value); }
+    removeItem(key: string) { delete this.store[key]; }
+}
+
+(global as any).localStorage = new LocalStorageMock();
+(global as any).sessionStorage = new LocalStorageMock();
