@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
 
 // Build version injector plugin for automatic cache busting
@@ -126,12 +125,8 @@ export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
-    // Ensure Supabase env vars are always available (fallback for .env loading issues)
-    ...((!process.env.VITE_SUPABASE_URL) ? {
-      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify('https://qegyisokrxdsszzswsqk.supabase.co'),
-      'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU'),
-      'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify('qegyisokrxdsszzswsqk'),
-    } : {}),
+    // Ensure Supabase env vars are present (fallback removed to favor .env)
+    ...({}),
   },
   server: {
     host: "::",
@@ -143,7 +138,6 @@ export default defineConfig(({ mode }) => ({
     cssOptimizationPlugin(),
     preloadPlugin(),
     resourceHintsPlugin(),
-    mode === 'development' && componentTagger(),
     // Bundle analyzer - generates stats.html in dist folder
     mode === 'production' && visualizer({
       filename: 'dist/stats.html',
