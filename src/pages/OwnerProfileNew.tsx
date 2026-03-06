@@ -187,7 +187,7 @@ const OwnerProfileNew = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <Radio className="w-7 h-7 relative z-10 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-            <span className="relative z-10 font-black tracking-tight text-lg text-white">Radio Player</span>
+            <span className={cn("relative z-10 font-black tracking-tight text-lg", isLight ? "text-gray-900" : "text-white")}>Radio Player</span>
           </button>
         </motion.div>
 
