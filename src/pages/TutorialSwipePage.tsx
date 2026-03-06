@@ -17,7 +17,7 @@
  *   - All buttons get spring tap compression + liquid ripple via motion.button
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import {
   Home, Wrench, Bike, Car, User, Users,
@@ -316,23 +316,45 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
   const cat = LISTING_CATS.find(c => c.key === listing.category)!;
   const { spawn: spawnRipple, nodes: rippleNodes } = useRipple();
 
+  const images = useMemo(() => {
+    let result: string[] = [];
+    if (listing.video_url) {
+      result.push('video_attachment');
+    }
+    result = [...result, ...listing.images];
+    return result;
+  }, [listing.images, listing.video_url]);
+
+  const currentMedia = images[imgIdx] || images[0];
+
   return (
     <div className="relative w-full h-full select-none touch-none flex flex-col" style={{ background: '#0a0a0e' }}>
       {/* Photo area */}
       <div className="relative w-full h-[60%] overflow-hidden">
-        <img src={listing.images[imgIdx]} alt={listing.title}
-          className="w-full h-full object-cover" draggable={false} />
+        {currentMedia === 'video_attachment' && listing.video_url ? (
+          <video
+            src={listing.video_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover relative z-0"
+          />
+        ) : (
+          <img src={currentMedia} alt={listing.title}
+            className="w-full h-full object-cover relative z-0" draggable={false} />
+        )}
 
         {/* Tap zones for image navigation */}
         <div className="absolute inset-0 flex z-10">
           <div className="w-1/2 h-full" onClick={() => setImgIdx(p => Math.max(0, p - 1))} />
-          <div className="w-1/2 h-full" onClick={() => setImgIdx(p => Math.min(listing.images.length - 1, p + 1))} />
+          <div className="w-1/2 h-full" onClick={() => setImgIdx(p => Math.min(images.length - 1, p + 1))} />
         </div>
 
         {/* Dot indicator */}
-        {listing.images.length > 1 && (
+        {images.length > 1 && (
           <div className="absolute top-4 left-4 right-4 flex gap-1.5 z-20">
-            {listing.images.map((_, i) => (
+            {images.map((_, i) => (
               <div key={i} className={`flex-1 h-1 rounded-full transition-all ${i === imgIdx ? 'bg-white shadow' : 'bg-white/35'}`} />
             ))}
           </div>

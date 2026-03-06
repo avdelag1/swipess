@@ -39,6 +39,7 @@ export interface TutorialListing {
   ownerRating: number;
   ownerVerified: boolean;
   insights: TutorialInsight[];  // Exactly 6 insights
+  video_url?: string;
 }
 
 export interface TutorialClientProfile {
@@ -75,6 +76,7 @@ const propertyListings: TutorialListing[] = [
       'marketing:property:slide2',
       'marketing:property:slide3',
     ],
+    video_url: 'https://cdn.pixabay.com/video/2018/06/07/16641-274191081_large.mp4',
     description:
       'Stunning penthouse in the heart of Tulum with panoramic jungle views. Fully furnished with high-end finishes, private rooftop terrace, plunge pool and concierge service. Walking distance to cenotes and the famous Tulum strip.',
     tags: ['Furnished', 'Rooftop Pool', 'Pet-Friendly', 'Concierge', 'Long-Term'],
