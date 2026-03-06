@@ -388,8 +388,12 @@ function TopBarComponent({
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onAIChatClick?.(); }}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                haptics.tap();
+                onAIChatClick?.();
+              }}
               aria-label="AI Helper"
             >
               <Sparkles strokeWidth={3} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-pink-500" />
