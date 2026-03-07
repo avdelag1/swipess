@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { logger } from "@/utils/prodLogger";
+import { useAuth } from "@/hooks/useAuth";
 
 interface OwnerSettingsDialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ interface OwnerSettingsDialogProps {
 export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogProps) {
   const [notifications, setNotifications] = useState(true);
   const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const handleDeleteAccount = async () => {
     try {
@@ -38,8 +40,12 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
       toast.success('Account Deleted', { description: 'Your account has been permanently deleted.' });
 
       // Sign out after successful deletion
-      await supabase.auth.signOut();
-      navigate('/', { replace: true });
+      if (signOut) {
+        await signOut();
+      } else {
+        await supabase.auth.signOut();
+        navigate('/', { replace: true });
+      }
     } catch (error: any) {
       logger.error('Delete account error:', error);
       toast.error('Error', { description: error.message || 'Failed to delete account. Please try again.' });
