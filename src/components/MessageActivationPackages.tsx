@@ -8,7 +8,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
 import { useTheme } from "@/hooks/useTheme";
 import { cn } from "@/lib/utils";

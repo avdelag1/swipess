@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { haptics } from "@/utils/microPolish";
+import { cn } from "@/lib/utils";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
 const stagger = { visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
