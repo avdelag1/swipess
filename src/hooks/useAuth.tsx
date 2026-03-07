@@ -502,6 +502,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      // 1. First navigate to home replacing history so user can't "swipe back" to protected page
+      navigate('/', { replace: true });
+
       // Dispatch sign out event
       window.dispatchEvent(new CustomEvent('user-signout'));
 
@@ -509,10 +512,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('pendingOAuthRole');
       localStorage.removeItem('rememberMe');
 
-      // Clear React Query cache
-      queryClient.clear();
+      // Clear React Query cache AFTER navigation to avoid components crashing mid-render
+      setTimeout(() => {
+        queryClient.clear();
+      }, 500);
 
-      // Clear local state FIRST to ensure UI updates immediately
+      // Clear local state
       setUser(null);
       setSession(null);
 
@@ -521,19 +526,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         logger.error('[Auth] Sign out error:', error);
-        // Still navigate to home even if there's an error
       }
 
       toast.success("Signed out", { description: "You have been signed out successfully." });
 
-      // Force navigation to landing page with full page refresh
-      // This ensures a clean state and shows the landing page immediately
-      window.location.href = '/';
     } catch (error) {
       logger.error('[Auth] Unexpected sign out error:', error);
       toast.error("Sign Out Error", { description: "An unexpected error occurred during sign out." });
-      // Even on error, try to redirect to home
-      window.location.href = '/';
+      navigate('/', { replace: true });
     }
   };
 
