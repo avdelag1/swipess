@@ -1,13 +1,12 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star } from "lucide-react";
+import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import { motion } from "framer-motion";
 import { STORAGE } from "@/constants/app";
 import { useTheme } from "@/hooks/useTheme";

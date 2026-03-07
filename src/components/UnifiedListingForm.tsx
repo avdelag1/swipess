@@ -541,7 +541,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 </CardHeader>
                 <CardContent className="p-6 pt-0">
                   <ListingVideoUpload
-                    userId={user?.user?.id || ''}
+                    userId={user?.id || ''}
                     videoUrl={videoUrl}
                     onUploadSuccess={setVideoUrl}
                     onRemove={() => setVideoUrl(null)}

@@ -167,7 +167,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   });
 
   // Fetch rating aggregate for this listing
-  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, categoryId);
+  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
 
   // Parallax store for ambient background effect
   const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
@@ -558,31 +558,31 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <VehicleCardInfo
               price={listing.price || 0}
               priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
-              make={listing.vehicle_brand}
-              model={listing.vehicle_model}
-              year={listing.year}
-              location={listing.city}
-              isVerified={listing.has_verified_documents}
+              make={listing.vehicle_brand ?? undefined}
+              model={listing.vehicle_model ?? undefined}
+              year={listing.year ?? undefined}
+              location={listing.city ?? undefined}
+              isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
-          ) : listing.category === 'worker' || listing.category === 'services' || listing.service_type ? (
+          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_type ? (
             <ServiceCardInfo
-              hourlyRate={listing.hourly_rate}
-              serviceName={listing.service_type || listing.title || 'Service'}
-              name={listing.provider_name}
-              location={listing.city}
-              isVerified={listing.has_verified_documents}
+              hourlyRate={(listing as any).hourly_rate}
+              serviceName={(listing as any).service_type || listing.title || 'Service'}
+              name={(listing as any).provider_name}
+              location={listing.city ?? undefined}
+              isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
           ) : (
             <PropertyCardInfo
               price={listing.price || 0}
               priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
-              propertyType={listing.property_type}
-              beds={listing.beds}
-              baths={listing.baths}
-              location={listing.city}
-              isVerified={listing.has_verified_documents}
+              propertyType={listing.property_type ?? undefined}
+              beds={listing.beds ?? undefined}
+              baths={listing.baths ?? undefined}
+              location={listing.city ?? undefined}
+              isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
           )}
