@@ -26,100 +26,47 @@ type Plan = {
   highlight?: boolean;
 };
 
-const ownerPlans: Plan[] = [
-  {
-    id: 'owner-unlimited',
-    name: 'UNLIMITED OWNER',
-    price: '$299 MXN',
-    benefits: [
-      'Unlimited properties',
-      '30 messages per month',
-      'Top visibility (100%)',
-      'Always listed first in search',
-      'Full access to tools, filters, and stats',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/P2YZA6FWZAACQ',
-    highlight: true,
-  },
-  {
-    id: 'owner-premium-max',
-    name: 'PREMIUM MAX OWNER',
-    price: '$199 MXN',
-    benefits: [
-      'Up to 10 properties',
-      '20 messages per month',
-      'High visibility (80%)',
-      'Advanced client filters',
-      '“Premium Profile” badge',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/4LG62YGVETM4L',
-  },
-  {
-    id: 'owner-premium-plus-plus',
-    name: 'PREMIUM ++ OWNER',
-    price: '$149 MXN',
-    benefits: [
-      'Up to 5 properties',
-      '12 messages per month',
-      'Medium-high visibility (50%)',
-      'Filters to choose ideal clients',
-      'Highlighted profile',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/J5NKCX6KQRCYW',
-  },
-  {
-    id: 'owner-premium-plus',
-    name: 'PREMIUM + OWNER',
-    price: '$99 MXN',
-    benefits: [
-      'Up to 2 active properties',
-      '6 direct messages per month',
-      'See who liked you',
-      'Unlimited likes',
-      'Medium visibility (25%)',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/GSA6TBVY9PFDU',
-  },
-];
+const ownerPlans: Plan[] = [];
 
 const clientPlans: Plan[] = [
   {
-    id: 'client-unlimited',
-    name: 'UNLIMITED CLIENT',
-    price: '$199 MXN',
+    id: 'client-unlimited-1-year',
+    name: 'UNLIMITED (1 YEAR)',
+    price: '$1,999 MXN',
     benefits: [
       '30 direct messages per month',
       'Unlimited superlikes',
       'Full visibility (100%)',
       'Priority in search results',
       'Access to all premium features',
+      'Maximum savings'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
   },
   {
-    id: 'client-premium-plus-plus',
-    name: 'PREMIUM ++ CLIENT',
-    price: '$149 MXN',
+    id: 'client-unlimited-6-months',
+    name: 'UNLIMITED (6 MONTHS)',
+    price: '$1,099 MXN',
     benefits: [
-      '12 direct messages per month',
-      'See who visited your profile',
-      'Highlighted profile',
-      'Medium visibility (50%)',
+      '30 direct messages per month',
       'Unlimited superlikes',
+      'Full visibility (100%)',
+      'Priority in search results',
+      'Access to all premium features'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
   },
   {
-    id: 'client-premium',
-    name: 'PREMIUM CLIENT',
-    price: '$99 MXN',
+    id: 'client-unlimited-1-month',
+    name: 'UNLIMITED (1 MONTH)',
+    price: '$199 MXN',
     benefits: [
-      '6 direct messages per month',
-      'See who liked you',
-      'More visibility (25%)',
-      'Access to additional filters',
-      'Highlighted profile in regular search',
+      '30 direct messages per month',
+      'Unlimited superlikes',
+      'Full visibility (100%)',
+      'Priority in search results',
+      'Access to all premium features'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
   },
@@ -226,7 +173,6 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                       <CardTitle className="text-sm sm:text-base lg:text-lg font-bold text-foreground mb-1 truncate">{pkg.name}</CardTitle>
                       <div className="flex items-baseline gap-1 flex-wrap">
                         <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">{pkg.price}</span>
-                        <span className="text-xs sm:text-sm text-muted-foreground">/month</span>
                       </div>
                     </div>
                   </div>
