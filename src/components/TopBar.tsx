@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText } from 'lucide-react';
+import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -58,6 +58,7 @@ interface TopBarProps {
   hideOnScroll?: boolean;
   title?: string;
   onAISearchClick?: () => void;
+  showBack?: boolean;
 }
 
 function TopBarComponent({
@@ -70,6 +71,7 @@ function TopBarComponent({
   hideOnScroll = false,
   title,
   onAISearchClick,
+  showBack = false,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
@@ -84,14 +86,14 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'var(--glass-bg)'
-    : 'rgba(0, 0, 0, 0.07)';
+    : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
     ? '1.5px solid var(--glass-border)'
-    : '1.5px solid rgba(0, 0, 0, 0.15)';
+    : '1.5px solid rgba(0, 0, 0, 0.05)';
   const floatingShadow = isDark
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
-    : '0 2px 10px rgba(0,0,0,0.08)';
-  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'none';
+    ? '0 10px 30px -10px rgba(0,0,0,0.5)'
+    : '0 10px 30px -10px rgba(0,0,0,0.1)';
+  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'blur(20px)';
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // Fetch the three token packages
@@ -151,6 +153,13 @@ function TopBarComponent({
     }
   };
 
+  const handleBack = (e: React.MouseEvent | React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptics.tap();
+    navigate(-1);
+  };
+
   return (
     <>
       <header
@@ -160,17 +169,38 @@ function TopBarComponent({
           className
         )}
       >
-        {/* Subtle dark gradient overlay to ensure top bar items are readable over light photos */}
+        {/* Premium multi-stop gradient overlay for flagship header readability */}
         <div
-          className="pointer-events-none absolute left-0 right-0 top-0 h-[150px] -z-10"
+          className="pointer-events-none absolute left-0 right-0 top-0 h-[100px] -z-10"
           style={{
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0) 100%)'
+            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.2) 65%, rgba(0, 0, 0, 0) 100%)'
           }}
           aria-hidden="true"
         />
-        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
+        {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
+        <div
+          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none z-0"
+          style={{
+            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)'} 0%, transparent 100%)`,
+            opacity: 0.8
+          }}
+        />
+
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10">
           {/* Left section: Avatar + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+            {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
+            {showBack && (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onPointerDown={handleBack}
+                className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white z-50 pointer-events-auto shadow-lg backdrop-blur-md"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-5 h-5" strokeWidth={3} />
+              </motion.button>
+            )}
+
             {/* User Avatar - Tapping navigates to profile */}
             {user ? (
               <motion.button
@@ -193,17 +223,22 @@ function TopBarComponent({
                 </Avatar>
               </motion.button>
             ) : (
-              <>
-                {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
-                {title && (
-                  <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
-                    {title}
-                  </div>
-                )}
-              </>
+              !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />
             )}
 
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+            {/* Title display next to avatar/back button */}
+            {title && (
+              <div className="flex flex-col ml-1 min-w-0">
+                <span className="font-black text-sm text-foreground whitespace-nowrap uppercase tracking-tighter leading-none">
+                  {title}
+                </span>
+                <span className="text-[8px] font-black text-brand-accent-2/80 uppercase tracking-widest leading-none mt-1">
+                  Swipess Elite
+                </span>
+              </div>
+            )}
+
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               <ThemeToggle />
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
               <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />

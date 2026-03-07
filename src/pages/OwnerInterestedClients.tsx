@@ -136,17 +136,12 @@ const OwnerInterestedClients = () => {
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
       <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
-        <PageHeader
-          title="Interested Clients"
-          subtitle="People who loved your listings"
-          showBack={true}
-          actions={
-            <div className="px-4 py-2 rounded-2xl bg-[#E4007C]/10 border border-[#E4007C]/20 text-[#E4007C] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
-              <Sparkles className="w-4 h-4" />
-              Top Demand
-            </div>
-          }
-        />
+        <div className="flex items-center justify-end mb-8 relative z-10">
+          <div className="px-4 py-2 rounded-2xl bg-[#E4007C]/10 border border-[#E4007C]/20 text-[#E4007C] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
+            <Sparkles className="w-4 h-4" />
+            Top Demand
+          </div>
+        </div>
 
         <div className="relative mb-10 pt-4">
           <input

@@ -58,23 +58,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
 
   const handleClientTap = (clientId: string) => {
-    setSelectedClientId(clientId);
-    setInsightsOpen(true);
+    onClientInsights?.(clientId);
   };
 
   const handleInsights = (clientId: string) => {
-    setSelectedClientId(clientId);
-    setInsightsOpen(true);
-    if (onClientInsights) {
-      onClientInsights(clientId);
-    }
+    onClientInsights?.(clientId);
   };
-
-  const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
-    navigate(`/owner/properties#add-${category}`);
-  };
-
-  const selectedClient = clientProfiles.find(c => c.user_id === selectedClientId);
 
   return (
     <>
@@ -91,24 +80,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         profiles={clientProfiles}
         isLoading={isLoading}
         error={error}
-        insightsOpen={insightsOpen}
+        insightsOpen={false} // Insights handled by layout now
         filters={mergedFilters}
-      />
-
-      {selectedClient && (
-        <Suspense fallback={null}>
-          <ClientInsightsDialog
-            open={insightsOpen}
-            onOpenChange={setInsightsOpen}
-            profile={selectedClient}
-          />
-        </Suspense>
-      )}
-
-      <CategorySelectionDialog
-        open={showCategoryDialog}
-        onOpenChange={setShowCategoryDialog}
-        onCategorySelect={handleCategorySelect}
       />
     </>
   );
