@@ -167,7 +167,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   });
 
   // Fetch rating aggregate for this listing
-  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, categoryId);
+  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
 
   // Parallax store for ambient background effect
   const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
