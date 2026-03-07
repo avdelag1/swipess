@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 // Build version injector plugin for automatic cache busting
 function buildVersionPlugin() {
@@ -135,6 +136,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
+    basicSsl(),
     react(),
     buildVersionPlugin(),
     cssOptimizationPlugin(),

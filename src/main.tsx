@@ -86,7 +86,7 @@ deferredInit(async () => {
 }, 5000);
 
 // Service Worker with AGGRESSIVE update handling for PWA
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
+if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
@@ -116,20 +116,16 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
       })
       .catch((err) => console.error('[SW] Registration failed:', err));
 
-    // Reload when new SW takes control (regardless of previous state)
-    let refreshing = false;
+    // Graceful update handling instead of forced reload
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (!refreshing) {
-        refreshing = true;
-        logger.info('[SW] New version active, reloading...');
-        window.location.reload();
-      }
+      logger.info('[SW] New version active. App will update on next navigation or via Automatic Updates UI.');
+      window.dispatchEvent(new CustomEvent('sw-controller-changed'));
     });
 
     // Listen for update messages from SW
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data?.type === 'SW_UPDATED') {
-        // Update notification received
+        window.dispatchEvent(new CustomEvent('sw-updated', { detail: event.data }));
       }
     });
   });
