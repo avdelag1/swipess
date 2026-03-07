@@ -760,13 +760,6 @@ body {
     --tw-text-opacity: 1 !important;
   }
 
-  .app-header {
-    background: linear-gradient(to bottom, var(--background) 0%, transparent 100%) !important;
-    backdrop-filter: blur(12px) !important;
-    border-bottom: none !important;
-    height: 70px !important;
-  }
-
   /* ROYAL DIAMOND PREMIUM PALETTE - Overriding bronze defaults */
   .royal-diamond-premium {
     background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%) !important;
