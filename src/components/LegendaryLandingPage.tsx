@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { Capacitor } from '@capacitor/core';
+import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
 import CheetahBackground from './CheetahBackground';
@@ -244,13 +245,48 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         action: isLogin ? 'Sign In' : 'Sign Up',
       };
       setErrorDetails(errorInfo);
+
       if (error.message?.toLowerCase().includes('email not confirmed')) {
         setShowResendConfirmation(true);
       }
+
+      // DETERMINISTIC SENTIENT RECOVERY
+      // Map common auth errors to user-friendly "sentient" advice
+      let sentientTitle = `${isLogin ? 'Sign In' : 'Sign Up'} Failed`;
+      let sentientDescription = error.message || 'Authentication failed.';
+
+      if (error.message === 'Invalid login credentials') {
+        sentientTitle = "Login Issue Detected";
+        sentientDescription = "We couldn't find a match for those credentials. Would you like to reset your password?";
+      } else if (error.message?.includes('Too many requests')) {
+        sentientTitle = "Security Cooldown";
+        sentientDescription = "Too many attempts. For your safety, please wait a few minutes before trying again.";
+      }
+
       toast({
-        title: `${isLogin ? 'Sign In' : 'Sign Up'} Failed`,
-        description: error.errors?.[0]?.message || error.message || 'Authentication failed.',
+        title: sentientTitle,
+        description: sentientDescription,
         variant: 'destructive',
+        action: (
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setShowErrorDetails(true)}
+              className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-white/10"
+            >
+              Details
+            </button>
+            <button
+              onClick={() => {
+                if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
+                  nuclearReset();
+                }
+              }}
+              className="px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-orange-500/20"
+            >
+              System Fix
+            </button>
+          </div>
+        )
       });
     } finally {
       setIsLoading(false);
