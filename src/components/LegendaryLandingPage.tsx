@@ -103,16 +103,13 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <motion.div
-          animate={{ scale: [1, 1.06, 1, 1.06, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
-        >
+        <div>
           <img
             src={swipessLogo}
             alt="Swipess"
             className="w-[82vw] max-w-[500px] sm:max-w-[650px] md:max-w-[800px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
           />
-        </motion.div>
+        </div>
       </motion.div>
 
       {/* Info chips */}
@@ -120,7 +117,7 @@ const LandingView = memo(({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.25 }}
-        className="mt-3"
+        className="mt-1"
       >
         <div className="flex flex-wrap items-center justify-center gap-2">
           {[
