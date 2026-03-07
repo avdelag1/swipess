@@ -253,28 +253,8 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500">
-      <div className="max-w-2xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-8">
-        <header className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-foreground">Inbox</h1>
-            <p className="text-sm font-medium text-muted-foreground mt-1">Updates and saved items</p>
-          </div>
-          {notifications.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="icon" className="rounded-full">
-                  <MoreHorizontal className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="rounded-2xl">
-                <DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} className="text-destructive focus:text-destructive gap-2 p-3">
-                  <Trash2 className="w-4 h-4" />
-                  Clear Inbox
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </header>
+      <div className="max-w-2xl mx-auto px-4 pt-[calc(1.5rem+var(--safe-top))] pb-32 space-y-8">
+
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-secondary/50 p-1.5 rounded-[1.5rem] h-auto border border-border/40">

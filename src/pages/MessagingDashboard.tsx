@@ -413,30 +413,7 @@ export function MessagingDashboard() {
       <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
 
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
-            className="flex items-center justify-between mb-6"
-          >
-            <div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Messages</h1>
-              {filteredConversations.length > 0 && (
-                <p className="text-[13px] text-muted-foreground mt-0.5">
-                  {filteredConversations.length} active conversation{filteredConversations.length !== 1 ? 's' : ''}
-                </p>
-              )}
-            </div>
-            {(stats as any)?.unreadCount > 0 && (
-              <div
-                className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-              >
-                {(stats as any).unreadCount} new
-              </div>
-            )}
-          </motion.div>
+
 
           {/* Search */}
           <div className="relative mb-5">

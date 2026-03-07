@@ -116,14 +116,7 @@ const OwnerSettingsNew = () => {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveSection(null)}
-            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Settings
-          </motion.button>
+
 
           <PageHeader title="Account Security" subtitle="Manage your password and security settings" />
 
@@ -150,14 +143,7 @@ const OwnerSettingsNew = () => {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveSection(null)}
-            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Settings
-          </motion.button>
+
 
           <PageHeader title="Preferences" subtitle="Customize your app experience" />
 
@@ -172,10 +158,7 @@ const OwnerSettingsNew = () => {
   return (
     <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide">
       <div className="max-w-3xl mx-auto space-y-10">
-        <PageHeader
-          title="Owner Settings"
-          subtitle="Management tools & profile configuration"
-        />
+
 
         <motion.div
           initial="hidden"

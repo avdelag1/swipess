@@ -575,6 +575,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           transparent={isImmersiveDashboard}
           hideOnScroll={true}
           title={pageTitle}
+          showBack={!isOnDiscoveryPage}
         />
       )}
 
@@ -582,7 +583,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
-        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-[#09090b]"
         style={{
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
             ? '0px'

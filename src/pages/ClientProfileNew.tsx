@@ -81,21 +81,7 @@ const ClientProfileNew = () => {
         variants={stagger}
         className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
-        {/* Back Button */}
-        <motion.div variants={childVariant}>
-          <button
-            onClick={() => { haptics.tap(); navigate(-1); }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black uppercase tracking-tight transition-all active:scale-95"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" strokeWidth={3} />
-            Back
-          </button>
-        </motion.div>
+
 
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>

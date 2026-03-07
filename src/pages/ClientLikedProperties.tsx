@@ -36,11 +36,15 @@ const categories = [
   { id: 'worker', label: 'Services', icon: Briefcase, title: 'Elite Talent', subtitle: 'The support you need' },
 ];
 
-const ClientLikedProperties = () => {
+interface ClientLikedPropertiesProps {
+  onPropertyInsights?: (listingId: string) => void;
+  onClientInsights?: (clientId: string) => void;
+  onMessageClick?: () => void;
+}
+
+const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProps) => {
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
-  const [showPropertyDetails, setShowPropertyDetails] = useState(false);
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [galleryState, setGalleryState] = useState<{
     isOpen: boolean;
     images: string[];
@@ -57,8 +61,6 @@ const ClientLikedProperties = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
   const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showInsightsModal, setShowInsightsModal] = useState(false);
-  const [selectedProperty, setSelectedProperty] = useState<any>(null);
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -111,8 +113,7 @@ const ClientLikedProperties = () => {
     }
 
     if (action === 'view') {
-      setSelectedProperty(property);
-      setShowInsightsModal(true);
+      onPropertyInsights?.(property.id);
       return;
     }
 
@@ -137,24 +138,19 @@ const ClientLikedProperties = () => {
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
       <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
-        <PageHeader
-          title={currentCategory.title}
-          subtitle={currentCategory.subtitle}
-          showBack={true}
-          actions={
-            <button
-              onClick={() => {
-                queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
-                refreshLikedProperties();
-              }}
-              disabled={isLoading || isFetching}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
-            >
-              <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
-              <span className="text-xs font-black uppercase tracking-widest text-[#E4007C]">Sync</span>
-            </button>
-          }
-        />
+        <div className="flex items-center justify-end mb-8">
+          <button
+            onClick={() => {
+              queryClient.invalidateQueries({ queryKey: [selectedCategory === 'all' ? 'liked-properties' : 'liked-properties'] });
+              refreshLikedProperties();
+            }}
+            disabled={isLoading || isFetching}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
+          >
+            <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
+            <span className="text-xs font-black uppercase tracking-widest text-[#E4007C]">Sync</span>
+          </button>
+        </div>
 
         {/* Categories - PREMIUM MEXICAN PINK ACCENT */}
         <div className="flex gap-3 mb-10 overflow-x-auto scrollbar-hide pb-2 pt-4">
@@ -227,31 +223,12 @@ const ClientLikedProperties = () => {
       </div>
 
       {/* Utilities */}
-      <PropertyDetails
-        listingId={selectedListingId}
-        isOpen={showPropertyDetails}
-        onClose={() => {
-          setShowPropertyDetails(false);
-          setSelectedListingId(null);
-        }}
-        onMessageClick={() => {
-          const prop = likedProperties.find(p => p.id === selectedListingId);
-          if (prop) handleAction('message', prop);
-        }}
-      />
-
       <PropertyImageGallery
         images={galleryState.images}
         alt={galleryState.alt}
         isOpen={galleryState.isOpen}
         onClose={() => setGalleryState(prev => ({ ...prev, isOpen: false }))}
         initialIndex={galleryState.initialIndex}
-      />
-
-      <LikedListingInsightsModal
-        open={showInsightsModal}
-        onOpenChange={setShowInsightsModal}
-        listing={selectedProperty}
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

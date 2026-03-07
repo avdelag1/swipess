@@ -1076,7 +1076,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // PERF: GPU-accelerated skeleton to match card styling
   if (!hasHydratedData && isLoading) {
     return (
-      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3">
+      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-[#09090b]">
         <div className="relative flex-1 w-full">
           <div
             className="absolute inset-0 overflow-hidden"
@@ -1197,6 +1197,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+        <AmbientSwipeBackground isPaused={isRefreshing} />
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1216,17 +1217,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
               {description}
             </p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-base"
+                className="w-full gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
               >
                 {isRefreshing ? (
                   <RadarSearchIcon size={20} isActive={true} />
@@ -1236,7 +1237,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
               </Button>
             </motion.div>
-            <p className="text-xs text-muted-foreground">New {categoryLower} are added daily</p>
+
+            {/* Tutorial shortcut — unified across all empty states */}
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                variant="default"
+                onClick={() => navigate('/tutorial')}
+                className="w-full gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0 shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all duration-300 font-black uppercase tracking-widest text-xs"
+              >
+                <Sparkles className="w-4 h-4 text-white" strokeWidth={4} />
+                Take Interactive Tutorial
+              </Button>
+            </motion.div>
+
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">New {categoryLower} are added daily</p>
           </div>
         </motion.div>
       </div>
@@ -1308,7 +1322,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     const { title, description } = getEmptyMessage();
 
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4 bg-background" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+        <AmbientSwipeBackground isPaused={isRefreshing} />
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
