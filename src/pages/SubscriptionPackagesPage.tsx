@@ -12,111 +12,62 @@ import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { toast } from "@/components/ui/sonner";
 import { STORAGE } from "@/constants/app";
 
-// Premium plans for owners
-const ownerPremiumPlans = [
-  {
-    id: 'owner-unlimited',
-    name: 'UNLIMITED OWNER',
-    price: 299,
-    benefits: [
-      'Unlimited properties',
-      '30 messages per month',
-      'Top visibility (100%)',
-      'Always listed first in search',
-      'Full access to tools, filters, and stats',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/P2YZA6FWZAACQ',
-    highlight: true,
-    tier: 'unlimited',
-  },
-  {
-    id: 'owner-premium-max',
-    name: 'PREMIUM MAX',
-    price: 199,
-    benefits: [
-      'Up to 10 properties',
-      '20 messages per month',
-      'High visibility (80%)',
-      'Advanced client filters',
-      '"Premium Profile" badge',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/4LG62YGVETM4L',
-    tier: 'premium-max',
-  },
-  {
-    id: 'owner-premium-plus-plus',
-    name: 'PREMIUM ++',
-    price: 149,
-    benefits: [
-      'Up to 5 properties',
-      '12 messages per month',
-      'Medium-high visibility (50%)',
-      'Filters to choose ideal clients',
-      'Highlighted profile',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/J5NKCX6KQRCYW',
-    tier: 'premium-plus-plus',
-  },
-  {
-    id: 'owner-premium-plus',
-    name: 'PREMIUM +',
-    price: 99,
-    benefits: [
-      'Up to 2 active properties',
-      '6 direct messages per month',
-      'See who liked you',
-      'Unlimited likes',
-      'Medium visibility (25%)',
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/GSA6TBVY9PFDU',
-    tier: 'premium-plus',
-  },
-];
+// Premium plans for owners have been removed per user request
+const ownerPremiumPlans: any[] = [];
 
 // Premium plans for clients
 const clientPremiumPlans = [
   {
-    id: 'client-unlimited',
-    name: 'UNLIMITED CLIENT',
-    price: 199,
+    id: 'client-unlimited-1-year',
+    name: 'UNLIMITED (1 YEAR)',
+    price: 299,
+    durationText: '/year',
     benefits: [
-      '30 direct messages per month',
-      'Unlimited superlikes',
-      'Full visibility (100%)',
-      'Priority in search results',
-      'Access to all premium features',
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
     tier: 'unlimited',
   },
   {
-    id: 'client-premium-plus-plus',
-    name: 'PREMIUM ++',
-    price: 149,
+    id: 'client-unlimited-6-months',
+    name: 'UNLIMITED (6 MONTHS)',
+    price: 119,
+    durationText: '/6 months',
     benefits: [
-      '12 direct messages per month',
-      'See who visited your profile',
-      'Highlighted profile',
-      'Medium visibility (50%)',
-      'Unlimited superlikes',
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
-    tier: 'premium-plus-plus',
+    tier: 'unlimited',
   },
   {
-    id: 'client-premium',
-    name: 'PREMIUM',
-    price: 99,
+    id: 'client-unlimited-1-month',
+    name: 'UNLIMITED (1 MONTH)',
+    price: 39,
+    durationText: '/month',
     benefits: [
-      '6 direct messages per month',
-      'See who liked you',
-      'More visibility (25%)',
-      'Access to additional filters',
-      'Highlighted profile in regular search',
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
-    tier: 'premium',
+    tier: 'unlimited',
   },
 ];
 
@@ -434,13 +385,13 @@ export default function SubscriptionPackagesPage() {
                       </div>
                       <h3 className="text-lg font-bold text-foreground">{plan.name}</h3>
                       <div className="mt-2 flex items-baseline gap-1">
-                        <span className="text-3xl font-bold text-foreground">{formatPriceMXN(plan.price)}</span>
-                        <span className="text-muted-foreground text-sm">/month</span>
+                        <span className="text-3xl font-bold text-foreground">${plan.price}</span>
+                        <span className="text-muted-foreground text-sm">USD {plan.durationText || '/month'}</span>
                       </div>
                     </CardHeader>
                     <CardContent className="flex-1 pt-2">
                       <div className="space-y-2">
-                        {plan.benefits.map((benefit, i) => (
+                        {plan.benefits.map((benefit: string, i: number) => (
                           <div key={i} className="flex items-start gap-2 text-sm">
                             <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                             <span className="text-foreground">{benefit}</span>
