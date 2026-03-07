@@ -48,7 +48,7 @@ const clientPlans: Plan[] = [
   {
     id: 'client-unlimited-6-months',
     name: 'UNLIMITED (6 MONTHS)',
-    price: '$149 USD',
+    price: '$119 USD',
     benefits: [
       'Communicate with listings and members',
       'Post properties for rent or sale',
@@ -63,7 +63,7 @@ const clientPlans: Plan[] = [
   {
     id: 'client-unlimited-1-month',
     name: 'UNLIMITED (1 MONTH)',
-    price: '$29 USD',
+    price: '$39 USD',
     benefits: [
       'Communicate with listings and members',
       'Post properties for rent or sale',

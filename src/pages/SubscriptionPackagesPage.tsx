@@ -38,7 +38,7 @@ const clientPremiumPlans = [
   {
     id: 'client-unlimited-6-months',
     name: 'UNLIMITED (6 MONTHS)',
-    price: 149,
+    price: 119,
     durationText: '/6 months',
     benefits: [
       'Communicate with listings and members',
@@ -55,7 +55,7 @@ const clientPremiumPlans = [
   {
     id: 'client-unlimited-1-month',
     name: 'UNLIMITED (1 MONTH)',
-    price: 29,
+    price: 39,
     durationText: '/month',
     benefits: [
       'Communicate with listings and members',
