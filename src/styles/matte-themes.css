@@ -47,46 +47,50 @@
     --overlay: rgba(0, 0, 0, 0.6);
 }
 
-/* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT) */
+/* THEME 2: BLACK MATTE (Deep dark mode - like ChatGPT / Tinder) */
 .black-matte {
-    /* Background colors - Deep black palette */
-    --background: 0 0% 5%;
-    --foreground: 0 0% 96%;
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 96%;
-    --primary: 0 100% 60%;
+    /* Background colors - Tinder's rich charcoal palette */
+    --background: 216 15% 9%;
+    /* Deep premium charcoal */
+    --foreground: 0 0% 100%;
+    /* Pure white text */
+    --card: 216 15% 15%;
+    /* Lighter charcoal for cards */
+    --card-foreground: 0 0% 100%;
+    --primary: 352 83% 58%;
+    /* Signature pink/red accent */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 96%;
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 75%;
-    --accent: 0 100% 60%;
+    --secondary: 216 15% 16%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 216 15% 16%;
+    --muted-foreground: 216 10% 70%;
+    --accent: 352 83% 58%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 0 100% 60%;
+    --border: 216 15% 18%;
+    --input: 216 15% 18%;
+    --ring: 352 83% 58%;
 
     /* Modern theme variables */
-    --bg-primary: 0 0% 5%;
-    --bg-secondary: 0 0% 10%;
-    --bg-tertiary: 0 0% 15%;
-    --text-primary: 0 0% 96%;
-    --text-secondary: 0 0% 75%;
-    --text-tertiary: 0 0% 50%;
-    --border-primary: 0 0% 16%;
-    --border-secondary: 0 0% 20%;
-    --accent-primary: 0 100% 60%;
-    --accent-secondary: 0 100% 70%;
+    --bg-primary: 216 15% 9%;
+    --bg-secondary: 216 15% 12%;
+    --bg-tertiary: 216 15% 16%;
+    --text-primary: 0 0% 100%;
+    --text-secondary: 216 10% 70%;
+    --text-tertiary: 216 10% 55%;
+    --border-primary: 216 15% 18%;
+    --border-secondary: 216 15% 23%;
+    --accent-primary: 352 83% 58%;
+    --accent-secondary: 352 83% 68%;
 
     /* Shadows - Deep shadows for maximum depth */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
-    --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.4);
-    --overlay: rgba(0, 0, 0, 0.8);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 30px hsla(352, 83%, 58%, 0.4);
+    --overlay: rgba(0, 0, 0, 0.85);
 }
 
 /* THEME 3: WHITE MATTE — Clean, luxurious light mode */
