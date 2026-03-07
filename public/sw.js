@@ -145,7 +145,7 @@ self.addEventListener('notificationclick', (event) => {
 self.addEventListener('install', (event) => {
   // Skip waiting immediately to activate new SW right away
   self.skipWaiting();
-  
+
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
@@ -153,7 +153,7 @@ self.addEventListener('install', (event) => {
           new Request(url, { cache: 'reload' })
         ));
       })
-      .catch(() => {})
+      .catch(() => { })
   );
 });
 
@@ -245,8 +245,9 @@ self.addEventListener('fetch', (event) => {
         if (response) return response;
         return fetch(request).then(networkResponse => {
           if (networkResponse.ok) {
+            const responseClone = networkResponse.clone();
             caches.open(STATIC_CACHE).then(cache => {
-              cache.put(request, networkResponse.clone());
+              cache.put(request, responseClone);
             });
           }
           return networkResponse;
@@ -283,10 +284,10 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             // Delete any cache that doesn't match current version
-            const isCurrentCache = cacheName === STATIC_CACHE || 
-                                   cacheName === DYNAMIC_CACHE || 
-                                   cacheName === IMAGE_CACHE;
-            
+            const isCurrentCache = cacheName === STATIC_CACHE ||
+              cacheName === DYNAMIC_CACHE ||
+              cacheName === IMAGE_CACHE;
+
             if (!isCurrentCache) {
               console.log('[SW] Deleting old cache:', cacheName);
               return caches.delete(cacheName);

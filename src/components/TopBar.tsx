@@ -59,6 +59,7 @@ interface TopBarProps {
   title?: string;
   onAISearchClick?: () => void;
   showBack?: boolean;
+  isOnDiscoveryPage?: boolean;
 }
 
 function TopBarComponent({
@@ -72,6 +73,7 @@ function TopBarComponent({
   title,
   onAISearchClick,
   showBack = false,
+  isOnDiscoveryPage = false,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
