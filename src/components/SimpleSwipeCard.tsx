@@ -161,7 +161,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // FULL-IMAGE ZOOM: Entire image zooms on press-and-hold, no lens/clipping
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 500, // Longer delay to prevent accidental zoom during swipe
+    holdDelay: 300, // Balanced delay so taps aren't interpreted as zooms but zooms happen quickly
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
@@ -207,7 +207,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
 
-      if (dx > 8 || dy > 8) {
+      if (dx > 15 || dy > 15) {
         // Any meaningful movement: cancel hold timer, start drag
         magnifierPointerHandlers.onPointerUp(e); // Force cancel magnifier completely
         if (!dragStartedRef.current && storedPointerEventRef.current) {
