@@ -53,7 +53,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     // Add current theme class
     root.classList.add(theme);
-
+    
     // Only add 'dark' class for dark themes
     if (theme !== 'white-matte') {
       root.classList.add('dark');
@@ -85,7 +85,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add('dark');
     }
     // Update status bar meta immediately too
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', newTheme === 'white-matte' ? '#ffffff' : '#000000');
     }

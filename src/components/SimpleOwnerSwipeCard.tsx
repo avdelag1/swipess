@@ -658,146 +658,163 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             NOPE
           </div>
         </motion.div>
+      </motion.div>
 
-        {/* Content overlay - Positioned higher for Tinder style (above button area) */}
-        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
-          {/* Rating Display - Glass-pill tactile badge */}
-          <div className="mb-3">
-            <div
-              className="inline-flex rounded-full px-3 py-1.5"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      {/* Content overlay - OUTSIDE motion.div so it stays fixed */}
+      <div className="absolute bottom-44 left-0 right-0 p-4 z-20 pointer-events-none">
+        {/* Rating Display - Glass-pill tactile badge */}
+        <div className="mb-3">
+          <div
+            className="inline-flex rounded-full px-3 py-1.5"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
+            }}
+          >
+            <CompactRatingDisplay
+              aggregate={ratingAggregate ?? null}
+              isLoading={isRatingLoading}
+              showReviews={false}
+              className="text-white"
+            />
+          </div>
+        </div>
+
+        {/* Photo 0: Name + Age */}
+        {currentImageIndex % 4 === 0 && (
+          <>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-white text-2xl font-bold drop-shadow-lg">
+                {profile.name || 'Anonymous'}
+              </h2>
+              {profile.age && (
+                <span className="text-white/80 text-xl">{profile.age}</span>
+              )}
+            </div>
+            {profile.city && (
+              <div className="flex items-center gap-1 text-white/90 text-base">
+                <MapPin className="w-4 h-4" />
+                <span className="font-medium">{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Photo 1: Budget */}
+        {currentImageIndex % 4 === 1 && (
+          <>
+            {budgetText && (
+              <>
+                <div className="text-lg text-white/80 font-medium mb-1">Monthly Budget</div>
+                <div className="flex items-center gap-1 text-white/90">
+                  <DollarSign className="w-5 h-5" />
+                  <span className="text-2xl font-bold drop-shadow-lg">{budgetText}</span>
+                </div>
+              </>
+            )}
+            {!budgetText && profile.work_schedule && (
+              <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-              }}
-            >
-              <CompactRatingDisplay
-                aggregate={ratingAggregate ?? null}
-                isLoading={isRatingLoading}
-                showReviews={false}
-                className="text-white"
-              />
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+              }}>
+                <Briefcase className="w-4 h-4 text-white" />
+                <span className="text-base font-medium text-white">{profile.work_schedule}</span>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Photo 2: Location + Work Schedule */}
+        {currentImageIndex % 4 === 2 && (
+          <>
+            {profile.city && (
+              <div className="flex items-center gap-1 text-white/90 mb-2">
+                <MapPin className="w-5 h-5" />
+                <span className="text-xl font-bold drop-shadow-lg">
+                  {profile.city}{profile.country ? `, ${profile.country}` : ''}
+                </span>
+              </div>
+            )}
+            {profile.work_schedule && (
+              <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
+              }}>
+                <Briefcase className="w-4 h-4 text-white" />
+                <span className="text-base font-medium text-white">{profile.work_schedule}</span>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Photo 3+: Full Summary */}
+        {currentImageIndex % 4 === 3 && (
+          <>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-white text-xl font-bold">
+                {profile.name || 'Anonymous'}
+              </h2>
+              {profile.age && (
+                <span className="text-white/80 text-lg">{profile.age}</span>
+              )}
             </div>
-          </div>
 
-          <div className="space-y-1">
-            {/* Photo 0: Name + Age */}
-            {currentImageIndex % 4 === 0 && (
-              <>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-white text-3xl font-bold drop-shadow-lg">
-                    {profile.name || 'Anonymous'}
-                  </h2>
-                  {profile.age && (
-                    <span className="text-white/80 text-2xl">{profile.age}</span>
-                  )}
-                </div>
-                {profile.city && (
-                  <div className="flex items-center gap-1 text-white/90 text-base">
-                    <MapPin className="w-4 h-4" />
-                    <span className="font-medium">{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
-                  </div>
-                )}
-              </>
+            {profile.city && (
+              <div className="flex items-center gap-1 text-white/80 text-sm mb-2">
+                <MapPin className="w-4 h-4" />
+                <span>{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
+              </div>
             )}
 
-            {/* Photo 1: Budget */}
-            {currentImageIndex % 4 === 1 && (
-              <>
-                {budgetText && (
-                  <>
-                    <div className="text-lg text-white/80 font-medium mb-1">Monthly Budget</div>
-                    <div className="flex items-center gap-1 text-white/90">
-                      <DollarSign className="w-6 h-6" />
-                      <span className="text-3xl font-bold drop-shadow-lg">{budgetText}</span>
-                    </div>
-                  </>
-                )}
-                {!budgetText && profile.work_schedule && (
-                  <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
-                  }}>
-                    <Briefcase className="w-5 h-5 text-white" />
-                    <span className="text-lg font-medium text-white">{profile.work_schedule}</span>
-                  </div>
-                )}
-              </>
-            )}
+            <div className="flex flex-wrap items-center gap-2 text-white/90 text-sm">
+              {budgetText && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}>
+                  <DollarSign className="w-3 h-3" /> {budgetText}
+                </span>
+              )}
+              {profile.work_schedule && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full" style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                }}>
+                  <Briefcase className="w-3 h-3" /> {profile.work_schedule}
+                </span>
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
-            {/* Photo 2: Location + Work Schedule */}
-            {currentImageIndex % 4 === 2 && (
-              <>
-                {profile.city && (
-                  <div className="flex items-center gap-1 text-white/90 mb-2">
-                    <MapPin className="w-6 h-6" />
-                    <span className="text-2xl font-bold drop-shadow-lg">
-                      {profile.city}{profile.country ? `, ${profile.country}` : ''}
-                    </span>
-                  </div>
-                )}
-                {profile.work_schedule && (
-                  <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
-                  }}>
-                    <Briefcase className="w-5 h-5 text-white" />
-                    <span className="text-lg font-medium text-white">{profile.work_schedule}</span>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Photo 3+: Full Summary */}
-            {currentImageIndex % 4 === 3 && (
-              <>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-white text-2xl font-bold">
-                    {profile.name || 'Anonymous'}
-                  </h2>
-                  {profile.age && (
-                    <span className="text-white/80 text-xl">{profile.age}</span>
-                  )}
-                </div>
-
-                {profile.city && (
-                  <div className="flex items-center gap-1 text-white/80 text-base mb-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{profile.city}{profile.country ? `, ${profile.country}` : ''}</span>
-                  </div>
-                )}
-
-                <div className="flex flex-wrap items-center gap-2 text-white/90 text-base">
-                  {budgetText && (
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}>
-                      <DollarSign className="w-4 h-4" /> {budgetText}
-                    </span>
-                  )}
-                  {profile.work_schedule && (
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full" style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}>
-                      <Briefcase className="w-4 h-4" /> {profile.work_schedule}
-                    </span>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+      {/* Action buttons OUTSIDE card - stays fixed while card moves */}
+      {!hideActions && (
+        <div
+          className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <SwipeActionButtonBar
+            onLike={() => handleButtonSwipe('right')}
+            onDislike={() => handleButtonSwipe('left')}
+            onShare={onShare}
+            onUndo={onUndo}
+            onMessage={onMessage}
+            canUndo={canUndo}
+          />
         </div>
-      </motion.div>
+      )}
     </div>
   );
 });
