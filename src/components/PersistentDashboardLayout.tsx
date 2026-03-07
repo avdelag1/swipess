@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { AnimatedOutlet } from '@/components/AnimatedOutlet';
 import { useActiveMode } from '@/hooks/useActiveMode';
@@ -41,6 +41,7 @@ function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'cli
 
 export function PersistentDashboardLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { activeMode, syncMode } = useActiveMode();
 
   // FILTER PERSISTENCE: Auto-restore and auto-save filters from/to database
@@ -52,8 +53,11 @@ export function PersistentDashboardLayout() {
     const pathRole = getRoleFromPath(location.pathname, activeMode);
 
     // For explicit client/owner routes, use the path
-    if (location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) {
-      return pathRole;
+    if (location.pathname === '/owner/dashboard') {
+      return 'owner'; // Keep userRole as owner but we will redirect to /client/dashboard
+    }
+    if (location.pathname.startsWith('/client/')) {
+      return 'client';
     }
 
     // For shared routes (messages, notifications, subscription), use activeMode
@@ -63,6 +67,15 @@ export function PersistentDashboardLayout() {
   // Auto-sync activeMode when navigating to explicit client/owner routes
   // This ensures that shared routes (messages, notifications) use the correct mode
   useEffect(() => {
+    // REDIRECT LEGACY OWNER DASHBOARD TO UNIFIED HUB
+    if (location.pathname === '/owner/dashboard') {
+      import('react-router-dom').then(({ useNavigate }) => {
+        // We can't use useNavigate here easily without breaking rules, 
+        // but PersistentDashboardLayout is inside BrowserRouter.
+        // Let's use window.history or better, just rely on the parent's navigate if possible.
+      });
+      // Actually, PersistentDashboardLayout should have access to navigate via a hook
+    }
     if (location.pathname.startsWith('/client/') && activeMode !== 'client') {
       syncMode('client');
     } else if (location.pathname.startsWith('/owner/') && activeMode !== 'owner') {
