@@ -92,10 +92,6 @@ function TopBarComponent({
     ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
     : '0 2px 10px rgba(0,0,0,0.08)';
   const controlBlur = isDark ? `blur(var(--glass-blur))` : 'none';
-  const headerBackgroundClass = isDark
-    ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
-    : 'bg-transparent border-transparent';
-
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // Fetch the three token packages
@@ -160,11 +156,18 @@ function TopBarComponent({
       <header
         className={cn(
           'app-header',
-          headerBackgroundClass,
           shouldHide && 'header-hidden',
           className
         )}
       >
+        {/* Subtle dark gradient overlay to ensure top bar items are readable over light photos */}
+        <div
+          className="pointer-events-none absolute left-0 right-0 top-0 h-[150px] -z-10"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.3) 40%, rgba(0, 0, 0, 0) 100%)'
+          }}
+          aria-hidden="true"
+        />
         <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
           {/* Left section: Avatar + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
