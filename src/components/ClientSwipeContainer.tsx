@@ -18,6 +18,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useSwipe } from '@/hooks/useSwipe';
 import { useCanAccessMessaging } from '@/hooks/useMessaging';
 import { useSwipeUndo } from '@/hooks/useSwipeUndo';
+import { SwipeActionButtonBar } from './SwipeActionButtonBar';
+import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwipeCard';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
@@ -124,6 +126,7 @@ const ClientSwipeContainerComponent = ({
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
   const [matchCelebration, setMatchCelebration] = useState<{
     isOpen: boolean;
     clientProfile?: any;
@@ -621,6 +624,22 @@ const ClientSwipeContainerComponent = ({
     });
   }, [executeSwipe, playSwipeSound]);
 
+  const handleButtonLike = useCallback(() => {
+    if (cardRef.current) {
+      cardRef.current.triggerSwipe('right');
+    } else {
+      handleSwipe('right');
+    }
+  }, [handleSwipe]);
+
+  const handleButtonDislike = useCallback(() => {
+    if (cardRef.current) {
+      cardRef.current.triggerSwipe('left');
+    } else {
+      handleSwipe('left');
+    }
+  }, [handleSwipe]);
+
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     setIsRefreshMode(false);
@@ -943,6 +962,7 @@ const ClientSwipeContainerComponent = ({
           style={{ zIndex: 10 }}
         >
           <SimpleOwnerSwipeCard
+            ref={cardRef}
             profile={topCard}
             onSwipe={handleSwipe}
             onTap={() => onClientTap(topCard.user_id)}
@@ -955,6 +975,20 @@ const ClientSwipeContainerComponent = ({
             hideActions={insightsOpen}
           />
         </div>
+
+        {/* Static Action Buttons - Floating bottom bar */}
+        {topCard && !insightsOpen && (
+          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
+            <SwipeActionButtonBar
+              onLike={handleButtonLike}
+              onDislike={handleButtonDislike}
+              onShare={handleShare}
+              onUndo={undoLastSwipe}
+              onMessage={() => handleConnect(topCard.user_id)}
+              canUndo={canUndo}
+            />
+          </div>
+        )}
       </div>
 
       {/* FIX: Render modals via portal OUTSIDE the swipe React tree
