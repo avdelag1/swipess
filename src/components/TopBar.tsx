@@ -240,8 +240,12 @@ function TopBarComponent({
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               <ThemeToggle />
-              <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
-              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
+              {!isOnDiscoveryPage && (
+                <>
+                  <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
+                  <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
+                </>
+              )}
             </div>
 
             {showFilters && userRole && (
