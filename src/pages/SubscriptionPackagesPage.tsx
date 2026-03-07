@@ -262,113 +262,23 @@ export default function SubscriptionPackagesPage() {
 
       <div className="container mx-auto px-4 py-6 sm:py-8 space-y-12">
 
-        {/* TOKEN PACKAGES SECTION */}
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="text-center space-y-4 mb-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <MessageCircle className="w-5 h-5 text-primary" />
-              <span className="text-sm font-semibold text-primary">Tokens</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Start New Conversations</h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-              Each token lets you start a new conversation. Once started, send unlimited messages.
-            </p>
-            <div className="flex items-center justify-center gap-2 text-sm">
-              <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-              <span className="text-foreground font-medium">New users get 1 FREE welcome token!</span>
-            </div>
-          </div>
 
-          {packagesLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => <div key={i} className="h-96 rounded-2xl bg-muted/50 animate-pulse" />)}
-            </div>
-          ) : packagesError ? (
-            <div className="text-center py-12 space-y-3">
-              <p className="text-destructive font-medium">Failed to load packages</p>
-              <p className="text-muted-foreground text-sm">Please check your connection and try again.</p>
-            </div>
-          ) : packagesUI.length === 0 ? (
-            <div className="text-center py-12"><p className="text-muted-foreground">No packages available.</p></div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-              {packagesUI.map((pkg, index) => {
-                const Icon = pkg.icon;
-                const styles = getMessageTierStyles(pkg.tier);
-                const isPopular = pkg.tier === 'standard';
-                return (
-                  <motion.div key={pkg.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
-                    <Card className={`relative h-full flex flex-col overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 ${styles.border} ${styles.glow} transition-all duration-500 hover:scale-[1.02] group`}>
-                      {isPopular && (
-                        <div className="absolute top-0 left-0 right-0 z-10">
-                          <div className="bg-gradient-to-r from-[#E4007C] to-[#ff009e] text-white text-[10px] font-black py-1.5 text-center tracking-widest uppercase shadow-lg">⭐ BEST VALUE</div>
-                        </div>
-                      )}
-                      {pkg.savings && !isPopular && (
-                        <div className="absolute top-3 right-3 z-10">
-                          <Badge className={`${styles.badge} border-none font-bold`}>{pkg.savings}</Badge>
-                        </div>
-                      )}
-                      <CardHeader className={`text-center pb-2 ${isPopular ? 'pt-10' : 'pt-6'}`}>
-                        <div className={`mx-auto mb-3 p-4 rounded-2xl ${styles.badge} w-fit`}><Icon className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-bold text-foreground">{pkg.name}</h3>
-                        <div className="mt-2">
-                          <span className="text-4xl font-bold text-foreground">{formatPriceMXN(pkg.price)}</span>
-                          <span className="text-muted-foreground text-sm ml-1">MXN</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">{formatPriceMXN(pkg.pricePerToken)} per token</p>
-                      </CardHeader>
-                      <CardContent className="flex-1 pt-4">
-                        <div className="text-center py-4 mb-4 rounded-xl bg-background/50 border border-border/50">
-                          <div className="text-5xl font-bold text-foreground">{pkg.tokens}</div>
-                          <div className="text-sm text-muted-foreground font-medium mt-1">Tokens</div>
-                        </div>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Start {pkg.tokens} new conversations</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Check className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Unlimited messages per chat</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Clock className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">{pkg.duration_days}-day validity</span>
-                          </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex-shrink-0 w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center"><Shield className="w-3 h-3 text-green-500" /></div>
-                            <span className="text-foreground">Secure PayPal payment</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                      <CardFooter className="pt-4 pb-6">
-                        <Button onClick={() => handleMessagePurchase(pkg)} className={`w-full h-12 font-semibold text-base ${styles.button}`} size="lg">
-                          {isPopular ? '🔥 Get Best Value' : 'Buy Now'}
-                        </Button>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </motion.section>
 
         {/* PREMIUM SUBSCRIPTION PACKAGES SECTION */}
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <div className="text-center space-y-4 mb-8">
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="max-w-6xl mx-auto">
+          <div className="text-center space-y-4 mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
               <Crown className="w-5 h-5 text-amber-400" />
-              <span className="text-sm font-semibold text-amber-400">Premium Monthly Plans</span>
+              <span className="text-sm font-semibold text-amber-400">UNLIMITED Premium Plans</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Upgrade to Premium</h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-              Get monthly message credits, increased visibility, and exclusive features.
+            <h2 className="text-3xl sm:text-5xl font-bold text-foreground">Complete Freedom to Connect</h2>
+            <p className="text-muted-foreground text-base sm:text-xl max-w-3xl mx-auto">
+              Get full access to all Swipess features without restrictions on any premium plan.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* We reverse the array so the 1-month is on left, 6-m in middle, and yearly on right */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {premiumPlans.map((plan, index) => {
               const styles = getPremiumTierStyles(plan.tier, plan.highlight);
               return (
@@ -432,21 +342,15 @@ export default function SubscriptionPackagesPage() {
           <h3 className="text-lg font-semibold text-foreground text-center">Frequently Asked Questions</h3>
           <div className="space-y-3">
             <div className="p-4 rounded-xl bg-background border border-border/50">
-              <h4 className="font-medium text-foreground">What's the difference between activations and premium?</h4>
+              <h4 className="font-medium text-foreground">Do the unlimited plans automatically renew?</h4>
               <p className="text-sm text-muted-foreground mt-1">
-                Message activations are one-time purchases to start new conversations. Premium plans include monthly message credits plus visibility boosts and extra features.
+                For your security and control, we use one-time payments. You can simply purchase a new top-up when your time expires!
               </p>
             </div>
             <div className="p-4 rounded-xl bg-background border border-border/50">
-              <h4 className="font-medium text-foreground">Do activations expire?</h4>
+              <h4 className="font-medium text-foreground">What if I buy the wrong package?</h4>
               <p className="text-sm text-muted-foreground mt-1">
-                Activations are valid for 30-90 days depending on the package. Use them before they expire!
-              </p>
-            </div>
-            <div className="p-4 rounded-xl bg-background border border-border/50">
-              <h4 className="font-medium text-foreground">Can I get a refund?</h4>
-              <p className="text-sm text-muted-foreground mt-1">
-                Contact support within 24 hours of purchase. Unused activations may be eligible for refund.
+                If you made a mistake with your purchase, please contact support within 24 hours of purchase and our team will be happy to assist you in making it right.
               </p>
             </div>
           </div>
