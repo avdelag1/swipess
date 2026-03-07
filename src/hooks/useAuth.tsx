@@ -419,11 +419,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let errorMessage = 'Failed to sign in. Please try again.';
 
       if (error.message === 'Invalid login credentials') {
-        errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        errorMessage = "We couldn't find a match for those credentials. Please check your email and password, or try resetting your password.";
       } else if (error.message?.includes('Email not confirmed')) {
-        errorMessage = 'Please check your email and click the confirmation link before signing in.';
+        errorMessage = 'Your email address needs to be verified before you can sign in. Please check your inbox for the confirmation link.';
       } else if (error.message?.includes('Too many requests')) {
-        errorMessage = 'Too many login attempts. Please wait a moment and try again.';
+        errorMessage = 'For security reasons, your account is temporarily locked due to too many failed attempts. Please try again in a few minutes.';
       } else if (error.message?.includes('Account setup incomplete')) {
         errorMessage = error.message;
       } else if (error.message) {
