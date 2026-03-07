@@ -56,29 +56,37 @@ interface Notification {
   };
 }
 
-const NotificationIcon = ({ type, className = "w-5 h-5" }: { type: string; className?: string }) => {
+const NotificationIcon = ({ type, role = 'neutral', className = "w-5 h-5" }: { type: string; role?: 'client' | 'owner' | 'neutral'; className?: string }) => {
   switch (type) {
     case 'new_message':
     case 'message':
-      return <MessageSquare className={cn(className, "text-blue-400")} />;
+      return role === 'client'
+        ? <MessageSquare className={cn(className, "text-purple-500")} />
+        : <MessageSquare className={cn(className, "text-primary")} />;
     case 'new_like':
     case 'like':
-      return <Flame className={cn(className, "text-[#E4007C]")} />;
+      return role === 'client'
+        ? <Flame className={cn(className, "text-blue-500")} />
+        : <Flame className={cn(className, "text-orange-500")} />;
     case 'new_match':
     case 'match':
-      return <Sparkles className={cn(className, "text-[#E4007C]")} />;
+      return role === 'client'
+        ? <Sparkles className={cn(className, "text-cyan-500")} />
+        : <Sparkles className={cn(className, "text-primary")} />;
     case 'super_like':
-      return <Star className={cn(className, "text-amber-400")} />;
+      return role === 'client'
+        ? <Star className={cn(className, "text-purple-500")} />
+        : <Star className={cn(className, "text-pink-500")} />;
     case 'property':
-      return <Home className={cn(className, "text-emerald-400")} />;
+      return <Home className={cn(className, "text-emerald-500")} />;
     case 'yacht':
-      return <Ship className={cn(className, "text-blue-400")} />;
+      return <Ship className={cn(className, "text-blue-500")} />;
     case 'bicycle':
-      return <Bike className={cn(className, "text-orange-400")} />;
+      return <Bike className={cn(className, "text-orange-500")} />;
     case 'vehicle':
-      return <Car className={cn(className, "text-amber-400")} />;
+      return <Car className={cn(className, "text-purple-500")} />;
     default:
-      return <Bell className={cn(className, "text-white/40")} />;
+      return <Bell className={cn(className, "text-muted-foreground")} />;
   }
 };
 
@@ -89,21 +97,25 @@ const getNotificationRole = (notification: Notification): 'client' | 'owner' | '
   return 'neutral';
 };
 
-const getBgGradient = (type: string): string => {
+const getBgGradient = (type: string, role: 'client' | 'owner' | 'neutral' = 'neutral'): string => {
   switch (type) {
     case 'new_message':
     case 'message':
-      return 'from-blue-500/20';
+      return role === 'client'
+        ? 'from-purple-500/10'
+        : 'from-primary/10';
     case 'new_like':
     case 'like':
-      return 'from-[#E4007C]/20';
+      return role === 'client'
+        ? 'from-blue-500/10'
+        : 'from-orange-500/10';
     case 'new_match':
     case 'match':
-      return 'from-[#E4007C]/30';
+      return 'from-primary/15';
     case 'super_like':
-      return 'from-amber-400/20';
+      return 'from-purple-500/15';
     default:
-      return 'from-white/10';
+      return 'from-secondary/50';
   }
 };
 
@@ -289,6 +301,7 @@ export default function NotificationsPage() {
               <div className="space-y-3">
                 <AnimatePresence mode="popLayout">
                   {notifications.map((n, i) => {
+                    const role = getNotificationRole(n);
                     return (
                       <motion.div
                         key={n.id}
@@ -298,18 +311,18 @@ export default function NotificationsPage() {
                         transition={{ delay: i * 0.03 }}
                       >
                         <Card className={cn(
-                          "relative overflow-hidden rounded-[2.5rem] border border-white/5 transition-all hover:border-white/10 backdrop-blur-md group",
-                          isDark ? "bg-white/[0.03]" : "bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)]",
-                          !n.is_read && (isDark ? "bg-white/[0.08] ring-1 ring-white/10" : "bg-primary/[0.03] border-primary/20")
+                          "relative overflow-hidden rounded-[2rem] border-border/40 transition-all hover:border-primary/20 backdrop-blur-sm group",
+                          isDark ? "bg-card/40" : "bg-white/90 shadow-sm border-black/5",
+                          !n.is_read && (isDark ? "bg-primary/[0.03] border-primary/20 ring-1 ring-primary/10" : "bg-primary/[0.05] border-primary/30")
                         )}>
-                          <div className={cn("absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b", getBgGradient(n.type))} />
-                          <CardContent className="p-6 flex items-start gap-5">
-                            <div className="w-14 h-14 rounded-[1.2rem] bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
-                              <NotificationIcon type={n.type} />
+                          <div className={cn("absolute inset-y-0 left-0 w-1 bg-gradient-to-b", getBgGradient(n.type, role))} />
+                          <CardContent className="p-5 flex items-start gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center flex-shrink-0">
+                              <NotificationIcon type={n.type} role={role} />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2 mb-1">
-                                <h4 className={cn("font-black text-sm tracking-tight uppercase", isDark ? "text-white" : "text-black")}>{n.title}</h4>
+                              <div className="flex items-center justify-between gap-2">
+                                <h4 className="font-bold text-sm truncate">{n.title}</h4>
                                 <span className="text-[10px] font-medium text-muted-foreground flex items-center gap-1">
                                   <Clock className="w-3 h-3" />
                                   {formatDistanceToNow(n.created_at)}

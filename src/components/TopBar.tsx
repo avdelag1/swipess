@@ -59,7 +59,6 @@ interface TopBarProps {
   title?: string;
   onAISearchClick?: () => void;
   showBack?: boolean;
-  isOnDiscoveryPage?: boolean;
 }
 
 function TopBarComponent({
@@ -73,7 +72,6 @@ function TopBarComponent({
   title,
   onAISearchClick,
   showBack = false,
-  isOnDiscoveryPage = false,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
@@ -242,12 +240,8 @@ function TopBarComponent({
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               <ThemeToggle />
-              {!isOnDiscoveryPage && (
-                <>
-                  <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
-                  <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
-                </>
-              )}
+              <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
+              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
             </div>
 
             {showFilters && userRole && (

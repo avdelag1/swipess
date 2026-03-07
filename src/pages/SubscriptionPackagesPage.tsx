@@ -74,27 +74,27 @@ const clientPremiumPlans = [
 const getPremiumTierStyles = (tier: string, highlight?: boolean) => {
   if (highlight || tier === 'unlimited') {
     return {
-      gradient: 'from-blue-600/10 via-blue-600/5 to-transparent',
-      border: 'border-blue-500/30 shadow-[0_0_30px_rgba(37,99,235,0.1)]',
-      badge: 'bg-blue-500/20 text-blue-400',
-      button: 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-90',
-      glow: 'shadow-[0_0_40px_rgba(37,99,235,0.15)]',
+      gradient: 'from-[#0070f3]/20 via-[#0070f3]/5 to-transparent',
+      border: 'border-[#0070f3]/40 shadow-[0_0_20px_rgba(0,112,243,0.1)]',
+      badge: 'bg-[#0070f3]/20 text-[#0070f3]',
+      button: 'bg-gradient-to-r from-[#0070f3] to-[#00a6ff] hover:opacity-90',
+      glow: 'shadow-[0_0_30px_rgba(0,112,243,0.2)]',
     };
   }
   if (tier === 'premium-max') {
     return {
-      gradient: 'from-[#E4007C]/10 via-[#E4007C]/5 to-transparent',
-      border: 'border-[#E4007C]/30 shadow-[0_0_30px_rgba(228,0,124,0.1)]',
+      gradient: 'from-[#E4007C]/20 via-[#E4007C]/5 to-transparent',
+      border: 'border-[#E4007C]/40 shadow-[0_0_20px_rgba(228,0,124,0.1)]',
       badge: 'bg-[#E4007C]/20 text-[#E4007C]',
-      button: 'bg-gradient-to-r from-[#E4007C] to-[#C4006B] hover:opacity-90',
-      glow: 'shadow-[0_0_40px_rgba(228,0,124,0.15)]',
+      button: 'bg-gradient-to-r from-[#E4007C] to-[#ff009e] hover:opacity-90',
+      glow: 'shadow-[0_0_30px_rgba(228,0,124,0.2)]',
     };
   }
   return {
-    gradient: 'from-amber-500/10 via-amber-500/5 to-transparent',
-    border: 'border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.1)]',
-    badge: 'bg-amber-500/20 text-amber-400',
-    button: 'bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90',
+    gradient: 'from-orange-500/20 via-orange-500/5 to-transparent',
+    border: 'border-orange-500/40',
+    badge: 'bg-orange-500/20 text-orange-400',
+    button: 'bg-gradient-to-r from-orange-500 to-amber-500 hover:opacity-90',
     glow: '',
   };
 };
@@ -103,33 +103,33 @@ const getMessageTierStyles = (tier: string) => {
   switch (tier) {
     case 'starter':
       return {
-        gradient: 'from-blue-500/10 to-transparent',
-        border: 'border-blue-500/20',
-        badge: 'bg-blue-500/10 text-blue-400',
-        button: 'bg-blue-600 hover:bg-blue-500',
+        gradient: 'from-purple-500/20 to-transparent',
+        border: 'border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.1)]',
+        badge: 'bg-purple-500/20 text-purple-300',
+        button: 'bg-purple-600 hover:bg-purple-500',
         glow: '',
       };
     case 'standard':
       return {
-        gradient: 'from-indigo-500/10 to-transparent',
-        border: 'border-indigo-500/20',
-        badge: 'bg-indigo-500/10 text-indigo-400',
-        button: 'bg-indigo-600 hover:bg-indigo-500',
-        glow: '',
+        gradient: 'from-blue-500/30 to-transparent',
+        border: 'border-blue-500/40 shadow-[0_0_25px_rgba(59,130,246,0.15)]',
+        badge: 'bg-blue-500/20 text-blue-400',
+        button: 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:opacity-90',
+        glow: 'shadow-[0_0_30px_rgba(59,130,246,0.2)]',
       };
     case 'premium':
       return {
-        gradient: 'from-[#E4007C]/10 to-transparent',
-        border: 'border-[#E4007C]/20',
-        badge: 'bg-[#E4007C]/10 text-[#E4007C]',
-        button: 'bg-[#E4007C] hover:bg-[#C4006B]',
-        glow: '',
+        gradient: 'from-[#E4007C]/20 to-transparent',
+        border: 'border-[#E4007C]/40 shadow-[0_0_25px_rgba(228,0,124,0.15)]',
+        badge: 'bg-[#E4007C]/20 text-pink-300',
+        button: 'bg-gradient-to-r from-[#E4007C] to-[#B0005E] hover:opacity-90',
+        glow: 'shadow-[0_0_35px_rgba(228,0,124,0.25)]',
       };
     default:
       return {
-        gradient: 'from-muted/30 to-muted/10',
-        border: 'border-border/30',
-        badge: 'bg-muted/30 text-muted-foreground',
+        gradient: 'from-muted/50 to-muted/30',
+        border: 'border-border',
+        badge: 'bg-muted text-muted-foreground',
         button: '',
         glow: '',
       };

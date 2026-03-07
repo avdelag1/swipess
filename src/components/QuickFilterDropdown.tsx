@@ -90,17 +90,13 @@ const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boole
   </>
 );
 
-function QuickFilterDropdownComponent({ userRole: initialUserRole, className }: QuickFilterDropdownProps) {
+function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [clickedCategory, setClickedCategory] = useState<QuickFilterCategory | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { theme } = useTheme();
   const isDark = theme !== 'white-matte';
-
-  // UNIFIED: Use marketplaceMode to determine what filters to show
-  const marketplaceMode = useFilterStore((s) => s.marketplaceMode);
-  const activeUserRole = marketplaceMode === 'incoming' ? 'owner' : 'client';
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
   const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1.5px solid rgba(0, 0, 0, 0.1)';
@@ -109,32 +105,30 @@ function QuickFilterDropdownComponent({ userRole: initialUserRole, className }: 
     : '0 2px 4px rgba(0,0,0,0.05)';
 
   // ========== READ FROM ZUSTAND STORE ==========
-  const activeCategory = useFilterStore((state) => state.activeCategory);
   const categories = useFilterStore((state) => state.categories);
   const listingType = useFilterStore((state) => state.listingType);
   const clientGender = useFilterStore((state) => state.clientGender);
   const clientType = useFilterStore((state) => state.clientType);
 
   // ========== DISPATCH ACTIONS TO STORE ==========
-  const {
-    setCategories,
-    setListingType,
-    setClientGender,
-    setClientType,
-    resetClientFilters,
-    resetOwnerFilters
-  } = useFilterStore((state) => ({
-    setCategories: state.setCategories,
-    setListingType: state.setListingType,
-    setClientGender: state.setClientGender,
-    setClientType: state.setClientType,
-    resetClientFilters: state.resetClientFilters,
-    resetOwnerFilters: state.resetOwnerFilters
-  }));
+  const setCategories = useFilterStore((state) => state.setCategories);
+  const setListingType = useFilterStore((state) => state.setListingType);
+  const setClientGender = useFilterStore((state) => state.setClientGender);
+  const setClientType = useFilterStore((state) => state.setClientType);
+  const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
+  const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
   // Count active filters from store values
-  const hasActiveFilters = useFilterStore((state) => state.hasActiveFilters(activeUserRole));
-  const activeFilterCount = useFilterStore((state) => state.getActiveFilterCount(activeUserRole));
+  const activeFilterCount = (() => {
+    let count = 0;
+    count += categories.length;
+    if (listingType !== 'both') count += 1;
+    if (userRole === 'owner') {
+      if (clientGender !== 'any') count += 1;
+      if (clientType !== 'all') count += 1;
+    }
+    return count;
+  })();
 
   // Close on outside click
   useEffect(() => {
@@ -189,7 +183,7 @@ function QuickFilterDropdownComponent({ userRole: initialUserRole, className }: 
   };
 
   const handleClearFilters = () => {
-    if (activeUserRole === 'client') {
+    if (userRole === 'client') {
       resetClientFilters();
     } else {
       resetOwnerFilters();
@@ -296,81 +290,82 @@ function QuickFilterDropdownComponent({ userRole: initialUserRole, className }: 
           {categoryOptionBase.map((category, index) => {
             const gradientClass = getCategoryGradientClass(category.id, isDark);
             return (
-              <motion.div
-                key={category.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="relative"
+            <motion.div
+              key={category.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="relative"
+            >
+              <button
+                onClick={() => handleCategoryClick(category.id)}
+                className={cn(
+                  'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                  categories.includes(category.id)
+                    ? cn('bg-gradient-to-r', gradientClass, 'text-white')
+                    : 'text-foreground hover:bg-white/10'
+                )}
               >
-                <button
-                  onClick={() => handleCategoryClick(category.id)}
-                  className={cn(
-                    'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className={cn(
+                    'p-1.5 sm:p-2 rounded-lg',
                     categories.includes(category.id)
-                      ? cn('bg-gradient-to-r', gradientClass, 'text-white')
-                      : 'text-foreground hover:bg-white/10'
-                  )}
-                >
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <span className={cn(
-                      'p-1.5 sm:p-2 rounded-lg',
-                      categories.includes(category.id)
-                        ? 'bg-white/20 text-white'
-                        : 'bg-white/5 text-foreground'
-                    )}>
-                      {category.icon}
-                    </span>
-                    <span className="font-medium text-sm sm:text-base">{category.label}</span>
-                  </div>
-                  {category.hasSubOptions && (
-                    <ChevronRight strokeWidth={3} className={cn(
-                      "w-5 h-5 text-muted-foreground transition-transform",
-                      clickedCategory === category.id && "rotate-90"
-                    )} />
-                  )}
-                </button>
+                      ? 'bg-white/20 text-white'
+                      : 'bg-white/5 text-foreground'
+                  )}>
+                    {category.icon}
+                  </span>
+                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
+                </div>
+                {category.hasSubOptions && (
+                  <ChevronRight strokeWidth={3} className={cn(
+                    "w-5 h-5 text-muted-foreground transition-transform",
+                    clickedCategory === category.id && "rotate-90"
+                  )} />
+                )}
+              </button>
 
-                {/* Sub-menu for listing type - skip for workers/services */}
-                <AnimatePresence>
-                  {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ type: 'spring', stiffness: 600, damping: 30 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="pl-12 sm:pl-14 pr-4 pb-2">
-                        {listingTypeOptions.map((ltOption, ltIndex) => (
-                          <motion.button
-                            key={ltOption.id}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: ltIndex * 0.05 }}
-                            onClick={() => handleCategorySelect(category.id, ltOption.id)}
-                            className={cn(
-                              'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
-                              categories.includes(category.id) && listingType === ltOption.id
-                                ? cn('bg-gradient-to-r', gradientClass, 'text-white')
-                                : 'text-foreground hover:bg-white/10 bg-white/5'
-                            )}
-                          >
-                            <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
-                          </motion.button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            );
+              {/* Sub-menu for listing type - skip for workers/services */}
+              <AnimatePresence>
+                {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ type: 'spring', stiffness: 600, damping: 30 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pl-12 sm:pl-14 pr-4 pb-2">
+                      {listingTypeOptions.map((ltOption, ltIndex) => (
+                        <motion.button
+                          key={ltOption.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: ltIndex * 0.05 }}
+                          onClick={() => handleCategorySelect(category.id, ltOption.id)}
+                          className={cn(
+                            'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
+                            categories.includes(category.id) && listingType === ltOption.id
+                              ? cn('bg-gradient-to-r', gradientClass, 'text-white')
+                              : 'text-foreground hover:bg-white/10 bg-white/5'
+                          )}
+                        >
+                          <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
+                        </motion.button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
           })}
         </div>
       </div>
     );
   };
 
+  const hasActiveFilters = activeFilterCount > 0;
 
   return (
     <div className={cn('relative', className)}>
@@ -437,7 +432,7 @@ function QuickFilterDropdownComponent({ userRole: initialUserRole, className }: 
               transition={{ type: 'spring', stiffness: 600, damping: 25 }}
               className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
             >
-              {marketplaceMode === 'discovery' ? renderClientFilters() : renderOwnerFilters()}
+              {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
             </motion.div>
           </>
         )}

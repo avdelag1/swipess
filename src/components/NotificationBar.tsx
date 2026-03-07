@@ -29,14 +29,14 @@ interface NotificationBarProps {
   onNotificationClick: (notification: Notification) => void;
 }
 
-const typeConfigs: Record<NotificationType, { icon: any, color: string, glow: string }> = {
-  like: { icon: Heart, color: 'text-[#E4007C]', glow: 'shadow-[#E4007C]/40' },
-  match: { icon: SparklesIcon, color: 'text-[#E4007C]', glow: 'shadow-[#E4007C]/50' },
-  super_like: { icon: Star, color: 'text-amber-400', glow: 'shadow-amber-400/40' },
-  message: { icon: MessageCircle, color: 'text-blue-400', glow: 'shadow-blue-400/40' },
-  new_user: { icon: UserPlus, color: 'text-white', glow: 'shadow-white/20' },
-  premium_purchase: { icon: Crown, color: 'text-amber-400', glow: 'shadow-amber-400/50' },
-  activation_purchase: { icon: Zap, color: 'text-amber-400', glow: 'shadow-amber-400/40' },
+const typeConfigs: Record<NotificationType, { icon: any, color: string, ring: string }> = {
+  like: { icon: Heart, color: 'text-pink-500', ring: 'ring-pink-500/20' },
+  match: { icon: SparklesIcon, color: 'text-[#E4007C]', ring: 'ring-[#E4007C]/20' },
+  super_like: { icon: Star, color: 'text-amber-400', ring: 'ring-amber-400/20' },
+  message: { icon: MessageCircle, color: 'text-blue-400', ring: 'ring-blue-400/20' },
+  new_user: { icon: UserPlus, color: 'text-emerald-400', ring: 'ring-emerald-400/20' },
+  premium_purchase: { icon: Crown, color: 'text-purple-400', ring: 'ring-purple-400/20' },
+  activation_purchase: { icon: Zap, color: 'text-orange-400', ring: 'ring-orange-400/20' },
 };
 
 function SparklesIcon(props: any) {
@@ -61,17 +61,14 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
   useEffect(() => {
     if (unreadCount > 0) {
       if (!dismissedRef.current || unreadCount > prevUnreadCountRef.current) {
-        // SMALL DELAY TO ENSURE EXIT OF PREVIOUS IF RAPID FIRE
-        setTimeout(() => {
-          setVisible(true);
-          dismissedRef.current = false;
-          prevUnreadCountRef.current = unreadCount;
-        }, 100);
+        setVisible(true);
+        dismissedRef.current = false;
+        prevUnreadCountRef.current = unreadCount;
 
         const timer = setTimeout(() => {
           setVisible(false);
           dismissedRef.current = true;
-        }, 6000);
+        }, 5000); // 5 seconds visibility for better readability
         return () => clearTimeout(timer);
       }
     } else {
@@ -91,80 +88,54 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
   const Icon = config.icon;
 
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {visible && currentNotification && (
         <motion.div
-          key={currentNotification.id}
-          initial={{ y: -100, opacity: 0, scale: 0.8 }}
+          initial={{ y: -60, opacity: 0, scale: 0.9 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: -100, opacity: 0, scale: 0.8 }}
-          transition={{
-            type: 'spring',
-            stiffness: 300,
-            damping: 25,
-            mass: 0.8
-          }}
-          className="fixed top-4 left-0 right-0 z-[999] px-4 flex justify-center pointer-events-none"
+          exit={{ y: -60, opacity: 0, scale: 0.9 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          className="fixed top-2 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
         >
           <motion.div
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             className={cn(
-              "pointer-events-auto flex items-center min-w-[300px] max-w-[95vw] sm:max-w-md h-16 gap-4 px-5 rounded-[2rem] transition-all duration-300 cursor-pointer group",
-              "bg-black/90 dark:bg-[#0a0a0c]/95 backdrop-blur-3xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)]",
-              !isDark && "bg-white/95 border-black/10 shadow-[0_15px_40px_rgba(0,0,0,0.15)]"
+              "pointer-events-auto flex items-center min-w-[280px] max-w-[90vw] h-12 gap-3 px-4 rounded-full",
+              "bg-black/80 dark:bg-[#0e0e11]/90 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] cursor-pointer group",
+              !isDark && "bg-white/90 border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
             )}
             onClick={() => {
               onNotificationClick(currentNotification);
               handleDismiss();
             }}
           >
-            {/* Elite Badge - High-end Glowing Icon */}
-            <div className={cn(
-              "relative flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500",
-              "bg-gradient-to-br from-white/10 to-transparent border border-white/5",
-              config.glow
-            )}>
-              <Icon className={cn("w-5 h-5", config.color)} />
-              <div className={cn("absolute inset-0 rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition-opacity", config.color.replace('text-', 'bg-'))} />
+            {/* Visual Indicator - Glowing Circle */}
+            <div className={cn("relative flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ring-4 transition-all duration-300", config.ring)}>
+              <Icon className={cn("w-3.5 h-3.5", config.color)} />
+              {/* Type-specific glow */}
+              <div className={cn("absolute inset-0 rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity", config.color.replace('text-', 'bg-'))} />
             </div>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-0.5">
-                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isDark ? "text-white/40" : "text-black/40")}>
-                  {unreadCount > 1 ? `(${unreadCount}) Swipess Alerts` : "Incoming Alert"}
-                </span>
-                {currentNotification.type === 'match' && (
-                  <div className="px-1.5 py-0.5 rounded-full bg-[#E4007C] text-white text-[8px] font-black uppercase">Instant</div>
-                )}
-              </div>
-              <h4 className={cn("text-xs font-black truncate leading-tight", isDark ? "text-white" : "text-black")}>
-                {unreadCount > 1 ? 'New interactions waiting' : currentNotification.title}
+            <div className="flex-1 min-w-0 pr-2">
+              <h4 className={cn("text-[11px] font-black uppercase tracking-wider leading-none mb-0.5 truncate", isDark ? "text-white" : "text-black")}>
+                {unreadCount > 1 ? `(${unreadCount}) Swipess Alerts` : currentNotification.title}
               </h4>
-              <p className={cn("text-[11px] font-medium truncate opacity-60 leading-tight mt-0.5", isDark ? "text-white" : "text-black")}>
-                {unreadCount > 1 ? 'Check your notifications center to see details' : currentNotification.message}
+              <p className={cn("text-[10px] font-bold truncate leading-tight", isDark ? "text-white/50" : "text-black/50")}>
+                {unreadCount > 1 ? 'Check your notifications center' : currentNotification.message}
               </p>
             </div>
 
             <button
               onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
               className={cn(
-                "flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors",
                 isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
               )}
+              aria-label="Dismiss"
             >
-              <X className={cn("w-4 h-4", isDark ? "text-white/40 group-hover:text-white" : "text-black/40 group-hover:text-black")} />
+              <X className={cn("w-3 h-3", isDark ? "text-white/40 group-hover:text-white" : "text-black/40 group-hover:text-black")} />
             </button>
-
-            {/* Premium Progress Bar (Visual only) */}
-            <div className="absolute bottom-0 left-6 right-6 h-[2px] bg-white/5 overflow-hidden rounded-full">
-              <motion.div
-                initial={{ width: "100%" }}
-                animate={{ width: "0%" }}
-                transition={{ duration: 6, ease: "linear" }}
-                className={cn("h-full bg-gradient-to-r", config.color.replace('text-', 'from-'), "to-transparent opacity-60")}
-              />
-            </div>
           </motion.div>
         </motion.div>
       )}

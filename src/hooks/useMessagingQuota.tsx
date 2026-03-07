@@ -28,70 +28,69 @@ export function useMessagingQuota() {
   const { user } = useAuth();
   const { data: subscription } = useUserSubscription();
   const queryClient = useQueryClient();
-
+  
   // Get token balance from tokens table
   const { data: tokenData } = useQuery({
     queryKey: ['user-tokens', user?.id],
     queryFn: async () => {
       if (!user?.id) return { amount: 0, token_type: null };
-
-      const { data, error } = await supabase
-        .from('message_activations')
-        .select('activations_remaining')
+      
+      const { data, error } = await (supabase as any)
+        .from('tokens')
+        .select('amount, token_type, source')
         .eq('user_id', user.id)
         .maybeSingle();
-
+      
       if (error) {
         logger.error('[useMessagingQuota] Error fetching tokens:', error);
         return { amount: 0, token_type: null };
       }
-
-      return data ? { amount: data.activations_remaining, token_type: 'activation' } : { amount: 0, token_type: null };
-
+      
+      return data || { amount: 0, token_type: null };
     },
     enabled: !!user?.id,
   });
-
+  
   // Token balance - actual tokens from database
   const tokenBalance = tokenData?.amount || 0;
   const tokenType = tokenData?.token_type || null;
-
+  
   // Check if user has any free messaging matches
   const { data: freeMessagingMatches = [], isLoading: loadingMatches } = useQuery({
     queryKey: ['free-messaging-matches', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
-
+      
       // Check if user has any matches (for free messaging eligibility)
       const { data, error } = await supabase
         .from('matches')
         .select('*')
         .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
-
+      
       if (error) {
         logger.error('[useMessagingQuota] Error fetching matches:', error);
         return [];
       }
-
+      
       return data || [];
     },
     enabled: !!user?.id,
   });
-
+  
   // Get the current plan name
   const planName = subscription?.subscription_packages?.name || 'free';
   const limits = PLAN_LIMITS[planName] || PLAN_LIMITS['free'];
-
+  
   // Query to get CONVERSATIONS STARTED this month (not individual messages)
   const { data: conversationsStarted = 0 } = useQuery({
     queryKey: ['conversations-started-count', user?.id],
     queryFn: async () => {
       if (!user) return 0;
-
+      
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
-
+      
       // Count conversations where the user sent the FIRST message this month
       // Conversations don't have client_id/owner_id - they link through matches
       // First get user's match IDs, then find conversations for those matches
@@ -99,7 +98,7 @@ export function useMessagingQuota() {
         .from('matches')
         .select('id')
         .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
-
+      
       const matchIds = userMatches?.map(m => m.id) || [];
       if (matchIds.length === 0) return 0;
 
@@ -108,12 +107,12 @@ export function useMessagingQuota() {
         .select('id, created_at')
         .in('match_id', matchIds)
         .gte('created_at', startOfMonth.toISOString());
-
+      
       if (error) {
         logger.error('[useMessagingQuota] Error fetching conversations count:', error);
         return 0;
       }
-
+      
       if (!conversations || conversations.length === 0) return 0;
 
       // Batch query: Get first messages of all conversations in one query
@@ -152,21 +151,21 @@ export function useMessagingQuota() {
     },
     enabled: !!user,
   });
-
+  
   const isUnlimited = limits.unlimited_messages;
   const totalAllowed = limits.messages_per_month;
   const remainingConversations = isUnlimited ? 999999 : Math.max(0, totalAllowed - conversationsStarted);
   const canStartNewConversation = isUnlimited || remainingConversations > 0;
-
+  
   const decrementConversationCount = () => {
     // Invalidate the query to refetch the count
     queryClient.invalidateQueries({ queryKey: ['conversations-started-count', user?.id] });
   };
-
+  
   const refreshQuota = () => {
     queryClient.invalidateQueries({ queryKey: ['conversations-started-count', user?.id] });
   };
-
+  
   return {
     remainingConversations,
     conversationsStartedThisMonth: conversationsStarted,
