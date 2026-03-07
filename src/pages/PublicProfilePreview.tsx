@@ -247,46 +247,60 @@ export default function PublicProfilePreview() {
             </CardContent>
           </Card>
 
-          {/* Blurred Content Teaser */}
-          <Card className="relative overflow-hidden bg-gray-800/50 border-gray-700/50">
-            <CardContent className="p-6">
-              {/* Blurred preview content */}
-              <div className="filter blur-sm pointer-events-none select-none space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gray-600" />
-                  <div className="space-y-2 flex-1">
-                    <div className="h-4 w-3/4 bg-gray-600 rounded" />
-                    <div className="h-3 w-1/2 bg-gray-600 rounded" />
+          {/* Content Teaser (Blurred if not logged in) */}
+          {!user ? (
+            <Card className="relative overflow-hidden bg-gray-800/50 border-gray-700/50">
+              <CardContent className="p-6">
+                {/* Blurred preview content */}
+                <div className="filter blur-sm pointer-events-none select-none space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-gray-600" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-3/4 bg-gray-600 rounded" />
+                      <div className="h-3 w-1/2 bg-gray-600 rounded" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-full bg-gray-600 rounded" />
+                    <div className="h-3 w-5/6 bg-gray-600 rounded" />
+                    <div className="h-3 w-4/5 bg-gray-600 rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 bg-gray-600 rounded-full" />
+                    <div className="h-6 w-20 bg-gray-600 rounded-full" />
+                    <div className="h-6 w-14 bg-gray-600 rounded-full" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="h-3 w-full bg-gray-600 rounded" />
-                  <div className="h-3 w-5/6 bg-gray-600 rounded" />
-                  <div className="h-3 w-4/5 bg-gray-600 rounded" />
-                </div>
-                <div className="flex gap-2">
-                  <div className="h-6 w-16 bg-gray-600 rounded-full" />
-                  <div className="h-6 w-20 bg-gray-600 rounded-full" />
-                  <div className="h-6 w-14 bg-gray-600 rounded-full" />
-                </div>
-              </div>
 
-              {/* Overlay with CTA */}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-gray-900/60 flex items-center justify-center">
-                <div className="text-center p-6">
-                  <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto mb-4">
-                    <Lock className="w-6 h-6 text-primary" />
+                {/* Overlay with CTA */}
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-gray-900/60 flex items-center justify-center">
+                  <div className="text-center p-6">
+                    <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto mb-4">
+                      <Lock className="w-6 h-6 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      See Full Profile
+                    </h3>
+                    <p className="text-sm text-gray-400 mb-4 max-w-xs">
+                      Create an account to view complete profile details, lifestyle preferences, and connect with this user.
+                    </p>
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">
-                    See Full Profile
-                  </h3>
-                  <p className="text-sm text-gray-400 mb-4 max-w-xs">
-                    Create an account to view complete profile details, lifestyle preferences, and connect with this user.
-                  </p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/30">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-emerald-400" />
+                  <span className="text-emerald-400 font-semibold">Ready to Connect</span>
+                </div>
+                <p className="text-gray-300 text-sm">
+                  You are viewing the full verified profile. If you see a match, let them know!
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* CTA Section */}
           <Card className="bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30">
@@ -303,23 +317,34 @@ export default function PublicProfilePreview() {
                 Join Zwipes to view full profiles, match with compatible users, and start meaningful conversations.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  size="lg"
-                  className="bg-primary hover:bg-primary/90 text-white font-semibold"
-                  onClick={() => navigate('/')}
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Create Free Account
-                </Button>
-                {user && (
+                {!user ? (
                   <Button
                     size="lg"
-                    variant="outline"
-                    className="border-primary/50 text-primary hover:bg-primary/10"
-                    onClick={handleViewFullProfile}
+                    className="bg-primary hover:bg-primary/90 text-white font-semibold"
+                    onClick={() => navigate(`/?returnTo=/profile/${id}`)}
                   >
-                    View Full Profile
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Create Free Account
                   </Button>
+                ) : (
+                  <>
+                    <Button
+                      size="lg"
+                      className="bg-primary hover:bg-primary/90 text-white font-semibold"
+                      onClick={handleViewFullProfile}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      View inside Swipess
+                    </Button>
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="border-primary/50 text-primary hover:bg-primary/10"
+                      onClick={() => navigate('/client/dashboard')}
+                    >
+                      Go to Dashboard
+                    </Button>
+                  </>
                 )}
               </div>
             </CardContent>

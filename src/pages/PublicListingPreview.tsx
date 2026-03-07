@@ -213,10 +213,9 @@ export default function PublicListingPreview() {
                   {getCategoryIcon(category)}
                   {getCategoryLabel(category)}
                 </Badge>
-                <Badge className={`backdrop-blur-sm border-0 ${
-                  mode === 'both' ? 'bg-amber-500/80' :
-                  mode === 'sale' ? 'bg-purple-500/80' : 'bg-blue-500/80'
-                } text-white`}>
+                <Badge className={`backdrop-blur-sm border-0 ${mode === 'both' ? 'bg-amber-500/80' :
+                    mode === 'sale' ? 'bg-purple-500/80' : 'bg-blue-500/80'
+                  } text-white`}>
                   {mode === 'both' ? 'Rent/Sale' : mode === 'sale' ? 'For Sale' : 'For Rent'}
                 </Badge>
               </div>
@@ -419,16 +418,16 @@ export default function PublicListingPreview() {
             </CardContent>
           </Card>
 
-          {/* Contact Section - Direct Message for Moto/Bicycle, Blurred for others */}
-          {canDirectMessage ? (
+          {/* Contact Section - Blurred only if not logged in */}
+          {user ? (
             <Card className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 border-emerald-500/30">
               <CardContent className="p-6 space-y-4">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-emerald-400" />
-                  <span className="text-emerald-400 font-semibold">Free Direct Messaging</span>
+                  <span className="text-emerald-400 font-semibold">Ready to Connect</span>
                 </div>
                 <p className="text-gray-300 text-sm">
-                  Good news! Motorcycles and Bicycles have free messaging. Contact the owner directly without any activation fees.
+                  You are logged into Swipess. Message the owner directly to inquire about this {getCategoryLabel(category).toLowerCase()}.
                 </p>
                 <Button
                   size="lg"
@@ -436,7 +435,7 @@ export default function PublicListingPreview() {
                   onClick={() => setShowDirectMessageDialog(true)}
                 >
                   <MessageCircle className="w-5 h-5 mr-2" />
-                  Message Owner - FREE
+                  Message Owner
                 </Button>
               </CardContent>
             </Card>
@@ -493,7 +492,7 @@ export default function PublicListingPreview() {
                   : 'Join Zwipes to contact the owner, schedule viewings, and find your perfect match.'}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                {canDirectMessage ? (
+                {user ? (
                   <>
                     <Button
                       size="lg"
@@ -517,21 +516,11 @@ export default function PublicListingPreview() {
                     <Button
                       size="lg"
                       className="bg-primary hover:bg-primary/90 text-white font-semibold"
-                      onClick={() => navigate('/')}
+                      onClick={() => navigate(`/?returnTo=/listing/${id}`)}
                     >
                       <UserPlus className="w-4 h-4 mr-2" />
                       Create Free Account
                     </Button>
-                    {user && (
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        className="border-primary/50 text-primary hover:bg-primary/10"
-                        onClick={() => navigate('/client/dashboard')}
-                      >
-                        Go to Dashboard
-                      </Button>
-                    )}
                   </>
                 )}
               </div>
@@ -546,7 +535,7 @@ export default function PublicListingPreview() {
       </div>
 
       {/* Direct Message Dialog for Moto/Bicycle */}
-      {listing && canDirectMessage && (
+      {listing && user && (
         <DirectMessageDialog
           open={showDirectMessageDialog}
           onOpenChange={setShowDirectMessageDialog}
