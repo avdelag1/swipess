@@ -69,19 +69,18 @@ export function PersistentDashboardLayout() {
   useEffect(() => {
     // REDIRECT LEGACY OWNER DASHBOARD TO UNIFIED HUB
     if (location.pathname === '/owner/dashboard') {
-      import('react-router-dom').then(({ useNavigate }) => {
-        // We can't use useNavigate here easily without breaking rules, 
-        // but PersistentDashboardLayout is inside BrowserRouter.
-        // Let's use window.history or better, just rely on the parent's navigate if possible.
-      });
-      // Actually, PersistentDashboardLayout should have access to navigate via a hook
+      console.log('[PersistentDashboardLayout] Redirecting owner to unified hub');
+      navigate('/client/dashboard', { replace: true });
+      return;
     }
+
     if (location.pathname.startsWith('/client/') && activeMode !== 'client') {
       syncMode('client');
     } else if (location.pathname.startsWith('/owner/') && activeMode !== 'owner') {
       syncMode('owner');
     }
-  }, [location.pathname, activeMode, syncMode]);
+  }, [location.pathname, activeMode, syncMode, navigate]);
+
 
 
   return (
