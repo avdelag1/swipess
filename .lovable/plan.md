@@ -1,46 +1,35 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Fix Build Errors and Restore App Functionality
 
-### 1. Replace App Icon with Fire S Logo
+The app is broken due to 4 TypeScript build errors across 4 files. These must be fixed before anything else works (photo uploads, profile creation, listings, etc.).
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+---
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## Error 1: Duplicate `motion` import + missing `X` icon
+**File:** `src/components/MessageActivationPackages.tsx`
+- Line 10-11: `import { motion } from "framer-motion"` is duplicated. Remove one.
+- Line 4: `X` icon from lucide-react is used on line 412 but not imported. Add `X` to the lucide import.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+## Error 2: Undefined `categoryId` variable
+**File:** `src/components/SimpleSwipeCard.tsx`
+- Line 170: `categoryId` is not declared anywhere. Replace with `listing.category`.
 
-### 2. Profile Photo Already Shows in Top-Left
+## Error 3: `null` vs `undefined` type mismatches
+**File:** `src/components/SimpleSwipeCard.tsx`
+- Lines 561-585: Properties like `vehicle_brand`, `vehicle_model`, `has_verified_documents`, `rental_duration_type`, `image_url` are typed `string | null` in the `Listing` interface but the card info components expect `string | undefined`. Fix by coercing nulls: e.g., `listing.vehicle_brand ?? undefined`.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+## Error 4: `user?.user?.id` — wrong property access
+**File:** `src/components/UnifiedListingForm.tsx`
+- Line 544: `user?.user?.id` should be `user?.id`. The `useAuth()` hook returns a Supabase `User` object directly, not a wrapper with a nested `.user`.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+## Error 5: Missing `cn` import
+**File:** `src/pages/OwnerProfileNew.tsx`
+- Line 190 uses `cn()` but it is never imported. Add `import { cn } from "@/lib/utils"`.
 
-### 3. Fix Header Too Close to Top Edge
+---
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+## Impact
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+These are all compile-time errors that prevent the app from building. Once fixed, the app will render again and all existing functionality (photo uploads, profile creation, listing creation for all categories) will work as before.
 
