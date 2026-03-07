@@ -159,12 +159,8 @@ function PushNotificationWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Wrapper for automatic update system
-function UpdateWrapper({ children }: { children: React.ReactNode }) {
-  // Check for version changes and force update if needed
-  useForceUpdateOnVersionChange();
-  return <>{children}</>;
-}
+// Wrapper for automatic update system removed: We rely ONLY on UpdateNotification to 
+// prompt the user gracefully instead of force-reloading their app.
 
 // Wrapper for profile auto-sync (real-time, visibility, periodic)
 function ProfileSyncWrapper({ children }: { children: React.ReactNode }) {
@@ -182,22 +178,21 @@ const App = () => {
   }
 
   return (
-  <GlobalErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}
-      >
-        <ErrorBoundary>
-          <AuthProvider>
-            <ActiveModeProvider>
-              <ThemeProvider>
-                <PWAProvider>
-                  <RadioProvider>
-                    <ResponsiveProvider>
-                      <UpdateWrapper>
+    <GlobalErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
+          <ErrorBoundary>
+            <AuthProvider>
+              <ActiveModeProvider>
+                <ThemeProvider>
+                  <PWAProvider>
+                    <RadioProvider>
+                      <ResponsiveProvider>
                         <ProfileSyncWrapper>
                           <NotificationWrapper>
                             <PushNotificationWrapper>
@@ -316,17 +311,16 @@ const App = () => {
                             </PushNotificationWrapper>
                           </NotificationWrapper>
                         </ProfileSyncWrapper>
-                      </UpdateWrapper>
-                    </ResponsiveProvider>
-                  </RadioProvider>
-                </PWAProvider>
-              </ThemeProvider>
-            </ActiveModeProvider>
-          </AuthProvider>
-        </ErrorBoundary>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </GlobalErrorBoundary>
+                      </ResponsiveProvider>
+                    </RadioProvider>
+                  </PWAProvider>
+                </ThemeProvider>
+              </ActiveModeProvider>
+            </AuthProvider>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </GlobalErrorBoundary >
   );
 };
 
