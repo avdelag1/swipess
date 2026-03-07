@@ -32,14 +32,15 @@ const clientPlans: Plan[] = [
   {
     id: 'client-unlimited-1-year',
     name: 'UNLIMITED (1 YEAR)',
-    price: '$1,999 MXN',
+    price: '$299 USD',
     benefits: [
-      '30 direct messages per month',
-      'Unlimited superlikes',
-      'Full visibility (100%)',
-      'Priority in search results',
-      'Access to all premium features',
-      'Maximum savings'
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
@@ -47,26 +48,30 @@ const clientPlans: Plan[] = [
   {
     id: 'client-unlimited-6-months',
     name: 'UNLIMITED (6 MONTHS)',
-    price: '$1,099 MXN',
+    price: '$149 USD',
     benefits: [
-      '30 direct messages per month',
-      'Unlimited superlikes',
-      'Full visibility (100%)',
-      'Priority in search results',
-      'Access to all premium features'
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
   },
   {
     id: 'client-unlimited-1-month',
     name: 'UNLIMITED (1 MONTH)',
-    price: '$199 MXN',
+    price: '$29 USD',
     benefits: [
-      '30 direct messages per month',
-      'Unlimited superlikes',
-      'Full visibility (100%)',
-      'Priority in search results',
-      'Access to all premium features'
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
   },
