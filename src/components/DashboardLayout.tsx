@@ -576,6 +576,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           hideOnScroll={true}
           title={pageTitle}
           showBack={!isOnDiscoveryPage}
+          isOnDiscoveryPage={isOnDiscoveryPage}
         />
       )}
 
