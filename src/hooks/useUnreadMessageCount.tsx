@@ -21,7 +21,8 @@ export function useUnreadMessageCount() {
         const { data: matches, error: matchError } = await supabase
           .from('matches')
           .select('id')
-          .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`);
+          .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+
 
         if (matchError) throw matchError;
         if (!matches?.length) return 0;

@@ -91,11 +91,12 @@ export function useDirectMessageListing() {
         await (supabase as any)
           .from('matches')
           .insert({
-            client_id: user.id,
+            user_id: user.id,
             owner_id: ownerId,
             listing_id: listingId,
             status: 'active'
           });
+
       } catch (matchError) {
         // Match creation failed but conversation was created - continue
         logger.error('Match creation failed (non-blocking):', matchError);
