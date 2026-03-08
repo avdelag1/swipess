@@ -65,6 +65,9 @@ interface FilterState {
   // Owner filter actions
   setClientGender: (gender: ClientGender) => void;
   setClientType: (type: ClientType) => void;
+  setClientAgeRange: (range: [number, number] | null) => void;
+  setClientBudgetRange: (range: [number, number] | null) => void;
+  setClientNationalities: (nationalities: string[]) => void;
   
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
