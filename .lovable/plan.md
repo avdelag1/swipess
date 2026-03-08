@@ -1,61 +1,46 @@
 
 
-# Expand Workers/Jobs Service Categories — Full Implementation Plan
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## What Changes
+### 1. Replace App Icon with Fire S Logo
 
-### 1. Replace `SERVICE_CATEGORIES` with grouped, comprehensive list (WorkerListingForm.tsx)
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-Remove `broker` and `tour_guide`. Add all new categories organized by group. Each entry gets a `group` field for UI grouping in filters and dropdowns.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**New master list (40+ categories):**
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-| Group | Services |
-|-------|----------|
-| Home & Property | House Cleaner, Handyman, Maintenance Technician, House Painter, Plumber, Electrician, Gardener/Landscaper, Pool Cleaner |
-| Personal Care & Wellness | Massage Therapist, Yoga Instructor, Meditation/Mindfulness Coach, Holistic Therapist, Personal Trainer, Makeup Artist/Hair Stylist, Nutritionist/Meal Prep Chef |
-| Child & Pet Care | Babysitter/Nanny, Dog Sitter/Pet Sitter, Pet Groomer |
-| Transportation | Chauffeur/Private Driver, Mechanic (Car/Moto/Bicycle) |
-| Culinary & Events | Private Chef, Bartender/Mixologist, Event Planner/Party Coordinator |
-| Education & Languages | Language Teacher/Tutor, Music Teacher, Dance Instructor |
-| Creative & Tech | Photographer, Videographer/Drone Operator, Graphic Designer, IT Support/Computer Repair |
-| Professional | Translator/Interpreter, Accountant/Bookkeeper, Security Guard |
-| Other | Other Service |
+### 2. Profile Photo Already Shows in Top-Left
 
-Each category also gets a `subspecialties` array where relevant (e.g., Massage Therapist → Swedish, Deep Tissue, Thai, Sports, Hot Stone, Aromatherapy, Reflexology, Couples; Language Teacher → English, Spanish, French, German, Italian, Chinese, Portuguese, Mayan).
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### 2. Add `SERVICE_SUBSPECIALTIES` map (WorkerListingForm.tsx)
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-A record mapping category values to their sub-options. This powers:
-- The listing form: when a worker picks "Massage Therapist," they see checkboxes for sub-specialties
-- The filter UI: when filtering by "Massage Therapist," sub-specialty chips appear
+### 3. Fix Header Too Close to Top Edge
 
-### 3. Update WorkerListingForm to show sub-specialties
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-When `service_category` is selected and has subspecialties, show a multi-select checkbox section for the worker to pick their specialties (stored in the existing `skills` JSON array on the listings table).
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-### 4. Update WorkerClientFilters.tsx — grouped collapsible sections
+### 4. Fix MarketingSlide Build Error
 
-Instead of a flat list of 40+ checkboxes, render the Service Type collapsible with **nested group headers**. Each group (Home & Property, Personal Care, etc.) is a sub-collapsible with its categories inside. This keeps the UI scannable.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-### 5. Update ClientWorkerDiscovery.tsx — filter dropdown
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-The `Select` dropdown for service type will use `SelectGroup` with `SelectLabel` headers for each group, making it easy to find specific services.
-
-### 6. Update AI orchestrator prompt (edge function)
-
-Update the `service_category` enum in `ai-orchestrator/index.ts` to include the new values so AI-generated listings use valid categories.
-
-## Files to Modify
-
-| File | Change |
-|------|--------|
-| `src/components/WorkerListingForm.tsx` | Replace SERVICE_CATEGORIES with grouped list + add SERVICE_SUBSPECIALTIES + show sub-specialty picker in form |
-| `src/components/filters/WorkerClientFilters.tsx` | Render grouped service categories with nested collapsibles |
-| `src/pages/ClientWorkerDiscovery.tsx` | Update filter dropdown to use grouped SelectGroup |
-| `supabase/functions/ai-orchestrator/index.ts` | Update service_category enum in AI prompt |
-
-## No DB Changes Needed
-
-The `service_category` column is a plain `text` field — any string value works. Sub-specialties go into the existing `skills` JSONB array.
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

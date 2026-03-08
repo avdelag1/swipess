@@ -7,13 +7,14 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Briefcase, Search, Filter, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
-import { SERVICE_CATEGORIES, PRICING_UNITS } from '@/components/WorkerListingForm';
+import { PRICING_UNITS } from '@/components/WorkerListingForm';
+import { SERVICE_CATEGORIES, SERVICE_GROUPS, getGroupedCategories, findCategory } from '@/data/serviceCategories';
 import { cn } from '@/lib/utils';
 
 // Hire duration quick filter options
@@ -101,7 +102,7 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
 }
 
 function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (userId: string) => void }) {
-  const categoryInfo = SERVICE_CATEGORIES.find(c => c.value === worker.service_category);
+  const categoryInfo = findCategory(worker.service_category || '');
   const pricingInfo = PRICING_UNITS.find(p => p.value === worker.pricing_unit);
 
   return (
@@ -337,16 +338,27 @@ export default function ClientWorkerDiscovery() {
                 <Filter className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 <SelectItem value="all">All Types</SelectItem>
-                {SERVICE_CATEGORIES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{type.icon}</span>
-                      <span>{type.label}</span>
-                    </span>
-                  </SelectItem>
-                ))}
+                {SERVICE_GROUPS.map(group => {
+                  const cats = getGroupedCategories()[group];
+                  if (!cats.length) return null;
+                  return (
+                    <SelectGroup key={group}>
+                      <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {group}
+                      </SelectLabel>
+                      {cats.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          <span className="flex items-center gap-2">
+                            <span>{type.icon}</span>
+                            <span>{type.label}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
@@ -366,7 +378,7 @@ export default function ClientWorkerDiscovery() {
               )}
               {selectedType && (
                 <Badge variant="secondary" className="gap-1">
-                  {SERVICE_CATEGORIES.find(t => t.value === selectedType)?.label}
+                  {findCategory(selectedType)?.label}
                   <X
                     className="w-3 h-3 cursor-pointer"
                     onClick={() => setSelectedType(undefined)}
