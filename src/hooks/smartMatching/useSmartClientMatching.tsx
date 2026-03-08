@@ -210,8 +210,8 @@ export function useSmartClientMatching(
                             if (profile.gender.toLowerCase() !== effectiveGender.toLowerCase()) return false;
                         }
 
-                        // FIX: clientType filtering based on intentions
-                        if ((filters as any).clientType && (filters as any).clientType !== 'all') {
+                        // clientType filtering based on intentions
+                        if (filters && (filters as any).clientType && (filters as any).clientType !== 'all') {
                             const clientType = (filters as any).clientType;
                             const clientIntentions = profile.intentions || [];
 
