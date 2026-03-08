@@ -1,46 +1,76 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Fix 5 Confirmed Filter Bugs — Silent Failures Throughout Matching Pipeline
 
-### 1. Replace App Icon with Fire S Logo
+I verified every bug reported. They are all **real and present in the current code**. I should have caught these earlier — I apologize. Here is exactly what is broken and how each fix works.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+---
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## Bug 1 — CRITICAL: Price field name mismatch in `matchCalculators.ts`
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**Problem:** `calculateListingMatch()` reads `preferences.min_price` / `preferences.max_price` (line 30), but the DB columns and the `ClientFilterPreferences` type use `price_min` / `price_max`. Additionally, `PropertyClientFilters.tsx` saves as `min_price`/`max_price` which are not real DB columns — so price preferences may not even persist correctly.
 
-### 2. Profile Photo Already Shows in Top-Left
+**Result:** Price budget matching is always skipped. Every listing scores as if no budget was set.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**Fix in `matchCalculators.ts`:** Read both field name variants:
+```typescript
+const priceMin = preferences.price_min ?? (preferences as any).min_price;
+const priceMax = preferences.price_max ?? (preferences as any).max_price;
+```
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Fix in `PropertyClientFilters.tsx`:** Change `min_price`/`max_price` to `price_min`/`price_max` in the save call so values actually persist to DB.
 
-### 3. Fix Header Too Close to Top Edge
+---
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+## Bug 2 — CRITICAL: Missing SELECT fields cause budget/pet/party filters to silently skip
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**Problem:** `CLIENT_SWIPE_CARD_FIELDS` in `useSmartClientMatching.tsx` (line 120) doesn't select `budget_max`, `has_pets`, `party_friendly`, or `relationship_status`. The filter logic (lines 208-260) checks these fields but they're always `undefined`.
 
-### 4. Fix MarketingSlide Build Error
+**Reality check:** The `profiles` table doesn't have `budget_max`, `has_pets`, or `party_friendly` columns either. But `client_profiles` does have `relationship_status`, `has_children`. The enrichment map (line 166-198) already pulls from `client_profiles` but doesn't map `relationship_status` or `has_children`.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+**Fix:** Add `relationship_status` from `client_profiles` enrichment. For `budget_max`/`has_pets`/`party_friendly` — these fields don't exist in either table, so the filter checks should be guarded to not silently pass (they currently skip correctly when `undefined`, so this is lower priority but we should note it for future schema additions).
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+---
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+## Bug 3 — HIGH: Language filter field name mismatch
+
+**Problem:** Line 269 checks `profile.languages` but the enriched profile uses `profile.languages_spoken`.
+
+**Result:** Language filter never matches anything.
+
+**Fix:** Change `profile.languages` to `profile.languages_spoken` on lines 269-270.
+
+---
+
+## Bug 4 — HIGH: `calculateClientMatch` is never called for owner-side scoring
+
+**Problem:** `calculateClientMatch()` exists in `matchCalculators.ts` with a full weighted algorithm (budget 20%, smoking 15%, lifestyle 15%, pets 12%, etc.), but `useSmartClientMatching.tsx` ignores it and uses a trivial base score (50 + profile completeness). Owner preferences are fetched with only 6 fields via `.select(...)` instead of `*`.
+
+**Result:** Match percentages are meaningless — they only reflect profile completeness, not actual compatibility with owner preferences.
+
+**Fix:**
+- Change `.select('selected_genders, min_age, ...')` to `.select('*')` for owner prefs
+- Import and call `calculateClientMatch()` for scoring, with the simple base score as fallback when no owner preferences exist
+- Build enriched client profiles from the merged profiles + client_profiles data
+
+---
+
+## Bug 5 — MEDIUM: OwnerClientFilterDialog discards listing type and client type selections
+
+**Problem:** `handleSave()` in `OwnerClientFilterDialog.tsx` (line 251) only saves `selected_genders`, `min_budget`, `max_budget`, `min_age`, `max_age`. The `selectedInterestTypes`, `selectedListingTypes`, and `selectedClientTypes` states are collected from UI but never persisted or dispatched.
+
+**Result:** Owner selects interest/listing/client types, clicks save, selections are lost.
+
+**Fix:** Include `selectedInterestTypes` and `selectedClientTypes` in the saved preferences object, and dispatch to filterStore for immediate real-time effect.
+
+---
+
+## Files to Modify
+
+| File | Bugs | Changes |
+|------|------|---------|
+| `src/hooks/smartMatching/matchCalculators.ts` | 1 | Read `price_min`/`price_max` with `min_price`/`max_price` fallback |
+| `src/hooks/smartMatching/useSmartClientMatching.tsx` | 2, 3, 4 | Fix language field name, add enrichment for relationship_status, use `calculateClientMatch()`, expand owner prefs SELECT to `*` |
+| `src/components/filters/PropertyClientFilters.tsx` | 1 | Save `price_min`/`price_max` instead of `min_price`/`max_price` |
+| `src/components/OwnerClientFilterDialog.tsx` | 5 | Include interest/client type selections in save |
 
