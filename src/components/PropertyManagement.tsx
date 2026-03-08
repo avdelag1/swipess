@@ -365,7 +365,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className={cn("overflow-hidden transition-all hover:border-primary/30", isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700')}>
+                  <div className={cn(
+                    "overflow-hidden rounded-3xl transition-all border shadow-xl hover:shadow-2xl",
+                    isLight
+                      ? 'bg-white border-border/50 hover:border-primary/30'
+                      : 'bg-white/[0.04] backdrop-blur-sm border-white/[0.06] hover:border-white/[0.12]'
+                  )}>
                     {/* Image */}
                     <div className={cn("relative aspect-[16/10]", isLight ? 'bg-gray-100' : 'bg-gray-700')}>
                       {listing.images && listing.images.length > 0 ? (
