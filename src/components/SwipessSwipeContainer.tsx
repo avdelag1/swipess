@@ -337,7 +337,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
       prevFiltersRef.current?.category !== filters?.category ||
       prevFiltersRef.current?.listingType !== filters?.listingType ||
-      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange);
+      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange) ||
+      !arraysEqual(prevFiltersRef.current?.serviceCategory, filters?.serviceCategory) ||
+      !arraysEqual(prevFiltersRef.current?.workTypes, filters?.workTypes) ||
+      !arraysEqual(prevFiltersRef.current?.skills, filters?.skills) ||
+      !arraysEqual(prevFiltersRef.current?.daysAvailable, filters?.daysAvailable) ||
+      !arraysEqual(prevFiltersRef.current?.experienceLevel, filters?.experienceLevel) ||
+      !arraysEqual(prevFiltersRef.current?.scheduleTypes, filters?.scheduleTypes);
 
     if (filtersChanged) {
       logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');

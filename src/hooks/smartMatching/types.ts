@@ -97,6 +97,10 @@ export interface ListingFilters {
     experienceLevel?: string[];
     skills?: string[];
     certifications?: string[];
+    // Boolean verification filters
+    offersEmergencyService?: boolean;
+    backgroundCheckVerified?: boolean;
+    insuranceVerified?: boolean;
     // Owner client filters
     clientGender?: 'male' | 'female' | 'other' | 'any' | 'all';
     clientType?: 'individual' | 'family' | 'business' | 'hire' | 'rent' | 'buy' | 'all';
