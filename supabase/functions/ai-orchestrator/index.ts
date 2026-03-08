@@ -82,6 +82,7 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
   const key = Deno.env.get("MINIMAX_API_KEY");
   if (!key) throw new Error("MINIMAX_API_KEY not available");
 
+  console.log(`[AI Orchestrator] Calling MiniMax at ${MINIMAX_ENDPOINT} with model ${MINIMAX_MODEL}`);
   const res = await fetch(MINIMAX_ENDPOINT, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
