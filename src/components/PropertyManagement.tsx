@@ -321,22 +321,30 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </motion.div>
 
         {/* Tabs */}
-        <div className={cn("flex flex-wrap gap-1 p-1 rounded-xl", isLight ? 'bg-gray-100' : 'bg-gray-800/50')}>
+        <div className={cn(
+          "flex flex-wrap gap-1.5 p-1.5 rounded-2xl",
+          isLight ? 'bg-secondary/60 border border-border/30' : 'bg-white/[0.03] backdrop-blur-sm border border-white/[0.06]'
+        )}>
           {tabItems.map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all flex-1 sm:flex-initial justify-center sm:justify-start",
+                "flex items-center gap-2 px-3 py-2.5 text-sm rounded-xl transition-all flex-1 sm:flex-initial justify-center sm:justify-start font-semibold",
                 activeTab === tab.id
-                  ? "bg-primary text-white"
-                  : isLight ? "text-gray-500 hover:text-gray-900 hover:bg-gray-200/60" : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                  ? isLight
+                    ? "bg-white text-foreground shadow-md border border-border/40"
+                    : "bg-white/[0.08] text-white shadow-lg border border-white/[0.1]"
+                  : isLight
+                    ? "text-muted-foreground hover:text-foreground hover:bg-white/60"
+                    : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
               )}
             >
               <tab.icon className="w-4 h-4" />
               <span className="truncate">{tab.label}</span>
-              <span className="text-xs opacity-70">({tab.count})</span>
-            </button>
+              <span className="text-[10px] opacity-60">({tab.count})</span>
+            </motion.button>
           ))}
         </div>
 
