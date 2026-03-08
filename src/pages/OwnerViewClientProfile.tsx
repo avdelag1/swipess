@@ -601,7 +601,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Navigation Equipment</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_navigation_equipment.map((nav) => (
+                            {preferences.yacht_navigation_equipment.map((nav: string) => (
                               <Badge key={`yacht-nav-${nav}`} variant="secondary">{nav}</Badge>
                             ))}
                           </div>
