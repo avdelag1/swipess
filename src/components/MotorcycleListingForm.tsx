@@ -5,10 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 
 export interface MotorcycleFormData {
   id?: string;
   title?: string;
+  description?: string;
   motorcycle_type?: string;
   mode?: 'sale' | 'rent' | 'both';
   price?: number;
@@ -26,9 +28,12 @@ export interface MotorcycleFormData {
   condition?: string;
   city?: string;
   has_abs?: boolean;
+  has_esc?: boolean;
   has_traction_control?: boolean;
   has_heated_grips?: boolean;
+  has_luggage_rack?: boolean;
   includes_helmet?: boolean;
+  includes_gear?: boolean;
 }
 
 interface MotorcycleListingFormProps {
@@ -55,11 +60,21 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader><CardTitle>Basic Information (Optional)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Label htmlFor="title">Listing Title</Label>
             <Input id="title" {...register('title')} placeholder="e.g., 2021 Yamaha MT-07" />
+          </div>
+
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              {...register('description')}
+              placeholder="Describe the motorcycle's condition, history, and any notable features..."
+              className="min-h-[100px] mt-1 resize-none"
+            />
           </div>
 
           <div>
@@ -86,7 +101,7 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Motorcycle Specifications (Optional)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Motorcycle Specifications</CardTitle></CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="brand">Brand</Label>
@@ -164,11 +179,15 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Features (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
+        <CardHeader><CardTitle>Features & Included</CardTitle></CardHeader>
+        <CardContent className="grid sm:grid-cols-2 gap-3">
           <div className="flex items-center space-x-2">
             <Controller name="has_abs" control={control} render={({ field }) => <Checkbox id="has_abs" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="has_abs">ABS</Label>
+            <Label htmlFor="has_abs">ABS (Anti-lock Brakes)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Controller name="has_esc" control={control} render={({ field }) => <Checkbox id="has_esc" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Label htmlFor="has_esc">ESC (Electronic Stability)</Label>
           </div>
           <div className="flex items-center space-x-2">
             <Controller name="has_traction_control" control={control} render={({ field }) => <Checkbox id="has_traction_control" checked={field.value} onCheckedChange={field.onChange} />} />
@@ -179,8 +198,16 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
             <Label htmlFor="has_heated_grips">Heated Grips</Label>
           </div>
           <div className="flex items-center space-x-2">
+            <Controller name="has_luggage_rack" control={control} render={({ field }) => <Checkbox id="has_luggage_rack" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Label htmlFor="has_luggage_rack">Luggage Rack</Label>
+          </div>
+          <div className="flex items-center space-x-2">
             <Controller name="includes_helmet" control={control} render={({ field }) => <Checkbox id="includes_helmet" checked={field.value} onCheckedChange={field.onChange} />} />
             <Label htmlFor="includes_helmet">Helmet Included</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Controller name="includes_gear" control={control} render={({ field }) => <Checkbox id="includes_gear" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Label htmlFor="includes_gear">Riding Gear Included</Label>
           </div>
         </CardContent>
       </Card>

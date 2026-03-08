@@ -221,7 +221,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         has_traction_control: selectedCategory === 'motorcycle' ? (formData.has_traction_control || false) : null,
         has_heated_grips: selectedCategory === 'motorcycle' ? (formData.has_heated_grips || false) : null,
         has_luggage_rack: selectedCategory === 'motorcycle' ? (formData.has_luggage_rack || false) : null,
-        includes_helmet: selectedCategory === 'motorcycle' ? (formData.includes_helmet || false) : null,
+        includes_helmet: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.includes_helmet || false) : null,
         includes_gear: selectedCategory === 'motorcycle' ? (formData.includes_gear || false) : null,
         // Bicycle specific
         bicycle_type: selectedCategory === 'bicycle' ? formData.bicycle_type : null,
@@ -408,7 +408,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               <CategorySelector
                 selectedCategory={selectedCategory}
                 selectedMode={selectedMode}
-                onCategoryChange={setSelectedCategory}
+                onCategoryChange={(category) => {
+                  setSelectedCategory(category);
+                  // Preserve only shared fields, reset category-specific data
+                  setFormData(prev => ({
+                    title: prev.title,
+                    description: prev.description,
+                    city: prev.city,
+                    country: prev.country,
+                    mode: selectedMode,
+                  }));
+                }}
                 onModeChange={setSelectedMode}
               />
             </motion.div>
@@ -446,12 +456,21 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               </motion.div>
             )}
 
-            <motion.div variants={itemFadeScale} className="space-y-8">
-              {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
-              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
-              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
-              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
-            </motion.div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={selectedCategory}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                className="space-y-8"
+              >
+                {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))} initialData={formData} />}
+                {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))} initialData={formData as unknown as MotorcycleFormData} />}
+                {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))} initialData={formData as unknown as BicycleFormData} />}
+                {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData(prev => ({ ...prev, ...data }))} initialData={formData as unknown as WorkerFormData} />}
+              </motion.div>
+            </AnimatePresence>
 
             {/* Photo Section with premium cards */}
             <motion.div variants={itemFadeScale}>

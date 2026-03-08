@@ -5,10 +5,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 
 export interface BicycleFormData {
   id?: string;
   title?: string;
+  description?: string;
   mode?: 'sale' | 'rent' | 'both';
   price?: number;
   rental_rates?: {
@@ -27,7 +29,6 @@ export interface BicycleFormData {
   number_of_gears?: number;
   electric_assist?: boolean;
   battery_range?: number;
-  motor_power?: string;
   condition?: string;
   city?: string;
   neighborhood?: string;
@@ -68,7 +69,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information (Optional)</CardTitle>
+          <CardTitle>Basic Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -77,6 +78,16 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
               id="title"
               {...register('title')}
               placeholder="e.g., 2022 Specialized Turbo Levo"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              {...register('description')}
+              placeholder="Describe the bike's condition, history, and any notable features..."
+              className="min-h-[100px] mt-1 resize-none"
             />
           </div>
 
@@ -112,7 +123,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Bicycle Specifications (Optional)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Bicycle Specifications</CardTitle></CardHeader>
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="brand">Brand</Label>
@@ -233,49 +244,61 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Electric Features (Optional)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Electric Features</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center space-x-2">
-            <Controller name="electric_assist" control={control} render={({ field }) => <Checkbox id="electric_assist" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Controller name="electric_assist" control={control} render={({ field }) => (
+              <Checkbox id="electric_assist" checked={field.value} onCheckedChange={field.onChange} />
+            )} />
             <Label htmlFor="electric_assist">Electric Assist (E-Bike)</Label>
           </div>
 
           {isElectric && (
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <Label htmlFor="battery_range">Battery Range (km)</Label>
-                <Input id="battery_range" type="number" {...register('battery_range', { valueAsNumber: true })} placeholder="80" />
-              </div>
-              <div>
-                <Label htmlFor="motor_power">Motor Power</Label>
-                <Input id="motor_power" {...register('motor_power')} placeholder="250W, 500W, etc." />
-              </div>
+            <div className="mt-4">
+              <Label htmlFor="battery_range">Battery Range (km)</Label>
+              <Input
+                id="battery_range"
+                type="number"
+                {...register('battery_range', { valueAsNumber: true })}
+                placeholder="e.g., 80"
+                className="mt-1"
+              />
             </div>
           )}
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Included Accessories (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
+        <CardHeader><CardTitle>Included Accessories</CardTitle></CardHeader>
+        <CardContent className="grid sm:grid-cols-2 gap-3">
           <div className="flex items-center space-x-2">
-            <Controller name="includes_helmet" control={control} render={({ field }) => <Checkbox id="includes_helmet" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Controller name="includes_helmet" control={control} render={({ field }) => (
+              <Checkbox id="includes_helmet" checked={field.value} onCheckedChange={field.onChange} />
+            )} />
             <Label htmlFor="includes_helmet">Helmet Included</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Controller name="includes_lock" control={control} render={({ field }) => <Checkbox id="includes_lock" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Controller name="includes_lock" control={control} render={({ field }) => (
+              <Checkbox id="includes_lock" checked={field.value} onCheckedChange={field.onChange} />
+            )} />
             <Label htmlFor="includes_lock">Lock Included</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Controller name="includes_lights" control={control} render={({ field }) => <Checkbox id="includes_lights" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Controller name="includes_lights" control={control} render={({ field }) => (
+              <Checkbox id="includes_lights" checked={field.value} onCheckedChange={field.onChange} />
+            )} />
             <Label htmlFor="includes_lights">Lights Included</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Controller name="includes_basket" control={control} render={({ field }) => <Checkbox id="includes_basket" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="includes_basket">Basket/Rack Included</Label>
+            <Controller name="includes_basket" control={control} render={({ field }) => (
+              <Checkbox id="includes_basket" checked={field.value} onCheckedChange={field.onChange} />
+            )} />
+            <Label htmlFor="includes_basket">Basket / Rack Included</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Controller name="includes_pump" control={control} render={({ field }) => <Checkbox id="includes_pump" checked={field.value} onCheckedChange={field.onChange} />} />
+            <Controller name="includes_pump" control={control} render={({ field }) => (
+              <Checkbox id="includes_pump" checked={field.value} onCheckedChange={field.onChange} />
+            )} />
             <Label htmlFor="includes_pump">Pump Included</Label>
           </div>
         </CardContent>
