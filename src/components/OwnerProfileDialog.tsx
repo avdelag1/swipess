@@ -11,6 +11,7 @@ import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { validateContent } from '@/utils/contactInfoValidation';
 import { Building2, Bike, CircleDot, Briefcase, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
