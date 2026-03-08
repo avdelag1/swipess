@@ -20,6 +20,7 @@ import {
   getCityByName,
 } from '@/data/worldLocations';
 import { logger } from '@/utils/prodLogger';
+import { validateContent } from '@/utils/contactInfoValidation';
 
 // Predefined tag categories
 const PROPERTY_TAGS = [
