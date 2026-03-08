@@ -1,46 +1,45 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Full App Audit: Remaining Issues
 
-### 1. Replace App Icon with Fire S Logo
+After thorough review of every `(supabase as any)` call, storage bucket reference, and table query across 118 files, here's what's left.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## Issues Found
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### 1. `profiles_public` Ghost Table (PublicProfilePreview.tsx)
+`PublicProfilePreview.tsx` queries a `profiles_public` table that does not exist. The code has a fallback to `profiles`, but the initial query always fails silently, adding latency to every public profile view.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**Fix**: Remove the `profiles_public` query entirely. Query `profiles` directly (which already has a public SELECT policy).
 
-### 2. Profile Photo Already Shows in Top-Left
+### 2. `legal_documents` Ghost Table (LegalDocumentsDialog.tsx)
+The Legal Documents feature queries, inserts into, and deletes from a `legal_documents` table that does not exist. The entire document upload/management flow silently fails.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**Fix**: Create `legal_documents` table with columns: `id, user_id, file_name, file_path, file_size, mime_type, document_type, status, created_at, updated_at`. Add RLS policies.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+### 3. `listing-videos` Ghost Storage Bucket (videoUpload.ts)
+Video uploads target a `listing-videos` bucket that doesn't exist. All video uploads fail silently.
 
-### 3. Fix Header Too Close to Top Edge
+**Fix**: Create `listing-videos` storage bucket (public: true, like `listing-images`), with upload policy for authenticated users.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+### 4. `legal-documents` Ghost Storage Bucket (LegalDocumentsDialog.tsx)
+Legal document uploads target a `legal-documents` bucket that doesn't exist.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**Fix**: Create `legal-documents` storage bucket (public: false, private documents), with RLS policy restricting access to own files.
 
-### 4. Fix MarketingSlide Build Error
+## Summary
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+| Issue | Type | Impact |
+|-------|------|--------|
+| `profiles_public` | Ghost table | Adds latency to profile views |
+| `legal_documents` | Ghost table | Legal documents feature broken |
+| `listing-videos` | Ghost bucket | Video uploads broken |
+| `legal-documents` | Ghost bucket | Document uploads broken |
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+## Implementation
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+1. **Database migration**: Create `legal_documents` table with RLS
+2. **Storage migration**: Create `listing-videos` (public) and `legal-documents` (private) buckets with policies
+3. **Code fix**: Update `PublicProfilePreview.tsx` to skip the `profiles_public` query and go straight to `profiles`
+
+Everything else checks out. All previously fixed tables (`tokens`, `user_blocks`, `user_reports`, `saved_searches`, `push_subscriptions`, `user_security_settings`, `contract_signatures`, `deal_status_tracking`, `dispute_reports`, `legal_document_quota`, `user_radio_playlists`) are confirmed working with correct column alignment.
 
