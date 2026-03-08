@@ -805,6 +805,45 @@ export type Database = {
         }
         Relationships: []
       }
+      owner_client_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          max_age: number | null
+          max_budget: number | null
+          min_age: number | null
+          min_budget: number | null
+          preferred_nationalities: Json | null
+          selected_genders: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_age?: number | null
+          max_budget?: number | null
+          min_age?: number | null
+          min_budget?: number | null
+          preferred_nationalities?: Json | null
+          selected_genders?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_age?: number | null
+          max_budget?: number | null
+          min_age?: number | null
+          min_budget?: number | null
+          preferred_nationalities?: Json | null
+          selected_genders?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       owner_profiles: {
         Row: {
           business_description: string | null
