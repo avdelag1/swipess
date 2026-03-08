@@ -142,15 +142,18 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
         >
-          <Card className={cn("border-0 shadow-lg", isLight ? "bg-white" : "bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm")}>
-            <CardContent className="p-3 sm:p-4">
+          <div className={cn(
+            "rounded-3xl shadow-lg",
+            isLight ? "bg-white border border-border/50" : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06]"
+          )}>
+            <div className="p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className={cn("text-xs sm:text-sm font-medium", isLight ? 'text-gray-500' : 'text-gray-400')}>Category Breakdown</h4>
-                <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-gray-400' : 'text-gray-500')}>{totalListings} total</span>
+                <h4 className={cn("text-xs sm:text-sm font-semibold", isLight ? 'text-muted-foreground' : 'text-white/60')}>Category Breakdown</h4>
+                <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-muted-foreground' : 'text-white/40')}>{totalListings} total</span>
               </div>
 
               {/* Progress bar showing category distribution */}
-              <div className={cn("h-2 sm:h-2.5 rounded-full overflow-hidden flex", isLight ? 'bg-gray-100' : 'bg-gray-700/50')}>
+              <div className={cn("h-2 sm:h-2.5 rounded-full overflow-hidden flex", isLight ? 'bg-secondary' : 'bg-white/[0.06]')}>
                 {categoryBreakdown.map((cat, i) => (
                   <motion.div
                     key={cat.name}
