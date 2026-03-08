@@ -479,36 +479,44 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
                       {/* Action Buttons */}
                       <div className="grid grid-cols-4 gap-2 pt-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs h-9"
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          className={cn(
+                            "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                            isLight ? "bg-blue-50 text-blue-600 border border-blue-200/60 hover:bg-blue-100" : "bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+                          )}
                           onClick={() => handleViewProperty(listing)}
                         >
                           <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs h-9"
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          className={cn(
+                            "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                            isLight ? "bg-purple-50 text-purple-600 border border-purple-200/60 hover:bg-purple-100" : "bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20"
+                          )}
                           onClick={() => handleShareListing(listing)}
                         >
                           <Share2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs h-9"
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          className={cn(
+                            "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                            isLight ? "bg-emerald-50 text-emerald-600 border border-emerald-200/60 hover:bg-emerald-100" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                          )}
                           onClick={() => handleEditProperty(listing)}
                         >
                           <Edit className="w-4 h-4" />
-                        </Button>
+                        </motion.button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/30 text-xs h-9"
+                            <motion.button
+                              whileTap={{ scale: 0.92 }}
+                              className={cn(
+                                "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                                isLight ? "bg-red-50 text-red-600 border border-red-200/60 hover:bg-red-100" : "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                              )}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
