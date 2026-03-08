@@ -35,20 +35,31 @@ export function useSmartClientMatching(
 
                 // Fetch owner's saved preferences as fallback for filters
                 let dbGenderFilter: string | undefined;
+                let dbAgeRange: [number, number] | undefined;
+                let dbBudgetRange: [number, number] | undefined;
+                let dbNationalities: string[] | undefined;
                 try {
                     const { data: ownerPrefs } = await (supabase as any)
                         .from('owner_client_preferences')
-                        .select('selected_genders, min_budget, max_budget')
+                        .select('selected_genders, min_age, max_age, min_budget, max_budget, preferred_nationalities')
                         .eq('user_id', userId)
                         .maybeSingle();
 
                     if (ownerPrefs) {
-                        // Use DB gender as fallback if no UI filter is active
                         if (
                             (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
                             ownerPrefs.selected_genders?.length
                         ) {
                             dbGenderFilter = ownerPrefs.selected_genders[0];
+                        }
+                        if (!filters?.ageRange && (ownerPrefs.min_age != null || ownerPrefs.max_age != null)) {
+                            dbAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
+                        }
+                        if (!filters?.budgetRange && (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)) {
+                            dbBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
+                        }
+                        if (!filters?.nationalities?.length && ownerPrefs.preferred_nationalities?.length) {
+                            dbNationalities = ownerPrefs.preferred_nationalities;
                         }
                     }
                 } catch {
