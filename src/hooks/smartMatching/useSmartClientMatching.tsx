@@ -323,7 +323,7 @@ export function useSmartClientMatching(
                             has_children: profile.has_children,
                             verified: !!profile.onboarding_completed,
                         };
-                        const match = calculateClientMatch(ownerPrefsData, enrichedProfile);
+                        const match = calculateClientMatch(ownerPrefsForScoring, enrichedProfile);
                         matchPercentage = match.percentage;
                         matchReasons = match.reasons.length > 0 ? match.reasons : ['Profile available'];
                         incompatibleReasons = match.incompatible;
