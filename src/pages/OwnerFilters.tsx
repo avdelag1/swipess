@@ -10,6 +10,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import type { ClientGender, ClientType } from '@/types/filters';
 
 const genderOptions: {
