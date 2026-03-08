@@ -64,13 +64,10 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 
               {/* Arrow hint + close */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <ArrowRight className={cn("w-4 h-4", isDark ? "text-white/25" : "text-gray-300")} />
+                <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
                 <button
                   onClick={handleClose}
-                  className={cn(
-                    "w-7 h-7 rounded-full flex items-center justify-center transition-colors",
-                    isDark ? "bg-white/8 hover:bg-white/15 text-white/50 hover:text-white" : "bg-black/6 hover:bg-black/12 text-gray-400 hover:text-gray-700"
-                  )}
+                  className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
                   aria-label="Close"
                 >
                   <X className="w-3.5 h-3.5" />
