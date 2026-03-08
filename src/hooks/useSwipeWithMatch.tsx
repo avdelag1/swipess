@@ -514,7 +514,7 @@ async function detectAndCreateMatch({
           owner_id: matchOwnerId,
           listing_id: match.listing_id,
           status: 'active'
-        });
+        }, { onConflict: 'client_id,owner_id' });
 
       if (conversationError) {
         logger.error('[detectAndCreateMatch] Error creating conversation:', conversationError);
