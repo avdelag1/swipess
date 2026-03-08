@@ -70,7 +70,7 @@ export interface ClientFilters {
 
 export interface ListingFilters {
     category?: 'property' | 'motorcycle' | 'bicycle' | 'services' | 'worker';
-    categories?: ('property' | 'motorcycle' | 'bicycle' | 'services' | 'worker')[]; // Support multiple categories
+    categories?: ('property' | 'motorcycle' | 'bicycle' | 'services' | 'worker')[];
     listingType?: 'rent' | 'sale' | 'both';
     propertyType?: string[];
     priceRange?: [number, number];
@@ -87,6 +87,16 @@ export interface ListingFilters {
     dietaryPreferences?: string[];
     // Services/worker filter
     showHireServices?: boolean;
+    // Worker-specific filters
+    serviceCategory?: string[];
+    workTypes?: string[];
+    scheduleTypes?: string[];
+    daysAvailable?: string[];
+    timeSlotsAvailable?: string[];
+    locationTypes?: string[];
+    experienceLevel?: string[];
+    skills?: string[];
+    certifications?: string[];
     // Owner client filters
     clientGender?: 'male' | 'female' | 'other' | 'any' | 'all';
     clientType?: 'individual' | 'family' | 'business' | 'hire' | 'rent' | 'buy' | 'all';

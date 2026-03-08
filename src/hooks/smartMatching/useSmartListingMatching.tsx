@@ -42,6 +42,13 @@ export function useSmartListingMatching(
         listingType: filters.listingType,
         priceRange: filters.priceRange,
         propertyType: filters.propertyType,
+        // Worker filter fields — included so filter changes trigger re-fetch
+        serviceCategory: filters.serviceCategory,
+        workTypes: filters.workTypes,
+        daysAvailable: filters.daysAvailable,
+        experienceLevel: filters.experienceLevel,
+        skills: filters.skills,
+        scheduleTypes: filters.scheduleTypes,
     }) : '';
 
     return useQuery({
