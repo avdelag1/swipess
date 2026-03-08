@@ -1,39 +1,46 @@
 
 
-# Final Audit: 4 More Ghost Tables + 1 Column Mismatch
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Bug 1: `user_subscriptions.subscription_package_id` Does Not Exist (CRITICAL)
+### 1. Replace App Icon with Fire S Logo
 
-`PaymentSuccess.tsx` line 127 inserts `subscription_package_id: pkg.id` — but the actual column is `package_id`. Every subscription purchase silently fails. Users pay but never get their subscription activated.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-**Fix**: Change `subscription_package_id` to `package_id` in PaymentSuccess.tsx.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-## Bug 2: `saved_searches` Table Does Not Exist
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-`SavedSearchesDialog.tsx` queries, inserts, updates, and deletes from `saved_searches` — table doesn't exist. The entire Saved Searches feature silently fails.
+### 2. Profile Photo Already Shows in Top-Left
 
-**Fix**: Create `saved_searches` table with columns: `id, user_id, search_name, filters (jsonb), last_matched_at, created_at`.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-## Bug 3: `push_subscriptions` Table Does Not Exist
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-`usePushNotifications.ts` upserts/deletes from `push_subscriptions` — table doesn't exist. Push notification subscription storage silently fails. Low priority since push notifications require a service worker setup, but the DB operations should not error.
+### 3. Fix Header Too Close to Top Edge
 
-**Fix**: Create `push_subscriptions` table with columns: `id, user_id, endpoint, p256dh, auth, platform, user_agent, created_at`. Unique constraint on `(user_id, endpoint)`.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-## Bug 4: `user_security_settings` Table Does Not Exist
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-`useSecuritySettings.ts` queries/upserts `user_security_settings` — table doesn't exist. The hook already returns defaults gracefully, but any user changes to security settings are silently lost.
+### 4. Fix MarketingSlide Build Error
 
-**Fix**: Create `user_security_settings` table with columns: `id, user_id, two_factor_enabled, login_alerts, session_timeout, device_tracking, created_at, updated_at`.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-## Implementation Plan
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### 1. DB Migration
-Create 3 missing tables (`saved_searches`, `push_subscriptions`, `user_security_settings`) with RLS policies.
-
-### 2. Code Fix — `PaymentSuccess.tsx`
-Change `subscription_package_id` to `package_id` (line 127).
-
-### After This
-Every `(supabase as any)` call in the entire codebase will target real tables with real columns. Zero silent failures remaining.
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

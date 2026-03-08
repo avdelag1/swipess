@@ -1189,6 +1189,39 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+          platform: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+          platform?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          platform?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       reviews: {
         Row: {
           accuracy_rating: number | null
@@ -1296,6 +1329,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           user_role?: string
+        }
+        Relationships: []
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          last_matched_at: string | null
+          search_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_matched_at?: string | null
+          search_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_matched_at?: string | null
+          search_name?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1570,6 +1630,39 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_security_settings: {
+        Row: {
+          created_at: string
+          device_tracking: boolean
+          id: string
+          login_alerts: boolean
+          session_timeout: boolean
+          two_factor_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_tracking?: boolean
+          id?: string
+          login_alerts?: boolean
+          session_timeout?: boolean
+          two_factor_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_tracking?: boolean
+          id?: string
+          login_alerts?: boolean
+          session_timeout?: boolean
+          two_factor_enabled?: boolean
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
