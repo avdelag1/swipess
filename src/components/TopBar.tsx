@@ -204,7 +204,7 @@ function TopBarComponent({
                 )}
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5" strokeWidth={3} />
+                <ArrowLeft className="w-4 h-4" strokeWidth={3} />
               </motion.button>
             )}
 
