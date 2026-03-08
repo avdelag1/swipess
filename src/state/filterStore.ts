@@ -362,7 +362,7 @@ export const useFilterStore = create<FilterState>()(
       if (role === 'client') {
         return state.categories.length + (state.listingType !== 'both' ? 1 : 0);
       }
-      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
+      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + (state.clientAgeRange ? 1 : 0) + (state.clientBudgetRange ? 1 : 0) + (state.clientNationalities.length > 0 ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
     },
   }))
 );
