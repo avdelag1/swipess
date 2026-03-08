@@ -88,8 +88,8 @@ function TopBarComponent({
     ? 'var(--glass-bg)'
     : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
-    ? '1.5px solid var(--glass-border)'
-    : '1.5px solid rgba(0, 0, 0, 0.05)';
+    ? '1px solid var(--glass-border)'
+    : '1px solid rgba(0, 0, 0, 0.05)';
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
     : '0 10px 30px -10px rgba(0,0,0,0.1)';
