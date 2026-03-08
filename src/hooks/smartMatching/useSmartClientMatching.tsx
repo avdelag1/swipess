@@ -35,20 +35,31 @@ export function useSmartClientMatching(
 
                 // Fetch owner's saved preferences as fallback for filters
                 let dbGenderFilter: string | undefined;
+                let dbAgeRange: [number, number] | undefined;
+                let dbBudgetRange: [number, number] | undefined;
+                let dbNationalities: string[] | undefined;
                 try {
                     const { data: ownerPrefs } = await (supabase as any)
                         .from('owner_client_preferences')
-                        .select('selected_genders, min_budget, max_budget')
+                        .select('selected_genders, min_age, max_age, min_budget, max_budget, preferred_nationalities')
                         .eq('user_id', userId)
                         .maybeSingle();
 
                     if (ownerPrefs) {
-                        // Use DB gender as fallback if no UI filter is active
                         if (
                             (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
                             ownerPrefs.selected_genders?.length
                         ) {
                             dbGenderFilter = ownerPrefs.selected_genders[0];
+                        }
+                        if (!filters?.ageRange && (ownerPrefs.min_age != null || ownerPrefs.max_age != null)) {
+                            dbAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
+                        }
+                        if (!filters?.budgetRange && (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)) {
+                            dbBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
+                        }
+                        if (!filters?.nationalities?.length && ownerPrefs.preferred_nationalities?.length) {
+                            dbNationalities = ownerPrefs.preferred_nationalities;
                         }
                     }
                 } catch {
@@ -199,6 +210,8 @@ export function useSmartClientMatching(
 
                         if (filters?.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
                             if (profile.age < filters.ageRange[0] || profile.age > filters.ageRange[1]) return false;
+                        } else if (dbAgeRange && profile.age) {
+                            if (profile.age < dbAgeRange[0] || profile.age > dbAgeRange[1]) return false;
                         }
 
                         if (filters?.genders && filters.genders.length > 0 && profile.gender) {
@@ -248,6 +261,8 @@ export function useSmartClientMatching(
 
                         if (filters?.nationalities?.length && profile.nationality) {
                             if (!filters.nationalities.includes(profile.nationality)) return false;
+                        } else if (dbNationalities?.length && profile.nationality) {
+                            if (!dbNationalities.includes(profile.nationality)) return false;
                         }
                         if (filters?.languages?.length && profile.languages) {
                             if (!filters.languages.some(lang => profile.languages.includes(lang))) return false;

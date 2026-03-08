@@ -32,13 +32,25 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs } = useOwnerClientPreferences();
   const setClientGender = useFilterStore((s) => s.setClientGender);
+  const setClientAgeRange = useFilterStore((s) => s.setClientAgeRange);
+  const setClientBudgetRange = useFilterStore((s) => s.setClientBudgetRange);
+  const setClientNationalities = useFilterStore((s) => s.setClientNationalities);
   const storeGender = useFilterStore((s) => s.clientGender);
 
   useEffect(() => {
     if (ownerPrefs && storeGender === 'any' && ownerPrefs.selected_genders?.length) {
       setClientGender(ownerPrefs.selected_genders[0] as any);
     }
-  }, [ownerPrefs, storeGender, setClientGender]);
+    if (ownerPrefs?.min_age != null || ownerPrefs?.max_age != null) {
+      setClientAgeRange([ownerPrefs?.min_age ?? 18, ownerPrefs?.max_age ?? 65]);
+    }
+    if (ownerPrefs?.min_budget != null || ownerPrefs?.max_budget != null) {
+      setClientBudgetRange([ownerPrefs?.min_budget ?? 0, ownerPrefs?.max_budget ?? 50000]);
+    }
+    if (ownerPrefs?.preferred_nationalities?.length) {
+      setClientNationalities(ownerPrefs.preferred_nationalities);
+    }
+  }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
   // Connect filter store to swipe container (fixes missing filters when rendered as a route)
   const filterVersion = useFilterStore((s) => s.filterVersion);

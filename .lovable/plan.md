@@ -1,45 +1,46 @@
 
 
-# Plan: Add Age Range, Budget Range, and Nationality to Owner Filters
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Problem
-The `owner_client_preferences` table **does not exist** in the database. The hook uses `(supabase as any)` and silently fails on every read/write. The OwnerFilters page currently only has Gender and Client Type sections with no age, budget, or nationality controls.
+### 1. Replace App Icon with Fire S Logo
 
-## Changes
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### 1. Database Migration — Create `owner_client_preferences` table
-Create the table with columns for all current and new filter fields:
-- `id` (uuid, PK), `user_id` (uuid, unique, not null)
-- `selected_genders` (jsonb, default `[]`)
-- `min_age`, `max_age` (integer, nullable)
-- `min_budget`, `max_budget` (numeric, nullable)
-- `preferred_nationalities` (jsonb, default `[]`)
-- `created_at`, `updated_at` (timestamptz)
-- RLS: users can SELECT/INSERT/UPDATE their own rows only
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### 2. `src/pages/OwnerFilters.tsx` — Add 3 new filter sections
-- **Age Range**: Dual-thumb slider (18–65+), shows selected range, hydrates from DB
-- **Budget Range**: Dual-thumb slider ($0–$50,000), hydrates from DB
-- **Nationality**: Scrollable list of common nationalities with multi-select chips (Mexican, American, Canadian, Colombian, Brazilian, European, Asian, Other)
-- Update `activeFilterCount` to include new filters
-- Update `handleApply` to persist all new fields to `owner_client_preferences`
-- Update `handleReset` to clear new fields
-- Update hydration `useEffect` to restore age/budget/nationality from DB
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### 3. `src/state/filterStore.ts` — Add owner filter fields
-- Add `clientAgeRange`, `clientBudgetRange`, `clientNationalities` to state
-- Add setter actions and include in `resetOwnerFilters`
-- Include in `getActiveFilterCount` for owner role
+### 2. Profile Photo Already Shows in Top-Left
 
-### 4. `src/hooks/smartMatching/useSmartClientMatching.tsx` — Apply new filters
-- Read `min_age`, `max_age`, `min_budget`, `max_budget`, `preferred_nationalities` from DB as fallbacks
-- Apply age range filter on `profile.age`
-- Apply nationality filter on `profile.nationality`
-- Budget range already partially supported via `filters.budgetRange`
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### 5. `src/hooks/useOwnerClientPreferences.ts` — Minor cleanup
-- Remove `(supabase as any)` cast once table exists and types regenerate (types auto-update after migration)
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-## Visual Design
-New sections follow the existing pattern: section label badge with colored dot, then interactive controls. Age and Budget use the existing `Slider` component styled to match. Nationality uses horizontally-wrapping pill chips similar to the gender cards but smaller.
+### 3. Fix Header Too Close to Top Edge
+
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+
+### 4. Fix MarketingSlide Build Error
+
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
