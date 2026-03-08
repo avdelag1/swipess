@@ -11,6 +11,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { useSaveClientFilterPreferences, useClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
 // Define the type local alias if needed, but QuickFilterListingType is preferred
