@@ -1332,8 +1332,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
+            <h3 className="text-xl font-black text-white uppercase tracking-tight">{title}</h3>
+            <p className="text-white/70 text-sm max-w-xs mx-auto font-extrabold">
               {description}
             </p>
           </div>
@@ -1341,7 +1341,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="gap-2 rounded-full px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg font-black uppercase tracking-widest text-xs"
+              className="gap-2 rounded-full px-6 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
             >
               {isRefreshing ? (
                 <RadarSearchIcon size={18} isActive={true} />
@@ -1427,7 +1427,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
+          <div className="absolute bottom-32 left-0 right-0 flex justify-center z-30">
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
