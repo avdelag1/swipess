@@ -260,7 +260,12 @@ function TopBarComponent({
             aria-label="Go to dashboard"
           >
             {title ? (
-              <span className="font-black text-xl text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] uppercase tracking-tighter leading-none pointer-events-none select-none">
+              <span className={cn(
+                "font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none",
+                isDark
+                  ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  : "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+              )}>
                 {title}
               </span>
             ) : null}
