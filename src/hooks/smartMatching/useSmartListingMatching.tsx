@@ -127,17 +127,37 @@ export function useSmartListingMatching(
                 query = query.order('created_at', { ascending: false });
 
                 // Apply filter-based query constraints
-                if (filters) {
+                // Merge explicit UI filters with DB preferences as fallback
+                const effectiveFilters = { ...filters };
+
+                // Fallback: use DB preferences for category if no UI filter set
+                if (preferences && (!effectiveFilters?.categories || effectiveFilters.categories.length === 0) && !effectiveFilters?.category) {
+                    const dbCats = Array.isArray(preferences.preferred_categories) ? preferences.preferred_categories as string[] : [];
+                    if (dbCats.length > 0) {
+                        effectiveFilters.categories = dbCats.map(c => normalizeCategoryName(c)).filter((c): c is string => !!c);
+                    }
+                }
+
+                // Fallback: use DB preferences for price range if no UI filter set
+                if (preferences && !effectiveFilters?.priceRange) {
+                    const pMin = (preferences as any).price_min;
+                    const pMax = (preferences as any).price_max;
+                    if (pMin != null && pMax != null) {
+                        effectiveFilters.priceRange = [Number(pMin), Number(pMax)];
+                    }
+                }
+
+                if (effectiveFilters) {
                     logger.info('[SmartMatching] Applying filters:', {
-                        categories: filters.categories,
-                        category: filters.category,
-                        listingType: filters.listingType,
-                        verified: filters.verified,
+                        categories: effectiveFilters.categories,
+                        category: effectiveFilters.category,
+                        listingType: effectiveFilters.listingType,
+                        verified: effectiveFilters.verified,
                     });
 
                     // Priority 1: Multi-category filter (QuickFilterBar)
-                    if (filters.categories && filters.categories.length > 0) {
-                        const dbCategories = filters.categories
+                    if (effectiveFilters.categories && effectiveFilters.categories.length > 0) {
+                        const dbCategories = effectiveFilters.categories
                             .map(c => normalizeCategoryName(c))
                             .filter((c): c is string => c !== undefined);
 
@@ -146,45 +166,43 @@ export function useSmartListingMatching(
                         }
                     }
                     // Priority 2: Single category filter (Legacy or internal)
-                    else if (filters.category) {
-                        const dbCategory = normalizeCategoryName(typeof filters.category === 'string' ? filters.category : undefined);
+                    else if (effectiveFilters.category) {
+                        const dbCategory = normalizeCategoryName(typeof effectiveFilters.category === 'string' ? effectiveFilters.category : undefined);
                         if (dbCategory) {
                             query = query.eq('category', dbCategory);
                         }
                     }
 
                     // Apply listing type filter (rent/buy)
-                    // Special case: 'worker' category listings use 'service' as listing_type in DB
-                    if (filters.listingType && filters.listingType !== 'both') {
+                    if (effectiveFilters.listingType && effectiveFilters.listingType !== 'both') {
                         const mapping: Record<string, string> = {
                             'rent': 'rent',
-                            'sale': 'buy', // DB uses 'buy' for sale
+                            'sale': 'buy',
                         };
-                        const dbListingType = mapping[filters.listingType] || filters.listingType;
+                        const dbListingType = mapping[effectiveFilters.listingType] || effectiveFilters.listingType;
                         query = query.eq('listing_type', dbListingType);
                     }
 
-                    if (filters.priceRange) {
-                        query = query.gte('price', filters.priceRange[0]).lte('price', filters.priceRange[1]);
+                    if (effectiveFilters.priceRange) {
+                        query = query.gte('price', effectiveFilters.priceRange[0]).lte('price', effectiveFilters.priceRange[1]);
                     }
 
-                    if (filters.propertyType && filters.propertyType.length > 0) {
-                        query = query.in('property_type', filters.propertyType);
+                    if (effectiveFilters.propertyType && effectiveFilters.propertyType.length > 0) {
+                        query = query.in('property_type', effectiveFilters.propertyType);
                     }
 
-                    if (filters.bedrooms && filters.bedrooms.length > 0) {
-                        const minBeds = Math.min(...filters.bedrooms);
+                    if (effectiveFilters.bedrooms && effectiveFilters.bedrooms.length > 0) {
+                        const minBeds = Math.min(...effectiveFilters.bedrooms);
                         query = query.gte('beds', minBeds);
                     }
 
-                    if (filters.bathrooms && filters.bathrooms.length > 0) {
-                        const minBaths = Math.min(...filters.bathrooms);
+                    if (effectiveFilters.bathrooms && effectiveFilters.bathrooms.length > 0) {
+                        const minBaths = Math.min(...effectiveFilters.bathrooms);
                         query = query.gte('baths', minBaths);
                     }
 
-                    // Apply verified filter if requested
-                    if (filters.verified) {
-                        // Some categories have dynamic verification fields, but we generally use background_check_verified or similar
+                    if (effectiveFilters.verified) {
+                        // verification filter placeholder
                     }
                 }
 
