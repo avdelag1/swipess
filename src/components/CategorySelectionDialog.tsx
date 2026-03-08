@@ -175,7 +175,7 @@ export function CategorySelectionDialog({
             whileTap={{ scale: 0.96 }}
             whileHover={{ scale: 1.01 }}
             transition={springTap}
-            className="relative w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-[length:200%_100%] animate-[shimmer_3s_ease-in-out_infinite] text-white border-0 shadow-2xl shadow-purple-500/30 px-5 py-3.5 font-bold text-base flex items-center justify-center gap-2.5"
+            className="relative w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white border-0 shadow-2xl shadow-purple-500/30 px-5 py-3.5 font-bold text-base flex items-center justify-center gap-2.5"
           >
             <Zap className="w-5 h-5" />
             ✨ Generate Listing with AI
