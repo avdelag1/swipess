@@ -101,9 +101,9 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className={cn(
-              "pointer-events-auto flex items-center min-w-[280px] max-w-[90vw] h-12 gap-3 px-4 rounded-full",
-              "bg-black/80 dark:bg-[#0e0e11]/90 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] cursor-pointer group",
-              !isDark && "bg-white/90 border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+              "pointer-events-auto flex items-center min-w-[300px] max-w-[92vw] h-14 gap-3 px-4 rounded-2xl",
+              "bg-black/85 dark:bg-[#0e0e11]/95 backdrop-blur-2xl border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.6)] cursor-pointer group",
+              !isDark && "bg-white/95 border-black/12 shadow-[0_8px_30px_rgba(0,0,0,0.18)]"
             )}
             onClick={() => {
               onNotificationClick(currentNotification);
@@ -111,30 +111,30 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
             }}
           >
             {/* Visual Indicator - Glowing Circle */}
-            <div className={cn("relative flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ring-4 transition-all duration-300", config.ring)}>
-              <Icon className={cn("w-3.5 h-3.5", config.color)} />
+            <div className={cn("relative flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ring-4 transition-all duration-300", config.ring, isDark ? "bg-white/5" : "bg-black/5")}>
+              <Icon className={cn("w-4 h-4", config.color)} />
               {/* Type-specific glow */}
               <div className={cn("absolute inset-0 rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity", config.color.replace('text-', 'bg-'))} />
             </div>
 
             <div className="flex-1 min-w-0 pr-2">
-              <h4 className={cn("text-[11px] font-black uppercase tracking-wider leading-none mb-0.5 truncate", isDark ? "text-white" : "text-black")}>
-                {unreadCount > 1 ? `(${unreadCount}) Swipess Alerts` : currentNotification.title}
+              <h4 className={cn("text-xs font-black uppercase tracking-wide leading-none mb-1 truncate", isDark ? "text-white" : "text-gray-900")}>
+                {unreadCount > 1 ? `${unreadCount} New Alerts` : currentNotification.title}
               </h4>
-              <p className={cn("text-[10px] font-bold truncate leading-tight", isDark ? "text-white/50" : "text-black/50")}>
-                {unreadCount > 1 ? 'Check your notifications center' : currentNotification.message}
+              <p className={cn("text-[11px] font-semibold truncate leading-tight", isDark ? "text-white/65" : "text-gray-600")}>
+                {unreadCount > 1 ? 'Tap to view your notifications' : currentNotification.message}
               </p>
             </div>
 
             <button
               onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
               className={cn(
-                "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors",
-                isDark ? "bg-white/5 hover:bg-white/10" : "bg-black/5 hover:bg-black/10"
+                "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors",
+                isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/8 hover:bg-black/15"
               )}
               aria-label="Dismiss"
             >
-              <X className={cn("w-3 h-3", isDark ? "text-white/40 group-hover:text-white" : "text-black/40 group-hover:text-black")} />
+              <X className={cn("w-3.5 h-3.5", isDark ? "text-white/70 group-hover:text-white" : "text-gray-500 group-hover:text-gray-900")} />
             </button>
           </motion.div>
         </motion.div>
