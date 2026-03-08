@@ -184,6 +184,30 @@ export const useFilterStore = create<FilterState>()(
       }));
     },
     
+    setClientAgeRange: (range) => {
+      set((state) => ({
+        clientAgeRange: range,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    
+    setClientBudgetRange: (range) => {
+      set((state) => ({
+        clientBudgetRange: range,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    
+    setClientNationalities: (nationalities) => {
+      set((state) => ({
+        clientNationalities: nationalities,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    
     // ========== ADVANCED FILTER ACTIONS ==========
     setPriceRange: (range) => {
       set((state) => ({
