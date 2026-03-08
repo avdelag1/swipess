@@ -243,6 +243,36 @@ export function useSmartListingMatching(
                         hasJsonOverlap((l as any).skills, effectiveFilters.skills)
                     );
                 }
+                if (effectiveFilters?.scheduleTypes && effectiveFilters.scheduleTypes.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).schedule_type, effectiveFilters.scheduleTypes)
+                    );
+                }
+                if (effectiveFilters?.timeSlotsAvailable && effectiveFilters.timeSlotsAvailable.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).time_slots_available, effectiveFilters.timeSlotsAvailable)
+                    );
+                }
+                if (effectiveFilters?.locationTypes && effectiveFilters.locationTypes.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).location_type, effectiveFilters.locationTypes)
+                    );
+                }
+                if (effectiveFilters?.certifications && effectiveFilters.certifications.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).certifications, effectiveFilters.certifications)
+                    );
+                }
+                // Boolean verification filters
+                if (effectiveFilters?.offersEmergencyService) {
+                    filteredListings = filteredListings.filter(l => (l as any).offers_emergency_service === true);
+                }
+                if (effectiveFilters?.backgroundCheckVerified) {
+                    filteredListings = filteredListings.filter(l => (l as any).background_check_verified === true);
+                }
+                if (effectiveFilters?.insuranceVerified) {
+                    filteredListings = filteredListings.filter(l => (l as any).insurance_verified === true);
+                }
 
                 // Exclude own listings (defense in depth)
                 filteredListings = filteredListings.filter(listing => {
