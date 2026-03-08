@@ -306,6 +306,7 @@ VehicleCardInfo.displayName = 'VehicleCardInfo';
 
 interface ServiceCardInfoProps extends CardInfoProps {
   hourlyRate?: number;
+  pricingUnit?: string;
   serviceName: string;
   name?: string;
   location?: string;
