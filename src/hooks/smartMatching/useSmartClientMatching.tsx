@@ -235,30 +235,30 @@ export function useSmartClientMatching(
                             if (!hasMatchingCategory) return false;
                         }
 
-                        if (filters.hasPets !== undefined && profile.has_pets !== undefined) {
+                        if (filters?.hasPets !== undefined && profile.has_pets !== undefined) {
                             if (filters.hasPets !== profile.has_pets) return false;
                         }
-                        if (filters.smoking !== undefined && profile.smoking !== undefined) {
+                        if (filters?.smoking !== undefined && profile.smoking !== undefined) {
                             if (filters.smoking !== profile.smoking) return false;
                         }
-                        if (filters.partyFriendly !== undefined && profile.party_friendly !== undefined) {
+                        if (filters?.partyFriendly !== undefined && profile.party_friendly !== undefined) {
                             if (filters.partyFriendly !== profile.party_friendly) return false;
                         }
-                        if (filters.verified && !profile.verified) return false;
+                        if (filters?.verified && !profile.verified) return false;
 
-                        if (filters.nationalities?.length && profile.nationality) {
+                        if (filters?.nationalities?.length && profile.nationality) {
                             if (!filters.nationalities.includes(profile.nationality)) return false;
                         }
-                        if (filters.languages?.length && profile.languages) {
+                        if (filters?.languages?.length && profile.languages) {
                             if (!filters.languages.some(lang => profile.languages.includes(lang))) return false;
                         }
-                        if (filters.relationshipStatus?.length && profile.relationship_status) {
+                        if (filters?.relationshipStatus?.length && profile.relationship_status) {
                             if (!filters.relationshipStatus.includes(profile.relationship_status)) return false;
                         }
-                        if (filters.interests?.length && profile.interests) {
+                        if (filters?.interests?.length && profile.interests) {
                             if (!filters.interests.some(interest => profile.interests.includes(interest))) return false;
                         }
-                        if (filters.lifestyleTags?.length && profile.lifestyle_tags) {
+                        if (filters?.lifestyleTags?.length && profile.lifestyle_tags) {
                             if (!filters.lifestyleTags.some(tag => profile.lifestyle_tags.includes(tag))) return false;
                         }
 

@@ -121,10 +121,16 @@ export default function OwnerFilters() {
   const handleApply = useCallback(() => {
     setClientGender(selectedGender);
     setClientType(selectedClientType);
+
+    // Persist to DB (background, non-blocking)
+    updatePreferences({
+      selected_genders: selectedGender === 'any' ? [] : [selectedGender],
+    });
+
     queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
     queryClient.invalidateQueries({ queryKey: ['owner-interested-clients'] });
     navigate(-1);
-  }, [selectedGender, selectedClientType, setClientGender, setClientType, queryClient, navigate]);
+  }, [selectedGender, selectedClientType, setClientGender, setClientType, updatePreferences, queryClient, navigate]);
 
   const handleReset = useCallback(() => {
     setSelectedGender('any');

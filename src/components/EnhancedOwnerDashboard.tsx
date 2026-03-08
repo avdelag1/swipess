@@ -29,6 +29,17 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 
+  // Hydrate owner filter store from DB on mount
+  const { preferences: ownerPrefs } = useOwnerClientPreferences();
+  const setClientGender = useFilterStore((s) => s.setClientGender);
+  const storeGender = useFilterStore((s) => s.clientGender);
+
+  useEffect(() => {
+    if (ownerPrefs && storeGender === 'any' && ownerPrefs.selected_genders?.length) {
+      setClientGender(ownerPrefs.selected_genders[0] as any);
+    }
+  }, [ownerPrefs, storeGender, setClientGender]);
+
   // Connect filter store to swipe container (fixes missing filters when rendered as a route)
   const filterVersion = useFilterStore((s) => s.filterVersion);
   const getListingFilters = useFilterStore((s) => s.getListingFilters);
