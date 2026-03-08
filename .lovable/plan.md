@@ -1,46 +1,56 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Fix All Missing Form Fields & UI — WorkerListingForm, MotorcycleListingForm, BicycleListingForm, CategorySelector
 
-### 1. Replace App Icon with Fire S Logo
+## Problem
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+The report claims 15+ fields were added to WorkerListingForm, motorcycle/bicycle forms were updated, and CategorySelector got cascade mode. **None of these changes exist in the current code.** The forms are incomplete — fields defined in the interfaces and saved by UnifiedListingForm have no UI controls.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## What Is Actually Missing
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### WorkerListingForm (11 missing UI sections)
+The interface defines `description`, `work_type`, `schedule_type`, `days_available`, `time_slots_available`, `location_type`, `skills`, `certifications`, `tools_equipment`, `languages`, `service_radius_km`, `minimum_booking_hours`, `offers_emergency_service`, `background_check_verified`, `insurance_verified` — but the form only renders Service Category, Title, City/Country, Price/Unit, and Experience. **All other fields have zero UI.**
 
-### 2. Profile Photo Already Shows in Top-Left
+### MotorcycleListingForm (4 missing)
+- No `description` textarea
+- Missing `has_esc`, `has_luggage_rack`, `includes_gear` checkboxes (DB columns exist)
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### BicycleListingForm (2 issues)
+- No `description` textarea
+- `motor_power` field still in form but **not a DB column** (phantom field that never saves)
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+### CategorySelector (1 missing behavior)
+- No cascade mode toggle: clicking "For Rent" while "For Sale" is active should activate both (and vice versa), not replace
 
-### 3. Fix Header Too Close to Top Edge
+## Changes
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+### File 1: `src/components/WorkerListingForm.tsx`
+Add the following UI sections after the existing cards:
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+1. **Description textarea** — inside the Service Details card
+2. **Work Preferences card** — pill-style toggle chips for `work_type` and `schedule_type` arrays
+3. **Availability card** — square day buttons (Mon-Sun) for `days_available` + time slot chips for `time_slots_available`
+4. **Service Location card** — location type pills + `service_radius_km` slider + `minimum_booking_hours` input
+5. **Skills & Qualifications card** — tag input pattern (type + Enter to add, x to remove) for `skills`, `certifications`, `tools_equipment`, `languages`
+6. **Verification & Trust card** — checkboxes for `offers_emergency_service`, `background_check_verified`, `insurance_verified`
 
-### 4. Fix MarketingSlide Build Error
+All fields already exist in the `WorkerFormData` interface and are already saved by `UnifiedListingForm`'s mutation. This is purely adding missing UI controls.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### File 2: `src/components/MotorcycleListingForm.tsx`
+- Add `description` textarea to Basic Information card
+- Add `has_esc`, `has_luggage_rack`, `includes_gear` to interface and Features card (2-column grid layout)
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+### File 3: `src/components/BicycleListingForm.tsx`
+- Add `description` textarea to Basic Information card
+- Remove `motor_power` from interface and form (not a DB column)
+- E-bike section shows only `battery_range` when electric is checked
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### File 4: `src/components/CategorySelector.tsx`
+- Implement cascade mode: clicking one mode while the other is active → both become active (`'both'`)
+- Clicking one mode while both are active → deselects that one, keeps the other
+- Visual: active modes get glow effect (`shadow-md shadow-primary/20`) and press animation (`active:scale-[0.96]`)
+- Category buttons get rounded pill styling with active glow
+
+## No DB or Backend Changes
+All fields already exist in the `listings` table. `UnifiedListingForm` already serializes all these fields in its mutation. The only gap is the missing form controls.
 
