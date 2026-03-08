@@ -6,9 +6,12 @@ export type ClientFilterPreferences = {
   id?: string;
   user_id: string;
 
-  // Core price filters
+  // Core price filters (DB columns: price_min, price_max)
   price_min?: number | null;
   price_max?: number | null;
+  // Legacy aliases used by some components
+  min_price?: number | null;
+  max_price?: number | null;
 
   // Property preferences
   min_bedrooms?: number | null;
@@ -20,6 +23,15 @@ export type ClientFilterPreferences = {
   amenities_required?: string[] | null;
   property_types?: string[] | null;
   location_zones?: string[] | null;
+  rental_duration?: string | null;
+
+  // Amenity flags
+  requires_gym?: boolean;
+  requires_balcony?: boolean;
+  requires_elevator?: boolean;
+  requires_jacuzzi?: boolean;
+  requires_coworking_space?: boolean;
+  requires_solar_panels?: boolean;
 
   // Category interests
   preferred_categories?: string[] | null;
@@ -29,6 +41,7 @@ export type ClientFilterPreferences = {
   interested_in_motorcycles?: boolean;
   interested_in_bicycles?: boolean;
   interested_in_vehicles?: boolean;
+  interested_in_yachts?: boolean;
 
   // Motorcycle preferences
   moto_types?: string[] | null;
@@ -36,16 +49,75 @@ export type ClientFilterPreferences = {
   moto_price_max?: number | null;
   moto_year_min?: number | null;
   moto_year_max?: number | null;
+  moto_engine_size_min?: number | null;
+  moto_engine_size_max?: number | null;
+  moto_mileage_max?: number | null;
+  moto_transmission?: string[] | null;
+  moto_condition?: string[] | null;
+  moto_fuel_types?: string[] | null;
+  moto_cylinders?: string[] | null;
+  moto_cooling_system?: string[] | null;
+  moto_has_abs?: boolean | null;
+  moto_features?: string[] | null;
+  moto_is_electric?: boolean | null;
+  moto_battery_capacity_min?: number | null;
 
   // Bicycle preferences
   bicycle_types?: string[] | null;
   bicycle_price_min?: number | null;
   bicycle_price_max?: number | null;
+  bicycle_wheel_sizes?: string[] | null;
+  bicycle_suspension_type?: string[] | null;
+  bicycle_material?: string[] | null;
+  bicycle_gears_min?: number | null;
+  bicycle_gears_max?: number | null;
+  bicycle_year_min?: number | null;
+  bicycle_condition?: string[] | null;
+  bicycle_is_electric?: boolean | null;
+  bicycle_battery_range_min?: number | null;
+
+  // Yacht preferences
+  yacht_types?: string[] | null;
+  yacht_length_min?: number | null;
+  yacht_length_max?: number | null;
+  yacht_price_min?: number | null;
+  yacht_price_max?: number | null;
+  yacht_year_min?: number | null;
+  yacht_guest_capacity_min?: number | null;
+  yacht_guest_capacity_max?: number | null;
+  yacht_cabin_count_min?: number | null;
+  yacht_cabin_count_max?: number | null;
+  yacht_condition?: string[] | null;
+  yacht_fuel_types?: string[] | null;
+  yacht_engine_power_min?: number | null;
+  yacht_engine_power_max?: number | null;
+  yacht_max_speed_min?: number | null;
+  yacht_range_nm_min?: number | null;
+  yacht_hull_material?: string[] | null;
+  yacht_water_activities?: string[] | null;
+  yacht_navigation_equipment?: string[] | null;
+  yacht_has_stabilizers?: boolean | null;
 
   // Vehicle preferences
   vehicle_types?: string[] | null;
+  vehicle_body_types?: string[] | null;
+  vehicle_drive_types?: string[] | null;
   vehicle_price_min?: number | null;
   vehicle_price_max?: number | null;
+  vehicle_year_min?: number | null;
+  vehicle_year_max?: number | null;
+  vehicle_mileage_max?: number | null;
+  vehicle_transmission?: string[] | null;
+  vehicle_fuel_types?: string[] | null;
+  vehicle_condition?: string[] | null;
+  vehicle_seating_capacity?: number | null;
+  vehicle_number_of_doors?: number | null;
+  vehicle_safety_features?: string[] | null;
+  vehicle_comfort_features?: string[] | null;
+  vehicle_tech_features?: string[] | null;
+
+  // Allow any additional fields for forward compatibility
+  [key: string]: any;
 };
 
 // Type for database operations (excluding id & user_id)
