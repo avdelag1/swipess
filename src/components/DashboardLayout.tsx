@@ -382,7 +382,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Convert AdvancedFilters format to ListingFilters format
     const convertedFilters: any = {
       ...filters,
-      propertyType: filters.propertyTypes, // propertyTypes -> propertyType
+      propertyType: filters.propertyTypes,
       listingType: filters.listingTypes?.length === 1 ? filters.listingTypes[0] :
         filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
           filters.listingTypes?.[0] || 'rent',
@@ -391,6 +391,36 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       verified: filters.verified || false,
       premiumOnly: filters.premiumOnly || false,
     };
+
+    // Unprefix category-specific keys from AdvancedFilters
+    // e.g. services_service_categories → serviceCategory, services_work_types → workTypes
+    const prefixMap: Record<string, string> = {
+      services_service_categories: 'serviceCategory',
+      services_work_types: 'workTypes',
+      services_schedule_types: 'scheduleTypes',
+      services_days_available: 'daysAvailable',
+      services_time_slots_available: 'timeSlotsAvailable',
+      services_location_types: 'locationTypes',
+      services_experience_levels: 'experienceLevel',
+      services_skills: 'skills',
+      services_certifications: 'certifications',
+      property_priceMin: 'priceRange',
+      property_priceMax: 'priceRange',
+    };
+
+    Object.entries(filters).forEach(([key, value]) => {
+      const mapped = prefixMap[key];
+      if (mapped && value != null) {
+        // Special handling for priceRange pair
+        if (key === 'property_priceMin') {
+          convertedFilters.priceRange = [value as number, convertedFilters.priceRange?.[1] ?? Infinity];
+        } else if (key === 'property_priceMax') {
+          convertedFilters.priceRange = [convertedFilters.priceRange?.[0] ?? 0, value as number];
+        } else {
+          convertedFilters[mapped] = value;
+        }
+      }
+    });
 
     setAppliedFilters(convertedFilters);
 

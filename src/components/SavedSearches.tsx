@@ -137,6 +137,26 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                           {fd.preferred_occupations.length} occupations
                         </Badge>
                       )}
+                      {fd.service_categories?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.service_categories.join(', ')}
+                        </Badge>
+                      )}
+                      {fd.work_types?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.work_types.length} work types
+                        </Badge>
+                      )}
+                      {fd.skills?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.skills.length} skills
+                        </Badge>
+                      )}
+                      {fd.days_available?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.days_available.length} days
+                        </Badge>
+                      )}
                     </>
                   );
                 })()}
