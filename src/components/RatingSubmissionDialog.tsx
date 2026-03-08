@@ -19,6 +19,7 @@ import { StarRatingInput } from './RatingDisplay';
 import { useRatingCategory, useCreateRating, useCanRate, useHasRated } from '@/hooks/useRatingSystem';
 import type { CreateRatingInput } from '@/hooks/useRatingSystem';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 
