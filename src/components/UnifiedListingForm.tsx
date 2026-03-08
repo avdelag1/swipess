@@ -23,6 +23,7 @@ import { PropertyListingForm } from './PropertyListingForm';
 import { WorkerListingForm, WorkerFormData } from './WorkerListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
@@ -128,6 +129,21 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       if (currentImages.length + currentImageFiles.length < 1) {
         throw new Error('At least 1 photo required');
+      }
+
+      // Content moderation: check title, description, house_rules
+      const fieldsToCheck = [
+        { text: formData.title as string, label: 'Title' },
+        { text: formData.description as string, label: 'Description' },
+        { text: formData.house_rules as string, label: 'House Rules' },
+      ];
+      for (const field of fieldsToCheck) {
+        if (field.text) {
+          const result = validateContent(field.text);
+          if (!result.isClean) {
+            throw new Error(`${field.label}: ${result.message}`);
+          }
+        }
       }
 
       let uploadedImageUrls: string[] = [];

@@ -11,6 +11,7 @@ import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
+import { validateContent } from '@/utils/contactInfoValidation';
 import { Building2, Bike, CircleDot, Briefcase, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -76,6 +77,20 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   };
 
   const handleSave = async () => {
+    // Content moderation on business name & location (not email/phone - those are legitimate)
+    for (const { text, label } of [
+      { text: businessName, label: 'Business Name' },
+      { text: businessLocation, label: 'Business Location' },
+    ]) {
+      if (text) {
+        const check = validateContent(text);
+        if (!check.isClean) {
+          toast.error(`${label}: Content blocked`, { description: check.message || undefined });
+          return;
+        }
+      }
+    }
+
     const payload = {
       business_name: businessName || null,
       business_location: businessLocation || null,

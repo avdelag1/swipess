@@ -19,6 +19,7 @@ import { SubscriptionPackages } from '@/components/SubscriptionPackages';
 import { ChatPreviewSheet } from '@/components/ChatPreviewSheet';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
+import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
 
@@ -202,11 +203,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     }
   }, [messages, isScrolledToBottom]);
 
+  const { moderate } = useContentModeration();
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
     const messageText = newMessage.trim();
+
+    // Content moderation check
+    if (!moderate(messageText, 'message', conversationId)) return;
+
     setNewMessage('');
     stopTyping(); // Stop typing indicator when message is sent
 

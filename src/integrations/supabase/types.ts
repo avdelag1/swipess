@@ -221,6 +221,39 @@ export type Database = {
         }
         Relationships: []
       }
+      content_flags: {
+        Row: {
+          content_text: string
+          content_type: string
+          created_at: string
+          flag_reason: string
+          id: string
+          source_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          content_text: string
+          content_type: string
+          created_at?: string
+          flag_reason: string
+          id?: string
+          source_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          content_text?: string
+          content_type?: string
+          created_at?: string
+          flag_reason?: string
+          id?: string
+          source_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conversation_messages: {
         Row: {
           attachments: Json | null

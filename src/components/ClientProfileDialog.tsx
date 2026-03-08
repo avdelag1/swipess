@@ -20,6 +20,7 @@ import {
   getCityByName,
 } from '@/data/worldLocations';
 import { logger } from '@/utils/prodLogger';
+import { validateContent } from '@/utils/contactInfoValidation';
 
 // Predefined tag categories
 const PROPERTY_TAGS = [
@@ -341,6 +342,15 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       // Client intentions
       intentions: intentions,
     };
+
+    // Content moderation on name
+    if (name) {
+      const nameCheck = validateContent(name);
+      if (!nameCheck.isClean) {
+        toast.error('Content blocked', { description: nameCheck.message || undefined });
+        return;
+      }
+    }
 
     try {
       await saveMutation.mutateAsync(payload);
