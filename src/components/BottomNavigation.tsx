@@ -316,8 +316,8 @@ export function BottomNavigation({
                   <Icon
                     className="transition-all duration-250 ease-out"
                     style={{
-                      width: ICON_SIZE,
-                      height: ICON_SIZE,
+                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                       color: active ? 'transparent' : iconColorInactive,
                       stroke: active ? 'url(#nav-active-gradient)' : 'currentColor',
                       fill: active ? 'url(#nav-active-gradient)' : 'none',
