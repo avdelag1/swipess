@@ -575,20 +575,27 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-8 py-5 border-t border-white/5 bg-background/60 backdrop-blur-xl">
-          <Button
-            variant="ghost"
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.06] bg-background/80 backdrop-blur-2xl">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-white/5 px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
-          </Button>
+          </motion.button>
 
           <div className="flex items-center gap-3">
-            <Button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={handleSubmit}
               disabled={createListingMutation.isPending}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 rounded-2xl h-12 font-bold shadow-xl shadow-primary/20 active:scale-[0.96] transition-all flex items-center gap-2"
+              className={cn(
+                "px-10 rounded-2xl h-12 font-bold shadow-xl transition-all flex items-center gap-2 text-white disabled:opacity-50",
+                selectedCategory === 'property' && "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20",
+                selectedCategory === 'motorcycle' && "bg-orange-600 hover:bg-orange-500 shadow-orange-500/20",
+                selectedCategory === 'bicycle' && "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20",
+                selectedCategory === 'worker' && "bg-amber-600 hover:bg-amber-500 shadow-amber-500/20",
+              )}
             >
               {createListingMutation.isPending ? (
                 <>
@@ -601,7 +608,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
-            </Button>
+            </motion.button>
           </div>
         </div>
       </DialogContent>

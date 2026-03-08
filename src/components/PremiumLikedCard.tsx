@@ -113,21 +113,28 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
 
                 {/* Standardized Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                    <button
+                    <motion.button
+                        whileTap={{ scale: 0.96 }}
                         onClick={() => onAction('message', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#E4007C] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all active:scale-95"
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#E4007C] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all"
                     >
                         <MessageCircle className="w-4 h-4" />
                         MESSAGE
-                    </button>
+                    </motion.button>
 
-                    <button
+                    <motion.button
+                        whileTap={{ scale: 0.96 }}
                         onClick={() => onAction('view', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-secondary hover:bg-muted text-foreground text-xs font-black border border-border transition-all active:scale-95"
+                        className={cn(
+                          "flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl text-xs font-black transition-all",
+                          isLight
+                            ? "bg-secondary hover:bg-muted text-foreground border border-border/40"
+                            : "bg-white/[0.06] hover:bg-white/[0.1] text-white border border-white/[0.08]"
+                        )}
                     >
                         <Eye className="w-4 h-4" />
                         VIEW
-                    </button>
+                    </motion.button>
                 </div>
             </div>
         </motion.div>

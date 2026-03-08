@@ -517,31 +517,34 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                                 "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
                                 isLight ? "bg-red-50 text-red-600 border border-red-200/60 hover:bg-red-100" : "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
                               )}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className={cn(isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700')}>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-foreground">Delete Listing</AlertDialogTitle>
-                              <AlertDialogDescription className="text-muted-foreground">
-                                Are you sure you want to delete "{listing.title}"?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className={cn(isLight ? 'bg-gray-100 text-foreground border-gray-200' : 'bg-gray-700 text-white border-gray-600')}>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteProperty(listing)}
-                                className="bg-red-600 hover:bg-red-700 text-white"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </CardContent>
-                  </Card>
+            >
+              <Trash2 className="w-4 h-4" />
+            </motion.button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className={cn(
+            "rounded-3xl",
+            isLight ? 'bg-white border-border/50' : 'bg-[#1a1a1a] border-white/[0.08]'
+          )}>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-foreground">Delete Listing</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground">
+                Are you sure you want to delete "{listing.title}"?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className={cn("rounded-xl", isLight ? 'bg-secondary text-foreground border-border/30' : 'bg-white/[0.06] text-white border-white/[0.08]')}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleDeleteProperty(listing)}
+                className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </CardContent>
+  </div>
                 </motion.div>
               ))}
             </motion.div>

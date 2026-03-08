@@ -170,14 +170,14 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                 {categoryBreakdown.map((cat) => (
                   <div key={cat.name} className="flex items-center gap-1.5">
                     <div className={cn("w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full", cat.color)} />
-                    <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-gray-500' : 'text-gray-400')}>
+                    <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-muted-foreground' : 'text-white/50')}>
                       {cat.name} ({cat.count})
                     </span>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       )}
     </div>
