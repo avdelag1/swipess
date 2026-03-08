@@ -199,8 +199,8 @@ export function useSmartClientMatching(
                     });
 
                 // Apply client filters if provided (merge with DB fallbacks)
-                const effectiveGender = (filters as any)?.clientGender && (filters as any).clientGender !== 'any'
-                    ? (filters as any).clientGender
+                const effectiveGender = filters?.clientGender && filters.clientGender !== 'any'
+                    ? filters.clientGender
                     : dbGenderFilter;
 
                 if (filters || effectiveGender) {
