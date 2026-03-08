@@ -75,8 +75,8 @@ export function useOwnerClientPreferences() {
         .from('owner_client_preferences')
         .upsert({
           user_id: user.id,
-          ...prefs,
-        } as any)
+          ...stripToDbFields(prefs),
+        })
         .select()
         .maybeSingle();
 

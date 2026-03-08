@@ -236,8 +236,8 @@ export function useSmartClientMatching(
                         }
 
                         // Category filtering based on intentions
-                        if (filters && (filters as any).categories && (filters as any).categories.length > 0) {
-                            const categories = (filters as any).categories;
+                        if (filters && filters.categories && filters.categories.length > 0) {
+                            const categories = filters.categories;
                             const clientIntentions = profile.intentions || [];
                             let hasMatchingCategory = false;
 
