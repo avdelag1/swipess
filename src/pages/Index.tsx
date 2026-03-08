@@ -278,7 +278,11 @@ const Index = () => {
   }, [user, initialized]);
 
   if (!initialized || loading) {
-    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+    return (
+      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      </div>
+    );
   }
 
   // User exists but still loading role - show transparent screen
@@ -322,7 +326,11 @@ const Index = () => {
       );
     }
 
-    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+    return (
+      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      </div>
+    );
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -335,7 +343,11 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+  return (
+    <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+      <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+    </div>
+  );
 };
 
 export default Index;
