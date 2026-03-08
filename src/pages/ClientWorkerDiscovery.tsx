@@ -338,16 +338,27 @@ export default function ClientWorkerDiscovery() {
                 <Filter className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 <SelectItem value="all">All Types</SelectItem>
-                {SERVICE_CATEGORIES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    <span className="flex items-center gap-2">
-                      <span>{type.icon}</span>
-                      <span>{type.label}</span>
-                    </span>
-                  </SelectItem>
-                ))}
+                {SERVICE_GROUPS.map(group => {
+                  const cats = getGroupedCategories()[group];
+                  if (!cats.length) return null;
+                  return (
+                    <SelectGroup key={group}>
+                      <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        {group}
+                      </SelectLabel>
+                      {cats.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          <span className="flex items-center gap-2">
+                            <span>{type.icon}</span>
+                            <span>{type.label}</span>
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
