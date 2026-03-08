@@ -1,46 +1,43 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Continued Audit: 4 Critical `id` vs `user_id` Column Mismatches
 
-### 1. Replace App Icon with Fire S Logo
+All four issues are the same class of bug: querying the `profiles` table with `.eq('id', ...)` when the value is an auth user UUID. The `profiles.id` is an auto-generated row UUID, while `profiles.user_id` holds the auth UUID. These lookups always return `null`.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## Issue 1: OwnerViewClientProfile.tsx — Client Profile Never Loads
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**File**: `src/pages/OwnerViewClientProfile.tsx` line 32
+**Bug**: `.eq('id', clientId)` — `clientId` from URL param is a user UUID
+**Impact**: When an owner clicks to view a client's profile, it always shows "Profile not found"
+**Fix**: Change to `.eq('user_id', clientId)`
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+## Issue 2: useProfileRecycling.ts — Recycling Check Always Fails
 
-### 2. Profile Photo Already Shows in Top-Left
+**File**: `src/hooks/useProfileRecycling.ts` lines 106-107, 110
+**Bug**: `.in('id', profileIds)` and `p.id === card.viewed_profile_id` — `viewed_profile_id` stores user UUIDs
+**Impact**: Profile recycling never correctly identifies updated profiles, so passed profiles never resurface even after updates
+**Fix**: Change to `.in('user_id', profileIds)`, select `user_id`, and match by `p.user_id`
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+## Issue 3: useProfileSetup.tsx — Referral Verification Always Fails
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**File**: `src/hooks/useProfileSetup.tsx` lines 63-64 and 436-437
+**Bug**: `.eq('id', referrerId)` — referrerId is a user UUID from referral link
+**Impact**: Referral rewards never get granted because the referrer existence check always returns null
+**Fix**: Change both instances to `.eq('user_id', referrerId)`
 
-### 3. Fix Header Too Close to Top Edge
+## Issue 4: useAccountLinking.tsx — OAuth Profile Update Silently Fails
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**File**: `src/hooks/useAccountLinking.tsx` line 124
+**Bug**: `.eq('id', existingProfile.id)` — `existingProfile.id` is the auth user UUID from `check_email_exists` RPC
+**Impact**: When linking an OAuth account, profile metadata (avatar, name) never gets updated
+**Fix**: Change to `.eq('user_id', existingProfile.id)`
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+## Implementation
 
-### 4. Fix MarketingSlide Build Error
+Four code-only fixes. No database changes needed.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+1. `OwnerViewClientProfile.tsx`: `.eq('id', clientId)` → `.eq('user_id', clientId)`
+2. `useProfileRecycling.ts`: `.in('id', profileIds)` → `.in('user_id', profileIds)`, select + match by `user_id`
+3. `useProfileSetup.tsx`: Two instances of `.eq('id', referrerId)` → `.eq('user_id', referrerId)`
+4. `useAccountLinking.tsx`: `.eq('id', existingProfile.id)` → `.eq('user_id', existingProfile.id)`
 
