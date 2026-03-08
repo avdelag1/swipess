@@ -45,11 +45,11 @@ const SPRING_CONFIGS = {
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
   // NATIVE: iOS-like balanced feel (DEFAULT)
   NATIVE: { stiffness: 400, damping: 28, mass: 1 },
-  // SOFT: Playful with bounce
-  SOFT: { stiffness: 300, damping: 22, mass: 1.2 },
+  // SOFT: Playful with bounce - matches client card
+  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE;
+const ACTIVE_SPRING = SPRING_CONFIGS.SOFT;
 
 // Client profile type
 interface ClientProfile {
