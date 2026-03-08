@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import { startTransition, useState, useCallback } from 'react';
+import React, { startTransition, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion';
 import {
