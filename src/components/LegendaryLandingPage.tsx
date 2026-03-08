@@ -140,7 +140,7 @@ const LandingView = memo(({
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-xl font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -556,14 +556,13 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
+  const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: orbs → stars → cheetah → off (dark) → orbs
+  // Cycle: stars → cheetah → orbs → stars
   const cycleEffect = () => setEffectMode((p) => {
-    if (p === 'orbs') return 'stars';
     if (p === 'stars') return 'cheetah';
-    if (p === 'cheetah') return 'off';
-    return 'orbs';
+    if (p === 'cheetah') return 'orbs';
+    return 'stars';
   });
   const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : '◼';
 
