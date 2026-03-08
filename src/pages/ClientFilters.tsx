@@ -82,10 +82,26 @@ export default function ClientFilters() {
   const setListingType = useFilterStore((state) => state.setListingType);
   const resetFilters = useFilterStore((state) => state.resetClientFilters);
 
-  const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(
-    aiCategory ? [aiCategory as QuickFilterCategory] : storeCategories
-  );
-  const [selectedListingType, setSelectedListingType] = useState<ListingType>(storeListingType);
+  // DB persistence
+  const { data: dbPrefs } = useClientFilterPreferences();
+  const savePrefs = useSaveClientFilterPreferences();
+
+  // Hydrate from DB on first load (if store is empty and DB has data)
+  const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(() => {
+    if (aiCategory) return [aiCategory as QuickFilterCategory];
+    if (storeCategories.length > 0) return storeCategories;
+    if (dbPrefs?.preferred_categories && Array.isArray(dbPrefs.preferred_categories) && dbPrefs.preferred_categories.length > 0) {
+      return dbPrefs.preferred_categories as QuickFilterCategory[];
+    }
+    return [];
+  });
+  const [selectedListingType, setSelectedListingType] = useState<ListingType>(() => {
+    if (storeListingType !== 'both') return storeListingType;
+    if (dbPrefs?.preferred_listing_types && Array.isArray(dbPrefs.preferred_listing_types) && dbPrefs.preferred_listing_types.length === 1) {
+      return dbPrefs.preferred_listing_types[0] as ListingType;
+    }
+    return storeListingType;
+  });
 
   const activeFilterCount = selectedCategories.length + (selectedListingType !== 'both' ? 1 : 0);
   const hasChanges = activeFilterCount > 0;
