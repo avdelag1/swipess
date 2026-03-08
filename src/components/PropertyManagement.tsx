@@ -262,33 +262,43 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900/50 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-2xl"
+          className={cn(
+            "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-3xl shadow-2xl",
+            isLight
+              ? "bg-white border border-border/50"
+              : "bg-white/[0.04] backdrop-blur-xl border border-white/[0.06]"
+          )}
         >
           <div className="flex items-center gap-4">
             <div className="p-4 rounded-full bg-[#E4007C]/10 border border-[#E4007C]/20 shadow-[0_0_15px_rgba(228,0,124,0.15)]">
               <LayoutGrid className="w-7 h-7 text-[#E4007C]" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tighter text-white">My Listings</h1>
-              <p className="text-zinc-500 text-sm font-bold">Manage and track all your rental properties</p>
+              <h1 className="text-2xl font-black tracking-tighter text-foreground">My Listings</h1>
+              <p className="text-muted-foreground text-sm font-bold">Manage and track all your rental properties</p>
             </div>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              className="gap-2 border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide"
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className={cn(
+                "flex items-center gap-2 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide transition-all",
+                "border border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10",
+                isLight ? "bg-white" : "bg-white/[0.04] backdrop-blur-sm"
+              )}
               onClick={() => setShowAIAssistant(true)}
             >
               <Sparkles className="w-4 h-4" />
               <span>AI</span>
-            </Button>
-            <Button
-              className="gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95"
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all"
               onClick={handleAddProperty}
             >
               <Plus className="w-5 h-5" />
               <span>Add Listing</span>
-            </Button>
+            </motion.button>
           </div>
         </motion.div>
 
