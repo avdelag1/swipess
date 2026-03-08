@@ -22,7 +22,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           success: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-green-600 group-[.toaster]:via-emerald-600 group-[.toaster]:to-teal-600 group-[.toaster]:shadow-green-500/50",
           error: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-red-600 group-[.toaster]:via-rose-600 group-[.toaster]:to-pink-600 group-[.toaster]:shadow-red-500/50",
           warning: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-amber-600 group-[.toaster]:via-orange-600 group-[.toaster]:to-yellow-600 group-[.toaster]:shadow-amber-500/50",
-          info: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-cyan-600 group-[.toaster]:via-sky-600 group-[.toaster]:to-blue-600 group-[.toaster]:shadow-cyan-500/50",
+          info: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-pink-500 group-[.toaster]:via-rose-500 group-[.toaster]:to-orange-500 group-[.toaster]:shadow-pink-500/50",
         },
       }}
       {...props}
