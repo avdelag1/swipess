@@ -16,10 +16,10 @@
 
 import React, { startTransition, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, SlidersHorizontal, Flame, MessageCircle, User, List, Building2, Heart, Filter, Sparkles,
-  Search, Compass, LayoutGrid, Users, Briefcase,
+  Home, Flame, MessageCircle, User, Building2, Heart, Filter, Sparkles,
+  Search, Compass,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
