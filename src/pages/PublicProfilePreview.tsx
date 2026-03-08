@@ -44,26 +44,14 @@ export default function PublicProfilePreview() {
     queryFn: async () => {
       if (!id) throw new Error('No profile ID provided');
 
-      // Try to fetch from profiles_public first (read-only public view)
-      const { data: publicProfile, error: publicError } = await (supabase as any)
-        .from('profiles_public')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, city, avatar_url, bio, images, interests, nationality, languages_spoken, lifestyle_tags, age, gender, neighborhood, country')
+        .eq('user_id', id)
+        .maybeSingle();
 
-      if (publicError && publicError.code !== 'PGRST116') {
-        // If profiles_public doesn't exist, fall back to profiles table
-        const { data: profile, error: profileError } = await (supabase as any)
-          .from('profiles')
-          .select('user_id, full_name, city, avatar_url, bio')
-          .eq('user_id', id)
-          .maybeSingle();
-
-        if (profileError) throw profileError;
-        return profile;
-      }
-
-      return publicProfile;
+      if (profileError) throw profileError;
+      return profile;
     },
     enabled: !!id,
   });
