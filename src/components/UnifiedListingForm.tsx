@@ -23,6 +23,7 @@ import { PropertyListingForm } from './PropertyListingForm';
 import { WorkerListingForm, WorkerFormData } from './WorkerListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
