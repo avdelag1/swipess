@@ -1,13 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Check, Crown, Zap, Star } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Crown, Check, Shield, Clock, Sparkles } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { STORAGE } from '@/constants/app';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface SubscriptionPackagesProps {
   isOpen?: boolean;
@@ -20,19 +18,58 @@ interface SubscriptionPackagesProps {
 type Plan = {
   id: string;
   name: string;
-  price: string; // e.g., "$299 MXN"
+  label: string;
+  price: string;
+  durationText: string;
   benefits: string[];
   paypalUrl: string;
   highlight?: boolean;
+  accent: 'blue' | 'pink' | 'gold';
 };
-
-const ownerPlans: Plan[] = [];
 
 const clientPlans: Plan[] = [
   {
+    id: 'client-unlimited-1-month',
+    name: '1 Month',
+    label: 'STARTER',
+    price: '$39',
+    durationText: '/month',
+    benefits: [
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
+    ],
+    paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    accent: 'blue',
+  },
+  {
+    id: 'client-unlimited-6-months',
+    name: '6 Months',
+    label: 'POPULAR',
+    price: '$119',
+    durationText: '/6 months',
+    benefits: [
+      'Communicate with listings and members',
+      'Post properties for rent or sale',
+      'Post services (chef, driver, cleaning, etc.)',
+      'Post motorcycles or bicycles for rent or sale',
+      'Save favorite listings',
+      'Discover opportunities',
+      'AI assistant to create listings & discover the city'
+    ],
+    paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
+    accent: 'pink',
+  },
+  {
     id: 'client-unlimited-1-year',
-    name: 'UNLIMITED (1 YEAR)',
-    price: '$299 USD',
+    name: '1 Year',
+    label: 'BEST VALUE',
+    price: '$299',
+    durationText: '/year',
     benefits: [
       'Communicate with listings and members',
       'Post properties for rent or sale',
@@ -44,79 +81,53 @@ const clientPlans: Plan[] = [
     ],
     paypalUrl: 'https://www.paypal.com/ncp/payment/7E6R38L33LYUJ',
     highlight: true,
-  },
-  {
-    id: 'client-unlimited-6-months',
-    name: 'UNLIMITED (6 MONTHS)',
-    price: '$119 USD',
-    benefits: [
-      'Communicate with listings and members',
-      'Post properties for rent or sale',
-      'Post services (chef, driver, cleaning, etc.)',
-      'Post motorcycles or bicycles for rent or sale',
-      'Save favorite listings',
-      'Discover opportunities',
-      'AI assistant to create listings & discover the city'
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/HUESWJ68BRUSY',
-  },
-  {
-    id: 'client-unlimited-1-month',
-    name: 'UNLIMITED (1 MONTH)',
-    price: '$39 USD',
-    benefits: [
-      'Communicate with listings and members',
-      'Post properties for rent or sale',
-      'Post services (chef, driver, cleaning, etc.)',
-      'Post motorcycles or bicycles for rent or sale',
-      'Save favorite listings',
-      'Discover opportunities',
-      'AI assistant to create listings & discover the city'
-    ],
-    paypalUrl: 'https://www.paypal.com/ncp/payment/QSRXCJYYQ2UGY',
+    accent: 'gold',
   },
 ];
 
-// Icons and colors reused
-const getPackageIcon = (packageName: string) => {
-  if (packageName.includes('UNLIMITED')) return <Zap className="w-5 h-5" />;
-  if (packageName.includes('VIP')) return <Crown className="w-5 h-5" />;
-  if (packageName.includes('PREMIUM')) return <Star className="w-5 h-5" />;
-  return <Check className="w-5 h-5" />;
+const accentStyles = {
+  blue: {
+    border: 'border-blue-500/20',
+    badge: 'bg-blue-500/15 text-blue-400',
+    button: 'bg-gradient-to-r from-blue-600 to-blue-400',
+    checkColor: 'text-blue-400',
+    topGradient: 'from-blue-500/8 via-transparent to-transparent',
+  },
+  pink: {
+    border: 'border-pink-500/25',
+    badge: 'bg-pink-500/15 text-pink-400',
+    button: 'bg-gradient-to-r from-pink-600 to-orange-500',
+    checkColor: 'text-pink-400',
+    topGradient: 'from-pink-500/8 via-transparent to-transparent',
+  },
+  gold: {
+    border: 'border-amber-500/30',
+    badge: 'bg-amber-500/15 text-amber-400',
+    button: 'bg-gradient-to-r from-amber-500 to-orange-500',
+    checkColor: 'text-amber-400',
+    topGradient: 'from-amber-500/8 via-transparent to-transparent',
+  },
 };
 
-const getPackageColor = (packageName: string) => {
-  if (packageName.includes('UNLIMITED')) return 'from-blue-500 to-cyan-500';
-  if (packageName.includes('VIP')) return 'from-purple-500 to-pink-500';
-  if (packageName.includes('PREMIUM')) return 'from-green-500 to-emerald-500';
-  return 'from-gray-500 to-slate-500';
-};
-
-export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole = 'client', showAsPage = false }: SubscriptionPackagesProps) {
+export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole = 'client' }: SubscriptionPackagesProps) {
   const { user } = useAuth();
 
-  if (!showAsPage && !isOpen) return null;
+  if (!isOpen) return null;
 
-  const plans = userRole === 'owner' ? ownerPlans : clientPlans;
+  const plans = clientPlans;
 
   const handleSubscribe = async (plan: Plan) => {
-    // Store selected plan locally (can persist to Supabase upon your approval)
     const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
     localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
-
-    // Save return path for silent redirect after payment
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
-    // Open PayPal in a new tab
     window.open(plan.paypalUrl, '_blank');
 
-    // Feedback
     toast({
       title: 'Redirecting to PayPal',
-      description: `Selected: ${plan.name} (${plan.price})`,
+      description: `Selected: ${plan.name} (${plan.price} USD)`,
     });
 
-    // Save notification for premium package purchase
     if (user?.id) {
       await supabase.from('notifications').insert([{
         user_id: user.id,
@@ -125,92 +136,102 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
         is_read: false
       }]).then(
-        () => { /* Notification saved successfully */ },
-        () => { /* Notification save failed - non-critical */ }
+        () => {},
+        () => {}
       );
-
-      // Show browser notification if permission granted
-      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
-        const notification = new Notification('Premium Package Selected!', {
-          body: `${plan.name} (${plan.price}) - Complete payment to unlock premium features`,
-          icon: '/favicon.ico',
-          tag: `premium-${plan.id}`,
-          badge: '/favicon.ico',
-        });
-        setTimeout(() => notification.close(), 5000);
-      }
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] flex flex-col p-0 bg-background overflow-hidden">
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border">
-          <DialogTitle className="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-foreground font-brand">
-            Upgrade to Premium
-          </DialogTitle>
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 bg-background border-white/[0.06] overflow-hidden rounded-3xl">
+        {/* Header */}
+        <div className="text-center px-4 pt-6 pb-3">
+          <Crown className="w-6 h-6 text-amber-400 mx-auto mb-2" />
+          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-pink-500 via-orange-400 to-amber-400 bg-clip-text text-transparent">
+            Unlock Premium
+          </h2>
           {reason && (
-            <p className="text-center text-muted-foreground text-xs sm:text-sm mt-2">
-              {reason}
-            </p>
+            <p className="text-xs text-muted-foreground mt-1.5">{reason}</p>
           )}
-        </DialogHeader>
+        </div>
 
-        <ScrollArea className="flex-1 overflow-y-auto px-3 sm:px-6 py-4 sm:py-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-            {plans.map((pkg) => (
-              <Card
+        {/* Cards */}
+        <div className="flex flex-col sm:flex-row gap-3 px-4 sm:px-5 pb-3 items-stretch">
+          {plans.map((pkg, index) => {
+            const style = accentStyles[pkg.accent];
+            const isHighlight = pkg.highlight;
+
+            return (
+              <motion.div
                 key={pkg.id}
-                className={`relative overflow-hidden transition-all hover:shadow-lg flex flex-col ${pkg.highlight ? 'ring-2 ring-primary shadow-lg' : 'border-border'}`}
-              >
-                {pkg.highlight && (
-                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground px-2 sm:px-3 py-0.5 sm:py-1 text-[10px] sm:text-xs font-bold rounded-bl-lg">
-                    POPULAR
-                  </div>
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                className={cn(
+                  "flex-1 flex flex-col rounded-2xl border backdrop-blur-xl bg-white/[0.03] p-4 relative overflow-hidden",
+                  style.border,
+                  isHighlight && "ring-1 ring-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.08)]"
                 )}
+              >
+                <div className={cn("absolute inset-0 rounded-2xl bg-gradient-to-b pointer-events-none", style.topGradient)} />
 
-                <CardHeader className="pb-3 sm:pb-4 pt-4 sm:pt-5 px-3 sm:px-4">
-                  <div className="flex items-start gap-2 sm:gap-3">
-                    <div className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${getPackageColor(pkg.name)} text-white shadow-md shrink-0`}>
-                      {getPackageIcon(pkg.name)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-sm sm:text-base lg:text-lg font-bold text-foreground mb-1 truncate">{pkg.name}</CardTitle>
-                      <div className="flex items-baseline gap-1 flex-wrap">
-                        <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">{pkg.price}</span>
-                      </div>
-                    </div>
+                <div className="relative flex flex-col flex-1">
+                  {/* Badge */}
+                  <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full w-fit mb-2", style.badge)}>
+                    {pkg.label}
+                  </span>
+
+                  <h3 className="text-sm font-bold text-foreground">{pkg.name}</h3>
+
+                  <div className="flex items-baseline gap-1 mt-1 mb-3">
+                    <span className="text-2xl sm:text-3xl font-extrabold text-foreground">{pkg.price}</span>
+                    <span className="text-[10px] sm:text-xs text-muted-foreground">USD {pkg.durationText}</span>
                   </div>
-                </CardHeader>
 
-                <CardContent className="pt-0 flex-1 flex flex-col px-3 sm:px-4 pb-4">
-                  <div className="space-y-1.5 sm:space-y-2 mb-4 flex-1">
-                    {pkg.benefits.map((feature) => (
-                      <div key={`benefit-${feature}`} className="flex items-start gap-1.5 sm:gap-2">
-                        <Check className="w-3 h-3 sm:w-4 sm:h-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-xs sm:text-sm text-foreground leading-tight">
-                          {feature}
-                        </span>
+                  <div className="h-px bg-white/[0.06] mb-2.5" />
+
+                  <div className="flex-1 space-y-1.5 mb-3">
+                    {pkg.benefits.map((feature, i) => (
+                      <div key={i} className="flex items-start gap-1.5">
+                        <Check className={cn("w-3 h-3 flex-shrink-0 mt-0.5", style.checkColor)} />
+                        <span className="text-[11px] sm:text-xs text-foreground/80 leading-snug">{feature}</span>
                       </div>
                     ))}
                   </div>
 
-                  <Button
-                    className={`w-full bg-gradient-to-r ${getPackageColor(pkg.name)} hover:opacity-90 text-white font-semibold text-xs sm:text-sm py-2 sm:py-2.5`}
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => handleSubscribe(pkg)}
+                    className={cn(
+                      "w-full py-2.5 rounded-xl font-bold text-xs sm:text-sm text-white transition-opacity hover:opacity-90",
+                      style.button,
+                      isHighlight && "shadow-md shadow-amber-500/15"
+                    )}
                   >
-                    Buy Now
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    {isHighlight ? '🚀 Get Best Value' : 'Subscribe Now'}
+                  </motion.button>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
 
-          <div className="text-center text-xs sm:text-sm text-muted-foreground mt-6 sm:mt-8 space-y-1 pb-2 sm:pb-4">
-            <p>✓ Cancel anytime · Secure payments powered by PayPal</p>
-            <p>Questions? Contact support at <span className="text-primary">support@swipess.com</span></p>
+        {/* Trust Footer */}
+        <div className="flex items-center justify-center gap-5 px-4 pb-4 pt-1">
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Shield className="w-3 h-3 text-green-500" />
+            <span>Secure</span>
           </div>
-        </ScrollArea>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Clock className="w-3 h-3 text-blue-400" />
+            <span>Instant</span>
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Sparkles className="w-3 h-3 text-amber-400" />
+            <span>Cancel Anytime</span>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
