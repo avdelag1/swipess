@@ -381,7 +381,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Wheel Sizes</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.bicycle_wheel_sizes.map((size) => (
+                            {preferences.bicycle_wheel_sizes.map((size: string) => (
                               <Badge key={`bike-wheel-${size}`} variant="outline">{size}</Badge>
                             ))}
                           </div>
