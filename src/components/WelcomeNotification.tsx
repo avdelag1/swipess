@@ -30,10 +30,10 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
           <div
             className={cn(
               "pointer-events-auto w-full max-w-sm rounded-2xl overflow-hidden",
-              // Glass card base
+              // Glass card base — theme-aware
               isDark
-                ? "bg-[#0e0e11]/80 border border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.7)]"
-                : "bg-white/90 border border-black/8 shadow-[0_12px_40px_rgba(0,0,0,0.14)]",
+                ? "bg-card/80 border border-border/20 shadow-[0_16px_48px_rgba(0,0,0,0.7)]"
+                : "bg-card/90 border border-border/30 shadow-[0_12px_40px_rgba(0,0,0,0.14)]",
               "backdrop-blur-2xl"
             )}
           >
@@ -54,29 +54,20 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 
               {/* Text */}
               <div className="flex-1 min-w-0">
-                <h3 className={cn(
-                  "font-black text-sm leading-tight tracking-tight",
-                  isDark ? "text-white" : "text-gray-900"
-                )}>
+                <h3 className="font-black text-sm leading-tight tracking-tight text-foreground">
                   Welcome to Swipess
                 </h3>
-                <p className={cn(
-                  "text-xs mt-0.5 truncate",
-                  isDark ? "text-white/55" : "text-gray-500"
-                )}>
+                <p className="text-xs mt-0.5 truncate text-muted-foreground">
                   Swipe to find your perfect match
                 </p>
               </div>
 
               {/* Arrow hint + close */}
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <ArrowRight className={cn("w-4 h-4", isDark ? "text-white/25" : "text-gray-300")} />
+                <ArrowRight className="w-4 h-4 text-muted-foreground/40" />
                 <button
                   onClick={handleClose}
-                  className={cn(
-                    "w-7 h-7 rounded-full flex items-center justify-center transition-colors",
-                    isDark ? "bg-white/8 hover:bg-white/15 text-white/50 hover:text-white" : "bg-black/6 hover:bg-black/12 text-gray-400 hover:text-gray-700"
-                  )}
+                  className="w-7 h-7 rounded-full flex items-center justify-center transition-colors bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"
                   aria-label="Close"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -86,7 +77,7 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 
             {/* Auto-dismiss progress bar */}
             <motion.div
-              className={cn("h-[2px]", isDark ? "bg-white/15" : "bg-black/8")}
+              className="h-[2px] bg-foreground/10"
               initial={{ width: '100%' }}
               animate={{ width: '0%' }}
               transition={{ duration: 4, ease: 'linear' }}
