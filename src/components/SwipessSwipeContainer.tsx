@@ -1412,7 +1412,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   return (
     <div
       className="relative w-full flex flex-col"
-      style={{ minHeight: '100dvh' }}
+      style={{ height: '100%', minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
       {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
