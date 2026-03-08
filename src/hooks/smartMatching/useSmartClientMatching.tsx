@@ -261,6 +261,8 @@ export function useSmartClientMatching(
 
                         if (filters?.nationalities?.length && profile.nationality) {
                             if (!filters.nationalities.includes(profile.nationality)) return false;
+                        } else if (dbNationalities?.length && profile.nationality) {
+                            if (!dbNationalities.includes(profile.nationality)) return false;
                         }
                         if (filters?.languages?.length && profile.languages) {
                             if (!filters.languages.some(lang => profile.languages.includes(lang))) return false;
