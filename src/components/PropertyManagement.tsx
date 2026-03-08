@@ -183,7 +183,6 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         .from('listings')
         .update({
           status: newStatus,
-          availability_status: newStatus
         })
         .eq('id', listing.id);
 

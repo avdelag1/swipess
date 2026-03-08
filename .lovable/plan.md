@@ -1,80 +1,46 @@
 
 
-# Full Audit: 5 Remaining Issues Found
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Issue 1: `support_tickets` Ghost Table (CRITICAL)
+### 1. Replace App Icon with Fire S Logo
 
-**File**: `src/components/SupportDialog.tsx`
-**Impact**: Every support ticket submission crashes. The entire support system is non-functional.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-The `support_tickets` table does not exist in the database. The dialog queries and inserts into it, and throws on error.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Fix**: Create `support_tickets` table with columns: `id (uuid), user_id (uuid), subject (text), message (text), category (text default 'general'), priority (text default 'medium'), user_email (text), user_role (text), status (text default 'open'), created_at, updated_at`. RLS: users can insert and view own tickets.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
----
+### 2. Profile Photo Already Shows in Top-Left
 
-## Issue 2: Missing Database Triggers (CRITICAL)
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-Three functions exist with NO triggers attached:
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-1. **`handle_new_user()`** — Should fire on `auth.users` INSERT to auto-create a `profiles` row and a `user_roles` row. Without this, new signups get no profile and no role, breaking the entire onboarding flow.
+### 3. Fix Header Too Close to Top Edge
 
-2. **`update_conversation_last_message_at()`** — Should fire AFTER INSERT on `conversation_messages` to update `conversations.last_message_at`. Without it, conversation ordering by latest message doesn't work.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-3. **`update_updated_at_column()`** — Generic `updated_at` trigger, not attached to any table.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**Fix**: Create triggers:
-- `on_auth_user_created` on `auth.users` AFTER INSERT → `handle_new_user()`
-- `on_new_conversation_message` on `conversation_messages` AFTER INSERT → `update_conversation_last_message_at()`
-- Attach `update_updated_at_column()` to key tables (profiles, conversations, digital_contracts, etc.)
+### 4. Fix MarketingSlide Build Error
 
----
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-## Issue 3: `radio_is_powered_on` Ghost Column
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**File**: `src/contexts/RadioContext.tsx` line 216
-**Impact**: Radio power state is never persisted. The update silently fails because `radio_is_powered_on` doesn't exist on `profiles`.
-
-**Fix**: Add `radio_is_powered_on boolean DEFAULT true` column to `profiles` table.
-
----
-
-## Issue 4: `availability_status` Ghost Column
-
-**File**: `src/components/PropertyManagement.tsx` line 186
-**Impact**: When toggling listing status, the update includes `availability_status` which doesn't exist. The `status` column IS updated correctly, but the ghost column causes a silent error or gets ignored depending on Supabase behavior.
-
-**Fix**: Remove `availability_status: newStatus` from the update object — only keep `status: newStatus`.
-
----
-
-## Issue 5: `view_count` Ghost Property Reference
-
-**File**: `src/components/OwnerListingsStats.tsx` line 15
-**Impact**: Total views stat always shows 0. The code reads `l.view_count` but the actual column is `views`.
-
-**Fix**: Change `l.view_count` to `l.views`.
-
----
-
-## Summary
-
-| Issue | Type | Impact |
-|-------|------|--------|
-| `support_tickets` | Ghost table | Support system broken |
-| Missing triggers | No triggers attached | New user onboarding broken, conversation ordering broken |
-| `radio_is_powered_on` | Ghost column | Radio power state not persisted |
-| `availability_status` | Ghost column | Silent error on listing status toggle |
-| `view_count` | Wrong column name | Views stat always 0 |
-
-## Implementation
-
-### 1. Database Migration
-- Create `support_tickets` table with RLS
-- Add `radio_is_powered_on` column to `profiles`
-- Create all 3 missing triggers
-
-### 2. Code Fixes
-- `PropertyManagement.tsx`: Remove `availability_status` from update
-- `OwnerListingsStats.tsx`: `l.view_count` → `l.views`
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
