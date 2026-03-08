@@ -173,7 +173,9 @@ function TopBarComponent({
         <div
           className="pointer-events-none absolute left-0 right-0 top-0 h-[100px] -z-10"
           style={{
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.2) 65%, rgba(0, 0, 0, 0) 100%)'
+            background: isDark
+              ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.2) 65%, rgba(0, 0, 0, 0) 100%)'
+              : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 35%, rgba(255, 255, 255, 0.2) 65%, rgba(255, 255, 255, 0) 100%)'
           }}
           aria-hidden="true"
         />
