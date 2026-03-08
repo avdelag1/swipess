@@ -102,7 +102,7 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
 }
 
 function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (userId: string) => void }) {
-  const categoryInfo = SERVICE_CATEGORIES.find(c => c.value === worker.service_category);
+  const categoryInfo = findCategory(worker.service_category || '');
   const pricingInfo = PRICING_UNITS.find(p => p.value === worker.pricing_unit);
 
   return (
