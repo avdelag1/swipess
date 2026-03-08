@@ -7,6 +7,7 @@ import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { AmbientSwipeBackground } from './AmbientSwipeBackground';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
