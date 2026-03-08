@@ -231,6 +231,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
       name: filterName,
       user_role: 'owner',
       filter_data: {
+        ...localFilters,
         category: 'client',
         mode: 'discovery',
         selected_genders: selectedGenders,
@@ -240,9 +241,6 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
         max_age: maxAge,
         listing_types: selectedListingTypes,
         client_types: selectedClientTypes,
-        lifestyle_tags: localFilters.compatible_lifestyle_tags,
-        preferred_occupations: localFilters.preferred_occupations,
-        ...localFilters,
       },
     });
 
