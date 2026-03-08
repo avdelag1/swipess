@@ -49,7 +49,7 @@ export function useSmartClientMatching(
                         const genders = ownerPrefs.selected_genders as string[] | null;
                         const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
                         if (
-                            (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
+                            (!filters || !filters.clientGender || filters.clientGender === 'any') &&
                             genders?.length
                         ) {
                             dbGenderFilter = genders[0];
