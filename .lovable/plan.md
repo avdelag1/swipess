@@ -1,66 +1,46 @@
 
 
-# Deep Audit Round 3: 3 Remaining Issues
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Issue 1: `ListingPreviewDialog.tsx` — Ghost `view_count` Fallback
+### 1. Replace App Icon with Fire S Logo
 
-**File**: `src/components/ListingPreviewDialog.tsx` line 371
-**Bug**: `listing.views || listing.view_count || 0` — `view_count` doesn't exist on the listings table. The column is `views`.
-**Impact**: Minor — `listing.views` catches it first via `||`, but `view_count` is dead code that will cause TypeScript warnings and confuse future developers.
-**Fix**: Change to `listing.views || 0` — remove the ghost fallback.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Issue 2: `config.toml` Missing Two Edge Functions
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**File**: `supabase/config.toml`
-**Bug**: `moderate-image` and `send-push-notification` edge functions exist in `supabase/functions/` and are invoked from frontend code, but are NOT declared in `config.toml`. Without entries, they won't be deployed.
-**Impact**: Image moderation silently fails (defaults to "safe"). Push notifications to other devices never send.
-**Fix**: Add both to config.toml:
-```toml
-[functions.moderate-image]
-verify_jwt = true
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-[functions.send-push-notification]
-verify_jwt = true
-```
+### 2. Profile Photo Already Shows in Top-Left
 
-## Issue 3: `delete-user` Edge Function Missing 10 Tables
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**File**: `supabase/functions/delete-user/index.ts`
-**Bug**: The deletion cascade skips these tables that contain user data:
-- `swipes` (user_id)
-- `reviews` (reviewer_id)
-- `profile_views` (user_id, viewed_profile_id)
-- `content_shares` (sharer_id)
-- `content_flags` (user_id)
-- `user_reports` (reporter_id)
-- `user_blocks` (blocker_id)
-- `digital_contracts` + `contract_signatures` + `deal_status_tracking` (owner_id/client_id)
-- `support_tickets` (user_id)
-- `saved_searches` (user_id)
-- `legal_documents` + `legal_document_quota` (user_id)
-- `message_activations` (user_id)
-- `owner_client_preferences` (user_id)
-- `user_radio_playlists` (user_id)
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**Impact**: Account deletion leaves orphaned data in 15+ tables. GDPR non-compliance risk.
-**Fix**: Add deletion steps for all missing tables before the existing Step 8 (specialized profiles).
+### 3. Fix Header Too Close to Top Edge
 
-## Summary
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-| Issue | Type | Impact |
-|-------|------|--------|
-| `view_count` ghost fallback | Dead code | Minor — cosmetic |
-| Missing config.toml entries | Edge functions not deployed | Image moderation + push notifications broken |
-| delete-user incomplete | Missing 15 tables | Orphaned data after account deletion |
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-## Implementation
+### 4. Fix MarketingSlide Build Error
 
-### 1. Code Fix
-- `ListingPreviewDialog.tsx` line 371: remove `listing.view_count ||`
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-### 2. Config Fix
-- Add `moderate-image` and `send-push-notification` to `supabase/config.toml`
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### 3. Edge Function Update
-- Expand `delete-user/index.ts` with cleanup for all 15 missing tables, inserted before existing Step 8, respecting FK ordering
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
