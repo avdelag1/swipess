@@ -1,85 +1,46 @@
 
 
-# Premium Listing Creation Forms — Design Overhaul
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Vision
+### 1. Replace App Icon with Fire S Logo
 
-The current listing forms (Property, Motorcycle, Bicycle, Worker) use plain `<Card>` components with basic `<Input>`, `<Label>`, `<Select>`, and `<Checkbox>` elements. They look functional but generic — "Tailwind starter kit" energy. The goal is to transform them into a premium, alive, cinematic experience that matches the rest of SwipesS's luxury design language.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-This covers:
-1. **CategorySelectionDialog** — the entry point where owners pick what to list
-2. **UnifiedListingForm** — the wrapper with photos, video, submit
-3. **PropertyListingForm**, **MotorcycleListingForm**, **BicycleListingForm**, **WorkerListingForm** — each category's detail fields
-4. **CategorySelector** — the inline category/mode pill tabs inside the form
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
----
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## What Changes
+### 2. Profile Photo Already Shows in Top-Left
 
-### 1. Category Selection Dialog (`CategorySelectionDialog.tsx`)
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**Current**: Flat bordered cards with small icons, basic gradient tints.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**Upgrade**:
-- Category cards: Larger icon containers (56px), deeper gradient overlays using the established category color system (Property=Emerald, Moto=Orange, Bicycle=Purple, Worker=Amber), glassmorphic card surfaces with `bg-white/5 backdrop-blur-xl border border-white/10`
-- Add subtle `motion.button` with spring whileTap (scale 0.96) and whileHover (scale 1.02, y: -2)
-- Mode selection cards: Same glass treatment, larger emoji (40px), stronger hover glow
-- AI button: Add a subtle animated gradient shimmer overlay
+### 3. Fix Header Too Close to Top Edge
 
-### 2. UnifiedListingForm — Photo & Submit Sections (`UnifiedListingForm.tsx`)
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**Current**: Dark cards with basic upload grid, plain submit bar.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**Upgrade**:
-- Photo upload button: Larger dashed border area with pulsing icon on empty state, category-colored accent glow
-- Submit bar: Stronger glass backdrop, larger publish button with elastic spring tap, gradient accent matching selected category
-- Section headers inside the form: Add subtle category-colored left accent bars
+### 4. Fix MarketingSlide Build Error
 
-### 3. All Four Category Forms — Shared Design System
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-**Current problem**: All four forms use raw `<Card>` with `<CardHeader><CardTitle>` and `<CardContent>`. The cards look identical to every other card in the app — no premium listing-creation feel. Inputs are small, labels are plain, checkboxes are tiny.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**Upgrade — apply consistently to all 4 forms**:
-
-- **Section Cards**: Replace plain `<Card>` with styled containers — `rounded-3xl bg-zinc-900/30 backdrop-blur-sm border border-white/5 shadow-xl` (matches the photo card style already in UnifiedListingForm)
-- **Section Titles**: Bolder, with a small colored dot/icon accent before the text. Size bump from default `text-2xl` to `text-base font-bold` with `text-foreground` (the Card component defaults to `text-2xl` which is too large for form section headers)
-- **Labels**: Add `text-sm font-semibold text-foreground/80 mb-1.5` for stronger hierarchy
-- **Inputs**: Already have glass styling from `input.tsx` — keep as-is
-- **Select triggers**: Already have glass styling — keep as-is  
-- **Checkboxes**: Increase from `h-4 w-4` to `h-5 w-5`, add rounded-lg for softer feel
-- **Checkbox rows**: Add `p-3 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] transition-colors` wrapper for each checkbox row — makes them feel like tappable areas instead of tiny targets
-- **Grid layouts**: Ensure consistent `gap-4` spacing, responsive `grid-cols-1 sm:grid-cols-2`
-
-### 4. CategorySelector — Inline Pills (`CategorySelector.tsx`)
-
-**Current**: Basic pill buttons with `bg-card/60` inactive state.
-
-**Upgrade**:
-- Active pill: Category-specific gradient background (not just `bg-primary`). Property=emerald gradient, Moto=orange, Bicycle=purple, Worker=amber
-- Inactive pills: `bg-white/5 border-white/10` glass surface
-- Add `motion.button` with spring tap animation
-- Icons: Slightly larger (w-5 h-5)
-
-### 5. WorkerListingForm-specific Enhancements
-
-**Current**: `PillToggle` and `TagInput` components are functional but plain.
-
-**Upgrade**:
-- **PillToggle**: Active pills get category amber glow (`shadow-amber-500/20`), inactive pills get glass surface
-- **TagInput badges**: `bg-amber-500/15 text-amber-300 border-amber-500/20` for worker theme
-- **Day selector buttons**: Increase from `w-11 h-11` to `w-12 h-12`, add glass surface styling
-
----
-
-## Files Modified
-
-1. `src/components/CategorySelectionDialog.tsx` — Glass cards, spring animations, AI button shimmer
-2. `src/components/UnifiedListingForm.tsx` — Photo section polish, submit bar upgrade, section accents
-3. `src/components/CategorySelector.tsx` — Category-colored active pills, glass inactive, motion
-4. `src/components/PropertyListingForm.tsx` — Premium card wrappers, checkbox tap areas, label hierarchy
-5. `src/components/MotorcycleListingForm.tsx` — Same treatment as Property
-6. `src/components/BicycleListingForm.tsx` — Same treatment as Property
-7. `src/components/WorkerListingForm.tsx` — Same + themed PillToggle/TagInput/DaySelector
-
-No logic changes. No routing changes. No database changes. Pure visual refinement.
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

@@ -1,4 +1,6 @@
 import { Bike, Home, CircleDot, Briefcase } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export type Category = 'property' | 'motorcycle' | 'bicycle' | 'worker';
 export type Mode = 'sale' | 'rent' | 'both';
@@ -10,6 +12,27 @@ interface CategorySelectorProps {
   onModeChange: (mode: Mode) => void;
   className?: string;
 }
+
+const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
+
+const categoryStyles: Record<Category, { active: string; glow: string }> = {
+  property: {
+    active: 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/25',
+    glow: 'hover:border-emerald-500/40',
+  },
+  motorcycle: {
+    active: 'bg-gradient-to-r from-orange-600 to-orange-500 text-white border-orange-500/50 shadow-lg shadow-orange-500/25',
+    glow: 'hover:border-orange-500/40',
+  },
+  bicycle: {
+    active: 'bg-gradient-to-r from-purple-600 to-purple-500 text-white border-purple-500/50 shadow-lg shadow-purple-500/25',
+    glow: 'hover:border-purple-500/40',
+  },
+  worker: {
+    active: 'bg-gradient-to-r from-amber-600 to-amber-500 text-white border-amber-500/50 shadow-lg shadow-amber-500/25',
+    glow: 'hover:border-amber-500/40',
+  },
+};
 
 export function CategorySelector({
   selectedCategory,
@@ -30,16 +53,12 @@ export function CategorySelector({
     { value: 'sale' as Mode, label: 'For Sale', emoji: '💰' },
   ];
 
-  // Cascade mode toggle logic
   const handleModeToggle = (clicked: 'rent' | 'sale') => {
     if (selectedMode === 'both') {
-      // Both active → deselect clicked, keep the other
       onModeChange(clicked === 'rent' ? 'sale' : 'rent');
     } else if (selectedMode === clicked) {
-      // Same mode clicked → no-op (must have at least one)
       return;
     } else {
-      // Other mode is active → activate both
       onModeChange('both');
     }
   };
@@ -53,41 +72,50 @@ export function CategorySelector({
       <div className="flex flex-wrap gap-2">
         {categories.map(({ value, label, icon: Icon }) => {
           const active = selectedCategory === value;
+          const styles = categoryStyles[value];
           return (
-            <button
+            <motion.button
               key={value}
               type="button"
               onClick={() => onCategoryChange(value)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.96] border ${
+              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.03 }}
+              transition={springTap}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border",
                 active
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
-                  : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
-              }`}
+                  ? styles.active
+                  : cn('bg-white/[0.04] text-muted-foreground border-white/[0.08]', styles.glow, 'hover:text-foreground hover:bg-white/[0.07]')
+              )}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-5 h-5" />
               {label}
-            </button>
+            </motion.button>
           );
         })}
       </div>
 
-      {/* Mode Toggle — cascade */}
+      {/* Mode Toggle */}
       <div className="flex gap-2">
-      {modes.map(({ value, label, emoji }) => {
+        {modes.map(({ value, label, emoji }) => {
           const active = isModeActive(value as 'rent' | 'sale');
           return (
-            <button
+            <motion.button
               key={value}
               type="button"
               onClick={() => handleModeToggle(value as 'rent' | 'sale')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.96] border cursor-pointer ${
+              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.03 }}
+              transition={springTap}
+              className={cn(
+                "px-4 py-2.5 rounded-full text-sm font-semibold transition-all border cursor-pointer",
                 active
-                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
-                  : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
-              }`}
+                  ? 'bg-primary text-primary-foreground border-primary/50 shadow-lg shadow-primary/20'
+                  : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-primary/40 hover:text-foreground hover:bg-white/[0.07]'
+              )}
             >
               {emoji} {label}
-            </button>
+            </motion.button>
           );
         })}
       </div>

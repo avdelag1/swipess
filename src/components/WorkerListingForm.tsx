@@ -1,6 +1,5 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useEffect, useState, KeyboardEvent } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +7,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 import { SERVICE_CATEGORIES, SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
 
 // Re-export from shared data for backward compat
@@ -110,7 +111,31 @@ interface WorkerListingFormProps {
   initialData?: Partial<WorkerFormData>;
 }
 
-// Reusable tag input component
+const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
+
+// Premium section wrapper — amber theme
+const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
+  <div className={cn("rounded-3xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] shadow-xl overflow-hidden", className)}>
+    <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
+      <div className="w-2 h-2 rounded-full bg-amber-500" />
+      <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
+    </div>
+    <div className="px-5 pb-5 space-y-4">{children}</div>
+  </div>
+);
+
+const FormLabel = ({ children }: { children: React.ReactNode }) => (
+  <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">{children}</Label>
+);
+
+const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
+  <div className="flex items-center space-x-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] transition-colors cursor-pointer">
+    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg" />
+    <Label htmlFor={id} className="cursor-pointer text-sm font-medium text-foreground/80">{label}</Label>
+  </div>
+);
+
+// Themed tag input
 function TagInput({ tags, onAdd, onRemove, placeholder }: { tags: string[]; onAdd: (tag: string) => void; onRemove: (tag: string) => void; placeholder: string }) {
   const [input, setInput] = useState('');
   const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -126,9 +151,9 @@ function TagInput({ tags, onAdd, onRemove, placeholder }: { tags: string[]; onAd
       {tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {tags.map(tag => (
-            <Badge key={tag} variant="secondary" className="gap-1 pr-1">
+            <Badge key={tag} className="gap-1 pr-1 bg-amber-500/15 text-amber-300 border border-amber-500/20 hover:bg-amber-500/25">
               {tag}
-              <button type="button" onClick={() => onRemove(tag)} className="ml-0.5 rounded-full hover:bg-foreground/10 p-0.5">
+              <button type="button" onClick={() => onRemove(tag)} className="ml-0.5 rounded-full hover:bg-amber-500/30 p-0.5">
                 <X className="w-3 h-3" />
               </button>
             </Badge>
@@ -139,25 +164,28 @@ function TagInput({ tags, onAdd, onRemove, placeholder }: { tags: string[]; onAd
   );
 }
 
-// Reusable pill toggle
+// Themed pill toggle
 function PillToggle({ items, selected, onToggle }: { items: { value: string; label: string }[]; selected: string[]; onToggle: (v: string) => void }) {
   return (
     <div className="flex flex-wrap gap-2">
       {items.map(item => {
         const active = selected.includes(item.value);
         return (
-          <button
+          <motion.button
             key={item.value}
             type="button"
             onClick={() => onToggle(item.value)}
-            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all active:scale-[0.96] border ${
+            whileTap={{ scale: 0.94 }}
+            transition={springTap}
+            className={cn(
+              "px-3.5 py-2 rounded-full text-sm font-semibold transition-all border",
               active
-                ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
-                : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
-            }`}
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
+                : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-amber-500/30 hover:text-foreground hover:bg-white/[0.07]'
+            )}
           >
             {item.label}
-          </button>
+          </motion.button>
         );
       })}
     </div>
@@ -218,100 +246,90 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
   };
 
   return (
-    <div className="space-y-6">
-      {/* Service Details */}
-      <Card>
-        <CardHeader><CardTitle>Service Details (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Service Category</Label>
-            <Controller
-              name="service_category"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select service category" /></SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {SERVICE_GROUPS.map(group => (
-                      <SelectGroup key={group}>
-                        <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2 py-1.5">
-                          {group}
-                        </SelectLabel>
-                        {grouped[group].map(c => (
-                          <SelectItem key={c.value} value={c.value}>
-                            {c.icon} {c.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
+    <div className="space-y-5">
+      <Section title="Service Details">
+        <div>
+          <FormLabel>Service Category</FormLabel>
+          <Controller
+            name="service_category"
+            control={control}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select service category" /></SelectTrigger>
+                <SelectContent className="max-h-[300px]">
+                  {SERVICE_GROUPS.map(group => (
+                    <SelectGroup key={group}>
+                      <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2 py-1.5">
+                        {group}
+                      </SelectLabel>
+                      {grouped[group].map(c => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.icon} {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
 
-          {watchedServiceCategory === 'other' && (
-            <div>
-              <Label>Custom Service Name</Label>
-              <Input {...register('custom_service_name')} placeholder="e.g., Personal Stylist" />
+        {watchedServiceCategory === 'other' && (
+          <div>
+            <FormLabel>Custom Service Name</FormLabel>
+            <Input {...register('custom_service_name')} placeholder="e.g., Personal Stylist" />
+          </div>
+        )}
+
+        {subspecialties && subspecialties.length > 0 && (
+          <div>
+            <FormLabel>Specialties</FormLabel>
+            <div className="grid grid-cols-2 gap-2">
+              {subspecialties.map(spec => (
+                <CheckboxRow
+                  key={spec}
+                  id={`spec-${spec}`}
+                  checked={watchedSkills.includes(spec)}
+                  onCheckedChange={() => toggleArrayField('skills', spec)}
+                  label={spec}
+                />
+              ))}
             </div>
-          )}
-
-          {subspecialties && subspecialties.length > 0 && (
-            <div>
-              <Label className="mb-2 block">Specialties</Label>
-              <div className="grid grid-cols-2 gap-2">
-                {subspecialties.map(spec => (
-                  <div key={spec} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`spec-${spec}`}
-                      checked={watchedSkills.includes(spec)}
-                      onCheckedChange={() => toggleArrayField('skills', spec)}
-                    />
-                    <label htmlFor={`spec-${spec}`} className="text-sm cursor-pointer">{spec}</label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div>
-            <Label>Service Title</Label>
-            <Input {...register('title')} placeholder="e.g., Experienced Yoga Instructor" />
           </div>
+        )}
 
-          <div>
-            <Label>About This Service</Label>
-            <Textarea {...register('description')} placeholder="Describe your service, what makes you stand out, and what clients can expect..." rows={4} />
-          </div>
-        </CardContent>
-      </Card>
+        <div>
+          <FormLabel>Service Title</FormLabel>
+          <Input {...register('title')} placeholder="e.g., Experienced Yoga Instructor" />
+        </div>
+        <div>
+          <FormLabel>About This Service</FormLabel>
+          <Textarea {...register('description')} placeholder="Describe your service, what makes you stand out, and what clients can expect..." rows={4} />
+        </div>
+      </Section>
 
-      {/* Location */}
-      <Card>
-        <CardHeader><CardTitle>Location (Optional)</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+      <Section title="Location">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>City</Label>
+            <FormLabel>City</FormLabel>
             <Input {...register('city')} placeholder="e.g., Tulum" />
           </div>
           <div>
-            <Label>Country</Label>
+            <FormLabel>Country</FormLabel>
             <Input {...register('country')} placeholder="e.g., Mexico" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
-      {/* Pricing */}
-      <Card>
-        <CardHeader><CardTitle>Pricing (Optional)</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+      <Section title="Pricing">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Price (USD)</Label>
+            <FormLabel>Price (USD)</FormLabel>
             <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="25" />
           </div>
           <div>
-            <Label>Pricing Unit</Label>
+            <FormLabel>Pricing Unit</FormLabel>
             <Controller
               name="pricing_unit"
               control={control}
@@ -325,145 +343,123 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
               )}
             />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
-      {/* Work Preferences */}
-      <Card>
-        <CardHeader><CardTitle>Work Preferences (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="mb-2 block">Work Type</Label>
-            <PillToggle items={[...WORK_TYPES]} selected={watchedWorkType} onToggle={v => toggleArrayField('work_type', v)} />
-          </div>
-          <div>
-            <Label className="mb-2 block">Schedule Type</Label>
-            <PillToggle items={[...SCHEDULE_TYPES]} selected={watchedScheduleType} onToggle={v => toggleArrayField('schedule_type', v)} />
-          </div>
-        </CardContent>
-      </Card>
+      <Section title="Work Preferences">
+        <div>
+          <FormLabel>Work Type</FormLabel>
+          <PillToggle items={[...WORK_TYPES]} selected={watchedWorkType} onToggle={v => toggleArrayField('work_type', v)} />
+        </div>
+        <div>
+          <FormLabel>Schedule Type</FormLabel>
+          <PillToggle items={[...SCHEDULE_TYPES]} selected={watchedScheduleType} onToggle={v => toggleArrayField('schedule_type', v)} />
+        </div>
+      </Section>
 
-      {/* Availability */}
-      <Card>
-        <CardHeader><CardTitle>Availability (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="mb-2 block">Days Available</Label>
-            <div className="flex flex-wrap gap-2">
-              {DAYS_OF_WEEK.map(day => {
-                const active = watchedDays.includes(day.value);
-                return (
-                  <button
-                    key={day.value}
-                    type="button"
-                    onClick={() => toggleArrayField('days_available', day.value)}
-                    className={`w-11 h-11 rounded-lg text-xs font-semibold transition-all active:scale-[0.94] border ${
-                      active
-                        ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
-                        : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40'
-                    }`}
-                  >
-                    {day.short}
-                  </button>
-                );
-              })}
-            </div>
+      <Section title="Availability">
+        <div>
+          <FormLabel>Days Available</FormLabel>
+          <div className="flex flex-wrap gap-2">
+            {DAYS_OF_WEEK.map(day => {
+              const active = watchedDays.includes(day.value);
+              return (
+                <motion.button
+                  key={day.value}
+                  type="button"
+                  onClick={() => toggleArrayField('days_available', day.value)}
+                  whileTap={{ scale: 0.92 }}
+                  transition={springTap}
+                  className={cn(
+                    "w-12 h-12 rounded-xl text-xs font-bold transition-all border",
+                    active
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30 shadow-md shadow-amber-500/10'
+                      : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-amber-500/30 hover:bg-white/[0.07]'
+                  )}
+                >
+                  {day.short}
+                </motion.button>
+              );
+            })}
           </div>
-          <div>
-            <Label className="mb-2 block">Time Slots</Label>
-            <PillToggle items={[...TIME_SLOTS]} selected={watchedTimeSlots} onToggle={v => toggleArrayField('time_slots_available', v)} />
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div>
+          <FormLabel>Time Slots</FormLabel>
+          <PillToggle items={[...TIME_SLOTS]} selected={watchedTimeSlots} onToggle={v => toggleArrayField('time_slots_available', v)} />
+        </div>
+      </Section>
 
-      {/* Service Location */}
-      <Card>
-        <CardHeader><CardTitle>Service Location (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+      <Section title="Service Location">
+        <div>
+          <FormLabel>Location Type</FormLabel>
+          <PillToggle items={[...LOCATION_TYPES]} selected={watchedLocationType} onToggle={v => toggleArrayField('location_type', v)} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label className="mb-2 block">Location Type</Label>
-            <PillToggle items={[...LOCATION_TYPES]} selected={watchedLocationType} onToggle={v => toggleArrayField('location_type', v)} />
+            <FormLabel>Service Radius (km)</FormLabel>
+            <Input type="number" {...register('service_radius_km', { valueAsNumber: true })} placeholder="e.g., 25" />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Service Radius (km)</Label>
-              <Input type="number" {...register('service_radius_km', { valueAsNumber: true })} placeholder="e.g., 25" />
-            </div>
-            <div>
-              <Label>Min Booking (hours)</Label>
-              <Input type="number" {...register('minimum_booking_hours', { valueAsNumber: true })} placeholder="e.g., 2" />
-            </div>
+          <div>
+            <FormLabel>Min Booking (hours)</FormLabel>
+            <Input type="number" {...register('minimum_booking_hours', { valueAsNumber: true })} placeholder="e.g., 2" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
-      {/* Experience */}
-      <Card>
-        <CardHeader><CardTitle>Experience (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Experience Level</Label>
-            <Controller
-              name="experience_level"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
-                  <SelectContent>
-                    {EXPERIENCE_LEVELS.map(level => <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-          <div>
-            <Label>Years of Experience</Label>
-            <Input type="number" {...register('experience_years', { valueAsNumber: true, min: 0 })} placeholder="5" />
-          </div>
-        </CardContent>
-      </Card>
+      <Section title="Experience">
+        <div>
+          <FormLabel>Experience Level</FormLabel>
+          <Controller
+            name="experience_level"
+            control={control}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select level" /></SelectTrigger>
+                <SelectContent>
+                  {EXPERIENCE_LEVELS.map(level => <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        <div>
+          <FormLabel>Years of Experience</FormLabel>
+          <Input type="number" {...register('experience_years', { valueAsNumber: true, min: 0 })} placeholder="5" />
+        </div>
+      </Section>
 
-      {/* Skills & Qualifications */}
-      <Card>
-        <CardHeader><CardTitle>Skills & Qualifications (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label className="mb-1 block">Skills (type + Enter)</Label>
-            <TagInput tags={watchedSkills} onAdd={v => addToArray('skills', v)} onRemove={v => removeFromArray('skills', v)} placeholder="e.g., Deep Tissue Massage" />
-          </div>
-          <div>
-            <Label className="mb-1 block">Certifications (type + Enter)</Label>
-            <TagInput tags={watchedCertifications} onAdd={v => addToArray('certifications', v)} onRemove={v => removeFromArray('certifications', v)} placeholder="e.g., CPR Certified" />
-          </div>
-          <div>
-            <Label className="mb-1 block">Tools & Equipment (type + Enter)</Label>
-            <TagInput tags={watchedToolsEquipment} onAdd={v => addToArray('tools_equipment', v)} onRemove={v => removeFromArray('tools_equipment', v)} placeholder="e.g., Massage Table" />
-          </div>
-          <div>
-            <Label className="mb-1 block">Languages (type + Enter)</Label>
-            <TagInput tags={watchedLanguages} onAdd={v => addToArray('languages', v)} onRemove={v => removeFromArray('languages', v)} placeholder="e.g., English, Spanish" />
-          </div>
-        </CardContent>
-      </Card>
+      <Section title="Skills & Qualifications">
+        <div>
+          <FormLabel>Skills (type + Enter)</FormLabel>
+          <TagInput tags={watchedSkills} onAdd={v => addToArray('skills', v)} onRemove={v => removeFromArray('skills', v)} placeholder="e.g., Deep Tissue Massage" />
+        </div>
+        <div>
+          <FormLabel>Certifications (type + Enter)</FormLabel>
+          <TagInput tags={watchedCertifications} onAdd={v => addToArray('certifications', v)} onRemove={v => removeFromArray('certifications', v)} placeholder="e.g., CPR Certified" />
+        </div>
+        <div>
+          <FormLabel>Tools & Equipment (type + Enter)</FormLabel>
+          <TagInput tags={watchedToolsEquipment} onAdd={v => addToArray('tools_equipment', v)} onRemove={v => removeFromArray('tools_equipment', v)} placeholder="e.g., Massage Table" />
+        </div>
+        <div>
+          <FormLabel>Languages (type + Enter)</FormLabel>
+          <TagInput tags={watchedLanguages} onAdd={v => addToArray('languages', v)} onRemove={v => removeFromArray('languages', v)} placeholder="e.g., English, Spanish" />
+        </div>
+      </Section>
 
-      {/* Verification & Trust */}
-      <Card>
-        <CardHeader><CardTitle>Verification & Trust (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Controller name="offers_emergency_service" control={control} render={({ field }) => <Checkbox id="emergency" checked={!!field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="emergency">I offer emergency / urgent service</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Controller name="background_check_verified" control={control} render={({ field }) => <Checkbox id="bgcheck" checked={!!field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="bgcheck">Background check verified</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Controller name="insurance_verified" control={control} render={({ field }) => <Checkbox id="insurance" checked={!!field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="insurance">Insurance verified</Label>
-          </div>
-        </CardContent>
-      </Card>
+      <Section title="Verification & Trust">
+        <div className="space-y-2">
+          <Controller name="offers_emergency_service" control={control} render={({ field }) => (
+            <CheckboxRow id="emergency" checked={!!field.value} onCheckedChange={field.onChange} label="I offer emergency / urgent service" />
+          )} />
+          <Controller name="background_check_verified" control={control} render={({ field }) => (
+            <CheckboxRow id="bgcheck" checked={!!field.value} onCheckedChange={field.onChange} label="Background check verified" />
+          )} />
+          <Controller name="insurance_verified" control={control} render={({ field }) => (
+            <CheckboxRow id="insurance" checked={!!field.value} onCheckedChange={field.onChange} label="Insurance verified" />
+          )} />
+        </div>
+      </Section>
     </div>
   );
 }
