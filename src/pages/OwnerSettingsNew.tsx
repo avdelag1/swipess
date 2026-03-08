@@ -118,7 +118,7 @@ const OwnerSettingsNew = () => {
         <div className="max-w-3xl mx-auto">
 
 
-          <PageHeader title="Account Security" subtitle="Manage your password and security settings" />
+          <PageHeader title="Account Security" subtitle="Manage your password and security settings" showBack={false} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <div className="rounded-2xl overflow-hidden bg-card border border-border">
