@@ -918,17 +918,6 @@ const ClientSwipeContainerComponent = ({
               </Button>
             </motion.div>
 
-            {/* Tutorial shortcut — unified across all dashboards */}
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                variant="default"
-                onClick={() => navigate('/tutorial')}
-                className="w-full h-16 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0 shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all duration-300 font-black uppercase tracking-widest text-xs"
-              >
-                <Sparkles className="w-4 h-4 text-white" strokeWidth={4} />
-                <span>Take Interactive Tutorial</span>
-              </Button>
-            </motion.div>
 
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
               Fresh listings arrive every hour

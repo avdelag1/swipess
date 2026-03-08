@@ -96,13 +96,13 @@ export function BottomNavigation({
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
-    { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
-    { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
-    { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
+    { id: 'browse', icon: Home, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
+    { id: 'liked', icon: Heart, label: 'Liked', path: '/owner/liked-clients' },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', isCenter: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
     { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
-    { id: 'filter', icon: SlidersHorizontal, label: 'Filters', path: '/owner/filters' },
+    { id: 'filter', icon: Filter, label: 'Filters', path: '/owner/filters' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;

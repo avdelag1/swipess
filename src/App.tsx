@@ -298,8 +298,6 @@ const App = () => {
                                       <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
                                     )}
 
-                                    {/* Tutorial / Onboarding - Public Access */}
-                                    <Route path="/tutorial" element={<TutorialSwipePage />} />
 
                                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                                     <Route path="*" element={<NotFound />} />
