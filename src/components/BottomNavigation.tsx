@@ -29,7 +29,9 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 
 const ICON_SIZE = 22;
+const ICON_SIZE_COMPACT = 20;
 const TOUCH_TARGET = 48;
+const TOUCH_TARGET_COMPACT = 44;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
