@@ -54,16 +54,10 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 
               {/* Text */}
               <div className="flex-1 min-w-0">
-                <h3 className={cn(
-                  "font-black text-sm leading-tight tracking-tight",
-                  isDark ? "text-white" : "text-gray-900"
-                )}>
+                <h3 className="font-black text-sm leading-tight tracking-tight text-foreground">
                   Welcome to Swipess
                 </h3>
-                <p className={cn(
-                  "text-xs mt-0.5 truncate",
-                  isDark ? "text-white/55" : "text-gray-500"
-                )}>
+                <p className="text-xs mt-0.5 truncate text-muted-foreground">
                   Swipe to find your perfect match
                 </p>
               </div>
