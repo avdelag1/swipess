@@ -53,13 +53,6 @@ interface NavItem {
 
 // ── SPRING CONFIGS ────────────────────────────────────────────────────────────
 
-const PILL_SPRING = {
-  type: 'spring' as const,
-  stiffness: 380,
-  damping: 28,
-  mass: 0.7,
-};
-
 const TAP_SPRING = {
   type: 'spring' as const,
   stiffness: 440,
