@@ -73,13 +73,13 @@ export function CategorySelector({
 
       {/* Mode Toggle — cascade */}
       <div className="flex gap-2">
-        {modes.map(({ value, label, emoji }) => {
-          const active = isModeActive(value);
+      {modes.map(({ value, label, emoji }) => {
+          const active = isModeActive(value as 'rent' | 'sale');
           return (
             <button
               key={value}
               type="button"
-              onClick={() => handleModeToggle(value)}
+              onClick={() => handleModeToggle(value as 'rent' | 'sale')}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.96] border cursor-pointer ${
                 active
                   ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
