@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
@@ -412,6 +413,44 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Clear any stale session storage on mount
     try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
+
+  // HYDRATE FILTER STORE FROM DATABASE on mount
+  // If the Zustand store has no categories selected but the DB has stored preferences,
+  // seed the store so the swipe deck uses the user's saved filters
+  useEffect(() => {
+    if (!user?.id) return;
+    const state = useFilterStore.getState();
+    // Only hydrate if store is empty (user hasn't actively set filters this session)
+    if (state.categories.length > 0 || state.listingType !== 'both') return;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('client_filter_preferences')
+          .select('preferred_categories, preferred_listing_types')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!data) return;
+        const currentState = useFilterStore.getState();
+        // Double-check store is still empty (race condition guard)
+        if (currentState.categories.length > 0) return;
+
+        const cats = Array.isArray(data.preferred_categories) ? data.preferred_categories as string[] : [];
+        const listingTypes = Array.isArray(data.preferred_listing_types) ? data.preferred_listing_types as string[] : [];
+
+        if (cats.length > 0) {
+          useFilterStore.getState().setCategories(cats as any);
+        }
+        if (listingTypes.length === 1 && listingTypes[0] !== 'both') {
+          useFilterStore.getState().setListingType(listingTypes[0] as any);
+        }
+        logger.info('[SwipessSwipeContainer] Hydrated filter store from DB:', { cats, listingTypes });
+      } catch (err) {
+        logger.error('[SwipessSwipeContainer] Error hydrating filters from DB:', err);
+      }
+    })();
+  }, [user?.id]);
 
   // Cleanup on unmount
   useEffect(() => {

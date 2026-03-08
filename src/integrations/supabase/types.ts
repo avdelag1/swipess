@@ -16,37 +16,109 @@ export type Database = {
     Tables: {
       client_filter_preferences: {
         Row: {
+          amenities_required: Json | null
+          bicycle_price_max: number | null
+          bicycle_price_min: number | null
+          bicycle_types: Json | null
           created_at: string
+          furnished_required: boolean | null
           id: string
+          interested_in_bicycles: boolean | null
+          interested_in_motorcycles: boolean | null
+          interested_in_properties: boolean | null
+          interested_in_vehicles: boolean | null
+          location_zones: Json | null
+          max_bathrooms: number | null
+          max_bedrooms: number | null
+          min_bathrooms: number | null
+          min_bedrooms: number | null
+          moto_price_max: number | null
+          moto_price_min: number | null
+          moto_types: Json | null
+          moto_year_max: number | null
+          moto_year_min: number | null
+          pet_friendly_required: boolean | null
           preferred_categories: Json | null
           preferred_listing_types: Json | null
           preferred_locations: Json | null
           price_max: number | null
           price_min: number | null
+          property_types: Json | null
           updated_at: string
           user_id: string
+          vehicle_price_max: number | null
+          vehicle_price_min: number | null
+          vehicle_types: Json | null
         }
         Insert: {
+          amenities_required?: Json | null
+          bicycle_price_max?: number | null
+          bicycle_price_min?: number | null
+          bicycle_types?: Json | null
           created_at?: string
+          furnished_required?: boolean | null
           id?: string
+          interested_in_bicycles?: boolean | null
+          interested_in_motorcycles?: boolean | null
+          interested_in_properties?: boolean | null
+          interested_in_vehicles?: boolean | null
+          location_zones?: Json | null
+          max_bathrooms?: number | null
+          max_bedrooms?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          moto_price_max?: number | null
+          moto_price_min?: number | null
+          moto_types?: Json | null
+          moto_year_max?: number | null
+          moto_year_min?: number | null
+          pet_friendly_required?: boolean | null
           preferred_categories?: Json | null
           preferred_listing_types?: Json | null
           preferred_locations?: Json | null
           price_max?: number | null
           price_min?: number | null
+          property_types?: Json | null
           updated_at?: string
           user_id: string
+          vehicle_price_max?: number | null
+          vehicle_price_min?: number | null
+          vehicle_types?: Json | null
         }
         Update: {
+          amenities_required?: Json | null
+          bicycle_price_max?: number | null
+          bicycle_price_min?: number | null
+          bicycle_types?: Json | null
           created_at?: string
+          furnished_required?: boolean | null
           id?: string
+          interested_in_bicycles?: boolean | null
+          interested_in_motorcycles?: boolean | null
+          interested_in_properties?: boolean | null
+          interested_in_vehicles?: boolean | null
+          location_zones?: Json | null
+          max_bathrooms?: number | null
+          max_bedrooms?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          moto_price_max?: number | null
+          moto_price_min?: number | null
+          moto_types?: Json | null
+          moto_year_max?: number | null
+          moto_year_min?: number | null
+          pet_friendly_required?: boolean | null
           preferred_categories?: Json | null
           preferred_listing_types?: Json | null
           preferred_locations?: Json | null
           price_max?: number | null
           price_min?: number | null
+          property_types?: Json | null
           updated_at?: string
           user_id?: string
+          vehicle_price_max?: number | null
+          vehicle_price_min?: number | null
+          vehicle_types?: Json | null
         }
         Relationships: []
       }

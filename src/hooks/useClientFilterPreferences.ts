@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
@@ -7,20 +6,26 @@ export type ClientFilterPreferences = {
   id?: string;
   user_id: string;
 
-  // Property preferences
+  // Core price filters (DB columns: price_min, price_max)
+  price_min?: number | null;
+  price_max?: number | null;
+  // Legacy aliases used by some components
   min_price?: number | null;
   max_price?: number | null;
+
+  // Property preferences
   min_bedrooms?: number | null;
   max_bedrooms?: number | null;
   min_bathrooms?: number | null;
   max_bathrooms?: number | null;
   pet_friendly_required?: boolean;
   furnished_required?: boolean;
-  rental_duration?: string | null;
-  location_zones?: string[] | null;
-  property_types?: string[] | null;
-  preferred_listing_types?: string[] | null;
   amenities_required?: string[] | null;
+  property_types?: string[] | null;
+  location_zones?: string[] | null;
+  rental_duration?: string | null;
+
+  // Amenity flags
   requires_gym?: boolean;
   requires_balcony?: boolean;
   requires_elevator?: boolean;
@@ -29,20 +34,23 @@ export type ClientFilterPreferences = {
   requires_solar_panels?: boolean;
 
   // Category interests
+  preferred_categories?: string[] | null;
+  preferred_listing_types?: string[] | null;
+  preferred_locations?: string[] | null;
   interested_in_properties?: boolean;
   interested_in_motorcycles?: boolean;
   interested_in_bicycles?: boolean;
-  interested_in_yachts?: boolean;
   interested_in_vehicles?: boolean;
+  interested_in_yachts?: boolean;
 
   // Motorcycle preferences
   moto_types?: string[] | null;
-  moto_engine_size_min?: number | null;
-  moto_engine_size_max?: number | null;
-  moto_year_min?: number | null;
-  moto_year_max?: number | null;
   moto_price_min?: number | null;
   moto_price_max?: number | null;
+  moto_year_min?: number | null;
+  moto_year_max?: number | null;
+  moto_engine_size_min?: number | null;
+  moto_engine_size_max?: number | null;
   moto_mileage_max?: number | null;
   moto_transmission?: string[] | null;
   moto_condition?: string[] | null;
@@ -107,9 +115,12 @@ export type ClientFilterPreferences = {
   vehicle_safety_features?: string[] | null;
   vehicle_comfort_features?: string[] | null;
   vehicle_tech_features?: string[] | null;
+
+  // Allow any additional fields for forward compatibility
+  [key: string]: any;
 };
 
-// Type for database operations (excluding id)
+// Type for database operations (excluding id & user_id)
 type ClientFilterPreferencesUpdate = Omit<ClientFilterPreferences, 'id' | 'user_id'>;
 
 async function fetchOwnFilterPreferences() {
@@ -133,7 +144,7 @@ async function fetchOwnFilterPreferences() {
 
 export function useClientFilterPreferences() {
   const queryClient = useQueryClient();
-  
+
   const query = useQuery({
     queryKey: ['client-filter-preferences-own'],
     queryFn: fetchOwnFilterPreferences,
@@ -149,7 +160,6 @@ export function useClientFilterPreferences() {
       const uid = auth.user?.id;
       if (!uid) throw new Error('Not authenticated');
 
-      // Get existing row
       const { data: existing, error: existingError } = await supabase
         .from('client_filter_preferences')
         .select('id')
@@ -164,7 +174,7 @@ export function useClientFilterPreferences() {
       if (existing?.id) {
         const { data, error } = await supabase
           .from('client_filter_preferences')
-          .update(updates)
+          .update(updates as any)
           .eq('id', existing.id)
           .select()
           .single();
@@ -173,7 +183,7 @@ export function useClientFilterPreferences() {
       } else {
         const { data, error } = await supabase
           .from('client_filter_preferences')
-          .insert([{ ...updates, user_id: uid }])
+          .insert([{ ...updates, user_id: uid } as any])
           .select()
           .single();
         if (error) throw error;
@@ -201,7 +211,6 @@ export function useSaveClientFilterPreferences() {
       const uid = auth.user?.id;
       if (!uid) throw new Error('Not authenticated');
 
-      // Get existing row
       const { data: existing } = await supabase
         .from('client_filter_preferences')
         .select('id')
@@ -211,7 +220,7 @@ export function useSaveClientFilterPreferences() {
       if (existing?.id) {
         const { data, error } = await supabase
           .from('client_filter_preferences')
-          .update(updates)
+          .update(updates as any)
           .eq('id', existing.id)
           .select()
           .single();
@@ -220,7 +229,7 @@ export function useSaveClientFilterPreferences() {
       } else {
         const { data, error } = await supabase
           .from('client_filter_preferences')
-          .insert([{ ...updates, user_id: uid }])
+          .insert([{ ...updates, user_id: uid } as any])
           .select()
           .single();
         if (error) throw error;

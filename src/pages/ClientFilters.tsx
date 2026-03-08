@@ -11,6 +11,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { useSaveClientFilterPreferences, useClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
 // Define the type local alias if needed, but QuickFilterListingType is preferred
@@ -81,10 +82,26 @@ export default function ClientFilters() {
   const setListingType = useFilterStore((state) => state.setListingType);
   const resetFilters = useFilterStore((state) => state.resetClientFilters);
 
-  const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(
-    aiCategory ? [aiCategory as QuickFilterCategory] : storeCategories
-  );
-  const [selectedListingType, setSelectedListingType] = useState<ListingType>(storeListingType);
+  // DB persistence
+  const { data: dbPrefs } = useClientFilterPreferences();
+  const savePrefs = useSaveClientFilterPreferences();
+
+  // Hydrate from DB on first load (if store is empty and DB has data)
+  const [selectedCategories, setSelectedCategories] = useState<QuickFilterCategory[]>(() => {
+    if (aiCategory) return [aiCategory as QuickFilterCategory];
+    if (storeCategories.length > 0) return storeCategories;
+    if (dbPrefs?.preferred_categories && Array.isArray(dbPrefs.preferred_categories) && dbPrefs.preferred_categories.length > 0) {
+      return dbPrefs.preferred_categories as QuickFilterCategory[];
+    }
+    return [];
+  });
+  const [selectedListingType, setSelectedListingType] = useState<ListingType>(() => {
+    if (storeListingType !== 'both') return storeListingType;
+    if (dbPrefs?.preferred_listing_types && Array.isArray(dbPrefs.preferred_listing_types) && dbPrefs.preferred_listing_types.length === 1) {
+      return dbPrefs.preferred_listing_types[0] as ListingType;
+    }
+    return storeListingType;
+  });
 
   const activeFilterCount = selectedCategories.length + (selectedListingType !== 'both' ? 1 : 0);
   const hasChanges = activeFilterCount > 0;
@@ -96,11 +113,19 @@ export default function ClientFilters() {
   }, []);
 
   const handleApply = useCallback(() => {
+    // Update in-memory store (instant UI)
     setCategories(selectedCategories);
     setListingType(selectedListingType);
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
+
+    // Persist to database (background)
+    savePrefs.mutate({
+      preferred_categories: selectedCategories as string[],
+      preferred_listing_types: selectedListingType === 'both' ? ['rent', 'sale'] : [selectedListingType],
+    });
+
     navigate(-1);
-  }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate]);
+  }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate, savePrefs]);
 
   const handleReset = useCallback(() => {
     setSelectedCategories([]);
