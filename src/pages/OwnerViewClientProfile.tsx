@@ -29,7 +29,7 @@ export default function OwnerViewClientProfile() {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', clientId)
+        .eq('user_id', clientId)
         .maybeSingle();
 
       if (profileError) {
