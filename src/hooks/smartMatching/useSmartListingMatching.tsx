@@ -192,13 +192,13 @@ export function useSmartListingMatching(
                         query = query.gte('baths', Math.min(...effectiveFilters.bathrooms));
                     }
 
-                    // Worker-specific SQL filters
-                    if (effectiveFilters.serviceCategory) {
-                        query = query.eq('service_category', effectiveFilters.serviceCategory);
+                    // Worker-specific SQL filters (arrays → .in())
+                    if (effectiveFilters.serviceCategory && effectiveFilters.serviceCategory.length > 0) {
+                        query = query.in('service_category', effectiveFilters.serviceCategory);
                     }
 
-                    if (effectiveFilters.experienceLevel) {
-                        query = query.eq('experience_level', effectiveFilters.experienceLevel);
+                    if (effectiveFilters.experienceLevel && effectiveFilters.experienceLevel.length > 0) {
+                        query = query.in('experience_level', effectiveFilters.experienceLevel);
                     }
                 }
 
