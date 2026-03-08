@@ -418,10 +418,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     Object.entries(filters).forEach(([key, value]) => {
       const mapped = prefixMap[key];
       if (mapped && value != null) {
-        // Special handling for priceRange pair
-        if (key === 'property_priceMin') {
+        // Special handling for priceRange pairs
+        if (key === 'property_priceMin' || key === 'services_price_min') {
           convertedFilters.priceRange = [value as number, convertedFilters.priceRange?.[1] ?? Infinity];
-        } else if (key === 'property_priceMax') {
+        } else if (key === 'property_priceMax' || key === 'services_price_max') {
           convertedFilters.priceRange = [convertedFilters.priceRange?.[0] ?? 0, value as number];
         } else {
           convertedFilters[mapped] = value;
