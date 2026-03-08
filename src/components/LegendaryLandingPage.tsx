@@ -107,7 +107,7 @@ const LandingView = memo(({
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[82vw] max-w-[500px] sm:max-w-[650px] md:max-w-[800px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+            className="w-[96vw] max-w-[680px] sm:max-w-[820px] md:max-w-[960px] h-auto object-contain drop-shadow-2xl mx-auto"
           />
         </div>
       </motion.div>
