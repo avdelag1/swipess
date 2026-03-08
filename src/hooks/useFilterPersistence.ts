@@ -3,6 +3,8 @@
  * 
  * Connects the Zustand filterStore to the saved_filters database table.
  * Provides automatic sync on filter changes and restoration on mount.
+ * 
+ * DB columns: id, user_id, filter_data (JSONB), is_active, name, user_role, created_at, updated_at
  */
 
 import { useEffect, useCallback, useRef } from 'react';
@@ -11,14 +13,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { logger } from '@/utils/prodLogger';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
-import type { Json } from '@/integrations/supabase/types';
 
-const DEBOUNCE_MS = 1000; // 1 second debounce for saves
+const DEBOUNCE_MS = 1000;
 
-/**
- * Hook that automatically persists filter state to the database
- * and restores active filters on app mount.
- */
 export function useFilterPersistence() {
   const { user } = useAuth();
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -59,26 +56,19 @@ export function useFilterPersistence() {
         if (data) {
           logger.info('[FilterPersistence] Restoring active filter:', data.name);
           
-          // Restore filter state from database
-          const filters = (data as any).filters as Record<string, unknown> | null;
+          // Read from filter_data JSONB column (the correct column name)
+          const filters = data.filter_data as Record<string, unknown> | null;
           
           if (filters) {
-            // Restore categories if present
             if (Array.isArray(filters.categories)) {
               setCategories(filters.categories as QuickFilterCategory[]);
             }
-            
-            // Restore listing type if present
             if (filters.listingType) {
               setListingType(filters.listingType as QuickFilterListingType);
             }
-            
-            // Restore client gender if present (owner mode)
             if (filters.clientGender) {
               setClientGender(filters.clientGender as 'any' | 'male' | 'female' | 'other' | 'all');
             }
-            
-            // Restore client type if present (owner mode)
             if (filters.clientType) {
               setClientType(filters.clientType as 'individual' | 'family' | 'business' | 'hire' | 'rent' | 'buy' | 'all');
             }
@@ -98,7 +88,8 @@ export function useFilterPersistence() {
   const saveFiltersToDb = useCallback(async () => {
     if (!user?.id || isRestoringRef.current) return;
 
-    const filterData: Json = {
+    // Pack everything into filter_data JSONB
+    const filterData = {
       categories,
       listingType,
       clientGender,
@@ -116,11 +107,11 @@ export function useFilterPersistence() {
         .maybeSingle();
 
       if (existingActive) {
-        // Update existing active filter
+        // Update existing active filter — use filter_data column
         await supabase
           .from('saved_filters')
           .update({
-            filters: filterData,
+            filter_data: filterData,
             updated_at: new Date().toISOString(),
           })
           .eq('id', existingActive.id);
@@ -128,22 +119,21 @@ export function useFilterPersistence() {
         logger.info('[FilterPersistence] Updated active filter');
       } else {
         // Create a new "Current Session" filter if none exists
-        // Only create if there are actual filters applied
         const hasFilters = categories.length > 0 || 
                           listingType !== 'both' || 
                           clientGender !== 'any' || 
                           clientType !== 'all';
         
         if (hasFilters) {
+          // Only use columns that exist: user_id, name, filter_data, is_active, user_role
           await supabase
             .from('saved_filters')
             .insert({
               user_id: user.id,
               name: 'Current Session',
-              category: categories[0] || 'all',
-              mode: 'client', // Default mode
-              filters: filterData,
+              filter_data: filterData,
               is_active: true,
+              user_role: 'client',
             });
           
           logger.info('[FilterPersistence] Created new session filter');
@@ -156,15 +146,12 @@ export function useFilterPersistence() {
 
   // Watch for filter changes and save with debounce
   useEffect(() => {
-    // Skip if no user or currently restoring
     if (!user?.id || isRestoringRef.current) return;
     
-    // Clear previous timeout
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // Debounce the save operation
     saveTimeoutRef.current = setTimeout(() => {
       saveFiltersToDb();
     }, DEBOUNCE_MS);

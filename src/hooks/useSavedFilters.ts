@@ -1,3 +1,12 @@
+/**
+ * SAVED FILTERS HOOK
+ * 
+ * Manages saved filter presets in the saved_filters table.
+ * DB columns: id, user_id, filter_data (JSONB), is_active, name, user_role, created_at, updated_at
+ * 
+ * All filter parameters are packed into the filter_data JSONB column.
+ */
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/useToast';
@@ -8,24 +17,35 @@ export type SavedFilterRow = Database['public']['Tables']['saved_filters']['Row'
 
 export interface SavedFilterInput {
   name: string;
-  category: string;
-  mode: string;
-  filters: Json;
-  is_active?: boolean | null;
-  listing_types?: string[] | null;
-  client_types?: string[] | null;
-  min_budget?: number | null;
-  max_budget?: number | null;
-  min_age?: number | null;
-  max_age?: number | null;
-  lifestyle_tags?: string[] | null;
-  preferred_occupations?: string[] | null;
-  allows_pets?: boolean | null;
-  allows_smoking?: boolean | null;
-  allows_parties?: boolean | null;
-  requires_employment_proof?: boolean | null;
-  requires_references?: boolean | null;
-  min_monthly_income?: number | null;
+  user_role: string;
+  filter_data: {
+    category?: string;
+    categories?: string[];
+    mode?: string;
+    listing_types?: string[];
+    client_types?: string[];
+    min_budget?: number;
+    max_budget?: number;
+    min_age?: number;
+    max_age?: number;
+    lifestyle_tags?: string[];
+    preferred_occupations?: string[];
+    allows_pets?: boolean;
+    allows_smoking?: boolean;
+    allows_parties?: boolean;
+    requires_employment_proof?: boolean;
+    requires_references?: boolean;
+    min_monthly_income?: number;
+    // Worker-specific
+    service_category?: string;
+    work_type?: string[];
+    schedule_type?: string[];
+    days_available?: string[];
+    experience_level?: string;
+    skills?: string[];
+    [key: string]: unknown;
+  };
+  is_active?: boolean;
 }
 
 export function useSavedFilters() {
@@ -92,27 +112,12 @@ export function useSavedFilters() {
         .maybeSingle();
 
       if (existing) {
-        // Update existing filter
+        // Update existing filter — pack everything into filter_data
         const { error } = await supabase
           .from('saved_filters')
           .update({
-            category: filter.category,
-            mode: filter.mode,
-            filters: filter.filters,
-            listing_types: filter.listing_types,
-            client_types: filter.client_types,
-            min_budget: filter.min_budget,
-            max_budget: filter.max_budget,
-            min_age: filter.min_age,
-            max_age: filter.max_age,
-            lifestyle_tags: filter.lifestyle_tags,
-            preferred_occupations: filter.preferred_occupations,
-            allows_pets: filter.allows_pets,
-            allows_smoking: filter.allows_smoking,
-            allows_parties: filter.allows_parties,
-            requires_employment_proof: filter.requires_employment_proof,
-            requires_references: filter.requires_references,
-            min_monthly_income: filter.min_monthly_income,
+            filter_data: filter.filter_data as unknown as Json,
+            user_role: filter.user_role,
             updated_at: new Date().toISOString(),
           })
           .eq('id', existing.id);
@@ -127,30 +132,13 @@ export function useSavedFilters() {
         // Create new filter
         const { error } = await supabase
           .from('saved_filters')
-          .insert([
-            {
-              user_id: user.id,
-              name: filter.name,
-              category: filter.category,
-              mode: filter.mode,
-              filters: filter.filters,
-              listing_types: filter.listing_types,
-              client_types: filter.client_types,
-              min_budget: filter.min_budget,
-              max_budget: filter.max_budget,
-              min_age: filter.min_age,
-              max_age: filter.max_age,
-              lifestyle_tags: filter.lifestyle_tags,
-              preferred_occupations: filter.preferred_occupations,
-              allows_pets: filter.allows_pets,
-              allows_smoking: filter.allows_smoking,
-              allows_parties: filter.allows_parties,
-              requires_employment_proof: filter.requires_employment_proof,
-              requires_references: filter.requires_references,
-              min_monthly_income: filter.min_monthly_income,
-              is_active: false,
-            },
-          ]);
+          .insert({
+            user_id: user.id,
+            name: filter.name,
+            filter_data: filter.filter_data as unknown as Json,
+            user_role: filter.user_role,
+            is_active: filter.is_active ?? false,
+          });
 
         if (error) throw error;
 
@@ -216,26 +204,23 @@ export function useSavedFilters() {
 
       if (error) throw error;
 
-      // Also update owner_client_preferences with this filter
+      // Sync filter_data to owner_client_preferences if applicable
       const filter = savedFilters.find(f => f.id === filterId);
       if (filter) {
-        await (supabase as any)
-          .from('owner_client_preferences')
-          .upsert({
-            user_id: user.id,
-            min_budget: (filter as any).min_budget,
-            max_budget: (filter as any).max_budget,
-            min_age: (filter as any).min_age,
-            max_age: (filter as any).max_age,
-            compatible_lifestyle_tags: (filter as any).lifestyle_tags,
-            preferred_occupations: (filter as any).preferred_occupations,
-            allows_pets: (filter as any).allows_pets,
-            allows_smoking: (filter as any).allows_smoking,
-            allows_parties: (filter as any).allows_parties,
-            requires_employment_proof: (filter as any).requires_employment_proof,
-            requires_references: (filter as any).requires_references,
-            min_monthly_income: (filter as any).min_monthly_income,
-          });
+        const fd = filter.filter_data as Record<string, unknown> | null;
+        if (fd) {
+          await supabase
+            .from('owner_client_preferences')
+            .upsert({
+              user_id: user.id,
+              min_budget: (fd.min_budget as number) ?? null,
+              max_budget: (fd.max_budget as number) ?? null,
+              min_age: (fd.min_age as number) ?? null,
+              max_age: (fd.max_age as number) ?? null,
+              selected_genders: (fd.selected_genders as Json) ?? [],
+              preferred_nationalities: (fd.preferred_nationalities as Json) ?? [],
+            });
+        }
       }
 
       toast({

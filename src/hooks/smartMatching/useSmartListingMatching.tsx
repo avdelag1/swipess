@@ -6,15 +6,36 @@ import { normalizeCategoryName } from '@/types/filters';
 import { MatchedListing, ListingFilters, shuffleArray } from './types';
 import { calculateListingMatch } from './matchCalculators';
 
+// Worker fields added for complete card display
+const SWIPE_CARD_FIELDS = `
+  id, title, description, price, images, image_url, city, neighborhood, beds, baths,
+  square_footage, category, listing_type, property_type, vehicle_brand,
+  vehicle_model, year, mileage, amenities, pet_friendly, furnished,
+  owner_id, created_at, currency,
+  service_category, pricing_unit, experience_years, experience_level,
+  skills, days_available, time_slots_available, work_type, schedule_type,
+  location_type, service_radius_km, minimum_booking_hours,
+  certifications, tools_equipment,
+  offers_emergency_service, background_check_verified, insurance_verified,
+  motorcycle_type, bicycle_type, engine_cc, fuel_type, transmission,
+  electric_assist, battery_range, frame_size, frame_material
+`;
+
+/** Check if two JSONB arrays have any overlap */
+function hasJsonOverlap(listingArr: unknown, filterArr: string[]): boolean {
+  if (!Array.isArray(listingArr) || !filterArr.length) return false;
+  const set = new Set(filterArr.map(s => s.toLowerCase()));
+  return listingArr.some(v => typeof v === 'string' && set.has(v.toLowerCase()));
+}
+
 export function useSmartListingMatching(
-    userId: string | undefined, // PERF: Accept userId to avoid getUser() inside queryFn
+    userId: string | undefined,
     excludeSwipedIds: string[] = [],
     filters?: ListingFilters,
     page: number = 0,
     pageSize: number = 10,
-    isRefreshMode: boolean = false // When true, show disliked items within cooldown
+    isRefreshMode: boolean = false
 ) {
-    // Memoize filters key to prevent unnecessary cache misses
     const filtersKey = filters ? JSON.stringify({
         category: filters.category,
         categories: filters.categories,
@@ -24,20 +45,15 @@ export function useSmartListingMatching(
     }) : '';
 
     return useQuery({
-        queryKey: ['smart-listings', userId, filtersKey, page, isRefreshMode], // Stable query key with userId
-        // PERF: Longer stale time for listings since they don't change frequently
-        staleTime: 2 * 60 * 1000, // 2 minutes - ensure swiped cards stay excluded
-        gcTime: 15 * 60 * 1000, // 15 minutes cache time
-        // PERF: Keep previous data while fetching new data to prevent UI flash
+        queryKey: ['smart-listings', userId, filtersKey, page, isRefreshMode],
+        staleTime: 2 * 60 * 1000,
+        gcTime: 15 * 60 * 1000,
         placeholderData: (prev: any) => prev,
         queryFn: async () => {
-            // PERF: userId is passed in, no need for async getUser() call
             if (!userId) {
                 logger.warn('[SmartMatching] No userId provided for listings, returning empty array');
                 return [];
             }
-
-            // CRITICAL: Defensive check - ensure userId is valid
             if (typeof userId !== 'string' || userId.trim() === '') {
                 logger.error('[SmartMatching] Invalid userId for listings:', userId);
                 return [];
@@ -52,7 +68,7 @@ export function useSmartListingMatching(
                     .eq('user_id', userId)
                     .maybeSingle();
 
-                // Fetch liked items (right swipes) - these are NEVER shown again
+                // Fetch liked items (right swipes) - NEVER shown again
                 const { data: likedListings, error: likesError } = await supabase
                     .from('likes')
                     .select('target_id')
@@ -62,7 +78,6 @@ export function useSmartListingMatching(
 
                 const likedIds = new Set(!likesError ? (likedListings?.map(like => like.target_id) || []) : []);
 
-                // Fetch left swipes with timestamps for 3-day expiry logic
                 const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
 
                 const { data: leftSwipes } = await supabase
@@ -72,7 +87,6 @@ export function useSmartListingMatching(
                     .eq('target_type', 'listing')
                     .eq('direction', 'left');
 
-                // Build sets for dislike handling
                 const permanentlyHiddenIds = new Set<string>();
                 const refreshableDislikeIds = new Set<string>();
 
@@ -80,7 +94,6 @@ export function useSmartListingMatching(
                     for (const swipe of leftSwipes) {
                         const swipeDate = new Date(swipe.created_at);
                         const threeDaysAgoDate = new Date(threeDaysAgo);
-
                         if (swipeDate < threeDaysAgoDate) {
                             permanentlyHiddenIds.add(swipe.target_id);
                         } else {
@@ -89,36 +102,19 @@ export function useSmartListingMatching(
                     }
                 }
 
-                // Build set of IDs to exclude based on mode
                 const swipedListingIds = new Set<string>();
-
-                for (const id of likedIds) {
-                    swipedListingIds.add(id);
-                }
-                for (const id of permanentlyHiddenIds) {
-                    swipedListingIds.add(id);
-                }
+                for (const id of likedIds) swipedListingIds.add(id);
+                for (const id of permanentlyHiddenIds) swipedListingIds.add(id);
                 if (!isRefreshMode) {
-                    for (const id of refreshableDislikeIds) {
-                        swipedListingIds.add(id);
-                    }
+                    for (const id of refreshableDislikeIds) swipedListingIds.add(id);
                 }
-
-                // Build query with filters
-                const SWIPE_CARD_FIELDS = `
-          id, title, price, images, image_url, city, neighborhood, beds, baths,
-          square_footage, category, listing_type, property_type, vehicle_brand,
-          vehicle_model, year, mileage, amenities, pet_friendly, furnished,
-          owner_id, created_at
-        `;
 
                 let query = supabase
                     .from('listings')
                     .select(SWIPE_CARD_FIELDS)
                     .eq('status', 'active')
-                    .neq('owner_id', userId); // CRITICAL: Exclude own listings
+                    .neq('owner_id', userId);
 
-                // Exclude swiped listings at SQL level
                 if (swipedListingIds.size > 0) {
                     const idsToExclude = Array.from(swipedListingIds);
                     query = query.not('id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
@@ -126,19 +122,16 @@ export function useSmartListingMatching(
 
                 query = query.order('created_at', { ascending: false });
 
-                // Apply filter-based query constraints
                 // Merge explicit UI filters with DB preferences as fallback
-                const effectiveFilters = { ...filters };
+                const effectiveFilters = { ...filters } as any;
 
-                // Fallback: use DB preferences for category if no UI filter set
                 if (preferences && (!effectiveFilters?.categories || effectiveFilters.categories.length === 0) && !effectiveFilters?.category) {
                     const dbCats = Array.isArray(preferences.preferred_categories) ? preferences.preferred_categories as string[] : [];
                     if (dbCats.length > 0) {
-                        (effectiveFilters as any).categories = dbCats.map(c => normalizeCategoryName(c)).filter((c): c is string => !!c);
+                        effectiveFilters.categories = dbCats.map((c: string) => normalizeCategoryName(c)).filter((c: string | undefined): c is string => !!c);
                     }
                 }
 
-                // Fallback: use DB preferences for price range if no UI filter set
                 if (preferences && !effectiveFilters?.priceRange) {
                     const pMin = (preferences as any).price_min;
                     const pMax = (preferences as any).price_max;
@@ -152,33 +145,26 @@ export function useSmartListingMatching(
                         categories: effectiveFilters.categories,
                         category: effectiveFilters.category,
                         listingType: effectiveFilters.listingType,
-                        verified: effectiveFilters.verified,
                     });
 
-                    // Priority 1: Multi-category filter (QuickFilterBar)
+                    // Category filters
                     if (effectiveFilters.categories && effectiveFilters.categories.length > 0) {
                         const dbCategories = effectiveFilters.categories
-                            .map(c => normalizeCategoryName(c))
-                            .filter((c): c is string => c !== undefined);
-
+                            .map((c: string) => normalizeCategoryName(c))
+                            .filter((c: string | undefined): c is string => c !== undefined);
                         if (dbCategories.length > 0) {
                             query = query.in('category', dbCategories);
                         }
-                    }
-                    // Priority 2: Single category filter (Legacy or internal)
-                    else if (effectiveFilters.category) {
+                    } else if (effectiveFilters.category) {
                         const dbCategory = normalizeCategoryName(typeof effectiveFilters.category === 'string' ? effectiveFilters.category : undefined);
                         if (dbCategory) {
                             query = query.eq('category', dbCategory);
                         }
                     }
 
-                    // Apply listing type filter (rent/buy)
+                    // Listing type filter
                     if (effectiveFilters.listingType && effectiveFilters.listingType !== 'both') {
-                        const mapping: Record<string, string> = {
-                            'rent': 'rent',
-                            'sale': 'buy',
-                        };
+                        const mapping: Record<string, string> = { 'rent': 'rent', 'sale': 'buy' };
                         const dbListingType = mapping[effectiveFilters.listingType] || effectiveFilters.listingType;
                         query = query.eq('listing_type', dbListingType);
                     }
@@ -192,41 +178,41 @@ export function useSmartListingMatching(
                     }
 
                     if (effectiveFilters.bedrooms && effectiveFilters.bedrooms.length > 0) {
-                        const minBeds = Math.min(...effectiveFilters.bedrooms);
-                        query = query.gte('beds', minBeds);
+                        query = query.gte('beds', Math.min(...effectiveFilters.bedrooms));
                     }
 
                     if (effectiveFilters.bathrooms && effectiveFilters.bathrooms.length > 0) {
-                        const minBaths = Math.min(...effectiveFilters.bathrooms);
-                        query = query.gte('baths', minBaths);
+                        query = query.gte('baths', Math.min(...effectiveFilters.bathrooms));
                     }
 
-                    if (effectiveFilters.verified) {
-                        // verification filter placeholder
+                    // Worker-specific SQL filters
+                    if (effectiveFilters.serviceCategory) {
+                        query = query.eq('service_category', effectiveFilters.serviceCategory);
+                    }
+
+                    if (effectiveFilters.experienceLevel) {
+                        query = query.eq('experience_level', effectiveFilters.experienceLevel);
                     }
                 }
 
-                // Apply pagination
+                // Pagination
                 const start = page * pageSize;
                 const end = start + pageSize - 1;
                 const { data: listings, error } = await query.range(start, end);
 
                 if (error) {
                     logger.error('[SmartMatching] Error fetching listings:', {
-                        message: error.message,
-                        code: error.code,
-                        details: error.details,
-                        hint: error.hint,
+                        message: error.message, code: error.code, details: error.details, hint: error.hint,
                     });
                     return [];
                 }
 
-                if (!listings?.length) {
-                    return [];
-                }
+                if (!listings?.length) return [];
 
-                // Apply client-side filters for amenities
+                // Client-side filters
                 let filteredListings = listings as unknown as Listing[];
+
+                // Amenities filter
                 if (filters?.amenities && filters.amenities.length > 0) {
                     filteredListings = filteredListings.filter(listing => {
                         const listingAmenities = listing.amenities || [];
@@ -234,7 +220,24 @@ export function useSmartListingMatching(
                     });
                 }
 
-                // DEFENSE IN DEPTH: Double-check own listings excluded
+                // Worker client-side filters (JSONB overlap checks)
+                if (effectiveFilters?.workTypes && effectiveFilters.workTypes.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).work_type, effectiveFilters.workTypes)
+                    );
+                }
+                if (effectiveFilters?.daysAvailable && effectiveFilters.daysAvailable.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).days_available, effectiveFilters.daysAvailable)
+                    );
+                }
+                if (effectiveFilters?.skills && effectiveFilters.skills.length > 0) {
+                    filteredListings = filteredListings.filter(l =>
+                        hasJsonOverlap((l as any).skills, effectiveFilters.skills)
+                    );
+                }
+
+                // Exclude own listings (defense in depth)
                 filteredListings = filteredListings.filter(listing => {
                     if (listing.owner_id === userId) {
                         logger.warn('[SmartMatching] CRITICAL: Own listing leaked through DB query:', listing.id);
@@ -252,17 +255,11 @@ export function useSmartListingMatching(
                     }));
                 }
 
-                // FETCH OWNER PREMIUM TIERS FOR ALGORITHM BOOST
+                // Premium tier boost
                 const ownerIds = Array.from(new Set(filteredListings.map(l => l.owner_id)));
-
                 const { data: ownerSubscriptions } = await supabase
                     .from('user_subscriptions')
-                    .select(`
-                        user_id,
-                        subscription_packages (
-                            tier
-                        )
-                    `)
+                    .select(`user_id, subscription_packages ( tier )`)
                     .in('user_id', ownerIds)
                     .eq('is_active', true);
 
@@ -271,20 +268,13 @@ export function useSmartListingMatching(
                     ownerTierMap[sub.user_id] = sub.subscription_packages?.tier || 'free';
                 });
 
-                // Calculate match percentage for each listing
+                const boostMap: Record<string, number> = {
+                    unlimited: 1.0, premium_plus: 0.8, premium: 0.5, basic: 0.25, free: 0
+                };
+
                 const matchedListings: MatchedListing[] = filteredListings.map(listing => {
                     const match = calculateListingMatch(preferences as any, listing as Listing);
                     const tier = ownerTierMap[listing.owner_id] || 'free';
-
-                    // Determine visibility boost multiplier
-                    const boostMap: Record<string, number> = {
-                        unlimited: 1.0,      // 100% exposure
-                        premium_plus: 0.8,
-                        premium: 0.5,
-                        basic: 0.25,
-                        free: 0
-                    };
-
                     return {
                         ...listing as Listing,
                         matchPercentage: match.percentage,
@@ -295,7 +285,6 @@ export function useSmartListingMatching(
                     };
                 });
 
-                // Sort by premium tier first, then match percentage
                 const tierOrder: Record<string, number> = {
                     unlimited: 1, premium_plus: 2, premium: 3, basic: 4, free: 5
                 };
@@ -309,7 +298,6 @@ export function useSmartListingMatching(
                         return b.matchPercentage - a.matchPercentage;
                     });
 
-                // Group by tier and sort by date within each
                 const tierGroups: Record<string, MatchedListing[]> = {
                     unlimited: [], premium_plus: [], premium: [], basic: [], free: []
                 };
@@ -321,9 +309,7 @@ export function useSmartListingMatching(
                 });
 
                 const sortByDate = (a: MatchedListing, b: MatchedListing) => {
-                    const dateA = new Date(a.created_at || 0).getTime();
-                    const dateB = new Date(b.created_at || 0).getTime();
-                    return dateB - dateA;
+                    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
                 };
 
                 const randomizedListings = [
@@ -334,18 +320,15 @@ export function useSmartListingMatching(
                     ...tierGroups.free.sort(sortByDate)
                 ];
 
-                // Fallback: if no matches found but we have listings
                 if (randomizedListings.length === 0 && filteredListings.length > 0) {
-                    const fallbackListings = filteredListings.map(listing => ({
+                    return shuffleArray(filteredListings.map(listing => ({
                         ...listing as Listing,
                         matchPercentage: 20,
                         matchReasons: ['General listing'],
                         incompatibleReasons: []
-                    }));
-                    return shuffleArray(fallbackListings);
+                    })));
                 }
 
-                // Verify none of the returned listings are the user's own
                 const hasOwnListing = randomizedListings.some(l => l.owner_id === userId);
                 if (hasOwnListing) {
                     logger.error('[SmartMatching] CRITICAL BUG: User\'s own listing in results!');
