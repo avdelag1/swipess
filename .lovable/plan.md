@@ -1,46 +1,106 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Content Moderation & Security System
 
-### 1. Replace App Icon with Fire S Logo
+## Current State
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+The `validateNoContactInfo()` function exists in `src/utils/contactInfoValidation.ts` with solid regex patterns for phone numbers, emails, social media handles, and URLs — but it is **never imported or used anywhere in the app**. Zero enforcement.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## Attack Surface — All User-Editable Text Fields
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+1. **Listing forms** (4 forms): `title`, `description`, `house_rules` (Property, Motorcycle, Bicycle, Worker)
+2. **Client Profile Dialog**: `name` field (bio is disabled)
+3. **Owner Profile Dialog**: `businessName`, `businessLocation`, `contactEmail`, `contactPhone`
+4. **Messaging**: `MessagingInterface.tsx` — chat messages, `SwipessSwipeContainer` / `ClientSwipeContainer` — first-contact messages
+5. **Reviews**: `RatingSubmissionDialog` — review text
+6. **Reports**: `ReportDialog` — report descriptions (less critical but still worth guarding)
 
-### 2. Profile Photo Already Shows in Top-Left
+## Implementation Plan
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### 1. Enhance `contactInfoValidation.ts`
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+Add more evasion-resistant patterns:
+- Spaced-out numbers: `5 5 5 1 2 3 4 5 6 7`
+- Letter substitutions: `at` for `@`, `dot` for `.`
+- WhatsApp-specific: `my whats`, `wsp`, `w.a`
+- Add a `sanitizeAndValidate()` wrapper that strips zero-width characters before checking
+- Add severity levels: `block` (prevent submission) vs `flag` (allow but mark for admin review)
 
-### 3. Fix Header Too Close to Top Edge
+### 2. Create `useContentModeration` Hook
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+A reusable hook that:
+- Takes a text value, returns `{ error: string | null, isClean: boolean }`
+- Wraps `validateNoContactInfo` for easy integration
+- Optionally logs flagged content to a `content_flags` database table for admin review
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### 3. Create `content_flags` Database Table
 
-### 4. Fix MarketingSlide Build Error
+Store flagged content for the admin app to query:
+```sql
+CREATE TABLE content_flags (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  content_type TEXT NOT NULL, -- 'message', 'listing_title', 'listing_description', 'profile_name', 'review'
+  content_text TEXT NOT NULL,
+  flag_reason TEXT NOT NULL, -- 'phone', 'email', 'social_media', 'url'
+  source_id UUID, -- listing_id, conversation_id, review_id
+  status TEXT DEFAULT 'pending', -- 'pending', 'reviewed', 'dismissed'
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+With RLS: users can insert their own flags, only admins can read all.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### 4. Wire Validation Into Every Text Input Point
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**Listing Forms** (`PropertyListingForm`, `MotorcycleListingForm`, `BicycleListingForm`, `WorkerListingForm`):
+- Add `onBlur` validation on `title`, `description`, `house_rules` fields
+- Show inline error toast when contact info detected
+- Block submission in `UnifiedListingForm.handleSubmit()` if any field fails validation
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+**Messaging** (`MessagingInterface.tsx`, `SwipessSwipeContainer`, `ClientSwipeContainer`):
+- Validate message text before `sendMessage.mutateAsync()` / conversation creation
+- Block send and show error if contact info detected
+- Log to `content_flags` table
+
+**Client Profile Dialog**:
+- Validate `name` field on save
+
+**Owner Profile Dialog**:
+- `contactEmail` and `contactPhone` are legitimate business fields — skip validation on those
+- Validate `businessName` and `businessLocation` for social media / URL embedding
+
+**Reviews** (`RatingSubmissionDialog`):
+- Validate review comment text before submission
+
+### 5. Image Moderation (Best Effort)
+
+For photo uploads, we can create a backend function that uses AI to analyze images. Using Lovable AI (Gemini), we can:
+- Create an edge function `moderate-image` that receives an image URL
+- Sends it to Gemini for analysis with a prompt checking for: nudity/explicit content, text overlays with contact info, brand logos
+- Returns a moderation verdict
+- Call this after upload in `ClientProfileDialog`, `OwnerProfileDialog`, and `UnifiedListingForm`
+- Flag images in `content_flags` table if issues detected
+
+### Files Modified
+
+1. **`src/utils/contactInfoValidation.ts`** — Enhanced patterns, severity levels, evasion resistance
+2. **`src/hooks/useContentModeration.ts`** — New hook wrapping validation + DB logging
+3. **`src/components/PropertyListingForm.tsx`** — onBlur validation on title, house_rules
+4. **`src/components/MotorcycleListingForm.tsx`** — onBlur validation on title, description
+5. **`src/components/BicycleListingForm.tsx`** — onBlur validation on title, description
+6. **`src/components/WorkerListingForm.tsx`** — onBlur validation on title, description
+7. **`src/components/UnifiedListingForm.tsx`** — Block submit if validation fails
+8. **`src/components/MessagingInterface.tsx`** — Validate before send
+9. **`src/components/SwipessSwipeContainer.tsx`** — Validate first-contact messages
+10. **`src/components/ClientSwipeContainer.tsx`** — Validate first-contact messages
+11. **`src/components/ClientProfileDialog.tsx`** — Validate name field
+12. **`src/components/OwnerProfileDialog.tsx`** — Validate business name/location
+13. **`src/components/RatingSubmissionDialog.tsx`** — Validate review text
+14. **New: `supabase/functions/moderate-image/index.ts`** — AI image moderation edge function
+15. **DB migration** — `content_flags` table with RLS
+
+### What This Does NOT Change
+- Existing form logic/routing
+- Existing messaging infrastructure
+- Owner contact email/phone fields (legitimate business info)
 
