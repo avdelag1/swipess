@@ -158,12 +158,14 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
             <motion.button
               key={id}
               onClick={() => handleCategoryChange(id)}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.96 }}
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
                   ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
-                  : "bg-secondary border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : isLight
+                    ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                    : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
               )}
             >
               <Icon className="w-4 h-4" />
