@@ -196,7 +196,12 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white z-50 pointer-events-auto shadow-lg backdrop-blur-md"
+                className={cn(
+                  "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg backdrop-blur-md",
+                  isDark
+                    ? "bg-white/10 border border-white/20 text-white"
+                    : "bg-black/5 border border-black/10 text-foreground"
+                )}
                 aria-label="Go back"
               >
                 <ArrowLeft className="w-5 h-5" strokeWidth={3} />
