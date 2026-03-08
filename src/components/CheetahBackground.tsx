@@ -33,7 +33,7 @@ const CheetahBackground = () => {
             const spots: Spot[] = [];
 
             for (let i = 0; i < count; i++) {
-                const radius = 5 + Math.random() * 20;
+                const radius = 12 + Math.random() * 22;
                 const pointsCount = 5 + Math.floor(Math.random() * 5);
                 const points = [];
                 for (let p = 0; p < pointsCount; p++) {
@@ -119,15 +119,17 @@ const CheetahBackground = () => {
                 }
                 ctx.closePath();
 
-                // Spot color - Pitch black with varying depth
+                // Outer rosette ring - pitch black
                 const spotAlpha = spot.opacity * (0.9 + breathingInt * 0.1);
                 ctx.fillStyle = `rgba(5, 5, 5, ${spotAlpha})`;
                 ctx.fill();
 
-                // Slight inner glow for the "muscle" effect
-                ctx.strokeStyle = `rgba(218, 165, 32, ${breathingInt * 0.15})`;
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
+                // Inner rosette center - warm amber to create leopard rosette effect
+                const innerR = spot.r * 0.45;
+                ctx.beginPath();
+                ctx.arc(0, 0, innerR, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${180 + Math.floor(breathingInt * 30)}, ${130 + Math.floor(breathingInt * 20)}, 20, ${spotAlpha * 0.55})`;
+                ctx.fill();
 
                 ctx.restore();
             }
