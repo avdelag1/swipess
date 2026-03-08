@@ -272,6 +272,22 @@ export interface ListingFilters {
   // Services/worker filter
   showHireServices?: boolean;
 
+  // Worker-specific filters (must match smartMatching/types.ts)
+  serviceCategory?: string[];
+  workTypes?: string[];
+  scheduleTypes?: string[];
+  daysAvailable?: string[];
+  timeSlotsAvailable?: string[];
+  locationTypes?: string[];
+  experienceLevel?: string[];
+  skills?: string[];
+  certifications?: string[];
+
+  // Worker boolean verification filters
+  offersEmergencyService?: boolean;
+  backgroundCheckVerified?: boolean;
+  insuranceVerified?: boolean;
+
   // Owner client filters
   clientGender?: ClientGender;
   clientType?: ClientType;

@@ -112,6 +112,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         isLoading={isLoading}
         error={error}
         insightsOpen={false} // Insights handled by layout now
+        category={filterCategory || 'default'}
         filters={mergedFilters}
       />
     </>

@@ -154,11 +154,14 @@ export function useSmartClientMatching(
                     return [] as MatchedClientProfile[];
                 }
 
-                // Fetch supplementary data from client_profiles
-                const { data: clientProfileData } = await supabase
-                    .from('client_profiles')
-                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, relationship_status, has_children, smoking_habit, drinking_habit, cleanliness_level, noise_tolerance, work_schedule, dietary_preferences, personality_traits, interest_categories')
-                    .limit(200);
+                // Fetch supplementary data from client_profiles scoped to returned profile user_ids
+                const profileUserIds = (profiles as any[]).map(p => p.user_id).filter(Boolean);
+                const { data: clientProfileData } = profileUserIds.length > 0
+                    ? await supabase
+                        .from('client_profiles')
+                        .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, relationship_status, has_children, smoking_habit, drinking_habit, cleanliness_level, noise_tolerance, work_schedule, dietary_preferences, personality_traits, interest_categories')
+                        .in('user_id', profileUserIds)
+                    : { data: null };
 
                 const clientProfileMap = new Map<string, any>();
                 if (clientProfileData) {
