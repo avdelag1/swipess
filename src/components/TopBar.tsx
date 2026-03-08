@@ -422,7 +422,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-8 sm:h-8 sm:w-auto sm:px-2 rounded-md transition-all duration-100 ease-out",
+                "relative h-6 w-7 sm:h-7 sm:w-auto sm:px-1.5 rounded-md transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
                 "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",

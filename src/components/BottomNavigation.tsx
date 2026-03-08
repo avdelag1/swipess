@@ -255,45 +255,7 @@ export function BottomNavigation({
                     When this tab is active, a Liquid Glass pill appears behind
                     the icon/label. It uses layoutId for a shared-element
                     transition — the pill slides smoothly between tabs. */}
-                <AnimatePresence>
-                  {active && (
-                    <motion.div
-                      layoutId="activeNavPill"
-                      className="absolute inset-0"
-                      initial={{ opacity: 0, scale: 0.82 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.88 }}
-                      transition={PILL_SPRING}
-                      style={{
-                        borderRadius: 14,
-                        // Active pill: glass surface with coloured rim
-                        backgroundColor: pillBg,
-                        backdropFilter: 'blur(20px) saturate(160%)',
-                        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-                        border: `1px solid ${pillBorder}`,
-                        boxShadow: pillShadow,
-                        zIndex: 0,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {/* Liquid highlight on the active pill */}
-                      <div
-                        aria-hidden="true"
-                        className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
-                        style={{
-                          borderRadius: 'inherit',
-                          background: `
-                            radial-gradient(ellipse 150% 65% at 20% 0%,
-                              rgba(255,255,255,${isLight ? 0.70 : 0.28}) 0%, transparent 60%),
-                            radial-gradient(ellipse 80% 50% at 90% 100%,
-                              rgba(249,115,22,${isLight ? 0.10 : 0.14}) 0%, transparent 55%)
-                          `,
-                          backgroundSize: '220% 220%, 100% 100%',
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Active state communicated via gradient icon + bold label — no per-icon pill */}
 
                 {/* Notification badge */}
                 <AnimatePresence>
