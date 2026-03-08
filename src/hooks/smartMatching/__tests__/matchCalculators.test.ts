@@ -17,6 +17,7 @@ describe('Match Calculators', () => {
 
         it('calculates a high match percentage for strongly matching criteria', () => {
             const preferences = {
+                user_id: 'test-user',
                 min_price: 1000,
                 max_price: 2000,
                 min_bedrooms: 2,
