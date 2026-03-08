@@ -184,7 +184,7 @@ export function BottomNavigation({
           borderLeft: `1px solid ${barBorder}`,
           borderRight: `1px solid ${barBorder}`,
           borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.07)'}`,
-          borderRadius: '28px',
+          borderRadius: '22px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
