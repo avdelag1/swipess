@@ -530,7 +530,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Condition</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_condition.map((cond) => (
+                            {preferences.yacht_condition.map((cond: string) => (
                               <Badge key={`yacht-cond-${cond}`} variant="outline">{cond}</Badge>
                             ))}
                           </div>
