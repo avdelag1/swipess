@@ -1,52 +1,46 @@
 
 
-# Premium Packages Design Overhaul
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Problem
-The current subscription packages page (`SubscriptionPackagesPage.tsx`) and dialog (`SubscriptionPackages.tsx`) use generic `<Card>` components with basic gradients. The 3 plans are in a scrollable grid — the user wants all 3 visible at once in vertical cards without scrolling, designed to feel expensive and conversion-optimized.
+### 1. Replace App Icon with Fire S Logo
 
-## Design Approach
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### Layout: 3 Vertical Cards, Single Viewport
-- All 3 plans rendered as tall, narrow vertical cards side-by-side filling the viewport height
-- On mobile: horizontal scroll snap (swipeable) with dot indicators — no vertical scroll
-- On desktop: 3 columns, `h-[calc(100vh-header)]` with `items-stretch`
-- The "Best Value" (1 Year) card is visually elevated — taller, glowing border, lifted with `scale(1.05)`
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### Visual Treatment per Card
-- Glass surfaces: `bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]`
-- Each tier gets a distinct accent: 1 Month = cool blue, 6 Months = Mexican Pink gradient, 1 Year = gold/amber with animated glow
-- Price typography: massive `text-5xl` price, small duration label below
-- Benefits list with animated check icons using category-appropriate colors
-- CTA button: full-width, rounded-2xl, spring tap animation (`whileTap: { scale: 0.96 }`), gradient matching tier
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### Highlight Card (1 Year — Best Deal)
-- Animated border glow using a pulsing `box-shadow` (amber/gold)
-- "BEST VALUE" badge with shimmer animation at top
-- Slightly larger scale (`scale-105`) to visually pop above siblings
-- Stronger gradient overlay from top
+### 2. Profile Photo Already Shows in Top-Left
 
-### Header
-- Crown icon + "Unlock Premium" title with gradient text (Mexican Pink → orange)
-- Subtitle: "Choose your plan" — clean, minimal
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### Trust Footer
-- Compact row of trust signals: Shield (Secure), Clock (Instant), Sparkles (Cancel Anytime)
-- Stays visible at bottom without scrolling
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### Dialog Version (`SubscriptionPackages.tsx`)
-- Same 3-column card layout inside dialog
-- Remove `ScrollArea` — content fits in `max-h-[85vh]` without scrolling
-- Apply identical glass + glow treatment
+### 3. Fix Header Too Close to Top Edge
 
-## Files Modified
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-1. **`src/pages/SubscriptionPackagesPage.tsx`** — Full redesign: viewport-height layout, glass tier cards, animated highlight card, gradient header, trust footer, spring-physics buttons. Remove message packages section (already empty for clients).
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-2. **`src/components/SubscriptionPackages.tsx`** — Same card design inside dialog. Remove `ScrollArea`, use flex layout with 3 vertical cards. Add spring animations and glass surfaces.
+### 4. Fix MarketingSlide Build Error
 
-## What This Does NOT Change
-- Payment logic (PayPal URLs, localStorage, notifications) — untouched
-- Plan data (prices, benefits, IDs) — untouched
-- Routing, hooks, database — untouched
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
