@@ -15,7 +15,7 @@ import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, us
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
 import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { SwipeActionButtonBar } from './SwipeActionButtonBar';
+
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
@@ -217,7 +217,6 @@ interface SimpleOwnerSwipeCardProps {
   onMessage?: () => void;
   onShare?: () => void;
   isTop?: boolean;
-  hideActions?: boolean;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -230,7 +229,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onMessage,
   onShare,
   isTop = true,
-  hideActions = false,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -797,24 +795,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         </div>
       </motion.div>
 
-      {/* Action buttons OUTSIDE card - stays fixed while card moves */}
-      {!hideActions && (
-        <div
-          className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <SwipeActionButtonBar
-            onLike={() => handleButtonSwipe('right')}
-            onDislike={() => handleButtonSwipe('left')}
-            onShare={onShare}
-            onUndo={onUndo}
-            onMessage={onMessage}
-            canUndo={canUndo}
-          />
-        </div>
-      )}
     </div>
   );
 });
