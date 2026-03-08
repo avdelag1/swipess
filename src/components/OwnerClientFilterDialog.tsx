@@ -226,7 +226,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     if (current.includes(occupation)) {
       setFormData({
         ...formData,
-        preferred_occupations: current.filter(o => o !== occupation),
+        preferred_occupations: current.filter((o: string) => o !== occupation),
       });
     } else {
       setFormData({
