@@ -173,7 +173,7 @@ export function BottomNavigation({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-xl mx-auto"
+        className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Liquid glass base
           backgroundColor: barBg,
@@ -184,7 +184,7 @@ export function BottomNavigation({
           borderLeft: `1px solid ${barBorder}`,
           borderRight: `1px solid ${barBorder}`,
           borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.07)'}`,
-          borderRadius: '28px',
+          borderRadius: '22px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
@@ -213,7 +213,7 @@ export function BottomNavigation({
 
         {/* Nav items row */}
         <div
-          className="relative flex items-center justify-between w-full px-2 py-2"
+          className="relative flex items-center justify-between w-full px-1 py-1.5"
           style={{ zIndex: 2, transform: 'translateZ(0)' }}
         >
           {navItems.map((item) => {
@@ -245,7 +245,7 @@ export function BottomNavigation({
                 style={{
                   minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
-                  padding: isNarrow ? '6px 2px' : '8px 6px',
+                  padding: isNarrow ? '4px 2px' : '6px 4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
@@ -255,45 +255,7 @@ export function BottomNavigation({
                     When this tab is active, a Liquid Glass pill appears behind
                     the icon/label. It uses layoutId for a shared-element
                     transition — the pill slides smoothly between tabs. */}
-                <AnimatePresence>
-                  {active && (
-                    <motion.div
-                      layoutId="activeNavPill"
-                      className="absolute inset-0"
-                      initial={{ opacity: 0, scale: 0.82 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.88 }}
-                      transition={PILL_SPRING}
-                      style={{
-                        borderRadius: 14,
-                        // Active pill: glass surface with coloured rim
-                        backgroundColor: pillBg,
-                        backdropFilter: 'blur(20px) saturate(160%)',
-                        WebkitBackdropFilter: 'blur(20px) saturate(160%)',
-                        border: `1px solid ${pillBorder}`,
-                        boxShadow: pillShadow,
-                        zIndex: 0,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {/* Liquid highlight on the active pill */}
-                      <div
-                        aria-hidden="true"
-                        className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
-                        style={{
-                          borderRadius: 'inherit',
-                          background: `
-                            radial-gradient(ellipse 150% 65% at 20% 0%,
-                              rgba(255,255,255,${isLight ? 0.70 : 0.28}) 0%, transparent 60%),
-                            radial-gradient(ellipse 80% 50% at 90% 100%,
-                              rgba(249,115,22,${isLight ? 0.10 : 0.14}) 0%, transparent 55%)
-                          `,
-                          backgroundSize: '220% 220%, 100% 100%',
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Active state communicated via gradient icon + bold label — no per-icon pill */}
 
                 {/* Notification badge */}
                 <AnimatePresence>

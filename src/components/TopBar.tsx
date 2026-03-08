@@ -88,8 +88,8 @@ function TopBarComponent({
     ? 'var(--glass-bg)'
     : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
-    ? '1.5px solid var(--glass-border)'
-    : '1.5px solid rgba(0, 0, 0, 0.05)';
+    ? '1px solid var(--glass-border)'
+    : '1px solid rgba(0, 0, 0, 0.05)';
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
     : '0 10px 30px -10px rgba(0,0,0,0.1)';
@@ -197,14 +197,14 @@ function TopBarComponent({
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={handleBack}
                 className={cn(
-                  "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg backdrop-blur-md",
+                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg backdrop-blur-md",
                   isDark
                     ? "bg-white/10 border border-white/20 text-white"
                     : "bg-black/5 border border-black/10 text-foreground"
                 )}
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-5 h-5" strokeWidth={3} />
+                <ArrowLeft className="w-4 h-4" strokeWidth={3} />
               </motion.button>
             )}
 
@@ -222,7 +222,7 @@ function TopBarComponent({
                 className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
                 aria-label="Go to profile"
               >
-                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
@@ -281,7 +281,7 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-100 ease-out",
+                    "relative h-6 sm:h-7 px-1 sm:px-1 rounded-md transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
@@ -422,7 +422,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-8 sm:h-8 sm:w-auto sm:px-2 rounded-md transition-all duration-100 ease-out",
+                "relative h-6 w-7 sm:h-7 sm:w-auto sm:px-1.5 rounded-md transition-all duration-100 ease-out",
                 "active:scale-[0.95]",
                 "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
