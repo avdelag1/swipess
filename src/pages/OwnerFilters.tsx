@@ -92,8 +92,25 @@ export default function OwnerFilters() {
   const setClientType = useFilterStore((state) => state.setClientType);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
-  const [selectedGender, setSelectedGender] = useState<ClientGender>(storeGender);
-  const [selectedClientType, setSelectedClientType] = useState<ClientType>(storeClientType);
+  // DB persistence
+  const { preferences: dbPrefs, updatePreferences } = useOwnerClientPreferences();
+
+  // Hydrate from DB if store is at defaults and DB has saved prefs
+  const [hydrated, setHydrated] = useState(false);
+  const initialGender = (!hydrated && storeGender === 'any' && dbPrefs?.selected_genders?.length)
+    ? (dbPrefs.selected_genders[0] as ClientGender)
+    : storeGender;
+  const initialClientType = storeClientType;
+
+  if (!hydrated && dbPrefs !== undefined) {
+    setHydrated(true);
+    if (storeGender === 'any' && dbPrefs?.selected_genders?.length) {
+      setClientGender(dbPrefs.selected_genders[0] as ClientGender);
+    }
+  }
+
+  const [selectedGender, setSelectedGender] = useState<ClientGender>(initialGender);
+  const [selectedClientType, setSelectedClientType] = useState<ClientType>(initialClientType);
 
   const activeFilterCount =
     (selectedGender !== 'any' ? 1 : 0) +
