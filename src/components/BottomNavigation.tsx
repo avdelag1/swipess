@@ -213,7 +213,7 @@ export function BottomNavigation({
 
         {/* Nav items row */}
         <div
-          className="relative flex items-center justify-between w-full px-2 py-2"
+          className="relative flex items-center justify-between w-full px-1 py-1.5"
           style={{ zIndex: 2, transform: 'translateZ(0)' }}
         >
           {navItems.map((item) => {
