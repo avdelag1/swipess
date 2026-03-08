@@ -173,7 +173,9 @@ function TopBarComponent({
         <div
           className="pointer-events-none absolute left-0 right-0 top-0 h-[100px] -z-10"
           style={{
-            background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.2) 65%, rgba(0, 0, 0, 0) 100%)'
+            background: isDark
+              ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.2) 65%, rgba(0, 0, 0, 0) 100%)'
+              : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 35%, rgba(255, 255, 255, 0.2) 65%, rgba(255, 255, 255, 0) 100%)'
           }}
           aria-hidden="true"
         />
@@ -194,7 +196,12 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 border border-white/20 text-white z-50 pointer-events-auto shadow-lg backdrop-blur-md"
+                className={cn(
+                  "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg backdrop-blur-md",
+                  isDark
+                    ? "bg-white/10 border border-white/20 text-white"
+                    : "bg-black/5 border border-black/10 text-foreground"
+                )}
                 aria-label="Go back"
               >
                 <ArrowLeft className="w-5 h-5" strokeWidth={3} />
@@ -253,7 +260,12 @@ function TopBarComponent({
             aria-label="Go to dashboard"
           >
             {title ? (
-              <span className="font-black text-xl text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] uppercase tracking-tighter leading-none pointer-events-none select-none">
+              <span className={cn(
+                "font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none",
+                isDark
+                  ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  : "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+              )}>
                 {title}
               </span>
             ) : null}
