@@ -1221,6 +1221,7 @@ export type Database = {
           onboarding_completed: boolean | null
           phone: string | null
           radio_current_station_id: string | null
+          radio_is_powered_on: boolean | null
           role: string | null
           smoking: boolean | null
           swipe_sound_theme: string | null
@@ -1252,6 +1253,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           phone?: string | null
           radio_current_station_id?: string | null
+          radio_is_powered_on?: boolean | null
           role?: string | null
           smoking?: boolean | null
           swipe_sound_theme?: string | null
@@ -1283,6 +1285,7 @@ export type Database = {
           onboarding_completed?: boolean | null
           phone?: string | null
           radio_current_station_id?: string | null
+          radio_is_powered_on?: boolean | null
           role?: string | null
           smoking?: boolean | null
           swipe_sound_theme?: string | null
@@ -1533,6 +1536,48 @@ export type Database = {
           price?: number
           seeker_insights?: boolean | null
           tier?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          message: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_email: string
+          user_id: string
+          user_role: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          message: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_email?: string
+          user_id: string
+          user_role?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_email?: string
+          user_id?: string
+          user_role?: string
         }
         Relationships: []
       }
