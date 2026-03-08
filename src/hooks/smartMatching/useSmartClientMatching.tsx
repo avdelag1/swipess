@@ -155,7 +155,7 @@ export function useSmartClientMatching(
                 // Fetch supplementary data from client_profiles
                 const { data: clientProfileData } = await supabase
                     .from('client_profiles')
-                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions')
+                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, relationship_status, has_children, smoking_habit, drinking_habit, cleanliness_level, noise_tolerance, work_schedule, dietary_preferences, personality_traits, interest_categories')
                     .limit(200);
 
                 const clientProfileMap = new Map<string, any>();
