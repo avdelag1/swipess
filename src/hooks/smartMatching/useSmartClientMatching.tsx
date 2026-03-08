@@ -185,26 +185,29 @@ export function useSmartClientMatching(
                         };
                     });
 
-                // Apply client filters if provided
-                if (filters) {
+                // Apply client filters if provided (merge with DB fallbacks)
+                const effectiveGender = (filters as any)?.clientGender && (filters as any).clientGender !== 'any'
+                    ? (filters as any).clientGender
+                    : dbGenderFilter;
+
+                if (filters || effectiveGender) {
                     filteredProfiles = filteredProfiles.filter(profile => {
-                        // FIX: Use budget_max if available, fallback to 0. Schema doesn't have these explicitly yet
-                        // but we check anyway if they're in the Json blob or future columns
-                        if (filters.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
+                        if (filters?.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
                             const clientBudget = profile.budget_max || profile.monthly_income || 0;
                             if (clientBudget !== 0 && (clientBudget < filters.budgetRange[0] || clientBudget > filters.budgetRange[1])) return false;
                         }
 
-                        if (filters.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
+                        if (filters?.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
                             if (profile.age < filters.ageRange[0] || profile.age > filters.ageRange[1]) return false;
                         }
 
-                        if (filters.genders && filters.genders.length > 0 && profile.gender) {
+                        if (filters?.genders && filters.genders.length > 0 && profile.gender) {
                             if (!filters.genders.includes(profile.gender.toLowerCase())) return false;
                         }
 
-                        if ((filters as any).clientGender && (filters as any).clientGender !== 'any' && profile.gender) {
-                            if (profile.gender.toLowerCase() !== (filters as any).clientGender.toLowerCase()) return false;
+                        // Apply effective gender filter (UI or DB fallback)
+                        if (effectiveGender && effectiveGender !== 'any' && profile.gender) {
+                            if (profile.gender.toLowerCase() !== effectiveGender.toLowerCase()) return false;
                         }
 
                         // FIX: clientType filtering based on intentions
