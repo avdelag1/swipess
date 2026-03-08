@@ -7,6 +7,7 @@ import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/sw
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
+import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
 // FIX: Lazy-load modals via portal to prevent re-renders from bleeding into swipe tree
 const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
