@@ -1,46 +1,61 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Comprehensive Improvement Plan
 
-### 1. Replace App Icon with Fire S Logo
+After auditing the codebase, here are the issues found and improvements to make:
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## Issues Found
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### 1. White Page Risk — Hardcoded Dark Background
+`DashboardLayout.tsx` line 591 uses `bg-[#09090b]` on the main scroll container. This does NOT adapt to the white-matte theme. If a user is in light mode, the content area has a forced dark background which can cause contrast issues or appear broken.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**Fix:** Replace `bg-[#09090b]` with `bg-background` (theme-aware token).
 
-### 2. Profile Photo Already Shows in Top-Left
+### 2. Action Buttons Still Need Fine-Tuning
+Currently at `bottom-28`. The memory says `bottom-24` was the original constraint. Going to keep `bottom-28` but verify it works with the nav bar spacing.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### 3. NotificationBar — Color & Theme Improvements
+The NotificationBar has several issues:
+- **Dark mode:** Uses `bg-black/85` which is fine but lacks the brand gradient accent
+- **Light mode:** Uses `bg-white/95` — bland, no brand energy
+- **No colored accent strip** to indicate notification type at a glance
+- The notification appears at `top-2` which can clash with the TopBar
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Fix:**
+- Add a left-side colored accent bar matching notification type (pink for like, blue for message, etc.)
+- Improve light mode styling with subtle brand gradient border
+- Move to `top-14` to sit below the TopBar instead of overlapping
+- Add brand gradient ring/glow effect
 
-### 3. Fix Header Too Close to Top Edge
+### 4. Toast Notification — Missing `border-bottom` Accent
+The sonner toasts look generic. Add a subtle bottom border gradient for brand identity on default toasts.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+### 5. Bottom Navigation — Missing `border-bottom` for Container
+The `app-bottom-bar` CSS uses a background gradient but the inner glass pill has `borderBottom: 'none'` — the bottom edge disappears against dark backgrounds. Add a subtle bottom border.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### 6. Main Content Background Flash
+`DashboardLayout.tsx` uses `bg-[#09090b]` but `SwipessSwipeContainer.tsx` also uses `bg-[#09090b]`. Both should use `bg-background` for theme consistency.
 
-### 4. Fix MarketingSlide Build Error
+## Changes
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### File 1: `src/components/DashboardLayout.tsx`
+- Line 591: Replace `bg-[#09090b]` → `bg-background` for theme-aware background
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+### File 2: `src/components/SwipessSwipeContainer.tsx`
+- Line 1079: Replace `bg-[#09090b]` → `bg-background` for theme-aware loading state
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### File 3: `src/components/NotificationBar.tsx`
+- Add colored left accent bar per notification type
+- Move from `top-2` to `top-14` to avoid TopBar overlap
+- Add brand gradient border on the banner
+- Improve light mode with warmer styling
+- Add subtle glow matching notification type color
+
+### File 4: `src/components/BottomNavigation.tsx`
+- Add subtle bottom border to the glass pill for better edge definition
+
+### File 5: `src/components/ui/sonner.tsx`
+- Add subtle bottom accent line on default toasts for brand cohesion
+
+These are all visual refinements and theme-safety fixes — no layout architecture, routing, or swipe physics changes.
 
