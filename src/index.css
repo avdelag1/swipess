@@ -1578,7 +1578,7 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  FINAL OVERRIDE FOR WHITE THEME - Fixes "Black Whopper" Legacy Wrappers */
+/*  FINAL OVERRIDE FOR WHITE THEME - Ensures white backgrounds          */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .white-matte,
 .white-matte body,
@@ -1586,14 +1586,16 @@ body {
 .white-matte .app-root {
   background-color: #ffffff !important;
   background: #ffffff !important;
-  color: #000000 !important;
+  color: hsl(0 0% 1%) !important;
 }
 
-.white-matte .bg-background,
-.white-matte .bg-card,
-.white-matte .text-foreground,
+/* Only force text color on actual text utility classes — NOT on bg- classes */
+.white-matte .text-foreground {
+  color: hsl(0 0% 1%) !important;
+}
+
 .white-matte .text-muted-foreground {
-  color: #000000 !important;
+  color: hsl(0 0% 45%) !important;
 }
 
 
