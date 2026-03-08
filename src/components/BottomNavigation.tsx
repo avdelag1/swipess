@@ -153,12 +153,6 @@ export function BottomNavigation({
     ? 'inset 0 1px 0 rgba(255,255,255,0.92), 0 -2px 12px rgba(0,0,0,0.06)'
     : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -4px 20px rgba(0,0,0,0.35)';
 
-  // ── Active glass pill colours ────────────────────────────────────────────
-  const pillBg = isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.10)';
-  const pillBorder = isLight ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.18)';
-  const pillShadow = isLight
-    ? 'inset 0 1px 0 rgba(255,255,255,0.95), 0 2px 8px rgba(0,0,0,0.08)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.30)';
 
   return (
     <nav className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
