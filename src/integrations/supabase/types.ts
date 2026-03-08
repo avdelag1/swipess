@@ -508,6 +508,80 @@ export type Database = {
           },
         ]
       }
+      dispute_reports: {
+        Row: {
+          contract_id: string
+          created_at: string
+          description: string | null
+          id: string
+          issue_type: string
+          reported_against: string
+          reported_by: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_type: string
+          reported_against: string
+          reported_by: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          issue_type?: string
+          reported_against?: string
+          reported_by?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_reports_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "digital_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_document_quota: {
+        Row: {
+          created_at: string
+          id: string
+          monthly_limit: number
+          reset_date: string | null
+          updated_at: string
+          used_this_month: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly_limit?: number
+          reset_date?: string | null
+          updated_at?: string
+          used_this_month?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly_limit?: number
+          reset_date?: string | null
+          updated_at?: string
+          used_this_month?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       likes: {
         Row: {
           created_at: string
@@ -619,6 +693,7 @@ export type Database = {
           vehicle_condition: string | null
           vehicle_model: string | null
           vehicle_type: string | null
+          views: number | null
           wheel_size: string | null
           work_type: Json | null
           year: number | null
@@ -706,6 +781,7 @@ export type Database = {
           vehicle_condition?: string | null
           vehicle_model?: string | null
           vehicle_type?: string | null
+          views?: number | null
           wheel_size?: string | null
           work_type?: Json | null
           year?: number | null
@@ -793,6 +869,7 @@ export type Database = {
           vehicle_condition?: string | null
           vehicle_model?: string | null
           vehicle_type?: string | null
+          views?: number | null
           wheel_size?: string | null
           work_type?: Json | null
           year?: number | null
@@ -1328,30 +1405,51 @@ export type Database = {
       }
       tokens: {
         Row: {
+          activation_type: string | null
           amount: number
           created_at: string
+          expires_at: string | null
           id: string
+          notes: string | null
+          remaining_activations: number | null
+          reset_date: string | null
           source: string | null
           token_type: string | null
+          total_activations: number | null
           updated_at: string
+          used_activations: number | null
           user_id: string
         }
         Insert: {
+          activation_type?: string | null
           amount?: number
           created_at?: string
+          expires_at?: string | null
           id?: string
+          notes?: string | null
+          remaining_activations?: number | null
+          reset_date?: string | null
           source?: string | null
           token_type?: string | null
+          total_activations?: number | null
           updated_at?: string
+          used_activations?: number | null
           user_id: string
         }
         Update: {
+          activation_type?: string | null
           amount?: number
           created_at?: string
+          expires_at?: string | null
           id?: string
+          notes?: string | null
+          remaining_activations?: number | null
+          reset_date?: string | null
           source?: string | null
           token_type?: string | null
+          total_activations?: number | null
           updated_at?: string
+          used_activations?: number | null
           user_id?: string
         }
         Relationships: []
