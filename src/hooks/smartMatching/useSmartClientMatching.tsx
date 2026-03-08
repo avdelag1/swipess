@@ -226,8 +226,8 @@ export function useSmartClientMatching(
                         }
 
                         // clientType filtering based on intentions
-                        if (filters && (filters as any).clientType && (filters as any).clientType !== 'all') {
-                            const clientType = (filters as any).clientType;
+                        if (filters && filters.clientType && filters.clientType !== 'all') {
+                            const clientType = filters.clientType;
                             const clientIntentions = profile.intentions || [];
 
                             if (clientType === 'rent' && !clientIntentions.includes('rent_property')) return false;
