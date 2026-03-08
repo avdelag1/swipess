@@ -124,8 +124,8 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
     try {
       await savePreferencesMutation.mutateAsync({
         interested_in_properties: true,
-        min_price: budgetValues.min,
-        max_price: budgetValues.max,
+        price_min: budgetValues.min,
+        price_max: budgetValues.max,
         min_bedrooms: bedrooms,
         max_bedrooms: bedrooms + 3, // Allow some flexibility
         min_bathrooms: bathrooms,
@@ -134,7 +134,6 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         pet_friendly_required: petFriendly,
         furnished_required: furnished,
         preferred_listing_types: interestType === 'both' ? ['rent', 'buy'] : [interestType],
-        rental_duration: rentalDuration || null,
         location_zones: locationNeighborhoods.length > 0 ? locationNeighborhoods : null,
       });
       toast.success('Filters applied!', { description: 'Your preferences have been saved.' });
