@@ -249,7 +249,7 @@ Return JSON:
 {
   "title": "professional title max 60 chars",
   "description": "service description",
-  "service_category": "cleaning|plumbing|electrical|carpentry|gardening|painting|moving|general",
+  "service_category": "house_cleaner|handyman|maintenance_tech|house_painter|plumber|electrician|gardener|pool_cleaner|massage_therapist|yoga|meditation_coach|holistic_therapist|personal_trainer|beauty|nutritionist|nanny|pet_care|pet_groomer|driver|mechanic|chef|bartender|event_planner|language_teacher|music_teacher|dance_instructor|photographer|videographer|graphic_designer|it_support|translator|accountant|security|other",
   "experience_level": "beginner|intermediate|expert",
   "pricing_unit": "hour|day|project",
   "price": number or null,

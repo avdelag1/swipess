@@ -378,7 +378,7 @@ export default function ClientWorkerDiscovery() {
               )}
               {selectedType && (
                 <Badge variant="secondary" className="gap-1">
-                  {SERVICE_CATEGORIES.find(t => t.value === selectedType)?.label}
+                  {findCategory(selectedType)?.label}
                   <X
                     className="w-3 h-3 cursor-pointer"
                     onClick={() => setSelectedType(undefined)}
