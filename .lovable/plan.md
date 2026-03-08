@@ -1,46 +1,32 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Slim Down Navigation Bar & Header Buttons
 
-### 1. Replace App Icon with Fire S Logo
+## Problem
+1. **Bottom nav**: Each icon has its own glass pill background (the `activeNavPill` with `layoutId`), AND the entire bar has a glass background — two competing glass layers that look heavy/redundant.
+2. **Bottom nav bar width**: The outer bar stretches to `max-w-xl` (576px) which is wider than needed.
+3. **Header buttons** (Tokens, Notifications): The glass pill frames use `1.5px solid` borders and generous padding, making them appear thick/bulky.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## Changes
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### File 1: `src/components/BottomNavigation.tsx`
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**Remove individual active pill background**: Delete the entire `AnimatePresence` block containing the `activeNavPill` `motion.div` (lines 258-296). The active state will be communicated purely through the gradient icon color + bold label — no per-icon glass pill needed since the bar itself is already a glass surface.
 
-### 2. Profile Photo Already Shows in Top-Left
+**Slim the bar**: 
+- Change `max-w-xl` to `max-w-md` (448px) on the outer glass container — tighter fit around icons
+- Reduce inner padding from `px-2 py-2` to `px-1 py-1.5` — less dead space
+- Reduce `borderRadius` from `28px` to `22px` — slimmer profile
+- Reduce button padding from `8px 6px` to `6px 4px`
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### File 2: `src/components/TopBar.tsx`
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Slim header button frames**:
+- Change `glassBorder` from `1.5px solid` to `1px solid` (both themes) — thinner border
+- Reduce button heights: `h-7 sm:h-8` → `h-6 sm:h-7` for both Tokens and Notifications buttons
+- Reduce padding: `px-1 sm:px-1.5` → `px-1 sm:px-1` on Tokens button
+- Reduce back button from `w-10 h-10` to `w-8 h-8` and icon from `w-5 h-5` to `w-4 h-4`
+- Avatar border from `border-2` to `border` for a cleaner look
 
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+These are purely visual refinements — no logic, routing, or structural changes.
 
