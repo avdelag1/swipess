@@ -235,7 +235,7 @@ export function BottomNavigation({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
+                  'relative flex flex-col items-center justify-center rounded-xl gap-0.5 min-w-0 flex-1',
                   'touch-manipulation focus-visible:outline-none',
                   'focus-visible:ring-2 focus-visible:ring-offset-1',
                   isLight
@@ -243,9 +243,9 @@ export function BottomNavigation({
                     : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
-                  minWidth: TOUCH_TARGET,
-                  minHeight: TOUCH_TARGET,
-                  padding: '8px 6px',
+                  minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  padding: isNarrow ? '6px 2px' : '8px 6px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
