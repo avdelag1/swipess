@@ -238,11 +238,6 @@ export function BottomNavigation({
                   cursor: 'pointer',
                 }}
               >
-                {/* ── Active glass pill ──────────────────────────────────────
-                    When this tab is active, a Liquid Glass pill appears behind
-                    the icon/label. It uses layoutId for a shared-element
-                    transition — the pill slides smoothly between tabs. */}
-                {/* Active state communicated via gradient icon + bold label — no per-icon pill */}
 
                 {/* Notification badge */}
                 <AnimatePresence>
