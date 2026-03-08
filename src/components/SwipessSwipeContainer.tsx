@@ -178,47 +178,7 @@ function useNavigationGuard() {
   return { canNavigate, startNavigation, endNavigation };
 }
 
-// =============================================================================
-// PERF: Throttled prefetch scheduler - prevents competing with current decode
-// Uses requestIdleCallback to ensure prefetch only runs when browser is idle
-// =============================================================================
-class PrefetchScheduler {
-  private scheduled = false;
-  private callback: (() => void) | null = null;
-  private idleHandle: number | null = null;
-
-  schedule(callback: () => void, delayMs = 300): void {
-    // Cancel any pending prefetch
-    this.cancel();
-
-    this.callback = callback;
-    this.scheduled = true;
-
-    // Wait for a brief delay to let current image decode complete
-    setTimeout(() => {
-      if (!this.scheduled || !this.callback) return;
-
-      if ('requestIdleCallback' in window) {
-        this.idleHandle = (window as any).requestIdleCallback(() => {
-          if (this.callback) this.callback();
-          this.scheduled = false;
-        }, { timeout: 2000 });
-      } else {
-        this.callback();
-        this.scheduled = false;
-      }
-    }, delayMs);
-  }
-
-  cancel(): void {
-    this.scheduled = false;
-    this.callback = null;
-    if (this.idleHandle !== null && 'cancelIdleCallback' in window) {
-      (window as any).cancelIdleCallback(this.idleHandle);
-      this.idleHandle = null;
-    }
-  }
-}
+// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
