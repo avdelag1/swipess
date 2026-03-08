@@ -277,8 +277,8 @@ export function useSmartClientMatching(
                         } else if (dbNationalities?.length && profile.nationality) {
                             if (!dbNationalities.includes(profile.nationality)) return false;
                         }
-                        if (filters?.languages?.length && profile.languages) {
-                            if (!filters.languages.some(lang => profile.languages.includes(lang))) return false;
+                        if (filters?.languages?.length && profile.languages_spoken) {
+                            if (!filters.languages.some((lang: string) => profile.languages_spoken.includes(lang))) return false;
                         }
                         if (filters?.relationshipStatus?.length && profile.relationship_status) {
                             if (!filters.relationshipStatus.includes(profile.relationship_status)) return false;
