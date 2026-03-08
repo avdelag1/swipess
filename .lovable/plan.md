@@ -1,41 +1,46 @@
 
 
-# Plan: Complete Filter-to-Backend Connections for Both Roles
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Current State
+### 1. Replace App Icon with Fire S Logo
 
-After auditing the full filter pipeline:
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-**Client side (mostly working):**
-- ClientFilters.tsx saves categories + listing type to both Zustand store AND `client_filter_preferences` DB table
-- SwipessSwipeContainer hydrates filters from DB on mount
-- useSmartListingMatching applies category, listing type, and price filters at SQL level
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Owner side (broken — no DB persistence):**
-- OwnerFilters.tsx saves gender + client type to Zustand store ONLY — lost on refresh
-- No hydration from DB when the owner dashboard mounts
-- The `owner_client_preferences` table exists with `selected_genders`, `min_budget`, `max_budget` columns, but OwnerFilters.tsx never reads or writes to it
-- Filters DO flow through to useSmartClientMatching at runtime (gender/clientType filtering works in-memory), but they vanish on page reload
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## Changes
+### 2. Profile Photo Already Shows in Top-Left
 
-### File 1: `src/pages/OwnerFilters.tsx`
-- Import `useOwnerClientPreferences` hook
-- On "Apply", persist `selected_genders` and client type intent to `owner_client_preferences` table (background save, same pattern as ClientFilters)
-- On mount, hydrate local state from DB preferences if the Zustand store is at defaults
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### File 2: `src/components/EnhancedOwnerDashboard.tsx`
-- Add a hydration effect: on mount, fetch `owner_client_preferences` from DB and seed the filterStore with `clientGender` and `clientType` if the store is at default values
-- This ensures owner filters survive page refresh
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### File 3: `src/hooks/smartMatching/useSmartClientMatching.tsx`
-- Fetch `owner_client_preferences` for the current owner user
-- Use DB-stored `selected_genders` and `min_budget`/`max_budget` as fallbacks when no explicit UI filter is passed
-- This connects the owner's saved preferences to the matching algorithm
+### 3. Fix Header Too Close to Top Edge
 
-## What This Fixes
-- Owner filters persist across sessions (currently lost on refresh)
-- Owner swipe deck uses saved preferences as fallback when no UI filter is active
-- Both roles (client AND owner) now have the same persistence + hydration pattern
-- The full pipeline works: Filter UI → Zustand store → DB save → DB hydration → Smart matching query
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+
+### 4. Fix MarketingSlide Build Error
+
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

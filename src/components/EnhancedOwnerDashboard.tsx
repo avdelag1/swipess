@@ -1,4 +1,4 @@
-import { useState, memo, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const ClientInsightsDialog = lazy(() =>
@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
+import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -27,6 +28,17 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
+
+  // Hydrate owner filter store from DB on mount
+  const { preferences: ownerPrefs } = useOwnerClientPreferences();
+  const setClientGender = useFilterStore((s) => s.setClientGender);
+  const storeGender = useFilterStore((s) => s.clientGender);
+
+  useEffect(() => {
+    if (ownerPrefs && storeGender === 'any' && ownerPrefs.selected_genders?.length) {
+      setClientGender(ownerPrefs.selected_genders[0] as any);
+    }
+  }, [ownerPrefs, storeGender, setClientGender]);
 
   // Connect filter store to swipe container (fixes missing filters when rendered as a route)
   const filterVersion = useFilterStore((s) => s.filterVersion);

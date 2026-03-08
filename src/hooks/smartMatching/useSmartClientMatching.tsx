@@ -33,6 +33,28 @@ export function useSmartClientMatching(
             try {
                 logger.info('[SmartMatching] Fetching client profiles for owner:', userId);
 
+                // Fetch owner's saved preferences as fallback for filters
+                let dbGenderFilter: string | undefined;
+                try {
+                    const { data: ownerPrefs } = await (supabase as any)
+                        .from('owner_client_preferences')
+                        .select('selected_genders, min_budget, max_budget')
+                        .eq('user_id', userId)
+                        .maybeSingle();
+
+                    if (ownerPrefs) {
+                        // Use DB gender as fallback if no UI filter is active
+                        if (
+                            (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
+                            ownerPrefs.selected_genders?.length
+                        ) {
+                            dbGenderFilter = ownerPrefs.selected_genders[0];
+                        }
+                    }
+                } catch {
+                    // Non-critical: continue without DB prefs
+                }
+
                 // Fetch liked clients
                 const { data: ownerLikedClients, error: ownerLikesError } = await supabase
                     .from('likes')
@@ -163,30 +185,33 @@ export function useSmartClientMatching(
                         };
                     });
 
-                // Apply client filters if provided
-                if (filters) {
+                // Apply client filters if provided (merge with DB fallbacks)
+                const effectiveGender = (filters as any)?.clientGender && (filters as any).clientGender !== 'any'
+                    ? (filters as any).clientGender
+                    : dbGenderFilter;
+
+                if (filters || effectiveGender) {
                     filteredProfiles = filteredProfiles.filter(profile => {
-                        // FIX: Use budget_max if available, fallback to 0. Schema doesn't have these explicitly yet
-                        // but we check anyway if they're in the Json blob or future columns
-                        if (filters.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
+                        if (filters?.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
                             const clientBudget = profile.budget_max || profile.monthly_income || 0;
                             if (clientBudget !== 0 && (clientBudget < filters.budgetRange[0] || clientBudget > filters.budgetRange[1])) return false;
                         }
 
-                        if (filters.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
+                        if (filters?.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
                             if (profile.age < filters.ageRange[0] || profile.age > filters.ageRange[1]) return false;
                         }
 
-                        if (filters.genders && filters.genders.length > 0 && profile.gender) {
+                        if (filters?.genders && filters.genders.length > 0 && profile.gender) {
                             if (!filters.genders.includes(profile.gender.toLowerCase())) return false;
                         }
 
-                        if ((filters as any).clientGender && (filters as any).clientGender !== 'any' && profile.gender) {
-                            if (profile.gender.toLowerCase() !== (filters as any).clientGender.toLowerCase()) return false;
+                        // Apply effective gender filter (UI or DB fallback)
+                        if (effectiveGender && effectiveGender !== 'any' && profile.gender) {
+                            if (profile.gender.toLowerCase() !== effectiveGender.toLowerCase()) return false;
                         }
 
-                        // FIX: clientType filtering based on intentions
-                        if ((filters as any).clientType && (filters as any).clientType !== 'all') {
+                        // clientType filtering based on intentions
+                        if (filters && (filters as any).clientType && (filters as any).clientType !== 'all') {
                             const clientType = (filters as any).clientType;
                             const clientIntentions = profile.intentions || [];
 
@@ -195,8 +220,8 @@ export function useSmartClientMatching(
                             if (clientType === 'hire' && !clientIntentions.includes('hire_service')) return false;
                         }
 
-                        // FIX: Category filtering based on intentions
-                        if ((filters as any).categories && (filters as any).categories.length > 0) {
+                        // Category filtering based on intentions
+                        if (filters && (filters as any).categories && (filters as any).categories.length > 0) {
                             const categories = (filters as any).categories;
                             const clientIntentions = profile.intentions || [];
                             let hasMatchingCategory = false;
@@ -210,30 +235,30 @@ export function useSmartClientMatching(
                             if (!hasMatchingCategory) return false;
                         }
 
-                        if (filters.hasPets !== undefined && profile.has_pets !== undefined) {
+                        if (filters?.hasPets !== undefined && profile.has_pets !== undefined) {
                             if (filters.hasPets !== profile.has_pets) return false;
                         }
-                        if (filters.smoking !== undefined && profile.smoking !== undefined) {
+                        if (filters?.smoking !== undefined && profile.smoking !== undefined) {
                             if (filters.smoking !== profile.smoking) return false;
                         }
-                        if (filters.partyFriendly !== undefined && profile.party_friendly !== undefined) {
+                        if (filters?.partyFriendly !== undefined && profile.party_friendly !== undefined) {
                             if (filters.partyFriendly !== profile.party_friendly) return false;
                         }
-                        if (filters.verified && !profile.verified) return false;
+                        if (filters?.verified && !profile.verified) return false;
 
-                        if (filters.nationalities?.length && profile.nationality) {
+                        if (filters?.nationalities?.length && profile.nationality) {
                             if (!filters.nationalities.includes(profile.nationality)) return false;
                         }
-                        if (filters.languages?.length && profile.languages) {
+                        if (filters?.languages?.length && profile.languages) {
                             if (!filters.languages.some(lang => profile.languages.includes(lang))) return false;
                         }
-                        if (filters.relationshipStatus?.length && profile.relationship_status) {
+                        if (filters?.relationshipStatus?.length && profile.relationship_status) {
                             if (!filters.relationshipStatus.includes(profile.relationship_status)) return false;
                         }
-                        if (filters.interests?.length && profile.interests) {
+                        if (filters?.interests?.length && profile.interests) {
                             if (!filters.interests.some(interest => profile.interests.includes(interest))) return false;
                         }
-                        if (filters.lifestyleTags?.length && profile.lifestyle_tags) {
+                        if (filters?.lifestyleTags?.length && profile.lifestyle_tags) {
                             if (!filters.lifestyleTags.some(tag => profile.lifestyle_tags.includes(tag))) return false;
                         }
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Zap } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import type { ClientGender, ClientType } from '@/types/filters';
 
 const genderOptions: {
@@ -91,8 +92,25 @@ export default function OwnerFilters() {
   const setClientType = useFilterStore((state) => state.setClientType);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
+  // DB persistence
+  const { preferences: dbPrefs, updatePreferences } = useOwnerClientPreferences();
+
+  // Hydrate from DB on mount if store is at defaults
+  const [hydrated, setHydrated] = useState(false);
+
   const [selectedGender, setSelectedGender] = useState<ClientGender>(storeGender);
   const [selectedClientType, setSelectedClientType] = useState<ClientType>(storeClientType);
+
+  useEffect(() => {
+    if (!hydrated && dbPrefs !== undefined) {
+      setHydrated(true);
+      if (storeGender === 'any' && dbPrefs?.selected_genders?.length) {
+        const dbGender = dbPrefs.selected_genders[0] as ClientGender;
+        setClientGender(dbGender);
+        setSelectedGender(dbGender);
+      }
+    }
+  }, [hydrated, dbPrefs, storeGender, setClientGender]);
 
   const activeFilterCount =
     (selectedGender !== 'any' ? 1 : 0) +
@@ -103,10 +121,16 @@ export default function OwnerFilters() {
   const handleApply = useCallback(() => {
     setClientGender(selectedGender);
     setClientType(selectedClientType);
+
+    // Persist to DB (background, non-blocking)
+    updatePreferences({
+      selected_genders: selectedGender === 'any' ? [] : [selectedGender],
+    });
+
     queryClient.invalidateQueries({ queryKey: ['smart-clients'] });
     queryClient.invalidateQueries({ queryKey: ['owner-interested-clients'] });
     navigate(-1);
-  }, [selectedGender, selectedClientType, setClientGender, setClientType, queryClient, navigate]);
+  }, [selectedGender, selectedClientType, setClientGender, setClientType, updatePreferences, queryClient, navigate]);
 
   const handleReset = useCallback(() => {
     setSelectedGender('any');
