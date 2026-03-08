@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const ClientInsightsDialog = lazy(() =>

@@ -112,7 +112,7 @@ export function useSmartListingMatching(
           owner_id, created_at
         `;
 
-                let query = (supabase as any)
+                let query = supabase
                     .from('listings')
                     .select(SWIPE_CARD_FIELDS)
                     .eq('status', 'active')

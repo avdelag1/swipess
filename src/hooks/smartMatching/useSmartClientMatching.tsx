@@ -39,7 +39,7 @@ export function useSmartClientMatching(
                 let dbBudgetRange: [number, number] | undefined;
                 let dbNationalities: string[] | undefined;
                 try {
-                    const { data: ownerPrefs } = await (supabase as any)
+                    const { data: ownerPrefs } = await supabase
                         .from('owner_client_preferences')
                         .select('selected_genders, min_age, max_age, min_budget, max_budget, preferred_nationalities')
                         .eq('user_id', userId)

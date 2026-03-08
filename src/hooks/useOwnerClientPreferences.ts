@@ -3,43 +3,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 
+/**
+ * Interface aligned with actual DB columns in owner_client_preferences table.
+ * Do NOT add fields here unless they exist in the database schema.
+ */
 export interface OwnerClientPreferences {
   id?: string;
   user_id: string;
-  min_budget?: number;
-  max_budget?: number;
-  min_age?: number;
-  max_age?: number;
-  compatible_lifestyle_tags?: string[];
-  allows_pets?: boolean;
-  allows_smoking?: boolean;
-  allows_parties?: boolean;
-  no_smoking?: boolean;
-  requires_employment_proof?: boolean;
-  requires_references?: boolean;
-  min_monthly_income?: number;
-  preferred_occupations?: string[];
-  preferred_nationalities?: string[];
-
-  // New comprehensive demographic filters
-  selected_genders?: string[];
-  selected_nationalities?: string[];
-  selected_languages?: string[];
-  selected_relationship_status?: string[];
-  allows_children?: boolean | null;
-
-  // New lifestyle habit filters
-  smoking_habit?: string;
-  drinking_habit?: string;
-  cleanliness_level?: string;
-  noise_tolerance?: string;
-  work_schedule?: string;
-
-  // New cultural and personality filters
-  selected_dietary_preferences?: string[];
-  selected_personality_traits?: string[];
-  selected_interests?: string[];
-
+  selected_genders?: string[] | null;
+  min_age?: number | null;
+  max_age?: number | null;
+  min_budget?: number | null;
+  max_budget?: number | null;
+  preferred_nationalities?: string[] | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -57,13 +33,12 @@ export function useOwnerClientPreferences() {
       }
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('owner_client_preferences')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      // Gracefully handle errors - return null instead of crashing
       if (error) {
         if (import.meta.env.DEV) {
           logger.error('Error fetching owner client preferences:', error);
@@ -84,21 +59,19 @@ export function useOwnerClientPreferences() {
       }
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('owner_client_preferences')
         .upsert({
           user_id: user.id,
           ...prefs,
-        })
+        } as any)
         .select()
         .maybeSingle();
 
-      // Gracefully handle errors - don't crash the app
       if (error) {
         if (import.meta.env.DEV) {
           logger.error('Error updating owner client preferences:', error);
         }
-        // Return a minimal valid response to prevent crash
         return { user_id: user.id, ...prefs };
       }
 
