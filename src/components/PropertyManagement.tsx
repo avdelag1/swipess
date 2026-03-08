@@ -459,11 +459,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
 
                       {/* Availability Dropdown */}
-                      <div className={cn("pt-2 border-t", isLight ? 'border-gray-200' : 'border-gray-700')}>
+                      <div className={cn("pt-2 border-t", isLight ? 'border-border/30' : 'border-white/[0.06]')}>
                         <select
                           value={availabilityStatus[listing.id] || listing.status || 'active'}
                           onChange={(e) => handleAvailabilityChange(listing, e.target.value)}
-                          className={cn("w-full px-3 py-2 text-xs rounded-lg border focus:outline-none focus:border-primary", isLight ? 'bg-gray-50 text-foreground border-gray-200' : 'bg-gray-700 text-white border-gray-600')}
+                          className={cn(
+                            "w-full px-3 py-2 text-xs rounded-xl border focus:outline-none focus:border-primary transition-colors",
+                            isLight ? 'bg-secondary/60 text-foreground border-border/30' : 'bg-white/[0.04] text-white border-white/[0.08]'
+                          )}
                         >
                           <option value="available">Available</option>
                           <option value="active">Active</option>
