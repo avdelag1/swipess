@@ -210,6 +210,8 @@ export function useSmartClientMatching(
 
                         if (filters?.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
                             if (profile.age < filters.ageRange[0] || profile.age > filters.ageRange[1]) return false;
+                        } else if (dbAgeRange && profile.age) {
+                            if (profile.age < dbAgeRange[0] || profile.age > dbAgeRange[1]) return false;
                         }
 
                         if (filters?.genders && filters.genders.length > 0 && profile.gender) {
