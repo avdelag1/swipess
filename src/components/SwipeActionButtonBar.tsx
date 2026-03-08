@@ -63,11 +63,14 @@ const ENTRY_SPRING = {
 } as const;
 
 // ── BUTTON DIMENSIONS ─────────────────────────────────────────────────────────
-const LARGE = 64;   // primary actions — generous touch target
-const SMALL = 48;   // secondary actions
+// Responsive sizing via CSS clamp — scales between narrow (360px) and wide (430px+) devices
+const LARGE_CSS = 'clamp(52px, 15vw, 64px)';
+const SMALL_CSS = 'clamp(40px, 11vw, 48px)';
+const LARGE = 64;   // fallback for JS calculations
+const SMALL = 48;
 const LARGE_ICON = 30;
 const SMALL_ICON = 22;
-const GAP = 10;
+const GAP_CSS = 'clamp(6px, 2.5vw, 10px)';
 const TAP_SCALE = 0.87;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
