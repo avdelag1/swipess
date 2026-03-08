@@ -541,7 +541,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Fuel Types</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_fuel_types.map((fuel) => (
+                            {preferences.yacht_fuel_types.map((fuel: string) => (
                               <Badge key={`yacht-fuel-${fuel}`} variant="outline">{fuel}</Badge>
                             ))}
                           </div>
