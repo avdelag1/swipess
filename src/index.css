@@ -190,13 +190,14 @@ body {
   -webkit-backface-visibility: hidden;
 }
 
-/* In white-matte keep nav/header crystal clear so no haze sits over icon labels */
-.white-matte .app-header,
-.white-matte .app-bottom-bar {
+/* In white-matte, header stays transparent (content floats behind it) */
+.white-matte .app-header {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
+/* NOTE: .app-bottom-bar is NOT overridden — the BottomNavigation component
+   handles its own light-mode glass styling with proper rgba backgrounds */
 
 /* Hidden state for scroll behavior - cinematic dissolve vanish */
 .app-bottom-bar.nav-hidden {
@@ -1578,7 +1579,7 @@ body {
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  FINAL OVERRIDE FOR WHITE THEME - Fixes "Black Whopper" Legacy Wrappers */
+/*  FINAL OVERRIDE FOR WHITE THEME - Ensures white backgrounds          */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 .white-matte,
 .white-matte body,
@@ -1586,14 +1587,16 @@ body {
 .white-matte .app-root {
   background-color: #ffffff !important;
   background: #ffffff !important;
-  color: #000000 !important;
+  color: hsl(0 0% 1%) !important;
 }
 
-.white-matte .bg-background,
-.white-matte .bg-card,
-.white-matte .text-foreground,
+/* Only force text color on actual text utility classes — NOT on bg- classes */
+.white-matte .text-foreground {
+  color: hsl(0 0% 1%) !important;
+}
+
 .white-matte .text-muted-foreground {
-  color: #000000 !important;
+  color: hsl(0 0% 45%) !important;
 }
 
 
