@@ -1,46 +1,29 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Responsive Font Scaling for Card Info Overlays
 
-### 1. Replace App Icon with Fire S Logo
+## What
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+Replace all fixed Tailwind text sizes (`text-2xl`, `text-base`, `text-sm`, `text-lg`) in `CardInfoHierarchy.tsx` with `clamp()`-based inline `fontSize` styles that scale fluidly between small and large screens.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## Scaling Map
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+| Element | Current | New (clamp) |
+|---------|---------|-------------|
+| Price / headline | `text-2xl` (24px) | `clamp(1.125rem, 4.5vw, 1.5rem)` — 18px → 24px |
+| Secondary headline | `text-lg` (18px) | `clamp(1rem, 3.5vw, 1.125rem)` — 16px → 18px |
+| Supporting text | `text-base` (16px) | `clamp(0.8125rem, 3vw, 1rem)` — 13px → 16px |
+| Metadata / labels | `text-sm` (14px) | `clamp(0.6875rem, 2.5vw, 0.875rem)` — 11px → 14px |
+| Icon sizes | `w-5 h-5` / `w-4 h-4` | Keep Tailwind classes (icons don't need fluid scaling) |
 
-### 2. Profile Photo Already Shows in Top-Left
+## File: `src/components/ui/CardInfoHierarchy.tsx`
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+All three card info components (`PropertyCardInfo`, `VehicleCardInfo`, `ServiceCardInfo`, `ClientCardInfo`) get the same treatment:
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+- Replace `className="text-2xl font-bold ..."` with `style={{ fontSize: 'clamp(1.125rem, 4.5vw, 1.5rem)' }}` + keep `font-bold text-white drop-shadow-lg` in className
+- Replace `text-lg` spans with inline `fontSize: 'clamp(1rem, 3.5vw, 1.125rem)'`
+- Replace `text-base` spans with inline `fontSize: 'clamp(0.8125rem, 3vw, 1rem)'`
+- Replace `text-sm` spans with inline `fontSize: 'clamp(0.6875rem, 2.5vw, 0.875rem)'`
 
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+No other files need changes — all card info rendering flows through this single component file.
 
