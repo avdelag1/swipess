@@ -342,7 +342,7 @@ export const ServiceCardInfo = memo(({
               <span className="text-2xl font-bold text-white drop-shadow-lg">
                 ${hourlyRate}
               </span>
-              <span className="text-sm text-white/80">/hr</span>
+              <span className="text-sm text-white/80">{unitLabel}</span>
               {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
             </div>
           )}
