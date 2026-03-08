@@ -118,8 +118,6 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
 
-// Tutorial page - public onboarding experience
-const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
