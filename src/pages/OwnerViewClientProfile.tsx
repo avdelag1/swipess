@@ -322,7 +322,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Desired Features</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.moto_features.map((feat) => (
+                            {preferences.moto_features.map((feat: string) => (
                               <Badge key={`moto-feat-${feat}`} variant="secondary">{feat}</Badge>
                             ))}
                           </div>
