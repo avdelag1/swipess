@@ -303,25 +303,7 @@ export function useSmartClientMatching(
                     let matchReasons: string[];
                     let incompatibleReasons: string[] = [];
 
-                    // Try to get ownerPrefs from the earlier fetch
-                    let ownerPrefsData: any = null;
-                    try {
-                        // ownerPrefs was fetched at line 42-46
-                        // We need to access it from the closure scope - it's available via dbGenderFilter existence
-                        if (dbGenderFilter || dbAgeRange || dbBudgetRange || dbNationalities) {
-                            // Owner has preferences set - reconstruct for calculateClientMatch
-                            ownerPrefsData = {
-                                selected_genders: dbGenderFilter ? [dbGenderFilter] : undefined,
-                                min_age: dbAgeRange?.[0],
-                                max_age: dbAgeRange?.[1],
-                                min_budget: dbBudgetRange?.[0],
-                                max_budget: dbBudgetRange?.[1],
-                                selected_nationalities: dbNationalities,
-                            };
-                        }
-                    } catch { /* continue without */ }
-
-                    if (ownerPrefsData) {
+                    if (ownerPrefsForScoring) {
                         const enrichedProfile = {
                             ...profile,
                             budget_max: profile.budget_max,
