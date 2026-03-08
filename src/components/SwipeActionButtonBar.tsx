@@ -231,8 +231,8 @@ const ActionButton = memo(({
       transition={{ ...ENTRY_SPRING, delay: index * 0.05 }}
       whileTap={{ scale: TAP_SCALE }}
       style={{
-        width: btnSize,
-        height: btnSize,
+        width: btnSizeCss,
+        height: btnSizeCss,
         // LAYER 1: Liquid glass base
         backgroundColor: bg,
         backdropFilter: 'blur(28px) saturate(180%)',
