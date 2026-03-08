@@ -1,46 +1,75 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Audit: Token Schema Mismatch + More Ghost References
 
-### 1. Replace App Icon with Fire S Logo
+## Summary
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+The `tokens` table exists but its schema does **not match** what the code expects. Plus there are 2 more ghost tables and 1 ghost column. This is the last major batch of silent failures.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+---
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+## Bug 1: `tokens` Table Column Mismatch (CRITICAL)
 
-### 2. Profile Photo Already Shows in Top-Left
+**Database has:** `id, user_id, amount, token_type, source, created_at, updated_at`
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**Code inserts these non-existent columns:**
+- `activation_type` — used in `useProfileSetup.tsx` and `PaymentSuccess.tsx`
+- `total_activations`, `remaining_activations`, `used_activations` — used everywhere
+- `expires_at`, `reset_date`, `notes` — used in inserts
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+Every token insert silently fails. Welcome bonuses, referral rewards, and payment-activated tokens are never created.
 
-### 3. Fix Header Too Close to Top Edge
+**Files affected:**
+- `src/hooks/useProfileSetup.tsx` (lines 73-101, 408-472) — welcome + referral token grants
+- `src/pages/PaymentSuccess.tsx` (lines 139-185) — subscription + pay-per-use token grants
+- `src/hooks/useMessageActivations.ts` (lines 16-18) — reads `activations_remaining` (doesn't exist, column is `amount`)
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**Fix:** Rewrite all token inserts/reads to use the actual columns: `amount`, `token_type`, `source`. Map the old activation types to `token_type` and activation counts to `amount`.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+## Bug 2: `listings.views` Column Doesn't Exist
 
-### 4. Fix MarketingSlide Build Error
+`PublicListingPreview.tsx` line 73 updates `views` column on listings — no such column exists. The view counter silently fails and always shows 0.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+**Fix:** Remove the view count increment and display, or add a `views` integer column to listings via migration.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+## Bug 3: `legal_document_quota` Table Doesn't Exist
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+`PaymentSuccess.tsx` line 158 upserts into `legal_document_quota` — table doesn't exist. Legal document quotas from subscription purchases are silently lost.
+
+**Fix:** Create the table, or remove the dead code if legal document quotas aren't needed yet.
+
+## Bug 4: `dispute_reports` Table Doesn't Exist
+
+`useContracts.tsx` line 292 inserts into `dispute_reports` — table doesn't exist. Users cannot file contract disputes.
+
+**Fix:** Create the table, or remove the dead code.
+
+## Bug 5: `contracts` Storage Bucket Doesn't Exist
+
+`useContracts.tsx` line 98 and `ContractSigningDialog.tsx` line 72 use a `contracts` storage bucket that doesn't exist (only `listing-images` and `profile-images` exist). Contract file uploads silently fail.
+
+**Fix:** Create the storage bucket, or defer if contracts aren't launched yet.
+
+---
+
+## Implementation Plan
+
+### 1. DB Migration — Fix `tokens` schema + add missing tables/columns
+- Add columns to `tokens`: `activation_type text`, `total_activations int DEFAULT 0`, `remaining_activations int DEFAULT 0`, `used_activations int DEFAULT 0`, `expires_at timestamptz`, `reset_date date`, `notes text`
+- Add `views integer DEFAULT 0` to `listings`
+- Create `legal_document_quota` table: `id, user_id, monthly_limit, used_this_month, reset_date, created_at, updated_at` with RLS
+- Create `dispute_reports` table: `id, contract_id, reported_by, reported_against, issue_type, description, status, created_at, updated_at` with RLS
+- Create `contracts` storage bucket (public: false)
+
+### 2. Code Fix — `useMessageActivations.ts`
+- Change `activations_remaining` read to use correct column name (`remaining_activations` after migration, or `amount` if we keep simple schema)
+
+### 3. No other code changes needed
+All other files already use the column names that will now exist after migration.
+
+---
+
+## After This
+
+With these fixes, every `(supabase as any)` call in the codebase will target real tables with real columns. The remaining uses of `(supabase as any)` are just TypeScript bypass casts on tables that exist and have correct columns — they work fine, just need the generated types to be regenerated.
 
