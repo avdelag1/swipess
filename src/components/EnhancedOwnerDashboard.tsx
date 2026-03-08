@@ -1,4 +1,4 @@
-import { useState, useEffect, memo, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const ClientInsightsDialog = lazy(() =>
@@ -36,19 +36,26 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const setClientBudgetRange = useFilterStore((s) => s.setClientBudgetRange);
   const setClientNationalities = useFilterStore((s) => s.setClientNationalities);
   const storeGender = useFilterStore((s) => s.clientGender);
+  const hydratedRef = useRef(false);
 
   useEffect(() => {
-    if (ownerPrefs && storeGender === 'any' && ownerPrefs.selected_genders?.length) {
-      setClientGender(ownerPrefs.selected_genders[0] as any);
+    if (!ownerPrefs || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    const genders = ownerPrefs.selected_genders as string[] | null;
+    const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
+
+    if (storeGender === 'any' && genders?.length) {
+      setClientGender(genders[0] as any);
     }
-    if (ownerPrefs?.min_age != null || ownerPrefs?.max_age != null) {
-      setClientAgeRange([ownerPrefs?.min_age ?? 18, ownerPrefs?.max_age ?? 65]);
+    if (ownerPrefs.min_age != null || ownerPrefs.max_age != null) {
+      setClientAgeRange([ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65]);
     }
-    if (ownerPrefs?.min_budget != null || ownerPrefs?.max_budget != null) {
-      setClientBudgetRange([ownerPrefs?.min_budget ?? 0, ownerPrefs?.max_budget ?? 50000]);
+    if (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null) {
+      setClientBudgetRange([ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000]);
     }
-    if (ownerPrefs?.preferred_nationalities?.length) {
-      setClientNationalities(ownerPrefs.preferred_nationalities);
+    if (nationalities?.length) {
+      setClientNationalities(nationalities);
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 

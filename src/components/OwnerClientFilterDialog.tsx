@@ -211,7 +211,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     if (current.includes(tag)) {
       setFormData({
         ...formData,
-        compatible_lifestyle_tags: current.filter(t => t !== tag),
+        compatible_lifestyle_tags: current.filter((t: string) => t !== tag),
       });
     } else {
       setFormData({
@@ -226,7 +226,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     if (current.includes(occupation)) {
       setFormData({
         ...formData,
-        preferred_occupations: current.filter(o => o !== occupation),
+        preferred_occupations: current.filter((o: string) => o !== occupation),
       });
     } else {
       setFormData({

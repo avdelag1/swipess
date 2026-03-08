@@ -39,18 +39,20 @@ export function useSmartClientMatching(
                 let dbBudgetRange: [number, number] | undefined;
                 let dbNationalities: string[] | undefined;
                 try {
-                    const { data: ownerPrefs } = await (supabase as any)
+                    const { data: ownerPrefs } = await supabase
                         .from('owner_client_preferences')
                         .select('selected_genders, min_age, max_age, min_budget, max_budget, preferred_nationalities')
                         .eq('user_id', userId)
                         .maybeSingle();
 
                     if (ownerPrefs) {
+                        const genders = ownerPrefs.selected_genders as string[] | null;
+                        const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
                         if (
                             (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
-                            ownerPrefs.selected_genders?.length
+                            genders?.length
                         ) {
-                            dbGenderFilter = ownerPrefs.selected_genders[0];
+                            dbGenderFilter = genders[0];
                         }
                         if (!filters?.ageRange && (ownerPrefs.min_age != null || ownerPrefs.max_age != null)) {
                             dbAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
@@ -58,8 +60,8 @@ export function useSmartClientMatching(
                         if (!filters?.budgetRange && (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)) {
                             dbBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
                         }
-                        if (!filters?.nationalities?.length && ownerPrefs.preferred_nationalities?.length) {
-                            dbNationalities = ownerPrefs.preferred_nationalities;
+                        if (!filters?.nationalities?.length && nationalities?.length) {
+                            dbNationalities = nationalities;
                         }
                     }
                 } catch {
