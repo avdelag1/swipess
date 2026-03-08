@@ -75,10 +75,10 @@ function useWorkerListings(serviceTypeFilter?: string, pricingFilter?: string) {
         const ownerIds = listings.map((l: any) => l.owner_id);
         const { data: profiles } = await supabase
           .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', ownerIds);
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', ownerIds);
 
-        const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+        const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
         return listings.map((l: any) => ({
           id: l.id,
           title: l.title,

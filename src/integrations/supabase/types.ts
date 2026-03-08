@@ -254,6 +254,42 @@ export type Database = {
         }
         Relationships: []
       }
+      content_shares: {
+        Row: {
+          created_at: string
+          id: string
+          recipient_email: string | null
+          recipient_phone: string | null
+          share_method: string
+          share_url: string | null
+          shared_listing_id: string | null
+          shared_profile_id: string | null
+          sharer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          share_method?: string
+          share_url?: string | null
+          shared_listing_id?: string | null
+          shared_profile_id?: string | null
+          sharer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          share_method?: string
+          share_url?: string | null
+          shared_listing_id?: string | null
+          shared_profile_id?: string | null
+          sharer_id?: string
+        }
+        Relationships: []
+      }
       contract_signatures: {
         Row: {
           contract_id: string
@@ -1132,6 +1168,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verified_owner?: boolean | null
+        }
+        Relationships: []
+      }
+      profile_views: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          user_id: string
+          view_type: string
+          viewed_profile_id: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          user_id: string
+          view_type?: string
+          viewed_profile_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          view_type?: string
+          viewed_profile_id?: string
         }
         Relationships: []
       }
