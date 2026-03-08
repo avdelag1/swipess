@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { MatchedClientProfile, ClientFilters } from './types';
+import { calculateClientMatch } from './matchCalculators';
 
 export function useSmartClientMatching(
     userId?: string, // PERF: Accept userId to avoid getUser() inside queryFn
@@ -38,14 +39,16 @@ export function useSmartClientMatching(
                 let dbAgeRange: [number, number] | undefined;
                 let dbBudgetRange: [number, number] | undefined;
                 let dbNationalities: string[] | undefined;
+                let ownerPrefsForScoring: any = null;
                 try {
                     const { data: ownerPrefs } = await supabase
                         .from('owner_client_preferences')
-                        .select('selected_genders, min_age, max_age, min_budget, max_budget, preferred_nationalities')
+                        .select('*')
                         .eq('user_id', userId)
                         .maybeSingle();
 
                     if (ownerPrefs) {
+                        ownerPrefsForScoring = ownerPrefs;
                         const genders = ownerPrefs.selected_genders as string[] | null;
                         const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
                         if (
@@ -154,7 +157,7 @@ export function useSmartClientMatching(
                 // Fetch supplementary data from client_profiles
                 const { data: clientProfileData } = await supabase
                     .from('client_profiles')
-                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions')
+                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, relationship_status, has_children, smoking_habit, drinking_habit, cleanliness_level, noise_tolerance, work_schedule, dietary_preferences, personality_traits, interest_categories')
                     .limit(200);
 
                 const clientProfileMap = new Map<string, any>();
@@ -194,7 +197,17 @@ export function useSmartClientMatching(
                             neighborhood: profile.neighborhood || cpData?.neighborhood || null,
                             interests: profile.interests?.length > 0 ? profile.interests : cpData?.interests || [],
                             languages_spoken: profile.languages_spoken?.length > 0 ? profile.languages_spoken : cpData?.languages || [],
-                            intentions: cpData?.intentions || [], // FIX: Include intentions!
+                            intentions: cpData?.intentions || [],
+                            // Enriched fields from client_profiles for matching
+                            relationship_status: cpData?.relationship_status || null,
+                            has_children: cpData?.has_children || false,
+                            smoking_habit: cpData?.smoking_habit || null,
+                            drinking_habit: cpData?.drinking_habit || null,
+                            cleanliness_level: cpData?.cleanliness_level || null,
+                            noise_tolerance: cpData?.noise_tolerance || null,
+                            dietary_preferences: cpData?.dietary_preferences || [],
+                            personality_traits: cpData?.personality_traits || [],
+                            interest_categories: cpData?.interest_categories || [],
                         };
                     });
 
@@ -266,8 +279,8 @@ export function useSmartClientMatching(
                         } else if (dbNationalities?.length && profile.nationality) {
                             if (!dbNationalities.includes(profile.nationality)) return false;
                         }
-                        if (filters?.languages?.length && profile.languages) {
-                            if (!filters.languages.some(lang => profile.languages.includes(lang))) return false;
+                        if (filters?.languages?.length && profile.languages_spoken) {
+                            if (!filters.languages.some((lang: string) => profile.languages_spoken.includes(lang))) return false;
                         }
                         if (filters?.relationshipStatus?.length && profile.relationship_status) {
                             if (!filters.relationshipStatus.includes(profile.relationship_status)) return false;
@@ -285,19 +298,49 @@ export function useSmartClientMatching(
 
                 // Calculate match scores
                 const matchedClients: MatchedClientProfile[] = filteredProfiles.map(profile => {
-                    const matchReasons: string[] = [];
-                    let baseScore = 50;
+                    // Use calculateClientMatch for weighted scoring when owner prefs exist
+                    let matchPercentage: number;
+                    let matchReasons: string[];
+                    let incompatibleReasons: string[] = [];
 
-                    if (profile.full_name) baseScore += 5;
-                    if (profile.age) baseScore += 5;
-                    if (profile.city) baseScore += 5;
-                    if (profile.interests?.length > 0) baseScore += 10;
-                    if (profile.verified) baseScore += 15;
-                    if (profile.images?.length > 0) baseScore += 10;
-
-                    if (profile.verified) matchReasons.push('Verified profile');
-                    if (profile.interests?.length > 0) matchReasons.push(`${profile.interests.length} interests`);
-                    if (profile.city) matchReasons.push(`Located in ${profile.city}`);
+                    if (ownerPrefsForScoring) {
+                        const enrichedProfile = {
+                            ...profile,
+                            budget_max: profile.budget_max,
+                            monthly_income: profile.monthly_income,
+                            has_pets: profile.has_pets,
+                            smoking_habit: profile.smoking ? 'Regular' : (profile.smoking_habit || 'Non-Smoker'),
+                            drinking_habit: profile.drinking_habit,
+                            cleanliness_level: profile.cleanliness_level,
+                            noise_tolerance: profile.noise_tolerance,
+                            work_schedule: profile.work_schedule,
+                            lifestyle_tags: profile.lifestyle_tags || [],
+                            languages: profile.languages_spoken || [],
+                            interest_categories: profile.interest_categories || profile.interests || [],
+                            personality_traits: profile.personality_traits || [],
+                            dietary_preferences: profile.dietary_preferences || [],
+                            relationship_status: profile.relationship_status,
+                            has_children: profile.has_children,
+                            verified: !!profile.onboarding_completed,
+                        };
+                        const match = calculateClientMatch(ownerPrefsForScoring, enrichedProfile);
+                        matchPercentage = match.percentage;
+                        matchReasons = match.reasons.length > 0 ? match.reasons : ['Profile available'];
+                        incompatibleReasons = match.incompatible;
+                    } else {
+                        // Fallback: simple profile completeness score
+                        let baseScore = 50;
+                        matchReasons = [];
+                        if (profile.full_name) baseScore += 5;
+                        if (profile.age) baseScore += 5;
+                        if (profile.city) baseScore += 5;
+                        if (profile.interests?.length > 0) { baseScore += 10; matchReasons.push(`${profile.interests.length} interests`); }
+                        if (profile.onboarding_completed) { baseScore += 15; matchReasons.push('Verified profile'); }
+                        if (profile.images?.length > 0) baseScore += 10;
+                        if (profile.city) matchReasons.push(`Located in ${profile.city}`);
+                        if (matchReasons.length === 0) matchReasons.push('Profile available');
+                        matchPercentage = Math.min(100, baseScore);
+                    }
 
                     return {
                         id: profile.id,
@@ -310,16 +353,16 @@ export function useSmartClientMatching(
                         location: profile.city ? { city: profile.city } : {},
                         lifestyle_tags: profile.lifestyle_tags || [],
                         profile_images: profile.images || [],
-                        preferred_listing_types: profile.intentions || [], // FIX: Map intentions for UI
+                        preferred_listing_types: profile.intentions || [],
                         budget_min: profile.budget_min || 0,
                         budget_max: profile.budget_max || 100000,
-                        matchPercentage: Math.min(100, baseScore),
-                        matchReasons: matchReasons.length > 0 ? matchReasons : ['Profile available'],
-                        incompatibleReasons: [],
+                        matchPercentage,
+                        matchReasons,
+                        incompatibleReasons,
                         city: profile.city || undefined,
                         country: profile.country || undefined,
                         avatar_url: profile.avatar_url || undefined,
-                        verified: !!profile.onboarding_completed, // FIX: Use onboarding as proxy for verified for now
+                        verified: !!profile.onboarding_completed,
                         work_schedule: profile.work_schedule || undefined,
                         nationality: profile.nationality || undefined,
                         languages: profile.languages_spoken || undefined,

@@ -218,6 +218,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
       max_budget: maxBudget ?? null,
       min_age: minAge !== 18 ? minAge : null,
       max_age: maxAge !== 65 ? maxAge : null,
+      preferred_nationalities: null, // preserve existing or clear
     });
     toast.success("Filters Applied", { description: "Client cards will refresh with your preferences." });
     onOpenChange(false);
