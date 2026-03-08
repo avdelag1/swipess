@@ -220,8 +220,8 @@ export function useSmartClientMatching(
                             if (clientType === 'hire' && !clientIntentions.includes('hire_service')) return false;
                         }
 
-                        // FIX: Category filtering based on intentions
-                        if ((filters as any).categories && (filters as any).categories.length > 0) {
+                        // Category filtering based on intentions
+                        if (filters && (filters as any).categories && (filters as any).categories.length > 0) {
                             const categories = (filters as any).categories;
                             const clientIntentions = profile.intentions || [];
                             let hasMatchingCategory = false;
