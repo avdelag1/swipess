@@ -152,7 +152,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
           'flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium',
           'border',
           isOpen || hasActiveFilters
-            ? 'bg-primary text-primary-foreground border-primary'
+            ? 'bg-white text-gray-900 border-white shadow-md'
             : isDark ? 'bg-muted/50 text-foreground border-border/50' : 'bg-card text-foreground border-border shadow-sm'
         )}
       >
