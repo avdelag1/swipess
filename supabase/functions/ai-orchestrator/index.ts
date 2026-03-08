@@ -47,8 +47,8 @@ const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const LOVABLE_MODEL = "google/gemini-3-flash-preview";
 
 // MiniMax — international OpenAI-compatible API
-const MINIMAX_ENDPOINT = "https://api.minimax.io/v1/chat/completions";
-const MINIMAX_MODEL = "MiniMax-Text-01";
+const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/chat/completions";
+const MINIMAX_MODEL = "MiniMax-M2.5";
 
 // ─── Provider Calls ───────────────────────────────────────────────
 
@@ -82,6 +82,7 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
   const key = Deno.env.get("MINIMAX_API_KEY");
   if (!key) throw new Error("MINIMAX_API_KEY not available");
 
+  console.log(`[AI Orchestrator] Calling MiniMax at ${MINIMAX_ENDPOINT} with model ${MINIMAX_MODEL}`);
   const res = await fetch(MINIMAX_ENDPOINT, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
