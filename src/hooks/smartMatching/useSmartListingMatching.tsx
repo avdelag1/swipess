@@ -134,7 +134,7 @@ export function useSmartListingMatching(
                 if (preferences && (!effectiveFilters?.categories || effectiveFilters.categories.length === 0) && !effectiveFilters?.category) {
                     const dbCats = Array.isArray(preferences.preferred_categories) ? preferences.preferred_categories as string[] : [];
                     if (dbCats.length > 0) {
-                        effectiveFilters.categories = dbCats.map(c => normalizeCategoryName(c)).filter((c): c is string => !!c);
+                        (effectiveFilters as any).categories = dbCats.map(c => normalizeCategoryName(c)).filter((c): c is string => !!c);
                     }
                 }
 
