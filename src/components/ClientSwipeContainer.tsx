@@ -930,7 +930,7 @@ const ClientSwipeContainerComponent = ({
 
   // Main swipe view - edge-to-edge cards with next card visible behind
   return (
-    <div className="relative w-full h-full flex-1 flex flex-col">
+    <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
       <div className="relative flex-1 w-full">
         {/* Next card visible behind - creates depth and anticipation */}
         {nextCard && (
@@ -948,7 +948,6 @@ const ClientSwipeContainerComponent = ({
               profile={nextCard}
               onSwipe={() => { /* noop: non-interactive card */ }}
               isTop={false}
-              hideActions={true}
             />
           </div>
         )}
@@ -970,7 +969,6 @@ const ClientSwipeContainerComponent = ({
             onUndo={undoLastSwipe}
             canUndo={canUndo}
             isTop={true}
-            hideActions={insightsOpen}
           />
         </div>
 
