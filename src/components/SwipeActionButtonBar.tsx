@@ -377,7 +377,7 @@ function SwipeActionButtonBarComponent({
       {/* Buttons row */}
       <div
         className="relative flex items-center justify-center"
-        style={{ gap: GAP, zIndex: 1 }}
+        style={{ gap: GAP_CSS, zIndex: 1 }}
       >
         {/* 1. Undo (small) — amber */}
         <ActionButton

@@ -531,8 +531,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
-        <div className="absolute bottom-44 left-0 right-0 p-4 z-20 pointer-events-none">
+        {/* Content overlay - Using CardInfoHierarchy for 2-second scanning
+             Dynamic bottom positioning: scales with viewport height so info
+             stays above action buttons on all devices (SE → Pro Max → tablets) */}
+        <div
+          className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
+          style={{ bottom: 'clamp(140px, 24vh, 200px)' }}
+        >
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
             <div

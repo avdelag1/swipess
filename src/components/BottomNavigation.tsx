@@ -80,6 +80,18 @@ export function BottomNavigation({
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
 
+  // Detect narrow screens for icon-only compact mode
+  const [isNarrow, setIsNarrow] = useState(false);
+  React.useEffect(() => {
+    const check = () => setIsNarrow(window.innerWidth < 360);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Need React import for useEffect above
+  const React = require('react');
+
   const { isVisible } = useScrollDirection({
     threshold: 15,
     showAtTop: true,
