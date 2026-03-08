@@ -221,8 +221,8 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
       const budgetValues = getBudgetValues();
       await savePreferencesMutation.mutateAsync({
         interested_in_properties: true,
-        min_price: budgetValues.min,
-        max_price: budgetValues.max,
+        price_min: budgetValues.min,
+        price_max: budgetValues.max,
         min_bedrooms: bedrooms,
         min_bathrooms: bathrooms,
         property_types: propertyTypes.length > 0 ? propertyTypes : null,

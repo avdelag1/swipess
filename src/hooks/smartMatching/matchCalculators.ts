@@ -27,10 +27,13 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
     }
 
     // Price range matching with 20% flexibility
-    if (preferences.min_price && preferences.max_price) {
+    // Support both DB column names (price_min/price_max) and legacy aliases (min_price/max_price)
+    const priceMin = preferences.price_min ?? (preferences as any).min_price;
+    const priceMax = preferences.price_max ?? (preferences as any).max_price;
+    if (priceMin && priceMax) {
         const priceFlexibility = 0.2;
-        const adjustedMinPrice = preferences.min_price * (1 - priceFlexibility);
-        const adjustedMaxPrice = preferences.max_price * (1 + priceFlexibility);
+        const adjustedMinPrice = priceMin * (1 - priceFlexibility);
+        const adjustedMaxPrice = priceMax * (1 + priceFlexibility);
         const priceInRange = listing.price >= adjustedMinPrice && listing.price <= adjustedMaxPrice;
         criteria.push({
             weight: 20,

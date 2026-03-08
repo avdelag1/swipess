@@ -296,19 +296,67 @@ export function useSmartClientMatching(
 
                 // Calculate match scores
                 const matchedClients: MatchedClientProfile[] = filteredProfiles.map(profile => {
-                    const matchReasons: string[] = [];
-                    let baseScore = 50;
+                    // Use calculateClientMatch for weighted scoring when owner prefs exist
+                    let matchPercentage: number;
+                    let matchReasons: string[];
+                    let incompatibleReasons: string[] = [];
 
-                    if (profile.full_name) baseScore += 5;
-                    if (profile.age) baseScore += 5;
-                    if (profile.city) baseScore += 5;
-                    if (profile.interests?.length > 0) baseScore += 10;
-                    if (profile.verified) baseScore += 15;
-                    if (profile.images?.length > 0) baseScore += 10;
+                    // Try to get ownerPrefs from the earlier fetch
+                    let ownerPrefsData: any = null;
+                    try {
+                        // ownerPrefs was fetched at line 42-46
+                        // We need to access it from the closure scope - it's available via dbGenderFilter existence
+                        if (dbGenderFilter || dbAgeRange || dbBudgetRange || dbNationalities) {
+                            // Owner has preferences set - reconstruct for calculateClientMatch
+                            ownerPrefsData = {
+                                selected_genders: dbGenderFilter ? [dbGenderFilter] : undefined,
+                                min_age: dbAgeRange?.[0],
+                                max_age: dbAgeRange?.[1],
+                                min_budget: dbBudgetRange?.[0],
+                                max_budget: dbBudgetRange?.[1],
+                                selected_nationalities: dbNationalities,
+                            };
+                        }
+                    } catch { /* continue without */ }
 
-                    if (profile.verified) matchReasons.push('Verified profile');
-                    if (profile.interests?.length > 0) matchReasons.push(`${profile.interests.length} interests`);
-                    if (profile.city) matchReasons.push(`Located in ${profile.city}`);
+                    if (ownerPrefsData) {
+                        const enrichedProfile = {
+                            ...profile,
+                            budget_max: profile.budget_max,
+                            monthly_income: profile.monthly_income,
+                            has_pets: profile.has_pets,
+                            smoking_habit: profile.smoking ? 'Regular' : (profile.smoking_habit || 'Non-Smoker'),
+                            drinking_habit: profile.drinking_habit,
+                            cleanliness_level: profile.cleanliness_level,
+                            noise_tolerance: profile.noise_tolerance,
+                            work_schedule: profile.work_schedule,
+                            lifestyle_tags: profile.lifestyle_tags || [],
+                            languages: profile.languages_spoken || [],
+                            interest_categories: profile.interest_categories || profile.interests || [],
+                            personality_traits: profile.personality_traits || [],
+                            dietary_preferences: profile.dietary_preferences || [],
+                            relationship_status: profile.relationship_status,
+                            has_children: profile.has_children,
+                            verified: !!profile.onboarding_completed,
+                        };
+                        const match = calculateClientMatch(ownerPrefsData, enrichedProfile);
+                        matchPercentage = match.percentage;
+                        matchReasons = match.reasons.length > 0 ? match.reasons : ['Profile available'];
+                        incompatibleReasons = match.incompatible;
+                    } else {
+                        // Fallback: simple profile completeness score
+                        let baseScore = 50;
+                        matchReasons = [];
+                        if (profile.full_name) baseScore += 5;
+                        if (profile.age) baseScore += 5;
+                        if (profile.city) baseScore += 5;
+                        if (profile.interests?.length > 0) { baseScore += 10; matchReasons.push(`${profile.interests.length} interests`); }
+                        if (profile.onboarding_completed) { baseScore += 15; matchReasons.push('Verified profile'); }
+                        if (profile.images?.length > 0) baseScore += 10;
+                        if (profile.city) matchReasons.push(`Located in ${profile.city}`);
+                        if (matchReasons.length === 0) matchReasons.push('Profile available');
+                        matchPercentage = Math.min(100, baseScore);
+                    }
 
                     return {
                         id: profile.id,
@@ -321,16 +369,16 @@ export function useSmartClientMatching(
                         location: profile.city ? { city: profile.city } : {},
                         lifestyle_tags: profile.lifestyle_tags || [],
                         profile_images: profile.images || [],
-                        preferred_listing_types: profile.intentions || [], // FIX: Map intentions for UI
+                        preferred_listing_types: profile.intentions || [],
                         budget_min: profile.budget_min || 0,
                         budget_max: profile.budget_max || 100000,
-                        matchPercentage: Math.min(100, baseScore),
-                        matchReasons: matchReasons.length > 0 ? matchReasons : ['Profile available'],
-                        incompatibleReasons: [],
+                        matchPercentage,
+                        matchReasons,
+                        incompatibleReasons,
                         city: profile.city || undefined,
                         country: profile.country || undefined,
                         avatar_url: profile.avatar_url || undefined,
-                        verified: !!profile.onboarding_completed, // FIX: Use onboarding as proxy for verified for now
+                        verified: !!profile.onboarding_completed,
                         work_schedule: profile.work_schedule || undefined,
                         nationality: profile.nationality || undefined,
                         languages: profile.languages_spoken || undefined,
