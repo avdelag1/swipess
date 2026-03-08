@@ -77,7 +77,7 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
 
             {/* Auto-dismiss progress bar */}
             <motion.div
-              className={cn("h-[2px]", isDark ? "bg-white/15" : "bg-black/8")}
+              className="h-[2px] bg-foreground/10"
               initial={{ width: '100%' }}
               animate={{ width: '0%' }}
               transition={{ duration: 4, ease: 'linear' }}

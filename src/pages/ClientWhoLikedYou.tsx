@@ -177,13 +177,13 @@ const ClientWhoLikedYou = () => {
       </div>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
+        <AlertDialogContent className="bg-card border-border/20 rounded-[2rem]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white font-black text-xl">Dismiss Interest?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
+            <AlertDialogTitle className="text-foreground font-black text-xl">Dismiss Interest?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">This will remove their profile from your interest list.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="bg-secondary border-border/10 text-foreground rounded-xl">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)} className="bg-[#E4007C] text-white rounded-xl font-black">DISMISS</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
