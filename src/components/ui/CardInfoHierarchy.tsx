@@ -318,6 +318,7 @@ interface ServiceCardInfoProps extends CardInfoProps {
 
 export const ServiceCardInfo = memo(({
   hourlyRate,
+  pricingUnit = 'hr',
   serviceName,
   name,
   location,
@@ -327,6 +328,7 @@ export const ServiceCardInfo = memo(({
   className,
   photoIndex = 0,
 }: ServiceCardInfoProps) => {
+  const unitLabel = pricingUnit === 'session' ? '/session' : pricingUnit === 'day' ? '/day' : pricingUnit === 'project' ? '/project' : pricingUnit === 'month' ? '/mo' : `/${pricingUnit}`;
   // Normalize photoIndex to cycle through 0-3
   const normalizedIndex = photoIndex % 4;
 
