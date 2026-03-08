@@ -92,22 +92,22 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.4 }}
           >
-            <Card className={cn(
-              "relative border shadow-lg hover:shadow-xl transition-all duration-300",
+            <div className={cn(
+              "relative rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden",
               isLight
-                ? "bg-white border-gray-200"
-                : "border-white/5 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm"
+                ? "bg-white border border-border/50"
+                : "border border-white/[0.06] bg-white/[0.04] backdrop-blur-sm"
             )}>
               {/* Background gradient effect */}
               <div className={cn(
-                "absolute inset-0 opacity-30 bg-gradient-to-br",
+                "absolute inset-0 opacity-20 bg-gradient-to-br",
                 stat.bgGradient
               )} />
 
-              <CardContent className="relative p-3 sm:p-4">
+              <div className="relative p-3 sm:p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate", isLight ? 'text-gray-500' : 'text-gray-400')}>
+                    <p className={cn("text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate", isLight ? 'text-muted-foreground' : 'text-white/50')}>
                       {stat.title}
                     </p>
                     <div className="flex items-baseline gap-1 mt-1">
@@ -118,19 +118,19 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                         <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
                       )}
                     </div>
-                    <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-gray-400' : 'text-gray-500')}>
+                    <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-muted-foreground' : 'text-white/40')}>
                       {stat.description}
                     </p>
                   </div>
                   <div className={cn(
-                    "p-2 sm:p-2.5 rounded-lg sm:rounded-xl shrink-0",
+                    "p-2.5 sm:p-3 rounded-2xl shrink-0",
                     stat.iconBg
                   )}>
                     <stat.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", stat.iconColor)} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </motion.div>
         ))}
       </div>
