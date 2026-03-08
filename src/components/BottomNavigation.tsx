@@ -173,7 +173,7 @@ export function BottomNavigation({
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
       <div
-        className="pointer-events-auto w-full max-w-xl mx-auto"
+        className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Liquid glass base
           backgroundColor: barBg,
