@@ -1,4 +1,4 @@
-import { useState, memo, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const ClientInsightsDialog = lazy(() =>
@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
+import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
