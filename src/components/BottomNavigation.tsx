@@ -329,20 +329,22 @@ export function BottomNavigation({
                   />
                 </div>
 
-                {/* Label */}
-                <span
-                  className={cn(
-                    'text-[10px] tracking-wide transition-all duration-250 relative',
-                    active ? 'font-black' : 'font-bold',
-                  )}
-                  style={{
-                    color: active ? activeColor : iconColorInactive,
-                    opacity: active ? 1 : (isLight ? 0.75 : 0.65),
-                    zIndex: 1,
-                  }}
-                >
-                  {item.label}
-                </span>
+                {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
+                {!isNarrow && (
+                  <span
+                    className={cn(
+                      'text-[10px] tracking-wide transition-all duration-250 relative',
+                      active ? 'font-black' : 'font-bold',
+                    )}
+                    style={{
+                      color: active ? activeColor : iconColorInactive,
+                      opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+                      zIndex: 1,
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                )}
               </motion.button>
             );
           })}
