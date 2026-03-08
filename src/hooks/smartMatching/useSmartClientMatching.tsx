@@ -42,7 +42,7 @@ export function useSmartClientMatching(
                 try {
                     const { data: ownerPrefs } = await supabase
                         .from('owner_client_preferences')
-                        .select('selected_genders, min_age, max_age, min_budget, max_budget, preferred_nationalities')
+                        .select('*')
                         .eq('user_id', userId)
                         .maybeSingle();
 
