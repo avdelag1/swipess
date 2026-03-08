@@ -1,46 +1,40 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Remaining Filter & Matching Bugs
 
-### 1. Replace App Icon with Fire S Logo
+## Bug 1 — CRITICAL: `serviceCategory` and `experienceLevel` are arrays but SQL uses `.eq()` (single value)
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+`ListingFilters` types these as `string[]`, and `WorkerClientFilters` emits them as arrays. But `useSmartListingMatching` line 197 does `query.eq('service_category', effectiveFilters.serviceCategory)` — this silently fails for arrays. Same for `experienceLevel` at line 201.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**Fix:** Change `.eq()` to `.in()` for both fields when they are arrays.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+## Bug 2 — HIGH: SwipessSwipeContainer filter change detection ignores worker filters
 
-### 2. Profile Photo Already Shows in Top-Left
+Lines 336-340 only check `categories`, `category`, `listingType`, `priceRange`. When a user applies worker-specific filters (service category, skills, work types), the deck doesn't reset — stale cards remain.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**Fix:** Add worker filter fields to the `filtersChanged` comparison.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+## Bug 3 — HIGH: DashboardLayout prefix map is incomplete
 
-### 3. Fix Header Too Close to Top Edge
+`WorkerClientFilters.handleApply()` emits keys like `required_skills`, `experience_levels`, `required_certifications`, `time_slots_available`, `location_types`, `needs_emergency_service`, `needs_background_check`, `needs_insurance`, `price_min`/`price_max`. After AdvancedFilters prefixes them, they become `services_required_skills`, `services_experience_levels`, etc. The current `prefixMap` only maps 9 keys — at least 10 more are missing.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**Fix:** Expand the prefix map to cover all worker filter keys.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+## Bug 4 — MEDIUM: Missing client-side JSONB filters in matching hook
 
-### 4. Fix MarketingSlide Build Error
+`scheduleTypes`, `timeSlotsAvailable`, `locationTypes`, and `certifications` are defined in `ListingFilters` but never applied in the client-side filter section of `useSmartListingMatching`. Also missing: `offers_emergency_service`, `background_check_verified`, `insurance_verified` boolean checks.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+**Fix:** Add `hasJsonOverlap` checks for schedule_type, time_slots_available, location_type, certifications, and boolean equality checks for verification fields.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+---
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+## Files to Modify
+
+| File | Bugs | Changes |
+|------|------|---------|
+| `src/hooks/smartMatching/useSmartListingMatching.tsx` | 1, 4 | Change `serviceCategory`/`experienceLevel` from `.eq()` to `.in()`. Add client-side filters for scheduleTypes, timeSlotsAvailable, locationTypes, certifications, and boolean verification fields. |
+| `src/components/SwipessSwipeContainer.tsx` | 2 | Add worker filter fields to `filtersChanged` comparison (serviceCategory, workTypes, skills, daysAvailable, experienceLevel, scheduleTypes) |
+| `src/components/DashboardLayout.tsx` | 3 | Expand `prefixMap` with missing worker keys: `services_required_skills`→`skills`, `services_experience_levels`→`experienceLevel`, `services_required_certifications`→`certifications`, `services_time_slots_available`→`timeSlotsAvailable`, `services_location_types`→`locationTypes`, `services_needs_emergency_service`→boolean, `services_needs_background_check`→boolean, `services_needs_insurance`→boolean, `services_price_min`/`services_price_max`→`priceRange` |
+
+## No DB Changes
 
