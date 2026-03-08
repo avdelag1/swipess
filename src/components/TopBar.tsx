@@ -226,17 +226,6 @@ function TopBarComponent({
               !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />
             )}
 
-            {/* Title display next to avatar/back button */}
-            {title && (
-              <div className="flex flex-col ml-1 min-w-0">
-                <span className="font-black text-sm text-foreground whitespace-nowrap uppercase tracking-tighter leading-none">
-                  {title}
-                </span>
-                <span className="text-[8px] font-black text-brand-accent-2/80 uppercase tracking-widest leading-none mt-1">
-                  Swipess Elite
-                </span>
-              </div>
-            )}
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               <ThemeToggle />
@@ -251,9 +240,9 @@ function TopBarComponent({
             )}
           </div>
 
-          {/* Center tap zone - navigates back to dashboard */}
+          {/* Center tap zone - navigates back to dashboard, shows brand/page title */}
           <div
-            className="flex-1 h-full cursor-pointer"
+            className="flex-1 h-full cursor-pointer flex items-center justify-center"
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
@@ -262,7 +251,11 @@ function TopBarComponent({
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
-          />
+          >
+            <span className="font-black text-xl text-foreground uppercase tracking-tighter leading-none pointer-events-none select-none">
+              {title || 'Swipess'}
+            </span>
+          </div>
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
