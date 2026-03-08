@@ -157,7 +157,7 @@ export function BottomNavigation({
     : 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.30)';
 
   return (
-    <nav className={cn('app-bottom-bar pointer-events-none px-1', !isVisible && 'nav-hidden')}>
+    <nav className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
@@ -173,7 +173,7 @@ export function BottomNavigation({
           borderLeft: `1px solid ${barBorder}`,
           borderRight: `1px solid ${barBorder}`,
           borderBottom: 'none',
-          borderRadius: '20px 20px 0 0',
+          borderRadius: '28px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
