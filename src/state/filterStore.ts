@@ -288,6 +288,9 @@ export const useFilterStore = create<FilterState>()(
         listingType: 'both',
         clientGender: 'any',
         clientType: 'all',
+        clientAgeRange: null,
+        clientBudgetRange: null,
+        clientNationalities: [],
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
