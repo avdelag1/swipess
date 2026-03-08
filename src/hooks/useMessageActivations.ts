@@ -26,7 +26,7 @@ export function useMessageActivations() {
           return { totalRemaining: 999 };
         }
 
-        const totalRemaining = data.reduce((sum: number, act: any) => sum + (act.activations_remaining || 0), 0);
+        const totalRemaining = data.reduce((sum: number, act: any) => sum + (act.remaining_activations || act.amount || 0), 0);
 
         return { totalRemaining: totalRemaining > 0 ? totalRemaining : 999 };
       } catch {
