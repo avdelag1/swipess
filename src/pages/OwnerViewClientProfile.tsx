@@ -577,7 +577,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Hull Material</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_hull_material.map((mat) => (
+                            {preferences.yacht_hull_material.map((mat: string) => (
                               <Badge key={`yacht-mat-${mat}`} variant="outline">{mat}</Badge>
                             ))}
                           </div>
