@@ -265,7 +265,12 @@ export function LikedClients() {
             placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-16 bg-secondary border border-border rounded-3xl pl-14 pr-6 text-foreground placeholder-muted-foreground font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
+            className={cn(
+              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[#E4007C] transition-all outline-none",
+              isLight
+                ? "bg-white border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground backdrop-blur-sm"
+            )}
           />
         </div>
 
