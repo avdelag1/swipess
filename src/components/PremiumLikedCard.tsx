@@ -29,7 +29,9 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
             whileHover={{ y: -4 }}
             className={cn(
                 "group relative rounded-[2rem] overflow-hidden transition-all duration-300",
-                "bg-card border border-border shadow-2xl"
+                isLight
+                  ? "bg-white border border-border/50 shadow-xl hover:shadow-2xl"
+                  : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] shadow-2xl hover:border-white/[0.12]"
             )}
         >
             {/* Visual Header / Image */}
