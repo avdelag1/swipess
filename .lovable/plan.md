@@ -1,55 +1,46 @@
 
 
-# Audit Round 4: 3 Remaining Issues
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Issue 1: Three Ghost RPC Functions (CRITICAL)
+### 1. Replace App Icon with Fire S Logo
 
-Three database functions are called from code but **do not exist** in the database. They are cast with `as any` to bypass TypeScript, masking the error.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-| Ghost Function | Called From | Impact |
-|---|---|---|
-| `has_user_already_reported` | `useReporting.ts` lines 52, 102 | Duplicate report check always fails — users can spam reports, or the error silently swallows and blocks all reports |
-| `increment_share_clicks` | `useSharing.ts` line 86 | Share click tracking silently fails |
-| `increment_review_helpful` | `useReviews.tsx` line 499 | "Helpful" button on reviews silently fails |
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Fix**: Create all three as database functions via migration:
-- `has_user_already_reported(p_reporter_id uuid, p_reported_user_id uuid, p_reported_listing_id uuid)` → returns boolean, checks `user_reports` table
-- `increment_share_clicks(p_share_id uuid)` → increments a click counter on `content_shares` (needs `click_count` column added)
-- `increment_review_helpful(p_review_id uuid)` → increments `helpful_count` on `reviews`
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-All three should be `SECURITY DEFINER` to bypass RLS for cross-user reads.
+### 2. Profile Photo Already Shows in Top-Left
 
-## Issue 2: Missing VAPID Secrets (Push Notifications Dead)
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-The `send-push-notification` edge function requires three secrets: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`. None of these exist in the configured secrets.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-The frontend also requires `VITE_VAPID_PUBLIC_KEY` to subscribe users to push — also not configured.
+### 3. Fix Header Too Close to Top Edge
 
-**Impact**: Push notifications are completely non-functional. The edge function gracefully returns "push_not_configured" but no user ever receives a push notification.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**Fix**: Use `add_secret` tool to prompt user for VAPID keys. These must be generated once (Web Push key pair) and set as edge function secrets + frontend env var.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-## Issue 3: `on_auth_user_created` Trigger May Be Missing
+### 4. Fix MarketingSlide Build Error
 
-The Supabase config reports "There are no triggers in the database." The migration at `20260214172834` creates the `on_auth_user_created` trigger on `auth.users`, but since it touches a reserved schema (`auth`), it may have been rejected or dropped.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-If this trigger is missing, **new signups get no profile and no role** — breaking the entire onboarding flow.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**Fix**: Verify trigger existence via a read query. If missing, re-create it in a new migration. The `handle_new_user()` function exists — only the trigger attachment may be missing.
-
----
-
-## Implementation Plan
-
-### 1. Database Migration
-Create three missing RPC functions:
-- `has_user_already_reported` — query `user_reports` for existing match
-- `increment_review_helpful` — increment `helpful_count` on `reviews` by ID  
-- `increment_share_clicks` — add `click_count` column to `content_shares`, then increment by share ID
-
-### 2. Verify Trigger
-Run a read query to check if `on_auth_user_created` trigger exists. If not, re-create it.
-
-### 3. VAPID Secrets
-Prompt user to generate and configure VAPID keys for push notification support. This is a user-action item — cannot be auto-fixed.
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
