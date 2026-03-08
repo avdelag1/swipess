@@ -262,33 +262,43 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-zinc-900/50 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-2xl"
+          className={cn(
+            "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-3xl shadow-2xl",
+            isLight
+              ? "bg-white border border-border/50"
+              : "bg-white/[0.04] backdrop-blur-xl border border-white/[0.06]"
+          )}
         >
           <div className="flex items-center gap-4">
             <div className="p-4 rounded-full bg-[#E4007C]/10 border border-[#E4007C]/20 shadow-[0_0_15px_rgba(228,0,124,0.15)]">
               <LayoutGrid className="w-7 h-7 text-[#E4007C]" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tighter text-white">My Listings</h1>
-              <p className="text-zinc-500 text-sm font-bold">Manage and track all your rental properties</p>
+              <h1 className="text-2xl font-black tracking-tighter text-foreground">My Listings</h1>
+              <p className="text-muted-foreground text-sm font-bold">Manage and track all your rental properties</p>
             </div>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              className="gap-2 border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide"
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className={cn(
+                "flex items-center gap-2 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide transition-all",
+                "border border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10",
+                isLight ? "bg-white" : "bg-white/[0.04] backdrop-blur-sm"
+              )}
               onClick={() => setShowAIAssistant(true)}
             >
               <Sparkles className="w-4 h-4" />
               <span>AI</span>
-            </Button>
-            <Button
-              className="gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95"
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              className="flex items-center gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all"
               onClick={handleAddProperty}
             >
               <Plus className="w-5 h-5" />
               <span>Add Listing</span>
-            </Button>
+            </motion.button>
           </div>
         </motion.div>
 
@@ -311,22 +321,30 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         </motion.div>
 
         {/* Tabs */}
-        <div className={cn("flex flex-wrap gap-1 p-1 rounded-xl", isLight ? 'bg-gray-100' : 'bg-gray-800/50')}>
+        <div className={cn(
+          "flex flex-wrap gap-1.5 p-1.5 rounded-2xl",
+          isLight ? 'bg-secondary/60 border border-border/30' : 'bg-white/[0.03] backdrop-blur-sm border border-white/[0.06]'
+        )}>
           {tabItems.map((tab) => (
-            <button
+            <motion.button
               key={tab.id}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all flex-1 sm:flex-initial justify-center sm:justify-start",
+                "flex items-center gap-2 px-3 py-2.5 text-sm rounded-xl transition-all flex-1 sm:flex-initial justify-center sm:justify-start font-semibold",
                 activeTab === tab.id
-                  ? "bg-primary text-white"
-                  : isLight ? "text-gray-500 hover:text-gray-900 hover:bg-gray-200/60" : "text-gray-400 hover:text-white hover:bg-gray-700/50"
+                  ? isLight
+                    ? "bg-white text-foreground shadow-md border border-border/40"
+                    : "bg-white/[0.08] text-white shadow-lg border border-white/[0.1]"
+                  : isLight
+                    ? "text-muted-foreground hover:text-foreground hover:bg-white/60"
+                    : "text-white/50 hover:text-white/80 hover:bg-white/[0.04]"
               )}
             >
               <tab.icon className="w-4 h-4" />
               <span className="truncate">{tab.label}</span>
-              <span className="text-xs opacity-70">({tab.count})</span>
-            </button>
+              <span className="text-[10px] opacity-60">({tab.count})</span>
+            </motion.button>
           ))}
         </div>
 
@@ -347,7 +365,12 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                 >
-                  <Card className={cn("overflow-hidden transition-all hover:border-primary/30", isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700')}>
+                  <div className={cn(
+                    "overflow-hidden rounded-3xl transition-all border shadow-xl hover:shadow-2xl",
+                    isLight
+                      ? 'bg-white border-border/50 hover:border-primary/30'
+                      : 'bg-white/[0.04] backdrop-blur-sm border-white/[0.06] hover:border-white/[0.12]'
+                  )}>
                     {/* Image */}
                     <div className={cn("relative aspect-[16/10]", isLight ? 'bg-gray-100' : 'bg-gray-700')}>
                       {listing.images && listing.images.length > 0 ? (
@@ -436,11 +459,14 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                       </div>
 
                       {/* Availability Dropdown */}
-                      <div className={cn("pt-2 border-t", isLight ? 'border-gray-200' : 'border-gray-700')}>
+                      <div className={cn("pt-2 border-t", isLight ? 'border-border/30' : 'border-white/[0.06]')}>
                         <select
                           value={availabilityStatus[listing.id] || listing.status || 'active'}
                           onChange={(e) => handleAvailabilityChange(listing, e.target.value)}
-                          className={cn("w-full px-3 py-2 text-xs rounded-lg border focus:outline-none focus:border-primary", isLight ? 'bg-gray-50 text-foreground border-gray-200' : 'bg-gray-700 text-white border-gray-600')}
+                          className={cn(
+                            "w-full px-3 py-2 text-xs rounded-xl border focus:outline-none focus:border-primary transition-colors",
+                            isLight ? 'bg-secondary/60 text-foreground border-border/30' : 'bg-white/[0.04] text-white border-white/[0.08]'
+                          )}
                         >
                           <option value="available">Available</option>
                           <option value="active">Active</option>
@@ -453,61 +479,72 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
                       {/* Action Buttons */}
                       <div className="grid grid-cols-4 gap-2 pt-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs h-9"
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          className={cn(
+                            "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                            isLight ? "bg-blue-50 text-blue-600 border border-blue-200/60 hover:bg-blue-100" : "bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20"
+                          )}
                           onClick={() => handleViewProperty(listing)}
                         >
                           <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border-purple-500/30 text-xs h-9"
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          className={cn(
+                            "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                            isLight ? "bg-purple-50 text-purple-600 border border-purple-200/60 hover:bg-purple-100" : "bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20"
+                          )}
                           onClick={() => handleShareListing(listing)}
                         >
                           <Share2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-xs h-9"
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.92 }}
+                          className={cn(
+                            "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                            isLight ? "bg-emerald-50 text-emerald-600 border border-emerald-200/60 hover:bg-emerald-100" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                          )}
                           onClick={() => handleEditProperty(listing)}
                         >
                           <Edit className="w-4 h-4" />
-                        </Button>
+                        </motion.button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/30 text-xs h-9"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className={cn(isLight ? 'bg-white border-gray-200' : 'bg-gray-800 border-gray-700')}>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-foreground">Delete Listing</AlertDialogTitle>
-                              <AlertDialogDescription className="text-muted-foreground">
-                                Are you sure you want to delete "{listing.title}"?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className={cn(isLight ? 'bg-gray-100 text-foreground border-gray-200' : 'bg-gray-700 text-white border-gray-600')}>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteProperty(listing)}
-                                className="bg-red-600 hover:bg-red-700 text-white"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </CardContent>
-                  </Card>
+                            <motion.button
+                              whileTap={{ scale: 0.92 }}
+                              className={cn(
+                                "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
+                                isLight ? "bg-red-50 text-red-600 border border-red-200/60 hover:bg-red-100" : "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                              )}
+            >
+              <Trash2 className="w-4 h-4" />
+            </motion.button>
+          </AlertDialogTrigger>
+          <AlertDialogContent className={cn(
+            "rounded-3xl",
+            isLight ? 'bg-white border-border/50' : 'bg-[#1a1a1a] border-white/[0.08]'
+          )}>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-foreground">Delete Listing</AlertDialogTitle>
+              <AlertDialogDescription className="text-muted-foreground">
+                Are you sure you want to delete "{listing.title}"?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className={cn("rounded-xl", isLight ? 'bg-secondary text-foreground border-border/30' : 'bg-white/[0.06] text-white border-white/[0.08]')}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => handleDeleteProperty(listing)}
+                className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </CardContent>
+  </div>
                 </motion.div>
               ))}
             </motion.div>

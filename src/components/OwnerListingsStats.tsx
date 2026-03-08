@@ -92,22 +92,22 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.4 }}
           >
-            <Card className={cn(
-              "relative border shadow-lg hover:shadow-xl transition-all duration-300",
+            <div className={cn(
+              "relative rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden",
               isLight
-                ? "bg-white border-gray-200"
-                : "border-white/5 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm"
+                ? "bg-white border border-border/50"
+                : "border border-white/[0.06] bg-white/[0.04] backdrop-blur-sm"
             )}>
               {/* Background gradient effect */}
               <div className={cn(
-                "absolute inset-0 opacity-30 bg-gradient-to-br",
+                "absolute inset-0 opacity-20 bg-gradient-to-br",
                 stat.bgGradient
               )} />
 
-              <CardContent className="relative p-3 sm:p-4">
+              <div className="relative p-3 sm:p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className={cn("text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate", isLight ? 'text-gray-500' : 'text-gray-400')}>
+                    <p className={cn("text-[10px] sm:text-xs font-medium uppercase tracking-wider truncate", isLight ? 'text-muted-foreground' : 'text-white/50')}>
                       {stat.title}
                     </p>
                     <div className="flex items-baseline gap-1 mt-1">
@@ -118,19 +118,19 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                         <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
                       )}
                     </div>
-                    <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-gray-400' : 'text-gray-500')}>
+                    <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-muted-foreground' : 'text-white/40')}>
                       {stat.description}
                     </p>
                   </div>
                   <div className={cn(
-                    "p-2 sm:p-2.5 rounded-lg sm:rounded-xl shrink-0",
+                    "p-2.5 sm:p-3 rounded-2xl shrink-0",
                     stat.iconBg
                   )}>
                     <stat.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", stat.iconColor)} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -142,15 +142,18 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.4 }}
         >
-          <Card className={cn("border-0 shadow-lg", isLight ? "bg-white" : "bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm")}>
-            <CardContent className="p-3 sm:p-4">
+          <div className={cn(
+            "rounded-3xl shadow-lg",
+            isLight ? "bg-white border border-border/50" : "bg-white/[0.04] backdrop-blur-sm border border-white/[0.06]"
+          )}>
+            <div className="p-3 sm:p-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className={cn("text-xs sm:text-sm font-medium", isLight ? 'text-gray-500' : 'text-gray-400')}>Category Breakdown</h4>
-                <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-gray-400' : 'text-gray-500')}>{totalListings} total</span>
+                <h4 className={cn("text-xs sm:text-sm font-semibold", isLight ? 'text-muted-foreground' : 'text-white/60')}>Category Breakdown</h4>
+                <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-muted-foreground' : 'text-white/40')}>{totalListings} total</span>
               </div>
 
               {/* Progress bar showing category distribution */}
-              <div className={cn("h-2 sm:h-2.5 rounded-full overflow-hidden flex", isLight ? 'bg-gray-100' : 'bg-gray-700/50')}>
+              <div className={cn("h-2 sm:h-2.5 rounded-full overflow-hidden flex", isLight ? 'bg-secondary' : 'bg-white/[0.06]')}>
                 {categoryBreakdown.map((cat, i) => (
                   <motion.div
                     key={cat.name}
@@ -167,14 +170,14 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                 {categoryBreakdown.map((cat) => (
                   <div key={cat.name} className="flex items-center gap-1.5">
                     <div className={cn("w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full", cat.color)} />
-                    <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-gray-500' : 'text-gray-400')}>
+                    <span className={cn("text-[10px] sm:text-xs", isLight ? 'text-muted-foreground' : 'text-white/50')}>
                       {cat.name} ({cat.count})
                     </span>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       )}
     </div>
