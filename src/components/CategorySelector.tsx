@@ -1,6 +1,4 @@
 import { Bike, Home, CircleDot, Briefcase } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
 export type Category = 'property' | 'motorcycle' | 'bicycle' | 'worker';
 export type Mode = 'sale' | 'rent' | 'both';
@@ -32,35 +30,66 @@ export function CategorySelector({
     { value: 'sale' as Mode, label: 'For Sale', emoji: '💰' },
   ];
 
+  // Cascade mode toggle logic
+  const handleModeToggle = (clicked: 'rent' | 'sale') => {
+    if (selectedMode === 'both') {
+      // Both active → deselect clicked, keep the other
+      onModeChange(clicked === 'rent' ? 'sale' : 'rent');
+    } else if (selectedMode === clicked) {
+      // Same mode clicked → no-op (must have at least one)
+      return;
+    } else {
+      // Other mode is active → activate both
+      onModeChange('both');
+    }
+  };
+
+  const isModeActive = (mode: 'rent' | 'sale') =>
+    selectedMode === mode || selectedMode === 'both';
+
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2">
-        {categories.map(({ value, label, icon: Icon }) => (
-          <Button
-            key={value}
-            variant={selectedCategory === value ? 'default' : 'outline'}
-            onClick={() => onCategoryChange(value)}
-            className="flex items-center gap-2 transition-all"
-          >
-            <Icon className="w-4 h-4" />
-            {label}
-          </Button>
-        ))}
+        {categories.map(({ value, label, icon: Icon }) => {
+          const active = selectedCategory === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onCategoryChange(value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.96] border ${
+                active
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Mode Toggle */}
+      {/* Mode Toggle — cascade */}
       <div className="flex gap-2">
-        {modes.map(({ value, label, emoji }) => (
-          <Badge
-            key={value}
-            variant={selectedMode === value || selectedMode === 'both' ? 'default' : 'outline'}
-            className="cursor-pointer px-4 py-2 text-sm transition-all hover:scale-105"
-            onClick={() => onModeChange(value)}
-          >
-            {emoji} {label}
-          </Badge>
-        ))}
+        {modes.map(({ value, label, emoji }) => {
+          const active = isModeActive(value);
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => handleModeToggle(value)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.96] border cursor-pointer ${
+                active
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+              }`}
+            >
+              {emoji} {label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

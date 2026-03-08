@@ -1,10 +1,13 @@
 import { useForm, Controller } from 'react-hook-form';
-import { useEffect } from 'react';
+import { useEffect, useState, KeyboardEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
+import { X } from 'lucide-react';
 import { SERVICE_CATEGORIES, SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
 
 // Re-export from shared data for backward compat
@@ -50,18 +53,18 @@ export const DAYS_OF_WEEK = [
 ] as const;
 
 export const TIME_SLOTS = [
-  { value: 'early_morning', label: 'Early Morning (6am-9am)' },
+  { value: 'early_morning', label: 'Early Morning (6-9am)' },
   { value: 'morning', label: 'Morning (9am-12pm)' },
-  { value: 'afternoon', label: 'Afternoon (12pm-5pm)' },
-  { value: 'evening', label: 'Evening (5pm-9pm)' },
+  { value: 'afternoon', label: 'Afternoon (12-5pm)' },
+  { value: 'evening', label: 'Evening (5-9pm)' },
   { value: 'night', label: 'Night (9pm-6am)' },
-  { value: 'anytime', label: 'Anytime/Flexible' },
+  { value: 'anytime', label: 'Anytime' },
 ] as const;
 
 export const LOCATION_TYPES = [
-  { value: 'on_site', label: 'On-site (Client Location)' },
-  { value: 'remote', label: 'Remote (Virtual)' },
-  { value: 'hybrid', label: 'Hybrid (Both)' },
+  { value: 'on_site', label: 'On-site' },
+  { value: 'remote', label: 'Remote' },
+  { value: 'hybrid', label: 'Hybrid' },
   { value: 'travel_required', label: 'Travel Required' },
   { value: 'own_location', label: 'At My Location' },
 ] as const;
@@ -107,6 +110,60 @@ interface WorkerListingFormProps {
   initialData?: Partial<WorkerFormData>;
 }
 
+// Reusable tag input component
+function TagInput({ tags, onAdd, onRemove, placeholder }: { tags: string[]; onAdd: (tag: string) => void; onRemove: (tag: string) => void; placeholder: string }) {
+  const [input, setInput] = useState('');
+  const handleKey = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && input.trim()) {
+      e.preventDefault();
+      if (!tags.includes(input.trim())) onAdd(input.trim());
+      setInput('');
+    }
+  };
+  return (
+    <div className="space-y-2">
+      <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder={placeholder} />
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map(tag => (
+            <Badge key={tag} variant="secondary" className="gap-1 pr-1">
+              {tag}
+              <button type="button" onClick={() => onRemove(tag)} className="ml-0.5 rounded-full hover:bg-foreground/10 p-0.5">
+                <X className="w-3 h-3" />
+              </button>
+            </Badge>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Reusable pill toggle
+function PillToggle({ items, selected, onToggle }: { items: { value: string; label: string }[]; selected: string[]; onToggle: (v: string) => void }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {items.map(item => {
+        const active = selected.includes(item.value);
+        return (
+          <button
+            key={item.value}
+            type="button"
+            onClick={() => onToggle(item.value)}
+            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all active:scale-[0.96] border ${
+              active
+                ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+            }`}
+          >
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerListingFormProps) {
   const { register, control, watch, setValue } = useForm<WorkerFormData>({
     defaultValues: {
@@ -128,6 +185,14 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
   const formData = watch();
   const watchedServiceCategory = watch('service_category');
   const watchedSkills = watch('skills') || [];
+  const watchedWorkType = watch('work_type') || [];
+  const watchedScheduleType = watch('schedule_type') || [];
+  const watchedDays = watch('days_available') || [];
+  const watchedTimeSlots = watch('time_slots_available') || [];
+  const watchedLocationType = watch('location_type') || [];
+  const watchedCertifications = watch('certifications') || [];
+  const watchedToolsEquipment = watch('tools_equipment') || [];
+  const watchedLanguages = watch('languages') || [];
 
   useEffect(() => {
     onDataChange(formData);
@@ -136,16 +201,25 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
   const grouped = getGroupedCategories();
   const subspecialties = watchedServiceCategory ? SERVICE_SUBSPECIALTIES[watchedServiceCategory] : undefined;
 
-  const toggleSkill = (skill: string) => {
-    const current = watchedSkills;
-    const updated = current.includes(skill)
-      ? current.filter(s => s !== skill)
-      : [...current, skill];
-    setValue('skills', updated);
+  const toggleArrayField = (field: keyof WorkerFormData, value: string) => {
+    const current = (watch(field) as string[]) || [];
+    const updated = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
+    setValue(field, updated);
+  };
+
+  const addToArray = (field: keyof WorkerFormData, value: string) => {
+    const current = (watch(field) as string[]) || [];
+    if (!current.includes(value)) setValue(field, [...current, value]);
+  };
+
+  const removeFromArray = (field: keyof WorkerFormData, value: string) => {
+    const current = (watch(field) as string[]) || [];
+    setValue(field, current.filter(v => v !== value));
   };
 
   return (
     <div className="space-y-6">
+      {/* Service Details */}
       <Card>
         <CardHeader><CardTitle>Service Details (Optional)</CardTitle></CardHeader>
         <CardContent className="space-y-4">
@@ -183,7 +257,6 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
             </div>
           )}
 
-          {/* Subspecialties */}
           {subspecialties && subspecialties.length > 0 && (
             <div>
               <Label className="mb-2 block">Specialties</Label>
@@ -193,11 +266,9 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
                     <Checkbox
                       id={`spec-${spec}`}
                       checked={watchedSkills.includes(spec)}
-                      onCheckedChange={() => toggleSkill(spec)}
+                      onCheckedChange={() => toggleArrayField('skills', spec)}
                     />
-                    <label htmlFor={`spec-${spec}`} className="text-sm cursor-pointer">
-                      {spec}
-                    </label>
+                    <label htmlFor={`spec-${spec}`} className="text-sm cursor-pointer">{spec}</label>
                   </div>
                 ))}
               </div>
@@ -208,9 +279,15 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
             <Label>Service Title</Label>
             <Input {...register('title')} placeholder="e.g., Experienced Yoga Instructor" />
           </div>
+
+          <div>
+            <Label>About This Service</Label>
+            <Textarea {...register('description')} placeholder="Describe your service, what makes you stand out, and what clients can expect..." rows={4} />
+          </div>
         </CardContent>
       </Card>
 
+      {/* Location */}
       <Card>
         <CardHeader><CardTitle>Location (Optional)</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
@@ -225,6 +302,7 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         </CardContent>
       </Card>
 
+      {/* Pricing */}
       <Card>
         <CardHeader><CardTitle>Pricing (Optional)</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
@@ -250,6 +328,76 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         </CardContent>
       </Card>
 
+      {/* Work Preferences */}
+      <Card>
+        <CardHeader><CardTitle>Work Preferences (Optional)</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Work Type</Label>
+            <PillToggle items={[...WORK_TYPES]} selected={watchedWorkType} onToggle={v => toggleArrayField('work_type', v)} />
+          </div>
+          <div>
+            <Label className="mb-2 block">Schedule Type</Label>
+            <PillToggle items={[...SCHEDULE_TYPES]} selected={watchedScheduleType} onToggle={v => toggleArrayField('schedule_type', v)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Availability */}
+      <Card>
+        <CardHeader><CardTitle>Availability (Optional)</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Days Available</Label>
+            <div className="flex flex-wrap gap-2">
+              {DAYS_OF_WEEK.map(day => {
+                const active = watchedDays.includes(day.value);
+                return (
+                  <button
+                    key={day.value}
+                    type="button"
+                    onClick={() => toggleArrayField('days_available', day.value)}
+                    className={`w-11 h-11 rounded-lg text-xs font-semibold transition-all active:scale-[0.94] border ${
+                      active
+                        ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                        : 'bg-card/60 text-muted-foreground border-border hover:border-primary/40'
+                    }`}
+                  >
+                    {day.short}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <Label className="mb-2 block">Time Slots</Label>
+            <PillToggle items={[...TIME_SLOTS]} selected={watchedTimeSlots} onToggle={v => toggleArrayField('time_slots_available', v)} />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Service Location */}
+      <Card>
+        <CardHeader><CardTitle>Service Location (Optional)</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="mb-2 block">Location Type</Label>
+            <PillToggle items={[...LOCATION_TYPES]} selected={watchedLocationType} onToggle={v => toggleArrayField('location_type', v)} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Service Radius (km)</Label>
+              <Input type="number" {...register('service_radius_km', { valueAsNumber: true })} placeholder="e.g., 25" />
+            </div>
+            <div>
+              <Label>Min Booking (hours)</Label>
+              <Input type="number" {...register('minimum_booking_hours', { valueAsNumber: true })} placeholder="e.g., 2" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Experience */}
       <Card>
         <CardHeader><CardTitle>Experience (Optional)</CardTitle></CardHeader>
         <CardContent className="space-y-4">
@@ -271,6 +419,48 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
           <div>
             <Label>Years of Experience</Label>
             <Input type="number" {...register('experience_years', { valueAsNumber: true, min: 0 })} placeholder="5" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Skills & Qualifications */}
+      <Card>
+        <CardHeader><CardTitle>Skills & Qualifications (Optional)</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="mb-1 block">Skills (type + Enter)</Label>
+            <TagInput tags={watchedSkills} onAdd={v => addToArray('skills', v)} onRemove={v => removeFromArray('skills', v)} placeholder="e.g., Deep Tissue Massage" />
+          </div>
+          <div>
+            <Label className="mb-1 block">Certifications (type + Enter)</Label>
+            <TagInput tags={watchedCertifications} onAdd={v => addToArray('certifications', v)} onRemove={v => removeFromArray('certifications', v)} placeholder="e.g., CPR Certified" />
+          </div>
+          <div>
+            <Label className="mb-1 block">Tools & Equipment (type + Enter)</Label>
+            <TagInput tags={watchedToolsEquipment} onAdd={v => addToArray('tools_equipment', v)} onRemove={v => removeFromArray('tools_equipment', v)} placeholder="e.g., Massage Table" />
+          </div>
+          <div>
+            <Label className="mb-1 block">Languages (type + Enter)</Label>
+            <TagInput tags={watchedLanguages} onAdd={v => addToArray('languages', v)} onRemove={v => removeFromArray('languages', v)} placeholder="e.g., English, Spanish" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Verification & Trust */}
+      <Card>
+        <CardHeader><CardTitle>Verification & Trust (Optional)</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <Controller name="offers_emergency_service" control={control} render={({ field }) => <Checkbox id="emergency" checked={!!field.value} onCheckedChange={field.onChange} />} />
+            <Label htmlFor="emergency">I offer emergency / urgent service</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Controller name="background_check_verified" control={control} render={({ field }) => <Checkbox id="bgcheck" checked={!!field.value} onCheckedChange={field.onChange} />} />
+            <Label htmlFor="bgcheck">Background check verified</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Controller name="insurance_verified" control={control} render={({ field }) => <Checkbox id="insurance" checked={!!field.value} onCheckedChange={field.onChange} />} />
+            <Label htmlFor="insurance">Insurance verified</Label>
           </div>
         </CardContent>
       </Card>
