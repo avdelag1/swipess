@@ -1306,6 +1306,17 @@ export type Database = {
     }
     Functions: {
       check_email_exists: { Args: { p_email: string }; Returns: Json }
+      create_notification_for_user: {
+        Args: {
+          p_message: string
+          p_metadata?: Json
+          p_notification_type: string
+          p_related_user_id?: string
+          p_title: string
+          p_user_id: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

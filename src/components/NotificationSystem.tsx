@@ -73,13 +73,13 @@ export function NotificationSystem() {
                 });
 
                 // Save to notifications table (non-blocking, errors are non-critical)
-                supabase.from('notifications').insert([{
+                supabase.from('notifications').insert({
                   user_id: user.id,
                   notification_type: 'new_message',
                   title: `New message from ${senderName}`,
                   message: `${senderName}: ${messageText.slice(0, 100)}${messageText.length > 100 ? '...' : ''}`,
                   is_read: false
-                }]).then(
+                }).then(
                   () => { /* Notification saved successfully */ },
                   () => { /* Notification save failed - non-critical, user still sees toast */ }
                 );
@@ -171,13 +171,13 @@ export function NotificationSystem() {
               });
 
               // Save to notifications table (non-blocking, errors are non-critical)
-              supabase.from('notifications').insert([{
+              supabase.from('notifications').insert({
                 user_id: user.id,
                 notification_type: 'new_like',
                 title: '🔥 New Flame',
                 message: `${likerName} liked your property!`,
                 is_read: false
-              }]).then(
+              }).then(
                 () => { /* Notification saved successfully */ },
                 () => { /* Notification save failed - non-critical, user still sees toast */ }
               );
