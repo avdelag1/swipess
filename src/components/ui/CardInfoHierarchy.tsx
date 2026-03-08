@@ -306,6 +306,7 @@ VehicleCardInfo.displayName = 'VehicleCardInfo';
 
 interface ServiceCardInfoProps extends CardInfoProps {
   hourlyRate?: number;
+  pricingUnit?: string;
   serviceName: string;
   name?: string;
   location?: string;
@@ -317,6 +318,7 @@ interface ServiceCardInfoProps extends CardInfoProps {
 
 export const ServiceCardInfo = memo(({
   hourlyRate,
+  pricingUnit = 'hr',
   serviceName,
   name,
   location,
@@ -326,6 +328,7 @@ export const ServiceCardInfo = memo(({
   className,
   photoIndex = 0,
 }: ServiceCardInfoProps) => {
+  const unitLabel = pricingUnit === 'session' ? '/session' : pricingUnit === 'day' ? '/day' : pricingUnit === 'project' ? '/project' : pricingUnit === 'month' ? '/mo' : `/${pricingUnit}`;
   // Normalize photoIndex to cycle through 0-3
   const normalizedIndex = photoIndex % 4;
 
@@ -339,7 +342,7 @@ export const ServiceCardInfo = memo(({
               <span className="text-2xl font-bold text-white drop-shadow-lg">
                 ${hourlyRate}
               </span>
-              <span className="text-sm text-white/80">/hr</span>
+              <span className="text-sm text-white/80">{unitLabel}</span>
               {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
             </div>
           )}
@@ -399,7 +402,7 @@ export const ServiceCardInfo = memo(({
               <span className="text-2xl font-bold text-white drop-shadow-lg">
                 ${hourlyRate}
               </span>
-              <span className="text-sm text-white/80">/hr</span>
+              <span className="text-sm text-white/80">{unitLabel}</span>
               {isVerified && <VerifiedBadge size="sm" className="ml-2" />}
             </div>
           )}

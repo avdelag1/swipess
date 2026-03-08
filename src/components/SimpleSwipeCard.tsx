@@ -565,11 +565,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
-          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_type ? (
+          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category ? (
             <ServiceCardInfo
-              hourlyRate={(listing as any).hourly_rate}
-              serviceName={(listing as any).service_type || listing.title || 'Service'}
-              name={(listing as any).provider_name}
+              hourlyRate={listing.price || 0}
+              pricingUnit={(listing as any).pricing_unit || 'hr'}
+              serviceName={(listing as any).service_category || listing.title || 'Service'}
+              name={listing.title}
               location={listing.city ?? undefined}
               isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}

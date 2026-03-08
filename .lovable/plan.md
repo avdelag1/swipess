@@ -1,58 +1,46 @@
 
 
-# Deep Audit: Remaining Bugs in Listings, Cards & Filter Connections
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Bug 1 — CRITICAL: Worker swipe cards show wrong data fields
+### 1. Replace App Icon with Fire S Logo
 
-**SimpleSwipeCard.tsx lines 569-572** renders worker cards using:
-- `(listing as any).hourly_rate` — **does not exist** in DB. The DB has `price` + `pricing_unit`
-- `(listing as any).service_type` — **does not exist** in DB. The DB has `service_category`
-- `(listing as any).provider_name` — **does not exist** in DB
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-**Result:** Every worker swipe card shows no price and falls back to the listing title as "service name". The actual `service_category`, `pricing_unit`, and `price` fields are fetched but never read.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Fix in SimpleSwipeCard.tsx:**
-```
-hourlyRate={listing.price}  // Use actual price field
-serviceName={(listing as any).service_category || listing.title || 'Service'}
-name={listing.title}  // Title is the provider/service name
-```
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-**Fix in CardInfoHierarchy.tsx ServiceCardInfo:**
-- Accept `pricingUnit` prop instead of hardcoding `/hr`
-- Display `$X/session`, `$X/day`, etc. based on `pricing_unit`
+### 2. Profile Photo Already Shows in Top-Left
 
-## Bug 2 — HIGH: `Listing` interface has phantom fields not in DB
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-`useListings.tsx` defines `service_type` and `hourly_rate` on the `Listing` interface, but these columns **do not exist** in the `listings` table. This creates false type safety — code compiles but the values are always `undefined`.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**Fix:** Remove `service_type` and `hourly_rate` from the `Listing` interface. They should be `service_category` and `price` (already present).
+### 3. Fix Header Too Close to Top Edge
 
-## Bug 3 — HIGH: PropertyInsightsDialog uses same phantom fields
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-`PropertyInsightsDialog.tsx` lines 364-376 reads `listing.service_type` and `listing.hourly_rate` — both always undefined.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**Fix:** Replace with `listing.service_category` and `listing.price` + `(listing as any).pricing_unit`.
+### 4. Fix MarketingSlide Build Error
 
-## Bug 4 — MEDIUM: `client_filter_preferences` has no worker/service columns
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-The `client_filter_preferences` table has `interested_in_properties`, `interested_in_motorcycles`, `interested_in_bicycles`, `interested_in_vehicles` — but **no `interested_in_services`** column. Users who select "Services/Workers" as an interest category have nowhere to persist this preference.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**Fix:** Add a DB migration to add `interested_in_services boolean default false` to `client_filter_preferences`.
-
-## Bug 5 — MEDIUM: `combinedFilters` drops worker-specific fields from `appliedFilters`
-
-In `DashboardLayout.tsx` line 489-503, `combinedFilters` spreads `...base` (which contains worker fields from `handleApplyFilters`) but then explicitly sets `category`, `categories`, `listingType`, `showHireServices`, `clientGender`, `clientType`. The worker fields survive via the spread, but only if quick filters don't override. When quick filter selects "services", `categories: ['worker']` is set correctly, but `showHireServices` is redundant and could conflict. This is a minor inconsistency, not a blocker — no code change needed.
-
----
-
-## Files to Modify
-
-| File | Bug | Change |
-|------|-----|--------|
-| `src/components/SimpleSwipeCard.tsx` | 1 | Map `price`→`hourlyRate`, `service_category`→`serviceName`, `title`→`name`, pass `pricing_unit` |
-| `src/components/ui/CardInfoHierarchy.tsx` | 1 | Add `pricingUnit` prop to `ServiceCardInfo`, display dynamic unit instead of hardcoded `/hr` |
-| `src/hooks/useListings.tsx` | 2 | Remove phantom `service_type` and `hourly_rate` fields from `Listing` interface |
-| `src/components/PropertyInsightsDialog.tsx` | 3 | Replace `service_type`→`service_category`, `hourly_rate`→`price` |
-| DB Migration | 4 | `ALTER TABLE client_filter_preferences ADD COLUMN interested_in_services boolean DEFAULT false;` |
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

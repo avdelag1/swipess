@@ -26,6 +26,7 @@ export type Database = {
           interested_in_bicycles: boolean | null
           interested_in_motorcycles: boolean | null
           interested_in_properties: boolean | null
+          interested_in_services: boolean | null
           interested_in_vehicles: boolean | null
           location_zones: Json | null
           max_bathrooms: number | null
@@ -61,6 +62,7 @@ export type Database = {
           interested_in_bicycles?: boolean | null
           interested_in_motorcycles?: boolean | null
           interested_in_properties?: boolean | null
+          interested_in_services?: boolean | null
           interested_in_vehicles?: boolean | null
           location_zones?: Json | null
           max_bathrooms?: number | null
@@ -96,6 +98,7 @@ export type Database = {
           interested_in_bicycles?: boolean | null
           interested_in_motorcycles?: boolean | null
           interested_in_properties?: boolean | null
+          interested_in_services?: boolean | null
           interested_in_vehicles?: boolean | null
           location_zones?: Json | null
           max_bathrooms?: number | null
