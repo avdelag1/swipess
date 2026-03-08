@@ -39,6 +39,7 @@ export function useSmartClientMatching(
                 let dbAgeRange: [number, number] | undefined;
                 let dbBudgetRange: [number, number] | undefined;
                 let dbNationalities: string[] | undefined;
+                let ownerPrefsForScoring: any = null;
                 try {
                     const { data: ownerPrefs } = await supabase
                         .from('owner_client_preferences')
@@ -47,6 +48,7 @@ export function useSmartClientMatching(
                         .maybeSingle();
 
                     if (ownerPrefs) {
+                        ownerPrefsForScoring = ownerPrefs;
                         const genders = ownerPrefs.selected_genders as string[] | null;
                         const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
                         if (
