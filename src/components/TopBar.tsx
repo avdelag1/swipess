@@ -281,7 +281,7 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-100 ease-out",
+                    "relative h-6 sm:h-7 px-1 sm:px-1 rounded-md transition-all duration-100 ease-out",
                     "active:scale-[0.95]",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
