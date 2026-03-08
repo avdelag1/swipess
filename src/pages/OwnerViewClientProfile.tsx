@@ -589,7 +589,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Water Activities</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_water_activities.map((act) => (
+                            {preferences.yacht_water_activities.map((act: string) => (
                               <Badge key={`yacht-act-${act}`} variant="secondary">{act}</Badge>
                             ))}
                           </div>
