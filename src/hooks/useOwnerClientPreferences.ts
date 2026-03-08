@@ -5,7 +5,8 @@ import { logger } from '@/utils/prodLogger';
 
 /**
  * Interface aligned with actual DB columns in owner_client_preferences table.
- * Do NOT add fields here unless they exist in the database schema.
+ * Only these fields persist to DB. Components may set extra fields via [key],
+ * but they will be silently dropped by the upsert.
  */
 export interface OwnerClientPreferences {
   id?: string;
@@ -18,6 +19,8 @@ export interface OwnerClientPreferences {
   preferred_nationalities?: string[] | null;
   created_at?: string;
   updated_at?: string;
+  // Allow extra UI-only fields used by components (not persisted)
+  [key: string]: any;
 }
 
 export function useOwnerClientPreferences() {

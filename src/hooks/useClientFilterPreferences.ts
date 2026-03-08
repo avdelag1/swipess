@@ -4,17 +4,18 @@ import { logger } from '@/utils/prodLogger';
 
 /**
  * Type aligned with actual DB columns in client_filter_preferences table.
- * Do NOT add fields here unless they exist in the database schema.
+ * Only the fields listed below persist to DB. Components may set extra fields
+ * via the index signature, but they will be silently dropped by insert/update.
  */
 export type ClientFilterPreferences = {
   id?: string;
   user_id: string;
 
-  // Price filters
+  // Price filters (DB columns)
   price_min?: number | null;
   price_max?: number | null;
 
-  // Property preferences
+  // Property preferences (DB columns)
   min_bedrooms?: number | null;
   max_bedrooms?: number | null;
   min_bathrooms?: number | null;
@@ -25,7 +26,7 @@ export type ClientFilterPreferences = {
   property_types?: any[] | null;
   location_zones?: any[] | null;
 
-  // Category interests
+  // Category interests (DB columns)
   preferred_categories?: any[] | null;
   preferred_listing_types?: any[] | null;
   preferred_locations?: any[] | null;
@@ -34,25 +35,28 @@ export type ClientFilterPreferences = {
   interested_in_bicycles?: boolean | null;
   interested_in_vehicles?: boolean | null;
 
-  // Motorcycle preferences
+  // Motorcycle preferences (DB columns)
   moto_types?: any[] | null;
   moto_price_min?: number | null;
   moto_price_max?: number | null;
   moto_year_min?: number | null;
   moto_year_max?: number | null;
 
-  // Bicycle preferences
+  // Bicycle preferences (DB columns)
   bicycle_types?: any[] | null;
   bicycle_price_min?: number | null;
   bicycle_price_max?: number | null;
 
-  // Vehicle preferences
+  // Vehicle preferences (DB columns)
   vehicle_types?: any[] | null;
   vehicle_price_min?: number | null;
   vehicle_price_max?: number | null;
 
   created_at?: string;
   updated_at?: string;
+
+  // Allow extra UI-only fields used by filter components (not persisted)
+  [key: string]: any;
 };
 
 // Type for database operations (excluding id & user_id)
