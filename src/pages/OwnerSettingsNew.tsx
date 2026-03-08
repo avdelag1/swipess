@@ -145,7 +145,7 @@ const OwnerSettingsNew = () => {
         <div className="max-w-3xl mx-auto">
 
 
-          <PageHeader title="Preferences" subtitle="Customize your app experience" />
+          <PageHeader title="Preferences" subtitle="Customize your app experience" showBack={false} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />

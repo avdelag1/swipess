@@ -10,6 +10,7 @@ const ClientSavedSearches = () => {
           <PageHeader
             title="Saved Searches"
             subtitle="Your saved search criteria"
+            showBack={false}
           />
           <SavedSearches userRole="client" />
         </div>
