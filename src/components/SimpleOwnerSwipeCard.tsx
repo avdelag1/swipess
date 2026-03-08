@@ -31,7 +31,7 @@ const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 12;
+const MAX_ROTATION = 18; // Matches client card for consistency
 
 // Calculate exit distance dynamically based on viewport
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;

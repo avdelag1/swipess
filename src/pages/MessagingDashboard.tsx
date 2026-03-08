@@ -448,7 +448,7 @@ export function MessagingDashboard() {
                     transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
                   >
                     <button
-                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-white/[0.04] active:scale-[0.98] text-left group"
                       onClick={() => setSelectedConversationId(conversation.id)}
                     >
                       {/* Avatar with gradient ring */}

@@ -325,15 +325,18 @@ export function LikedClients() {
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
+        <AlertDialogContent className={cn(
+          "rounded-[2rem]",
+          isLight ? "bg-white border-border/50" : "bg-[#1a1a1a] border-white/[0.08]"
+        )}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white font-black text-xl">Remove Match?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 font-bold">
+            <AlertDialogTitle className="text-foreground font-black text-xl">Remove Match?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">
               Are you sure you want to remove {clientToDelete?.full_name} from your talents?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-white/[0.06] border-white/[0.08] text-white")}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
