@@ -177,6 +177,7 @@ const ActionButton = memo(({
   const isLight = theme === 'white-matte';
 
   const cfg = VARIANTS[variant];
+  const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;
   const btnSize = size === 'large' ? LARGE : SMALL;
   const iconSize = size === 'large' ? LARGE_ICON : SMALL_ICON;
   const isPrimary = size === 'large';
