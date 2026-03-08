@@ -12,7 +12,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
   // Calculate statistics
   const totalListings = listings.length;
   const activeListings = listings.filter(l => l.status === 'active' && l.is_active).length;
-  const totalViews = listings.reduce((sum, l) => sum + (l.view_count || 0), 0);
+  const totalViews = listings.reduce((sum, l) => sum + (l.views || 0), 0);
   const totalValue = listings.reduce((sum, l) => sum + (l.price || 0), 0);
 
   // Calculate average price
