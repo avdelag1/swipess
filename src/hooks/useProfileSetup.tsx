@@ -60,8 +60,8 @@ export function useProfileSetup() {
       // Verify referrer exists
       const { data: referrerProfile } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('id', referrerId)
+        .select('user_id')
+        .eq('user_id', referrerId)
         .maybeSingle();
 
       if (!referrerProfile) {
