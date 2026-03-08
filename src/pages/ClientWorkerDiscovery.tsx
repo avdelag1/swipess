@@ -13,7 +13,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { Briefcase, Search, Filter, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
-import { SERVICE_CATEGORIES, PRICING_UNITS } from '@/components/WorkerListingForm';
+import { PRICING_UNITS } from '@/components/WorkerListingForm';
+import { SERVICE_CATEGORIES, SERVICE_GROUPS, getGroupedCategories, findCategory } from '@/data/serviceCategories';
 import { cn } from '@/lib/utils';
 
 // Hire duration quick filter options
