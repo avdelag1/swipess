@@ -1,46 +1,40 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Audit Findings: Critical Bugs Still Present
 
-### 1. Replace App Icon with Fire S Logo
+## Bug 1: Unread Message Count Always Shows 0 (CRITICAL)
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+`useUnreadMessageCount.tsx` is completely broken. It:
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+1. Queries the `matches` table filtering by `client_id` — but the `matches` table has NO `client_id` column (it uses `user_id` and `owner_id`). This query silently returns empty results.
+2. Then tries to find conversations via `match_id` — but most conversations have `match_id = null` (it's nullable and often unset).
+3. Result: unread message badge is **always 0**. Users never see they have unread messages.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**Fix**: Rewrite to query `conversations` directly (where user is `client_id` or `owner_id`), then count unread `conversation_messages` in those conversations. No need to go through `matches` at all.
 
-### 2. Profile Photo Already Shows in Top-Left
+## Bug 2: Duplicate Conversation Creation on Match Detection
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+In `useSwipeWithMatch.tsx` line 509-517, the `conversations.upsert()` call doesn't specify `onConflict`. With the new unique index on `(client_id, owner_id)` added in the last migration, if a match is detected but a conversation already exists, this will throw a unique constraint violation instead of gracefully upserting.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Fix**: Add `onConflict: 'client_id,owner_id'` to the upsert, or use an insert-with-select-first pattern.
 
-### 3. Fix Header Too Close to Top Edge
+## Bug 3: Missing `update_conversation_timestamp` Trigger
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+The `update_conversation_timestamp()` function exists in the database but has **no trigger attached** (confirmed: 0 triggers in the database). The code manually updates `last_message_at` in `useSendMessage` and `useStartConversation`, but this is fragile — any message inserted via realtime or other paths won't update the timestamp. The conversation list sorting by `last_message_at` may be stale.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**Fix**: Create a trigger on `conversation_messages` AFTER INSERT that fires `update_conversation_timestamp()`. Remove the manual `last_message_at` updates from hooks (or keep them for optimistic behavior).
 
-### 4. Fix MarketingSlide Build Error
+## Files Modified
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+1. **`src/hooks/useUnreadMessageCount.tsx`** — Complete rewrite: query conversations directly by `client_id`/`owner_id`, count unread messages without going through matches table.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+2. **`src/hooks/useSwipeWithMatch.tsx`** — Fix conversation upsert to handle the unique constraint on `(client_id, owner_id)` by catching duplicate errors gracefully or using proper onConflict.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+3. **DB Migration** — Add trigger on `conversation_messages` AFTER INSERT to call `update_conversation_timestamp()`.
+
+## What This Does NOT Change
+- Swipe UI, messaging UI, design — untouched
+- Notification system — working correctly after last fix
+- Like/unlike logic — working correctly
+- Content moderation — working correctly
 
