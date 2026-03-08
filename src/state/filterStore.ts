@@ -34,6 +34,9 @@ interface FilterState {
   // Client filters for owner swipe deck
   clientGender: ClientGender;
   clientType: ClientType;
+  clientAgeRange: [number, number] | null;
+  clientBudgetRange: [number, number] | null;
+  clientNationalities: string[];
   
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
