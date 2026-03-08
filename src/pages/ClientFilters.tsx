@@ -113,11 +113,19 @@ export default function ClientFilters() {
   }, []);
 
   const handleApply = useCallback(() => {
+    // Update in-memory store (instant UI)
     setCategories(selectedCategories);
     setListingType(selectedListingType);
     queryClient.invalidateQueries({ queryKey: ['smart-listings'] });
+
+    // Persist to database (background)
+    savePrefs.mutate({
+      preferred_categories: selectedCategories as string[],
+      preferred_listing_types: selectedListingType === 'both' ? ['rent', 'sale'] : [selectedListingType],
+    });
+
     navigate(-1);
-  }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate]);
+  }, [selectedCategories, selectedListingType, setCategories, setListingType, queryClient, navigate, savePrefs]);
 
   const handleReset = useCallback(() => {
     setSelectedCategories([]);
