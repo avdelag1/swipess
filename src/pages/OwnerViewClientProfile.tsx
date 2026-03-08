@@ -392,7 +392,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Suspension Type</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.bicycle_suspension_type.map((susp) => (
+                            {preferences.bicycle_suspension_type.map((susp: string) => (
                               <Badge key={`bike-susp-${susp}`} variant="outline">{susp}</Badge>
                             ))}
                           </div>
