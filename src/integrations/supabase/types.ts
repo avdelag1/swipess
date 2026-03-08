@@ -254,6 +254,47 @@ export type Database = {
         }
         Relationships: []
       }
+      contract_signatures: {
+        Row: {
+          contract_id: string
+          id: string
+          ip_address: string | null
+          signature_data: string
+          signature_type: string
+          signed_at: string
+          signer_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          contract_id: string
+          id?: string
+          ip_address?: string | null
+          signature_data: string
+          signature_type?: string
+          signed_at?: string
+          signer_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          contract_id?: string
+          id?: string
+          ip_address?: string | null
+          signature_data?: string
+          signature_type?: string
+          signed_at?: string
+          signer_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_signatures_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "digital_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_messages: {
         Row: {
           attachments: Json | null
@@ -351,6 +392,56 @@ export type Database = {
             columns: ["match_id"]
             isOneToOne: false
             referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_status_tracking: {
+        Row: {
+          client_id: string
+          completed_at: string | null
+          contract_id: string
+          created_at: string
+          id: string
+          listing_id: string | null
+          owner_id: string
+          signed_by_client_at: string | null
+          signed_by_owner_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          completed_at?: string | null
+          contract_id: string
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          owner_id: string
+          signed_by_client_at?: string | null
+          signed_by_owner_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          completed_at?: string | null
+          contract_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          owner_id?: string
+          signed_by_client_at?: string | null
+          signed_by_owner_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_status_tracking_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "digital_contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -1234,6 +1325,135 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tokens: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          source: string | null
+          token_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          source?: string | null
+          token_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          source?: string | null
+          token_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_radio_playlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          station_ids: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          station_ids?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          station_ids?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          evidence_urls: Json | null
+          id: string
+          report_category: string | null
+          report_details: string | null
+          report_reason: string | null
+          report_type: string
+          reported_listing_id: string | null
+          reported_user_id: string | null
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          evidence_urls?: Json | null
+          id?: string
+          report_category?: string | null
+          report_details?: string | null
+          report_reason?: string | null
+          report_type?: string
+          reported_listing_id?: string | null
+          reported_user_id?: string | null
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          evidence_urls?: Json | null
+          id?: string
+          report_category?: string | null
+          report_details?: string | null
+          report_reason?: string | null
+          report_type?: string
+          reported_listing_id?: string | null
+          reported_user_id?: string | null
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

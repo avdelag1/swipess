@@ -1,46 +1,46 @@
 
 
-# The Real Picture: 6 Ghost Tables
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-Good news: the core communication pipeline (likes → matches → conversations → messages → notifications) is now **solid** after our last 3 rounds of fixes.
+### 1. Replace App Icon with Fire S Logo
 
-Bad news: I found **6 tables that the code queries but don't exist in the database**. Every operation against them silently fails because the code uses `(supabase as any)` to bypass TypeScript (which would have caught this).
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Missing Tables
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-| Table | Used For | Impact |
-|-------|----------|--------|
-| `tokens` | Message activations, quotas, referral rewards, welcome bonuses | Monetization is broken — users get unlimited messaging |
-| `user_blocks` | Blocking users | Safety feature doesn't work |
-| `user_reports` | Reporting users | Safety feature doesn't work |
-| `user_radio_playlists` | Radio/music playlists | Feature doesn't work |
-| `deal_status_tracking` | Contract deal status | Contracts partially broken |
-| `contract_signatures` | Contract signing records | Contract signing doesn't work |
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## What This Means
+### 2. Profile Photo Already Shows in Top-Left
 
-- **Monetization**: Token/activation system is completely non-functional. Users appear to have unlimited access.
-- **Safety**: Users cannot block or report other users. Every attempt silently fails.
-- **Contracts**: The digital contracts table exists, but its supporting tables (signatures, deal tracking) don't.
-- **Radio**: The playlist feature is entirely broken.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-## Recommended Fix
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**Create all 6 missing tables** with proper schemas, RLS policies, and indexes in a single migration. The code already expects these tables with specific column structures — I can infer the correct schemas from the existing code.
+### 3. Fix Header Too Close to Top Edge
 
-### Priority Order
-1. **`tokens`** — Core to monetization (message activations, quotas)
-2. **`user_blocks`** — Core safety feature
-3. **`user_reports`** — Core safety feature
-4. **`contract_signatures`** + **`deal_status_tracking`** — Contract workflow completion
-5. **`user_radio_playlists`** — Nice-to-have feature
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-### Technical Approach
-- One database migration creating all 6 tables
-- RLS policies for each (user can only see/modify own data, blocks prevent visibility)
-- No code changes needed — the frontend code already expects these tables with the right columns
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-## After This
+### 4. Fix MarketingSlide Build Error
 
-Once these tables exist, the app will be **fully operational** for day-to-day use. The remaining items from the audit (test coverage, logger consolidation, ESLint tightening) are code quality improvements, not functional blockers.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
