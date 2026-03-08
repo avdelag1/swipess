@@ -150,25 +150,25 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className={cn("sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-border" : "bg-white border-gray-100")}
+        className={cn("sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-white/10" : "bg-white border-gray-200")}
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-5 py-3.5 border-b border-border flex items-center justify-between">
+        <div className={cn("relative px-5 py-4 border-b flex items-center justify-between", isDark ? "border-white/10" : "border-gray-200")}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg relative overflow-hidden group border",
-              isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
+              "w-10 h-10 rounded-[1rem] flex items-center justify-center shadow-lg relative overflow-hidden group border",
+              isDark ? "bg-zinc-800 border-white/15" : "bg-orange-50 border-orange-200"
             )}>
               <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             <div>
-              <h2 className={cn("font-black text-sm tracking-tight leading-none mb-0.5", isDark ? "text-foreground" : "text-gray-900")}>Swipess AI</h2>
+              <h2 className={cn("font-black text-base tracking-tight leading-none mb-0.5", isDark ? "text-white" : "text-gray-900")}>AI Assistant</h2>
               <div className="flex items-center gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse" />
-                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Personal Concierge</p>
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Personal Concierge</p>
               </div>
             </div>
           </div>
@@ -177,9 +177,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             variant="ghost"
             size="icon"
             onClick={handleClose}
-            className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
+            className={cn("h-9 w-9 rounded-full transition-colors border", isDark ? "hover:bg-white/15 border-white/15 text-white/80 hover:text-white" : "hover:bg-gray-100 border-gray-200 text-gray-600 hover:text-gray-900")}
           >
-            <X className={cn("w-4 h-4", isDark ? "text-foreground/60" : "text-gray-500")} />
+            <X className="w-4 h-4" />
           </Button>
         </div>
 
@@ -277,15 +277,16 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
         {/* Quick Suggestions */}
         {messages.length > 0 && messages[messages.length - 1].role === 'ai' && !isSearching && !isTyping && (
-          <div className="px-6 pb-2">
+          <div className="px-5 pb-3">
+            <p className={cn("text-[10px] font-bold uppercase tracking-wider mb-2", isDark ? "text-white/35" : "text-gray-400")}>Quick prompts</p>
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className={cn("flex items-center gap-1.5 px-3 py-1.5 text-[10px] rounded-full transition-all font-bold uppercase tracking-wider", isDark ? "bg-muted border border-border text-muted-foreground hover:text-foreground" : "bg-gray-50 border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-100 shadow-sm")}
+                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold", isDark ? "bg-white/8 border border-white/15 text-white/75 hover:text-white hover:bg-white/15" : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900 hover:bg-gray-200 shadow-sm")}
                 >
-                  <prompt.icon className="w-3 h-3 text-orange-500" />
+                  <prompt.icon className="w-3.5 h-3.5 text-orange-500" />
                   {prompt.label}
                 </button>
               ))}

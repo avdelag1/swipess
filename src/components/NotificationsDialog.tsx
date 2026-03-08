@@ -133,13 +133,13 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
             <TabsList className="flex w-full bg-card/80 backdrop-blur-sm border border-border/40 rounded-lg p-1 h-auto gap-1">
               <TabsTrigger
                 value="all"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all"
               >
                 All
               </TabsTrigger>
               <TabsTrigger
                 value="unread"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all gap-1"
               >
                 <span>Unread</span>
                 {unreadCount > 0 && (
@@ -148,17 +148,17 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
               </TabsTrigger>
               <TabsTrigger
                 value="message"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
               >
+                <MessageSquare className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Msgs</span>
-                <MessageSquare className="w-3.5 h-3.5 sm:hidden" />
               </TabsTrigger>
               <TabsTrigger
                 value="like"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-1.5 px-2 text-[11px] sm:text-xs font-medium transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
               >
-                <span className="hidden sm:inline">Flames</span>
-                <Flame className="w-3.5 h-3.5 sm:hidden" />
+                <Flame className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Likes</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -289,10 +289,10 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
           <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-muted/30">
             <Button
               variant="outline"
-              className="w-full gap-2 h-9 sm:h-10 text-xs sm:text-sm"
+              className="w-full gap-2 h-10 sm:h-11 text-sm font-bold border-2"
               onClick={handleViewAll}
             >
-              <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
               View All Notifications
             </Button>
           </div>
