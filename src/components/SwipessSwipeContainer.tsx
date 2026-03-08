@@ -1076,7 +1076,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // PERF: GPU-accelerated skeleton to match card styling
   if (!hasHydratedData && isLoading) {
     return (
-      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-[#09090b]">
+      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
         <div className="relative flex-1 w-full">
           <div
             className="absolute inset-0 overflow-hidden"
