@@ -343,6 +343,9 @@ export const useFilterStore = create<FilterState>()(
         showHireServices: hasServices || undefined,
         clientGender: state.clientGender !== 'any' ? state.clientGender : undefined,
         clientType: state.clientType !== 'all' ? state.clientType : undefined,
+        ageRange: state.clientAgeRange ?? undefined,
+        budgetRange: state.clientBudgetRange ?? undefined,
+        nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
       };
     },
     
