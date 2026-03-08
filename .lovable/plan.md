@@ -1,46 +1,62 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Continued Audit: 3 Remaining Issues Found
 
-### 1. Replace App Icon with Fire S Logo
+## Issue 1: `LikeNotificationPreview.tsx` — Two `id` vs `user_id` Mismatches (CRITICAL)
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+**File**: `src/components/LikeNotificationPreview.tsx` lines 66 and 88
+**Bug**: Both profile queries use `.eq('id', likerId)` — `likerId` is a user UUID
+**Impact**: City info never loads in the like notification preview card. Both the client and owner branches are broken.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**Fix**:
+- Line 66: `.eq('id', likerId)` → `.eq('user_id', likerId)`
+- Line 88: `.eq('id', likerId)` → `.eq('user_id', likerId)`
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+---
 
-### 2. Profile Photo Already Shows in Top-Left
+## Issue 2: `likes` Table Missing from Realtime Publication (CRITICAL)
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+The `NotificationSystem.tsx` subscribes to `postgres_changes` on the `likes` table (line 138), but `likes` is NOT in the `supabase_realtime` publication. Only `listings`, `conversations`, `messages`, `notifications`, and `conversation_messages` are published.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Impact**: Owners NEVER receive real-time "New Flame" notifications when someone likes their listing. The entire like notification pipeline is dead.
 
-### 3. Fix Header Too Close to Top Edge
+**Fix**: DB migration to add `likes` to the realtime publication:
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE public.likes;
+```
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+---
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+## Issue 3: `on_auth_user_created` Trigger — Missing Profile Columns
 
-### 4. Fix MarketingSlide Build Error
+The `handle_new_user()` function only inserts `user_id` into profiles:
+```sql
+INSERT INTO public.profiles (user_id) VALUES (NEW.id);
+```
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+But it does NOT populate `email` from `NEW.email`. This means new user profiles always have `null` email until the user completes onboarding. Code that relies on `profiles.email` for pre-onboarding flows (like the support dialog which reads `user_email`) will show empty values.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**Fix**: Update `handle_new_user()` to also set `email`:
+```sql
+INSERT INTO public.profiles (user_id, email) VALUES (NEW.id, NEW.email);
+```
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+---
+
+## Summary
+
+| Issue | Type | Impact |
+|-------|------|--------|
+| LikeNotificationPreview `id` vs `user_id` | Wrong column | City never shows in like previews |
+| `likes` not in realtime | Missing publication | Like notifications never fire |
+| `handle_new_user` missing email | Incomplete trigger | New profiles have null email |
+
+## Implementation
+
+### 1. DB Migration
+- Add `likes` to `supabase_realtime` publication
+- Update `handle_new_user()` to include email
+
+### 2. Code Fix
+- `LikeNotificationPreview.tsx`: Two `.eq('id', likerId)` → `.eq('user_id', likerId)`
 
