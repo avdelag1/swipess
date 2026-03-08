@@ -1,45 +1,46 @@
 
 
-# Continued Audit: More Critical Bugs
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Bug 1: `matches` Table Schema Mismatch (CRITICAL — Silent Failures)
+### 1. Replace App Icon with Fire S Logo
 
-The `matches` table has columns: `id, listing_id, user_id, owner_id, created_at`. That's it.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-But multiple files use **non-existent columns** via `(supabase as any)` to bypass TypeScript:
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-- **`useLikeNotificationActions.tsx`** lines 42-74: queries/inserts using `client_id` (should be `user_id`), `status`, `updated_at` — all non-existent. The "accept like" flow silently fails to create matches.
-- **`useDirectMessageListing.ts`** lines 91-98: inserts using `client_id` and `status` — silently fails.
-- **`useMessagingQuota.tsx`** lines 96-108: counts conversations via `match_id` which is usually null — always returns 0 conversations started, so quota enforcement is broken.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-**Fix**: Replace all `client_id` references with `user_id` in matches queries. Remove `status`/`updated_at` fields from inserts/updates (they don't exist). Fix `useMessagingQuota` to count conversations directly via `client_id`/`owner_id` instead of going through matches.
+### 2. Profile Photo Already Shows in Top-Left
 
-## Bug 2: `notifications.read_at` Column Doesn't Exist
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-The `notifications` table has no `read_at` column. `useLikeNotificationActions.tsx` lines 105 and 143 set `read_at` on updates — this field is silently ignored. Not a blocker since `is_read: true` still works, but it's dead code that should be cleaned up.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**Fix**: Remove `read_at` from notification updates.
+### 3. Fix Header Too Close to Top Edge
 
-## Bug 3: `NotificationSystem.tsx` Still Requests Permission on Startup
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-Line 16-28: `NotificationSystem` requests `Notification.requestPermission()` on mount. The comment in `useNotifications.tsx` says "Do NOT request notification permission on startup." But `NotificationSystem` is not mounted anywhere currently (it was removed from DashboardLayout per line 603 comment). However, the component still exists and could be re-imported. Low priority — just cleanup.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-## Bug 4: `useMessagingQuota` Broken Conversation Counting
+### 4. Fix MarketingSlide Build Error
 
-Lines 96-108 count conversations by finding matches first, then filtering conversations by `match_id`. Since most conversations have `match_id = null`, this always returns 0. Users appear to have unlimited messaging quota.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-**Fix**: Count conversations directly where `client_id = user.id OR owner_id = user.id` and `created_at >= startOfMonth`.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-## Files Modified
-
-1. **`src/hooks/useLikeNotificationActions.tsx`** — Fix `client_id` → `user_id` for matches table, remove non-existent `status`/`updated_at`/`read_at` columns
-2. **`src/hooks/useDirectMessageListing.ts`** — Fix `client_id` → `user_id`, remove `status` from matches insert
-3. **`src/hooks/useMessagingQuota.tsx`** — Rewrite conversation counting to query `conversations` directly by `client_id`/`owner_id` instead of going through matches
-4. **DB migration** — None needed (schema is correct, code is wrong)
-
-## What This Does NOT Change
-- Swipe UI, messaging UI, design — untouched
-- Notification delivery (RPC function) — working correctly
-- Unread message counts — fixed in last round
-- Content moderation — working correctly
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

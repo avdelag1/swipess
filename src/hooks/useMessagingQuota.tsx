@@ -10,11 +10,9 @@ type PlanLimits = {
   unlimited_messages: boolean;
 };
 
-// This tracks CONVERSATIONS STARTED per month, not individual messages
-// Once a conversation is started, users can send unlimited messages within it
 // ALL PLANS NOW HAVE UNLIMITED MESSAGING
 const PLAN_LIMITS: Record<string, PlanLimits> = {
-  'free': { messages_per_month: 0, unlimited_messages: true }, // UNLIMITED - Free messaging for all
+  'free': { messages_per_month: 0, unlimited_messages: true },
   'PREMIUM CLIENT': { messages_per_month: 0, unlimited_messages: true },
   'PREMIUM ++ CLIENT': { messages_per_month: 0, unlimited_messages: true },
   'UNLIMITED CLIENT': { messages_per_month: 0, unlimited_messages: true },
@@ -51,61 +49,49 @@ export function useMessagingQuota() {
     enabled: !!user?.id,
   });
   
-  // Token balance - actual tokens from database
   const tokenBalance = tokenData?.amount || 0;
   const tokenType = tokenData?.token_type || null;
   
-  // Check if user has any free messaging matches
-  const { data: freeMessagingMatches = [], isLoading: loadingMatches } = useQuery({
+  // Check free messaging matches - query conversations directly
+  const { data: freeMessagingCount = 0, isLoading: loadingMatches } = useQuery({
     queryKey: ['free-messaging-matches', user?.id],
     queryFn: async () => {
-      if (!user?.id) return [];
+      if (!user?.id) return 0;
       
-      // Check if user has any matches (for free messaging eligibility)
-      const { data, error } = await supabase
-        .from('matches')
-        .select('*')
-        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+      const { count, error } = await supabase
+        .from('conversations')
+        .select('*', { count: 'exact', head: true })
+        .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
+        .eq('free_messaging', true);
       
       if (error) {
-        logger.error('[useMessagingQuota] Error fetching matches:', error);
-        return [];
+        logger.error('[useMessagingQuota] Error fetching free messaging:', error);
+        return 0;
       }
       
-      return data || [];
+      return count || 0;
     },
     enabled: !!user?.id,
   });
   
-  // Get the current plan name
   const planName = subscription?.subscription_packages?.name || 'free';
   const limits = PLAN_LIMITS[planName] || PLAN_LIMITS['free'];
   
-  // Query to get CONVERSATIONS STARTED this month (not individual messages)
+  // Count CONVERSATIONS STARTED this month directly from conversations table
   const { data: conversationsStarted = 0 } = useQuery({
     queryKey: ['conversations-started-count', user?.id],
     queryFn: async () => {
-      if (!user) return 0;
+      if (!user?.id) return 0;
       
       const startOfMonth = new Date();
       startOfMonth.setDate(1);
       startOfMonth.setHours(0, 0, 0, 0);
       
-      // Count conversations where the user sent the FIRST message this month
-      // Conversations don't have client_id/owner_id - they link through matches
-      // First get user's match IDs, then find conversations for those matches
-      const { data: userMatches } = await supabase
-        .from('matches')
-        .select('id')
-        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
-      
-      const matchIds = userMatches?.map(m => m.id) || [];
-      if (matchIds.length === 0) return 0;
-
+      // Get conversations where this user is a participant, created this month
       const { data: conversations, error } = await supabase
         .from('conversations')
-        .select('id, created_at')
-        .in('match_id', matchIds)
+        .select('id, client_id, owner_id')
+        .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
         .gte('created_at', startOfMonth.toISOString());
       
       if (error) {
@@ -115,10 +101,9 @@ export function useMessagingQuota() {
       
       if (!conversations || conversations.length === 0) return 0;
 
-      // Batch query: Get first messages of all conversations in one query
-      // using a subquery approach with DISTINCT ON
+      // Get first messages to determine who started each conversation
       const conversationIds = conversations.map(c => c.id);
-
+      
       const { data: firstMessages, error: msgError } = await supabase
         .from('conversation_messages')
         .select('conversation_id, sender_id, created_at')
@@ -131,7 +116,7 @@ export function useMessagingQuota() {
         return 0;
       }
 
-      // Group by conversation_id and get the first message for each
+      // Group by conversation_id and get the first message sender
       const firstMessageByConversation = new Map<string, string>();
       for (const msg of firstMessages || []) {
         if (!firstMessageByConversation.has(msg.conversation_id)) {
@@ -149,7 +134,7 @@ export function useMessagingQuota() {
 
       return count;
     },
-    enabled: !!user,
+    enabled: !!user?.id,
   });
   
   const isUnlimited = limits.unlimited_messages;
@@ -158,7 +143,6 @@ export function useMessagingQuota() {
   const canStartNewConversation = isUnlimited || remainingConversations > 0;
   
   const decrementConversationCount = () => {
-    // Invalidate the query to refetch the count
     queryClient.invalidateQueries({ queryKey: ['conversations-started-count', user?.id] });
   };
   
@@ -171,14 +155,13 @@ export function useMessagingQuota() {
     conversationsStartedThisMonth: conversationsStarted,
     totalAllowed,
     canStartNewConversation,
-    canSendMessage: true, // Always true - messages are unlimited within existing conversations
+    canSendMessage: true,
     isUnlimited,
     currentPlan: planName,
-    hasFreeMessagingMatches: freeMessagingMatches.length > 0,
-    freeMessagingMatchCount: freeMessagingMatches.length,
+    hasFreeMessagingMatches: freeMessagingCount > 0,
+    freeMessagingMatchCount: freeMessagingCount,
     decrementConversationCount,
     refreshQuota,
-    // Token balance from tokens table
     tokenBalance,
     tokenType,
   };
