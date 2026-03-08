@@ -420,7 +420,7 @@ export function MessagingDashboard() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               placeholder="Search conversations..."
-              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-muted border border-border"
+              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] focus:border-primary/40"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -448,7 +448,7 @@ export function MessagingDashboard() {
                     transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
                   >
                     <button
-                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-white/[0.04] active:scale-[0.98] text-left group"
                       onClick={() => setSelectedConversationId(conversation.id)}
                     >
                       {/* Avatar with gradient ring */}

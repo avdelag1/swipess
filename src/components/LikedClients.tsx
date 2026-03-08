@@ -265,7 +265,12 @@ export function LikedClients() {
             placeholder="Search liked clients..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full h-16 bg-secondary border border-border rounded-3xl pl-14 pr-6 text-foreground placeholder-muted-foreground font-bold focus:border-[#E4007C] transition-all outline-none shadow-inner"
+            className={cn(
+              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[#E4007C] transition-all outline-none",
+              isLight
+                ? "bg-white border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground backdrop-blur-sm"
+            )}
           />
         </div>
 
@@ -320,15 +325,18 @@ export function LikedClients() {
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
+        <AlertDialogContent className={cn(
+          "rounded-[2rem]",
+          isLight ? "bg-white border-border/50" : "bg-[#1a1a1a] border-white/[0.08]"
+        )}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white font-black text-xl">Remove Match?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 font-bold">
+            <AlertDialogTitle className="text-foreground font-black text-xl">Remove Match?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">
               Are you sure you want to remove {clientToDelete?.full_name} from your talents?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-white/[0.06] border-white/[0.08] text-white")}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"

@@ -164,30 +164,40 @@ const ClientProfileNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/liked-properties'); }}
-            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-border transition-all shadow-lg overflow-hidden relative group bg-card/50 backdrop-blur-md"
+            className={cn(
+              "rounded-3xl p-5 flex flex-col gap-3 text-left transition-all shadow-lg overflow-hidden relative group",
+              isLight
+                ? "bg-white border border-border/40 hover:border-border"
+                : "bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.06]"
+            )}
           >
             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
               <Flame className="w-6 h-6 text-[#E4007C]" />
             </div>
             <div className="relative z-10">
-              <div className={cn("text-sm font-black tracking-tight mt-1", isLight ? "text-gray-900" : "text-white")}>Your Likes</div>
-              <div className={cn("text-[10px] font-bold uppercase tracking-widest mt-0.5", isLight ? "text-gray-500" : "text-zinc-500")}>Properties</div>
+              <div className="text-sm font-black tracking-tight mt-1 text-foreground">Your Likes</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mt-0.5 text-muted-foreground">Properties</div>
             </div>
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/who-liked-you'); }}
-            className="rounded-3xl p-5 flex flex-col gap-3 text-left border border-border transition-all shadow-lg overflow-hidden relative group bg-card/50 backdrop-blur-md"
+            className={cn(
+              "rounded-3xl p-5 flex flex-col gap-3 text-left transition-all shadow-lg overflow-hidden relative group",
+              isLight
+                ? "bg-white border border-border/40 hover:border-border"
+                : "bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.06]"
+            )}
           >
             <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
               <Heart className="w-6 h-6 text-[#E4007C]" />
             </div>
             <div className="relative z-10">
-              <div className={cn("text-sm font-black tracking-tight mt-1", isLight ? "text-gray-900" : "text-white")}>Who Liked You</div>
-              <div className={cn("text-[10px] font-bold uppercase tracking-widest mt-0.5", isLight ? "text-gray-500" : "text-zinc-500")}>Interested</div>
+              <div className="text-sm font-black tracking-tight mt-1 text-foreground">Who Liked You</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mt-0.5 text-muted-foreground">Interested</div>
             </div>
           </motion.button>
         </motion.div>

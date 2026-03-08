@@ -158,12 +158,14 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
             <motion.button
               key={id}
               onClick={() => handleCategoryChange(id)}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.96 }}
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
                   ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
-                  : "bg-secondary border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : isLight
+                    ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                    : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -232,15 +234,18 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 rounded-[2rem]">
+        <AlertDialogContent className={cn(
+          "rounded-[2rem]",
+          isLight ? "bg-white border-border/50" : "bg-[#1a1a1a] border-white/[0.08]"
+        )}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white font-black text-xl">Remove from World?</AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400 font-bold">
+            <AlertDialogTitle className="text-foreground font-black text-xl">Remove from World?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">
               Are you sure you want to remove "{propertyToDelete?.title}" from your favorites?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-900 border-white/5 text-white rounded-xl">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-white/[0.06] border-white/[0.08] text-white")}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
