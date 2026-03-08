@@ -650,6 +650,14 @@ const ClientSwipeContainerComponent = ({
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;
 
+    // Content moderation check
+    const { validateContent: vc } = await import('@/utils/contactInfoValidation');
+    const result = vc(message);
+    if (!result.isClean) {
+      sonnerToast.error('Content blocked', { description: result.message || undefined });
+      return;
+    }
+
     setIsCreatingConversation(true);
 
     try {

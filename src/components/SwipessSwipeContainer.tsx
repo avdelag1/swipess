@@ -1005,6 +1005,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const handleSendMessage = async (message: string) => {
     if (isCreatingConversation || !selectedListing?.owner_id) return;
 
+    // Content moderation check
+    const { validateContent: vc } = await import('@/utils/contactInfoValidation');
+    const result = vc(message);
+    if (!result.isClean) {
+      toast.error('Content blocked', { description: result.message });
+      return;
+    }
+
     setIsCreatingConversation(true);
     startNavigation();
 

@@ -343,6 +343,15 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       intentions: intentions,
     };
 
+    // Content moderation on name
+    if (name) {
+      const nameCheck = validateContent(name);
+      if (!nameCheck.isClean) {
+        toast.error('Content blocked', { description: nameCheck.message || undefined });
+        return;
+      }
+    }
+
     try {
       await saveMutation.mutateAsync(payload);
       toast.success('Profile saved', { description: 'Your comprehensive profile has been updated.' });

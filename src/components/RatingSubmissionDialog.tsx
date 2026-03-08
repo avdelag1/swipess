@@ -95,6 +95,16 @@ export function RatingSubmissionDialog({
       return;
     }
 
+    // Content moderation on review text
+    const textsToCheck = [reviewTitle, reviewText].filter(Boolean);
+    for (const text of textsToCheck) {
+      const check = validateContent(text);
+      if (!check.isClean) {
+        toast.error('Content blocked', { description: check.message || undefined });
+        return;
+      }
+    }
+
     const input: CreateRatingInput = {
       [targetType === 'listing' ? 'listing_id' : 'reviewed_id']: targetId,
       rating: overallRating,
