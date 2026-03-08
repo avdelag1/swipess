@@ -1,46 +1,54 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Layout & Responsiveness Fixes — Client + Owner Dashboards
 
-### 1. Replace App Icon with Fire S Logo
+## Problems Identified
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+1. **Card info overlay hidden behind action buttons**: `SimpleSwipeCard` positions content at `bottom-44` (176px) and `SimpleOwnerSwipeCard` at `bottom-44` too, but action buttons sit at `bottom-28` (112px). On shorter screens (< 700px height), the info text is obscured by the like/dislike buttons.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+2. **No height-aware spacing**: All positioning uses fixed Tailwind classes regardless of device viewport height. A 5.4" iPhone SE (667px) vs a 6.7" iPhone Pro Max (932px) get identical layout — causing cramped or overlapping elements on smaller devices.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+3. **Bottom navigation cramped**: Client has 6 nav items, Owner has 7. On narrow screens (< 375px), items compress and labels become illegible.
 
-### 2. Profile Photo Already Shows in Top-Left
+4. **SwipessSwipeContainer uses `minHeight: 100dvh`** without subtracting header/footer, so the card area extends behind both bars.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+5. **No responsive font scaling**: Card info text sizes are fixed (`text-2xl`, `text-base`) regardless of screen width.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+## Solution: Dynamic viewport-aware positioning
 
-### 3. Fix Header Too Close to Top Edge
+### File 1: `src/components/SimpleSwipeCard.tsx`
+- Change the content overlay from `bottom-44` to a **CSS calc value** that responds to viewport height: `bottom: max(176px, calc(28vh))` — ensures info stays above the action button zone
+- Add a subtle bottom gradient on the card image (stronger, taller) so text remains readable regardless of position
+- Use responsive text sizes: `text-xl sm:text-2xl` for price, `text-sm sm:text-base` for metadata
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+### File 2: `src/components/SimpleOwnerSwipeCard.tsx`
+- Same `bottom` positioning fix as SimpleSwipeCard — use calc-based value instead of `bottom-44`
+- Same responsive text scaling
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### File 3: `src/components/SwipessSwipeContainer.tsx`
+- Change card area from `minHeight: 100dvh` to `height: 100%` since DashboardLayout already handles safe-area padding
+- Change action button position from `bottom-28` to a dynamic value: `bottom: max(112px, calc(16vh))` — scales with screen height
+- This creates proportional spacing: on tall phones, buttons float higher; on short phones, they stay reachable but don't overlap card info
 
-### 4. Fix MarketingSlide Build Error
+### File 4: `src/components/ClientSwipeContainer.tsx`
+- Same action button position fix as SwipessSwipeContainer — dynamic `bottom` value
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### File 5: `src/components/BottomNavigation.tsx`
+- Reduce items on narrow screens: hide the label text below 360px width (icon-only mode)
+- Use `min-w-0 flex-1` for nav items instead of fixed widths so they distribute evenly
+- Reduce icon size from 22px to 20px on `xs` breakpoints
+- Add `overflow-hidden` to prevent items from overflowing the bar
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+### File 6: `src/components/SwipeActionButtonBar.tsx`
+- Scale button sizes based on viewport: use CSS `clamp()` for LARGE (56-64px) and SMALL (40-48px) dimensions
+- Scale gap from 8-10px using `clamp()`
+- This ensures buttons don't overflow on narrow screens (< 360px)
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### File 7: `src/components/DashboardLayout.tsx`
+- Already uses `ResponsiveContext` for topBarHeight/bottomNavHeight — no changes needed, layout logic is correct
+
+## Key Principle
+Replace all fixed `bottom-XX` Tailwind classes with inline `style={{ bottom: 'clamp(Xpx, Yvh, Zpx)' }}` values. This makes the layout fluid across all device heights (SE → Pro Max → tablets → desktop) without breakpoint jumps.
+
+## No DB Changes Required
 
