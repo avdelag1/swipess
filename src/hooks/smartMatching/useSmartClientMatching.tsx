@@ -33,6 +33,28 @@ export function useSmartClientMatching(
             try {
                 logger.info('[SmartMatching] Fetching client profiles for owner:', userId);
 
+                // Fetch owner's saved preferences as fallback for filters
+                let dbGenderFilter: string | undefined;
+                try {
+                    const { data: ownerPrefs } = await (supabase as any)
+                        .from('owner_client_preferences')
+                        .select('selected_genders, min_budget, max_budget')
+                        .eq('user_id', userId)
+                        .maybeSingle();
+
+                    if (ownerPrefs) {
+                        // Use DB gender as fallback if no UI filter is active
+                        if (
+                            (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
+                            ownerPrefs.selected_genders?.length
+                        ) {
+                            dbGenderFilter = ownerPrefs.selected_genders[0];
+                        }
+                    }
+                } catch {
+                    // Non-critical: continue without DB prefs
+                }
+
                 // Fetch liked clients
                 const { data: ownerLikedClients, error: ownerLikesError } = await supabase
                     .from('likes')
