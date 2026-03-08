@@ -256,6 +256,7 @@ export type Database = {
       }
       content_shares: {
         Row: {
+          click_count: number
           created_at: string
           id: string
           recipient_email: string | null
@@ -267,6 +268,7 @@ export type Database = {
           sharer_id: string
         }
         Insert: {
+          click_count?: number
           created_at?: string
           id?: string
           recipient_email?: string | null
@@ -278,6 +280,7 @@ export type Database = {
           sharer_id: string
         }
         Update: {
+          click_count?: number
           created_at?: string
           id?: string
           recipient_email?: string | null
@@ -1884,6 +1887,22 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      has_user_already_reported: {
+        Args: {
+          p_reported_listing_id?: string
+          p_reported_user_id?: string
+          p_reporter_id: string
+        }
+        Returns: boolean
+      }
+      increment_review_helpful: {
+        Args: { p_review_id: string }
+        Returns: undefined
+      }
+      increment_share_clicks: {
+        Args: { p_share_id: string }
+        Returns: undefined
       }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
