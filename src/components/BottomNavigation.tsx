@@ -245,7 +245,7 @@ export function BottomNavigation({
                 style={{
                   minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
-                  padding: isNarrow ? '6px 2px' : '8px 6px',
+                  padding: isNarrow ? '4px 2px' : '6px 4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
