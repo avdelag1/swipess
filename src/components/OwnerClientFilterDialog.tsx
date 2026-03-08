@@ -229,24 +229,19 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
 
     await saveFilter({
       name: filterName,
-      category: 'client',
-      mode: 'discovery',
-      filters: {
+      user_role: 'owner',
+      filter_data: {
+        ...localFilters,
+        category: 'client',
+        mode: 'discovery',
         selected_genders: selectedGenders,
         min_budget: minBudget,
         max_budget: maxBudget,
         min_age: minAge,
         max_age: maxAge,
-        ...localFilters,
+        listing_types: selectedListingTypes,
+        client_types: selectedClientTypes,
       },
-      listing_types: selectedListingTypes,
-      client_types: selectedClientTypes,
-      min_budget: minBudget,
-      max_budget: maxBudget,
-      min_age: minAge,
-      max_age: maxAge,
-      lifestyle_tags: localFilters.compatible_lifestyle_tags,
-      preferred_occupations: localFilters.preferred_occupations,
     });
 
     await updatePreferences({
