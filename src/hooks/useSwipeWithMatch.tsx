@@ -268,13 +268,14 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
             const listingTitle = listingResult.data.title || 'your listing';
 
             // Create in-app notification for the owner
-            supabase.from('notifications').insert([{
-              user_id: listingResult.data.owner_id,
-              notification_type: 'new_like',
-              title: '🔥 New Flame!',
-              message: `${clientName} liked ${listingTitle}!`,
-              is_read: false
-            }]).then(
+            supabase.rpc('create_notification_for_user', {
+              p_user_id: listingResult.data.owner_id,
+              p_notification_type: 'new_like',
+              p_title: '🔥 New Flame!',
+              p_message: `${clientName} liked ${listingTitle}!`,
+              p_related_user_id: user.id,
+              p_metadata: { liker_id: user.id, listing_id: targetId }
+            }).then(
               () => logger.info('[useSwipeWithMatch] Notification sent to owner:', listingResult.data?.owner_id),
               (err) => logger.error('[useSwipeWithMatch] Failed to notify owner:', err)
             );

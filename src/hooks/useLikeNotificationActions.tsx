@@ -106,15 +106,14 @@ export function useLikeNotificationActions() {
         .eq('id', notificationId);
 
       // Send reciprocal notification
-      await supabase.from('notifications').insert([{
-        user_id: likerId,
-        notification_type: 'new_match',
-        title: '💕 It\'s a Match!',
-        message: 'Someone accepted your like. Start chatting now!',
-        related_user_id: user.id,
-        related_match_id: existingMatch?.id,
-        metadata: { conversationId }
-      }] as any);
+      await supabase.rpc('create_notification_for_user', {
+        p_user_id: likerId,
+        p_notification_type: 'new_match',
+        p_title: '💕 It\'s a Match!',
+        p_message: 'Someone accepted your like. Start chatting now!',
+        p_related_user_id: user.id,
+        p_metadata: { conversationId, matchId: existingMatch?.id }
+      });
 
       return { conversationId, matchId: existingMatch?.id };
     },
