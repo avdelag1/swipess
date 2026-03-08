@@ -1,47 +1,46 @@
 
 
-# Audit Results: Filter System Health Check
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Current State
+### 1. Replace App Icon with Fire S Logo
 
-After a thorough audit of the entire filter pipeline — from UI pages to Zustand store to DB persistence hooks to smart matching queries — the system is **functionally complete and working**. The previous rounds of fixes resolved the critical issues (missing DB table, phantom fields, hydration overwrites, `(supabase as any)` casts on table access).
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Remaining Issues Found
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### 1. `ClientFilters` type missing `clientGender`, `clientType`, `categories` (TYPE GAP — causes `as any` casts)
-The `ClientFilters` interface in `src/hooks/smartMatching/types.ts` doesn't include `clientGender`, `clientType`, or `categories` fields. The `useSmartClientMatching` hook receives these via the merged `ListingFilters` object from the store, but since the parameter is typed as `ClientFilters`, the code uses `(filters as any).clientGender` everywhere. This doesn't break at runtime but defeats TypeScript's purpose.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-**Fix:** Add `clientGender`, `clientType`, and `categories` to the `ClientFilters` interface. Then remove all `(filters as any)` casts in `useSmartClientMatching.tsx` (~12 occurrences).
+### 2. Profile Photo Already Shows in Top-Left
 
-### 2. Upsert still uses `as any` cast in `useOwnerClientPreferences.ts` (line 70)
-The upsert call wraps the payload in `as any`. Since the table now exists in auto-generated types, this can be removed — but only after confirming the spread of `Partial<OwnerClientPreferences>` (which has `[key: string]: any`) doesn't introduce unknown fields. The `[key: string]: any` index signature on the interface is the root cause.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**Fix:** Remove `[key: string]: any` from `OwnerClientPreferences` and remove the `as any` cast on the upsert. Strip any non-DB fields before upserting using a whitelist of known columns.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### 3. `OwnerFilters.tsx` passes `undefined` for cleared age/budget to DB (SILENT DATA ISSUE)
-When the user resets age/budget to defaults and clicks Apply, the code sends `min_age: undefined` and `max_age: undefined` to the upsert. Supabase's upsert treats `undefined` values as "don't update this column," meaning old values persist in DB even after reset.
+### 3. Fix Header Too Close to Top Edge
 
-**Fix:** Send `null` instead of `undefined` for cleared filter values so the DB column actually gets cleared.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-## Changes
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-### File 1: `src/hooks/smartMatching/types.ts`
-- Add `clientGender?`, `clientType?`, and `categories?` to `ClientFilters` interface
+### 4. Fix MarketingSlide Build Error
 
-### File 2: `src/hooks/smartMatching/useSmartClientMatching.tsx`
-- Remove all `(filters as any)` casts now that the type includes the needed fields (~12 locations)
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-### File 3: `src/hooks/useOwnerClientPreferences.ts`
-- Remove `[key: string]: any` index signature
-- Add a column whitelist function that strips non-DB fields before upsert
-- Remove `as any` cast on upsert payload
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### File 4: `src/pages/OwnerFilters.tsx`
-- Change `undefined` to `null` for cleared age/budget values in `handleApply` so DB columns get properly cleared on reset
-
-## Impact
-- Zero runtime behavior change for working flows
-- TypeScript will now catch typos in filter field names at compile time
-- Filter reset actually clears DB values instead of leaving stale data
-- Cleaner, more maintainable codebase with no hidden `any` escape hatches
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

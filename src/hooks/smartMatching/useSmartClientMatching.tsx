@@ -49,7 +49,7 @@ export function useSmartClientMatching(
                         const genders = ownerPrefs.selected_genders as string[] | null;
                         const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
                         if (
-                            (!filters || !(filters as any).clientGender || (filters as any).clientGender === 'any') &&
+                            (!filters || !filters.clientGender || filters.clientGender === 'any') &&
                             genders?.length
                         ) {
                             dbGenderFilter = genders[0];
@@ -199,8 +199,8 @@ export function useSmartClientMatching(
                     });
 
                 // Apply client filters if provided (merge with DB fallbacks)
-                const effectiveGender = (filters as any)?.clientGender && (filters as any).clientGender !== 'any'
-                    ? (filters as any).clientGender
+                const effectiveGender = filters?.clientGender && filters.clientGender !== 'any'
+                    ? filters.clientGender
                     : dbGenderFilter;
 
                 if (filters || effectiveGender) {
@@ -226,8 +226,8 @@ export function useSmartClientMatching(
                         }
 
                         // clientType filtering based on intentions
-                        if (filters && (filters as any).clientType && (filters as any).clientType !== 'all') {
-                            const clientType = (filters as any).clientType;
+                        if (filters && filters.clientType && filters.clientType !== 'all') {
+                            const clientType = filters.clientType;
                             const clientIntentions = profile.intentions || [];
 
                             if (clientType === 'rent' && !clientIntentions.includes('rent_property')) return false;
@@ -236,8 +236,8 @@ export function useSmartClientMatching(
                         }
 
                         // Category filtering based on intentions
-                        if (filters && (filters as any).categories && (filters as any).categories.length > 0) {
-                            const categories = (filters as any).categories;
+                        if (filters && filters.categories && filters.categories.length > 0) {
+                            const categories = filters.categories;
                             const clientIntentions = profile.intentions || [];
                             let hasMatchingCategory = false;
 

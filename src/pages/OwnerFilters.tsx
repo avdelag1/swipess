@@ -169,10 +169,10 @@ export default function OwnerFilters() {
     // Persist to DB (background, non-blocking)
     updatePreferences({
       selected_genders: selectedGender === 'any' ? [] : [selectedGender],
-      min_age: isAgeChanged ? ageRange[0] : undefined,
-      max_age: isAgeChanged ? ageRange[1] : undefined,
-      min_budget: isBudgetChanged ? budgetRange[0] : undefined,
-      max_budget: isBudgetChanged ? budgetRange[1] : undefined,
+      min_age: isAgeChanged ? ageRange[0] : null,
+      max_age: isAgeChanged ? ageRange[1] : null,
+      min_budget: isBudgetChanged ? budgetRange[0] : null,
+      max_budget: isBudgetChanged ? budgetRange[1] : null,
       preferred_nationalities: selectedNationalities,
     });
 

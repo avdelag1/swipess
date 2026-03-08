@@ -62,6 +62,10 @@ export interface ClientFilters {
     motoTypes?: string[];
     bicycleTypes?: string[];
     propertyTypes?: string[]; // For property-seeking clients
+    // Owner-side client filters (merged from ListingFilters)
+    clientGender?: string;
+    clientType?: string;
+    categories?: string[];
 }
 
 export interface ListingFilters {

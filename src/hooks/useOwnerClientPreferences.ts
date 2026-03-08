@@ -19,8 +19,17 @@ export interface OwnerClientPreferences {
   preferred_nationalities?: string[] | null;
   created_at?: string;
   updated_at?: string;
-  // Allow extra UI-only fields used by components (not persisted)
-  [key: string]: any;
+}
+
+/** Strip non-DB fields before upserting */
+const DB_COLUMNS = ['user_id', 'selected_genders', 'min_age', 'max_age', 'min_budget', 'max_budget', 'preferred_nationalities'] as const;
+
+function stripToDbFields(prefs: Partial<OwnerClientPreferences> & Record<string, any>): Partial<OwnerClientPreferences> {
+  const result: Record<string, any> = {};
+  for (const key of DB_COLUMNS) {
+    if (key in prefs) result[key] = prefs[key];
+  }
+  return result as Partial<OwnerClientPreferences>;
 }
 
 export function useOwnerClientPreferences() {
@@ -66,8 +75,8 @@ export function useOwnerClientPreferences() {
         .from('owner_client_preferences')
         .upsert({
           user_id: user.id,
-          ...prefs,
-        } as any)
+          ...stripToDbFields(prefs),
+        })
         .select()
         .maybeSingle();
 
