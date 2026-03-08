@@ -288,7 +288,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Transmission</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.moto_transmission.map((trans) => (
+                            {preferences.moto_transmission.map((trans: string) => (
                               <Badge key={`moto-trans-${trans}`} variant="outline">{trans}</Badge>
                             ))}
                           </div>
