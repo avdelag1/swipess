@@ -30,10 +30,10 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
           <div
             className={cn(
               "pointer-events-auto w-full max-w-sm rounded-2xl overflow-hidden",
-              // Glass card base
+              // Glass card base — theme-aware
               isDark
-                ? "bg-[#0e0e11]/80 border border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.7)]"
-                : "bg-white/90 border border-black/8 shadow-[0_12px_40px_rgba(0,0,0,0.14)]",
+                ? "bg-card/80 border border-border/20 shadow-[0_16px_48px_rgba(0,0,0,0.7)]"
+                : "bg-card/90 border border-border/30 shadow-[0_12px_40px_rgba(0,0,0,0.14)]",
               "backdrop-blur-2xl"
             )}
           >
