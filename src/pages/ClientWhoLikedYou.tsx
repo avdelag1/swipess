@@ -152,7 +152,7 @@ const ClientWhoLikedYou = () => {
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-zinc-900/50 animate-pulse" />)}
+            {[1, 2, 3].map(i => <div key={i} className="h-96 rounded-[2.5rem] bg-muted/50 animate-pulse" />)}
           </div>
         ) : filteredOwners.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -168,10 +168,10 @@ const ClientWhoLikedYou = () => {
             </AnimatePresence>
           </div>
         ) : (
-          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-zinc-900/20 rounded-[3rem] border border-white/5">
+          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">
             <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
-            <h3 className="text-white font-black text-2xl tracking-tighter">Stay Noticed.</h3>
-            <p className="text-zinc-500 text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
+            <h3 className="text-foreground font-black text-2xl tracking-tighter">Stay Noticed.</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">When an owner likes your profile, they will appear here instantly.</p>
           </motion.div>
         )}
       </div>
