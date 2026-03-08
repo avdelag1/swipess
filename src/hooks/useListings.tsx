@@ -68,8 +68,6 @@ export interface Listing {
   battery_range?: number;
 
   // Worker/Service fields
-  service_type?: string;
-  hourly_rate?: number;
   experience_years?: number;
   skills?: string[];
   certifications?: string[];
