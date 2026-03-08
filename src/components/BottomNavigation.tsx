@@ -173,7 +173,7 @@ export function BottomNavigation({
           borderLeft: `1px solid ${barBorder}`,
           borderRight: `1px solid ${barBorder}`,
           borderBottom: 'none',
-          borderRadius: '20px 20px 0 0',
+          borderRadius: '28px',
           boxShadow: barShadow,
           // GPU acceleration
           transform: 'translateZ(0)',
