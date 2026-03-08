@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import { startTransition, useState, useCallback } from 'react';
+import React, { startTransition, useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useSpring, useMotionValue } from 'framer-motion';
 import {
@@ -29,7 +29,9 @@ import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 
 const ICON_SIZE = 22;
+const ICON_SIZE_COMPACT = 20;
 const TOUCH_TARGET = 48;
+const TOUCH_TARGET_COMPACT = 44;
 
 interface BottomNavigationProps {
   userRole: 'client' | 'owner' | 'admin';
@@ -77,6 +79,15 @@ export function BottomNavigation({
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
+
+  // Detect narrow screens for icon-only compact mode
+  const [isNarrow, setIsNarrow] = useState(false);
+  useEffect(() => {
+    const check = () => setIsNarrow(window.innerWidth < 360);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const { isVisible } = useScrollDirection({
     threshold: 15,
@@ -224,7 +235,7 @@ export function BottomNavigation({
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
+                  'relative flex flex-col items-center justify-center rounded-xl gap-0.5 min-w-0 flex-1',
                   'touch-manipulation focus-visible:outline-none',
                   'focus-visible:ring-2 focus-visible:ring-offset-1',
                   isLight
@@ -232,9 +243,9 @@ export function BottomNavigation({
                     : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
-                  minWidth: TOUCH_TARGET,
-                  minHeight: TOUCH_TARGET,
-                  padding: '8px 6px',
+                  minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  padding: isNarrow ? '6px 2px' : '8px 6px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
@@ -305,8 +316,8 @@ export function BottomNavigation({
                   <Icon
                     className="transition-all duration-250 ease-out"
                     style={{
-                      width: ICON_SIZE,
-                      height: ICON_SIZE,
+                      width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
+                      height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                       color: active ? 'transparent' : iconColorInactive,
                       stroke: active ? 'url(#nav-active-gradient)' : 'currentColor',
                       fill: active ? 'url(#nav-active-gradient)' : 'none',
@@ -318,20 +329,22 @@ export function BottomNavigation({
                   />
                 </div>
 
-                {/* Label */}
-                <span
-                  className={cn(
-                    'text-[10px] tracking-wide transition-all duration-250 relative',
-                    active ? 'font-black' : 'font-bold',
-                  )}
-                  style={{
-                    color: active ? activeColor : iconColorInactive,
-                    opacity: active ? 1 : (isLight ? 0.75 : 0.65),
-                    zIndex: 1,
-                  }}
-                >
-                  {item.label}
-                </span>
+                {/* Label — hidden on very narrow screens (<360px) for icon-only mode */}
+                {!isNarrow && (
+                  <span
+                    className={cn(
+                      'text-[10px] tracking-wide transition-all duration-250 relative',
+                      active ? 'font-black' : 'font-bold',
+                    )}
+                    style={{
+                      color: active ? activeColor : iconColorInactive,
+                      opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+                      zIndex: 1,
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                )}
               </motion.button>
             );
           })}

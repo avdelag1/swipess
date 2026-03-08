@@ -1412,7 +1412,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   return (
     <div
       className="relative w-full flex flex-col"
-      style={{ minHeight: '100dvh' }}
+      style={{ height: '100%', minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
       {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
@@ -1472,7 +1472,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute bottom-28 left-0 right-0 flex justify-center z-30">
+          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}

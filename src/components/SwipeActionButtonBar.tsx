@@ -63,11 +63,14 @@ const ENTRY_SPRING = {
 } as const;
 
 // ── BUTTON DIMENSIONS ─────────────────────────────────────────────────────────
-const LARGE = 64;   // primary actions — generous touch target
-const SMALL = 48;   // secondary actions
+// Responsive sizing via CSS clamp — scales between narrow (360px) and wide (430px+) devices
+const LARGE_CSS = 'clamp(52px, 15vw, 64px)';
+const SMALL_CSS = 'clamp(40px, 11vw, 48px)';
+const LARGE = 64;   // fallback for JS calculations
+const SMALL = 48;
 const LARGE_ICON = 30;
 const SMALL_ICON = 22;
-const GAP = 10;
+const GAP_CSS = 'clamp(6px, 2.5vw, 10px)';
 const TAP_SCALE = 0.87;
 
 // ── VARIANT CONFIGS ───────────────────────────────────────────────────────────
@@ -174,6 +177,7 @@ const ActionButton = memo(({
   const isLight = theme === 'white-matte';
 
   const cfg = VARIANTS[variant];
+  const btnSizeCss = size === 'large' ? LARGE_CSS : SMALL_CSS;
   const btnSize = size === 'large' ? LARGE : SMALL;
   const iconSize = size === 'large' ? LARGE_ICON : SMALL_ICON;
   const isPrimary = size === 'large';
@@ -227,8 +231,8 @@ const ActionButton = memo(({
       transition={{ ...ENTRY_SPRING, delay: index * 0.05 }}
       whileTap={{ scale: TAP_SCALE }}
       style={{
-        width: btnSize,
-        height: btnSize,
+        width: btnSizeCss,
+        height: btnSizeCss,
         // LAYER 1: Liquid glass base
         backgroundColor: bg,
         backdropFilter: 'blur(28px) saturate(180%)',
@@ -373,7 +377,7 @@ function SwipeActionButtonBarComponent({
       {/* Buttons row */}
       <div
         className="relative flex items-center justify-center"
-        style={{ gap: GAP, zIndex: 1 }}
+        style={{ gap: GAP_CSS, zIndex: 1 }}
       >
         {/* 1. Undo (small) — amber */}
         <ActionButton

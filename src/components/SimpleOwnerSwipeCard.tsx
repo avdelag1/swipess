@@ -657,8 +657,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </motion.div>
 
-        {/* Content overlay - INSIDE motion.div so it moves with the card on swipe */}
-        <div className="absolute bottom-44 left-0 right-0 p-4 z-20 pointer-events-none">
+        {/* Content overlay - INSIDE motion.div so it moves with the card on swipe
+             Dynamic bottom positioning: scales with viewport height */}
+        <div
+          className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
+          style={{ bottom: 'clamp(140px, 24vh, 200px)' }}
+        >
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
             <div
