@@ -195,7 +195,17 @@ export function useSmartClientMatching(
                             neighborhood: profile.neighborhood || cpData?.neighborhood || null,
                             interests: profile.interests?.length > 0 ? profile.interests : cpData?.interests || [],
                             languages_spoken: profile.languages_spoken?.length > 0 ? profile.languages_spoken : cpData?.languages || [],
-                            intentions: cpData?.intentions || [], // FIX: Include intentions!
+                            intentions: cpData?.intentions || [],
+                            // Enriched fields from client_profiles for matching
+                            relationship_status: cpData?.relationship_status || null,
+                            has_children: cpData?.has_children || false,
+                            smoking_habit: cpData?.smoking_habit || null,
+                            drinking_habit: cpData?.drinking_habit || null,
+                            cleanliness_level: cpData?.cleanliness_level || null,
+                            noise_tolerance: cpData?.noise_tolerance || null,
+                            dietary_preferences: cpData?.dietary_preferences || [],
+                            personality_traits: cpData?.personality_traits || [],
+                            interest_categories: cpData?.interest_categories || [],
                         };
                     });
 
