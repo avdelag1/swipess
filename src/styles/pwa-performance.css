@@ -49,65 +49,6 @@ html.pwa-mode .swipe-action-btn {
     cursor: pointer;
 }
 
-/* Swipe action buttons - CRITICAL: separate from swipe gesture */
-html.pwa-mode .swipe-action-btn {
-    /* Isolate button from parent touch events */
-    touch-action: manipulation;
-    /* Remove all transitions for instant response */
-    transition: none !important;
-    /* Prevent gesture competition */
-    pointer-events: auto;
-    /* Force own compositing layer */
-    transform: translateZ(0);
-    will-change: transform, opacity;
-    isolation: isolate;
-}
-
-/* PWA: Instant visual feedback on touch start (not touch end) */
-html.pwa-mode .swipe-action-btn:active,
-html.pwa-mode .pwa-instant-tap:active {
-    transform: scale(0.92) translateZ(0) !important;
-    opacity: 0.9;
-}
-
-/* PWA Performance Mode: Disable hover states that cause lag */
-html.pwa-mode .swipe-action-btn:hover {
-    transform: none;
-    box-shadow: none;
-}
-
-/* Gesture zones - separate swipe area from tap areas */
-.pwa-tap-zone {
-    touch-action: manipulation;
-    pointer-events: auto;
-    isolation: isolate;
-    z-index: 100;
-}
-
-.pwa-swipe-zone {
-    touch-action: pan-x;
-    pointer-events: auto;
-}
-
-/* iOS PWA: Even more aggressive touch optimization */
-html.pwa-ios button,
-html.pwa-ios .swipe-action-btn {
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    /* iOS needs explicit tap area */
-    min-height: 44px;
-    min-width: 44px;
-}
-
-/* Disable gesture delay on insights/like buttons specifically */
-html.pwa-mode .swipe-btn-insights,
-html.pwa-mode .swipe-btn-heart,
-html.pwa-mode .swipe-btn-dislike,
-html.pwa-mode .swipe-btn-share {
-    touch-action: manipulation;
-    /* Prevent parent swipe from capturing these touches */
-    pointer-events: auto !important;
-}
 
 /* PWA: Simplify animations during interaction */
 html.pwa-mode .animate-in,
