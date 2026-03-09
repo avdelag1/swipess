@@ -310,19 +310,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     }
   }, [profile?.user_id, x, y]);
 
-  // Parallax store for ambient background effect
-  const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
-  const endParallaxDrag = useParallaxStore((s) => s.endDrag);
-
-  // Subscribe motion value to parallax store for ambient background effect
-  useEffect(() => {
-    const unsubscribe = x.on('change', (latestX) => {
-      if (isDragging.current && isTop) {
-        updateParallaxDrag(latestX, 0, x.getVelocity());
-      }
-    });
-    return unsubscribe;
-  }, [x, isTop, updateParallaxDrag]);
 
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
