@@ -301,6 +301,28 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [location.pathname]);
 
+  // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
+  const clientSwipePaths = [
+    '/client/dashboard',
+    '/client/profile',
+    '/client/liked-properties',
+    '/messages',
+    '/client/filters',
+  ];
+  const ownerSwipePaths = [
+    '/owner/dashboard',
+    '/owner/profile',
+    '/owner/liked-clients',
+    '/owner/properties',
+    '/messages',
+    '/owner/filters',
+  ];
+  useSwipeNavigation({
+    paths: userRole === 'client' ? clientSwipePaths : ownerSwipePaths,
+    containerSelector: '#dashboard-scroll-container',
+    enabled: true,
+  });
+
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
   // (survives localStorage clears from external preview URLs)
