@@ -72,7 +72,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-white">{filter.name}</h4>
+                    <h4 className="font-medium text-foreground">{filter.name}</h4>
                     {isActive && (
                       <Badge className="bg-primary/20 text-primary border-primary/30">
                         <Star className="w-3 h-3 mr-1 fill-primary" />
