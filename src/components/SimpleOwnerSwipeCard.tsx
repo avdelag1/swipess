@@ -652,9 +652,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
               }}
