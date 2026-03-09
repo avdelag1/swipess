@@ -65,8 +65,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         )}
         style={{
           backgroundColor: glassBg,
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
           border: glassBorder,
           boxShadow: floatingShadow,
         }}
