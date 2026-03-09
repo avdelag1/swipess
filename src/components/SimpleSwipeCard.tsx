@@ -89,11 +89,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Rotation is proportional to X position, giving natural "pivot" feel
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
 
-  // Card opacity decreases as it moves away from center
+  // Card opacity stays at 1 during drag for max smoothness (no compositing flicker)
+  // Only fade slightly at extreme positions to hint at exit
   const cardOpacity = useTransform(
     x,
-    [-300, -100, 0, 100, 300],
-    [0.6, 0.9, 1, 0.9, 0.6]
+    [-300, -150, 0, 150, 300],
+    [0.85, 1, 1, 1, 0.85]
   );
 
   // Like/Pass overlay opacity based on X position
