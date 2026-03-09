@@ -57,7 +57,7 @@ const OwnerProfileNew = () => {
         initial="hidden"
         animate="visible"
         variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pb-32 space-y-6"
+        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
 
 

@@ -298,8 +298,8 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isDark ? "text-amber-300" : "text-amber-600")} />
-                  <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
+                  <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
+                  <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase hidden sm:inline">
                     Tokens
                   </span>
                 </Button>

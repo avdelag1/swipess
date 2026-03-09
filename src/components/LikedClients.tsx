@@ -217,7 +217,7 @@ export function LikedClients() {
         <PageHeader
           title="Liked Clients"
           subtitle="Profiles you've matched with"
-          showBack={true}
+          showBack={false}
           actions={
             <div className="flex items-center gap-3">
               <TooltipProvider>
