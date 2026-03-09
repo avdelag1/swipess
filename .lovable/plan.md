@@ -1,39 +1,46 @@
 
 
-# Performance & Stability Audit — All Clear + Minor Cleanup
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Current Status: **App is healthy. No breaking issues found.**
+### 1. Replace App Icon with Fire S Logo
 
-### What I verified
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-1. **All 7 new pages** (NeighborhoodMap, PriceTracker, VideoTours, LocalIntel, RoommateMatching, DocumentVault, EscrowDashboard) are **lazy-loaded** — they add zero bytes to the initial bundle.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-2. **No console errors, no failed network requests.**
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-3. **Query caching is aggressive and correct**: 5min staleTime, 15min gcTime, `offlineFirst` mode, single retry. This prevents redundant refetches.
+### 2. Profile Photo Already Shows in Top-Left
 
-4. **PersistentDashboardLayout** mounts once, never remounts during navigation — the core architecture preventing jank is intact.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-5. **All new DB tables** (`escrow_deposits`, `roommate_matches`, `roommate_preferences`, `neighborhood_data`, `price_history`, `local_intel_posts`) are properly typed in `types.ts` and have correct RLS policies.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### Minor cleanup needed (won't break anything, but improves type safety)
+### 3. Fix Header Too Close to Top Edge
 
-Three pages use `as any` casts on Supabase table names that are already in the generated types. This is unnecessary dead weight:
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-- **`EscrowDashboard.tsx`** — `.from('escrow_deposits' as any)` → `.from('escrow_deposits')`
-- **`RoommateMatching.tsx`** — `.from('roommate_matches' as any)` → `.from('roommate_matches')`
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-These tables exist in `types.ts`, so the casts are redundant. Removing them gives proper TypeScript autocompletion and catches future bugs.
+### 4. Fix MarketingSlide Build Error
 
-### Performance observations (no action needed, just noting)
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-- **VideoTours**: Loads max 20 listings, uses `loading="lazy"` for images beyond index 1. Clean.
-- **RoommateMatching**: Fetches 50 candidates max + 1 query for already-swiped. Lightweight.
-- **PriceTracker**: Recharts renders once, data is small (12 months × 4 neighborhoods). No concern.
-- **NeighborhoodMap**: Grid of ~6 zone cards with framer-motion stagger. Trivial render cost.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### Plan
-
-1. Remove unnecessary `as any` casts from `EscrowDashboard.tsx` and `RoommateMatching.tsx` (3 occurrences total)
-2. That's it — everything else is solid
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

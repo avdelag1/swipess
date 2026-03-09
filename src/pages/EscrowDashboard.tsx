@@ -42,7 +42,7 @@ export default function EscrowDashboard() {
   const fetchDeposits = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('escrow_deposits' as any)
+      .from('escrow_deposits')
       .select('*')
       .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
@@ -52,7 +52,7 @@ export default function EscrowDashboard() {
 
   const handleStatusUpdate = async (depositId: string, newStatus: string) => {
     const { error } = await supabase
-      .from('escrow_deposits' as any)
+      .from('escrow_deposits')
       .update({
         status: newStatus,
         ...(newStatus === 'held' ? { held_at: new Date().toISOString() } : {}),

@@ -73,7 +73,7 @@ export default function RoommateMatching() {
 
     // Already swiped
     const { data: swiped } = await supabase
-      .from('roommate_matches' as any)
+      .from('roommate_matches')
       .select('target_user_id')
       .eq('user_id', user.id);
     const swipedIds = new Set((swiped || []).map((s: any) => s.target_user_id));
@@ -98,7 +98,7 @@ export default function RoommateMatching() {
     const target = candidates[currentIndex];
     setSwipeDirection(direction);
 
-    await supabase.from('roommate_matches' as any).insert({
+    await supabase.from('roommate_matches').insert({
       user_id: user.id,
       target_user_id: target.user_id,
       direction,
@@ -108,7 +108,7 @@ export default function RoommateMatching() {
     // Check for mutual match
     if (direction === 'right') {
       const { data: mutual } = await supabase
-        .from('roommate_matches' as any)
+        .from('roommate_matches')
         .select('id')
         .eq('user_id', target.user_id)
         .eq('target_user_id', user.id)
