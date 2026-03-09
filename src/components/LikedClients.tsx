@@ -53,8 +53,6 @@ export function LikedClients() {
   const [clientToDelete, setClientToDelete] = useState<any>(null);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
-  const [selectedClientForAction, setSelectedClientForAction] = useState<any>(null);
-  const [showBlockDialog, setShowBlockDialog] = useState(false);
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
