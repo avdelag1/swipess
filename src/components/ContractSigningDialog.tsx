@@ -96,7 +96,7 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
           <div className="flex items-center justify-center p-8">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading contract...</p>
+              <p className="text-muted-foreground">Loading contract...</p>
             </div>
           </div>
         </DialogContent>
@@ -118,12 +118,12 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
         <ScrollArea className="flex-1 overflow-y-auto px-6 py-4">
         <div className="space-y-6">
           {/* Contract Details */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-muted rounded-lg p-4">
             <div className="flex items-center gap-3 mb-3">
               <FileText className="w-6 h-6 text-blue-600" />
               <div>
-                <h3 className="font-semibold">{contract.title}</h3>
-                <p className="text-sm text-gray-600">
+                <h3 className="font-semibold text-foreground">{contract.title}</h3>
+                <p className="text-sm text-muted-foreground">
                   {(contract.template_type || 'contract').replace('_', ' ').toUpperCase()}
                 </p>
               </div>
@@ -138,8 +138,8 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
 
             {contract.content && (
               <div className="mt-4">
-                <h4 className="font-medium mb-2">Additional Terms:</h4>
-                <p className="text-sm text-gray-700 bg-white p-3 rounded border">
+                <h4 className="font-medium mb-2 text-foreground">Additional Terms:</h4>
+                <p className="text-sm text-muted-foreground bg-card p-3 rounded border border-border">
                   {contract.content}
                 </p>
               </div>
@@ -149,8 +149,8 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
           {/* Signature Section */}
           {!showSignaturePad ? (
             <div className="text-center py-8">
-              <h3 className="text-lg font-semibold mb-4">Ready to Sign?</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-lg font-semibold mb-4 text-foreground">Ready to Sign?</h3>
+              <p className="text-muted-foreground mb-6">
                 Please review the contract carefully before proceeding with your digital signature.
               </p>
               <Button 
@@ -162,16 +162,16 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
             </div>
           ) : (
             <div>
-              <h3 className="text-lg font-semibold mb-4">Your Digital Signature</h3>
+              <h3 className="text-lg font-semibold mb-4 text-foreground">Your Digital Signature</h3>
               <DigitalSignaturePad
                 onSignatureCapture={handleSignatureCapture}
                 onClear={() => setSignatureData(null)}
               />
               
               {signatureData && (
-                <div className="mt-6 p-4 bg-green-50 rounded-lg">
-                  <p className="text-green-800 font-medium mb-2">Signature Captured!</p>
-                  <p className="text-sm text-green-700">
+                <div className="mt-6 p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <p className="text-emerald-600 dark:text-emerald-400 font-medium mb-2">Signature Captured!</p>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
                     Your {signatureType} signature has been captured successfully.
                   </p>
                 </div>

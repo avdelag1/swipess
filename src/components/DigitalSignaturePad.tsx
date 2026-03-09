@@ -154,16 +154,16 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
           </TabsList>
 
           <TabsContent value="draw" className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+            <div className="border-2 border-dashed border-border rounded-lg p-4">
               <canvas
                 ref={canvasRef}
-                className="border border-gray-200 rounded cursor-crosshair mx-auto block"
+                className="border border-border rounded cursor-crosshair mx-auto block bg-white"
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseLeave={stopDrawing}
               />
-              <p className="text-sm text-gray-500 text-center mt-2">
+              <p className="text-sm text-muted-foreground text-center mt-2">
                 Draw your signature above
               </p>
             </div>
@@ -213,10 +213,10 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
               </div>
 
               {typedSignature && (
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <p className="text-sm text-gray-600 mb-2">Preview:</p>
+                <div className="border rounded-lg p-4 bg-muted">
+                  <p className="text-sm text-muted-foreground mb-2">Preview:</p>
                   <div 
-                    className={`text-2xl ${selectedFont} text-center`}
+                    className={`text-2xl ${selectedFont} text-center text-foreground`}
                     style={{ 
                       fontFamily: selectedFont.includes('serif') ? 'serif' : 
                                  selectedFont.includes('sans') ? 'sans-serif' : 'cursive'
@@ -237,12 +237,12 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-4">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8">
+            <div className="border-2 border-dashed border-border rounded-lg p-8">
               <div className="text-center">
-                <Upload className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                 <Label htmlFor="signature-upload" className="cursor-pointer">
-                  <span className="text-lg font-medium">Upload Signature Image</span>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <span className="text-lg font-medium text-foreground">Upload Signature Image</span>
+                  <p className="text-sm text-muted-foreground mt-1">
                     PNG, JPG up to 10MB
                   </p>
                 </Label>
@@ -257,8 +257,8 @@ export const DigitalSignaturePad: React.FC<DigitalSignaturePadProps> = ({
             </div>
 
             {uploadedSignature && (
-              <div className="border rounded-lg p-4 bg-gray-50">
-                <p className="text-sm text-gray-600 mb-2">Uploaded Signature:</p>
+              <div className="border rounded-lg p-4 bg-muted">
+                <p className="text-sm text-muted-foreground mb-2">Uploaded Signature:</p>
                 <img 
                   src={uploadedSignature} 
                   alt="Uploaded signature" 

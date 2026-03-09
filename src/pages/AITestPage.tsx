@@ -96,8 +96,8 @@ const AITestPage = () => {
   if (!user) {
     return (
       <div className="w-full min-h-full flex flex-col items-center justify-center px-4 py-12 max-w-2xl mx-auto text-center">
-        <div className="w-14 h-14 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center mb-4">
-          <Lock className="w-6 h-6 text-zinc-400" />
+        <div className="w-14 h-14 rounded-full bg-secondary border border-border flex items-center justify-center mb-4">
+          <Lock className="w-6 h-6 text-muted-foreground" />
         </div>
         <h2 className="text-lg font-black text-foreground mb-2">Sign in required</h2>
         <p className="text-sm text-muted-foreground max-w-xs">
@@ -143,7 +143,7 @@ const AITestPage = () => {
           {messages.length > 0 && (
             <button
               onClick={clearChat}
-              className="text-[11px] text-zinc-500 hover:text-zinc-300 transition-colors px-2 py-1 rounded-lg hover:bg-white/5"
+              className="text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-muted"
             >
               Clear
             </button>
@@ -154,7 +154,7 @@ const AITestPage = () => {
       {/* Messages */}
       <div className="flex-1 space-y-3 mb-4 min-h-[200px]">
         {messages.length === 0 && (
-          <div className="text-center py-12 text-zinc-600">
+          <div className="text-center py-12 text-muted-foreground">
             <Bot className="w-10 h-10 mx-auto mb-3 opacity-30" />
             <p className="text-sm font-medium">Ask anything</p>
             <p className="text-xs mt-1">The AI will respond using MiniMax (fallback: Gemini)</p>
@@ -182,18 +182,18 @@ const AITestPage = () => {
                     ? "bg-primary text-white rounded-br-sm"
                     : msg.error
                     ? "bg-red-950/60 border border-red-500/30 text-red-300 rounded-bl-sm"
-                    : "bg-zinc-800/60 border border-white/5 text-foreground/90 rounded-bl-sm"
+                    : "bg-secondary border border-border text-foreground/90 rounded-bl-sm"
                 }`}
               >
                 <p className="whitespace-pre-wrap">{msg.content}</p>
                 {msg.provider && !msg.error && (
-                  <p className="text-[10px] text-zinc-500 mt-1.5">via {msg.provider}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1.5">via {msg.provider}</p>
                 )}
               </div>
 
               {msg.role === "user" && (
-                <div className="w-7 h-7 rounded-full bg-zinc-700 border border-white/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <User className="w-3.5 h-3.5 text-zinc-300" />
+                <div className="w-7 h-7 rounded-full bg-secondary border border-border flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <User className="w-3.5 h-3.5 text-muted-foreground" />
                 </div>
               )}
             </motion.div>
@@ -209,12 +209,12 @@ const AITestPage = () => {
             <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
               <Bot className="w-3.5 h-3.5 text-primary" />
             </div>
-            <div className="bg-zinc-800/60 border border-white/5 rounded-2xl rounded-bl-sm px-4 py-3">
+            <div className="bg-secondary border border-border rounded-2xl rounded-bl-sm px-4 py-3">
               <div className="flex gap-1 items-center h-4">
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-zinc-400"
+                    className="w-1.5 h-1.5 rounded-full bg-muted-foreground"
                     animate={{ opacity: [0.3, 1, 0.3] }}
                     transition={{ duration: 1.2, delay: i * 0.2, repeat: Infinity }}
                   />
@@ -228,7 +228,7 @@ const AITestPage = () => {
       </div>
 
       {/* Input */}
-      <div className="rounded-2xl bg-zinc-900/60 border border-white/8 backdrop-blur-xl overflow-hidden">
+      <div className="rounded-2xl bg-card border border-border backdrop-blur-xl overflow-hidden">
         <textarea
           ref={inputRef}
           value={input}
@@ -236,11 +236,11 @@ const AITestPage = () => {
           onKeyDown={handleKeyDown}
           placeholder="Type any question… (Enter to send, Shift+Enter for newline)"
           rows={2}
-          className="w-full bg-transparent px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-zinc-600 resize-none outline-none font-medium"
+          className="w-full bg-transparent px-4 pt-3 pb-2 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none font-medium"
           disabled={loading}
         />
         <div className="px-3 pb-3 flex justify-between items-center">
-          <span className="text-[10px] text-zinc-600">
+          <span className="text-[10px] text-muted-foreground">
             {messages.filter((m) => m.role === "assistant" && !m.error).length} successful replies
           </span>
           <motion.button
