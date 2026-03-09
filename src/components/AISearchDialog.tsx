@@ -168,7 +168,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               <h2 className={cn("font-black text-base tracking-tight leading-none mb-0.5", isDark ? "text-white" : "text-gray-900")}>AI Assistant</h2>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Personal Concierge</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400")}>Personal Concierge</p>
               </div>
             </div>
           </div>
