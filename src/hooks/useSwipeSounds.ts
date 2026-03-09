@@ -5,13 +5,16 @@ import {
   createAudio,
   playSound,
   playRandomZen,
+  playFunnyDislike,
+  playFunnyLike,
   getSoundForTheme
 } from '@/utils/sounds';
+import { setNotificationSoundTheme } from '@/utils/notificationSounds';
 
 /**
  * Custom hook for managing swipe sound effects
  * Loads user's sound theme preference and provides playback function
- * @returns Object with playSwipeSound function
+ * @returns Object with playSwipeSound function and currentTheme
  */
 export function useSwipeSounds() {
   const [theme, setTheme] = useState<SwipeTheme>('none');
@@ -42,6 +45,9 @@ export function useSwipeSounds() {
 
         const userTheme = (data?.swipe_sound_theme as SwipeTheme) || 'none';
         setTheme(userTheme);
+
+        // Keep notification sounds in sync with the user's chosen swipe theme
+        setNotificationSoundTheme(userTheme);
       } catch (error) {
         console.warn('Error loading swipe sound theme:', error);
       }
@@ -68,8 +74,8 @@ export function useSwipeSounds() {
       rightAudioRef.current = null;
     }
 
-    // Don't preload for 'none' or 'randomZen' themes
-    if (theme === 'none' || theme === 'randomZen') {
+    // 'none', 'randomZen', and 'funny' don't use preloaded static files
+    if (theme === 'none' || theme === 'randomZen' || theme === 'funny') {
       return;
     }
 
@@ -96,7 +102,17 @@ export function useSwipeSounds() {
         return;
       }
 
-      // Play the appropriate sound based on direction
+      // Funny theme: dislike always plays a random fart, like plays a random funny sound
+      if (theme === 'funny') {
+        if (direction === 'left') {
+          playFunnyDislike(0.6);
+        } else {
+          playFunnyLike(0.6);
+        }
+        return;
+      }
+
+      // All other themes use preloaded audio elements
       if (direction === 'left') {
         playSound(leftAudioRef.current);
       } else {
