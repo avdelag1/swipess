@@ -211,6 +211,9 @@ const App = () => {
                               {/* Update notification banner */}
                               <UpdateNotification />
 
+                              {/* Guided tour for first-time users */}
+                              <GuidedTourLazy />
+
                               <AppLayout>
                                 <TooltipProvider>
                                   <Sonner />
