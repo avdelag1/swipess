@@ -356,23 +356,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onSwipe(direction);
     };
 
-    // Spring-based exit for button taps (consistent physics)
+    // Tween exit for button taps — fast, clean, no spring oscillation
     animate(x, exitX, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
       onComplete: fireSwipe,
     });
 
-    // Slight upward arc for button swipes
+    // Slight upward arc
     animate(y, -50, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
     });
 
-    // SAFETY NET: If animation callback doesn't fire within 350ms, force it
-    setTimeout(fireSwipe, 350);
+    // SAFETY NET: tighter timeout matching tween duration
+    setTimeout(fireSwipe, 300);
   }, [listing.id, onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
