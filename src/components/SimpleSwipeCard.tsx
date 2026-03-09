@@ -271,24 +271,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
 
-      // Spring-based exit animation - feels more natural than tween
+      // Tween-based exit — faster and lighter than spring for PWA
+      // Spring exit causes extra frames of oscillation; tween exits cleanly
       animate(x, exitX, {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityX,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           isExitingRef.current = false;
           onSwipe(direction);
         },
       });
 
-      // Animate Y in parallel
+      // Animate Y in parallel — tween for consistency
       animate(y, Math.min(Math.max(exitY, -300), 300), {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityY,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
       });
     } else {
       // Spring snap-back to center - BOTH X and Y
