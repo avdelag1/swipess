@@ -229,7 +229,7 @@ export function LikedClients() {
                       className={cn(
                         "flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95",
                         filterSafeOnly
-                          ? "bg-emerald-600 border-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
+                          ? "bg-primary border-primary text-primary-foreground shadow-md"
                           : "bg-secondary border-border text-muted-foreground"
                       )}
                     >
