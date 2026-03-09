@@ -1,46 +1,39 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Performance & Stability Audit — All Clear + Minor Cleanup
 
-### 1. Replace App Icon with Fire S Logo
+## Current Status: **App is healthy. No breaking issues found.**
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+### What I verified
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+1. **All 7 new pages** (NeighborhoodMap, PriceTracker, VideoTours, LocalIntel, RoommateMatching, DocumentVault, EscrowDashboard) are **lazy-loaded** — they add zero bytes to the initial bundle.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+2. **No console errors, no failed network requests.**
 
-### 2. Profile Photo Already Shows in Top-Left
+3. **Query caching is aggressive and correct**: 5min staleTime, 15min gcTime, `offlineFirst` mode, single retry. This prevents redundant refetches.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+4. **PersistentDashboardLayout** mounts once, never remounts during navigation — the core architecture preventing jank is intact.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+5. **All new DB tables** (`escrow_deposits`, `roommate_matches`, `roommate_preferences`, `neighborhood_data`, `price_history`, `local_intel_posts`) are properly typed in `types.ts` and have correct RLS policies.
 
-### 3. Fix Header Too Close to Top Edge
+### Minor cleanup needed (won't break anything, but improves type safety)
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+Three pages use `as any` casts on Supabase table names that are already in the generated types. This is unnecessary dead weight:
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+- **`EscrowDashboard.tsx`** — `.from('escrow_deposits' as any)` → `.from('escrow_deposits')`
+- **`RoommateMatching.tsx`** — `.from('roommate_matches' as any)` → `.from('roommate_matches')`
 
-### 4. Fix MarketingSlide Build Error
+These tables exist in `types.ts`, so the casts are redundant. Removing them gives proper TypeScript autocompletion and catches future bugs.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### Performance observations (no action needed, just noting)
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+- **VideoTours**: Loads max 20 listings, uses `loading="lazy"` for images beyond index 1. Clean.
+- **RoommateMatching**: Fetches 50 candidates max + 1 query for already-swiped. Lightweight.
+- **PriceTracker**: Recharts renders once, data is small (12 months × 4 neighborhoods). No concern.
+- **NeighborhoodMap**: Grid of ~6 zone cards with framer-motion stagger. Trivial render cost.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### Plan
+
+1. Remove unnecessary `as any` casts from `EscrowDashboard.tsx` and `RoommateMatching.tsx` (3 occurrences total)
+2. That's it — everything else is solid
 
