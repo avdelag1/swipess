@@ -165,9 +165,8 @@ interface AmbientCardProps {
 const AmbientCard: React.FC<AmbientCardProps> = React.memo(({ card, isPaused }) => {
   const laneConfig = LANE_CONFIGS[card.laneIndex];
 
-  // Stagger cards within each lane (0%, 25%, 50%, 75% delay)
-  // Using negative animation-delay creates the effect of cards already in motion
-  const delayPercent = card.cardIndex * 25;
+  // Stagger cards within each lane (0%, 33%, 67% delay)
+  const delayPercent = card.cardIndex * 33;
   const delaySeconds = -(laneConfig.duration * delayPercent) / 100;
 
   return (
