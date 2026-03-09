@@ -18,7 +18,7 @@ import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 
 
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
