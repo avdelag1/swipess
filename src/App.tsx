@@ -128,6 +128,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
 const queryClient = new QueryClient({
