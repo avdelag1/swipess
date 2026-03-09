@@ -134,11 +134,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
-    { icon: Home, label: 'Properties', text: 'Show me apartments to rent' },
-    { icon: Flame, label: 'Matches', text: 'Where are my matches?' },
-    { icon: Zap, label: 'Tokens', text: 'How do tokens work?' },
-    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?' },
-  ], []);
+    { icon: Home, label: 'Properties', text: 'Show me apartments to rent', color: 'text-blue-400', bg: isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-200' },
+    { icon: Flame, label: 'Matches', text: 'Where are my matches?', color: 'text-pink-400', bg: isDark ? 'bg-pink-500/10 border-pink-500/20' : 'bg-pink-50 border-pink-200' },
+    { icon: Zap, label: 'Tokens', text: 'How do tokens work?', color: 'text-amber-400', bg: isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200' },
+    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?', color: 'text-emerald-400', bg: isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200' },
+  ], [isDark]);
 
   const applyQuickPrompt = (text: string) => {
     setQuery(text);
