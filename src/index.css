@@ -2205,31 +2205,6 @@ html[data-navigation-direction="back"] {
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 }
 
-/* Swipe card container - enhanced depth */
-.swipe-card-premium {
-  border-radius: 1.5rem;
-  overflow: hidden;
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.12),
-    0 16px 32px rgba(0, 0, 0, 0.08),
-    0 -2px 4px rgba(255, 255, 255, 0.02) inset;
-  /* Force GPU compositing for smooth transforms */
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* Subtle glow around active swipe card */
-.swipe-card-glow {
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.12),
-    0 16px 32px rgba(0, 0, 0, 0.08),
-    0 0 40px rgba(255, 165, 0, 0.08),
-    0 0 80px rgba(255, 100, 0, 0.04);
-}
 
 /* Card enter animation */
 @keyframes card-enter {
