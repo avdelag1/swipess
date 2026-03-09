@@ -305,7 +305,7 @@ export function LikedClients() {
 
         {/* Count + drag hint */}
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_10px_#E4007C]" />
+          <div className="w-2 h-2 rounded-full bg-primary shadow-md" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredClients.length} Potential Professionals
           </span>
