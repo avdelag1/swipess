@@ -116,10 +116,11 @@ export function PushNotificationPrompt() {
         <div className="px-6 pb-6 pt-2 space-y-3">
           <Button
             onClick={handleEnableNotifications}
+            disabled={isLoading}
             className="w-full h-12 font-semibold bg-primary hover:bg-primary/90"
           >
             <Bell className="w-4 h-4 mr-2" />
-            Enable Notifications
+            {isLoading ? "Enabling..." : "Enable Notifications"}
           </Button>
 
           <Button
