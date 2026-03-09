@@ -285,7 +285,7 @@ export default function OwnerFilters() {
                           initial={{ scale: 0, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           exit={{ scale: 0, opacity: 0 }}
-                          className="absolute top-3 right-3 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-lg"
+                          className="absolute top-3 right-3 w-6 h-6 rounded-full bg-background flex items-center justify-center shadow-lg"
                         >
                           <Check className="w-3.5 h-3.5 text-primary" />
                         </motion.div>

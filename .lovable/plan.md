@@ -1,127 +1,46 @@
 
-# Theme Color Audit - White & Dark Mode Issues
 
-## Summary of Findings
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-After auditing the codebase, I found **widespread hardcoded color classes** that don't adapt to theme changes. This causes text and backgrounds to become invisible or have poor contrast when switching between white-matte (light) and dark themes.
+### 1. Replace App Icon with Fire S Logo
 
----
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Critical Issues Found
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### 1. Pages with 100% Hardcoded Dark Colors (Broken in White Mode)
-These pages are completely unusable in white-matte theme:
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-| File | Issue |
-|------|-------|
-| `src/pages/OwnerLawyerServices.tsx` | All `text-white`, `text-gray-400`, `bg-gray-800`, `bg-gray-900` |
-| `src/components/LegalDocumentsDialog.tsx` | `bg-gray-800`, `text-white`, `border-gray-700` everywhere |
-| `src/components/radio/*` | All radio components use hardcoded white text |
+### 2. Profile Photo Already Shows in Top-Left
 
-### 2. Components with Partial Hardcoding (33 files detected)
-Uses `text-gray-*` instead of `text-muted-foreground`:
-- `ClientFilters.tsx` - Conditional but still uses `text-white` 
-- `OwnerFilters.tsx` - Same pattern
-- `SubscriptionPackages.tsx` - `bg-white/[0.03]` won't work in light
-- `PropertyListingForm.tsx` - `bg-white/[0.02]` patterns
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### 3. Commonly Misused Classes
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-| Hardcoded Class | Should Be | Count |
-|----------------|-----------|-------|
-| `text-white` | `text-foreground` | 4135 matches |
-| `text-gray-400` | `text-muted-foreground` | 927 matches |
-| `bg-gray-800` | `bg-card` or `bg-secondary` | 100+ matches |
-| `bg-white/[0.03]` | `bg-muted/50` | 50+ matches |
+### 3. Fix Header Too Close to Top Edge
 
----
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-## Theme Variable Reference
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-The theme system already defines semantic tokens:
-```css
-/* Dark themes */
---foreground: 0 0% 100%;      /* White text */
---muted-foreground: 0 0% 72%; /* Gray text */
+### 4. Fix MarketingSlide Build Error
 
-/* White-matte */  
---foreground: 0 0% 1%;        /* Black text */
---muted-foreground: 0 0% 45%; /* Gray text */
-```
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
----
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-## Implementation Plan
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
-### Phase 1: Critical Fixes (High Impact)
-1. **OwnerLawyerServices.tsx** - Replace all hardcoded colors
-2. **LegalDocumentsDialog.tsx** - Convert to semantic tokens
-3. **Radio components** - Add theme awareness
-
-### Phase 2: Systematic Replacements
-For each file, replace:
-```tsx
-// FROM:
-className="text-white bg-gray-800 border-gray-700"
-
-// TO:
-className="text-foreground bg-card border-border"
-```
-
-```tsx
-// FROM:
-className="text-gray-400"
-
-// TO:
-className="text-muted-foreground"
-```
-
-### Phase 3: Pattern Updates
-Replace opacity-based whites with semantic tokens:
-```tsx
-// FROM:
-className="bg-white/[0.03]"
-
-// TO:  
-className="bg-muted/50" // or "bg-secondary/50"
-```
-
----
-
-## Files to Fix (Priority Order)
-
-### Tier 1 - Completely Broken
-1. `src/pages/OwnerLawyerServices.tsx`
-2. `src/components/LegalDocumentsDialog.tsx`
-3. `src/components/radio/retro/StationDrawer.tsx`
-4. `src/components/radio/retro/BlueCassette.tsx`
-
-### Tier 2 - Partially Broken  
-5. `src/components/SubscriptionPackages.tsx`
-6. `src/components/PropertyListingForm.tsx`
-7. `src/pages/ClientFilters.tsx`
-8. `src/pages/OwnerFilters.tsx`
-
-### Tier 3 - Minor Issues
-9. `src/components/LikedClients.tsx` (already has `isLight` check, needs review)
-10. `src/components/NotificationsDialog.tsx` (has theme checks, verify completeness)
-
----
-
-## Semantic Token Mapping
-
-| Use Case | Token Class |
-|----------|-------------|
-| Primary text | `text-foreground` |
-| Secondary text | `text-muted-foreground` |
-| Card backgrounds | `bg-card` |
-| Elevated surfaces | `bg-secondary` |
-| Borders | `border-border` |
-| Input backgrounds | `bg-input` |
-
----
-
-## Estimated Changes
-- **~20 files** need updates
-- **~500 class replacements** total
-- **No logic changes** - purely class name swaps

@@ -229,7 +229,7 @@ export function LikedClients() {
                         "flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95",
                         filterSafeOnly
                           ? "bg-emerald-600 border-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
-                          : "bg-zinc-800 border-zinc-700 text-zinc-300"
+                          : "bg-secondary border-border text-muted-foreground"
                       )}
                     >
                       {filterSafeOnly ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
@@ -268,8 +268,8 @@ export function LikedClients() {
             className={cn(
               "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[#E4007C] transition-all outline-none",
               isLight
-                ? "bg-white border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground backdrop-blur-sm"
+                ? "bg-background border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
+                : "bg-muted/30 border border-border text-foreground placeholder-muted-foreground backdrop-blur-sm"
             )}
           />
         </div>
@@ -327,7 +327,7 @@ export function LikedClients() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className={cn(
           "rounded-[2rem]",
-          isLight ? "bg-white border-border/50" : "bg-[#1a1a1a] border-white/[0.08]"
+          isLight ? "bg-background border-border/50" : "bg-card border-border"
         )}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground font-black text-xl">Remove Match?</AlertDialogTitle>
@@ -336,7 +336,7 @@ export function LikedClients() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-white/[0.06] border-white/[0.08] text-white")}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-muted border-border text-foreground")}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
