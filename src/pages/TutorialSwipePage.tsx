@@ -37,7 +37,7 @@ import {
 } from '@/data/tutorialCards';
 import { triggerHaptic } from '@/utils/haptics';
 import { useNavigate } from 'react-router-dom';
-import { AmbientSwipeBackground } from '@/components/AmbientSwipeBackground';
+
 import { GradientOverlay } from '@/components/ui/GradientMasks';
 import CardImage from '@/components/CardImage';
 
