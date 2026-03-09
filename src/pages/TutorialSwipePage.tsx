@@ -364,8 +364,8 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
         <div className="absolute top-8 right-4 z-20">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white"
             style={{
-              backdropFilter: 'blur(16px) saturate(180%)',
-              background: 'rgba(255,255,255,0.12)',
+              backdropFilter: 'none',
+              background: 'rgba(20,20,24,0.85)',
               border: '1px solid rgba(255,255,255,0.22)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
             }}>
