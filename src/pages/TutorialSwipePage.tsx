@@ -835,7 +835,6 @@ export default function TutorialSwipePage() {
             {/* Like / Pass counters — glass pills */}
             <div className="flex items-center gap-2 p-1.5 rounded-2xl"
               style={{
-                background: 'rgba(255,255,255,0.06)',
                 background: 'rgba(20,20,24,0.85)',
               }}>
               <div className="px-3 py-1.5 rounded-xl text-center min-w-[48px]"
