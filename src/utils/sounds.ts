@@ -26,9 +26,15 @@ export const soundMap = {
     right: '/sounds/water-droplet-sfx-417690.mp3'
   },
 
+  /**
+   * Funny theme uses random pools for both directions:
+   * - left (dislike): always a fart — picks randomly from funnyDislikePool
+   * - right (like): picks randomly from funnyLikePool
+   * These are handled in useSwipeSounds via playFunnyDislike / playFunnyLike
+   */
   funny: {
-    left: '/sounds/funny-short-comedy-fart-sound-effect-318912.mp3',
-    right: '/sounds/ding-sfx-472366.mp3'
+    left: null as null | string,   // handled via funnyDislikePool
+    right: null as null | string   // handled via funnyLikePool
   },
 
   calm: {
@@ -48,6 +54,28 @@ export const soundMap = {
 };
 
 /**
+ * Pool of fart/funny dislike sounds for the funny theme (left swipe = dislike).
+ * All entries are fart or funny fail sounds — always a bother when you dislike!
+ */
+export const funnyDislikePool: string[] = [
+  '/sounds/funny-short-comedy-fart-sound-effect-318912.mp3', // classic fart
+  '/sounds/whistle-slide-down-dislike.mp3',                  // slide whistle fail
+  '/sounds/funny-cartoon-drum-dislike.mp3',                  // cartoon drum stab
+  '/sounds/down-swipe-left-dislike.mp3',                     // whoosh dislike
+];
+
+/**
+ * Pool of funny like sounds for the funny theme (right swipe = like).
+ * Upbeat, silly sounds that celebrate the match.
+ */
+export const funnyLikePool: string[] = [
+  '/sounds/ding-sfx-472366.mp3',               // classic ding
+  '/sounds/duck-quack-like.mp3',               // duck quack
+  '/sounds/screenshot-iphone-sound-like.mp3',  // iPhone screenshot click
+  '/sounds/achievement-unlocked-463070.mp3',   // achievement unlocked jingle
+];
+
+/**
  * Theme display names for UI
  */
 export const themeDisplayNames: Record<SwipeTheme, string> = {
@@ -60,6 +88,39 @@ export const themeDisplayNames: Record<SwipeTheme, string> = {
 };
 
 /**
+ * Pick a random item from an array
+ */
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Play a random fart/funny dislike sound (for funny theme left swipes)
+ * @param volume - Volume level (0.0 to 1.0), default 0.6
+ */
+export function playFunnyDislike(volume = 0.6): void {
+  if (!funnyDislikePool.length) return;
+  const audio = new Audio(pickRandom(funnyDislikePool));
+  audio.volume = volume;
+  audio.play().catch((error) => {
+    console.warn('Funny dislike sound playback failed:', error);
+  });
+}
+
+/**
+ * Play a random funny like sound (for funny theme right swipes)
+ * @param volume - Volume level (0.0 to 1.0), default 0.6
+ */
+export function playFunnyLike(volume = 0.6): void {
+  if (!funnyLikePool.length) return;
+  const audio = new Audio(pickRandom(funnyLikePool));
+  audio.volume = volume;
+  audio.play().catch((error) => {
+    console.warn('Funny like sound playback failed:', error);
+  });
+}
+
+/**
  * Play a random zen sound from the pool
  * @param volume - Volume level (0.0 to 1.0), default 0.45
  */
@@ -67,8 +128,7 @@ export function playRandomZen(volume = 0.45): void {
   const arr = soundMap.randomZen.sounds;
   if (!arr || arr.length === 0) return;
 
-  const randomSound = arr[Math.floor(Math.random() * arr.length)];
-  const audio = new Audio(randomSound);
+  const audio = new Audio(pickRandom(arr));
   audio.volume = volume;
   audio.play().catch((error) => {
     console.warn('Random zen sound playback failed:', error);
@@ -125,7 +185,7 @@ export function getSoundForTheme(
   theme: SwipeTheme,
   direction: 'left' | 'right'
 ): string | null {
-  if (!theme || theme === 'none' || theme === 'randomZen') {
+  if (!theme || theme === 'none' || theme === 'randomZen' || theme === 'funny') {
     return null;
   }
 
