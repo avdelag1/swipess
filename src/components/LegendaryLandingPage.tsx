@@ -103,11 +103,14 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <div>
+        <div className="relative">
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[96vw] max-w-[680px] sm:max-w-[820px] md:max-w-[960px] h-auto object-contain drop-shadow-2xl mx-auto"
+            className="w-[96vw] max-w-[680px] sm:max-w-[820px] md:max-w-[960px] h-auto object-contain mx-auto mix-blend-screen opacity-70 transition-opacity duration-700 hover:opacity-100"
+            style={{
+              filter: 'drop-shadow(0 0 30px rgba(255, 60, 0, 0.4)) contrast(1.1) brightness(1.2)',
+            }}
           />
         </div>
       </motion.div>
@@ -325,7 +328,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
-      
+
 
       {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
