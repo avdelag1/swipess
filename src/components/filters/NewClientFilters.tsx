@@ -210,7 +210,7 @@ function SegmentedControl<T extends string>({
   );
 }
 
-// Pill toggle
+// Pill toggle — upgraded with gradient fill
 function PillToggle({
   label,
   icon: Icon,
@@ -224,13 +224,17 @@ function PillToggle({
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
+      whileTap={{ scale: 0.93 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+      onClick={() => {
+        triggerHaptic('light');
+        onClick();
+      }}
       className={cn(
         "py-2 px-3.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 border",
         isActive
-          ? "bg-primary/15 border-primary/40 text-primary"
-          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30"
+          ? "bg-gradient-to-r from-primary/90 to-primary/70 border-primary/50 text-primary-foreground shadow-sm shadow-primary/20"
+          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/20"
       )}
     >
       {Icon && <Icon className="h-3.5 w-3.5" />}
