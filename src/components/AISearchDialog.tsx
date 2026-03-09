@@ -134,11 +134,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
-    { icon: Home, label: 'Properties', text: 'Show me apartments to rent' },
-    { icon: Flame, label: 'Matches', text: 'Where are my matches?' },
-    { icon: Zap, label: 'Tokens', text: 'How do tokens work?' },
-    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?' },
-  ], []);
+    { icon: Home, label: 'Properties', text: 'Show me apartments to rent', color: 'text-blue-400', bg: isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-200' },
+    { icon: Flame, label: 'Matches', text: 'Where are my matches?', color: 'text-pink-400', bg: isDark ? 'bg-pink-500/10 border-pink-500/20' : 'bg-pink-50 border-pink-200' },
+    { icon: Zap, label: 'Tokens', text: 'How do tokens work?', color: 'text-amber-400', bg: isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200' },
+    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?', color: 'text-emerald-400', bg: isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200' },
+  ], [isDark]);
 
   const applyQuickPrompt = (text: string) => {
     setQuery(text);
@@ -168,7 +168,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               <h2 className={cn("font-black text-base tracking-tight leading-none mb-0.5", isDark ? "text-white" : "text-gray-900")}>AI Assistant</h2>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Personal Concierge</p>
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400")}>Personal Concierge</p>
               </div>
             </div>
           </div>
@@ -284,10 +284,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold", isDark ? "bg-white/8 border border-white/15 text-white/75 hover:text-white hover:bg-white/15" : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900 hover:bg-gray-200 shadow-sm")}
+                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold border", prompt.bg)}
                 >
-                  <prompt.icon className="w-3.5 h-3.5 text-orange-500" />
-                  {prompt.label}
+                  <prompt.icon className={cn("w-3.5 h-3.5", prompt.color)} />
+                  <span className={isDark ? "text-white/80" : "text-gray-700"}>{prompt.label}</span>
                 </button>
               ))}
             </div>

@@ -578,37 +578,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
 
-  const pageTitle = useMemo(() => {
-    const path = location.pathname;
-
-    // Dashboard/discovery pages show no title (immersive)
-    if (path === '/client/dashboard') return '';
-    if (path === '/owner/dashboard') return '';
-    if (path.includes('discovery')) return 'Discover';
-
-    // All section pages
-    if (path.includes('/profile')) return 'Profile';
-    if (path.includes('/settings')) return 'Settings';
-    if (path.includes('/security')) return 'Security';
-    if (path.includes('/messages')) return 'Messages';
-    if (path.includes('/notifications')) return 'Notifications';
-    if (path.includes('/who-liked-you')) return 'Who Liked You';
-    if (path.includes('/interested-clients')) return 'Interested';
-    if (path.includes('/liked-clients')) return 'Liked Clients';
-    if (path.includes('/liked')) return 'Liked';
-    if (path.includes('/properties')) return 'Properties';
-    if (path.includes('/listings')) return 'Listings';
-    if (path.includes('/filters')) return 'Filters';
-    if (path.includes('/contracts')) return 'Contracts';
-    if (path.includes('/services')) return 'Services';
-    if (path.includes('/legal-services')) return 'Legal';
-    if (path.includes('/saved-searches')) return 'Saved Searches';
-    if (path.includes('/subscription')) return 'Packages';
-    if (path.includes('/radio')) return 'Radio';
-    if (path.includes('/view-client')) return 'Client Profile';
-
-    return '';
-  }, [location.pathname, activeCategory, clientType]);
+  // Round 8: Page titles removed — bottom nav is sufficient indicator
+  const pageTitle = '';
 
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;
@@ -616,15 +587,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
-      {/* DISABLED: LiveHDBackground was causing performance issues on mobile
-          - Animated orbs and CSS animations were slowing down page transitions
-          - Removed for snappier navigation */}
-      {/* <LiveHDBackground theme="default" showOrbs={true} intensity={0.7} /> */}
-
-      {/* REMOVED: NotificationSystem was causing duplicate realtime subscriptions.
-          Global notification handling is now done exclusively by NotificationWrapper (useNotifications)
-          in App.tsx. This prevents race conditions and UI flickers from multiple handlers
-          firing on the same conversation_messages INSERT event. */}
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}

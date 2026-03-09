@@ -14,7 +14,7 @@ import { useStartConversation } from "@/hooks/useConversations";
 import { logger } from "@/utils/prodLogger";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
-import { PageHeader } from "@/components/PageHeader";
+
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -185,12 +185,8 @@ export function LikedClients() {
   return (
     <div className="w-full bg-background min-h-screen pb-32">
       <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
-        <PageHeader
-          title="Liked Clients"
-          subtitle="Profiles you've matched with"
-          showBack={false}
-          actions={
-            <div className="flex items-center gap-3">
+        <div className="flex items-center justify-end mb-6">
+              <div className="flex items-center gap-3">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -229,8 +225,7 @@ export function LikedClients() {
                 </span>
               </button>
             </div>
-          }
-        />
+        </div>
 
         {/* Category filter tabs */}
         <div className="flex gap-3 mb-6 overflow-x-auto scrollbar-hide pb-2 pt-4">

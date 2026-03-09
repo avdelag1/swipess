@@ -130,7 +130,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
 
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1 flex flex-col min-h-0">
           <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b bg-muted/20">
-            <TabsList className="flex w-full bg-card/80 backdrop-blur-sm border border-border/40 rounded-lg p-1 h-auto gap-1">
+            <TabsList className="flex w-full bg-card/80 border border-border/40 rounded-lg p-1 h-auto gap-1">
               <TabsTrigger
                 value="all"
                 className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all"
@@ -148,16 +148,16 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
               </TabsTrigger>
               <TabsTrigger
                 value="message"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/90 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
               >
-                <MessageSquare className="w-3.5 h-3.5" />
+                <MessageSquare className="w-3.5 h-3.5 text-blue-400 data-[state=active]:text-white" />
                 <span className="hidden sm:inline">Msgs</span>
               </TabsTrigger>
               <TabsTrigger
                 value="like"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500/90 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
               >
-                <Flame className="w-3.5 h-3.5" />
+                <Flame className="w-3.5 h-3.5 text-orange-400 data-[state=active]:text-white" />
                 <span className="hidden sm:inline">Likes</span>
               </TabsTrigger>
             </TabsList>
