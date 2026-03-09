@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { triggerHaptic } from '@/utils/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, SlidersHorizontal, DollarSign, Home, Bike, Wrench, Check,
