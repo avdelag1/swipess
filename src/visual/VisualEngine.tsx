@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/useTheme";
  *
  * Creates depth through layered animated backgrounds:
  * - Base gradient layer
- * - Soft animated glows (non-distracting)
+ * - Subtle noise texture
  * - Adapts to light/dark theme
  *
  * Mounted once in AppLayout for persistent luxury feel
@@ -13,7 +13,6 @@ import { useTheme } from "@/hooks/useTheme";
 export const VisualEngine = () => {
   const { theme } = useTheme();
   const isDark = theme !== "white-matte";
-  const shouldReduceMotion = useReducedMotion();
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -25,8 +24,6 @@ export const VisualEngine = () => {
           }`}
       />
 
-      {/* Glows removed to allow for the 'Organic Frame' and 'Vanishing Shade' aesthetics */}
-
       {/* Subtle noise overlay for texture (premium detail) */}
       <div
         className="absolute inset-0 opacity-[0.015]"
@@ -35,38 +32,5 @@ export const VisualEngine = () => {
         }}
       />
     </div>
-  );
-};
-
-/**
- * Optional: Reactive background that responds to user actions
- * Can shift colors based on swipe direction or user activity
- */
-interface ReactiveBackgroundProps {
-  sentiment?: "positive" | "negative" | "neutral";
-}
-
-export const ReactiveBackground = ({ sentiment = "neutral" }: ReactiveBackgroundProps) => {
-  const { theme } = useTheme();
-  const isDark = theme !== "white-matte";
-
-  // Subtle color shift based on user action (e.g., swipe direction)
-  const getSentimentGlow = () => {
-    if (sentiment === "positive") {
-      return isDark ? "bg-green-500/5" : "bg-green-300/3";
-    }
-    if (sentiment === "negative") {
-      return isDark ? "bg-red-500/5" : "bg-red-300/3";
-    }
-    return "bg-transparent";
-  };
-
-  return (
-    <motion.div
-      className={`fixed inset-0 -z-5 pointer-events-none transition-colors duration-700 ${getSentimentGlow()}`}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    />
   );
 };
