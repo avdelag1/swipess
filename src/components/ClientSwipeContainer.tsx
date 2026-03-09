@@ -983,10 +983,10 @@ const ClientSwipeContainerComponent = ({
             title={topCard.name ? `Check out ${String(topCard.name)} 's profile` : 'Check out this profile'}
             description={`Budget: $${topCard.budget_max?.toLocaleString() || 'N/A'} - Looking for: ${Array.isArray(topCard.preferred_listing_types) ? topCard.preferred_listing_types.join(', ') : 'Various properties'}`}
           />
-        </Suspense >,
+        </Suspense>,
         document.body
       )}
-    </div >
+    </div>
   );
 };
 

@@ -339,7 +339,7 @@ const App = () => {
           </ErrorBoundary>
         </BrowserRouter>
       </QueryClientProvider>
-    </GlobalErrorBoundary >
+    </GlobalErrorBoundary>
   );
 };
 
