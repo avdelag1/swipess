@@ -116,7 +116,7 @@ function InsightsModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'rgba(0,0,0,0.65)' }}
       />
 
       {/* ── Glass Sheet ── */}
