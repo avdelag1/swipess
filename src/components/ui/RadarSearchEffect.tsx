@@ -86,7 +86,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
                 width: size * 1.5,
                 height: size * 1.5,
                 borderRadius: '50%',
-                filter: 'blur(40px)',
+                boxShadow: `0 0 80px 40px ${color}30`,
                 zIndex: -1,
               }}
             />
