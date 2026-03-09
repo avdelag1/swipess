@@ -46,7 +46,7 @@ export default function EscrowDashboard() {
       .select('*')
       .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
-    setDeposits((data as EscrowDeposit[]) || []);
+    setDeposits((data as unknown as EscrowDeposit[]) || []);
     setIsLoading(false);
   };
 

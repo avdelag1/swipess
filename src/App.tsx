@@ -278,6 +278,15 @@ const App = () => {
                                       <Route path="/radio" element={<RetroRadioStation />} />
                                       <Route path="/radio/playlists" element={<RadioPlaylists />} />
                                       <Route path="/radio/favorites" element={<RadioFavorites />} />
+
+                                      {/* New feature routes */}
+                                      <Route path="/explore/zones" element={<NeighborhoodMap />} />
+                                      <Route path="/explore/prices" element={<PriceTracker />} />
+                                      <Route path="/explore/tours" element={<VideoTours />} />
+                                      <Route path="/explore/intel" element={<LocalIntel />} />
+                                      <Route path="/explore/roommates" element={<RoommateMatching />} />
+                                      <Route path="/documents" element={<DocumentVault />} />
+                                      <Route path="/escrow" element={<EscrowDashboard />} />
                                     </Route>
 
                                     {/* Payment routes - outside layout */}
