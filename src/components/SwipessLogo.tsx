@@ -29,7 +29,7 @@ function SwipessLogoComponent({
         src={flameSLogo}
         alt="Swipess"
         className={cn(
-          'w-auto object-contain select-none pointer-events-none transition-all duration-300 rounded-lg',
+          'w-auto object-contain select-none pointer-events-none transition-all duration-300',
           heightMap[size]
         )}
       />
