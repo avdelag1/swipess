@@ -109,6 +109,7 @@ const LocalIntel = lazy(() => import("./pages/LocalIntel"));
 const RoommateMatching = lazy(() => import("./pages/RoommateMatching"));
 const DocumentVault = lazy(() => import("./pages/DocumentVault"));
 const EscrowDashboard = lazy(() => import("./pages/EscrowDashboard"));
+const MaintenanceRequests = lazy(() => import("./pages/MaintenanceRequests"));
 
 // Rare pages - lazy loaded (payment, camera, legal, public previews)
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
