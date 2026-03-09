@@ -219,8 +219,7 @@ function TopBarComponent({
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
-              const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
-              navigate(dashboardPath);
+              navigate('/dashboard');
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
@@ -236,19 +235,13 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-100 ease-out",
-                    "active:scale-[0.95]",
+                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-300 ease-out",
+                    "hover:scale-105 active:scale-95 group",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1"
+                    "flex items-center gap-1",
+                    "liquid-glass-card refraction-edge glass-nano-texture"
                   )}
-                  style={{
-                    backgroundColor: glassBg,
-                    backdropFilter: controlBlur,
-                    WebkitBackdropFilter: controlBlur,
-                    border: glassBorder,
-                    boxShadow: floatingShadow,
-                  }}
                   onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
@@ -262,7 +255,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl liquid-glass-card refraction-edge glass-nano-texture"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -377,19 +370,13 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-100 ease-out",
-                "active:scale-[0.95]",
+                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
+                "hover:scale-105 active:scale-95 group",
                 "group flex-shrink-0",
                 "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent"
+                "-webkit-tap-highlight-color-transparent",
+                "liquid-glass-card refraction-edge glass-nano-texture"
               )}
-              style={{
-                backgroundColor: glassBg,
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
               onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}

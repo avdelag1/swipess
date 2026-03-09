@@ -116,10 +116,17 @@ export function useSmartClientMatching(
                     return [] as MatchedClientProfile[];
                 }
 
-                // Fetch supplementary data from client_profiles
+                // Fetch owner's saved preferences for smart scoring
+                const { data: ownerPrefs } = await supabase
+                    .from('owner_client_preferences')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+
+                // Fetch supplemented client profiles
                 const { data: clientProfileData } = await supabase
                     .from('client_profiles')
-                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions')
+                    .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, smoking_habit, work_schedule, budget_max, monthly_income')
                     .limit(200);
 
                 const clientProfileMap = new Map<string, any>();
@@ -241,21 +248,9 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // Calculate match scores
+                // Calculate match scores using the smart algorithm
                 const matchedClients: MatchedClientProfile[] = filteredProfiles.map(profile => {
-                    const matchReasons: string[] = [];
-                    let baseScore = 50;
-
-                    if (profile.full_name) baseScore += 5;
-                    if (profile.age) baseScore += 5;
-                    if (profile.city) baseScore += 5;
-                    if (profile.interests?.length > 0) baseScore += 10;
-                    if (profile.verified) baseScore += 15;
-                    if (profile.images?.length > 0) baseScore += 10;
-
-                    if (profile.verified) matchReasons.push('Verified profile');
-                    if (profile.interests?.length > 0) matchReasons.push(`${profile.interests.length} interests`);
-                    if (profile.city) matchReasons.push(`Located in ${profile.city}`);
+                    const { percentage, reasons, incompatible } = calculateClientMatch(ownerPrefs || {}, profile);
 
                     return {
                         id: profile.id,
@@ -268,16 +263,16 @@ export function useSmartClientMatching(
                         location: profile.city ? { city: profile.city } : {},
                         lifestyle_tags: profile.lifestyle_tags || [],
                         profile_images: profile.images || [],
-                        preferred_listing_types: profile.intentions || [], // FIX: Map intentions for UI
+                        preferred_listing_types: profile.intentions || [],
                         budget_min: profile.budget_min || 0,
                         budget_max: profile.budget_max || 100000,
-                        matchPercentage: Math.min(100, baseScore),
-                        matchReasons: matchReasons.length > 0 ? matchReasons : ['Profile available'],
-                        incompatibleReasons: [],
+                        matchPercentage: percentage,
+                        matchReasons: reasons.length > 0 ? reasons : ['Profile available'],
+                        incompatibleReasons: incompatible,
                         city: profile.city || undefined,
                         country: profile.country || undefined,
                         avatar_url: profile.avatar_url || undefined,
-                        verified: !!profile.onboarding_completed, // FIX: Use onboarding as proxy for verified for now
+                        verified: !!profile.onboarding_completed,
                         work_schedule: profile.work_schedule || undefined,
                         nationality: profile.nationality || undefined,
                         languages: profile.languages_spoken || undefined,

@@ -30,22 +30,12 @@ const CLIENT_TYPE_OPTIONS = [
   { value: 'buyer', label: 'Buyers', emoji: '💰' },
 ];
 
-const LIFESTYLE_OPTIONS = [
-  'Digital Nomad', 'Professional', 'Student', 'Family-Oriented',
-  'Party-Friendly', 'Quiet', 'Social', 'Health-Conscious', 'Pet Lover', 'Eco-Friendly'
-];
-
-const OCCUPATION_OPTIONS = [
-  'Remote Worker', 'Entrepreneur', 'Student', 'Teacher',
-  'Healthcare', 'Tech', 'Creative', 'Hospitality', 'Finance', 'Retired'
-];
-
-const GENDER_OPTIONS = [
-  { value: 'Any Gender', emoji: '🌍', label: 'All' },
-  { value: 'Male', emoji: '👨', label: 'Men' },
-  { value: 'Female', emoji: '👩', label: 'Women' },
-  { value: 'Non-Binary', emoji: '🧑', label: 'Other' },
-];
+import {
+  LIFESTYLE_TAGS as LIFESTYLE_OPTIONS,
+  WORK_SCHEDULE_OPTIONS as OCCUPATION_OPTIONS,
+  GENDER_OPTIONS,
+  BUDGET_RANGES as OWNER_BUDGET_RANGES,
+} from '@/constants/profileConstants';
 
 // Category card component matching client style
 function CategoryCard({
@@ -145,21 +135,14 @@ function SegmentedControl({
   );
 }
 
-// Predefined budget ranges
-const OWNER_BUDGET_RANGES = [
-  { value: '0-500', label: '$0-500', min: 0, max: 500 },
-  { value: '500-1000', label: '$500-1K', min: 500, max: 1000 },
-  { value: '1000-3000', label: '$1K-3K', min: 1000, max: 3000 },
-  { value: '3000-5000', label: '$3K-5K', min: 3000, max: 5000 },
-  { value: '5000+', label: '$5K+', min: 5000, max: 50000 },
-];
+// Budget ranges are now imported from profileConstants.ts
 
 export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilterDialogProps) {
-  
+
   const { preferences, updatePreferences, isUpdating } = useOwnerClientPreferences();
   const { saveFilter } = useSavedFilters();
   const { toast } = useToast();
-  
+
   const [filterName, setFilterName] = useState('');
   const [showSaveAs, setShowSaveAs] = useState(false);
   const [formData, setFormData] = useState<Partial<OwnerClientPreferences>>({
@@ -286,7 +269,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
     onOpenChange(false);
   };
 
-  const activeFilterCount = 
+  const activeFilterCount =
     (selectedGenders.length > 0 && !selectedGenders.includes('Any Gender') ? 1 : 0) +
     (selectedBudgetRange ? 1 : 0) +
     (formData.min_age !== 18 || formData.max_age !== 65 ? 1 : 0) +
@@ -419,9 +402,8 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                           <Badge
                             key={range.value}
                             variant={isSelected ? "default" : "outline"}
-                            className={`cursor-pointer text-xs py-2 px-4 transition-all duration-200 ${
-                              isSelected ? 'shadow-md' : 'hover:shadow-sm'
-                            }`}
+                            className={`cursor-pointer text-xs py-2 px-4 transition-all duration-200 ${isSelected ? 'shadow-md' : 'hover:shadow-sm'
+                              }`}
                             onClick={() => {
                               if (isSelected) {
                                 setSelectedBudgetRange('');
