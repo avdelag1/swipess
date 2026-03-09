@@ -5,6 +5,30 @@
 
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  SWIPE CARD PHOTO TRANSITION                                          */
+/*  Subtle zoom-in when switching photos within a card (cached images). */
+/*  Gives each photo tap a premium, intentional feel.                   */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@keyframes photo-enter {
+  from {
+    opacity: 0.82;
+    transform: scale(1.035);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes photo-enter {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  2. MICRO-INTERACTION POLISH                                          */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 

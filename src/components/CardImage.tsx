@@ -110,6 +110,9 @@ const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string;
       )}
 
       <img
+        // key={src} forces React to remount the img on photo change,
+        // re-triggering the CSS animation even for already-cached images.
+        key={src}
         src={optimizedSrc || src}
         alt={alt ?? ''}
         style={{
@@ -121,6 +124,9 @@ const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string;
           opacity: loaded ? 1 : 0,
           transition,
           borderRadius: '24px',
+          // Subtle zoom-in on photo switch — only plays for cached images
+          // (instant display). Network-loaded images use the opacity transition instead.
+          animation: wasInCache ? 'photo-enter 180ms ease-out forwards' : 'none',
         }}
       />
     </div>
