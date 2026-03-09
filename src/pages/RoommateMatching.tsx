@@ -73,7 +73,7 @@ export default function RoommateMatching() {
 
     // Already swiped
     const { data: swiped } = await supabase
-      .from('roommate_matches' as any)
+      .from('roommate_matches')
       .select('target_user_id')
       .eq('user_id', user.id);
     const swipedIds = new Set((swiped || []).map((s: any) => s.target_user_id));
