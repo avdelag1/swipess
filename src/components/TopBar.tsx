@@ -287,10 +287,8 @@ function TopBarComponent({
                     "-webkit-tap-highlight-color-transparent",
                     "flex items-center gap-1"
                   )}
-                  style={{
+              style={{
                     backgroundColor: glassBg,
-                    backdropFilter: controlBlur,
-                    WebkitBackdropFilter: controlBlur,
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
