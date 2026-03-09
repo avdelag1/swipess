@@ -650,8 +650,8 @@ function GlassActionButton({
         height: size,
         borderRadius: '50%',
         background: pressed ? `rgba(${glowColor},0.28)` : `rgba(${glowColor},0.12)`,
-        backdropFilter: 'blur(28px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
         border: `1px solid ${borderColor}`,
         boxShadow: pressed
           ? `inset 0 2px 6px rgba(0,0,0,0.40)`
