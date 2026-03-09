@@ -173,7 +173,7 @@ function SegmentedControl<T extends string>({
   );
 }
 
-// Category card with emoji (matching client style)
+// Category card with emoji — upgraded with gradient borders per category
 function CategoryCard({
   label,
   emoji,
@@ -189,20 +189,22 @@ function CategoryCard({
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.93 }}
+      whileTap={{ scale: 0.91 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 20, mass: 0.5 }}
       onClick={onClick}
       className={cn(
-        "relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border transition-all duration-200",
+        "relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border-2 transition-all duration-200",
         isActive
-          ? "border-primary bg-primary/10 shadow-sm"
-          : "border-border/40 bg-card/40 hover:border-primary/30"
+          ? "border-primary/60 bg-primary/10 shadow-md shadow-primary/15"
+          : "border-border/30 bg-card/40 hover:border-primary/30 hover:bg-card/60"
       )}
     >
       {isActive && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute -top-1 -right-1 bg-primary rounded-full p-0.5"
+          transition={{ type: 'spring', stiffness: 600, damping: 15 }}
+          className="absolute -top-1 -right-1 bg-gradient-to-br from-primary to-primary/80 rounded-full p-0.5 shadow-sm shadow-primary/30"
         >
           <Check className="h-2.5 w-2.5 text-primary-foreground" />
         </motion.div>
