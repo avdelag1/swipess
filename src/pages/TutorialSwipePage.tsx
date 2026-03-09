@@ -781,9 +781,6 @@ export default function TutorialSwipePage() {
       className="w-full relative flex flex-col"
       style={{ minHeight: '100dvh', overflowX: 'hidden', overflowY: 'hidden' }}
     >
-      {/* ── AMBIENT BACKGROUND — now fully visible ── */}
-      <AmbientSwipeBackground />
-
       {/* Dark vignette — replaces the white/90 killer; darkens without hiding */}
       <div className="absolute inset-0 pointer-events-none" style={{
         zIndex: 0,

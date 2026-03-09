@@ -842,7 +842,6 @@ const ClientSwipeContainerComponent = ({
   if (showEmptyState || !topCard) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <AmbientSwipeBackground isPaused={isRefreshing} />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

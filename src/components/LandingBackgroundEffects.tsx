@@ -242,14 +242,11 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
         ctx.fillStyle = `rgba(255, 255, 255, ${fadeAlpha})`;
         ctx.fill();
 
-        // Glow
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `rgba(255, 255, 255, ${fadeAlpha * 0.8})`;
+        // Glow (no shadowBlur - expensive per draw call)
         ctx.beginPath();
         ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 220, 180, ${fadeAlpha * 0.3})`;
         ctx.fill();
-        ctx.shadowBlur = 0;
       }
     };
 

@@ -1381,13 +1381,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       style={{ height: '100%', minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
-      {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
-          - Lives at z-index: -1 (below everything)
-          - Non-interactive (pointer-events: none)
-          - Slows down during swipe animation (when swipeDirection is active)
-          - Communicates "swipe marketplace" at first glance */}
-      <AmbientSwipeBackground isPaused={swipeDirection !== null} />
-
       {/* Category title removed - clean immersive card experience */}
 
       <div className="relative flex-1 w-full">

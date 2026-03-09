@@ -568,8 +568,7 @@ function LegendaryLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={(view === 'auth' || effectMode === 'cheetah') ? 'off' : effectMode} />
-      {view !== 'auth' && effectMode === 'cheetah' && <CheetahBackground />}
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

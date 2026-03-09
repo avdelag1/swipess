@@ -428,8 +428,6 @@ function TopBarComponent({
               )}
               style={{
                 backgroundColor: glassBg,
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
