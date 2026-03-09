@@ -216,7 +216,6 @@ function InsightsModal({
               className="w-full py-4 rounded-2xl text-sm font-black text-white relative overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.10)',
-                background: 'rgba(255,255,255,0.10)',
                 border: '1px solid rgba(255,255,255,0.18)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 12px rgba(0,0,0,0.30)',
               }}
