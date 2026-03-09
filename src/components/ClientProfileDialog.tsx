@@ -520,9 +520,11 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                   const isSelected = intentions.includes(option.id);
                   
                   return (
-                    <button
+                    <motion.button
                       key={option.id}
                       onClick={() => toggleIntention(option.id)}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                       className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
                         isSelected 
                           ? "bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/10" 
@@ -554,7 +556,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                       }`}>
                         {isSelected && <Check className="w-3 h-3" />}
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
