@@ -258,10 +258,13 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
 
           // IMPORTANT: Notify listing owner when client likes their listing
           // Get listing owner and client info for notification
-          const [listingResult, clientResult] = await Promise.all([
+          // Use allSettled so a failed fetch doesn't abort the swipe that was already saved
+          const [listingSettled, clientSettled] = await Promise.allSettled([
             supabase.from('listings').select('owner_id, title').eq('id', targetId).maybeSingle(),
             supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
           ]);
+          const listingResult = listingSettled.status === 'fulfilled' ? listingSettled.value : { data: null };
+          const clientResult = clientSettled.status === 'fulfilled' ? clientSettled.value : { data: null };
 
           if (listingResult.data?.owner_id) {
             const clientName = clientResult.data?.full_name || 'Someone';

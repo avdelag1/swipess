@@ -179,11 +179,6 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      if (error) {
-        setLoading(false);
-        return;
-      }
-
       if (data) {
         const currentStationId = (data as any).radio_current_station_id;
         let currentStation = currentStationId ? getStationById(currentStationId) : null;
