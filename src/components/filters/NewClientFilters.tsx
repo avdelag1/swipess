@@ -166,33 +166,44 @@ function FilterSection({
   );
 }
 
-// Segmented control component
+// Segmented control — animated sliding pill
 function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  layoutGroup,
 }: {
   options: { id: T; label: string }[];
   value: T | undefined;
   onChange: (value: T) => void;
+  layoutGroup?: string;
 }) {
   return (
-    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
       {options.map((opt) => {
         const isActive = value === opt.id || (!value && opt.id === options[0].id);
         return (
-          <button
+          <motion.button
             key={opt.id}
             onClick={() => onChange(opt.id)}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             className={cn(
-              "flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-all duration-200",
+              "relative flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-colors duration-200 z-10",
               isActive
-                ? "bg-primary text-primary-foreground shadow-md"
+                ? "text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {opt.label}
-          </button>
+            {isActive && (
+              <motion.div
+                layoutId={layoutGroup || 'client-segment-pill'}
+                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-md shadow-primary/20"
+                transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.5 }}
+              />
+            )}
+            <span className="relative z-10">{opt.label}</span>
+          </motion.button>
         );
       })}
     </div>
