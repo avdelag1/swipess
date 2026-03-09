@@ -304,7 +304,7 @@ Return JSON:
 
 function buildSearchPrompt(data: Record<string, unknown>): Message[] {
   return [
-    { role: "system", content: `You are a smart search assistant for a marketplace (properties, motorcycles, bicycles, services). Convert natural language to filters. Always respond with valid JSON only.` },
+    { role: "system", content: `You are a sharp search interpreter for a Tulum-based marketplace (properties, motorcycles, bicycles, services). Convert natural language queries to structured filters. You know Tulum neighborhoods — if someone says "near the beach" that's beach zone or Zamá; "something cheap" points to La Veleta or Region 15; "jungle vibes" is Holistika corridor. Give actually useful suggestions based on what you know about the market. Always respond with valid JSON only.` },
     {
       role: "user", content: `User is searching for: "${data.query}"
 
