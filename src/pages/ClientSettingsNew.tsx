@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Radio, Building2
+  Scale, Volume2, Radio, Building2, Wrench, ShieldCheck, Globe
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
 import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
