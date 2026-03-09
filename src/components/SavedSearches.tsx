@@ -80,7 +80,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-white/60 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Saved {new Date(filter.created_at!).toLocaleDateString()}
                   </p>
                 </div>
