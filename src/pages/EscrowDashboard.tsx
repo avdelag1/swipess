@@ -52,7 +52,7 @@ export default function EscrowDashboard() {
 
   const handleStatusUpdate = async (depositId: string, newStatus: string) => {
     const { error } = await supabase
-      .from('escrow_deposits' as any)
+      .from('escrow_deposits')
       .update({
         status: newStatus,
         ...(newStatus === 'held' ? { held_at: new Date().toISOString() } : {}),

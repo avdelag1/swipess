@@ -108,7 +108,7 @@ export default function RoommateMatching() {
     // Check for mutual match
     if (direction === 'right') {
       const { data: mutual } = await supabase
-        .from('roommate_matches' as any)
+        .from('roommate_matches')
         .select('id')
         .eq('user_id', target.user_id)
         .eq('target_user_id', user.id)
