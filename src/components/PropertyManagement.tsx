@@ -265,7 +265,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-3xl shadow-2xl",
             isLight
               ? "bg-white border border-border/50"
-              : "bg-white/[0.04] backdrop-blur-xl border border-white/[0.06]"
+              : "bg-white/[0.04] border border-white/[0.06]"
           )}
         >
           <div className="flex items-center gap-4">
