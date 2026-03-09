@@ -272,10 +272,10 @@ export function LikedClients() {
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
-                  ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
+                  ? "bg-primary border-primary text-primary-foreground shadow-md"
                   : isLight
-                  ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
+                  ? "bg-background border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                  : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
               )}
             >
               <Icon className="w-4 h-4" />
