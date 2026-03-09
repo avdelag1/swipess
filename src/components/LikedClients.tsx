@@ -14,7 +14,7 @@ import { useStartConversation } from "@/hooks/useConversations";
 import { logger } from "@/utils/prodLogger";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
-import { PageHeader } from "@/components/PageHeader";
+
 import { cn } from "@/lib/utils";
 import {
   Tooltip,

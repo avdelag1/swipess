@@ -1,6 +1,6 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { SavedSearches } from "@/components/SavedSearches";
-import { PageHeader } from "@/components/PageHeader";
+
 
 const ClientSavedSearches = () => {
   return (

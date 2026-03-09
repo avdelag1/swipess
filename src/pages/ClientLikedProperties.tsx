@@ -1,6 +1,6 @@
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
 import { PropertyImageGallery } from "@/components/PropertyImageGallery";
-import { PageHeader } from "@/components/PageHeader";
+
 import { useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
