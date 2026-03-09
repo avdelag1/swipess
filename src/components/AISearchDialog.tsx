@@ -284,10 +284,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold", isDark ? "bg-white/8 border border-white/15 text-white/75 hover:text-white hover:bg-white/15" : "bg-gray-100 border border-gray-200 text-gray-700 hover:text-gray-900 hover:bg-gray-200 shadow-sm")}
+                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold border", prompt.bg)}
                 >
-                  <prompt.icon className="w-3.5 h-3.5 text-orange-500" />
-                  {prompt.label}
+                  <prompt.icon className={cn("w-3.5 h-3.5", prompt.color)} />
+                  <span className={isDark ? "text-white/80" : "text-gray-700"}>{prompt.label}</span>
                 </button>
               ))}
             </div>
