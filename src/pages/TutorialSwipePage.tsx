@@ -859,8 +859,7 @@ export default function TutorialSwipePage() {
           <div className="flex gap-1.5 p-1.5 rounded-[22px]"
             style={{
               background: 'rgba(255,255,255,0.06)',
-              backdropFilter: 'blur(20px) saturate(160%)',
-              border: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'none',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
             }}>
             {([
