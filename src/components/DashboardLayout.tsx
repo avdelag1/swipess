@@ -10,6 +10,7 @@ import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import type { QuickFilterCategory } from '@/types/filters'
 
 // New Mobile Navigation Components
