@@ -803,7 +803,6 @@ export default function TutorialSwipePage() {
                 className="flex items-center justify-center rounded-2xl shrink-0 relative overflow-hidden"
                 style={{
                   width: 44, height: 44,
-                  background: 'rgba(255,255,255,0.08)',
                   background: 'rgba(20,20,24,0.90)',
                   border: '1px solid rgba(255,255,255,0.16)',
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 8px rgba(0,0,0,0.30)',
