@@ -433,8 +433,7 @@ export default function RetroRadioStation() {
         onClick={() => navigate(-1)}
         className="fixed top-3 left-3 z-50 w-9 h-9 rounded-full flex items-center justify-center"
         style={{
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(12px)',
+          background: 'rgba(0,0,0,0.7)',
           border: '1px solid rgba(255,255,255,0.1)',
         }}
       >
@@ -451,8 +450,7 @@ export default function RetroRadioStation() {
         }}
         className="fixed top-3 right-14 z-50 w-9 h-9 rounded-full flex items-center justify-center"
         style={{
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(12px)',
+          background: 'rgba(0,0,0,0.7)',
           border: '1px solid rgba(255,0,255,0.3)',
         }}
       >
@@ -469,8 +467,7 @@ export default function RetroRadioStation() {
         }}
         className="fixed top-3 right-3 z-50 w-9 h-9 rounded-full flex items-center justify-center"
         style={{
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(12px)',
+          background: 'rgba(0,0,0,0.7)',
           border: '1px solid rgba(255,255,255,0.1)',
         }}
       >
@@ -487,8 +484,7 @@ export default function RetroRadioStation() {
         }}
         className="fixed top-3 right-[6.5rem] z-50 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300"
         style={{
-          background: 'rgba(0,0,0,0.5)',
-          backdropFilter: 'blur(12px)',
+          background: 'rgba(0,0,0,0.7)',
           border: state.isShuffle ? `1px solid ${cityTheme.primaryColor}` : '1px solid rgba(255,255,255,0.1)',
         }}
       >
