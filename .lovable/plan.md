@@ -1,46 +1,78 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+## Push Notifications Fix Plan
 
-### 1. Replace App Icon with Fire S Logo
+### Problem Analysis
+After investigating the codebase, I found **two critical issues** preventing push notifications from working:
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+1. **Subscription Not Being Saved**: The `PushNotificationPrompt.tsx` component only calls `Notification.requestPermission()` but **never calls the `subscribe()` function** from `usePushNotifications` hook. This means the subscription (endpoint, keys) never gets saved to the `push_subscriptions` table.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+2. **Wrong Icon Paths**: The edge function references non-existent icon files:
+   - `/icons/icon-192x192.png` → should be `/icons/icon-192.png`
+   - `/icons/badge-72x72.png` → should be `/icons/apple-touch-icon-72x72.png`
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### What's Already Working
+- ✅ `push_subscriptions` table with proper RLS
+- ✅ Service worker with push event handlers (`sw.js`)
+- ✅ Edge function `send-push-notification` (needs icon path fix)
+- ✅ VAPID secrets configured
+- ✅ `usePushNotifications` hook with `subscribe()` method
+- ✅ Trigger points in match/notification code
 
-### 2. Profile Photo Already Shows in Top-Left
+---
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### Implementation Steps
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+#### 1. Fix PushNotificationPrompt.tsx
+Update the component to use the `usePushNotifications` hook's `subscribe()` method instead of just browser permission:
 
-### 3. Fix Header Too Close to Top Edge
+```tsx
+// Add usePushNotifications hook
+const { subscribe, isSubscribed, isSupported } = usePushNotifications();
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+const handleEnableNotifications = async () => {
+  const success = await subscribe(); // This handles permission + saves to DB
+  if (success) {
+    toast.success("Notifications Enabled!");
+  }
+};
+```
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+#### 2. Fix Icon Paths in Edge Function
+Update `supabase/functions/send-push-notification/index.ts`:
+```typescript
+icon: icon || "/icons/icon-192.png",
+badge: "/icons/apple-touch-icon-72x72.png",
+```
 
-### 4. Fix MarketingSlide Build Error
+#### 3. Add Settings UI Integration
+Check if there's a settings page to enable/disable notifications and ensure it also uses the `subscribe()` method.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+---
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+### Technical Details
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+```text
+Current Flow (Broken):
+┌─────────────────┐     ┌──────────────────┐
+│ PushPrompt.tsx  │ ──► │ Browser Permission│  ← STOPS HERE
+└─────────────────┘     └──────────────────┘
+
+Fixed Flow:
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐     ┌──────────────────┐
+│ PushPrompt.tsx  │ ──► │ usePushNotifications │ ──► │ PushManager.subscribe │ ──► │ Save to DB │
+└─────────────────┘     └──────────────────┘     └─────────────────┘     └──────────────────┘
+```
+
+### Files to Modify
+1. `src/components/PushNotificationPrompt.tsx` - Use proper hook
+2. `supabase/functions/send-push-notification/index.ts` - Fix icon paths
+3. Any settings page that has notification toggle
+
+### After Fix Testing
+Once implemented, we can test live by:
+1. Logging in
+2. Enabling notifications via the prompt or settings
+3. Checking `push_subscriptions` table for new entry
+4. Triggering a match or message to see if notification arrives
 
