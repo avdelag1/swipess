@@ -442,7 +442,7 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest relative overflow-hidden"
             style={{
               background: 'rgba(245,158,11,0.16)',
-              backdropFilter: 'blur(16px) saturate(180%)',
+              backdropFilter: 'none',
               border: '1px solid rgba(245,158,11,0.40)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 4px 12px rgba(245,158,11,0.20)',
               color: '#fbbf24',
