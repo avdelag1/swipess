@@ -137,14 +137,15 @@ export function useAnonymousDrafts() {
     // Restore listing draft
     if (listingDraft) {
       try {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('listings')
           .insert({
             user_id: user.id,
             category: listingDraft.category,
-            ...listingDraft.data,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ...(listingDraft.data as any),
             status: 'published',
-          });
+          } as any);
 
         if (!error) {
           restoredCount++;

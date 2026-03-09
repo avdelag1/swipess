@@ -93,7 +93,7 @@ function TopBarComponent({
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
     : '0 10px 30px -10px rgba(0,0,0,0.1)';
-  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'blur(20px)';
+  // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // Fetch the three token packages
@@ -197,7 +197,7 @@ function TopBarComponent({
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={handleBack}
                 className={cn(
-                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg backdrop-blur-md",
+                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg",
                   isDark
                     ? "bg-white/10 border border-white/20 text-white"
                     : "bg-black/5 border border-black/10 text-foreground"
@@ -253,8 +253,7 @@ function TopBarComponent({
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
-              const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
-              navigate(dashboardPath);
+              navigate('/dashboard');
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
@@ -281,19 +280,13 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-6 sm:h-7 px-1 sm:px-1 rounded-md transition-all duration-100 ease-out",
-                    "active:scale-[0.95]",
+                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-300 ease-out",
+                    "hover:scale-105 active:scale-95 group",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1"
+                    "flex items-center gap-1",
+                    "liquid-glass-card refraction-edge glass-nano-texture"
                   )}
-                  style={{
-                    backgroundColor: glassBg,
-                    backdropFilter: controlBlur,
-                    WebkitBackdropFilter: controlBlur,
-                    border: glassBorder,
-                    boxShadow: floatingShadow,
-                  }}
                   onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
@@ -307,7 +300,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl liquid-glass-card refraction-edge glass-nano-texture"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
@@ -422,19 +415,13 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-6 w-7 sm:h-7 sm:w-auto sm:px-1.5 rounded-md transition-all duration-100 ease-out",
-                "active:scale-[0.95]",
+                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
+                "hover:scale-105 active:scale-95 group",
                 "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent"
+                "-webkit-tap-highlight-color-transparent",
+                "liquid-glass-card refraction-edge glass-nano-texture"
               )}
-              style={{
-                backgroundColor: glassBg,
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
               onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}

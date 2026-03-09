@@ -1,19 +1,17 @@
-import { LikedPropertiesDialog } from "@/components/LikedPropertiesDialog";
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
-import { PropertyDetails } from "@/components/PropertyDetails";
 import { PropertyImageGallery } from "@/components/PropertyImageGallery";
-import { PageHeader } from "@/components/PageHeader";
+
 import { useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Flame, MapPin, Home, Bike, Briefcase, RefreshCw, Trash2, Camera, Car } from "lucide-react";
+import { Flame, Home, Bike, Briefcase, RefreshCw, Car, GripVertical } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import {
@@ -26,14 +24,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { usePersistentReorder } from "@/hooks/usePersistentReorder";
 
-// Category configuration
 const categories = [
-  { id: 'all', label: 'All Likes', icon: Flame, title: 'Your Favorites', subtitle: 'Listings and connections you saved' },
-  { id: 'property', label: 'Homes', icon: Home, title: 'Dream Habitats', subtitle: 'Elite living spaces' },
-  { id: 'motorcycle', label: 'Motos', icon: Car, title: 'Power & Speed', subtitle: 'Premium machines' },
-  { id: 'bicycle', label: 'Bikes', icon: Bike, title: 'Urban Flow', subtitle: 'Sustainable precision' },
-  { id: 'worker', label: 'Services', icon: Briefcase, title: 'Elite Talent', subtitle: 'The support you need' },
+  { id: "all", label: "All Likes", icon: Flame, title: "Your Favorites", subtitle: "Listings and connections you saved" },
+  { id: "property", label: "Homes", icon: Home, title: "Dream Habitats", subtitle: "Elite living spaces" },
+  { id: "motorcycle", label: "Motos", icon: Car, title: "Power & Speed", subtitle: "Premium machines" },
+  { id: "bicycle", label: "Bikes", icon: Bike, title: "Urban Flow", subtitle: "Sustainable precision" },
+  { id: "worker", label: "Services", icon: Briefcase, title: "Elite Talent", subtitle: "The support you need" },
 ];
 
 interface ClientLikedPropertiesProps {
@@ -44,20 +42,15 @@ interface ClientLikedPropertiesProps {
 
 const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProps) => {
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === "white-matte";
   const [galleryState, setGalleryState] = useState<{
     isOpen: boolean;
     images: string[];
     alt: string;
     initialIndex: number;
-  }>({
-    isOpen: false,
-    images: [],
-    alt: '',
-    initialIndex: 0
-  });
+  }>({ isOpen: false, images: [], alt: "", initialIndex: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
-  const categoryFromUrl = searchParams.get('category') || 'all';
+  const categoryFromUrl = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
   const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -68,28 +61,28 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
-  // Remove like mutation
+  const storageKey = user?.id ? `liked-properties-order-${user.id}` : "";
+
   const removeLikeMutation = useMutation({
     mutationFn: async (propertyId: string) => {
       if (!user?.id) throw new Error("Not authenticated");
       const { error } = await supabase
-        .from('likes')
+        .from("likes")
         .delete()
-        .eq('user_id', user.id)
-        .eq('target_id', propertyId)
-        .eq('target_type', 'listing');
-
+        .eq("user_id", user.id)
+        .eq("target_id", propertyId)
+        .eq("target_type", "listing");
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
+      queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
       toast.success("Property removed from your likes");
       setShowDeleteDialog(false);
       setPropertyToDelete(null);
     },
     onError: () => {
       toast.error("Failed to remove from likes");
-    }
+    },
   });
 
   const handleCategoryChange = (category: string) => {
@@ -97,43 +90,44 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
     setSearchParams({ category });
   };
 
-  const filteredProperties = likedProperties.filter(property => {
-    if (selectedCategory === 'all') return true;
-    const propertyCategory = property.category?.toLowerCase() || '';
+  const filteredProperties = likedProperties.filter((property) => {
+    if (selectedCategory === "all") return true;
+    const propertyCategory = property.category?.toLowerCase() || "";
     const selectedCat = selectedCategory.toLowerCase();
-    if (selectedCat === 'property') return propertyCategory === 'property' || !property.category;
+    if (selectedCat === "property") return propertyCategory === "property" || !property.category;
     return propertyCategory === selectedCat;
   });
 
-  const handleAction = async (action: 'message' | 'view' | 'remove', property: any) => {
-    if (action === 'remove') {
+  const { orderedItems: orderedFilteredProperties, handleReorder } = usePersistentReorder(
+    filteredProperties,
+    `${storageKey}-${selectedCategory}`
+  );
+
+  const handleAction = async (action: "message" | "view" | "remove", property: any) => {
+    if (action === "remove") {
       setPropertyToDelete(property);
       setShowDeleteDialog(true);
       return;
     }
-
-    if (action === 'view') {
+    if (action === "view") {
       onPropertyInsights?.(property.id);
       return;
     }
-
-    if (action === 'message') {
+    if (action === "message") {
       try {
         const result = await startConversation.mutateAsync({
           otherUserId: property.owner_id,
           listingId: property.id,
           initialMessage: `Hi! I'm interested in: ${property.title}. Could you tell me more?`,
-          canStartNewConversation: true
+          canStartNewConversation: true,
         });
         if (result?.conversationId) navigate(`/messages?conversationId=${result.conversationId}`);
-        else navigate('/messages');
-      } catch (error) {
+        else navigate("/messages");
+      } catch {
         toast.error("Unable to start conversation");
       }
     }
   };
-
-  const currentCategory = categories.find(c => c.id === selectedCategory) || categories[0];
 
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
@@ -141,7 +135,7 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
         <div className="flex items-center justify-end mb-8">
           <button
             onClick={() => {
-              queryClient.invalidateQueries({ queryKey: [selectedCategory === 'all' ? 'liked-properties' : 'liked-properties'] });
+              queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
               refreshLikedProperties();
             }}
             disabled={isLoading || isFetching}
@@ -152,7 +146,7 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
           </button>
         </div>
 
-        {/* Categories - PREMIUM MEXICAN PINK ACCENT */}
+        {/* Category tabs */}
         <div className="flex gap-3 mb-10 overflow-x-auto scrollbar-hide pb-2 pt-4">
           {categories.map(({ id, label, icon: Icon }) => (
             <motion.button
@@ -164,8 +158,8 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
                 selectedCategory === id
                   ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
                   : isLight
-                    ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
-                    : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
+                  ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                  : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -174,33 +168,51 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
           ))}
         </div>
 
-        {/* Count Label */}
+        {/* Count + drag hint */}
         <div className="flex items-center gap-3 mb-8 px-2">
           <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_10px_#E4007C]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
-            {filteredProperties.length} Saved Essentials
+            {orderedFilteredProperties.length} Saved Essentials
           </span>
+          {orderedFilteredProperties.length > 1 && (
+            <span className="ml-auto flex items-center gap-1 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
+              <GripVertical className="w-3 h-3" />
+              Drag to reorder
+            </span>
+          )}
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="h-96 rounded-[2.5rem] bg-muted animate-pulse" />
             ))}
           </div>
-        ) : filteredProperties.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        ) : orderedFilteredProperties.length > 0 ? (
+          <Reorder.Group
+            axis="y"
+            values={orderedFilteredProperties}
+            onReorder={handleReorder}
+            data-no-swipe-nav
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
             <AnimatePresence mode="popLayout">
-              {filteredProperties.map((property) => (
-                <PremiumLikedCard
+              {orderedFilteredProperties.map((property) => (
+                <Reorder.Item
                   key={property.id}
-                  type="listing"
-                  data={property}
-                  onAction={(action) => handleAction(action, property)}
-                />
+                  value={property}
+                  className="list-none"
+                  whileDrag={{ scale: 1.03, zIndex: 50, boxShadow: "0 20px 60px rgba(228,0,124,0.25)" }}
+                >
+                  <PremiumLikedCard
+                    type="listing"
+                    data={property}
+                    onAction={(action) => handleAction(action, property)}
+                  />
+                </Reorder.Item>
               ))}
             </AnimatePresence>
-          </div>
+          </Reorder.Group>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -215,7 +227,7 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
               Your favorite listings will appear here. Start swiping to fill your world.
             </p>
             <button
-              onClick={() => navigate('/client/dashboard')}
+              onClick={() => navigate("/client/dashboard")}
               className="mt-10 px-8 py-4 rounded-2xl bg-[#E4007C] text-white text-sm font-black tracking-widest hover:bg-[#FF1493] transition-all active:scale-95 shadow-[0_10px_30px_rgba(228,0,124,0.3)]"
             >
               EXPLORE WORLD
@@ -224,28 +236,40 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
         )}
       </div>
 
-      {/* Utilities */}
       <PropertyImageGallery
         images={galleryState.images}
         alt={galleryState.alt}
         isOpen={galleryState.isOpen}
-        onClose={() => setGalleryState(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setGalleryState((prev) => ({ ...prev, isOpen: false }))}
         initialIndex={galleryState.initialIndex}
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className={cn(
-          "rounded-[2rem]",
-          isLight ? "bg-white border-border/50" : "bg-[#1a1a1a] border-white/[0.08]"
-        )}>
+        <AlertDialogContent
+          className={cn(
+            "rounded-[2rem]",
+            isLight ? "bg-background border-border/50" : "bg-card border-border"
+          )}
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-foreground font-black text-xl">Remove from World?</AlertDialogTitle>
+            <AlertDialogTitle className="text-foreground font-black text-xl">
+              Remove from World?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground font-bold">
               Are you sure you want to remove "{propertyToDelete?.title}" from your favorites?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-white/[0.06] border-white/[0.08] text-white")}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel
+              className={cn(
+                "rounded-xl",
+                isLight
+                  ? "bg-secondary text-foreground border-border/30"
+                  : "bg-muted border-border text-foreground"
+              )}
+            >
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"

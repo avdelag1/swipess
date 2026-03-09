@@ -40,9 +40,7 @@
 .premium-card-lux {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(15, 15, 15, 0.95) 0%, rgba(35, 30, 20, 0.9) 100%);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    background: linear-gradient(135deg, rgba(15, 15, 15, 0.97) 0%, rgba(35, 30, 20, 0.95) 100%);
 
     border: 1px solid rgba(251, 191, 36, 0.3);
     transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);

@@ -35,11 +35,11 @@ class SignupErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-white/10 backdrop-blur-sm rounded-lg p-8 text-center space-y-4">
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-card backdrop-blur-sm rounded-lg p-8 text-center space-y-4 border border-border">
             <AlertCircle className="w-16 h-16 text-red-400 mx-auto" />
-            <h2 className="text-2xl font-bold text-white">Setup Error</h2>
-            <p className="text-gray-300">
+            <h2 className="text-2xl font-bold text-foreground">Setup Error</h2>
+            <p className="text-muted-foreground">
               We encountered an error setting up your account. This might be due to a network issue or temporary problem.
             </p>
             <div className="space-y-2">
@@ -49,7 +49,7 @@ class SignupErrorBoundary extends Component<Props, State> {
               >
                 Try Again
               </Button>
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-muted-foreground">
                 If the problem persists, please contact support
               </p>
             </div>

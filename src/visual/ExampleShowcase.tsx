@@ -51,7 +51,7 @@ export const VisualShowcase = () => {
             <PremiumButton variant="solid">Solid Button</PremiumButton>
             <PremiumButton variant="outline">Outline Button</PremiumButton>
             <PremiumButton variant="ghost">Ghost Button</PremiumButton>
-            <PremiumButton variant="luxury" hoverEffect="prominent">
+            <PremiumButton variant="luxury" elastic>
               Luxury Button
             </PremiumButton>
           </div>

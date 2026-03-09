@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { triggerHaptic } from '@/utils/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, SlidersHorizontal, DollarSign, Home, Bike, Wrench, Check,
@@ -165,40 +166,51 @@ function FilterSection({
   );
 }
 
-// Segmented control component
+// Segmented control — animated sliding pill
 function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  layoutGroup,
 }: {
   options: { id: T; label: string }[];
   value: T | undefined;
   onChange: (value: T) => void;
+  layoutGroup?: string;
 }) {
   return (
-    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
       {options.map((opt) => {
         const isActive = value === opt.id || (!value && opt.id === options[0].id);
         return (
-          <button
+          <motion.button
             key={opt.id}
             onClick={() => onChange(opt.id)}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             className={cn(
-              "flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-all duration-200",
+              "relative flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-colors duration-200 z-10",
               isActive
-                ? "bg-primary text-primary-foreground shadow-md"
+                ? "text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {opt.label}
-          </button>
+            {isActive && (
+              <motion.div
+                layoutId={layoutGroup || 'client-segment-pill'}
+                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-md shadow-primary/20"
+                transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.5 }}
+              />
+            )}
+            <span className="relative z-10">{opt.label}</span>
+          </motion.button>
         );
       })}
     </div>
   );
 }
 
-// Pill toggle
+// Pill toggle — upgraded with gradient fill
 function PillToggle({
   label,
   icon: Icon,
@@ -212,13 +224,17 @@ function PillToggle({
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
+      whileTap={{ scale: 0.93 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+      onClick={() => {
+        triggerHaptic('light');
+        onClick();
+      }}
       className={cn(
         "py-2 px-3.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 border",
         isActive
-          ? "bg-primary/15 border-primary/40 text-primary"
-          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30"
+          ? "bg-gradient-to-r from-primary/90 to-primary/70 border-primary/50 text-primary-foreground shadow-sm shadow-primary/20"
+          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/20"
       )}
     >
       {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -622,19 +638,19 @@ export function NewClientFilters({ open, onClose, onApply, currentFilters = {} }
 
           {/* Sticky Apply Footer */}
           <div className="absolute bottom-0 left-0 right-0 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-background via-background to-transparent">
-            <motion.div whileTap={{ scale: 0.98 }}>
               <Button
+                variant="gradient"
+                elastic
                 onClick={handleApply}
-                className="w-full h-14 rounded-2xl text-sm font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
+                className="w-full h-14 rounded-2xl text-sm font-bold"
               >
                 Apply Filters
                 {activeFilterCount > 0 && (
-                  <Badge className="ml-2 bg-primary-foreground/20 text-primary-foreground border-none text-xs px-2">
+                  <Badge className="ml-2 bg-white/20 text-white border-none text-xs px-2">
                     {activeFilterCount}
                   </Badge>
                 )}
               </Button>
-            </motion.div>
           </div>
         </motion.div>
       </motion.div>

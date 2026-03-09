@@ -3,60 +3,34 @@
 /*  Subtle, sophisticated improvements for flagship app quality          */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  1. ULTRA-SMOOTH GLASSMORPHISM                                        */
+/*  SWIPE CARD PHOTO TRANSITION                                          */
+/*  Subtle zoom-in when switching photos within a card (cached images). */
+/*  Gives each photo tap a premium, intentional feel.                   */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-.glass-enhanced {
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.04) 100%);
-  backdrop-filter: blur(var(--glass-blur-lg)) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
-    0 8px 32px rgba(0, 0, 0, 0.12);
+@keyframes photo-enter {
+  from {
+    opacity: 0.82;
+    transform: scale(1.035);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.0);
+  }
 }
 
-.glass-level-1 {
-  backdrop-filter: blur(var(--glass-blur));
-}
-
-.glass-level-2 {
-  backdrop-filter: blur(var(--glass-blur-lg)) saturate(140%);
-}
-
-.glass-level-3 {
-  backdrop-filter: blur(var(--glass-blur-xl)) saturate(160%);
-}
-
-/* Dual-tone border for depth */
-.glass-dual-border {
-  position: relative;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+@media (prefers-reduced-motion: reduce) {
+  @keyframes photo-enter {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  2. MICRO-INTERACTION POLISH                                          */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* Premium button interactions */
-.button-premium {
-  transition: all 200ms var(--ease-spring);
-}
-
-.button-premium:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: var(--shadow-soft-md);
-}
-
-.button-premium:active {
-  transform: translateY(0) scale(0.98);
-  box-shadow: var(--shadow-soft-sm);
-}
 
 /* Card hover states (desktop only) */
 .card-interactive {
@@ -225,48 +199,11 @@
   animation: gradient-shift 8s ease-in-out infinite;
 }
 
-/* Ambient orb float (optional) */
-@keyframes orb-float {
-
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-
-  33% {
-    transform: translate(20px, -30px);
-  }
-
-  66% {
-    transform: translate(-15px, 20px);
-  }
-}
-
-.ambient-orb {
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%,
-      rgba(255, 140, 66, 0.8),
-      rgba(255, 77, 0, 0.4));
-  filter: blur(2px);
-  opacity: 0.2;
-  animation: orb-float 15s ease-in-out infinite;
-  will-change: transform;
-  pointer-events: none;
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  4. TYPOGRAPHY REFINEMENTS                                            */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-.text-display-premium {
-  font-size: clamp(32px, 8vw, 48px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
 
 .text-title-premium {
   font-size: clamp(20px, 5vw, 28px);
@@ -408,41 +345,11 @@
   }
 }
 
-/* Disable expensive effects on low-end devices */
-@media (max-width: 640px) and (max-resolution: 192dpi) {
-
-  .glass-enhanced,
-  .glass-level-2,
-  .glass-level-3,
-  .modal-premium,
-  .action-bar-premium {
-    backdrop-filter: none;
-    background: rgba(10, 10, 10, 0.95);
-  }
-
-  .ambient-orb {
-    display: none;
-  }
-}
-
-/* GPU acceleration for animations */
-.gpu-accelerated {
-  transform: translateZ(0);
-  will-change: transform;
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  8. UTILITY CLASSES                                                   */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* Soft shadows */
-.shadow-soft-sm {
-  box-shadow: var(--shadow-soft-sm);
-}
-
-.shadow-soft-md {
-  box-shadow: var(--shadow-soft-md);
-}
 
 .shadow-soft-lg {
   box-shadow: var(--shadow-soft-lg);
@@ -450,72 +357,6 @@
 
 .shadow-glow-accent {
   box-shadow: var(--shadow-glow-accent);
-}
-
-/* Spacing utilities */
-.space-xs {
-  margin: var(--space-xs);
-}
-
-.space-sm {
-  margin: var(--space-sm);
-}
-
-.space-md {
-  margin: var(--space-md);
-}
-
-.space-lg {
-  margin: var(--space-lg);
-}
-
-.space-xl {
-  margin: var(--space-xl);
-}
-
-.space-2xl {
-  margin: var(--space-2xl);
-}
-
-.space-3xl {
-  margin: var(--space-3xl);
-}
-
-.space-4xl {
-  margin: var(--space-4xl);
-}
-
-/* Padding utilities */
-.p-xs {
-  padding: var(--space-xs);
-}
-
-.p-sm {
-  padding: var(--space-sm);
-}
-
-.p-md {
-  padding: var(--space-md);
-}
-
-.p-lg {
-  padding: var(--space-lg);
-}
-
-.p-xl {
-  padding: var(--space-xl);
-}
-
-.p-2xl {
-  padding: var(--space-2xl);
-}
-
-.p-3xl {
-  padding: var(--space-3xl);
-}
-
-.p-4xl {
-  padding: var(--space-4xl);
 }
 
 /* Enhanced border radius */
@@ -839,8 +680,7 @@
   background: linear-gradient(145deg,
       rgba(18, 18, 22, 0.92) 0%,
       rgba(24, 24, 30, 0.88) 100%);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  /* Solid background replaces blur for GPU savings */
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
   box-shadow:
@@ -853,8 +693,7 @@
 
 .white-matte .modal-liquid-glass {
   background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  /* Solid background replaces blur for GPU savings */
   border: 1px solid rgba(0, 0, 0, 0.07);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.95),

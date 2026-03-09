@@ -12,7 +12,7 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -22,7 +22,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
-import { useParallaxStore } from '@/state/parallaxStore';
+
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 
@@ -62,6 +62,9 @@ interface SimpleSwipeCardProps {
   onTap?: () => void;
   onInsights?: () => void;
   isTop?: boolean;
+  /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
+  externalX?: MotionValue<number>;
+  externalY?: MotionValue<number>;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -70,6 +73,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onTap,
   onInsights,
   isTop = true,
+  externalX,
+  externalY,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -81,19 +86,24 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
   // Motion values for BOTH X and Y - enables diagonal movement
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  // Always create internal values (hooks must not be conditional)
+  // Use external MotionValue if provided so the parent can observe drag position in real-time
+  const _internalX = useMotionValue(0);
+  const _internalY = useMotionValue(0);
+  const x = externalX ?? _internalX;
+  const y = externalY ?? _internalY;
 
   // Tinder-style rotation: pivots from bottom of card based on X drag
   // When you drag right, card rotates clockwise (positive rotation)
   // Rotation is proportional to X position, giving natural "pivot" feel
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
 
-  // Card opacity decreases as it moves away from center
+  // Card opacity stays at 1 during drag for max smoothness (no compositing flicker)
+  // Only fade slightly at extreme positions to hint at exit
   const cardOpacity = useTransform(
     x,
-    [-300, -100, 0, 100, 300],
-    [0.6, 0.9, 1, 0.9, 0.6]
+    [-300, -150, 0, 150, 300],
+    [0.85, 1, 1, 1, 0.85]
   );
 
   // Like/Pass overlay opacity based on X position
@@ -169,19 +179,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Fetch rating aggregate for this listing
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
 
-  // Parallax store for ambient background effect
-  const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
-  const endParallaxDrag = useParallaxStore((s) => s.endDrag);
-
-  // Subscribe motion value to parallax store for ambient background effect
-  useEffect(() => {
-    const unsubscribe = x.on('change', (latestX) => {
-      if (isDragging.current && isTop) {
-        updateParallaxDrag(latestX, 0, x.getVelocity());
-      }
-    });
-    return unsubscribe;
-  }, [x, isTop, updateParallaxDrag]);
 
   // Unified pointer down handler: starts magnifier hold timer AND stores event for potential drag
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
@@ -243,7 +240,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, []);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    endParallaxDrag();
+
 
     if (hasExited.current) return;
 
@@ -267,27 +264,31 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
 
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
+      // For near-horizontal swipes (offsetY ≈ 0), add a subtle arc so the card
+      // floats upward on like (right) and drops slightly on dislike (left)
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
-      const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
+      const rawExitY = Math.tan(swipeAngle) * exitDistance;
+      const clampedExitY = Math.min(Math.max(rawExitY, -300), 300);
+      const arcBias = direction === 'right' ? -70 : 40;
+      const exitY = Math.abs(clampedExitY) < 40 ? arcBias : clampedExitY;
 
-      // Spring-based exit animation - feels more natural than tween
+      // Tween-based exit — faster and lighter than spring for PWA
+      // Spring exit causes extra frames of oscillation; tween exits cleanly
       animate(x, exitX, {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityX,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           isExitingRef.current = false;
           onSwipe(direction);
         },
       });
 
-      // Animate Y in parallel
+      // Animate Y in parallel — tween for consistency
       animate(y, Math.min(Math.max(exitY, -300), 300), {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityY,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
       });
     } else {
       // Spring snap-back to center - BOTH X and Y
@@ -304,7 +305,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [listing.id, onSwipe, x, y, endParallaxDrag]);
+  }, [listing.id, onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     // Card tap does nothing by default - image taps handle photo navigation
@@ -356,23 +357,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onSwipe(direction);
     };
 
-    // Spring-based exit for button taps (consistent physics)
+    // Tween exit for button taps — fast, clean, no spring oscillation
     animate(x, exitX, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
       onComplete: fireSwipe,
     });
 
-    // Slight upward arc for button swipes
-    animate(y, -50, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+    // Arc: like floats up, dislike falls slightly — mirrors natural card-flick feel
+    animate(y, direction === 'right' ? -60 : 32, {
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
     });
 
-    // SAFETY NET: If animation callback doesn't fire within 350ms, force it
-    setTimeout(fireSwipe, 350);
+    // SAFETY NET: tighter timeout matching tween duration
+    setTimeout(fireSwipe, 300);
   }, [listing.id, onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
@@ -446,7 +447,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg liquid-glass-card refraction-edge glass-nano-texture"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -492,7 +493,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute top-8 left-8 z-30 pointer-events-none"
           style={{
             opacity: likeOpacity,
-            willChange: 'opacity',
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -514,7 +514,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-            willChange: 'opacity',
+
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -543,11 +543,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.45)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
               }}
             >
               <CompactRatingDisplay
@@ -598,11 +595,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.45)',
               border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
             }}>
               <VerifiedBadge size="sm" />
               <span className="text-xs font-medium text-white">Verified</span>

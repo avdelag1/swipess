@@ -1,5 +1,6 @@
 
 import { useEffect, useState, memo } from 'react';
+import { motion } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
@@ -22,87 +23,24 @@ import {
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 
-// Predefined tag categories
-const PROPERTY_TAGS = [
-  'Looking to rent long-term', 'Short-term rental seeker', 'Interested in purchasing property',
-  'Open to rent-to-own', 'Flexible lease terms', 'Corporate housing needed',
-  'Family-friendly housing', 'Student accommodation',
-];
-
-const TRANSPORTATION_TAGS = [
-  'Need motorcycle rental', 'Looking to buy motorcycle', 'Bicycle enthusiast',
-  'Need yacht charter', 'Interested in yacht purchase', 'Daily commuter', 'Weekend explorer',
-];
-
-const LIFESTYLE_TAGS = [
-  'Pet-friendly required', 'Eco-conscious living', 'Digital nomad', 'Fitness & wellness focused',
-  'Beach lover', 'City center preference', 'Quiet neighborhood', 'Social & community-oriented',
-  'Work-from-home setup', 'Minimalist lifestyle',
-];
-
-const FINANCIAL_TAGS = [
-  'Verified income', 'Excellent credit score', 'Landlord references available',
-  'Long-term employment', 'Flexible budget',
-];
-
-// New demographic options
-const NATIONALITY_OPTIONS = [
-  'United States', 'Canada', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',
-  'Netherlands', 'Australia', 'Brazil', 'Argentina', 'Colombia', 'India', 'China', 'Japan',
-  'South Korea', 'Other',
-];
-
-const LANGUAGE_OPTIONS = [
-  'English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Mandarin',
-  'Japanese', 'Korean', 'Arabic', 'Russian', 'Dutch',
-];
-
-const RELATIONSHIP_STATUS_OPTIONS = [
-  'Single', 'Couple', 'Family with Children', 'Group/Roommates',
-];
-
-const SMOKING_HABIT_OPTIONS = [
-  'Non-Smoker', 'Occasional Smoker', 'Regular Smoker', 'Vaper Only',
-];
-
-const DRINKING_HABIT_OPTIONS = [
-  'Non-Drinker', 'Social Drinker', 'Regular Drinker',
-];
-
-const CLEANLINESS_OPTIONS = [
-  'Very Clean', 'Clean', 'Average', 'Relaxed',
-];
-
-const NOISE_TOLERANCE_OPTIONS = [
-  'Very Quiet', 'Moderate', 'Flexible', 'Lively OK',
-];
-
-const WORK_SCHEDULE_OPTIONS = [
-  '9-5 Traditional', 'Night Shift', 'Remote Worker', 'Flexible Hours', 'Retired', 'Student',
-];
-
-const DIETARY_OPTIONS = [
-  'Omnivore', 'Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-Free', 'Halal', 'Kosher',
-];
-
-const PERSONALITY_OPTIONS = [
-  'Introvert', 'Extrovert', 'Ambivert', 'Early Bird', 'Night Owl', 'Highly Organized',
-  'Relaxed/Casual', 'Adventurous', 'Homebody',
-];
-
-const INTEREST_OPTIONS = [
-  'Sports & Fitness', 'Arts & Culture', 'Food & Cooking', 'Travel', 'Technology & Gaming',
-  'Nature & Outdoors', 'Reading & Writing', 'Music & Concerts', 'Photography',
-  'Yoga & Meditation', 'Entrepreneurship', 'Volunteering',
-];
-
-// Client intentions - what they're looking for (multi-option presets)
-const INTENTION_OPTIONS = [
-  { id: 'rent_property', label: 'Looking to Rent', description: 'Apartments, houses, rooms' },
-  { id: 'buy_property', label: 'Looking to Buy', description: 'Interested in purchasing property' },
-  { id: 'rent_vehicle', label: 'Need Vehicle Rental', description: 'Motorcycle, bicycle, car' },
-  { id: 'hire_service', label: 'Looking to Hire', description: 'Find professionals for work' },
-];
+import {
+  PROPERTY_TAGS,
+  TRANSPORTATION_TAGS,
+  LIFESTYLE_TAGS,
+  FINANCIAL_TAGS,
+  NATIONALITY_OPTIONS,
+  LANGUAGE_OPTIONS,
+  RELATIONSHIP_STATUS_OPTIONS,
+  SMOKING_HABIT_OPTIONS,
+  DRINKING_HABIT_OPTIONS,
+  CLEANLINESS_OPTIONS,
+  NOISE_TOLERANCE_OPTIONS,
+  WORK_SCHEDULE_OPTIONS,
+  DIETARY_OPTIONS,
+  PERSONALITY_OPTIONS,
+  INTEREST_OPTIONS,
+  CLIENT_INTENTION_OPTIONS as INTENTION_OPTIONS
+} from '@/constants/profileConstants';
 
 type Props = {
   open: boolean;
@@ -465,14 +403,14 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
             {/* Basic Info Section */}
             <div className="space-y-4">
               <Label className="text-white text-lg sm:text-xl font-bold">👤 Basic Information</Label>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-white/90 text-sm sm:text-base">Full Name *</Label>
-                <Input 
-                  id="name" 
-                  value={name} 
-                  onChange={(e) => setName(e.target.value)} 
-                  placeholder="Enter your full name" 
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
                   className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
                   required
                 />
@@ -517,23 +455,23 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               <div className="grid grid-cols-1 gap-3">
                 {INTENTION_OPTIONS.map((option) => {
                   const isSelected = intentions.includes(option.id);
-                  
+
                   return (
-                    <button
+                    <motion.button
                       key={option.id}
                       onClick={() => toggleIntention(option.id)}
-                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${
-                        isSelected 
-                          ? "bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/10" 
-                          : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
-                      }`}
+                      whileTap={{ scale: 0.96 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left ${isSelected
+                        ? "bg-red-500/10 border-red-500/50 shadow-lg shadow-red-500/10"
+                        : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                        }`}
                     >
-                      <div className={`p-2 rounded-lg shrink-0 ${
-                        isSelected ? "bg-red-500/20 text-red-400" : "bg-white/10 text-white/70"
-                      }`}>
+                      <div className={`p-2 rounded-lg shrink-0 ${isSelected ? "bg-red-500/20 text-red-400" : "bg-white/10 text-white/70"
+                        }`}>
                         <Search className="w-5 h-5" />
                       </div>
-                      
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-white">{option.label}</span>
@@ -546,14 +484,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                         <p className="text-sm text-white/50 truncate">{option.description}</p>
                       </div>
 
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        isSelected 
-                          ? "border-red-500 bg-red-500 text-white" 
-                          : "border-white/30"
-                      }`}>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${isSelected
+                        ? "border-red-500 bg-red-500 text-white"
+                        : "border-white/30"
+                        }`}>
                         {isSelected && <Check className="w-3 h-3" />}
                       </div>
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
@@ -658,8 +595,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400 disabled:opacity-50">
                       <SelectValue placeholder={
                         !city ? 'Select city first' :
-                        availableNeighborhoods.length === 0 ? 'No neighborhoods' :
-                        'Select (optional)'
+                          availableNeighborhoods.length === 0 ? 'No neighborhoods' :
+                            'Select (optional)'
                       } />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white max-h-60">
@@ -719,11 +656,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Badge
                       key={lang}
                       variant={languages.includes(lang) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${
-                        languages.includes(lang)
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-transparent'
-                          : 'bg-white/5 border-white/20 text-white/70 hover:border-blue-400 hover:bg-white/10'
-                      }`}
+                      className={`cursor-pointer transition-all ${languages.includes(lang)
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-transparent'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:border-blue-400 hover:bg-white/10'
+                        }`}
                       onClick={() => toggleLanguage(lang)}
                     >
                       {lang}
@@ -849,11 +785,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Badge
                       key={diet}
                       variant={dietaryPreferences.includes(diet) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${
-                        dietaryPreferences.includes(diet)
-                          ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-transparent'
-                          : 'bg-white/5 border-white/20 text-white/70 hover:border-green-400 hover:bg-white/10'
-                      }`}
+                      className={`cursor-pointer transition-all ${dietaryPreferences.includes(diet)
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-transparent'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:border-green-400 hover:bg-white/10'
+                        }`}
                       onClick={() => toggleDietaryPref(diet)}
                     >
                       {diet}
@@ -869,11 +804,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Badge
                       key={trait}
                       variant={personalityTraits.includes(trait) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${
-                        personalityTraits.includes(trait)
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-transparent'
-                          : 'bg-white/5 border-white/20 text-white/70 hover:border-purple-400 hover:bg-white/10'
-                      }`}
+                      className={`cursor-pointer transition-all ${personalityTraits.includes(trait)
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-transparent'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:border-purple-400 hover:bg-white/10'
+                        }`}
                       onClick={() => togglePersonalityTrait(trait)}
                     >
                       {trait}
@@ -889,11 +823,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     <Badge
                       key={interest}
                       variant={interestCategories.includes(interest) ? 'default' : 'outline'}
-                      className={`cursor-pointer transition-all ${
-                        interestCategories.includes(interest)
-                          ? 'bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white border-transparent'
-                          : 'bg-white/5 border-white/20 text-white/70 hover:border-red-400 hover:bg-white/10'
-                      }`}
+                      className={`cursor-pointer transition-all ${interestCategories.includes(interest)
+                        ? 'bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white border-transparent'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:border-red-400 hover:bg-white/10'
+                        }`}
                       onClick={() => toggleInterestCategory(interest)}
                     >
                       {interest}
@@ -903,181 +836,182 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               </div>
             </div>
 
-              {/* Profile Tags Section */}
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-white text-lg sm:text-xl font-bold">🏷️ Describe Yourself</Label>
-                  <p className="text-white/60 text-xs sm:text-sm mt-1">Select 5-10 tags that best describe your needs and preferences</p>
-                </div>
-                
-                {/* Property Interest Tags */}
-                <div className="space-y-3">
-                  <h4 className="text-sm sm:text-base font-semibold text-blue-400 flex items-center gap-2">
-                    🏠 Property & Housing
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {PROPERTY_TAGS.map(tag => (
-                      <div
-                        key={tag}
-                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all active:scale-95 ${
-                          interests.includes(tag)
-                            ? 'bg-blue-500/20 border-blue-400 text-white shadow-lg shadow-blue-500/20'
-                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                        onClick={() => toggleTag(tag, true)}
-                      >
-                        <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${
-                          interests.includes(tag)
-                            ? 'bg-blue-500 border-blue-500'
-                            : 'border-white/40 bg-transparent'
-                        }`}>
-                          {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                        </div>
-                        <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Transportation Tags */}
-                <div className="space-y-3">
-                  <h4 className="text-sm sm:text-base font-semibold text-red-400 flex items-center gap-2">
-                    🚗 Transportation & Mobility
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {TRANSPORTATION_TAGS.map(tag => (
-                      <div
-                        key={tag}
-                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all active:scale-95 ${
-                          activities.includes(tag)
-                            ? 'bg-red-500/20 border-red-400 text-white shadow-lg shadow-red-500/20'
-                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                        onClick={() => toggleTag(tag, false)}
-                      >
-                        <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${
-                          activities.includes(tag)
-                            ? 'bg-red-500 border-red-500'
-                            : 'border-white/40 bg-transparent'
-                        }`}>
-                          {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                        </div>
-                        <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            {/* Profile Tags Section */}
+            <div className="space-y-4">
+              <div>
+                <Label className="text-white text-lg sm:text-xl font-bold">🏷️ Describe Yourself</Label>
+                <p className="text-white/60 text-xs sm:text-sm mt-1">Select 5-10 tags that best describe your needs and preferences</p>
+              </div>
 
-                {/* Lifestyle Tags */}
-                <div className="space-y-3">
-                  <h4 className="text-sm sm:text-base font-semibold text-purple-400 flex items-center gap-2">
-                    ✨ Lifestyle & Preferences
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {LIFESTYLE_TAGS.map(tag => (
-                      <div
-                        key={tag}
-                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all active:scale-95 ${
-                          interests.includes(tag)
-                            ? 'bg-purple-500/20 border-purple-400 text-white shadow-lg shadow-purple-500/20'
-                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
+              {/* Property Interest Tags */}
+              <div className="space-y-3">
+                <h4 className="text-sm sm:text-base font-semibold text-blue-400 flex items-center gap-2">
+                  🏠 Property & Housing
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {PROPERTY_TAGS.map(tag => (
+                    <motion.div
+                      key={tag}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${interests.includes(tag)
+                        ? 'bg-blue-500/20 border-blue-400 text-white shadow-lg shadow-blue-500/20'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
                         }`}
-                        onClick={() => toggleTag(tag, true)}
-                      >
-                        <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${
-                          interests.includes(tag)
-                            ? 'bg-purple-500 border-purple-500'
-                            : 'border-white/40 bg-transparent'
-                        }`}>
-                          {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                        </div>
-                        <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Financial & Verification Tags */}
-                <div className="space-y-3">
-                  <h4 className="text-sm sm:text-base font-semibold text-green-400 flex items-center gap-2">
-                    💰 Financial & Verification
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {FINANCIAL_TAGS.map(tag => (
-                      <div
-                        key={tag}
-                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all active:scale-95 ${
-                          activities.includes(tag)
-                            ? 'bg-green-500/20 border-green-400 text-white shadow-lg shadow-green-500/20'
-                            : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
-                        }`}
-                        onClick={() => toggleTag(tag, false)}
-                      >
-                        <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${
-                          activities.includes(tag)
-                            ? 'bg-green-500 border-green-500'
-                            : 'border-white/40 bg-transparent'
-                        }`}>
-                          {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
-                        </div>
-                        <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tag Counter & Clear Button */}
-                <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-r from-white/10 to-white/5 rounded-xl border-2 border-white/20">
-                  <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold text-sm sm:text-lg">
-                      {totalTags}
-                    </div>
-                    <div>
-                      <p className="text-sm sm:text-base font-semibold text-white">
-                        {totalTags} / 10 tags selected
-                      </p>
-                      <p className="text-xs text-white/60">
-                        {totalTags < 5 ? 'Select at least 5 tags' : totalTags >= 10 ? 'Maximum reached!' : 'Good progress!'}
-                      </p>
-                    </div>
-                  </div>
-                  {totalTags > 0 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setInterests([]);
-                        setActivities([]);
-                      }}
-                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-10 px-4"
+                      onClick={() => toggleTag(tag, true)}
                     >
-                      Clear all
-                    </Button>
-                  )}
+                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${interests.includes(tag)
+                        ? 'bg-blue-500 border-blue-500'
+                        : 'border-white/40 bg-transparent'
+                        }`}>
+                        {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      </div>
+                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
+
+              {/* Transportation Tags */}
+              <div className="space-y-3">
+                <h4 className="text-sm sm:text-base font-semibold text-red-400 flex items-center gap-2">
+                  🚗 Transportation & Mobility
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {TRANSPORTATION_TAGS.map(tag => (
+                    <motion.div
+                      key={tag}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${activities.includes(tag)
+                        ? 'bg-red-500/20 border-red-400 text-white shadow-lg shadow-red-500/20'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
+                        }`}
+                      onClick={() => toggleTag(tag, false)}
+                    >
+                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${activities.includes(tag)
+                        ? 'bg-red-500 border-red-500'
+                        : 'border-white/40 bg-transparent'
+                        }`}>
+                        {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      </div>
+                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Lifestyle Tags */}
+              <div className="space-y-3">
+                <h4 className="text-sm sm:text-base font-semibold text-purple-400 flex items-center gap-2">
+                  ✨ Lifestyle & Preferences
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {LIFESTYLE_TAGS.map(tag => (
+                    <motion.div
+                      key={tag}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${interests.includes(tag)
+                        ? 'bg-purple-500/20 border-purple-400 text-white shadow-lg shadow-purple-500/20'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
+                        }`}
+                      onClick={() => toggleTag(tag, true)}
+                    >
+                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${interests.includes(tag)
+                        ? 'bg-purple-500 border-purple-500'
+                        : 'border-white/40 bg-transparent'
+                        }`}>
+                        {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      </div>
+                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Financial & Verification Tags */}
+              <div className="space-y-3">
+                <h4 className="text-sm sm:text-base font-semibold text-green-400 flex items-center gap-2">
+                  💰 Financial & Verification
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  {FINANCIAL_TAGS.map(tag => (
+                    <motion.div
+                      key={tag}
+                      whileTap={{ scale: 0.95 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                      className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${activities.includes(tag)
+                        ? 'bg-green-500/20 border-green-400 text-white shadow-lg shadow-green-500/20'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
+                        }`}
+                      onClick={() => toggleTag(tag, false)}
+                    >
+                      <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${activities.includes(tag)
+                        ? 'bg-green-500 border-green-500'
+                        : 'border-white/40 bg-transparent'
+                        }`}>
+                        {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
+                      </div>
+                      <span className="text-xs sm:text-sm leading-tight">{tag}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tag Counter & Clear Button */}
+              <div className="flex items-center justify-between p-4 sm:p-5 bg-gradient-to-r from-white/10 to-white/5 rounded-xl border-2 border-white/20">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-red-600 to-red-500 text-white font-bold text-sm sm:text-lg">
+                    {totalTags}
+                  </div>
+                  <div>
+                    <p className="text-sm sm:text-base font-semibold text-white">
+                      {totalTags} / 10 tags selected
+                    </p>
+                    <p className="text-xs text-white/60">
+                      {totalTags < 5 ? 'Select at least 5 tags' : totalTags >= 10 ? 'Maximum reached!' : 'Good progress!'}
+                    </p>
+                  </div>
+                </div>
+                {totalTags > 0 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setInterests([]);
+                      setActivities([]);
+                    }}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 h-10 px-4"
+                  >
+                    Clear all
+                  </Button>
+                )}
+              </div>
             </div>
-          </ScrollArea>
+          </div>
+        </ScrollArea>
 
         <DialogFooter className="px-4 sm:px-6 py-4 border-t border-white/10 flex-row gap-3 shrink-0">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => onOpenChange(false)}
             className="flex-1 h-12 text-white/70 hover:text-white hover:bg-white/10"
           >
             Cancel
           </Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={saveMutation.isPending || isLoading || !name.trim()}
             className="flex-1 h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold text-base"
           >
             {saveMutation.isPending ? 'Saving...' : 'Save Profile'}
           </Button>
         </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </DialogContent >
+    </Dialog >
   );
 }
 

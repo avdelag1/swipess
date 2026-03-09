@@ -19,7 +19,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Flame, MessageCircle, User, Building2, Heart, Filter, Sparkles,
-  Search, Compass,
+  Search, Compass, LayoutGrid, Briefcase, Users, List
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -90,7 +90,7 @@ export function BottomNavigation({
 
   // Client nav items
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: 'Explore', path: '/client/dashboard' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
@@ -100,10 +100,10 @@ export function BottomNavigation({
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Home, label: 'Dashboard', path: '/owner/dashboard' },
-    { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'liked', icon: Heart, label: 'Liked', path: '/owner/liked-clients' },
-    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties', isCenter: true },
+    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
+    { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
+    { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
+    { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
     { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
     { id: 'filter', icon: Filter, label: 'Filters', path: '/owner/filters' },
@@ -162,10 +162,8 @@ export function BottomNavigation({
       <div
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
-          // LAYER 1: Liquid glass base
-          backgroundColor: barBg,
-          backdropFilter: 'blur(32px) saturate(185%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(185%)',
+          // LAYER 1: Solid glass base (no blur - massive GPU savings)
+          backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)',
           // LAYER 2: Top rim catch-light (bright edge = physical glass rim)
           borderTop: `1px solid ${isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.14)'}`,
           borderLeft: `1px solid ${barBorder}`,

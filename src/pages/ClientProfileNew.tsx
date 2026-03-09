@@ -140,7 +140,7 @@ const ClientProfileNew = () => {
               style={{
                 background: isLight ? 'rgba(228,0,124,0.03)' : 'rgba(228,0,124,0.05)',
                 borderColor: 'rgba(228,0,124,0.15)',
-                backdropFilter: 'blur(12px)'
+                
               }}
               onClick={() => { haptics.select(); setShowEditDialog(true); }}
             >

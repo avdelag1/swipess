@@ -16,13 +16,13 @@ import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth'
 import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
-import StarFieldBackground from './StarFieldBackground';
-import CheetahBackground from './CheetahBackground';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+
+
+const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah';
+type EffectMode = 'off' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -127,7 +127,7 @@ const LandingView = memo(({
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-black/50 rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
             >
               <Icon className="w-3.5 h-3.5 text-white/90" />
               <span className="text-white/90 text-xs font-medium">{label}</span>
@@ -140,7 +140,7 @@ const LandingView = memo(({
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-xl font-bold active:bg-white/20 transition-colors"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-black/50 border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-xl font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -325,7 +325,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
-      <StarFieldBackground />
+      
 
       {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -515,7 +515,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
       {/* Error details modal */}
       {showErrorDetails && errorDetails && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90">
           <div className="bg-zinc-900 border border-red-500/20 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl">
             <div className="bg-red-500/10 border-b border-red-500/20 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -558,18 +558,17 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: stars → cheetah → orbs → stars
+  // Cycle: stars → orbs → off → stars
   const cycleEffect = () => setEffectMode((p) => {
-    if (p === 'stars') return 'cheetah';
-    if (p === 'cheetah') return 'orbs';
+    if (p === 'stars') return 'orbs';
+    if (p === 'orbs') return 'off';
     return 'stars';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : '◼';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={(view === 'auth' || effectMode === 'cheetah') ? 'off' : effectMode} />
-      {view !== 'auth' && effectMode === 'cheetah' && <CheetahBackground />}
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

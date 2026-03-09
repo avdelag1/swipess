@@ -147,9 +147,8 @@ const Index = () => {
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
       if (metadataRole) {
         hasNavigated.current = true;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.log("[Index] New user - using metadata role, navigating to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] New user - navigating to unified hub");
+        navigate("/dashboard", { replace: true });
         return;
       }
     }
@@ -171,7 +170,7 @@ const Index = () => {
           .select('active_mode')
           .eq('user_id', user.id)
           .maybeSingle();
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
         const result = await Promise.race([dbPromise, timeoutPromise]);
 
         if (result && 'data' in result && (result.data?.active_mode === 'client' || result.data?.active_mode === 'owner')) {
@@ -202,36 +201,32 @@ const Index = () => {
       // If we have an active mode preference, use it
       if (activeMode) {
         hasNavigated.current = true;
-        const targetPath = activeMode === 'owner' ? '/owner/dashboard' : '/client/dashboard';
-        logger.log("[Index] Navigating to sticky active mode:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] Navigating to unified hub with sticky mode:", activeMode);
+        navigate("/dashboard", { replace: true });
         return;
       }
 
       // Fallback 1: Admin always goes to client (or sticky if they have one)
       if (userRole === 'admin') {
         hasNavigated.current = true;
-        logger.log("[Index] Admin detected, navigating to client dashboard");
-        navigate('/client/dashboard', { replace: true });
+        logger.log("[Index] Admin detected, navigating to unified hub");
+        navigate('/dashboard', { replace: true });
         return;
       }
 
       // Fallback 2: Primary role
       if (userRole) {
         hasNavigated.current = true;
-        const targetPath = userRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.log("[Index] Navigating to primary role dashboard:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] Navigating to unified hub with role:", userRole);
+        navigate("/dashboard", { replace: true });
         return;
       }
 
       // Fallback 3: Metadata or Default
       if (!isNewUser && !isLoadingRole) {
-        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
         hasNavigated.current = true;
-        logger.log("[Index] Last resort navigation to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] Last resort navigation to unified hub");
+        navigate("/dashboard", { replace: true });
         return;
       }
 
@@ -256,7 +251,7 @@ const Index = () => {
         logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
         navigate(targetPath, { replace: true });
       }
-    }, 4000);
+    }, 2000);
 
     performRedirection();
     return () => clearTimeout(safetyTimeout);
@@ -272,7 +267,7 @@ const Index = () => {
 
   // Escape hatch: show a recovery UI if loading is stuck beyond 6 seconds
   useEffect(() => {
-    if (!user || !initialized || hasNavigated.current) return;
+    if (!user || !initialized) return;
     const timer = setTimeout(() => setShowEscapeHatch(true), 6000);
     return () => clearTimeout(timer);
   }, [user, initialized]);
@@ -345,7 +340,21 @@ const Index = () => {
   // Caso final (redirigiendo)
   return (
     <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-      <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      {showEscapeHatch ? (
+        <div className="text-center space-y-4 p-4 max-w-sm">
+          <div className="text-orange-500 text-3xl">⏳</div>
+          <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
+          <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+          <button
+            onClick={() => { window.location.href = '/?clear-cache=1'; }}
+            className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
+          >
+            Refresh & Continue
+          </button>
+        </div>
+      ) : (
+        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      )}
     </div>
   );
 };

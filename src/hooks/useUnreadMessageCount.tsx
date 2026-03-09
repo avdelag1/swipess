@@ -27,17 +27,18 @@ export function useUnreadMessageCount() {
 
         const conversationIds = conversations.map(c => c.id);
 
-        // Count unread messages not sent by current user
-        const { count, error: unreadError } = await supabase
+        // Count distinct conversations with unread messages (not individual messages)
+        const { data: unreadRows, error: unreadError } = await supabase
           .from('conversation_messages')
-          .select('conversation_id', { count: 'exact', head: true })
+          .select('conversation_id')
           .in('conversation_id', conversationIds)
           .neq('sender_id', user.id)
           .eq('is_read', false);
 
         if (unreadError) throw unreadError;
 
-        return Math.min(count || 0, 99);
+        const uniqueConversations = new Set(unreadRows?.map(m => m.conversation_id));
+        return Math.min(uniqueConversations.size, 99);
       } catch (error) {
         logger.error('[UnreadCount] Error:', error);
         return 0;

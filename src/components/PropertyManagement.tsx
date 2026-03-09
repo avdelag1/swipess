@@ -265,7 +265,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             "flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 rounded-3xl shadow-2xl",
             isLight
               ? "bg-white border border-border/50"
-              : "bg-white/[0.04] backdrop-blur-xl border border-white/[0.06]"
+              : "bg-white/[0.04] border border-white/[0.06]"
           )}
         >
           <div className="flex items-center gap-4">
@@ -283,7 +283,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               className={cn(
                 "flex items-center gap-2 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide transition-all",
                 "border border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10",
-                isLight ? "bg-white" : "bg-white/[0.04] backdrop-blur-sm"
+                isLight ? "bg-white" : "bg-white/[0.04]"
               )}
               onClick={() => setShowAIAssistant(true)}
             >
@@ -322,7 +322,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         {/* Tabs */}
         <div className={cn(
           "flex flex-wrap gap-1.5 p-1.5 rounded-2xl",
-          isLight ? 'bg-secondary/60 border border-border/30' : 'bg-white/[0.03] backdrop-blur-sm border border-white/[0.06]'
+          isLight ? 'bg-secondary/60 border border-border/30' : 'bg-white/[0.03] border border-white/[0.06]'
         )}>
           {tabItems.map((tab) => (
             <motion.button
@@ -368,7 +368,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                     "overflow-hidden rounded-3xl transition-all border shadow-xl hover:shadow-2xl",
                     isLight
                       ? 'bg-white border-border/50 hover:border-primary/30'
-                      : 'bg-white/[0.04] backdrop-blur-sm border-white/[0.06] hover:border-white/[0.12]'
+                      : 'bg-white/[0.04] border-white/[0.06] hover:border-white/[0.12]'
                   )}>
                     {/* Image */}
                     <div className={cn("relative aspect-[16/10]", isLight ? 'bg-gray-100' : 'bg-gray-700')}>

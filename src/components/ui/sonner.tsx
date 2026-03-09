@@ -1,8 +1,11 @@
 import { Toaster as Sonner, toast as sonnerToast } from "sonner"
+import { useTheme } from "@/hooks/useTheme"
 
 type ToasterProps = React.ComponentProps<typeof Sonner>
 
 const Toaster = ({ ...props }: ToasterProps) => {
+  const { theme } = useTheme();
+
   return (
     <Sonner
       theme="dark"
@@ -11,14 +14,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-[#1a1a1a] group-[.toaster]:text-white group-[.toaster]:border-white/15 group-[.toaster]:shadow-2xl group-[.toaster]:shadow-black/50 group-[.toaster]:rounded-2xl group-[.toaster]:px-6 group-[.toaster]:py-4 group-[.toaster]:backdrop-blur-xl group-[.toaster]:border-b-2 group-[.toaster]:border-b-pink-500/40",
-          description: "group-[.toast]:text-white",
+            "group toast group-[.toaster]:bg-black/90 group-[.toaster]:backdrop-blur-2xl group-[.toaster]:text-white group-[.toaster]:border-white/10 group-[.toaster]:shadow-[0_8px_32px_rgba(0,0,0,0.5)] group-[.toaster]:rounded-3xl group-[.toaster]:px-5 group-[.toaster]:py-4 group-[.toaster]:border-l-4 group-[.toaster]:border-l-brand-accent-2",
+          description: "group-[.toast]:text-muted-foreground group-[.toast]:font-bold group-[.toast]:text-xs",
           actionButton:
-            "group-[.toast]:bg-white/30 group-[.toast]:text-white group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 group-[.toast]:font-semibold group-[.toast]:shadow-lg hover:group-[.toast]:bg-white/40 hover:group-[.toast]:shadow-white/50",
+            "group-[.toast]:bg-brand-accent-2 group-[.toast]:text-white group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 group-[.toast]:font-black group-[.toast]:text-[10px] group-[.toast]:uppercase group-[.toast]:tracking-wider hover:group-[.toast]:scale-105 active:group-[.toast]:scale-95 transition-all",
           cancelButton:
-            "group-[.toast]:bg-white/20 group-[.toast]:text-white group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 hover:group-[.toast]:bg-white/30",
-          title: "group-[.toast]:text-white group-[.toast]:font-semibold group-[.toast]:text-base",
-          icon: "group-[.toast]:w-5 group-[.toast]:h-5",
+            "group-[.toast]:bg-white/10 group-[.toast]:text-white group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 hover:group-[.toast]:bg-white/20",
+          title: "group-[.toast]:text-white group-[.toast]:font-black group-[.toast]:text-sm group-[.toast]:uppercase group-[.toast]:tracking-tight",
+          icon: "group-[.toast]:w-5 group-[.toast]:h-5 group-[.toast]:text-brand-accent-2",
           success: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-green-600 group-[.toaster]:via-emerald-600 group-[.toaster]:to-teal-600 group-[.toaster]:shadow-green-500/50",
           error: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-red-600 group-[.toaster]:via-rose-600 group-[.toaster]:to-pink-600 group-[.toaster]:shadow-red-500/50",
           warning: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-amber-600 group-[.toaster]:via-orange-600 group-[.toaster]:to-yellow-600 group-[.toaster]:shadow-amber-500/50",

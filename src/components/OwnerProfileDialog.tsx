@@ -15,13 +15,7 @@ import { validateContent } from '@/utils/contactInfoValidation';
 import { Building2, Bike, CircleDot, Briefcase, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Preset service offerings - multi-option, no free text
-const SERVICE_OFFERING_OPTIONS = [
-  { id: 'property_rental', label: 'Property Rental', icon: Building2, description: 'Apartments, houses, condos' },
-  { id: 'motorcycle_rental', label: 'Motorcycle Rental', icon: CircleDot, description: 'Motorcycles, scooters, ATVs' },
-  { id: 'bicycle_rental', label: 'Bicycle Rental', icon: Bike, description: 'Bikes, e-bikes, mountain bikes' },
-  { id: 'professional_services', label: 'Professional Services', icon: Briefcase, description: 'Chef, cleaner, nanny, handyman' },
-];
+import { OWNER_SERVICE_OFFERING_OPTIONS as SERVICE_OFFERING_OPTIONS } from '@/constants/profileConstants';
 
 type Props = {
   open: boolean;
@@ -132,13 +126,13 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl h-[calc(100vh-4rem)] sm:h-auto max-h-[90vh] flex flex-col p-0 gap-0 bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl border border-white/10 text-white" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-        <DialogHeader className="px-4 sm:px-6 py-4 border-b border-white/10 shrink-0">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl h-[calc(100vh-4rem)] sm:h-auto max-h-[90vh] flex flex-col p-0 gap-0 bg-card/95 backdrop-blur-xl border border-border text-foreground" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+        <DialogHeader className="px-4 sm:px-6 py-4 border-b border-border shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-red-400 to-red-500 bg-clip-text text-transparent">
               Edit Owner Profile
             </DialogTitle>
-            <Badge variant="outline" className="bg-white/10 border-white/20 text-white">
+            <Badge variant="outline" className="bg-muted border-border text-foreground">
               {completionPercentage}% Complete
             </Badge>
           </div>
@@ -150,8 +144,8 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label className="text-white text-lg sm:text-xl font-bold">📸 Business Photo</Label>
-                  <p className="text-white/60 text-xs sm:text-sm mt-1">Add 1 photo of your business</p>
+                  <Label className="text-foreground text-lg sm:text-xl font-bold">📸 Business Photo</Label>
+                  <p className="text-muted-foreground text-xs sm:text-sm mt-1">Add 1 photo of your business</p>
                 </div>
                 <Badge variant="secondary" className="bg-[#E4007C]/20 text-[#E4007C] border-[#E4007C]">
                   {profileImages.length}/1
@@ -169,39 +163,44 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
             {/* Business Info Section */}
             <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">🏢 Business Information</Label>
+              <Label className="text-foreground text-lg sm:text-xl font-bold">🏢 Business Information</Label>
 
               <div className="space-y-2">
-                <Label htmlFor="business_name" className="text-white/90 text-sm sm:text-base">Business Name</Label>
+                <Label htmlFor="business_name" className="text-muted-foreground text-sm sm:text-base">Business Name</Label>
                 <Input
                   id="business_name"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="Your business name"
-                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="business_location" className="text-white/90 text-sm sm:text-base">Business Location</Label>
+                <Label htmlFor="business_location" className="text-muted-foreground text-sm sm:text-base">Business Location</Label>
                 <Input
                   id="business_location"
                   value={businessLocation}
                   onChange={(e) => setBusinessLocation(e.target.value)}
                   placeholder="City, Country"
-                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
                 />
               </div>
             </div>
 
             {/* Service Offerings Section - Multi-option presets */}
             <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">💼 What Do You Offer?</Label>
-              <p className="text-white/60 text-sm">Select all services your business provides • No free text needed</p>
+              <Label className="text-foreground text-lg sm:text-xl font-bold">💼 What Do You Offer?</Label>
+              <p className="text-muted-foreground text-sm">Select all services your business provides • No free text needed</p>
 
               <div className="grid grid-cols-1 gap-3">
                 {SERVICE_OFFERING_OPTIONS.map((option) => {
-                  const Icon = option.icon;
+                  const Icon =
+                    option.id === 'property_rental' ? Building2 :
+                      option.id === 'property_sale' ? Briefcase :
+                        option.id === 'motorcycle_rental' ? CircleDot :
+                          option.id === 'bicycle_rental' ? Bike :
+                            Briefcase;
                   const isSelected = serviceOfferings.includes(option.id);
 
                   return (
@@ -212,33 +211,33 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                         "flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
                         isSelected
                           ? "bg-[#E4007C]/10 border-[#E4007C]/50 shadow-lg shadow-[#E4007C]/10"
-                          : "bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                          : "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/20"
                       )}
                     >
                       <div className={cn(
                         "p-2 rounded-lg shrink-0",
-                        isSelected ? "bg-[#E4007C]/20 text-[#E4007C]" : "bg-white/10 text-white/70"
+                        isSelected ? "bg-[#E4007C]/20 text-[#E4007C]" : "bg-muted text-muted-foreground"
                       )}>
                         <Icon className="w-5 h-5" />
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold tracking-tight text-white">{option.label}</span>
+                          <span className="font-bold tracking-tight text-foreground">{option.label}</span>
                           {isSelected && (
                             <Badge className="bg-[#E4007C] text-white text-[10px] uppercase font-black tracking-widest px-2">
                               <Check className="w-3 h-3 mr-1" /> Selected
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm font-medium text-white/50 truncate mt-0.5">{option.description}</p>
+                        <p className="text-sm font-medium text-muted-foreground truncate mt-0.5">{option.description}</p>
                       </div>
 
                       <div className={cn(
                         "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
                         isSelected
                           ? "border-[#E4007C] bg-[#E4007C] text-white"
-                          : "border-white/30"
+                          : "border-muted-foreground/30"
                       )}>
                         {isSelected && <Check className="w-3 h-3" />}
                       </div>
@@ -254,41 +253,41 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
             {/* Contact Info Section */}
             <div className="space-y-4">
-              <Label className="text-white text-lg sm:text-xl font-bold">📞 Contact Information</Label>
+              <Label className="text-foreground text-lg sm:text-xl font-bold">📞 Contact Information</Label>
 
               <div className="space-y-2">
-                <Label htmlFor="contact_email" className="text-white/90 text-sm sm:text-base">Contact Email</Label>
+                <Label htmlFor="contact_email" className="text-muted-foreground text-sm sm:text-base">Contact Email</Label>
                 <Input
                   id="contact_email"
                   type="email"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="business@example.com"
-                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="contact_phone" className="text-white/90 text-sm sm:text-base">Contact Phone</Label>
+                <Label htmlFor="contact_phone" className="text-muted-foreground text-sm sm:text-base">Contact Phone</Label>
                 <Input
                   id="contact_phone"
                   type="tel"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className="h-14 text-base bg-zinc-900 border-white/10 rounded-2xl text-white placeholder:text-zinc-500 focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
                 />
               </div>
             </div>
           </div>
         </ScrollArea>
 
-        <DialogFooter className="px-4 sm:px-6 py-4 border-t border-white/5 shrink-0 bg-zinc-950/80">
+        <DialogFooter className="px-4 sm:px-6 py-4 border-t border-border shrink-0 bg-card/80">
           <div className="flex flex-col sm:flex-row gap-3 w-full">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1 h-14 rounded-2xl border-white/10 bg-zinc-900 text-white hover:bg-zinc-800 font-bold tracking-wide"
+              className="flex-1 h-14 rounded-2xl border-border bg-secondary text-foreground hover:bg-muted font-bold tracking-wide"
             >
               Cancel
             </Button>
