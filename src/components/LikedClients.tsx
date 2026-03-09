@@ -268,8 +268,8 @@ export function LikedClients() {
             className={cn(
               "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[#E4007C] transition-all outline-none",
               isLight
-                ? "bg-white border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.08] text-foreground placeholder-muted-foreground backdrop-blur-sm"
+                ? "bg-background border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
+                : "bg-muted/30 border border-border text-foreground placeholder-muted-foreground backdrop-blur-sm"
             )}
           />
         </div>
