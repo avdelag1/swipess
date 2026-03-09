@@ -3,27 +3,21 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { logger } from '@/utils/prodLogger';
 
+// Credentials are baked in as fallbacks so the app always connects in Lovable
+// preview and production — even when env vars aren't explicitly set.
+// The anon key is intentionally public (enforced via Supabase Row Level Security).
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://vplgtcguxujxwrgguxqq.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwbGd0Y2d1eHVqeHdyZ2d1eHFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMDI5MDIsImV4cCI6MjA2MzU3ODkwMn0.-TzSQ-nDho4J6TftVF4RNjbhr5cKbknQxxUT-AaSIJU';
 
-// Validation — only logs in development (prodLogger suppresses non-errors in production)
-if (!SUPABASE_URL || SUPABASE_URL === 'https://placeholder.supabase.co') {
-  logger.error('[Supabase] Invalid or missing VITE_SUPABASE_URL. Check your .env file.');
-} else {
-  const projectRef = SUPABASE_URL.match(/https:\/\/(.*?)\.supabase\.co/)?.[1];
-  logger.log(`[Supabase] Initializing for project: ${projectRef || 'unknown'}`);
-}
-
-if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === 'placeholder-key') {
-  logger.error('[Supabase] Invalid or missing VITE_SUPABASE_PUBLISHABLE_KEY.');
-}
+const projectRef = SUPABASE_URL.match(/https:\/\/(.*?)\.supabase\.co/)?.[1];
+logger.log(`[Supabase] Connected to project: ${projectRef || 'unknown'}`);
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
 export const supabase = createClient<Database>(
-  SUPABASE_URL || 'https://placeholder.supabase.co',
-  SUPABASE_PUBLISHABLE_KEY || 'placeholder-key',
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
   {
     auth: {
       storage: localStorage,
