@@ -1,46 +1,80 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Round 3: Remaining Performance Drains
 
-### 1. Replace App Icon with Fire S Logo
+There are still several active performance killers hiding in the codebase. Here's what's left.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+---
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## 1. Delete Dead Files: `FireOrb.tsx`, `CheetahBackground.tsx`, `DepthParallaxBackground.tsx`
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+All three are **no longer imported anywhere** but still exist as 349, 165, and 144 lines of dead code respectively. `DepthParallaxBackground` is explicitly commented out in `App.tsx`. Clean deletion — zero risk.
 
-### 2. Profile Photo Already Shows in Top-Left
+**Also delete:** `src/state/parallaxStore.ts` (only used by DepthParallaxBackground).
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+---
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+## 2. TutorialSwipePage: 20+ `backdropFilter: blur()` layers
 
-### 3. Fix Header Too Close to Top Edge
+`TutorialSwipePage.tsx` is the single worst offender remaining — it has **20+ inline `backdropFilter: blur()`** calls on badges, overlays, buttons, and cards. Every single one forces a GPU blur composite.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**Action:** Replace all `backdropFilter: blur()` with solid semi-opaque backgrounds (`rgba(0,0,0,0.7)` etc). Same visual on dark UI, massive GPU savings.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+---
 
-### 4. Fix MarketingSlide Build Error
+## 3. RadarSearchEffect: `filter: blur(40px)` glow layer
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+The "sentient glow" layer uses `filter: blur(40px)` on a div that scales 1→1.3→1 infinitely. This runs on the empty-state screen (when no cards remain). A 40px blur re-composited every frame is expensive.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**Action:** Replace with a static CSS `box-shadow` glow. Same visual, zero per-frame cost.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+---
+
+## 4. NotificationBar: still has `backdropFilter: blur(24px)`
+
+Missed in the previous pass. Every notification triggers a blur composite.
+
+**Action:** Replace with solid background.
+
+---
+
+## 5. MessagingInterface: 2x `backdropFilter: blur(20px)`
+
+The message header and input area both use blur. These are visible during every chat interaction.
+
+**Action:** Replace with `hsl(var(--background) / 0.97)` solid — already nearly opaque so blur adds nothing visible.
+
+---
+
+## 6. SimpleOwnerSwipeCard: 3x `backdropFilter: blur(8px)`
+
+Info badges on owner swipe cards each have blur. During swiping these are on the active card being dragged — blur re-renders on every drag frame.
+
+**Action:** Replace with solid dark backgrounds.
+
+---
+
+## 7. QuickFilterDropdown: `backdropFilter: blur(8px)`
+
+Filter button uses blur. Static element, easy swap.
+
+---
+
+## Summary
+
+| Target | Blur Layers Killed | Type |
+|--------|-------------------|------|
+| Dead files (3 files + store) | 0 (dead code cleanup) | Bundle size |
+| TutorialSwipePage | ~20 | GPU shader |
+| RadarSearchEffect | 1 (40px!) | GPU shader + animation |
+| NotificationBar | 1 | GPU shader |
+| MessagingInterface | 2 | GPU shader |
+| SimpleOwnerSwipeCard | 3 | GPU shader (on dragged card!) |
+| QuickFilterDropdown | 1 | GPU shader |
+
+**Files to delete:** `FireOrb.tsx`, `CheetahBackground.tsx`, `DepthParallaxBackground.tsx`, `parallaxStore.ts`
+
+**Files to edit:** `TutorialSwipePage.tsx`, `RadarSearchEffect.tsx`, `NotificationBar.tsx`, `MessagingInterface.tsx`, `SimpleOwnerSwipeCard.tsx`, `QuickFilterDropdown.tsx`
+
+This eliminates the last ~28 hidden blur layers and removes ~800 lines of dead code from the bundle.
 
