@@ -595,11 +595,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.45)',
               border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
             }}>
               <VerifiedBadge size="sm" />
               <span className="text-xs font-medium text-white">Verified</span>
