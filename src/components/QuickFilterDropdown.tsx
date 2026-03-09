@@ -347,8 +347,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                           className={cn(
                             'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
                             categories.includes(category.id) && listingType === ltOption.id
-                              ? cn('bg-gradient-to-r', gradientClass, 'text-white')
-                              : 'text-foreground hover:bg-white/10 bg-white/5'
+                              ? cn('bg-gradient-to-r', category.color, 'text-white')
+                              : cn('hover:bg-white/10 bg-white/5', category.inactiveColor)
                           )}
                         >
                           <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
