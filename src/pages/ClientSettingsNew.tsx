@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Radio, Building2
+  Scale, Volume2, Radio, Building2, Wrench, ShieldCheck, Globe
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { ClientVerificationFlow } from "@/components/ClientVerificationFlow";
 import { useState } from "react";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
@@ -48,17 +50,38 @@ const settingsGroups: SettingsGroup[] = [
         section: 'security',
       },
       {
+        icon: ShieldCheck,
+        label: 'Identity Verification',
+        description: 'Verify your identity for trusted access',
+        bg: 'linear-gradient(135deg, #065f46, #34d399)',
+        section: 'verification',
+      },
+      {
         icon: Volume2,
         label: 'Preferences',
         description: 'Customize sounds and app behavior',
         bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
         section: 'preferences',
       },
+      {
+        icon: Globe,
+        label: 'Language',
+        description: 'Choose your preferred language',
+        bg: 'linear-gradient(135deg, #3730a3, #818cf8)',
+        section: 'language',
+      },
     ],
   },
   {
     label: 'Tools',
     items: [
+      {
+        icon: Wrench,
+        label: 'Maintenance',
+        description: 'Report and track property issues',
+        bg: 'linear-gradient(135deg, #92400e, #fbbf24)',
+        route: '/client/maintenance',
+      },
       {
         icon: FileText,
         label: 'My Contracts',
@@ -128,6 +151,32 @@ const ClientSettingsNew = () => {
               </div>
               <DeleteAccountSection />
             </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'verification') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+        <div className="max-w-3xl mx-auto">
+          <PageHeader title="Identity Verification" subtitle="Verify your identity for trusted access" showBack={false} />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+            <ClientVerificationFlow onComplete={() => setActiveSection(null)} />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'language') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+        <div className="max-w-3xl mx-auto">
+          <PageHeader title="Language" subtitle="Choose your preferred language" showBack={false} />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+            <LanguageToggle />
           </motion.div>
         </div>
       </div>

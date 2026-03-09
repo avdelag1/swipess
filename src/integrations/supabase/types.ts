@@ -138,6 +138,7 @@ export type Database = {
           gender: string | null
           has_children: boolean | null
           id: number
+          identity_verified: boolean | null
           intentions: Json | null
           interest_categories: Json | null
           interests: Json | null
@@ -155,6 +156,7 @@ export type Database = {
           smoking_habit: string | null
           updated_at: string
           user_id: string
+          verification_submitted_at: string | null
           work_schedule: string | null
         }
         Insert: {
@@ -169,6 +171,7 @@ export type Database = {
           gender?: string | null
           has_children?: boolean | null
           id?: number
+          identity_verified?: boolean | null
           intentions?: Json | null
           interest_categories?: Json | null
           interests?: Json | null
@@ -186,6 +189,7 @@ export type Database = {
           smoking_habit?: string | null
           updated_at?: string
           user_id: string
+          verification_submitted_at?: string | null
           work_schedule?: string | null
         }
         Update: {
@@ -200,6 +204,7 @@ export type Database = {
           gender?: string | null
           has_children?: boolean | null
           id?: number
+          identity_verified?: boolean | null
           intentions?: Json | null
           interest_categories?: Json | null
           interests?: Json | null
@@ -217,6 +222,7 @@ export type Database = {
           smoking_habit?: string | null
           updated_at?: string
           user_id?: string
+          verification_submitted_at?: string | null
           work_schedule?: string | null
         }
         Relationships: []
@@ -1067,6 +1073,65 @@ export type Database = {
         }
         Relationships: []
       }
+      maintenance_requests: {
+        Row: {
+          category: string
+          contract_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          listing_id: string | null
+          owner_id: string
+          photo_urls: Json | null
+          priority: string
+          resolved_at: string | null
+          status: string
+          tenant_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          contract_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          listing_id?: string | null
+          owner_id: string
+          photo_urls?: Json | null
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          tenant_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          contract_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          listing_id?: string | null
+          owner_id?: string
+          photo_urls?: Json | null
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          tenant_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_requests_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "digital_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       matches: {
         Row: {
           created_at: string
@@ -1423,6 +1488,7 @@ export type Database = {
           images: Json | null
           interests: Json | null
           is_active: boolean | null
+          language: string | null
           languages_spoken: Json | null
           lifestyle_tags: Json | null
           nationality: string | null
@@ -1455,6 +1521,7 @@ export type Database = {
           images?: Json | null
           interests?: Json | null
           is_active?: boolean | null
+          language?: string | null
           languages_spoken?: Json | null
           lifestyle_tags?: Json | null
           nationality?: string | null
@@ -1487,6 +1554,7 @@ export type Database = {
           images?: Json | null
           interests?: Json | null
           is_active?: boolean | null
+          language?: string | null
           languages_spoken?: Json | null
           lifestyle_tags?: Json | null
           nationality?: string | null

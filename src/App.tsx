@@ -18,6 +18,7 @@ import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import Index from "./pages/Index";
+import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Automatic update system
@@ -109,6 +110,7 @@ const LocalIntel = lazy(() => import("./pages/LocalIntel"));
 const RoommateMatching = lazy(() => import("./pages/RoommateMatching"));
 const DocumentVault = lazy(() => import("./pages/DocumentVault"));
 const EscrowDashboard = lazy(() => import("./pages/EscrowDashboard"));
+const MaintenanceRequests = lazy(() => import("./pages/MaintenanceRequests"));
 
 // Rare pages - lazy loaded (payment, camera, legal, public previews)
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
@@ -126,6 +128,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
 const queryClient = new QueryClient({
@@ -209,6 +212,9 @@ const App = () => {
                               {/* Update notification banner */}
                               <UpdateNotification />
 
+                              {/* Guided tour for first-time users */}
+                              <GuidedTourLazy />
+
                               <AppLayout>
                                 <TooltipProvider>
                                   <Sonner />
@@ -247,6 +253,7 @@ const App = () => {
                                       <Route path="/client/legal-services" element={<ClientLawyerServices />} />
                                       <Route path="/client/camera" element={<ClientSelfieCamera />} />
                                       <Route path="/client/filters" element={<ClientFilters />} />
+                                      <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
                                       {/* Owner routes */}
                                       <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
