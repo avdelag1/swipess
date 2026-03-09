@@ -75,6 +75,14 @@ const buttonVariants = cva(
           'text-foreground border border-border ' +
           'bg-card/75 backdrop-blur-2xl ' +
           'shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_2px_8px_rgba(0,0,0,0.08)]',
+        /**
+         * GRADIENT variant — bold pink→orange CTA
+         * Use for "Apply Filters", "Save", "Subscribe" — primary conversion actions.
+         */
+        gradient:
+          'bg-gradient-to-r from-pink-500 to-orange-500 text-white ' +
+          'shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 ' +
+          'rounded-2xl border-b-2 border-pink-700/50',
       },
       size: {
         default: 'h-12 px-6 py-3',
