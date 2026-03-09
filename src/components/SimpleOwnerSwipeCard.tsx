@@ -431,7 +431,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [profile?.user_id, onSwipe, x, y, endParallaxDrag]);
+  }, [profile?.user_id, onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     if (!isDragging.current && onTap) {
