@@ -1,46 +1,42 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Neighborhood Heat Map & Document Vault — Already Built
 
-### 1. Replace App Icon with Fire S Logo
+Both features were fully implemented in the previous approved build. Here's what's already live:
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## Neighborhood Heat Map (`/explore/zones`)
+- Fetches all Tulum zones from `neighborhood_data` table (seeded with Aldea Zama, La Veleta, Region 15, etc.)
+- Color-coded zone cards with density scores, listing counts, avg rent prices
+- Tap to expand: shows description, vibe tags (#yoga, #nightlife, etc.), avg rent vs sale comparison
+- "Browse listings in [Zone]" button navigates to the swipe deck
+- Lazy-loaded, framer-motion stagger animations
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## Document Vault (`/documents`)
+- Upload documents to `legal-documents` private storage bucket
+- Category tabs: All, Contracts, IDs, Fideicomiso, Other
+- Search across document names
+- Download via signed URLs, delete with storage cleanup
+- Digital contracts from `digital_contracts` table integrated inline
+- File size validation (10MB max)
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+## What I Can Do Now
 
-### 2. Profile Photo Already Shows in Top-Left
+Since both features exist but could be **visually elevated** and **functionally enhanced**, here are upgrade options:
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### Option A: Visual & UX Polish (recommended)
+1. **Heat Map**: Add a density bar visualization per zone (not just a label), add a gradient background glow matching each zone's `color_hex`, improve the expanded state with a mini price comparison chart
+2. **Document Vault**: Add drag-and-drop upload, document type auto-detection from filename, upload progress indicator, confirmation dialog before delete
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+### Option B: Functional Enhancements
+1. **Heat Map → Swipe Deck Filter**: When tapping "Browse listings," pass the neighborhood as a filter parameter so the swipe deck only shows listings from that zone
+2. **Document Vault**: Add document type picker during upload (instead of defaulting to "other"), add bulk download, show document preview thumbnails for images/PDFs
 
-### 3. Fix Header Too Close to Top Edge
+### Option C: Both A + B combined
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+No database changes needed — all tables and data are already in place.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### Implementation scope
+- Modify `src/pages/NeighborhoodMap.tsx` — visual upgrade + filter pass-through
+- Modify `src/pages/DocumentVault.tsx` — upload UX improvements + type picker
+- ~2 files modified, no new tables or migrations
 
