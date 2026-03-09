@@ -223,7 +223,6 @@ function SwipeActionButtonBarComponent({
       style={{
         padding: '10px 20px',
         transform: 'translateZ(0)',
-        willChange: 'transform, opacity',
         zIndex: 100,
       }}
     >

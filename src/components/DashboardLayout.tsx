@@ -639,7 +639,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           zIndex: 0,
           transform: 'translateZ(0)',
           WebkitOverflowScrolling: 'touch',
-          willChange: 'contents',
         }}
       >
         <motion.div

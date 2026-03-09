@@ -513,7 +513,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-            willChange: 'opacity',
+            
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}

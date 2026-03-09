@@ -386,7 +386,6 @@ const ImageCarouselComponent = ({
               zIndex: 4,
               opacity: showImage && !(isTransitioning && previousSrc) ? 1 : 0,
               transform: 'translateZ(0)',
-              willChange: 'opacity',
               backfaceVisibility: 'hidden',
             }}
             onLoad={() => {

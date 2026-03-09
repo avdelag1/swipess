@@ -1112,7 +1112,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
                 backgroundSize: '200% 100%',
                 animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-                willChange: 'background-position',
                 transform: 'translateZ(0)',
               }}
             />
