@@ -229,7 +229,7 @@ export function LikedClients() {
                         "flex items-center gap-2 px-4 py-2.5 rounded-2xl border transition-all active:scale-95",
                         filterSafeOnly
                           ? "bg-emerald-600 border-emerald-500 text-white shadow-[0_4px_12px_rgba(16,185,129,0.3)]"
-                          : "bg-zinc-800 border-zinc-700 text-zinc-300"
+                          : "bg-secondary border-border text-muted-foreground"
                       )}
                     >
                       {filterSafeOnly ? <ShieldCheck className="w-4 h-4" /> : <ShieldAlert className="w-4 h-4" />}
