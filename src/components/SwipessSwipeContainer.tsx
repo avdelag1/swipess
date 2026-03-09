@@ -1404,11 +1404,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           return (
             <div
               key={`next-${nextCard.id}`}
-              className="w-full h-full absolute inset-0"
+              className="w-full h-full absolute inset-0 gpu-layer"
               style={{
                 zIndex: 5,
-                transform: 'scale(0.95)',
-                opacity: 0.7,
+                transform: 'scale(0.97) translateZ(0)',
+                opacity: 0.75,
                 pointerEvents: 'none',
               }}
             >
