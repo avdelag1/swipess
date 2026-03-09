@@ -18,7 +18,7 @@ import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 
 
-const swipessLogo = '/icons/fire-s-logo.png';
+import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -107,9 +107,9 @@ const LandingView = memo(({
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[96vw] max-w-[680px] sm:max-w-[820px] md:max-w-[960px] h-auto object-contain mx-auto mix-blend-screen opacity-70 transition-opacity duration-700 hover:opacity-100"
+            className="w-[96vw] max-w-[680px] sm:max-w-[820px] md:max-w-[960px] h-auto object-contain mx-auto opacity-90 transition-opacity duration-700 hover:opacity-100"
             style={{
-              filter: 'drop-shadow(0 0 30px rgba(255, 60, 0, 0.4)) contrast(1.1) brightness(1.2)',
+              filter: 'drop-shadow(0 0 30px rgba(255, 60, 0, 0.4))',
             }}
           />
         </div>
