@@ -231,7 +231,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, []);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    
+
 
     if (hasExited.current) return;
 
@@ -433,7 +433,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg liquid-glass-card refraction-edge glass-nano-texture"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -500,7 +500,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-            
+
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}

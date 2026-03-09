@@ -1,12 +1,14 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveMode } from "@/hooks/useActiveMode";
-import { Crown, Check, Shield, Clock, Sparkles, ArrowLeft } from "lucide-react";
+import { Crown, Check, Shield, Clock, Sparkles, ArrowLeft, Zap, Star, ChevronLeft, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { toast } from "@/components/ui/sonner";
 import { STORAGE } from "@/constants/app";
+import { haptics } from "@/utils/microPolish";
 import { cn } from "@/lib/utils";
 
 const clientPremiumPlans = [
@@ -104,8 +106,9 @@ export default function SubscriptionPackagesPage() {
   const userRole = activeMode;
 
   const handlePremiumPurchase = (plan: typeof clientPremiumPlans[0]) => {
+    haptics.tap();
     if (!plan.paypalUrl) {
-      toast({ title: "Payment link unavailable", description: "Please contact support.", variant: "destructive" });
+      toast.error('Payment link unavailable', { description: 'Please contact support.' });
       return;
     }
     localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
@@ -116,59 +119,61 @@ export default function SubscriptionPackagesPage() {
       at: new Date().toISOString()
     }));
     window.open(plan.paypalUrl, '_blank');
-    toast({ title: 'Redirecting to PayPal', description: `Selected: ${plan.name} ($${plan.price} USD)` });
+    toast.success('Redirecting to PayPal', { description: `Selected: ${plan.name} ($${plan.price} USD)` });
   };
 
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
+        <div className="animate-pulse text-muted-foreground font-black uppercase tracking-widest text-[10px]">Loading Hub...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background flex flex-col">
-      {/* Subtle ambient glow */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-amber-500/[0.04] via-pink-500/[0.02] to-transparent rounded-full blur-3xl" />
+    <div className="min-h-screen bg-background flex flex-col pb-32 overflow-x-hidden">
+      {/* Background Polish */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-accent-2/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-brand-primary/5 blur-[120px] rounded-full" />
       </div>
 
-      {/* Header */}
-      <div className="relative z-10 shrink-0 pt-[env(safe-area-inset-top)]">
-        <div className="px-4 py-4 flex items-center justify-between">
+      <div className="relative z-10 shrink-0 pt-[env(safe-area-inset-top)] px-4">
+        <div className="max-w-5xl mx-auto py-4 flex items-center justify-between">
           <motion.button
-            whileTap={{ scale: 0.96 }}
+            whileTap={{ scale: 0.9 }}
             onClick={() => navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard')}
-            className="p-2 rounded-xl bg-white/[0.04] backdrop-blur-sm border border-white/[0.06] text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ChevronLeft className="w-3.5 h-3.5" />
+            Back
           </motion.button>
-          <div />
         </div>
 
-        {/* Title */}
+        {/* Title Section */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-          className="text-center px-4 pb-4"
+          className="text-center max-w-2xl mx-auto pb-12"
         >
-          <div className="inline-flex items-center gap-2 mb-3">
-            <Crown className="w-6 h-6 text-amber-400" />
+          <div className="inline-flex items-center gap-2 mb-4">
+            <Zap className="w-6 h-6 text-brand-accent-2 animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+              Elite Marketplace
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-500 via-orange-400 to-amber-400 bg-clip-text text-transparent">
-            Unlock Premium
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-white mb-6">
+            Unlock Full <span className="text-brand-accent-2 line-through decoration-white/20">Access</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
-            Full access to all Swipess features
+          <p className="text-sm font-bold text-muted-foreground leading-relaxed max-w-lg mx-auto">
+            Choose a plan that fits your needs. Every subscription includes unlimited messaging, AI listing tools, and full access to all marketplace services.
           </p>
         </motion.div>
       </div>
 
-      {/* Cards — fills remaining viewport */}
-      <div className="relative z-10 flex-1 flex flex-col px-3 sm:px-6 pb-4">
-        <div className="flex-1 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch max-w-5xl w-full mx-auto">
+      {/* Cards Section */}
+      <div className="relative z-10 flex-1 flex flex-col px-4 sm:px-6">
+        <div className="flex-1 flex flex-col lg:flex-row gap-6 items-stretch max-w-6xl w-full mx-auto">
           {clientPremiumPlans.map((plan, index) => {
             const style = accentStyles[plan.accent];
             const isHighlight = plan.highlight;
@@ -178,103 +183,88 @@ export default function SubscriptionPackagesPage() {
                 key={plan.id}
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 + index * 0.1, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ delay: index * 0.1 }}
                 className={cn(
-                  "flex-1 flex flex-col rounded-3xl border backdrop-blur-xl transition-all duration-300",
-                  "bg-white/[0.03]",
-                  style.border,
-                  style.glow,
-                  isHighlight && "sm:scale-[1.03] sm:z-10 ring-1 ring-amber-500/20"
+                  "flex-1 flex flex-col liquid-glass-card refraction-edge glass-nano-texture rounded-[2.5rem] p-1 transition-all duration-500",
+                  isHighlight && "lg:scale-[1.05] lg:z-10 shadow-[0_0_50px_rgba(251,191,36,0.1)] border-amber-500/30"
                 )}
               >
-                {/* Top gradient wash */}
-                <div className={cn("absolute inset-0 rounded-3xl bg-gradient-to-b pointer-events-none", style.topGradient)} />
-
-                <div className="relative flex flex-col flex-1 p-4 sm:p-5">
-                  {/* Badge + Label */}
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={cn("text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full", style.badge)}>
+                <div className="relative flex flex-col flex-1 p-6 sm:p-8">
+                  {/* Badge */}
+                  <div className="flex items-center justify-between mb-6">
+                    <span className={cn("text-[9px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl", style.badge)}>
                       {plan.label}
                     </span>
                     {isHighlight && (
-                      <motion.div
-                        animate={{ opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                        className="w-2 h-2 rounded-full bg-amber-400"
-                      />
+                      <Crown className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
                     )}
                   </div>
 
                   {/* Plan name */}
-                  <h3 className="text-base sm:text-lg font-bold text-foreground mb-1">{plan.name}</h3>
+                  <h3 className="text-xl font-black text-white mb-1 uppercase tracking-tight">{plan.name}</h3>
 
                   {/* Price */}
-                  <div className={cn("flex items-baseline gap-1 mb-4", style.priceShadow)}>
-                    <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-foreground tracking-tight">
+                  <div className="flex items-baseline gap-1 mb-6">
+                    <span className="text-4xl sm:text-5xl font-black text-white tracking-tighter">
                       ${plan.price}
                     </span>
-                    <span className="text-xs sm:text-sm text-muted-foreground font-medium">
-                      USD {plan.durationText}
+                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">
+                      MXN {plan.durationText}
                     </span>
                   </div>
 
-                  {/* Divider */}
-                  <div className="h-px bg-white/[0.06] mb-3" />
+                  <div className="h-px bg-white/10 mb-6" />
 
                   {/* Benefits */}
-                  <div className="flex-1 space-y-2 mb-4">
+                  <div className="flex-1 space-y-3 mb-8">
                     {plan.benefits.map((benefit, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -8 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 + index * 0.1 + i * 0.04, duration: 0.3 }}
-                        className="flex items-start gap-2"
-                      >
-                        <Check className={cn("w-3.5 h-3.5 flex-shrink-0 mt-0.5", style.checkColor)} />
-                        <span className="text-xs sm:text-sm text-foreground/80 leading-snug">{benefit}</span>
-                      </motion.div>
+                      <div key={i} className="flex items-start gap-3">
+                        <Check className={cn("w-4 h-4 flex-shrink-0 mt-0.5", style.checkColor)} />
+                        <span className="text-[11px] font-bold text-white/80 leading-relaxed uppercase tracking-tight">{benefit}</span>
+                      </div>
                     ))}
                   </div>
 
                   {/* CTA */}
-                  <motion.button
-                    whileTap={{ scale: 0.96 }}
+                  <Button
                     onClick={() => handlePremiumPurchase(plan)}
                     className={cn(
-                      "w-full py-3 rounded-2xl font-bold text-sm sm:text-base text-white transition-opacity hover:opacity-90",
+                      "w-full h-14 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white transition-all active:scale-95",
                       style.button,
-                      isHighlight && "shadow-lg shadow-amber-500/20"
+                      isHighlight && "shadow-xl shadow-amber-500/20"
                     )}
                   >
-                    {isHighlight ? '🚀 Get Best Value' : 'Subscribe Now'}
-                  </motion.button>
+                    {isHighlight ? 'Upgrade Now' : 'Select Plan'}
+                  </Button>
                 </div>
               </motion.div>
             );
           })}
         </div>
 
-        {/* Trust Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-          className="shrink-0 flex items-center justify-center gap-5 sm:gap-8 pt-4 pb-2"
-        >
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Shield className="w-3.5 h-3.5 text-green-500" />
-            <span>Secure</span>
+        {/* Security / FAQ Footer */}
+        <div className="mt-24 pt-12 max-w-4xl mx-auto w-full border-t border-white/5 grid grid-cols-2 sm:grid-cols-4 gap-8 mb-12">
+          <div className="space-y-2 text-center">
+            <Shield className="w-6 h-6 text-brand-primary mx-auto mb-2" />
+            <h5 className="text-[10px] font-black uppercase text-white tracking-widest">Secure Flow</h5>
+            <p className="text-[9px] font-bold text-muted-foreground/60 leading-relaxed uppercase">Protected by PayPal <br />Global Systems</p>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Clock className="w-3.5 h-3.5 text-blue-400" />
-            <span>Instant</span>
+          <div className="space-y-2 text-center">
+            <Clock className="w-6 h-6 text-brand-primary mx-auto mb-2" />
+            <h5 className="text-[10px] font-black uppercase text-white tracking-widest">Instant Use</h5>
+            <p className="text-[9px] font-bold text-muted-foreground/60 leading-relaxed uppercase">Credits activate <br />in seconds</p>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Cancel Anytime</span>
+          <div className="space-y-2 text-center">
+            <Zap className="w-6 h-6 text-brand-primary mx-auto mb-2" />
+            <h5 className="text-[10px] font-black uppercase text-white tracking-widest">Fast Access</h5>
+            <p className="text-[9px] font-bold text-muted-foreground/60 leading-relaxed uppercase">Unlock all features <br />immediately</p>
           </div>
-        </motion.div>
+          <div className="space-y-2 text-center">
+            <Sparkles className="w-6 h-6 text-brand-primary mx-auto mb-2" />
+            <h5 className="text-[10px] font-black uppercase text-white tracking-widest">Premium Support</h5>
+            <p className="text-[9px] font-bold text-muted-foreground/60 leading-relaxed uppercase">Priority help for <br />gold members</p>
+          </div>
+        </div>
       </div>
     </div>
   );

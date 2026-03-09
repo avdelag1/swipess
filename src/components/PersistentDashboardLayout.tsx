@@ -29,13 +29,16 @@ import { useMemo, useEffect } from 'react';
  * No async calls, no loading states, no flicker
  */
 function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'client' | 'owner' {
+  if (pathname === '/dashboard') {
+    return activeMode;
+  }
   if (pathname.startsWith('/owner/')) {
     return 'owner';
   }
   if (pathname.startsWith('/client/')) {
     return 'client';
   }
-  // For shared routes (messages, notifications, etc.), the activeMode is our source of truth
+  // For other shared routes (messages, notifications, etc.), the activeMode is our source of truth
   return activeMode;
 }
 

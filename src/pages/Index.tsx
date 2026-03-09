@@ -147,9 +147,8 @@ const Index = () => {
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
       if (metadataRole) {
         hasNavigated.current = true;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.log("[Index] New user - using metadata role, navigating to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] New user - navigating to unified hub");
+        navigate("/dashboard", { replace: true });
         return;
       }
     }
@@ -202,36 +201,32 @@ const Index = () => {
       // If we have an active mode preference, use it
       if (activeMode) {
         hasNavigated.current = true;
-        const targetPath = activeMode === 'owner' ? '/owner/dashboard' : '/client/dashboard';
-        logger.log("[Index] Navigating to sticky active mode:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] Navigating to unified hub with sticky mode:", activeMode);
+        navigate("/dashboard", { replace: true });
         return;
       }
 
       // Fallback 1: Admin always goes to client (or sticky if they have one)
       if (userRole === 'admin') {
         hasNavigated.current = true;
-        logger.log("[Index] Admin detected, navigating to client dashboard");
-        navigate('/client/dashboard', { replace: true });
+        logger.log("[Index] Admin detected, navigating to unified hub");
+        navigate('/dashboard', { replace: true });
         return;
       }
 
       // Fallback 2: Primary role
       if (userRole) {
         hasNavigated.current = true;
-        const targetPath = userRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.log("[Index] Navigating to primary role dashboard:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] Navigating to unified hub with role:", userRole);
+        navigate("/dashboard", { replace: true });
         return;
       }
 
       // Fallback 3: Metadata or Default
       if (!isNewUser && !isLoadingRole) {
-        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
         hasNavigated.current = true;
-        logger.log("[Index] Last resort navigation to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.log("[Index] Last resort navigation to unified hub");
+        navigate("/dashboard", { replace: true });
         return;
       }
 

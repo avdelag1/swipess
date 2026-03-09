@@ -138,6 +138,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
+  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+      document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
   // Single source of truth - no more local quickFilters state
   const categories = useFilterStore((state) => state.categories);

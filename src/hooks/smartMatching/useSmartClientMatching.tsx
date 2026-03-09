@@ -299,7 +299,7 @@ export function useSmartClientMatching(
                     });
                 }
 
-                // Calculate match scores
+                // Calculate match scores using the smart algorithm
                 const matchedClients: MatchedClientProfile[] = filteredProfiles.map(profile => {
                     // Use calculateClientMatch for weighted scoring when owner prefs exist
                     let matchPercentage: number;

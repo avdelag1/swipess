@@ -15,13 +15,7 @@ import { validateContent } from '@/utils/contactInfoValidation';
 import { Building2, Bike, CircleDot, Briefcase, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Preset service offerings - multi-option, no free text
-const SERVICE_OFFERING_OPTIONS = [
-  { id: 'property_rental', label: 'Property Rental', icon: Building2, description: 'Apartments, houses, condos' },
-  { id: 'motorcycle_rental', label: 'Motorcycle Rental', icon: CircleDot, description: 'Motorcycles, scooters, ATVs' },
-  { id: 'bicycle_rental', label: 'Bicycle Rental', icon: Bike, description: 'Bikes, e-bikes, mountain bikes' },
-  { id: 'professional_services', label: 'Professional Services', icon: Briefcase, description: 'Chef, cleaner, nanny, handyman' },
-];
+import { OWNER_SERVICE_OFFERING_OPTIONS as SERVICE_OFFERING_OPTIONS } from '@/constants/profileConstants';
 
 type Props = {
   open: boolean;
@@ -201,7 +195,12 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
               <div className="grid grid-cols-1 gap-3">
                 {SERVICE_OFFERING_OPTIONS.map((option) => {
-                  const Icon = option.icon;
+                  const Icon =
+                    option.id === 'property_rental' ? Building2 :
+                      option.id === 'property_sale' ? Briefcase :
+                        option.id === 'motorcycle_rental' ? CircleDot :
+                          option.id === 'bicycle_rental' ? Bike :
+                            Briefcase;
                   const isSelected = serviceOfferings.includes(option.id);
 
                   return (
