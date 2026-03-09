@@ -16,7 +16,7 @@ import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth'
 import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
-import StarFieldBackground from './StarFieldBackground';
+
 
 import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
