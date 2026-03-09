@@ -222,7 +222,7 @@ function TopBarComponent({
                 className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
                 aria-label="Go to profile"
               >
-                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
