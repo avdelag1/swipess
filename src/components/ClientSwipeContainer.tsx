@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from '
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
-import { AmbientSwipeBackground } from './AmbientSwipeBackground';
+
 import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
