@@ -89,11 +89,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Rotation is proportional to X position, giving natural "pivot" feel
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
 
-  // Card opacity decreases as it moves away from center
+  // Card opacity stays at 1 during drag for max smoothness (no compositing flicker)
+  // Only fade slightly at extreme positions to hint at exit
   const cardOpacity = useTransform(
     x,
-    [-300, -100, 0, 100, 300],
-    [0.6, 0.9, 1, 0.9, 0.6]
+    [-300, -150, 0, 150, 300],
+    [0.85, 1, 1, 1, 0.85]
   );
 
   // Like/Pass overlay opacity based on X position
@@ -270,24 +271,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
       const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
 
-      // Spring-based exit animation - feels more natural than tween
+      // Tween-based exit — faster and lighter than spring for PWA
+      // Spring exit causes extra frames of oscillation; tween exits cleanly
       animate(x, exitX, {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityX,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           isExitingRef.current = false;
           onSwipe(direction);
         },
       });
 
-      // Animate Y in parallel
+      // Animate Y in parallel — tween for consistency
       animate(y, Math.min(Math.max(exitY, -300), 300), {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityY,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
       });
     } else {
       // Spring snap-back to center - BOTH X and Y
@@ -356,23 +356,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onSwipe(direction);
     };
 
-    // Spring-based exit for button taps (consistent physics)
+    // Tween exit for button taps — fast, clean, no spring oscillation
     animate(x, exitX, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
       onComplete: fireSwipe,
     });
 
-    // Slight upward arc for button swipes
+    // Slight upward arc
     animate(y, -50, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
     });
 
-    // SAFETY NET: If animation callback doesn't fire within 350ms, force it
-    setTimeout(fireSwipe, 350);
+    // SAFETY NET: tighter timeout matching tween duration
+    setTimeout(fireSwipe, 300);
   }, [listing.id, onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
@@ -446,7 +446,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -543,11 +543,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.45)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
               }}
             >
               <CompactRatingDisplay
@@ -598,11 +595,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.45)',
               border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
             }}>
               <VerifiedBadge size="sm" />
               <span className="text-xs font-medium text-white">Verified</span>
