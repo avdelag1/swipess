@@ -1,119 +1,46 @@
 
-# Layout & UI Overflow Fix Plan
 
-## Issues Identified from Screenshots
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-### 1. TopBar Overcrowding (All Screenshots)
-The header has too many elements competing for horizontal space on mobile:
-- Avatar (40-48px)
-- Theme Toggle
-- Mode Switcher ("BUSINESS SIDE ⇄")
-- Filter dropdown
-- Tokens button
-- Notification bell
+### 1. Replace App Icon with Fire S Logo
 
-**Result:** Elements are cramped, notification bell is cut off by phone edge, text like "TOKENS" is truncated.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### 2. Profile Page Content Overlap (Screenshot 2)
-`OwnerProfileNew.tsx` has `class="p-4"` but no top padding to clear the fixed TopBar. The profile header ("Set up your business", email) renders behind the header elements.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Root cause:** Profile routes are marked as "immersive" in DashboardLayout (line 539), which sets `paddingTop: 0`, but `OwnerProfileNew` doesn't compensate with its own top padding (unlike `ClientProfileNew` which has `pt-[calc(56px+var(--safe-top)+1rem)]`).
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### 3. Duplicate Back Buttons (Screenshot 3 - Liked Clients)
-- TopBar shows a back button (`showBack={!isOnDiscoveryPage}`)
-- `PageHeader` component also renders its own "← Back" button (`showBack={true}`)
-- Creates visual redundancy and wastes vertical space
+### 2. Profile Photo Already Shows in Top-Left
 
-### 4. Swipe Card Info Behind Buttons (Screenshot 1)
-The card metadata (rating badge, "New User" name) at bottom-left appears to conflict with the floating action button bar positioning.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
----
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-## Implementation Plan
+### 3. Fix Header Too Close to Top Edge
 
-### Step 1: Simplify TopBar for Mobile
-**File:** `src/components/TopBar.tsx`
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-Changes:
-- Remove "TOKENS" text label on mobile (keep icon only)
-- Remove "ALERTS" text label on mobile (keep icon only)
-- Reduce avatar size on mobile (h-8 w-8 instead of h-10 w-10)
-- Add proper right padding to prevent notification bell cutoff
-- Consider hiding QuickFilterDropdown on very small screens (<380px)
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-```text
-Current layout:
-[Avatar] [Theme] [MODE SWITCHER] [FILTER] [⚡ TOKENS] [🔔]
+### 4. Fix MarketingSlide Build Error
 
-Proposed mobile layout:
-[Avatar] [☀️] [MODE] [⚡] [🔔]
-```
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-### Step 2: Fix OwnerProfileNew Top Padding
-**File:** `src/pages/OwnerProfileNew.tsx`
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-Change line 60:
-```tsx
-// FROM:
-className="w-full max-w-lg mx-auto p-4 pb-32 space-y-6"
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
-// TO:
-className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
-```
-
-### Step 3: Remove Duplicate Back Buttons from PageHeader
-**File:** `src/components/LikedClients.tsx` (and similar pages)
-
-Since TopBar already provides a back button, set `showBack={false}` on PageHeader:
-```tsx
-<PageHeader
-  title="Liked Clients"
-  subtitle="Profiles you've matched with"
-  showBack={false}  // TopBar handles navigation
-  actions={...}
-/>
-```
-
-Apply same fix to:
-- `src/pages/OwnerInterestedClients.tsx`
-- `src/pages/ClientWhoLikedYou.tsx`
-- `src/pages/ClientLikedProperties.tsx`
-- Any other page using PageHeader with showBack={true}
-
-### Step 4: Ensure Safe Area Padding on Right Edge
-**File:** `src/components/TopBar.tsx`
-
-Add right padding to the header to prevent notification bell cutoff:
-```tsx
-<div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pr-2">
-```
-
-### Step 5: Fix Card Content Z-Index/Positioning
-**Files:** Review swipe card overlay components
-
-Ensure the card metadata (rating, name) at bottom has proper spacing to not conflict with the action button bar which sits below the card.
-
----
-
-## Files to Modify
-1. `src/components/TopBar.tsx` - Simplify mobile layout, fix right padding
-2. `src/pages/OwnerProfileNew.tsx` - Add top padding
-3. `src/components/LikedClients.tsx` - Remove duplicate back button
-4. `src/pages/OwnerInterestedClients.tsx` - Remove duplicate back button
-5. `src/pages/ClientWhoLikedYou.tsx` - Remove duplicate back button
-6. `src/pages/ClientLikedProperties.tsx` - Remove duplicate back button
-
----
-
-## Technical Notes
-
-```text
-Safe area spacing formula:
-pt-[calc(56px+var(--safe-top)+1rem)]
-        │       │             │
-        │       │             └─ Extra breathing room
-        │       └─ Device notch/status bar
-        └─ TopBar height (52px mobile, 56px desktop)
-```
-
-This plan preserves the premium design aesthetic while ensuring all UI elements are properly visible and don't overlap.
