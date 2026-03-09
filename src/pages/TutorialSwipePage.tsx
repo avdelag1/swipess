@@ -840,8 +840,7 @@ export default function TutorialSwipePage() {
             <div className="flex items-center gap-2 p-1.5 rounded-2xl"
               style={{
                 background: 'rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.10)',
+                background: 'rgba(20,20,24,0.85)',
               }}>
               <div className="px-3 py-1.5 rounded-xl text-center min-w-[48px]"
                 style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.22)' }}>
