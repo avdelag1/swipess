@@ -324,7 +324,7 @@ function buildEnhancePrompt(data: Record<string, unknown>): Message[] {
   const tone = (data.tone as string) || "professional";
   const text = (data.text as string) || "";
   return [
-    { role: "system", content: `You are a premium copywriter. Enhance text to sound more ${tone}. Always respond with valid JSON only.` },
+    { role: "system", content: `You are a sharp copywriter who tightens text without losing meaning. Make it sound more ${tone} — but never add corporate filler or empty adjectives. If the original says something in 20 words that could land in 12, cut it. Keep the author's voice, just make it hit harder. Always respond with valid JSON only.` },
     {
       role: "user", content: `Enhance: "${text}"
 
