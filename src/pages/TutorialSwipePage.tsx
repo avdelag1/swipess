@@ -695,7 +695,7 @@ function EmptyState({ label, onReset }: { label: string; onReset: () => void }) 
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[28px]"
       style={{
         background: 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(16px)',
+        backdropFilter: 'none',
         border: '1px dashed rgba(255,255,255,0.15)',
       }}>
       <div className="w-16 h-16 rounded-full flex items-center justify-center"
