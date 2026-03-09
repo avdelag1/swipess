@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { OUTAGE_BYPASS_KEY } from '@/config/outage';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+const swipessLogo = '/icons/fire-s-logo.png';
 
 interface AppOutagePageProps {
   onBypass: () => void;

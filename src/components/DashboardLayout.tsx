@@ -10,6 +10,7 @@ import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import type { QuickFilterCategory } from '@/types/filters'
 
 // New Mobile Navigation Components
@@ -299,6 +300,28 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const el = document.getElementById('dashboard-scroll-container');
     if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [location.pathname]);
+
+  // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
+  const clientSwipePaths = [
+    '/client/dashboard',
+    '/client/profile',
+    '/client/liked-properties',
+    '/messages',
+    '/client/filters',
+  ];
+  const ownerSwipePaths = [
+    '/owner/dashboard',
+    '/owner/profile',
+    '/owner/liked-clients',
+    '/owner/properties',
+    '/messages',
+    '/owner/filters',
+  ];
+  useSwipeNavigation({
+    paths: userRole === 'client' ? clientSwipePaths : ownerSwipePaths,
+    containerSelector: '#dashboard-scroll-container',
+    enabled: true,
+  });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
