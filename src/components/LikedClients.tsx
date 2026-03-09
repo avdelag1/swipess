@@ -295,7 +295,7 @@ export function LikedClients() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-[#E4007C] transition-all outline-none",
+              "w-full h-16 rounded-3xl pl-14 pr-6 font-bold focus:border-primary transition-all outline-none",
               isLight
                 ? "bg-background border border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
                 : "bg-muted/30 border border-border text-foreground placeholder-muted-foreground"
