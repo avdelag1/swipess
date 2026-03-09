@@ -16,8 +16,6 @@ import type { QuickFilterCategory } from '@/types/filters'
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { AdvancedFilters } from '@/components/AdvancedFilters'
-// DISABLED: LiveHDBackground was causing performance issues
-// import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
 import { AISearchDialog } from './AISearchDialog';
 

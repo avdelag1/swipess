@@ -325,7 +325,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
-      <StarFieldBackground />
+      
 
       {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
