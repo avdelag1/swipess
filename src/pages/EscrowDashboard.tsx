@@ -42,7 +42,7 @@ export default function EscrowDashboard() {
   const fetchDeposits = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from('escrow_deposits' as any)
+      .from('escrow_deposits')
       .select('*')
       .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
       .order('created_at', { ascending: false });
