@@ -717,7 +717,6 @@ const ClientSwipeContainerComponent = ({
   if (showLoadingSkeleton) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col">
-        <AmbientSwipeBackground isPaused={true} />
         <div className="relative flex-1 w-full">
           <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
             <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
