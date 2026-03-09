@@ -105,8 +105,6 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
               background: isDark
                 ? 'rgba(14,14,17,0.92)'
                 : 'rgba(255,255,255,0.95)',
-              backdropFilter: 'blur(24px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(180%)',
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}`,
               boxShadow: isDark
                 ? `0 12px 40px rgba(0,0,0,0.6), 0 0 20px ${config.glowColor}`
