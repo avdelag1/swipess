@@ -19,7 +19,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
-import { useParallaxStore } from '@/state/parallaxStore';
+
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleOwnerSwipeCardRef {
