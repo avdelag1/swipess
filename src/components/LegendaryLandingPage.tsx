@@ -3,7 +3,7 @@ import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import {
-  Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
+  Shield, Eye, EyeOff, Mail, Lock, User,
   ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -107,38 +107,11 @@ const LandingView = memo(({
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[70vw] max-w-[420px] sm:max-w-[520px] md:max-w-[600px] h-auto object-contain mx-auto transition-opacity duration-700"
-            style={{
-              mixBlendMode: 'screen',
-              filter: 'brightness(1.15) saturate(1.2)',
-            }}
+            className="w-[70vw] max-w-[420px] sm:max-w-[520px] md:max-w-[600px] h-auto object-contain mx-auto"
           />
         </div>
       </motion.div>
 
-      {/* Info chips */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
-        className="mt-1"
-      >
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {[
-            { icon: Sparkles, label: 'Elite Assets' },
-            { icon: Shield, label: 'Encrypted Chat' },
-            { icon: Users, label: 'Global Network' },
-          ].map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-black/50 rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
-            >
-              <Icon className="w-3.5 h-3.5 text-white/90" />
-              <span className="text-white/90 text-xs font-medium">{label}</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
 
       {/* Effects toggle */}
       <motion.button
@@ -358,11 +331,13 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           animate="visible"
         >
           {/* Header */}
-          <motion.div variants={itemVariants} className="text-center mb-5">
-            <h2 className="text-xl font-bold text-foreground">
-              {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome to Swipess' : 'Create account'}
-            </h2>
-          </motion.div>
+          {(isForgotPassword || !isLogin) && (
+            <motion.div variants={itemVariants} className="text-center mb-5">
+              <h2 className="text-xl font-bold text-foreground">
+                {isForgotPassword ? 'Reset Password' : 'Create account'}
+              </h2>
+            </motion.div>
+          )}
 
           {/* Card */}
           <motion.div
