@@ -157,6 +157,32 @@ const ClientSettingsNew = () => {
     );
   }
 
+  if (activeSection === 'verification') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+        <div className="max-w-3xl mx-auto">
+          <PageHeader title="Identity Verification" subtitle="Verify your identity for trusted access" showBack={false} />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+            <ClientVerificationFlow onComplete={() => setActiveSection(null)} />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'language') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+        <div className="max-w-3xl mx-auto">
+          <PageHeader title="Language" subtitle="Choose your preferred language" showBack={false} />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+            <LanguageToggle />
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   if (activeSection === 'preferences') {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
