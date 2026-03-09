@@ -1,46 +1,82 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Build Plan: 5 Features (Excluding Admin Dashboard)
 
-### 1. Replace App Icon with Fire S Logo
+## Features to Build
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+### 1. Maintenance Request System
+**New table:** `maintenance_requests` with columns: `id`, `contract_id`, `listing_id`, `tenant_id`, `owner_id`, `title`, `description`, `category` (plumbing/electrical/AC/appliance/structural/other), `photo_urls` jsonb, `status` (submitted/in_progress/resolved/closed), `priority` (low/medium/high/urgent), `created_at`, `updated_at`, `resolved_at`.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**RLS:** Tenant can insert (own), both tenant + owner can view/update their own requests.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**New files:**
+- `src/pages/MaintenanceRequests.tsx` — list view with status filters + submit form
+- `src/components/MaintenanceRequestForm.tsx` — category picker, photo upload, description
 
-### 2. Profile Photo Already Shows in Top-Left
+**Photos** upload to existing `listing-images` bucket (public). Status timeline shows submitted → in progress → resolved.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+---
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+### 2. Multi-Language Support (i18n)
+**No DB changes needed.**
 
-### 3. Fix Header Too Close to Top Edge
+**Approach:** Install `react-i18next` + `i18next`. Create `src/i18n/` folder with `en.json` and `es.json` translation files. Wrap app in `I18nProvider`. Add language toggle to settings pages.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**New files:**
+- `src/i18n/index.ts` — i18n config
+- `src/i18n/en.json` — English translations (key UI strings: nav, buttons, onboarding, filters)
+- `src/i18n/es.json` — Spanish translations
+- `src/components/LanguageToggle.tsx` — EN/ES switch component
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**Integration:** Add `LanguageToggle` to both ClientSettings and OwnerSettings. Store preference in `profiles.theme_preference` field (repurpose or add `language` column). Start with ~100 key strings, not full coverage.
 
-### 4. Fix MarketingSlide Build Error
+---
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### 3. Client ID Verification (KYC-lite)
+**No new tables** — uses existing `legal_documents` table + `legal-documents` bucket.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**New files:**
+- `src/components/ClientVerificationFlow.tsx` — step wizard: selfie upload → ID document upload → submit
+- `src/components/ClientVerifiedBadge.tsx` — badge component (similar to VerifiedOwnerBadge)
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+**Approach:** Client uploads selfie + government ID → stored in `legal_documents` with `document_type = 'client_id_verification'`. A `verification_status` field in `client_profiles` tracks state (add column: `identity_verified` boolean default false, `verification_submitted_at` timestamptz). Badge shows on client profile cards visible to owners.
+
+**DB migration:** Add `identity_verified` boolean + `verification_submitted_at` timestamptz to `client_profiles`.
+
+---
+
+### 4. Onboarding Tour / Guided Walkthrough
+**No DB changes needed.**
+
+Existing `OnboardingFlow` component handles profile setup. This is a **separate** tooltip-based feature tour for first-time users AFTER onboarding.
+
+**New files:**
+- `src/components/GuidedTour.tsx` — overlay with spotlight highlighting + tooltip steps
+- `src/hooks/useGuidedTour.ts` — manages tour state, localStorage persistence
+
+**Steps:** 5-step tour highlighting: (1) swipe area, (2) filters button, (3) messages icon, (4) bottom nav explore, (5) settings. Uses portal-based spotlight overlay with framer-motion transitions. Stored in localStorage as `guidedTourCompleted`. "Show again" toggle in settings.
+
+---
+
+### 5. Stripe Payment Integration
+**Approach:** Use the Lovable Stripe integration tool to enable Stripe. This will set up the infrastructure for subscription payments, replacing the current external PayPal links.
+
+**Scope:** Connect Stripe → create products matching existing `subscription_packages` → add checkout flow → webhook for automatic subscription activation → update `user_subscriptions` on payment success.
+
+---
+
+## Implementation Order
+
+1. **DB migration** — `maintenance_requests` table + `client_profiles` verification columns
+2. **Maintenance Requests** — new page + form
+3. **Client Verification** — flow + badge
+4. **Onboarding Tour** — guided walkthrough component
+5. **i18n Setup** — translations + language toggle
+6. **Stripe** — enable via tool, implement checkout flow
+
+## Navigation Integration
+- Add Maintenance Requests to client settings menu
+- Add Client Verification to client profile/settings
+- Add Language Toggle to both settings pages
+- Guided Tour auto-triggers on first dashboard visit post-onboarding
 
