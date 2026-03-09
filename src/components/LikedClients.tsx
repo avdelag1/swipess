@@ -251,7 +251,7 @@ export function LikedClients() {
 
               <button
                 onClick={() => navigate("/owner/interested-clients")}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground shadow-md transition-all active:scale-95"
               >
                 <Heart className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">
