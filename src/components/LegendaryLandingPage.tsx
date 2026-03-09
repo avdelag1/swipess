@@ -17,12 +17,12 @@ import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
 import StarFieldBackground from './StarFieldBackground';
-import CheetahBackground from './CheetahBackground';
+
 import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah';
+type EffectMode = 'off' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -558,18 +558,17 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: stars → cheetah → orbs → stars
+  // Cycle: stars → orbs → off → stars
   const cycleEffect = () => setEffectMode((p) => {
-    if (p === 'stars') return 'cheetah';
-    if (p === 'cheetah') return 'orbs';
+    if (p === 'stars') return 'orbs';
+    if (p === 'orbs') return 'off';
     return 'stars';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : '◼';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={(view === 'auth' || effectMode === 'cheetah') ? 'off' : effectMode} />
-      {view !== 'auth' && effectMode === 'cheetah' && <CheetahBackground />}
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

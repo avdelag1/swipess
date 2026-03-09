@@ -93,7 +93,7 @@ function TopBarComponent({
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
     : '0 10px 30px -10px rgba(0,0,0,0.1)';
-  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'blur(20px)';
+  // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // Fetch the three token packages
@@ -287,10 +287,8 @@ function TopBarComponent({
                     "-webkit-tap-highlight-color-transparent",
                     "flex items-center gap-1"
                   )}
-                  style={{
+              style={{
                     backgroundColor: glassBg,
-                    backdropFilter: controlBlur,
-                    WebkitBackdropFilter: controlBlur,
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
@@ -430,8 +428,6 @@ function TopBarComponent({
               )}
               style={{
                 backgroundColor: glassBg,
-                backdropFilter: controlBlur,
-                WebkitBackdropFilter: controlBlur,
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}

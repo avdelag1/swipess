@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from '
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
-import { AmbientSwipeBackground } from './AmbientSwipeBackground';
+
 import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -717,7 +717,6 @@ const ClientSwipeContainerComponent = ({
   if (showLoadingSkeleton) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col">
-        <AmbientSwipeBackground isPaused={true} />
         <div className="relative flex-1 w-full">
           <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
             <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
@@ -767,7 +766,6 @@ const ClientSwipeContainerComponent = ({
   if (isDeckFinished) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <AmbientSwipeBackground isPaused={isRefreshing} />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -823,7 +821,6 @@ const ClientSwipeContainerComponent = ({
   if (showInitialError) {
     return (
       <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
-        <AmbientSwipeBackground isPaused={true} /> {/* Added AmbientSwipeBackground */}
         <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
           <div className="text-6xl mb-4">😞</div>
           <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
@@ -845,7 +842,6 @@ const ClientSwipeContainerComponent = ({
   if (showEmptyState || !topCard) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <AmbientSwipeBackground isPaused={isRefreshing} />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

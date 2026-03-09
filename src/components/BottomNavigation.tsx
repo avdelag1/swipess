@@ -162,10 +162,8 @@ export function BottomNavigation({
       <div
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
-          // LAYER 1: Liquid glass base
-          backgroundColor: barBg,
-          backdropFilter: 'blur(32px) saturate(185%)',
-          WebkitBackdropFilter: 'blur(32px) saturate(185%)',
+          // LAYER 1: Solid glass base (no blur - massive GPU savings)
+          backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)',
           // LAYER 2: Top rim catch-light (bright edge = physical glass rim)
           borderTop: `1px solid ${isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.14)'}`,
           borderLeft: `1px solid ${barBorder}`,

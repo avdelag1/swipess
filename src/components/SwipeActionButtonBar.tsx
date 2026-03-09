@@ -149,7 +149,6 @@ const ActionButton = memo(({
         border: 'none',
         borderRadius: '50%',
         transform: 'translateZ(0)',
-        willChange: 'transform',
         opacity: disabled ? 0.35 : 1,
         cursor: disabled ? 'not-allowed' : 'pointer',
         padding: 0,
@@ -224,7 +223,6 @@ function SwipeActionButtonBarComponent({
       style={{
         padding: '10px 20px',
         transform: 'translateZ(0)',
-        willChange: 'transform, opacity',
         zIndex: 100,
       }}
     >

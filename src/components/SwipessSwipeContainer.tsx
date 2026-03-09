@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { AmbientSwipeBackground } from './AmbientSwipeBackground';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -1113,7 +1112,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
                 backgroundSize: '200% 100%',
                 animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-                willChange: 'background-position',
                 transform: 'translateZ(0)',
               }}
             />
@@ -1211,7 +1209,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <AmbientSwipeBackground isPaused={isRefreshing} />
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1326,7 +1323,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <AmbientSwipeBackground isPaused={isRefreshing} />
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1384,13 +1380,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       style={{ height: '100%', minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
-      {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
-          - Lives at z-index: -1 (below everything)
-          - Non-interactive (pointer-events: none)
-          - Slows down during swipe animation (when swipeDirection is active)
-          - Communicates "swipe marketplace" at first glance */}
-      <AmbientSwipeBackground isPaused={swipeDirection !== null} />
-
       {/* Category title removed - clean immersive card experience */}
 
       <div className="relative flex-1 w-full">

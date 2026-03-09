@@ -577,7 +577,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           rotate: cardRotate,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
-          willChange: 'transform, opacity',
+          willChange: 'auto',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'none',
@@ -618,7 +618,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute top-8 left-8 z-30 pointer-events-none"
           style={{
             opacity: likeOpacity,
-            willChange: 'opacity',
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -640,7 +639,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-            willChange: 'opacity',
+            
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}

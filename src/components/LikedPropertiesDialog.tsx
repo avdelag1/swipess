@@ -97,7 +97,6 @@ export function LikedPropertiesDialog({ isOpen, onClose, onPropertySelect }: Lik
               mass: 0.8,
             }}
             style={{
-              willChange: 'transform',
               transform: 'translateZ(0)',
               backfaceVisibility: 'hidden'
             }}
