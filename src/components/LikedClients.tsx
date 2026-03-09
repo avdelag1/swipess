@@ -126,34 +126,6 @@ export function LikedClients() {
     },
   });
 
-  const blockClientMutation = useMutation({
-    mutationFn: async (clientId: string) => {
-      const { error: blockError } = await (supabase as any)
-        .from("user_blocks")
-        .insert({ blocker_id: user?.id, blocked_id: clientId });
-
-      if (blockError && !blockError.message.includes("duplicate")) {
-        logger.error("Block error:", blockError);
-        throw blockError;
-      }
-
-      await supabase
-        .from("likes")
-        .delete()
-        .eq("user_id", user?.id ?? "")
-        .eq("target_id", clientId)
-        .eq("target_type", "profile");
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["liked-clients", user?.id] });
-      toast.success("Client blocked successfully");
-      setShowBlockDialog(false);
-      setSelectedClientForAction(null);
-    },
-    onError: () => {
-      toast.error("Failed to block client");
-    },
-  });
 
   const handleAction = async (action: string, client: any) => {
     if (action === "view") {
