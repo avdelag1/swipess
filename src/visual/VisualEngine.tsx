@@ -1,6 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
 import { useTheme } from "@/hooks/useTheme";
-import { SwipessSPattern } from "@/components/SwipessSWatermark";
 
 /**
  * VisualEngine - Cinematic Background Layer System
