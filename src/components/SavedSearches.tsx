@@ -34,11 +34,11 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
 
   if (savedFilters.length === 0) {
     return (
-      <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+      <Card className="bg-muted/30 border-border">
         <CardContent className="p-6 text-center">
-          <Search className="w-12 h-12 mx-auto text-white/50 mb-4" />
-          <p className="text-white/70">No saved filters yet</p>
-          <p className="text-white/50 text-sm">
+          <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-foreground/70">No saved filters yet</p>
+          <p className="text-muted-foreground text-sm">
             {userRole === 'owner' 
               ? 'Save your client discovery filters for quick access' 
               : 'Save your property search filters for quick access'}
