@@ -108,7 +108,7 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
               </div>
               <div className="min-w-0">
                 <DialogTitle className="text-lg sm:text-xl font-bold">Notifications</DialogTitle>
-                <p className={cn("text-xs sm:text-sm truncate", isDark ? "text-gray-300" : "text-muted-foreground")}>
+                <p className="text-xs sm:text-sm truncate text-muted-foreground">
                   {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
                 </p>
               </div>
