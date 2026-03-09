@@ -79,11 +79,11 @@ export const AmbientSwipeBackground: React.FC<AmbientSwipeBackgroundProps> = ({
 }) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [cards] = useState<BackgroundCard[]>(() =>
-    // Generate 4 cards per lane for continuous coverage without gaps
+    // Generate 3 cards per lane (reduced from 4 — less GPU work)
     LANE_CONFIGS.flatMap((_, laneIndex) =>
-      Array.from({ length: 4 }, (_, cardIndex) => ({
+      Array.from({ length: 3 }, (_, cardIndex) => ({
         id: `lane-${laneIndex}-card-${cardIndex}`,
-        imageUrl: SAMPLE_IMAGES[(laneIndex * 4 + cardIndex) % SAMPLE_IMAGES.length],
+        imageUrl: SAMPLE_IMAGES[(laneIndex * 3 + cardIndex) % SAMPLE_IMAGES.length],
         laneIndex,
         cardIndex,
       }))
@@ -165,9 +165,8 @@ interface AmbientCardProps {
 const AmbientCard: React.FC<AmbientCardProps> = React.memo(({ card, isPaused }) => {
   const laneConfig = LANE_CONFIGS[card.laneIndex];
 
-  // Stagger cards within each lane (0%, 25%, 50%, 75% delay)
-  // Using negative animation-delay creates the effect of cards already in motion
-  const delayPercent = card.cardIndex * 25;
+  // Stagger cards within each lane (0%, 33%, 67% delay)
+  const delayPercent = card.cardIndex * 33;
   const delaySeconds = -(laneConfig.duration * delayPercent) / 100;
 
   return (
@@ -196,27 +195,18 @@ const AmbientCard: React.FC<AmbientCardProps> = React.memo(({ card, isPaused }) 
       }}
     >
       <div
-        className="w-full h-full rounded-3xl overflow-hidden shadow-2xl"
+        className="w-full h-full rounded-3xl overflow-hidden"
         style={{
-          // Match main card rounded corners (24px)
           borderRadius: '24px',
-          // Reduced opacity and subtle blur for ambient feel
-          // Should look like ghosted cards in the background
-          opacity: 0.2,
-          filter: 'blur(1.5px)',
-          // GPU acceleration
+          opacity: 0.15,
+          // NO blur, NO shadow — pure opacity ghost cards
           transform: 'translateZ(0)',
-          willChange: 'opacity',
         }}
       >
         <img
           src={card.imageUrl}
           alt=""
           className="w-full h-full object-cover"
-          style={{
-            // GPU acceleration
-            transform: 'translateZ(0)',
-          }}
           loading="lazy"
         />
       </div>
