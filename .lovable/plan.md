@@ -1,46 +1,34 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# App Audit Results — Current State Assessment
 
-### 1. Replace App Icon with Fire S Logo
+## Status: **Everything is solid.**
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+### AI Orchestrator (Edge Function)
+- All 6 prompt builders (listing, profile, search, enhance, chat, conversation) have the "Cool & Confident" persona with deep Tulum expertise and Mexican real estate law knowledge baked in.
+- Gemini primary + MiniMax fallback chain is intact.
+- Auth validation via `getUser()` is correct.
+- Zod schemas validate all structured outputs.
+- Chat task uses `maxTokens: 3000` for detailed legal answers.
+- Ping endpoint works unauthenticated for diagnostics.
+- CORS headers are complete.
+- No errors in console or network requests.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### Theme Consistency (Previous Audit Fix)
+- **Zero** instances of hardcoded `from-gray-900` gradients remain — all were replaced with `bg-background`.
+- Remaining `bg-zinc-900`, `bg-gray-50`, `text-gray-600` instances are **all inside `isDark` ternary conditionals** — this is the correct theme-aware pattern (dark branch uses zinc, light branch uses gray). These are NOT bugs.
+- The 12 files fixed in the previous theme audit (`PublicListingPreview`, `PublicProfilePreview`, `ResetPassword`, `ContractSigningDialog`, etc.) are all clean.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### Database & RLS
+- All tables have appropriate RLS policies.
+- Auth trigger (`handle_new_user`) properly creates profile + role on signup.
+- Security-definer functions (`has_role`, `is_conversation_participant`) prevent recursive RLS issues.
 
-### 2. Profile Photo Already Shows in Top-Left
+### Secrets & Configuration
+- `LOVABLE_API_KEY` and `MINIMAX_API_KEY` both configured.
+- `supabase/config.toml` correctly lists all 6 edge functions.
+- `ai-orchestrator` has `verify_jwt = false` (handles auth manually in code — correct pattern).
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
-
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
-
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### No Action Required
+Everything from the previous audit fixes and AI persona upgrade is properly deployed and connected. No errors, no broken theme patterns, no missing configurations.
 
