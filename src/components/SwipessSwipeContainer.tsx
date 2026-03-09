@@ -417,7 +417,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       try {
         const { data } = await supabase
           .from('client_filter_preferences')
-          .select('preferred_categories, preferred_listing_types')
+          .select('*')
           .eq('user_id', user.id)
           .maybeSingle();
 
