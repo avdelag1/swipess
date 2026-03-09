@@ -558,13 +558,13 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: stars → cheetah → orbs → stars
+  // Cycle: stars → orbs → off → stars
   const cycleEffect = () => setEffectMode((p) => {
-    if (p === 'stars') return 'cheetah';
-    if (p === 'cheetah') return 'orbs';
+    if (p === 'stars') return 'orbs';
+    if (p === 'orbs') return 'off';
     return 'stars';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : effectMode === 'cheetah' ? '🐆' : '◼';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
