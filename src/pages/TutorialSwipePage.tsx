@@ -130,8 +130,8 @@ function InsightsModal({
         style={{
           /* LIQUID GLASS base */
           backgroundColor: 'rgba(14,14,18,0.88)',
-          backdropFilter: 'blur(40px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           border: '1px solid rgba(255,255,255,0.12)',
           borderBottom: 'none',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -16px 48px rgba(0,0,0,0.50)',
