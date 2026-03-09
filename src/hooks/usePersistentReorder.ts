@@ -22,11 +22,7 @@ function writeStoredOrder(key: string, ids: string[]) {
 }
 
 export function usePersistentReorder<T extends { id: string }>(items: T[], storageKey: string) {
-  const [orderedIds, setOrderedIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    setOrderedIds(readStoredOrder(storageKey));
-  }, [storageKey]);
+  const [orderedIds, setOrderedIds] = useState<string[]>(() => readStoredOrder(storageKey));
 
   useEffect(() => {
     const itemIds = items.map((item) => item.id);

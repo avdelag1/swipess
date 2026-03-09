@@ -66,7 +66,7 @@ const STATES = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Cam
 
 // Premium section wrapper
 const Section = ({ title, accent = 'emerald', children, className }: { title: string; accent?: string; children: React.ReactNode; className?: string }) => (
-  <div className={cn("rounded-3xl bg-muted/30 backdrop-blur-sm border border-border shadow-xl overflow-hidden", className)}>
+  <div className={cn("rounded-3xl bg-muted/30 border border-border shadow-xl overflow-hidden", className)}>
     <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
       <div className={cn("w-2 h-2 rounded-full", accent === 'emerald' ? 'bg-emerald-500' : 'bg-primary')} />
       <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>

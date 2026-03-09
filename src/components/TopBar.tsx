@@ -197,7 +197,7 @@ function TopBarComponent({
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={handleBack}
                 className={cn(
-                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg backdrop-blur-md",
+                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg",
                   isDark
                     ? "bg-white/10 border border-white/20 text-white"
                     : "bg-black/5 border border-black/10 text-foreground"
@@ -305,7 +305,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card/95 backdrop-blur-xl shadow-2xl"
+                className="w-[320px] sm:w-[360px] p-0 rounded-2xl border border-border bg-card shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
