@@ -38,11 +38,11 @@ type CategoryOption = {
   hasSubOptions: boolean;
 };
 
-const categoryOptionBase: CategoryOption[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
+const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string })[] = [
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-400' },
+  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-400' },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-emerald-600 to-green-500', inactiveColor: 'text-emerald-400' },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-400' },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
