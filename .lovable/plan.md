@@ -1,93 +1,46 @@
 
 
-# Round 4: CSS Bloat, Dead Styles, and Last Blur Killers
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-The codebase has accumulated massive amounts of unused CSS and several remaining blur effects that are still hurting performance.
+### 1. Replace App Icon with Fire S Logo
 
----
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## 1. Kill `filter: blur(8px)` on Header/Nav Hide
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**File:** `src/index.css` (lines 118, 134, 184, 188)
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-The `.app-header.header-hidden` uses `filter: blur(8px)` for a "cinematic dissolve" effect. This triggers a full-frame GPU blur shader every time the user scrolls. The header also has `will-change: transform, opacity, filter` permanently reserving GPU memory for filter transitions.
+### 2. Profile Photo Already Shows in Top-Left
 
-**Action:** Remove `filter: blur(8px)` from `.header-hidden`. Replace with pure `opacity: 0` + `translateY(-100%)`. Remove `filter` from `will-change` and transition declarations on both `.app-header` and `.app-bottom-bar`.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
----
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-## 2. Remove Remaining `backdropFilter: blur()` in Components
+### 3. Fix Header Too Close to Top Edge
 
-**Still active blurs found:**
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-| File | Count | Context |
-|------|-------|---------|
-| `TutorialSwipePage.tsx` line 713 | 1 | `backdropFilter: 'blur(16px)'` on a button |
-| `ClientProfileNew.tsx` line 143 | 1 | `backdropFilter: 'blur(12px)'` on profile completion card |
-| `RetroRadioStation.tsx` | 5 | `backdropFilter: 'blur(12px)'` on radio controls |
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**Action:** Replace all with solid semi-opaque backgrounds.
+### 4. Fix MarketingSlide Build Error
 
----
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-## 3. Remove `LiquidGlassSurface` Component (326 lines, UNUSED)
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**File:** `src/components/ui/LiquidGlassSurface.tsx`
-
-This 326-line component with `backdropFilter: blur() saturate()`, framer-motion springs, and pointer-tracking animations is **imported by zero components**. Pure dead code adding to bundle size.
-
-**Action:** Delete the file.
-
----
-
-## 4. Purge Dead CSS from `index.css` (~600 lines of unused styles)
-
-**File:** `src/index.css` (2714 lines total)
-
-The following CSS class blocks are defined but **never referenced in any TSX file:**
-
-- `.swipe-action-btn` and all variants (~120 lines, 2101-2220)
-- `.swipe-overlay-container` and overlay styles (~50 lines, 2270-2320)
-- `.swipe-card-premium`, `.swipe-card-glow` (~40 lines, 2388-2411)
-- `.gpu-accelerate`, `.gpu-accelerated`, `.fast-touch`, `.fast-card` (~30 lines)
-- `.glass-effect`, `.glass-dark`, `.blur-on-scroll` (~40 lines, 1082-1150)
-- `.dynamic-card` (~20 lines, 967-980)
-- Broad wildcard selectors like `[class*="card"]` with `will-change: transform, opacity` (line 1234-1241) — forces GPU layers on EVERY element whose class contains "card"
-
-**Action:** Remove all unused CSS blocks. This eliminates ~600 lines of dead CSS and removes the wildcard `will-change` selector that promotes dozens of unnecessary GPU layers.
-
----
-
-## 5. Clean `pwa-performance.css` Dead Rules
-
-**File:** `src/styles/pwa-performance.css`
-
-Contains rules for `.swipe-action-btn`, `.swipe-btn-insights`, `.swipe-btn-heart`, `.swipe-btn-dislike`, `.swipe-btn-share` — none of these CSS classes exist in any component. Also has overly aggressive global rules like `* { touch-action: manipulation }` that can interfere with scroll and native gestures.
-
-**Action:** Remove references to dead classes. Keep only the PWA-mode specific rules that are actually used.
-
----
-
-## 6. Trim `PremiumShine.css` Blur
-
-**File:** `src/styles/PremiumShine.css`
-
-The `.premium-card-lux` class uses `backdrop-filter: blur(12px)` — used only in `MessageActivationPackages.tsx` (a modal dialog, not a swiped/dragged element).
-
-**Action:** Replace with solid background. Low priority since it's only active when the packages modal is open.
-
----
-
-## Summary
-
-| Target | Lines Saved | Impact |
-|--------|-------------|--------|
-| Header/nav `filter: blur` removal | ~10 | GPU shader on every scroll |
-| 3 component blur fixes | 7 blurs | GPU compositing |
-| Delete `LiquidGlassSurface.tsx` | 326 lines | Bundle size + dead blur |
-| Dead CSS in `index.css` | ~600 lines | Bundle + wildcard GPU layers |
-| Dead CSS in `pwa-performance.css` | ~30 lines | Clean code |
-| PremiumShine blur fix | ~2 lines | Modal GPU shader |
-
-**Total:** ~960 lines of dead/harmful code removed. The wildcard `[class*="card"]` will-change rule alone is likely creating 10-20 unnecessary GPU layers across the app.
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

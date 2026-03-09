@@ -115,23 +115,20 @@ body {
   padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
   /* GPU acceleration */
   transform: translateZ(0) translateY(0) scale(1);
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   opacity: 1;
-  filter: blur(0px);
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* No ::after pseudo - gradient masks handle the fade */
 
-/* Hidden state for scroll behavior - cinematic dissolve vanish */
+/* Hidden state for scroll behavior */
 .app-header.header-hidden {
-  transform: translateZ(0) translateY(-20%) scale(0.95);
+  transform: translateZ(0) translateY(-100%);
   opacity: 0;
-  filter: blur(8px);
   pointer-events: none;
 }
 
@@ -181,11 +178,9 @@ body {
   border-top: none;
   transform: translateZ(0) translateY(0) scale(1);
   opacity: 1;
-  filter: blur(0px);
   transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform, opacity, filter;
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
@@ -964,28 +959,6 @@ body {
     animation: fast-fade-in 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   }
 
-  .dynamic-card {
-    background: var(--gradient-surface);
-    /* backdrop-filter: blur(20px); REMOVED for Android performance */
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    position: relative;
-  }
-
-  .dynamic-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: inherit;
-    padding: 2px;
-    background: var(--gradient-primary);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    z-index: -1;
-  }
 
   .match-glow {
     box-shadow: var(--shadow-success);
@@ -1078,103 +1051,6 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Glassmorphism utilities - OPTIMIZED for Android performance */
-  .glass-effect {
-    background: rgba(255, 255, 255, 0.97);
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
-
-  .glass-dark {
-    background: rgba(0, 0, 0, 0.85);
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  }
-
-  /* Performance optimizations */
-  .gpu-accelerated {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    will-change: transform;
-  }
-
-  /* Smooth scroll */
-  .smooth-scroll {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Touch optimization */
-  .touch-optimized {
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Animated mesh gradient */
-  .animated-gradient {
-    background: linear-gradient(135deg,
-        hsl(345, 85%, 55%) 0%,
-        hsl(12, 100%, 58%) 25%,
-        hsl(20, 100%, 62%) 50%,
-        hsl(30, 95%, 65%) 75%,
-        hsl(40, 90%, 70%) 100%);
-    background-size: 200% 200%;
-    animation: gradient-shift 15s ease infinite;
-  }
-
-  /* 3D card tilt (subtle professional) */
-  .card-tilt {
-    transform-style: preserve-3d;
-    transition: transform 0.3s ease;
-  }
-
-  .card-tilt:hover {
-    transform: perspective(1000px) rotateX(2deg) rotateY(2deg) translateZ(10px);
-  }
-
-  /* Smooth fade on scroll - OPTIMIZED (no blur for performance) */
-  .blur-on-scroll {
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  .blur-on-scroll.scrolled {
-    /* backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    /* -webkit-backdrop-filter: blur(20px); REMOVED - kills Android performance */
-    background-color: rgba(255, 255, 255, 0.95);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  }
-
-  .dark .blur-on-scroll.scrolled {
-    background-color: rgba(0, 0, 0, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  /* Progressive image loading */
-  .progressive-image {
-    animation: blur-in 0.5s ease;
-  }
-
-  /* Ripple effect container */
-  .ripple-container {
-    position: relative;
-    overflow: hidden;
-  }
-
-  /* Button press feedback */
-  .press-feedback {
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
-  }
-
-  .press-feedback:active {
-    transform: scale(0.96) translateZ(0);
-  }
-
   /* Smooth hover glow */
   .hover-glow {
     transition: box-shadow 0.3s ease, transform 0.3s ease;
@@ -1183,21 +1059,6 @@ body {
   .hover-glow:hover {
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     transform: translateY(-2px) translateZ(0);
-  }
-
-  /* Floating animation for decorative elements */
-  .float-animate {
-    animation: float-subtle 6s ease-in-out infinite;
-  }
-
-  /* Scroll snap for cards */
-  .scroll-snap-x {
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-  }
-
-  .scroll-snap-item {
-    scroll-snap-align: center;
   }
 
   /* ===== MOBILE PERFORMANCE OPTIMIZATIONS ===== */
@@ -1231,20 +1092,11 @@ body {
   }
 
   /* Optimize for 60fps scrolling and animations */
-  .swipe-card,
-  [class*="card"],
-  .motion-element {
+  .swipe-card {
     will-change: transform, opacity;
     transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-  }
-
-  /* Prevent flickering on state changes */
-  .no-flicker {
-    transition: none;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
   }
 
 }
@@ -2094,125 +1946,6 @@ html[data-navigation-direction="back"] {
   animation: electric-marquee 2s linear infinite;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  SWIPE BUTTON EFFECTS - Clean Modern Professional Style              */
-/*  Muted colors with subtle feedback - like modern apps                */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* Base swipe action button - Fully transparent like Tinder */
-.swipe-action-btn {
-  position: relative;
-  overflow: hidden;
-  background: transparent !important;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border: 3px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-
-/* Subtle highlight on top - disabled for transparency */
-.swipe-action-btn::before {
-  display: none;
-}
-
-/* No animated shine - cleaner look */
-.swipe-action-btn::after {
-  display: none;
-}
-
-/* Icon styling - enhanced shadow for visibility on photos */
-.swipe-action-btn svg {
-  position: relative;
-  z-index: 3;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
-/* Dislike button - Red border only */
-.swipe-btn-dislike {
-  background: transparent !important;
-  border-color: #ef4444 !important;
-}
-
-.swipe-btn-dislike svg {
-  color: #ef4444;
-}
-
-/* Insights button - Purple border only */
-.swipe-btn-insights {
-  background: transparent !important;
-  border-color: #8b5cf6 !important;
-}
-
-.swipe-btn-insights svg {
-  color: #8b5cf6;
-}
-
-/* Share button - Blue border only */
-.swipe-btn-share {
-  background: transparent !important;
-  border-color: #3b82f6 !important;
-}
-
-.swipe-btn-share svg {
-  color: #3b82f6;
-}
-
-/* Heart/Like button - Green border only */
-.swipe-btn-heart {
-  background: transparent !important;
-  border-color: #22c55e !important;
-}
-
-.swipe-btn-heart svg {
-  color: #22c55e;
-}
-
-/* Undo button - Amber border only */
-.swipe-btn-undo {
-  background: transparent !important;
-  border-color: #f59e0b !important;
-}
-
-.swipe-btn-undo svg {
-  color: #f59e0b;
-}
-
-/* Like button - Orange border only */
-.swipe-btn-like {
-  background: transparent !important;
-  border-color: #f97316 !important;
-}
-
-.swipe-btn-like svg {
-  color: #f97316;
-}
-
-/* Message button - Cyan border only */
-.swipe-btn-message {
-  background: transparent !important;
-  border-color: #06b6d4 !important;
-}
-
-.swipe-btn-message svg {
-  color: #06b6d4;
-}
-
-/* Hover - subtle scale up with glow */
-.swipe-action-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.3);
-}
-
-.swipe-action-btn:hover svg {
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.6));
-}
-
-/* Active/pressed state */
-.swipe-action-btn:active {
-  transform: scale(0.92);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  PREMIUM SWIPE OVERLAY TEXT - Neon Glow Letters                      */
@@ -2267,30 +2000,6 @@ html[data-navigation-direction="back"] {
   filter: drop-shadow(0 0 20px rgba(196, 30, 58, 0.5)) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-/* Overlay container enhancement - Chinese-inspired luxury feel */
-.swipe-overlay-container {
-  backdrop-filter: blur(6px);
-}
-
-/* LIKE overlay - Imperial Gold & Jade green inspired */
-.swipe-overlay-container.like-overlay {
-  background: radial-gradient(ellipse at center,
-      rgba(212, 175, 55, 0.5) 0%,
-      rgba(184, 134, 11, 0.4) 25%,
-      rgba(0, 128, 128, 0.25) 50%,
-      rgba(34, 139, 34, 0.15) 75%,
-      transparent 100%);
-}
-
-/* PASS overlay - Deep Crimson Chinese Red inspired */
-.swipe-overlay-container.pass-overlay {
-  background: radial-gradient(ellipse at center,
-      rgba(196, 30, 58, 0.55) 0%,
-      rgba(139, 0, 0, 0.45) 25%,
-      rgba(128, 0, 32, 0.35) 50%,
-      rgba(80, 0, 20, 0.2) 75%,
-      transparent 100%);
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  LANTERN SWEEP ANIMATION - Subtle Light Glow Effect                   */
@@ -2384,31 +2093,6 @@ html[data-navigation-direction="back"] {
     0 0 0 1px rgba(255, 255, 255, 0.08) inset;
 }
 
-/* Swipe card container - enhanced depth */
-.swipe-card-premium {
-  border-radius: 1.5rem;
-  overflow: hidden;
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.12),
-    0 16px 32px rgba(0, 0, 0, 0.08),
-    0 -2px 4px rgba(255, 255, 255, 0.02) inset;
-  /* Force GPU compositing for smooth transforms */
-  transform: translateZ(0);
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-/* Subtle glow around active swipe card */
-.swipe-card-glow {
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.12),
-    0 16px 32px rgba(0, 0, 0, 0.08),
-    0 0 40px rgba(255, 165, 0, 0.08),
-    0 0 80px rgba(255, 100, 0, 0.04);
-}
 
 /* Card enter animation */
 @keyframes card-enter {
@@ -2460,71 +2144,6 @@ html[data-navigation-direction="back"] {
   animation: card-exit-right 0.4s cubic-bezier(0.32, 0, 0.67, 0) forwards;
 }
 
-/* Micro-animation: Subtle pulse for interactive elements */
-@keyframes subtle-pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.02);
-  }
-}
-
-.pulse-subtle {
-  animation: subtle-pulse 2s ease-in-out infinite;
-}
-
-/* Micro-animation: Soft breathe effect for floating elements */
-@keyframes soft-breathe {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  50% {
-    opacity: 0.9;
-    transform: translateY(-2px);
-  }
-}
-
-.breathe-soft {
-  animation: soft-breathe 3s ease-in-out infinite;
-}
-
-/* Bottom sheet premium shadow */
-.bottom-sheet-premium {
-  box-shadow:
-    0 -4px 8px rgba(0, 0, 0, 0.04),
-    0 -8px 16px rgba(0, 0, 0, 0.08),
-    0 -16px 32px rgba(0, 0, 0, 0.04);
-}
-
-/* Mode switcher premium styling */
-.mode-switcher-premium {
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.08) 0%,
-      rgba(255, 255, 255, 0.04) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-.mode-switcher-premium:hover {
-  background: linear-gradient(135deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.08) 100%);
-  box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-}
 
 /* Prefers reduced motion - disable all animations */
 @media (prefers-reduced-motion: reduce) {
@@ -2552,28 +2171,6 @@ html[data-navigation-direction="back"] {
   }
 }
 
-/* GPU acceleration hints for smooth 60fps animations */
-.gpu-accelerated {
-  transform: translateZ(0);
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  perspective: 1000px;
-  -webkit-perspective: 1000px;
-}
-
-/* Prevent text selection during swipe */
-.no-select {
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-/* Touch action optimization for swipe gestures */
-.swipe-optimized {
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  PWA STANDALONE MODE OPTIMIZATIONS                                           */

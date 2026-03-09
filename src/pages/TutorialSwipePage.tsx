@@ -709,8 +709,7 @@ function EmptyState({ label, onReset }: { label: string; onReset: () => void }) 
         whileTap={{ scale: 0.95, transition: TAP_SPRING }}
         className="px-8 py-3 rounded-2xl text-white text-xs font-black uppercase tracking-widest relative overflow-hidden"
         style={{
-          background: 'rgba(255,255,255,0.10)',
-          backdropFilter: 'blur(16px)',
+          background: 'rgba(255,255,255,0.15)',
           border: '1px solid rgba(255,255,255,0.18)',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
         }}
