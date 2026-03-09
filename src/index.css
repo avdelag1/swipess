@@ -1204,20 +1204,11 @@ body {
   }
 
   /* Optimize for 60fps scrolling and animations */
-  .swipe-card,
-  [class*="card"],
-  .motion-element {
+  .swipe-card {
     will-change: transform, opacity;
     transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-  }
-
-  /* Prevent flickering on state changes */
-  .no-flicker {
-    transition: none;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
   }
 
 }
