@@ -919,10 +919,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     🏠 Property & Housing
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                    {PROPERTY_TAGS.map(tag => (
-                      <div
+                     {PROPERTY_TAGS.map(tag => (
+                      <motion.div
                         key={tag}
-                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all active:scale-95 ${
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${
                           interests.includes(tag)
                             ? 'bg-blue-500/20 border-blue-400 text-white shadow-lg shadow-blue-500/20'
                             : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
@@ -937,7 +939,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                           {interests.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
                         </div>
                         <span className="text-xs sm:text-sm leading-tight">{tag}</span>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
