@@ -144,7 +144,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] p-0 bg-background border-white/[0.06] overflow-hidden rounded-3xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] p-0 bg-background border-border overflow-hidden rounded-3xl">
         {/* Header */}
         <div className="text-center px-4 pt-6 pb-3">
           <Crown className="w-6 h-6 text-amber-400 mx-auto mb-2" />
@@ -169,7 +169,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + index * 0.08, duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
                 className={cn(
-                  "flex-1 flex flex-col rounded-2xl border backdrop-blur-xl bg-white/[0.03] p-4 relative overflow-hidden",
+                  "flex-1 flex flex-col rounded-2xl border backdrop-blur-xl bg-card/50 p-4 relative overflow-hidden",
                   style.border,
                   isHighlight && "ring-1 ring-amber-500/20 shadow-[0_0_30px_rgba(245,158,11,0.08)]"
                 )}
@@ -189,7 +189,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
                     <span className="text-[10px] sm:text-xs text-muted-foreground">USD {pkg.durationText}</span>
                   </div>
 
-                  <div className="h-px bg-white/[0.06] mb-2.5" />
+                  <div className="h-px bg-border mb-2.5" />
 
                   <div className="flex-1 space-y-1.5 mb-3">
                     {pkg.benefits.map((feature, i) => (

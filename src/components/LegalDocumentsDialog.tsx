@@ -199,13 +199,13 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 bg-gray-800 border border-gray-700 text-white">
-        <DialogHeader className="shrink-0 px-6 pt-6 pb-2 border-b border-gray-700">
-          <DialogTitle className="flex items-center gap-2 text-white">
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 bg-card border border-border text-foreground">
+        <DialogHeader className="shrink-0 px-6 pt-6 pb-2 border-b border-border">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <FileText className="w-5 h-5" />
             Legal Documents
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             Upload legal documents to verify your property ownership and build trust with potential tenants.
             Supported formats: PDF, images (JPG, PNG, WebP), Word documents. Maximum size: {formatFileSize(FILE_SIZE_LIMITS.DOCUMENT_MAX_SIZE)} per file.
           </DialogDescription>
@@ -214,21 +214,21 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
         <ScrollArea className="flex-1 overflow-y-auto px-6 py-4">
         <div className="space-y-6">
           {/* Upload Section */}
-          <Card className="bg-gray-700/50 border-gray-600/50">
+          <Card className="bg-muted/50 border-border/50">
             <CardHeader>
-              <CardTitle className="text-white text-lg">Upload New Document</CardTitle>
+              <CardTitle className="text-foreground text-lg">Upload New Document</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="document-type" className="text-white">Document Type</Label>
+                  <Label htmlFor="document-type" className="text-foreground">Document Type</Label>
                   <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
-                    <SelectTrigger className="bg-gray-700/50 border-gray-600 text-white">
+                    <SelectTrigger className="bg-muted/50 border-border text-foreground">
                       <SelectValue placeholder="Select document type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                    <SelectContent className="bg-card border-border text-foreground">
                       {documentTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value} className="text-white hover:bg-gray-700">
+                        <SelectItem key={type.value} value={type.value} className="text-foreground hover:bg-muted">
                           {type.label}
                         </SelectItem>
                       ))}
@@ -237,7 +237,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="file-upload" className="text-white">Choose File</Label>
+                  <Label htmlFor="file-upload" className="text-foreground">Choose File</Label>
                   <div className="flex gap-2">
                     <Input
                       ref={fileInputRef}
@@ -245,7 +245,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
                       accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
                       onChange={handleFileSelect}
                       disabled={isUploading || !selectedDocumentType}
-                      className="bg-gray-700/50 border-gray-600 text-white file:bg-gray-600 file:border-0 file:text-white"
+                      className="bg-muted/50 border-border text-foreground file:bg-secondary file:border-0 file:text-foreground"
                     />
                     <Button
                       onClick={() => fileInputRef.current?.click()}
@@ -259,8 +259,8 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
               </div>
 
               {isUploading && (
-                <div className="flex items-center gap-2 text-gray-400">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground"></div>
                   Uploading document...
                 </div>
               )}
@@ -268,34 +268,34 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
           </Card>
 
           {/* Documents List */}
-          <Card className="bg-gray-700/50 border-gray-600/50">
+          <Card className="bg-muted/50 border-border/50">
             <CardHeader>
-              <CardTitle className="text-white text-lg">Your Documents ({documents.length})</CardTitle>
+              <CardTitle className="text-foreground text-lg">Your Documents ({documents.length})</CardTitle>
             </CardHeader>
             <CardContent>
               {isLoading ? (
-                <div className="text-center py-8 text-gray-400">Loading documents...</div>
+                <div className="text-center py-8 text-muted-foreground">Loading documents...</div>
               ) : documents.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <FileText className="w-12 h-12 mx-auto mb-4 text-gray-500" />
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
                   <p>No documents uploaded yet.</p>
                   <p className="text-sm">Upload your first legal document to get started.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {documents.map((doc) => (
-                    <div key={doc.id} className="flex items-center justify-between p-4 bg-gray-600/30 rounded-xl border border-gray-600/50">
+                    <div key={doc.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border/50">
                       <div className="flex items-center gap-4 flex-1">
                         <File className="w-8 h-8 text-blue-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white truncate">{doc.file_name}</p>
-                          <div className="flex items-center gap-4 text-sm text-gray-400">
+                          <p className="font-medium text-foreground truncate">{doc.file_name}</p>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span>{documentTypes.find(t => t.value === doc.document_type)?.label}</span>
                             <span>{formatFileSize(doc.file_size)}</span>
                             <span>{new Date(doc.created_at).toLocaleDateString()}</span>
                           </div>
                           {doc.verification_notes && (
-                            <p className="text-sm text-gray-400 mt-1">{doc.verification_notes}</p>
+                            <p className="text-sm text-muted-foreground mt-1">{doc.verification_notes}</p>
                           )}
                         </div>
                       </div>
