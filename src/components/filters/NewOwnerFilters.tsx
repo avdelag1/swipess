@@ -473,22 +473,31 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Min Age</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)] mt-1">
                       {[18, 21, 25, 30, 35, 40].map((age) => {
                         const isActive = filters.minAge === age;
                         return (
-                          <button
+                          <motion.button
                             key={age}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, minAge: age })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {age}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="min-age-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{age}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
