@@ -591,6 +591,65 @@ export type Database = {
           },
         ]
       }
+      escrow_deposits: {
+        Row: {
+          amount: number
+          client_id: string
+          contract_id: string | null
+          created_at: string
+          currency: string | null
+          disputed_at: string | null
+          held_at: string | null
+          id: string
+          listing_id: string | null
+          notes: string | null
+          owner_id: string
+          released_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          client_id: string
+          contract_id?: string | null
+          created_at?: string
+          currency?: string | null
+          disputed_at?: string | null
+          held_at?: string | null
+          id?: string
+          listing_id?: string | null
+          notes?: string | null
+          owner_id: string
+          released_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          client_id?: string
+          contract_id?: string | null
+          created_at?: string
+          currency?: string | null
+          disputed_at?: string | null
+          held_at?: string | null
+          id?: string
+          listing_id?: string | null
+          notes?: string | null
+          owner_id?: string
+          released_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_deposits_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "digital_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       legal_document_quota: {
         Row: {
           created_at: string
@@ -694,6 +753,8 @@ export type Database = {
         Row: {
           address: string | null
           amenities: Json | null
+          available_from: string | null
+          available_to: string | null
           background_check_verified: boolean | null
           bathrooms: number | null
           baths: number | null
@@ -782,6 +843,8 @@ export type Database = {
         Insert: {
           address?: string | null
           amenities?: Json | null
+          available_from?: string | null
+          available_to?: string | null
           background_check_verified?: boolean | null
           bathrooms?: number | null
           baths?: number | null
@@ -870,6 +933,8 @@ export type Database = {
         Update: {
           address?: string | null
           amenities?: Json | null
+          available_from?: string | null
+          available_to?: string | null
           background_check_verified?: boolean | null
           bathrooms?: number | null
           baths?: number | null
@@ -954,6 +1019,51 @@ export type Database = {
           wheel_size?: string | null
           work_type?: Json | null
           year?: number | null
+        }
+        Relationships: []
+      }
+      local_intel_posts: {
+        Row: {
+          author_id: string | null
+          category: string
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          neighborhood: string | null
+          published_at: string | null
+          source_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          neighborhood?: string | null
+          published_at?: string | null
+          source_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          neighborhood?: string | null
+          published_at?: string | null
+          source_url?: string | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1051,6 +1161,60 @@ export type Database = {
           },
         ]
       }
+      neighborhood_data: {
+        Row: {
+          avg_rent_price: number | null
+          avg_sale_price: number | null
+          color_hex: string | null
+          created_at: string
+          density_score: number | null
+          description: string | null
+          id: string
+          image_url: string | null
+          latitude: number | null
+          listing_count: number | null
+          longitude: number | null
+          name: string
+          slug: string
+          updated_at: string
+          vibe_tags: Json | null
+        }
+        Insert: {
+          avg_rent_price?: number | null
+          avg_sale_price?: number | null
+          color_hex?: string | null
+          created_at?: string
+          density_score?: number | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          listing_count?: number | null
+          longitude?: number | null
+          name: string
+          slug: string
+          updated_at?: string
+          vibe_tags?: Json | null
+        }
+        Update: {
+          avg_rent_price?: number | null
+          avg_sale_price?: number | null
+          color_hex?: string | null
+          created_at?: string
+          density_score?: number | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          listing_count?: number | null
+          longitude?: number | null
+          name?: string
+          slug?: string
+          updated_at?: string
+          vibe_tags?: Json | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
@@ -1142,6 +1306,8 @@ export type Database = {
           service_offerings: Json | null
           updated_at: string
           user_id: string
+          verification_documents: Json | null
+          verification_submitted_at: string | null
           verified_owner: boolean | null
         }
         Insert: {
@@ -1156,6 +1322,8 @@ export type Database = {
           service_offerings?: Json | null
           updated_at?: string
           user_id: string
+          verification_documents?: Json | null
+          verification_submitted_at?: string | null
           verified_owner?: boolean | null
         }
         Update: {
@@ -1170,7 +1338,45 @@ export type Database = {
           service_offerings?: Json | null
           updated_at?: string
           user_id?: string
+          verification_documents?: Json | null
+          verification_submitted_at?: string | null
           verified_owner?: boolean | null
+        }
+        Relationships: []
+      }
+      price_history: {
+        Row: {
+          avg_price: number
+          created_at: string
+          currency: string | null
+          id: string
+          listing_count: number | null
+          month: number
+          neighborhood: string
+          property_type: string | null
+          year: number
+        }
+        Insert: {
+          avg_price?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          listing_count?: number | null
+          month: number
+          neighborhood: string
+          property_type?: string | null
+          year: number
+        }
+        Update: {
+          avg_price?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          listing_count?: number | null
+          month?: number
+          neighborhood?: string
+          property_type?: string | null
+          year?: number
         }
         Relationships: []
       }
@@ -1409,6 +1615,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      roommate_matches: {
+        Row: {
+          compatibility_score: number | null
+          created_at: string
+          direction: string
+          id: string
+          target_user_id: string
+          user_id: string
+        }
+        Insert: {
+          compatibility_score?: number | null
+          created_at?: string
+          direction?: string
+          id?: string
+          target_user_id: string
+          user_id: string
+        }
+        Update: {
+          compatibility_score?: number | null
+          created_at?: string
+          direction?: string
+          id?: string
+          target_user_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      roommate_preferences: {
+        Row: {
+          created_at: string
+          deal_breakers: Json | null
+          id: string
+          is_seeking_roommate: boolean | null
+          preferred_budget_max: number | null
+          preferred_budget_min: number | null
+          preferred_gender: Json | null
+          preferred_move_in: string | null
+          preferred_neighborhoods: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_breakers?: Json | null
+          id?: string
+          is_seeking_roommate?: boolean | null
+          preferred_budget_max?: number | null
+          preferred_budget_min?: number | null
+          preferred_gender?: Json | null
+          preferred_move_in?: string | null
+          preferred_neighborhoods?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_breakers?: Json | null
+          id?: string
+          is_seeking_roommate?: boolean | null
+          preferred_budget_max?: number | null
+          preferred_budget_min?: number | null
+          preferred_gender?: Json | null
+          preferred_move_in?: string | null
+          preferred_neighborhoods?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       saved_filters: {
         Row: {

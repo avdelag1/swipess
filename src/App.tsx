@@ -101,6 +101,15 @@ const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
+// New feature pages - lazy loaded
+const NeighborhoodMap = lazy(() => import("./pages/NeighborhoodMap"));
+const PriceTracker = lazy(() => import("./pages/PriceTracker"));
+const VideoTours = lazy(() => import("./pages/VideoTours"));
+const LocalIntel = lazy(() => import("./pages/LocalIntel"));
+const RoommateMatching = lazy(() => import("./pages/RoommateMatching"));
+const DocumentVault = lazy(() => import("./pages/DocumentVault"));
+const EscrowDashboard = lazy(() => import("./pages/EscrowDashboard"));
+
 // Rare pages - lazy loaded (payment, camera, legal, public previews)
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
@@ -269,6 +278,15 @@ const App = () => {
                                       <Route path="/radio" element={<RetroRadioStation />} />
                                       <Route path="/radio/playlists" element={<RadioPlaylists />} />
                                       <Route path="/radio/favorites" element={<RadioFavorites />} />
+
+                                      {/* New feature routes */}
+                                      <Route path="/explore/zones" element={<NeighborhoodMap />} />
+                                      <Route path="/explore/prices" element={<PriceTracker />} />
+                                      <Route path="/explore/tours" element={<VideoTours />} />
+                                      <Route path="/explore/intel" element={<LocalIntel />} />
+                                      <Route path="/explore/roommates" element={<RoommateMatching />} />
+                                      <Route path="/documents" element={<DocumentVault />} />
+                                      <Route path="/escrow" element={<EscrowDashboard />} />
                                     </Route>
 
                                     {/* Payment routes - outside layout */}
