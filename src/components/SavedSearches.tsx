@@ -90,7 +90,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                       size="sm"
                       variant="ghost"
                       onClick={() => handleApplyFilter(filter.id!)}
-                      className="text-white/70 hover:text-white hover:bg-white/10"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent"
                     >
                       <Check className="w-4 h-4 mr-1" />
                       Apply
