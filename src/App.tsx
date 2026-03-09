@@ -18,6 +18,7 @@ import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import Index from "./pages/Index";
+import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Automatic update system
