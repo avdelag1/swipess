@@ -322,7 +322,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
         {/* Tabs */}
         <div className={cn(
           "flex flex-wrap gap-1.5 p-1.5 rounded-2xl",
-          isLight ? 'bg-secondary/60 border border-border/30' : 'bg-white/[0.03] backdrop-blur-sm border border-white/[0.06]'
+          isLight ? 'bg-secondary/60 border border-border/30' : 'bg-white/[0.03] border border-white/[0.06]'
         )}>
           {tabItems.map((tab) => (
             <motion.button
