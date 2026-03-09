@@ -76,6 +76,13 @@ const settingsGroups: SettingsGroup[] = [
     label: 'Tools',
     items: [
       {
+        icon: Wrench,
+        label: 'Maintenance',
+        description: 'Report and track property issues',
+        bg: 'linear-gradient(135deg, #92400e, #fbbf24)',
+        route: '/client/maintenance',
+      },
+      {
         icon: FileText,
         label: 'My Contracts',
         description: 'View and manage your contracts',
