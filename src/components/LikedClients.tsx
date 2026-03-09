@@ -185,11 +185,9 @@ export function LikedClients() {
   return (
     <div className="w-full bg-background min-h-screen pb-32">
       <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
-        <PageHeader
-          title="Liked Clients"
-          subtitle="Profiles you've matched with"
-          showBack={false}
-          actions={
+        <div className="flex items-center justify-end mb-6">
+          {/* Actions row — PageHeader removed (Round 8) */}
+          {
             <div className="flex items-center gap-3">
               <TooltipProvider>
                 <Tooltip>

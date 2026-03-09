@@ -587,15 +587,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   return (
     <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
-      {/* DISABLED: LiveHDBackground was causing performance issues on mobile
-          - Animated orbs and CSS animations were slowing down page transitions
-          - Removed for snappier navigation */}
-      {/* <LiveHDBackground theme="default" showOrbs={true} intensity={0.7} /> */}
-
-      {/* REMOVED: NotificationSystem was causing duplicate realtime subscriptions.
-          Global notification handling is now done exclusively by NotificationWrapper (useNotifications)
-          in App.tsx. This prevents race conditions and UI flickers from multiple handlers
-          firing on the same conversation_messages INSERT event. */}
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
