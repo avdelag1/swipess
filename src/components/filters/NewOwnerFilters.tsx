@@ -681,19 +681,19 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
 
           {/* Sticky Apply Footer */}
           <div className="absolute bottom-0 left-0 right-0 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-background via-background to-transparent">
-            <motion.div whileTap={{ scale: 0.98 }}>
               <Button
+                variant="gradient"
+                elastic
                 onClick={handleApply}
-                className="w-full h-14 rounded-2xl text-sm font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
+                className="w-full h-14 rounded-2xl text-sm font-bold"
               >
                 Apply Filters
                 {activeFilterCount > 0 && (
-                  <Badge className="ml-2 bg-primary-foreground/20 text-primary-foreground border-none text-xs px-2">
+                  <Badge className="ml-2 bg-white/20 text-white border-none text-xs px-2">
                     {activeFilterCount}
                   </Badge>
                 )}
               </Button>
-            </motion.div>
           </div>
         </motion.div>
       </motion.div>
