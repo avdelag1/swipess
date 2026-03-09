@@ -875,7 +875,7 @@ export default function TutorialSwipePage() {
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[18px] text-xs font-black uppercase tracking-widest relative overflow-hidden transition-colors"
                   style={active ? {
                     background: 'rgba(255,255,255,0.14)',
-                    backdropFilter: 'blur(16px)',
+                    backdropFilter: 'none',
                     border: '1px solid rgba(255,255,255,0.22)',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.30)',
                     color: 'white',
