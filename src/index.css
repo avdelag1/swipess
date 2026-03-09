@@ -2283,28 +2283,6 @@ html[data-navigation-direction="back"] {
   }
 }
 
-/* GPU acceleration hints for smooth 60fps animations */
-.gpu-accelerated {
-  transform: translateZ(0);
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  perspective: 1000px;
-  -webkit-perspective: 1000px;
-}
-
-/* Prevent text selection during swipe */
-.no-select {
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-/* Touch action optimization for swipe gestures */
-.swipe-optimized {
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
-}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  PWA STANDALONE MODE OPTIMIZATIONS                                           */

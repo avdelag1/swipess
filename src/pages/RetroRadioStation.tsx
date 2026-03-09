@@ -509,8 +509,7 @@ export default function RetroRadioStation() {
             <span
               className="inline-block px-4 py-2 rounded-full text-xs font-medium text-red-300"
               style={{
-                background: 'rgba(0,0,0,0.7)',
-                backdropFilter: 'blur(12px)',
+                background: 'rgba(0,0,0,0.85)',
                 border: '1px solid rgba(255,59,48,0.3)',
               }}
             >
