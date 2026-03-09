@@ -4,9 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PremiumButton } from '@/visual/PremiumButton';
 import { Scissors, Play, Pause, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import { uploadListingVideo } from '@/utils/videoUpload';
-
 const MAX_DURATION = 10; // 10 seconds max
 
 interface VideoCropperProps {
