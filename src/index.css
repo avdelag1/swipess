@@ -959,28 +959,6 @@ body {
     animation: fast-fade-in 0.4s cubic-bezier(0.19, 1, 0.22, 1);
   }
 
-  .dynamic-card {
-    background: var(--gradient-surface);
-    /* backdrop-filter: blur(20px); REMOVED for Android performance */
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    position: relative;
-  }
-
-  .dynamic-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: inherit;
-    padding: 2px;
-    background: var(--gradient-primary);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    z-index: -1;
-  }
 
   .match-glow {
     box-shadow: var(--shadow-success);
