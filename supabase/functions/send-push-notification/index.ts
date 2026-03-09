@@ -299,8 +299,8 @@ serve(async (req) => {
     const payload = {
       title,
       body: msgBody || "",
-      icon: icon || "/icons/icon-192x192.png",
-      badge: "/icons/badge-72x72.png",
+      icon: icon || "/icons/icon-192.png",
+      badge: "/icons/apple-touch-icon-72x72.png",
       url: url || "/notifications",
       data,
       timestamp: Date.now(),
