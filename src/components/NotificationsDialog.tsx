@@ -256,12 +256,12 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                                       </Button>
                                     </div>
 
-                                    <p className={cn("text-xs line-clamp-2 mb-1.5", isDark ? "text-gray-300" : "text-gray-600 font-medium")}>
+                                    <p className="text-xs line-clamp-2 mb-1.5 text-muted-foreground">
                                       {notification.message}
                                     </p>
 
                                     <div className="flex items-center gap-2">
-                                      <span className="text-[10px] text-gray-400">
+                                      <span className="text-[10px] text-muted-foreground">
                                         {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
                                       </span>
                                       {!notification.read && (

@@ -327,7 +327,7 @@ export function LikedClients() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className={cn(
           "rounded-[2rem]",
-          isLight ? "bg-white border-border/50" : "bg-[#1a1a1a] border-white/[0.08]"
+          isLight ? "bg-background border-border/50" : "bg-card border-border"
         )}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground font-black text-xl">Remove Match?</AlertDialogTitle>
@@ -336,7 +336,7 @@ export function LikedClients() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-white/[0.06] border-white/[0.08] text-white")}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className={cn("rounded-xl", isLight ? "bg-secondary text-foreground border-border/30" : "bg-muted border-border text-foreground")}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)}
               className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
