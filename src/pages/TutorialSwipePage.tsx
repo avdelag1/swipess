@@ -407,7 +407,7 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
               style={{
                 background: 'rgba(74,222,128,0.12)',
                 border: '1px solid rgba(74,222,128,0.30)',
-                backdropFilter: 'blur(12px)',
+                backdropFilter: 'none',
               }}>
               <span className="text-green-400 font-black text-sm">{fmt(listing.price, listing.priceUnit)}</span>
             </div>
