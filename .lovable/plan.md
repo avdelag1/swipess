@@ -1,46 +1,94 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Round 10: Button & Interactive Element Design Enhancement
 
-### 1. Replace App Icon with Fire S Logo
+## Current State
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+The app has multiple button systems with inconsistent design maturity:
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+1. **`Button` (ui/button.tsx)** — Liquid Glass design with ripple, spring animations, glass variants. Already premium.
+2. **`SwipeActionButtonBar`** — Phantom icon design with glow bursts. Already premium.
+3. **`BottomNavigation`** — Liquid Glass bar with gradient icons. Already premium.
+4. **`PremiumButton` / `IconButton` / `FAB`** — Older system, basic `backdrop-blur-lg`, no ripple, weaker springs. Needs upgrade.
+5. **Filter option buttons** — Plain `<button>` elements with basic `bg-primary` active states. No motion, no depth, no color variety. Weakest area.
+6. **Profile dialog tags/chips** — Plain div-based selections with basic transitions. No spring, no haptic feel.
+7. **`ModeSwitcher`** — Good glass pill structure but toggle slider lacks polish.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+## Plan
 
-### 2. Profile Photo Already Shows in Top-Left
+### 1. Upgrade Filter Segmented Controls (Owner + Client Filters)
+The segmented controls (`flex rounded-xl bg-muted/50 p-1`) used for age, smoking, drinking, and generic option selectors are the weakest UI element. Currently flat `bg-primary` with zero depth.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**Upgrade to:**
+- Active state: gradient background matching category context + subtle inner shadow + `shadow-sm`
+- Inactive state: `text-muted-foreground` with hover glow
+- Add `motion.button` with `whileTap={{ scale: 0.94 }}` spring compression
+- Active pill gets a `layoutId` sliding indicator (Framer Motion shared layout animation) for smooth transitions between selections
+- The segmented container gets slightly deeper background (`bg-muted/30`) with inner shadow
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Files:** `src/components/filters/NewOwnerFilters.tsx` — update `SegmentedControl`, age buttons, habit buttons
 
-### 3. Fix Header Too Close to Top Edge
+### 2. Upgrade Category Cards in Filters
+The `CategoryCard` component uses basic `border-primary bg-primary/10`. Upgrade to:
+- Active: category-specific gradient border (blue for property, orange for motorcycle, etc.)
+- Subtle inner glow on active state
+- Stronger `whileTap` spring (0.91 instead of 0.93)
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**File:** `src/components/filters/NewOwnerFilters.tsx` — `CategoryCard` component
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### 3. Upgrade PillToggle in Filters
+Currently basic `bg-primary/15 border-primary/40`. Upgrade to:
+- Active: filled pill with gradient + white text + subtle shadow
+- Add haptic feedback on toggle
 
-### 4. Fix MarketingSlide Build Error
+**File:** `src/components/filters/NewOwnerFilters.tsx` — `PillToggle` component
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### 4. Upgrade PremiumButton System
+The `PremiumButton`, `IconButton`, and `FloatingActionButton` in `src/visual/PremiumButton.tsx` are outdated compared to the main Button. Upgrade:
+- Add liquid ripple effect (same CSS class `liquid-ripple`)
+- Upgrade springs to match main button (elastic/subtle configs)
+- Add haptic feedback via `triggerHaptic`
+- Replace `backdrop-blur-lg` with solid glass backgrounds (GPU savings)
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**File:** `src/visual/PremiumButton.tsx`
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### 5. Add New Button Variant: `gradient`
+A new variant for the main `Button` component — full gradient CTAs used for "Apply Filters", "Save", "Subscribe" actions. Currently these use inline className overrides.
+
+**Variant styles:**
+```
+'gradient': 'bg-gradient-to-r from-pink-500 to-orange-500 text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 rounded-2xl border-b-2 border-pink-700/50'
+```
+
+**File:** `src/components/ui/button.tsx` — add `gradient` variant
+
+### 6. Upgrade Apply/CTA Buttons in Filters
+Replace inline gradient styling on "Apply Filters" buttons with the new `gradient` variant. Add `elastic` prop for wobbly spring feel on primary CTAs.
+
+**Files:** `src/components/filters/NewOwnerFilters.tsx`, `src/components/filters/ClientFilters.tsx` (if exists)
+
+### 7. Profile Dialog Tag Selection Enhancement
+The tag selection buttons in `ClientProfileDialog.tsx` use basic div-based styling. Add:
+- `whileTap={{ scale: 0.93 }}` spring
+- Active state: gradient border glow
+- Selection ripple effect
+
+**File:** `src/components/ClientProfileDialog.tsx` — tag selection area
+
+---
+
+## Summary
+
+| Enhancement | Impact |
+|-------------|--------|
+| Filter segmented controls → animated sliding pill | Most-used interactive element, biggest visual upgrade |
+| Category cards → gradient borders | Category identity reinforcement |
+| Pill toggles → filled gradient active state | Stronger active/inactive contrast |
+| PremiumButton → liquid ripple + haptics | Consistency across button systems |
+| New `gradient` button variant | Reusable branded CTA, eliminates inline overrides |
+| Apply buttons → `gradient` + `elastic` | Premium CTA feel on key conversion points |
+| Profile tags → spring + glow | Tag selection feels tactile |
+
+**Files to modify:** 3-4 files
+**Zero functional changes — pure visual + interaction enhancement**
 
