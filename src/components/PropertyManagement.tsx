@@ -283,7 +283,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               className={cn(
                 "flex items-center gap-2 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide transition-all",
                 "border border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10",
-                isLight ? "bg-white" : "bg-white/[0.04] backdrop-blur-sm"
+                isLight ? "bg-white" : "bg-white/[0.04]"
               )}
               onClick={() => setShowAIAssistant(true)}
             >
