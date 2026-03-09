@@ -494,7 +494,7 @@ export function MessagingDashboard() {
                         </div>
                         <div className="flex items-center gap-2">
                           <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
-                            {conversation.last_message?.message_text || 'Start a conversation...'}
+                            {conversation.last_message?.content || 'Start a conversation...'}
                           </p>
                           {hasUnread && (
                             <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
