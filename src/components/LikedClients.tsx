@@ -59,7 +59,7 @@ export function LikedClients() {
 
   const storageKey = user?.id ? `liked-clients-order-${user.id}` : "";
 
-  const { data: likedClients = [], isLoading, refetch, isFetching } = useQuery({
+  const { data: likedClients = [], isLoading } = useQuery({
     queryKey: ["liked-clients", user?.id],
     placeholderData: (prev) => prev,
     queryFn: async () => {
