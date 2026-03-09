@@ -35,7 +35,7 @@ import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles } from 'lucide-re
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -372,6 +372,30 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // Navigation guard
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
 
+  // ─── PREDICTIVE CARD TRANSITIONS ─────────────────────────────────────────
+  // Shared MotionValue: top card writes its X position here so the card
+  // underneath can react in real-time without any React re-renders.
+  const topCardX = useMotionValue(0);
+
+  // Next card scales up and brightens as the top card is dragged away.
+  // At rest (topCardX=0): scale 0.97, opacity 0.72  — the normal "peek" state.
+  // At threshold (topCardX=±280): scale 1.0, opacity 0.98 — fully revealed.
+  const nextCardScale = useTransform(
+    topCardX,
+    [-280, -60, 0, 60, 280],
+    [1.0,  1.0, 0.97, 1.0, 1.0]
+  );
+  const nextCardOpacity = useTransform(
+    topCardX,
+    [-280, -60, 0, 60, 280],
+    [0.98, 0.92, 0.72, 0.92, 0.98]
+  );
+
+  // Tracks whether the user has completed at least one swipe this session.
+  // Used to gate the entrance spring so the very first card doesn't animate in.
+  const hasSwipedRef = useRef(false);
+  // ─────────────────────────────────────────────────────────────────────────
+
   // FIX: Hydration sync disabled — DB query is the single source of truth
   // The query with refetchOnMount:'always' ensures fresh data on every mount
   // No need to restore stale cached decks that may contain already-swiped items
@@ -586,7 +610,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   usePrefetchImages({
     currentIndex: currentIndex,
     profiles: deckQueueRef.current,
-    prefetchCount: 3,
+    prefetchCount: 5,
     trigger: currentIndex
   });
 
@@ -702,6 +726,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Clear pending immediately to prevent double-flush
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
+
+    // Reset shared motion value BEFORE React re-render so new top card
+    // mounts with x=0 (prevents stale rotation/opacity on the incoming card)
+    topCardX.set(0);
+
+    // Gate entrance animation — only spring-in for cards after the first swipe
+    hasSwipedRef.current = true;
 
     // NOW it's safe to update React state - animation is done
     setCurrentIndex(newIndex);
@@ -872,10 +903,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // The next card will show with skeleton placeholder until image loads
     executeSwipe(direction);
 
-    // AGGRESSIVE PREFETCH: Preload ALL images of next 3 cards to prevent blink
+    // AGGRESSIVE PREFETCH: Preload ALL images of next 5 cards to prevent blink
     // Use BOTH preloaders for maximum cache coverage and instant display
     const imagesToPreload: string[] = [];
-    [1, 2, 3].forEach((offset) => {
+    [1, 2, 3, 4, 5].forEach((offset) => {
       const futureCard = deckQueueRef.current[currentIndexRef.current + offset];
       if (futureCard?.images && Array.isArray(futureCard.images)) {
         futureCard.images.forEach((imgUrl: string) => {
@@ -1391,13 +1422,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           const nextCard = deckQueueRef.current[currentIndexRef.current + 1];
           if (!nextCard) return null;
           return (
-            <div
+            <motion.div
               key={`next-${nextCard.id}`}
               className="w-full h-full absolute inset-0 gpu-layer"
               style={{
                 zIndex: 5,
-                transform: 'scale(0.97) translateZ(0)',
-                opacity: 0.75,
+                scale: nextCardScale,
+                opacity: nextCardOpacity,
+                translateZ: 0,
                 pointerEvents: 'none',
               }}
             >
@@ -1406,15 +1438,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 onSwipe={() => { }}
                 isTop={false}
               />
-            </div>
+            </motion.div>
           );
         })()}
 
         {/* CURRENT CARD - Top of stack, fully interactive */}
         {topCard && (
-          <div
+          <motion.div
             key={topCard.id}
             className="w-full h-full absolute inset-0"
+            // Spring-forward entrance: card pops from "peeked" position to full size.
+            // Skipped on first card (hasSwipedRef.current=false) to avoid jarring load animation.
+            initial={hasSwipedRef.current ? { scale: 0.97, opacity: 0.72 } : false}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 28, mass: 0.85 }}
             style={{ zIndex: 10 }}
           >
             <SimpleSwipeCard
@@ -1424,8 +1461,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
               onTap={() => onListingTap(topCard.id)}
               onInsights={handleInsights}
               isTop={true}
+              externalX={topCardX}
             />
-          </div>
+          </motion.div>
         )}
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}

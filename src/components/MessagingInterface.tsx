@@ -29,7 +29,7 @@ interface MessagingInterfaceProps {
     id: string;
     full_name: string;
     avatar_url?: string;
-    role: string;
+    role: 'client' | 'owner';
   };
   listing?: {
     id: string;

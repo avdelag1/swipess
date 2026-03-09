@@ -12,7 +12,7 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -62,6 +62,9 @@ interface SimpleSwipeCardProps {
   onTap?: () => void;
   onInsights?: () => void;
   isTop?: boolean;
+  /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
+  externalX?: MotionValue<number>;
+  externalY?: MotionValue<number>;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -70,6 +73,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onTap,
   onInsights,
   isTop = true,
+  externalX,
+  externalY,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -81,8 +86,12 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
   // Motion values for BOTH X and Y - enables diagonal movement
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  // Always create internal values (hooks must not be conditional)
+  // Use external MotionValue if provided so the parent can observe drag position in real-time
+  const _internalX = useMotionValue(0);
+  const _internalY = useMotionValue(0);
+  const x = externalX ?? _internalX;
+  const y = externalY ?? _internalY;
 
   // Tinder-style rotation: pivots from bottom of card based on X drag
   // When you drag right, card rotates clockwise (positive rotation)
@@ -255,8 +264,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
 
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
+      // For near-horizontal swipes (offsetY ≈ 0), add a subtle arc so the card
+      // floats upward on like (right) and drops slightly on dislike (left)
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
-      const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
+      const rawExitY = Math.tan(swipeAngle) * exitDistance;
+      const clampedExitY = Math.min(Math.max(rawExitY, -300), 300);
+      const arcBias = direction === 'right' ? -70 : 40;
+      const exitY = Math.abs(clampedExitY) < 40 ? arcBias : clampedExitY;
 
       // Tween-based exit — faster and lighter than spring for PWA
       // Spring exit causes extra frames of oscillation; tween exits cleanly
@@ -351,8 +365,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onComplete: fireSwipe,
     });
 
-    // Slight upward arc
-    animate(y, -50, {
+    // Arc: like floats up, dislike falls slightly — mirrors natural card-flick feel
+    animate(y, direction === 'right' ? -60 : 32, {
       type: 'tween',
       duration: 0.26,
       ease: [0.32, 0, 0.67, 0],

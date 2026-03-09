@@ -1,40 +1,81 @@
 /**
  * Notification sound utilities for incoming messages and alerts
- * Uses meditation bell sounds for a calm, pleasant notification experience
+ * Respects the user's chosen swipe sound theme — including funny mode!
  */
+
+import type { SwipeTheme } from './sounds';
 
 export type NotificationSoundType = 'message' | 'match' | 'like' | 'general';
 
 /**
- * Notification sound mappings
- * Each notification type has a specific sound
+ * Standard (calm) notification sound mappings
  */
-export const notificationSounds = {
-  message: '/sounds/bell-a-99888.mp3', // Soft bell for new messages
-  match: '/sounds/bells-2-31725.mp3', // Celebratory bells for matches
-  like: '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3', // Heart chakra for likes
-  general: '/sounds/deep-meditation-bell-hit-third-eye-chakra-6-186972.mp3', // Third eye for general notifications
+const notificationSounds = {
+  message: '/sounds/bell-a-99888.mp3',
+  match:   '/sounds/bells-2-31725.mp3',
+  like:    '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3',
+  general: '/sounds/deep-meditation-bell-hit-third-eye-chakra-6-186972.mp3',
 };
+
+/**
+ * Funny notification sound pool — random pick each time so it never gets old.
+ * These also work as "like" / celebratory notifications in funny mode.
+ */
+const funnyNotificationPool: string[] = [
+  '/sounds/achievement-unlocked-463070.mp3',  // achievement jingle
+  '/sounds/duck-quack-like.mp3',              // duck quack
+  '/sounds/ding-sfx-472366.mp3',              // classic ding
+  '/sounds/screenshot-iphone-sound-like.mp3', // iPhone click
+];
 
 /**
  * Volume levels for different notification types
  */
 const notificationVolumes: Record<NotificationSoundType, number> = {
-  message: 0.6, // Slightly louder for messages
-  match: 0.7, // Loud for important match notifications
-  like: 0.5, // Moderate for likes
-  general: 0.5, // Moderate for general notifications
+  message: 0.6,
+  match:   0.7,
+  like:    0.5,
+  general: 0.5,
 };
 
 /**
- * Play a notification sound
+ * Module-level theme store — kept in sync with the user's swipe theme
+ * via setNotificationSoundTheme() called from useSwipeSounds.
+ */
+let currentTheme: SwipeTheme = 'none';
+
+/**
+ * Sync notification sounds with the user's active swipe theme.
+ * Call this whenever the theme is loaded or changed.
+ */
+export function setNotificationSoundTheme(theme: SwipeTheme): void {
+  currentTheme = theme;
+}
+
+/**
+ * Pick a random item from an array
+ */
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Play a notification sound.
+ * When the user's swipe theme is "funny", plays a random funny sound instead
+ * of the standard calm bell.
+ *
  * @param type - Type of notification
- * @returns Promise that resolves when sound starts playing
  */
 export async function playNotificationSound(type: NotificationSoundType = 'general'): Promise<void> {
   try {
-    const soundPath = notificationSounds[type];
+    let soundPath: string;
     const volume = notificationVolumes[type];
+
+    if (currentTheme === 'funny' && funnyNotificationPool.length > 0) {
+      soundPath = pickRandom(funnyNotificationPool);
+    } else {
+      soundPath = notificationSounds[type];
+    }
 
     if (!soundPath) {
       console.warn('No sound defined for notification type:', type);
@@ -47,17 +88,22 @@ export async function playNotificationSound(type: NotificationSoundType = 'gener
 
     await audio.play();
   } catch (error) {
-    // Fail silently - don't disrupt user experience if sound fails
+    // Fail silently — don't disrupt user experience if sound fails
     console.warn('Failed to play notification sound:', error);
   }
 }
 
 /**
- * Preload notification sounds for instant playback
- * Call this on app initialization
+ * Preload notification sounds for instant playback.
+ * Preloads both standard and funny pools so switching themes feels instant.
  */
 export function preloadNotificationSounds(): void {
-  Object.values(notificationSounds).forEach((soundPath) => {
+  const allSounds = [
+    ...Object.values(notificationSounds),
+    ...funnyNotificationPool,
+  ];
+
+  allSounds.forEach((soundPath) => {
     if (soundPath) {
       const audio = new Audio(soundPath);
       audio.preload = 'auto';
@@ -67,17 +113,15 @@ export function preloadNotificationSounds(): void {
 }
 
 /**
- * Check if notification sounds are enabled
- * Respects browser autoplay policies
+ * Check if notification sounds are enabled.
+ * Respects browser autoplay policies.
  */
 export function canPlayNotificationSounds(): boolean {
   try {
-    // Check if Audio is supported
     if (typeof Audio === 'undefined') {
       return false;
     }
 
-    // Check if we're in a secure context (required for some browsers)
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
       console.warn('Notification sounds require a secure context (HTTPS)');
       return false;

@@ -37,7 +37,7 @@ import {
 if (typeof document !== 'undefined' && !document.getElementById('cassette-radio-fonts')) {
   const s = document.createElement('style');
   s.id = 'cassette-radio-fonts';
-  s.innerHTML = `@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap');`;
+  s.textContent = `@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Space+Mono:wght@400;700&display=swap');`;
   document.head.appendChild(s);
 }
 
