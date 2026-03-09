@@ -1210,7 +1210,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <AmbientSwipeBackground isPaused={isRefreshing} />
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
