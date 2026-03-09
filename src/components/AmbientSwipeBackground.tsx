@@ -79,11 +79,11 @@ export const AmbientSwipeBackground: React.FC<AmbientSwipeBackgroundProps> = ({
 }) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [cards] = useState<BackgroundCard[]>(() =>
-    // Generate 4 cards per lane for continuous coverage without gaps
+    // Generate 3 cards per lane (reduced from 4 — less GPU work)
     LANE_CONFIGS.flatMap((_, laneIndex) =>
-      Array.from({ length: 4 }, (_, cardIndex) => ({
+      Array.from({ length: 3 }, (_, cardIndex) => ({
         id: `lane-${laneIndex}-card-${cardIndex}`,
-        imageUrl: SAMPLE_IMAGES[(laneIndex * 4 + cardIndex) % SAMPLE_IMAGES.length],
+        imageUrl: SAMPLE_IMAGES[(laneIndex * 3 + cardIndex) % SAMPLE_IMAGES.length],
         laneIndex,
         cardIndex,
       }))
