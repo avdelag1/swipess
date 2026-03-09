@@ -65,7 +65,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
 
         return (
           <motion.div key={filter.id} variants={itemVariants}>
-          <Card className={`bg-white/10 backdrop-blur-sm border-white/20 transition-all ${
+          <Card className={`bg-muted/30 border-border transition-all ${
             isActive ? 'ring-2 ring-primary shadow-lg shadow-primary/20' : ''
           }`}>
             <CardContent className="p-4">
