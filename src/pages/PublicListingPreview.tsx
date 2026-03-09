@@ -113,7 +113,7 @@ export default function PublicListingPreview() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="max-w-2xl w-full space-y-4">
           <Skeleton className="h-64 w-full rounded-2xl" />
           <Skeleton className="h-8 w-3/4" />
@@ -130,14 +130,14 @@ export default function PublicListingPreview() {
 
   if (error || !listing) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-        <Card className="max-w-md w-full bg-gray-800/50 border-gray-700/50">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="max-w-md w-full bg-card border-border">
           <CardContent className="p-8 text-center">
             <div className="p-4 rounded-full bg-red-500/20 w-fit mx-auto mb-4">
               <Home className="w-8 h-8 text-red-400" />
             </div>
-            <h1 className="text-xl font-bold text-white mb-2">Listing Not Found</h1>
-            <p className="text-gray-400 mb-6">
+            <h1 className="text-xl font-bold text-foreground mb-2">Listing Not Found</h1>
+            <p className="text-muted-foreground mb-6">
               This listing may have been removed or is no longer available.
             </p>
             <Button onClick={() => navigate('/')} className="w-full">
@@ -156,21 +156,21 @@ export default function PublicListingPreview() {
   const canDirectMessage = user && isFreeMessagingCategory && user.id !== listing.owner_id;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-background">
       <motion.button
         onClick={() => navigate(-1)}
         whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
-        className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150 mb-4 px-1"
+        className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 mb-4 px-1"
       >
         <ArrowLeft className="w-4 h-4" />
         Back
       </motion.button>
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-lg border-b border-gray-700/50">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            <span className="font-bold text-white">Zwipes</span>
+            <span className="font-bold text-foreground">Zwipes</span>
           </div>
           {!user && (
             <div className="flex items-center gap-2">
@@ -195,15 +195,15 @@ export default function PublicListingPreview() {
           className="space-y-6"
         >
           {/* Listing Preview Card */}
-          <Card className="overflow-hidden bg-gray-800/50 border-gray-700/50">
+          <Card className="overflow-hidden bg-card border-border">
             {/* Image Gallery */}
             <div className="relative aspect-[16/10] overflow-hidden">
               {hasImages ? (
                 <ImageCarousel images={listing.images as string[]} alt={listing.title || 'Listing'} />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-gray-700 to-gray-800 flex flex-col items-center justify-center gap-2">
+                <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex flex-col items-center justify-center gap-2">
                   <span className="text-6xl">{getCategoryEmoji(category)}</span>
-                  <span className="text-gray-500">No images available</span>
+                  <span className="text-muted-foreground">No images available</span>
                 </div>
               )}
 
@@ -225,11 +225,11 @@ export default function PublicListingPreview() {
               {/* Title and Price */}
               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl font-bold text-white mb-2">
+                  <h1 className="text-2xl font-bold text-foreground mb-2">
                     {listing.title || 'Untitled Listing'}
                   </h1>
                   {category === 'property' && (listing.address || listing.city) && (
-                    <div className="flex items-center gap-2 text-gray-400">
+                    <div className="flex items-center gap-2 text-muted-foreground">
                       <MapPin className="w-4 h-4 flex-shrink-0" />
                       <span className="truncate">
                         {listing.address && `${listing.address}, `}
@@ -239,7 +239,7 @@ export default function PublicListingPreview() {
                     </div>
                   )}
                   {(category === 'yacht' || category === 'motorcycle' || category === 'bicycle' || category === 'vehicle') && (
-                    <div className="text-gray-400">
+                    <div className="text-muted-foreground">
                       {(listing as any).brand || (listing as any).vehicle_brand || listing.title}
                       {(listing as any).year && ` • ${(listing as any).year}`}
                     </div>
@@ -250,7 +250,7 @@ export default function PublicListingPreview() {
                     <DollarSign className="w-6 h-6" />
                     {listing.price?.toLocaleString() || 'TBD'}
                   </div>
-                  <div className="text-sm text-gray-400">
+                  <div className="text-sm text-muted-foreground">
                     {mode === 'rent' ? '/month' : mode === 'sale' ? 'total' : 'sale/rent'}
                   </div>
                 </div>
@@ -260,38 +260,38 @@ export default function PublicListingPreview() {
               {category === 'property' && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {listing.beds && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Bed className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{listing.beds}</div>
-                        <div className="text-xs text-gray-400">Beds</div>
+                        <div className="font-semibold text-foreground">{listing.beds}</div>
+                        <div className="text-xs text-muted-foreground">Beds</div>
                       </div>
                     </div>
                   )}
                   {listing.baths && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Bath className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{listing.baths}</div>
-                        <div className="text-xs text-gray-400">Baths</div>
+                        <div className="font-semibold text-foreground">{listing.baths}</div>
+                        <div className="text-xs text-muted-foreground">Baths</div>
                       </div>
                     </div>
                   )}
                   {listing.square_footage && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Square className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{listing.square_footage}</div>
-                        <div className="text-xs text-gray-400">Sq ft</div>
+                        <div className="font-semibold text-foreground">{listing.square_footage}</div>
+                        <div className="text-xs text-muted-foreground">Sq ft</div>
                       </div>
                     </div>
                   )}
                   {(listing as any).parking_spaces !== undefined && (listing as any).parking_spaces !== null && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Car className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{(listing as any).parking_spaces}</div>
-                        <div className="text-xs text-gray-400">Parking</div>
+                        <div className="font-semibold text-foreground">{(listing as any).parking_spaces}</div>
+                        <div className="text-xs text-muted-foreground">Parking</div>
                       </div>
                     </div>
                   )}
@@ -301,29 +301,29 @@ export default function PublicListingPreview() {
               {category === 'yacht' && (
                 <div className="grid grid-cols-3 gap-3">
                   {(listing as any).length_m && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Anchor className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{(listing as any).length_m}m</div>
-                        <div className="text-xs text-gray-400">Length</div>
+                        <div className="font-semibold text-foreground">{(listing as any).length_m}m</div>
+                        <div className="text-xs text-muted-foreground">Length</div>
                       </div>
                     </div>
                   )}
                   {(listing as any).berths && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Bed className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{(listing as any).berths}</div>
-                        <div className="text-xs text-gray-400">Berths</div>
+                        <div className="font-semibold text-foreground">{(listing as any).berths}</div>
+                        <div className="text-xs text-muted-foreground">Berths</div>
                       </div>
                     </div>
                   )}
                   {(listing as any).max_passengers && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Users className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{(listing as any).max_passengers}</div>
-                        <div className="text-xs text-gray-400">Passengers</div>
+                        <div className="font-semibold text-foreground">{(listing as any).max_passengers}</div>
+                        <div className="text-xs text-muted-foreground">Passengers</div>
                       </div>
                     </div>
                   )}
@@ -333,37 +333,37 @@ export default function PublicListingPreview() {
               {(category === 'motorcycle' || category === 'bicycle' || category === 'vehicle') && (
                 <div className="grid grid-cols-3 gap-3">
                   {(listing as any).engine_cc && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <CircleDot className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{(listing as any).engine_cc}cc</div>
-                        <div className="text-xs text-gray-400">Engine</div>
+                        <div className="font-semibold text-foreground">{(listing as any).engine_cc}cc</div>
+                        <div className="text-xs text-muted-foreground">Engine</div>
                       </div>
                     </div>
                   )}
                   {(listing as any).mileage && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <Car className="w-5 h-5 text-primary" />
                       <div>
-                        <div className="font-semibold text-white">{(listing as any).mileage?.toLocaleString()}</div>
-                        <div className="text-xs text-gray-400">Miles</div>
+                        <div className="font-semibold text-foreground">{(listing as any).mileage?.toLocaleString()}</div>
+                        <div className="text-xs text-muted-foreground">Miles</div>
                       </div>
                     </div>
                   )}
                   {((listing as any).condition || (listing as any).vehicle_condition) && (
-                    <div className="p-3 bg-gray-700/30 rounded-lg">
-                      <div className="font-semibold text-white capitalize">
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="font-semibold text-foreground capitalize">
                         {(listing as any).condition || (listing as any).vehicle_condition}
                       </div>
-                      <div className="text-xs text-gray-400">Condition</div>
+                      <div className="text-xs text-muted-foreground">Condition</div>
                     </div>
                   )}
                   {(listing as any).electric_assist && (
-                    <div className="flex items-center gap-2 p-3 bg-gray-700/30 rounded-lg">
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
                       <span className="text-xl">⚡</span>
                       <div>
-                        <div className="font-semibold text-white">Electric</div>
-                        <div className="text-xs text-gray-400">
+                        <div className="font-semibold text-foreground">Electric</div>
+                        <div className="text-xs text-muted-foreground">
                           {(listing as any).battery_range ? `${(listing as any).battery_range}km` : 'Assist'}
                         </div>
                       </div>
@@ -375,22 +375,22 @@ export default function PublicListingPreview() {
               {/* Features Preview */}
               <div className="flex flex-wrap gap-2">
                 {listing.property_type && (
-                  <Badge variant="secondary" className="bg-gray-700 text-gray-300">
+                  <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
                     {listing.property_type}
                   </Badge>
                 )}
                 {(listing as any).furnished && (
-                  <Badge variant="outline" className="border-gray-600 text-gray-300">
+                  <Badge variant="outline" className="border-border text-muted-foreground">
                     Furnished
                   </Badge>
                 )}
                 {(listing as any).pet_friendly && (
-                  <Badge variant="outline" className="border-gray-600 text-gray-300">
+                  <Badge variant="outline" className="border-border text-muted-foreground">
                     Pet Friendly
                   </Badge>
                 )}
                 {(listing as any).availability_date && (
-                  <Badge variant="outline" className="border-gray-600 text-gray-300 flex items-center gap-1">
+                  <Badge variant="outline" className="border-border text-muted-foreground flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
                     Available {new Date((listing as any).availability_date).toLocaleDateString()}
                   </Badge>
@@ -398,21 +398,21 @@ export default function PublicListingPreview() {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-700/50">
-                <div className="text-center p-2 bg-gray-700/20 rounded-lg">
-                  <Eye className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                  <div className="text-lg font-bold text-white">{(listing as any).views || 0}</div>
-                  <div className="text-xs text-gray-400">Views</div>
+              <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
+                <div className="text-center p-2 bg-muted/30 rounded-lg">
+                  <Eye className="w-4 h-4 mx-auto text-muted-foreground mb-1" />
+                  <div className="text-lg font-bold text-foreground">{(listing as any).views || 0}</div>
+                  <div className="text-xs text-muted-foreground">Views</div>
                 </div>
-                <div className="text-center p-2 bg-gray-700/20 rounded-lg">
-                  <Flame className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                  <div className="text-lg font-bold text-white">{(listing as any).likes || 0}</div>
-                  <div className="text-xs text-gray-400">Likes</div>
+                <div className="text-center p-2 bg-muted/30 rounded-lg">
+                  <Flame className="w-4 h-4 mx-auto text-muted-foreground mb-1" />
+                  <div className="text-lg font-bold text-foreground">{(listing as any).likes || 0}</div>
+                  <div className="text-xs text-muted-foreground">Likes</div>
                 </div>
-                <div className="text-center p-2 bg-gray-700/20 rounded-lg">
-                  <MessageSquare className="w-4 h-4 mx-auto text-gray-400 mb-1" />
-                  <div className="text-lg font-bold text-white">{(listing as any).contacts || 0}</div>
-                  <div className="text-xs text-gray-400">Contacts</div>
+                <div className="text-center p-2 bg-muted/30 rounded-lg">
+                  <MessageSquare className="w-4 h-4 mx-auto text-muted-foreground mb-1" />
+                  <div className="text-lg font-bold text-foreground">{(listing as any).contacts || 0}</div>
+                  <div className="text-xs text-muted-foreground">Contacts</div>
                 </div>
               </div>
             </CardContent>
@@ -426,7 +426,7 @@ export default function PublicListingPreview() {
                   <Sparkles className="w-5 h-5 text-emerald-400" />
                   <span className="text-emerald-400 font-semibold">Ready to Connect</span>
                 </div>
-                <p className="text-gray-300 text-sm">
+                <p className="text-muted-foreground text-sm">
                   You are logged into Swipess. Message the owner directly to inquire about this {getCategoryLabel(category).toLowerCase()}.
                 </p>
                 <Button
@@ -440,33 +440,33 @@ export default function PublicListingPreview() {
               </CardContent>
             </Card>
           ) : (
-            <Card className="relative overflow-hidden bg-gray-800/50 border-gray-700/50">
+            <Card className="relative overflow-hidden bg-card border-border">
               <CardContent className="p-6">
                 {/* Blurred content */}
                 <div className="filter blur-sm pointer-events-none select-none space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-gray-600" />
+                    <div className="w-14 h-14 rounded-full bg-muted-foreground/30" />
                     <div className="space-y-2 flex-1">
-                      <div className="h-5 w-32 bg-gray-600 rounded" />
-                      <div className="h-3 w-48 bg-gray-600 rounded" />
+                      <div className="h-5 w-32 bg-muted-foreground/30 rounded" />
+                      <div className="h-3 w-48 bg-muted-foreground/30 rounded" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="h-10 bg-gray-600 rounded-lg" />
-                    <div className="h-10 bg-gray-600 rounded-lg" />
+                    <div className="h-10 bg-muted-foreground/30 rounded-lg" />
+                    <div className="h-10 bg-muted-foreground/30 rounded-lg" />
                   </div>
                 </div>
 
                 {/* Overlay with CTA */}
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/80 to-gray-900/60 flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/60 flex items-center justify-center">
                   <div className="text-center p-6">
                     <div className="p-3 rounded-full bg-primary/20 w-fit mx-auto mb-4">
                       <Lock className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-lg font-bold text-white mb-2">
+                    <h3 className="text-lg font-bold text-foreground mb-2">
                       Contact the Owner
                     </h3>
-                    <p className="text-sm text-gray-400 mb-4 max-w-xs">
+                    <p className="text-sm text-muted-foreground mb-4 max-w-xs">
                       Create an account to message the owner, schedule viewings, and get more details about this listing.
                     </p>
                   </div>
@@ -483,10 +483,10 @@ export default function PublicListingPreview() {
                 <Sparkles className="w-6 h-6 text-primary" />
                 <CheckCircle className="w-6 h-6 text-green-500" />
               </div>
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-xl font-bold text-foreground">
                 Interested in this {getCategoryLabel(category)}?
               </h3>
-              <p className="text-gray-300 text-sm max-w-md mx-auto">
+              <p className="text-muted-foreground text-sm max-w-md mx-auto">
                 {canDirectMessage
                   ? 'Send a message directly to the owner - free for Motos & Bicycles!'
                   : 'Join Zwipes to contact the owner, schedule viewings, and find your perfect match.'}
@@ -528,7 +528,7 @@ export default function PublicListingPreview() {
           </Card>
 
           {/* Footer */}
-          <div className="text-center text-xs text-gray-500 pt-4">
+          <div className="text-center text-xs text-muted-foreground pt-4">
             <p>Zwipes - Find Your Perfect Match</p>
           </div>
         </motion.div>

@@ -39,19 +39,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-zinc-950 text-white shadow-xl hover:bg-zinc-900 border-b-2 border-zinc-800',
+          'bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 border-b-2 border-primary/80',
         destructive:
-          'bg-red-600 text-white hover:bg-red-700 shadow-lg rounded-3xl border-b-2 border-red-800',
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg rounded-3xl border-b-2 border-destructive/80',
         outline:
-          'border-2 border-zinc-200 bg-white text-zinc-950 hover:bg-zinc-50 rounded-3xl shadow-sm',
+          'border-2 border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground rounded-3xl shadow-sm',
         secondary:
-          'bg-zinc-100 text-zinc-900 shadow-md hover:bg-zinc-200 rounded-3xl border-b-2 border-zinc-200',
-        ghost: 'hover:bg-zinc-100 hover:text-zinc-900 rounded-2xl',
-        link: 'text-zinc-900 underline-offset-4 hover:underline',
+          'bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/80 rounded-3xl border-b-2 border-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground rounded-2xl',
+        link: 'text-primary underline-offset-4 hover:underline',
         premium:
           'bg-gradient-premium text-white shadow-premium premium-glow hover:shadow-glow rounded-3xl border-b-2 border-purple-800',
         tinder:
-          'bg-white text-zinc-950 hover:bg-zinc-50 shadow-xl rounded-3xl border border-zinc-200',
+          'bg-background text-foreground hover:bg-accent shadow-xl rounded-3xl border border-border',
         /**
          * LIQUID GLASS variants — 2026 flagship buttons
          *
@@ -72,8 +72,8 @@ const buttonVariants = cva(
           'shadow-[inset_0_1px_0_rgba(255,255,255,0.30),0_8px_24px_rgba(0,0,0,0.30)]',
         glassLight:
           // For light / white-matte themes
-          'text-zinc-900 border border-black/10 ' +
-          'bg-white/75 backdrop-blur-2xl ' +
+          'text-foreground border border-border ' +
+          'bg-card/75 backdrop-blur-2xl ' +
           'shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_2px_8px_rgba(0,0,0,0.08)]',
       },
       size: {

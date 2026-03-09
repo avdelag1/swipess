@@ -125,7 +125,7 @@ const ResetPassword = () => {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-950 to-gray-900 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
       <FireParticles />
 
       {/* Ambient glow effects */}
@@ -143,7 +143,7 @@ const ResetPassword = () => {
         {/* Back Button */}
         <motion.button
           onClick={() => navigate("/")}
-          className="mb-6 flex items-center gap-2 text-white/70 hover:text-white transition-colors group"
+          className="mb-6 flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors group"
           whileHover={{ x: -4 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -180,15 +180,15 @@ const ResetPassword = () => {
             </motion.div>
           </motion.div>
 
-          <h2 className="text-3xl font-bold text-white mb-2">Reset Password</h2>
-          <p className="text-white/60">
+          <h2 className="text-3xl font-bold text-foreground mb-2">Reset Password</h2>
+          <p className="text-muted-foreground">
             Create a strong, secure password for your account
           </p>
         </motion.div>
 
         {/* Main Card */}
         <motion.div
-          className="bg-white/5 backdrop-blur-2xl border border-amber-500/30 rounded-3xl p-8 shadow-[0_0_60px_rgba(251,146,60,0.2)]"
+          className="bg-card/80 backdrop-blur-2xl border border-amber-500/30 rounded-3xl p-8 shadow-[0_0_60px_rgba(251,146,60,0.2)]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -201,11 +201,11 @@ const ResetPassword = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
             >
-              <Label htmlFor="password" className="text-sm font-medium text-white/80">
+              <Label htmlFor="password" className="text-sm font-medium text-muted-foreground">
                 New Password
               </Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/70 transition-colors" />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-foreground transition-colors" />
                 <Input
                   id="password"
                   name="password"
@@ -217,12 +217,12 @@ const ResetPassword = () => {
                   required
                   minLength={8}
                   disabled={loading}
-                  className="pl-12 pr-12 h-14 text-base bg-white/5 border-white/20 text-white placeholder:text-white/30"
+                  className="pl-12 pr-12 h-14 text-base"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -237,7 +237,7 @@ const ResetPassword = () => {
                 >
                   {/* Strength Bar */}
                   <div className="flex items-center gap-3">
-                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <motion.div
                         className={`h-full ${passwordStrength.color} rounded-full`}
                         initial={{ width: 0 }}
@@ -265,7 +265,7 @@ const ResetPassword = () => {
                         key={key}
                         className={`flex items-center gap-2 text-xs ${passwordStrength.checks[key as keyof typeof passwordStrength.checks]
                             ? 'text-green-400'
-                            : 'text-white/40'
+                            : 'text-muted-foreground'
                           }`}
                       >
                         {passwordStrength.checks[key as keyof typeof passwordStrength.checks] ? (
@@ -288,11 +288,11 @@ const ResetPassword = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Label htmlFor="confirmPassword" className="text-sm font-medium text-white/80">
+              <Label htmlFor="confirmPassword" className="text-sm font-medium text-muted-foreground">
                 Confirm Password
               </Label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white/70 transition-colors" />
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-foreground transition-colors" />
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -304,13 +304,13 @@ const ResetPassword = () => {
                   required
                   minLength={8}
                   disabled={loading}
-                  className={`pl-12 pr-12 h-14 text-base bg-white/5 border-white/20 text-white placeholder:text-white/30 ${confirmPassword && (passwordsMatch ? 'border-green-500/50' : 'border-red-500/50')
+                  className={`pl-12 pr-12 h-14 text-base ${confirmPassword && (passwordsMatch ? 'border-green-500/50' : 'border-red-500/50')
                     }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -374,7 +374,7 @@ const ResetPassword = () => {
 
         {/* Security Notice */}
         <motion.div
-          className="flex items-center justify-center gap-2 mt-6 text-white/40"
+          className="flex items-center justify-center gap-2 mt-6 text-muted-foreground"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
