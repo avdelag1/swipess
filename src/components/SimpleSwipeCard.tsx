@@ -170,19 +170,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Fetch rating aggregate for this listing
   const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
 
-  // Parallax store for ambient background effect
-  const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
-  const endParallaxDrag = useParallaxStore((s) => s.endDrag);
-
-  // Subscribe motion value to parallax store for ambient background effect
-  useEffect(() => {
-    const unsubscribe = x.on('change', (latestX) => {
-      if (isDragging.current && isTop) {
-        updateParallaxDrag(latestX, 0, x.getVelocity());
-      }
-    });
-    return unsubscribe;
-  }, [x, isTop, updateParallaxDrag]);
 
   // Unified pointer down handler: starts magnifier hold timer AND stores event for potential drag
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {

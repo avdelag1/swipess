@@ -421,8 +421,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           onSubmit={handleSendMessage}
           className="px-3 py-3 shrink-0"
           style={{
-            background: 'hsl(var(--background) / 0.95)',
-            backdropFilter: 'blur(20px)',
+            background: 'hsl(var(--background) / 0.97)',
             borderTop: '1px solid hsl(var(--border))',
           }}
         >

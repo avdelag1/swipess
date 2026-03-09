@@ -153,7 +153,7 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
             alignItems: 'center',
             justifyContent: 'center',
             color: color,
-            backdropFilter: 'blur(24px)',
+            
             zIndex: 10,
             overflow: 'hidden',
           }}

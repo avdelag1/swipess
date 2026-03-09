@@ -383,8 +383,6 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
           backgroundColor: hasActiveFilters
             ? (isDark ? 'rgba(236, 72, 153, 0.15)' : 'rgba(236, 72, 153, 0.08)')
             : glassBg,
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
           border: hasActiveFilters
             ? (isDark ? '1px solid rgba(236, 72, 153, 0.3)' : '1px solid rgba(236, 72, 153, 0.2)')
             : glassBorder,
