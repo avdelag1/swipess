@@ -294,10 +294,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform')) {
             return 'forms';
           }
+          /* 
           // Charts - only needed on dashboard analytics
           if (id.includes('node_modules/recharts') || id.includes('node_modules/d3')) {
             return 'charts';
           }
+          */
           // Capacitor - only needed in native apps
           if (id.includes('node_modules/@capacitor')) {
             return 'capacitor';
