@@ -839,8 +839,7 @@
   background: linear-gradient(145deg,
       rgba(18, 18, 22, 0.92) 0%,
       rgba(24, 24, 30, 0.88) 100%);
-  backdrop-filter: blur(40px) saturate(200%);
-  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  /* Solid background replaces blur for GPU savings */
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-xl);
   box-shadow:
