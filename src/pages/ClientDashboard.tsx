@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
 import { PropertyInsightsDialog } from '@/components/PropertyInsightsDialog';
+import { NotificationBar } from '@/components/NotificationBar';
+import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { supabase } from '@/integrations/supabase/client';
 import { ListingFilters } from '@/hooks/useSmartMatching';
 import { Listing } from '@/hooks/useListings';
@@ -23,56 +25,33 @@ export default function ClientDashboard({
   onMessageClick,
   filters
 }: ClientDashboardProps) {
-  const [insightsOpen, setInsightsOpen] = useState(false);
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
-
   // Connect filter store to swipe container
   const filterVersion = useFilterStore((s) => s.filterVersion);
   const getListingFilters = useFilterStore((s) => s.getListingFilters);
   const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
   const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
 
-  // PERFORMANCE: Only fetch the selected listing when dialog opens
-  const { data: selectedListing } = useQuery({
-    queryKey: ['listing-detail', selectedListingId],
-    queryFn: async () => {
-      if (!selectedListingId) return null;
-      const { data, error } = await supabase
-        .from('listings')
-        .select('*')
-        .eq('id', selectedListingId)
-        .single();
-      if (error) throw error;
-      return data as Listing;
-    },
-    enabled: !!selectedListingId && insightsOpen,
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
+  const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
 
   const handleListingTap = useCallback((listingId: string) => {
-    setSelectedListingId(listingId);
-    setInsightsOpen(true);
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
 
   return (
     <>
+      <NotificationBar
+        notifications={notifications}
+        onDismiss={dismissNotification}
+        onMarkAllRead={markAllAsRead}
+        onNotificationClick={handleNotificationClick}
+      />
       <SwipessSwipeContainer
         onListingTap={handleListingTap}
         onInsights={handleListingTap}
         onMessageClick={onMessageClick}
         filters={mergedFilters as ListingFilters}
       />
-
-      <PropertyInsightsDialog
-        open={insightsOpen}
-        onOpenChange={setInsightsOpen}
-        listing={selectedListing ?? null}
-      />
     </>
   );
 }
+

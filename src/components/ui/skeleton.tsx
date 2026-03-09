@@ -28,7 +28,6 @@ function Skeleton({
         className
       )}
       style={{
-        willChange: 'contents',
         backfaceVisibility: 'hidden',
         ...(glow && {
           boxShadow: '0 0 20px 2px rgba(255,255,255,0.1)',

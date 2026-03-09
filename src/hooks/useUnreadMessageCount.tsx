@@ -11,68 +11,54 @@ export function useUnreadMessageCount() {
 
   const query = useQuery({
     queryKey: ['unread-message-count', user?.id],
-    // INSTANT NAVIGATION: Keep previous data during refetch to prevent badge flickering
     placeholderData: (prev) => prev,
     queryFn: async () => {
       if (!user?.id) return 0;
 
       try {
-        // Get all matches for this user (conversations link via match_id)
-        const { data: matches, error: matchError } = await supabase
-          .from('matches')
-          .select('id')
-          .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`);
-
-        if (matchError) throw matchError;
-        if (!matches?.length) return 0;
-
-        const matchIds = matches.map(m => m.id);
-
-        // Get conversations for these matches
+        // Query conversations directly — user is either client_id or owner_id
         const { data: conversations, error: convError } = await supabase
           .from('conversations')
           .select('id')
-          .in('match_id', matchIds);
+          .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`);
 
         if (convError) throw convError;
         if (!conversations?.length) return 0;
 
         const conversationIds = conversations.map(c => c.id);
 
-        // Count unread messages not sent by current user
-        const { count, error: unreadError } = await supabase
+        // Count distinct conversations with unread messages (not individual messages)
+        const { data: unreadRows, error: unreadError } = await supabase
           .from('conversation_messages')
-          .select('conversation_id', { count: 'exact', head: true })
+          .select('conversation_id')
           .in('conversation_id', conversationIds)
           .neq('sender_id', user.id)
           .eq('is_read', false);
 
         if (unreadError) throw unreadError;
 
-        return Math.min(count || 0, 99);
+        const uniqueConversations = new Set(unreadRows?.map(m => m.conversation_id));
+        return Math.min(uniqueConversations.size, 99);
       } catch (error) {
         logger.error('[UnreadCount] Error:', error);
         return 0;
       }
     },
     enabled: !!user?.id,
-    refetchInterval: 60000, // Refetch every 60 seconds
-    staleTime: 10000, // Consider data fresh for 10 seconds to prevent excessive refetching
-    refetchOnWindowFocus: true, // Refetch when user comes back to tab
+    refetchInterval: 60000,
+    staleTime: 10000,
+    refetchOnWindowFocus: true,
   });
 
-  // Debounced refetch function to prevent excessive updates
   const debouncedRefetch = () => {
     if (refetchTimeoutRef.current) {
       clearTimeout(refetchTimeoutRef.current);
     }
     refetchTimeoutRef.current = setTimeout(() => {
       query.refetch();
-    }, 1000); // Wait 1 second before refetching
+    }, 1000);
   };
 
-  // Set up real-time subscription for unread messages
-  // Only listen to new message events (not updates) to reduce refetch frequency
   useEffect(() => {
     if (!user?.id) return;
 
@@ -86,11 +72,8 @@ export function useUnreadMessageCount() {
           table: 'conversation_messages'
         },
         (payload) => {
-          // Only refetch if the message is not from the current user
           if (payload.new.sender_id !== user.id) {
             debouncedRefetch();
-
-            // Play notification sound for incoming message
             playNotificationSound('message').catch((error) => {
               logger.warn('[UnreadCount] Failed to play notification sound:', error);
             });
@@ -105,7 +88,6 @@ export function useUnreadMessageCount() {
           table: 'conversation_messages'
         },
         (payload) => {
-          // Only refetch if is_read status changed
           if (payload.old.is_read !== payload.new.is_read) {
             debouncedRefetch();
           }
@@ -117,11 +99,9 @@ export function useUnreadMessageCount() {
       if (refetchTimeoutRef.current) {
         clearTimeout(refetchTimeoutRef.current);
       }
-      // Properly unsubscribe AND remove channel to prevent memory leaks
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
-    // Note: debouncedRefetch is intentionally excluded as it references query.refetch which is stable
   }, [user?.id]);
 
   return {

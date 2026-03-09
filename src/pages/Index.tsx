@@ -138,6 +138,12 @@ const Index = () => {
     // PRIORITY 1: For new users, use metadata role immediately (don't wait for DB query)
     // This prevents the loading screen hang after signup
     if (isNewUser) {
+      const returnTo = searchParams.get('returnTo');
+      if (returnTo) {
+        hasNavigated.current = true;
+        navigate(returnTo, { replace: true });
+        return;
+      }
       const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
       if (metadataRole) {
         hasNavigated.current = true;
@@ -181,6 +187,14 @@ const Index = () => {
     // PRIORITY 3: Have role from DB or metadata - combine with sticky mode
     const performRedirection = async () => {
       if (hasNavigated.current) return;
+
+      const returnTo = searchParams.get('returnTo');
+      if (returnTo) {
+        hasNavigated.current = true;
+        logger.log("[Index] Deep link detected, navigating to:", returnTo);
+        navigate(returnTo, { replace: true });
+        return;
+      }
 
       const activeMode = await fetchActiveMode();
 
@@ -259,7 +273,11 @@ const Index = () => {
   }, [user, initialized]);
 
   if (!initialized || loading) {
-    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+    return (
+      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      </div>
+    );
   }
 
   // User exists but still loading role - show transparent screen
@@ -303,7 +321,11 @@ const Index = () => {
       );
     }
 
-    return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+    return (
+      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      </div>
+    );
   }
 
   // Solo muestra landing page si NO hay usuario logueado
@@ -316,7 +338,11 @@ const Index = () => {
   }
 
   // Caso final (redirigiendo)
-  return <div className="min-h-screen min-h-dvh" style={{ background: '#050505' }} />;
+  return (
+    <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+      <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+    </div>
+  );
 };
 
 export default Index;

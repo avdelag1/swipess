@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { AmbientSwipeBackground } from './AmbientSwipeBackground';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
@@ -176,47 +177,7 @@ function useNavigationGuard() {
   return { canNavigate, startNavigation, endNavigation };
 }
 
-// =============================================================================
-// PERF: Throttled prefetch scheduler - prevents competing with current decode
-// Uses requestIdleCallback to ensure prefetch only runs when browser is idle
-// =============================================================================
-class PrefetchScheduler {
-  private scheduled = false;
-  private callback: (() => void) | null = null;
-  private idleHandle: number | null = null;
-
-  schedule(callback: () => void, delayMs = 300): void {
-    // Cancel any pending prefetch
-    this.cancel();
-
-    this.callback = callback;
-    this.scheduled = true;
-
-    // Wait for a brief delay to let current image decode complete
-    setTimeout(() => {
-      if (!this.scheduled || !this.callback) return;
-
-      if ('requestIdleCallback' in window) {
-        this.idleHandle = (window as any).requestIdleCallback(() => {
-          if (this.callback) this.callback();
-          this.scheduled = false;
-        }, { timeout: 2000 });
-      } else {
-        this.callback();
-        this.scheduled = false;
-      }
-    }, delayMs);
-  }
-
-  cancel(): void {
-    this.scheduled = false;
-    this.callback = null;
-    if (this.idleHandle !== null && 'cancelIdleCallback' in window) {
-      (window as any).cancelIdleCallback(this.idleHandle);
-      this.idleHandle = null;
-    }
-  }
-}
+// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
@@ -336,7 +297,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
       prevFiltersRef.current?.category !== filters?.category ||
       prevFiltersRef.current?.listingType !== filters?.listingType ||
-      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange);
+      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange) ||
+      !arraysEqual(prevFiltersRef.current?.serviceCategory, filters?.serviceCategory) ||
+      !arraysEqual(prevFiltersRef.current?.workTypes, filters?.workTypes) ||
+      !arraysEqual(prevFiltersRef.current?.skills, filters?.skills) ||
+      !arraysEqual(prevFiltersRef.current?.daysAvailable, filters?.daysAvailable) ||
+      !arraysEqual(prevFiltersRef.current?.experienceLevel, filters?.experienceLevel) ||
+      !arraysEqual(prevFiltersRef.current?.scheduleTypes, filters?.scheduleTypes);
 
     if (filtersChanged) {
       logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');
@@ -412,6 +379,44 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Clear any stale session storage on mount
     try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
+
+  // HYDRATE FILTER STORE FROM DATABASE on mount
+  // If the Zustand store has no categories selected but the DB has stored preferences,
+  // seed the store so the swipe deck uses the user's saved filters
+  useEffect(() => {
+    if (!user?.id) return;
+    const state = useFilterStore.getState();
+    // Only hydrate if store is empty (user hasn't actively set filters this session)
+    if (state.categories.length > 0 || state.listingType !== 'both') return;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('client_filter_preferences')
+          .select('preferred_categories, preferred_listing_types')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!data) return;
+        const currentState = useFilterStore.getState();
+        // Double-check store is still empty (race condition guard)
+        if (currentState.categories.length > 0) return;
+
+        const cats = Array.isArray(data.preferred_categories) ? data.preferred_categories as string[] : [];
+        const listingTypes = Array.isArray(data.preferred_listing_types) ? data.preferred_listing_types as string[] : [];
+
+        if (cats.length > 0) {
+          useFilterStore.getState().setCategories(cats as any);
+        }
+        if (listingTypes.length === 1 && listingTypes[0] !== 'both') {
+          useFilterStore.getState().setListingType(listingTypes[0] as any);
+        }
+        logger.info('[SwipessSwipeContainer] Hydrated filter store from DB:', { cats, listingTypes });
+      } catch (err) {
+        logger.error('[SwipessSwipeContainer] Error hydrating filters from DB:', err);
+      }
+    })();
+  }, [user?.id]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -999,6 +1004,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const handleSendMessage = async (message: string) => {
     if (isCreatingConversation || !selectedListing?.owner_id) return;
 
+    // Content moderation check
+    const { validateContent: vc } = await import('@/utils/contactInfoValidation');
+    const result = vc(message);
+    if (!result.isClean) {
+      toast.error('Content blocked', { description: result.message });
+      return;
+    }
+
     setIsCreatingConversation(true);
     startNavigation();
 
@@ -1076,7 +1089,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // PERF: GPU-accelerated skeleton to match card styling
   if (!hasHydratedData && isLoading) {
     return (
-      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3">
+      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
         <div className="relative flex-1 w-full">
           <div
             className="absolute inset-0 overflow-hidden"
@@ -1099,7 +1112,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
                 backgroundSize: '200% 100%',
                 animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-                willChange: 'background-position',
                 transform: 'translateZ(0)',
               }}
             />
@@ -1216,17 +1228,17 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
+            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
               {description}
             </p>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-base"
+                className="w-full gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
               >
                 {isRefreshing ? (
                   <RadarSearchIcon size={20} isActive={true} />
@@ -1236,7 +1248,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
               </Button>
             </motion.div>
-            <p className="text-xs text-muted-foreground">New {categoryLower} are added daily</p>
+
+
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">New {categoryLower} are added daily</p>
           </div>
         </motion.div>
       </div>
@@ -1308,7 +1322,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     const { title, description } = getEmptyMessage();
 
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4 bg-background" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -1328,8 +1342,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
+            <h3 className="text-xl font-black text-white uppercase tracking-tight">{title}</h3>
+            <p className="text-white/70 text-sm max-w-xs mx-auto font-extrabold">
               {description}
             </p>
           </div>
@@ -1337,7 +1351,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="gap-2 rounded-full px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg font-black uppercase tracking-widest text-xs"
+              className="gap-2 rounded-full px-6 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
             >
               {isRefreshing ? (
                 <RadarSearchIcon size={18} isActive={true} />
@@ -1348,17 +1362,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             </Button>
           </motion.div>
 
-          {/* Tutorial shortcut — lets new users explore demo cards while waiting */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              variant="default"
-              onClick={() => navigate('/tutorial')}
-              className="gap-2 rounded-full px-6 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white border-0 shadow-[0_0_20px_rgba(147,51,234,0.3)] transition-all duration-300 font-black uppercase tracking-widest text-xs"
-            >
-              <Sparkles className="w-4 h-4 text-white" strokeWidth={4} />
-              Take Interactive Tutorial
-            </Button>
-          </motion.div>
         </motion.div>
       </div>
     );
@@ -1374,16 +1377,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   return (
     <div
       className="relative w-full flex flex-col"
-      style={{ minHeight: '100dvh' }}
+      style={{ height: '100%', minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
-      {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
-          - Lives at z-index: -1 (below everything)
-          - Non-interactive (pointer-events: none)
-          - Slows down during swipe animation (when swipeDirection is active)
-          - Communicates "swipe marketplace" at first glance */}
-      <AmbientSwipeBackground isPaused={swipeDirection !== null} />
-
       {/* Category title removed - clean immersive card experience */}
 
       <div className="relative flex-1 w-full">
@@ -1397,11 +1393,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           return (
             <div
               key={`next-${nextCard.id}`}
-              className="w-full h-full absolute inset-0"
+              className="w-full h-full absolute inset-0 gpu-layer"
               style={{
                 zIndex: 5,
-                transform: 'scale(0.95)',
-                opacity: 0.7,
+                transform: 'scale(0.97) translateZ(0)',
+                opacity: 0.75,
                 pointerEvents: 'none',
               }}
             >
@@ -1434,7 +1430,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
+          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}

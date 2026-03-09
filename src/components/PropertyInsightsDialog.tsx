@@ -363,16 +363,16 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
               {/* Service-specific */}
               {propertyInsights?.isWorker && (
                 <>
-                  {listing.service_type && (
+                  {(listing as any).service_category && (
                     <div className="flex items-center gap-2">
                       <Briefcase className="w-4 h-4" />
-                      <span>{listing.service_type}</span>
+                      <span>{(listing as any).service_category}</span>
                     </div>
                   )}
-                  {listing.hourly_rate && (
+                  {listing.price && (
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4" />
-                      <span>${listing.hourly_rate}/hour</span>
+                      <span>${listing.price}/{(listing as any).pricing_unit || 'hr'}</span>
                     </div>
                   )}
                   {listing.experience_years && (

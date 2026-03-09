@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
-import flameSLogo from '../../public/icons/s-logo-app.png';
+import flameSLogo from '../../public/icons/fire-s-logo.png';
 
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
@@ -29,7 +29,7 @@ function SwipessLogoComponent({
         src={flameSLogo}
         alt="Swipess"
         className={cn(
-          'w-auto object-contain select-none pointer-events-none transition-all duration-300 rounded-lg',
+          'w-auto object-contain select-none pointer-events-none transition-all duration-300',
           heightMap[size]
         )}
       />

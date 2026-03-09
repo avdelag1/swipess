@@ -187,13 +187,14 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
           const ownerName = ownerProfile?.full_name || 'Someone';
 
           // Create in-app notification for the client
-          supabase.from('notifications').insert([{
-            user_id: targetId,
-            notification_type: 'new_like',
-            title: '🔥 New Flame!',
-            message: `${ownerName} liked your profile!`,
-            is_read: false
-          }]).then(
+          supabase.rpc('create_notification_for_user', {
+            p_user_id: targetId,
+            p_notification_type: 'new_like',
+            p_title: '🔥 New Flame!',
+            p_message: `${ownerName} liked your profile!`,
+            p_related_user_id: user.id,
+            p_metadata: { liker_id: user.id }
+          }).then(
             () => logger.info('[useSwipeWithMatch] Notification saved for client:', targetId),
             (err) => logger.error('[useSwipeWithMatch] Failed to save notification:', err)
           );
@@ -257,23 +258,27 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
 
           // IMPORTANT: Notify listing owner when client likes their listing
           // Get listing owner and client info for notification
-          const [listingResult, clientResult] = await Promise.all([
+          // Use allSettled so a failed fetch doesn't abort the swipe that was already saved
+          const [listingSettled, clientSettled] = await Promise.allSettled([
             supabase.from('listings').select('owner_id, title').eq('id', targetId).maybeSingle(),
             supabase.from('profiles').select('full_name').eq('user_id', user.id).maybeSingle()
           ]);
+          const listingResult = listingSettled.status === 'fulfilled' ? listingSettled.value : { data: null };
+          const clientResult = clientSettled.status === 'fulfilled' ? clientSettled.value : { data: null };
 
           if (listingResult.data?.owner_id) {
             const clientName = clientResult.data?.full_name || 'Someone';
             const listingTitle = listingResult.data.title || 'your listing';
 
             // Create in-app notification for the owner
-            supabase.from('notifications').insert([{
-              user_id: listingResult.data.owner_id,
-              notification_type: 'new_like',
-              title: '🔥 New Flame!',
-              message: `${clientName} liked ${listingTitle}!`,
-              is_read: false
-            }]).then(
+            supabase.rpc('create_notification_for_user', {
+              p_user_id: listingResult.data.owner_id,
+              p_notification_type: 'new_like',
+              p_title: '🔥 New Flame!',
+              p_message: `${clientName} liked ${listingTitle}!`,
+              p_related_user_id: user.id,
+              p_metadata: { liker_id: user.id, listing_id: targetId }
+            }).then(
               () => logger.info('[useSwipeWithMatch] Notification sent to owner:', listingResult.data?.owner_id),
               (err) => logger.error('[useSwipeWithMatch] Failed to notify owner:', err)
             );
@@ -512,7 +517,7 @@ async function detectAndCreateMatch({
           owner_id: matchOwnerId,
           listing_id: match.listing_id,
           status: 'active'
-        });
+        }, { onConflict: 'client_id,owner_id' });
 
       if (conversationError) {
         logger.error('[detectAndCreateMatch] Error creating conversation:', conversationError);

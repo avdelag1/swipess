@@ -413,37 +413,14 @@ export function MessagingDashboard() {
       <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
 
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.8 }}
-            className="flex items-center justify-between mb-6"
-          >
-            <div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Messages</h1>
-              {filteredConversations.length > 0 && (
-                <p className="text-[13px] text-muted-foreground mt-0.5">
-                  {filteredConversations.length} active conversation{filteredConversations.length !== 1 ? 's' : ''}
-                </p>
-              )}
-            </div>
-            {(stats as any)?.unreadCount > 0 && (
-              <div
-                className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-              >
-                {(stats as any).unreadCount} new
-              </div>
-            )}
-          </motion.div>
+
 
           {/* Search */}
           <div className="relative mb-5">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               placeholder="Search conversations..."
-              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-muted border border-border"
+              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] focus:border-primary/40"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -471,7 +448,7 @@ export function MessagingDashboard() {
                     transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
                   >
                     <button
-                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-white/[0.04] active:scale-[0.98] text-left group"
                       onClick={() => setSelectedConversationId(conversation.id)}
                     >
                       {/* Avatar with gradient ring */}

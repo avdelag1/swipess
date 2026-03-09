@@ -136,9 +136,9 @@ const AITestPage = () => {
 
           <div className="flex items-center gap-3 mb-1">
             {status === "ok" && (
-              <Badge className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[9px] uppercase tracking-widest">
+              <div className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[9px] uppercase tracking-widest px-2 py-1 rounded-md">
                 {providerUsed} ONLINE
-              </Badge>
+              </div>
             )}
             {messages.length > 0 && (
               <button onClick={() => setMessages([])} className="p-2 rounded-xl bg-white/5 hover:bg-rose-500/10 hover:text-rose-500 transition-all">

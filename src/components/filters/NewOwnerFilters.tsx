@@ -10,6 +10,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { triggerHaptic } from '@/utils/haptics';
 
 /**
  * CINEMATIC OWNER FILTERS — Premium Bottom Sheet
@@ -130,40 +131,50 @@ function FilterSection({
   );
 }
 
-// Segmented control (matching client style)
 function SegmentedControl<T extends string>({
   options,
   value,
   onChange,
+  layoutGroup,
 }: {
   options: { id: T; label: string }[];
   value: T | undefined;
   onChange: (value: T) => void;
+  layoutGroup?: string;
 }) {
   return (
-    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
       {options.map((opt) => {
         const isActive = value === opt.id || (!value && opt.id === options[0].id);
         return (
-          <button
+          <motion.button
             key={opt.id}
             onClick={() => onChange(opt.id)}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             className={cn(
-              "flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-all duration-200",
+              "relative flex-1 py-2.5 px-3 rounded-lg text-xs font-semibold transition-colors duration-200 z-10",
               isActive
-                ? "bg-primary text-primary-foreground shadow-md"
+                ? "text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {opt.label}
-          </button>
+            {isActive && (
+              <motion.div
+                layoutId={layoutGroup || 'segment-pill'}
+                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-md shadow-primary/20"
+                transition={{ type: 'spring', stiffness: 400, damping: 28, mass: 0.5 }}
+              />
+            )}
+            <span className="relative z-10">{opt.label}</span>
+          </motion.button>
         );
       })}
     </div>
   );
 }
 
-// Category card with emoji (matching client style)
+// Category card with emoji — upgraded with gradient borders per category
 function CategoryCard({
   label,
   emoji,
@@ -179,20 +190,22 @@ function CategoryCard({
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.93 }}
+      whileTap={{ scale: 0.91 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 20, mass: 0.5 }}
       onClick={onClick}
       className={cn(
-        "relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border transition-all duration-200",
+        "relative flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border-2 transition-all duration-200",
         isActive
-          ? "border-primary bg-primary/10 shadow-sm"
-          : "border-border/40 bg-card/40 hover:border-primary/30"
+          ? "border-primary/60 bg-primary/10 shadow-md shadow-primary/15"
+          : "border-border/30 bg-card/40 hover:border-primary/30 hover:bg-card/60"
       )}
     >
       {isActive && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute -top-1 -right-1 bg-primary rounded-full p-0.5"
+          transition={{ type: 'spring', stiffness: 600, damping: 15 }}
+          className="absolute -top-1 -right-1 bg-gradient-to-br from-primary to-primary/80 rounded-full p-0.5 shadow-sm shadow-primary/30"
         >
           <Check className="h-2.5 w-2.5 text-primary-foreground" />
         </motion.div>
@@ -206,7 +219,7 @@ function CategoryCard({
   );
 }
 
-// Pill toggle (matching client style)
+// Pill toggle — upgraded with gradient fill on active
 function PillToggle({
   label,
   emoji,
@@ -220,13 +233,17 @@ function PillToggle({
 }) {
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
+      whileTap={{ scale: 0.93 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+      onClick={() => {
+        triggerHaptic('light');
+        onClick();
+      }}
       className={cn(
         "py-2 px-3.5 rounded-full text-xs font-medium transition-all duration-200 flex items-center gap-1.5 border",
         isActive
-          ? "bg-primary/15 border-primary/40 text-primary"
-          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30"
+          ? "bg-gradient-to-r from-primary/90 to-primary/70 border-primary/50 text-primary-foreground shadow-sm shadow-primary/20"
+          : "bg-transparent border-border/50 text-muted-foreground hover:border-primary/30 hover:bg-muted/20"
       )}
     >
       {emoji && <span>{emoji}</span>}
@@ -456,44 +473,62 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Min Age</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)] mt-1">
                       {[18, 21, 25, 30, 35, 40].map((age) => {
                         const isActive = filters.minAge === age;
                         return (
-                          <button
+                          <motion.button
                             key={age}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, minAge: age })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {age}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="min-age-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{age}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-muted-foreground">Max Age</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)] mt-1">
                       {[30, 35, 40, 50, 60, 65].map((age) => {
                         const isActive = filters.maxAge === age;
                         return (
-                          <button
+                          <motion.button
                             key={age}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, maxAge: age })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {age}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="max-age-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{age}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
@@ -571,44 +606,62 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs font-medium text-muted-foreground mb-2 block">Smoking</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
                       {['any', 'non-smoker', 'occasional', 'regular'].map((s) => {
                         const isActive = (filters.smokingHabit || 'any') === s;
                         return (
-                          <button
+                          <motion.button
                             key={s}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, smokingHabit: s })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {s === 'any' ? 'Any' : s.replace('-', ' ')}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="smoking-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{s === 'any' ? 'Any' : s.replace('-', ' ')}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-muted-foreground mb-2 block">Drinking</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
                       {['any', 'non-drinker', 'social', 'regular'].map((d) => {
                         const isActive = (filters.drinkingHabit || 'any') === d;
                         return (
-                          <button
+                          <motion.button
                             key={d}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, drinkingHabit: d })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {d === 'any' ? 'Any' : d.replace('-', ' ')}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="drinking-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{d === 'any' ? 'Any' : d.replace('-', ' ')}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
@@ -628,19 +681,19 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
 
           {/* Sticky Apply Footer */}
           <div className="absolute bottom-0 left-0 right-0 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] bg-gradient-to-t from-background via-background to-transparent">
-            <motion.div whileTap={{ scale: 0.98 }}>
               <Button
+                variant="gradient"
+                elastic
                 onClick={handleApply}
-                className="w-full h-14 rounded-2xl text-sm font-bold bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-shadow"
+                className="w-full h-14 rounded-2xl text-sm font-bold"
               >
                 Apply Filters
                 {activeFilterCount > 0 && (
-                  <Badge className="ml-2 bg-primary-foreground/20 text-primary-foreground border-none text-xs px-2">
+                  <Badge className="ml-2 bg-white/20 text-white border-none text-xs px-2">
                     {activeFilterCount}
                   </Badge>
                 )}
               </Button>
-            </motion.div>
           </div>
         </motion.div>
       </motion.div>

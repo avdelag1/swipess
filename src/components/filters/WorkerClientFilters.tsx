@@ -12,7 +12,8 @@ import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferenc
 import { toast } from '@/components/ui/sonner';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
-import { SERVICE_CATEGORIES, WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
+import { WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
+import { SERVICE_CATEGORIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
 const COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];
 
 // Predefined hourly rate ranges for workers
@@ -214,26 +215,40 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
         </div>
       </div>
 
-      {/* Service Categories */}
+      {/* Service Categories — Grouped */}
       <Collapsible>
         <CollapsibleTrigger className="flex items-center justify-between w-full">
           <Label>Service Type</Label>
           <ChevronDown className="h-4 w-4" />
         </CollapsibleTrigger>
-        <CollapsibleContent className="pt-2 space-y-2">
-          {SERVICE_CATEGORIES.map((category) => (
-            <div key={category.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={`service_${category.value}`}
-                checked={serviceCategories.includes(category.value)}
-                onCheckedChange={() => toggleArrayValue(serviceCategories, category.value, setServiceCategories)}
-              />
-              <label htmlFor={`service_${category.value}`} className="text-sm cursor-pointer flex items-center gap-2">
-                <span>{category.icon}</span>
-                {category.label}
-              </label>
-            </div>
-          ))}
+        <CollapsibleContent className="pt-2 space-y-1">
+          {SERVICE_GROUPS.map(group => {
+            const cats = getGroupedCategories()[group];
+            if (!cats.length) return null;
+            return (
+              <Collapsible key={group}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-1 px-1 rounded hover:bg-muted/50 transition-colors">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{group}</span>
+                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-2 space-y-1 pb-1">
+                  {cats.map((category) => (
+                    <div key={category.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`service_${category.value}`}
+                        checked={serviceCategories.includes(category.value)}
+                        onCheckedChange={() => toggleArrayValue(serviceCategories, category.value, setServiceCategories)}
+                      />
+                      <label htmlFor={`service_${category.value}`} className="text-sm cursor-pointer flex items-center gap-2">
+                        <span>{category.icon}</span>
+                        {category.label}
+                      </label>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
         </CollapsibleContent>
       </Collapsible>
 

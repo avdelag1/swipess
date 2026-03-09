@@ -19,7 +19,9 @@ import { StarRatingInput } from './RatingDisplay';
 import { useRatingCategory, useCreateRating, useCanRate, useHasRated } from '@/hooks/useRatingSystem';
 import type { CreateRatingInput } from '@/hooks/useRatingSystem';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
+import { validateContent } from '@/utils/contactInfoValidation';
 
 interface RatingSubmissionDialogProps {
   open: boolean;
@@ -92,6 +94,16 @@ export function RatingSubmissionDialog({
     if (overallRating === 0) {
       logger.warn('Overall rating is 0');
       return;
+    }
+
+    // Content moderation on review text
+    const textsToCheck = [reviewTitle, reviewText].filter(Boolean);
+    for (const text of textsToCheck) {
+      const check = validateContent(text);
+      if (!check.isClean) {
+        toast.error('Content blocked', { description: check.message || undefined });
+        return;
+      }
     }
 
     const input: CreateRatingInput = {

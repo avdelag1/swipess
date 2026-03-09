@@ -11,17 +11,18 @@ interface SuspenseFallbackProps {
 }
 
 export function SuspenseFallback({ className, minimal = false }: SuspenseFallbackProps) {
-  // Invisible fallback — pages should already be prefetched.
-  // Returning a transparent placeholder avoids the white-flash blink
-  // that would otherwise occur during the brief Suspense resolution frame.
   return (
     <div
       className={cn(
-        minimal ? 'p-2' : 'min-h-[100px]',
+        minimal ? 'p-2' : 'min-h-screen min-h-dvh flex items-center justify-center',
         className
       )}
       aria-hidden="true"
-    />
+    >
+      {!minimal && (
+        <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
+      )}
+    </div>
   );
 }
 

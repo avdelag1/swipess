@@ -1,0 +1,1 @@
+ALTER TABLE public.client_filter_preferences ADD COLUMN IF NOT EXISTS interested_in_services boolean DEFAULT false;

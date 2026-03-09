@@ -29,7 +29,7 @@ export default function OwnerViewClientProfile() {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', clientId)
+        .eq('user_id', clientId)
         .maybeSingle();
 
       if (profileError) {
@@ -288,7 +288,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Transmission</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.moto_transmission.map((trans) => (
+                            {preferences.moto_transmission.map((trans: string) => (
                               <Badge key={`moto-trans-${trans}`} variant="outline">{trans}</Badge>
                             ))}
                           </div>
@@ -299,7 +299,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Condition</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.moto_condition.map((cond) => (
+                            {preferences.moto_condition.map((cond: string) => (
                               <Badge key={`moto-cond-${cond}`} variant="outline">{cond}</Badge>
                             ))}
                           </div>
@@ -310,7 +310,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Fuel Types</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.moto_fuel_types.map((fuel) => (
+                            {preferences.moto_fuel_types.map((fuel: string) => (
                               <Badge key={`moto-fuel-${fuel}`} variant="outline">{fuel}</Badge>
                             ))}
                           </div>
@@ -322,7 +322,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Desired Features</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.moto_features.map((feat) => (
+                            {preferences.moto_features.map((feat: string) => (
                               <Badge key={`moto-feat-${feat}`} variant="secondary">{feat}</Badge>
                             ))}
                           </div>
@@ -381,7 +381,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Wheel Sizes</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.bicycle_wheel_sizes.map((size) => (
+                            {preferences.bicycle_wheel_sizes.map((size: string) => (
                               <Badge key={`bike-wheel-${size}`} variant="outline">{size}</Badge>
                             ))}
                           </div>
@@ -392,7 +392,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Suspension Type</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.bicycle_suspension_type.map((susp) => (
+                            {preferences.bicycle_suspension_type.map((susp: string) => (
                               <Badge key={`bike-susp-${susp}`} variant="outline">{susp}</Badge>
                             ))}
                           </div>
@@ -403,7 +403,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Frame Material</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.bicycle_material.map((mat) => (
+                            {preferences.bicycle_material.map((mat: string) => (
                               <Badge key={`bike-mat-${mat}`} variant="outline">{mat}</Badge>
                             ))}
                           </div>
@@ -432,7 +432,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Condition</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.bicycle_condition.map((cond) => (
+                            {preferences.bicycle_condition.map((cond: string) => (
                               <Badge key={`bike-cond-${cond}`} variant="outline">{cond}</Badge>
                             ))}
                           </div>
@@ -471,7 +471,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Types</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_types.map((type) => (
+                            {preferences.yacht_types.map((type: string) => (
                               <Badge key={`yacht-type-${type}`} variant="secondary">{type}</Badge>
                             ))}
                           </div>
@@ -530,7 +530,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Condition</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_condition.map((cond) => (
+                            {preferences.yacht_condition.map((cond: string) => (
                               <Badge key={`yacht-cond-${cond}`} variant="outline">{cond}</Badge>
                             ))}
                           </div>
@@ -541,7 +541,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Fuel Types</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_fuel_types.map((fuel) => (
+                            {preferences.yacht_fuel_types.map((fuel: string) => (
                               <Badge key={`yacht-fuel-${fuel}`} variant="outline">{fuel}</Badge>
                             ))}
                           </div>
@@ -577,7 +577,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Hull Material</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_hull_material.map((mat) => (
+                            {preferences.yacht_hull_material.map((mat: string) => (
                               <Badge key={`yacht-mat-${mat}`} variant="outline">{mat}</Badge>
                             ))}
                           </div>
@@ -589,7 +589,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Water Activities</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_water_activities.map((act) => (
+                            {preferences.yacht_water_activities.map((act: string) => (
                               <Badge key={`yacht-act-${act}`} variant="secondary">{act}</Badge>
                             ))}
                           </div>
@@ -601,7 +601,7 @@ export default function OwnerViewClientProfile() {
                         <div>
                           <h4 className="font-medium mb-2">Navigation Equipment</h4>
                           <div className="flex flex-wrap gap-2">
-                            {preferences.yacht_navigation_equipment.map((nav) => (
+                            {preferences.yacht_navigation_equipment.map((nav: string) => (
                               <Badge key={`yacht-nav-${nav}`} variant="secondary">{nav}</Badge>
                             ))}
                           </div>

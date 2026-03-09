@@ -1,4 +1,4 @@
-import { useState, memo, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy, Suspense } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
 const ClientInsightsDialog = lazy(() =>
@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
+import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
@@ -27,6 +28,36 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
+
+  // Hydrate owner filter store from DB on mount
+  const { preferences: ownerPrefs } = useOwnerClientPreferences();
+  const setClientGender = useFilterStore((s) => s.setClientGender);
+  const setClientAgeRange = useFilterStore((s) => s.setClientAgeRange);
+  const setClientBudgetRange = useFilterStore((s) => s.setClientBudgetRange);
+  const setClientNationalities = useFilterStore((s) => s.setClientNationalities);
+  const storeGender = useFilterStore((s) => s.clientGender);
+  const hydratedRef = useRef(false);
+
+  useEffect(() => {
+    if (!ownerPrefs || hydratedRef.current) return;
+    hydratedRef.current = true;
+
+    const genders = ownerPrefs.selected_genders as string[] | null;
+    const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
+
+    if (storeGender === 'any' && genders?.length) {
+      setClientGender(genders[0] as any);
+    }
+    if (ownerPrefs.min_age != null || ownerPrefs.max_age != null) {
+      setClientAgeRange([ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65]);
+    }
+    if (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null) {
+      setClientBudgetRange([ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000]);
+    }
+    if (nationalities?.length) {
+      setClientNationalities(nationalities);
+    }
+  }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
   // Connect filter store to swipe container (fixes missing filters when rendered as a route)
   const filterVersion = useFilterStore((s) => s.filterVersion);
@@ -58,23 +89,12 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
 
   const handleClientTap = (clientId: string) => {
-    setSelectedClientId(clientId);
-    setInsightsOpen(true);
+    onClientInsights?.(clientId);
   };
 
   const handleInsights = (clientId: string) => {
-    setSelectedClientId(clientId);
-    setInsightsOpen(true);
-    if (onClientInsights) {
-      onClientInsights(clientId);
-    }
+    onClientInsights?.(clientId);
   };
-
-  const handleCategorySelect = (category: 'property' | 'motorcycle' | 'bicycle' | 'worker', mode: 'rent' | 'sale' | 'both') => {
-    navigate(`/owner/properties#add-${category}`);
-  };
-
-  const selectedClient = clientProfiles.find(c => c.user_id === selectedClientId);
 
   return (
     <>
@@ -91,24 +111,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
         profiles={clientProfiles}
         isLoading={isLoading}
         error={error}
-        insightsOpen={insightsOpen}
+        insightsOpen={false} // Insights handled by layout now
+        category={filterCategory || 'default'}
         filters={mergedFilters}
-      />
-
-      {selectedClient && (
-        <Suspense fallback={null}>
-          <ClientInsightsDialog
-            open={insightsOpen}
-            onOpenChange={setInsightsOpen}
-            profile={selectedClient}
-          />
-        </Suspense>
-      )}
-
-      <CategorySelectionDialog
-        open={showCategoryDialog}
-        onOpenChange={setShowCategoryDialog}
-        onCategorySelect={handleCategorySelect}
       />
     </>
   );

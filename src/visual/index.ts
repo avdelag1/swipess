@@ -6,7 +6,7 @@
  */
 
 // Core engine
-export { VisualEngine, ReactiveBackground } from "./VisualEngine";
+export { VisualEngine } from "./VisualEngine";
 
 // Motion configuration
 export {

@@ -1,54 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Bell, BellRing, MessageSquare, Flame, Crown, X } from 'lucide-react';
+import { Bell, BellRing, MessageSquare, Flame, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { logger } from '@/utils/prodLogger';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const NOTIFICATION_PROMPT_KEY = 'notification_prompt_dismissed';
-const PROMPT_DELAY_DAYS = 7; // Days before showing prompt again if dismissed
 
 export function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
-
-  useEffect(() => {
-    // SPEED OF LIGHT: Do NOT auto-show notification prompt on startup
-    // This prompt should only be triggered by user action (settings button)
-    // Just track if notifications are supported for the settings UI
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      setIsSupported(true);
-    }
-    // REMOVED: Auto-show timer that was blocking user experience
-    // Permission is now requested only from settings
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
+  const { subscribe, isSupported, isSubscribed } = usePushNotifications();
 
   const handleEnableNotifications = async () => {
+    setIsLoading(true);
     try {
-      const permission = await Notification.requestPermission();
+      // This calls the hook's subscribe() which:
+      // 1. Requests browser permission
+      // 2. Creates PushManager subscription
+      // 3. Saves endpoint + keys to push_subscriptions table
+      const success = await subscribe();
 
-      if (permission === 'granted') {
-        toast.success("Notifications Enabled!", { description: "You'll now receive real-time updates for messages, likes, and more.", duration: 4000 });
-
-        // Show a test notification
-        const notification = new Notification('Notifications Enabled!', {
-          body: 'You will now receive updates when someone messages or likes you.',
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          tag: 'welcome-notification',
+      if (success) {
+        toast.success("Notifications Enabled!", { 
+          description: "You'll now receive real-time updates for messages, likes, and more.", 
+          duration: 4000 
         });
-        setTimeout(() => notification.close(), 5000);
-      } else if (permission === 'denied') {
-        toast.error("Notifications Blocked", { description: "You can enable notifications later in your browser settings.", duration: 5000 });
+      } else {
+        toast.error("Notifications Not Enabled", { 
+          description: "You can enable notifications later in your browser settings.", 
+          duration: 5000 
+        });
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        logger.error('Error requesting notification permission:', error);
-      }
+      toast.error("Something went wrong", { 
+        description: "Please try again later.", 
+        duration: 4000 
+      });
+    } finally {
+      setIsLoading(false);
+      setIsOpen(false);
     }
-
-    setIsOpen(false);
   };
 
   const handleDismiss = () => {
@@ -56,7 +49,8 @@ export function PushNotificationPrompt() {
     setIsOpen(false);
   };
 
-  if (!isSupported) return null;
+  // Don't render if not supported or already subscribed
+  if (!isSupported || isSubscribed) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -122,10 +116,11 @@ export function PushNotificationPrompt() {
         <div className="px-6 pb-6 pt-2 space-y-3">
           <Button
             onClick={handleEnableNotifications}
+            disabled={isLoading}
             className="w-full h-12 font-semibold bg-primary hover:bg-primary/90"
           >
             <Bell className="w-4 h-4 mr-2" />
-            Enable Notifications
+            {isLoading ? "Enabling..." : "Enable Notifications"}
           </Button>
 
           <Button

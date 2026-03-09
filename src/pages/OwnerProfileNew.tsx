@@ -59,21 +59,7 @@ const OwnerProfileNew = () => {
         variants={stagger}
         className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
-        {/* Back Button */}
-        <motion.div variants={childVariant}>
-          <button
-            onClick={() => { haptics.tap(); if (window.history.length > 1) { navigate(-1); } else { navigate('/owner/dashboard'); } }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black uppercase tracking-tight transition-all active:scale-95"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.08)',
-              border: isLight ? '1px solid rgba(0,0,0,0.1)' : '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <ArrowLeft className="w-4 h-4" strokeWidth={3} />
-            Back
-          </button>
-        </motion.div>
+
 
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
@@ -129,12 +115,12 @@ const OwnerProfileNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/owner/liked-clients'); }}
-            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(20px)'
-            }}
+            className={cn(
+              "rounded-[2.2rem] p-5 flex flex-col gap-3 text-left transition-all",
+              isLight
+                ? "bg-white border border-border/40 hover:border-border shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06] backdrop-blur-xl"
+            )}
           >
             <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]">
               <Flame className="w-6 h-6 text-white" />
@@ -150,12 +136,12 @@ const OwnerProfileNew = () => {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/owner/interested-clients'); }}
-            className="rounded-[2.2rem] p-5 flex flex-col gap-3 text-left border-2 transition-all"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.03)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)',
-              backdropFilter: 'blur(20px)'
-            }}
+            className={cn(
+              "rounded-[2.2rem] p-5 flex flex-col gap-3 text-left transition-all",
+              isLight
+                ? "bg-white border border-border/40 hover:border-border shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06] backdrop-blur-xl"
+            )}
           >
             <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#D4006E] to-[#E4007C]">
               <Heart className="w-6 h-6 text-white" />
@@ -208,7 +194,7 @@ const OwnerProfileNew = () => {
         <motion.div variants={childVariant} className="space-y-3">
           <button
             onClick={() => { haptics.tap(); navigate('/owner/settings'); }}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2"
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] font-black text-sm transition-all active:scale-[0.97] border-2"
             style={{
               background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
               borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)',
@@ -222,7 +208,7 @@ const OwnerProfileNew = () => {
 
           <button
             onClick={() => { haptics.warning(); signOut(); }}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
           >
             <LogOut className="w-5 h-5" />
             Sign Out

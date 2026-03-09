@@ -38,11 +38,11 @@ type CategoryOption = {
   hasSubOptions: boolean;
 };
 
-const categoryOptionBase: CategoryOption[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true },
+const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string })[] = [
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-400' },
+  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-400' },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-emerald-600 to-green-500', inactiveColor: 'text-emerald-400' },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-400' },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -196,8 +196,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const renderOwnerFilters = () => {
     return (
       <div className={cn(
-        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
-        isDark ? "bg-[#000000]/95 border-white/10" : "bg-white/95 border-black/10"
+        "border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
+        isDark ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"
       )}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
@@ -267,8 +267,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const renderClientFilters = () => {
     return (
       <div className={cn(
-        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]",
-        isDark ? "bg-[#000000]/95 border-white/10" : "bg-white/95 border-black/10"
+        "border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]",
+        isDark ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"
       )}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-white/5">
@@ -288,7 +288,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         {/* Category Options - always inline (no flyout) */}
         <div className="py-2 max-h-[60vh] overflow-y-auto">
           {categoryOptionBase.map((category, index) => {
-            const gradientClass = getCategoryGradientClass(category.id, isDark);
+            const isActive = categories.includes(category.id);
             return (
             <motion.div
               key={category.id}
@@ -301,25 +301,26 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 onClick={() => handleCategoryClick(category.id)}
                 className={cn(
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
-                  categories.includes(category.id)
-                    ? cn('bg-gradient-to-r', gradientClass, 'text-white')
+                  isActive
+                    ? cn('bg-gradient-to-r', category.color, 'text-white')
                     : 'text-foreground hover:bg-white/10'
                 )}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className={cn(
                     'p-1.5 sm:p-2 rounded-lg',
-                    categories.includes(category.id)
+                    isActive
                       ? 'bg-white/20 text-white'
-                      : 'bg-white/5 text-foreground'
+                      : cn('bg-white/5', category.inactiveColor)
                   )}>
                     {category.icon}
                   </span>
-                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
+                  <span className={cn("font-medium text-sm sm:text-base", !isActive && category.inactiveColor)}>{category.label}</span>
                 </div>
                 {category.hasSubOptions && (
                   <ChevronRight strokeWidth={3} className={cn(
-                    "w-5 h-5 text-muted-foreground transition-transform",
+                    "w-5 h-5 transition-transform",
+                    isActive ? "text-white/70" : "text-muted-foreground",
                     clickedCategory === category.id && "rotate-90"
                   )} />
                 )}
@@ -346,8 +347,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                           className={cn(
                             'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
                             categories.includes(category.id) && listingType === ltOption.id
-                              ? cn('bg-gradient-to-r', gradientClass, 'text-white')
-                              : 'text-foreground hover:bg-white/10 bg-white/5'
+                              ? cn('bg-gradient-to-r', category.color, 'text-white')
+                              : cn('hover:bg-white/10 bg-white/5', category.inactiveColor)
                           )}
                         >
                           <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
@@ -383,8 +384,6 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
           backgroundColor: hasActiveFilters
             ? (isDark ? 'rgba(236, 72, 153, 0.15)' : 'rgba(236, 72, 153, 0.08)')
             : glassBg,
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
           border: hasActiveFilters
             ? (isDark ? '1px solid rgba(236, 72, 153, 0.3)' : '1px solid rgba(236, 72, 153, 0.2)')
             : glassBorder,
@@ -416,7 +415,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[10001] bg-black/60 backdrop-blur-md"
+              className="fixed inset-0 z-[10001] bg-black/70"
               onClick={() => {
                 setIsOpen(false);
                 setClickedCategory(null);

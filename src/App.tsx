@@ -18,6 +18,7 @@ import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import Index from "./pages/Index";
+import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Automatic update system
@@ -29,8 +30,6 @@ import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProf
 // SPEED OF LIGHT: Persistent layout wrapper - mounted ONCE, never remounts
 import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayout";
 
-// DISABLED: DepthParallaxBackground was causing performance issues
-// import { DepthParallaxBackground } from "@/components/DepthParallaxBackground";
 
 // Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
 import { Toaster } from "@/components/ui/toaster";
@@ -102,6 +101,16 @@ const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
+// New feature pages - lazy loaded
+const NeighborhoodMap = lazy(() => import("./pages/NeighborhoodMap"));
+const PriceTracker = lazy(() => import("./pages/PriceTracker"));
+const VideoTours = lazy(() => import("./pages/VideoTours"));
+const LocalIntel = lazy(() => import("./pages/LocalIntel"));
+const RoommateMatching = lazy(() => import("./pages/RoommateMatching"));
+const DocumentVault = lazy(() => import("./pages/DocumentVault"));
+const EscrowDashboard = lazy(() => import("./pages/EscrowDashboard"));
+const MaintenanceRequests = lazy(() => import("./pages/MaintenanceRequests"));
+
 // Rare pages - lazy loaded (payment, camera, legal, public previews)
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
 const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
@@ -118,9 +127,8 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
-// Tutorial page - public onboarding experience
-const TutorialSwipePage = lazy(() => import("./pages/TutorialSwipePage"));
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -160,9 +168,8 @@ function PushNotificationWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Wrapper for automatic update system
+// Wrapper for automatic update system: Ensures build versions match
 function UpdateWrapper({ children }: { children: React.ReactNode }) {
-  // Check for version changes and force update if needed
   useForceUpdateOnVersionChange();
   return <>{children}</>;
 }
@@ -202,8 +209,8 @@ const App = () => {
                           <ProfileSyncWrapper>
                             <NotificationWrapper>
                               <PushNotificationWrapper>
-                                {/* DISABLED: DepthParallaxBackground was causing performance issues */}
-                                {/* <DepthParallaxBackground /> */}
+                                {/* Guided tour for first-time users */}
+                                <GuidedTourLazy />
 
                                 {/* Update notification banner */}
                                 <UpdateNotification />
@@ -223,11 +230,11 @@ const App = () => {
                                       <Route path="/reset-password" element={<ResetPassword />} />
 
                                       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                        SPEED OF LIGHT: UNIFIED layout for ALL protected routes
-                        Single PersistentDashboardLayout instance shared between modes
-                        Prevents remount when switching between client/owner modes
-                        Camera routes are INSIDE layout to prevent remount on navigation back
-                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+                                        SPEED OF LIGHT: UNIFIED layout for ALL protected routes
+                                        Single PersistentDashboardLayout instance shared between modes
+                                        Prevents remount when switching between client/owner modes
+                                        Camera routes are INSIDE layout to prevent remount on navigation back
+                                        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
                                       <Route element={
                                         <ProtectedRoute>
                                           <PersistentDashboardLayout />
@@ -246,6 +253,7 @@ const App = () => {
                                         <Route path="/client/legal-services" element={<ClientLawyerServices />} />
                                         <Route path="/client/camera" element={<ClientSelfieCamera />} />
                                         <Route path="/client/filters" element={<ClientFilters />} />
+                                        <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
                                         {/* Owner routes */}
                                         <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
@@ -269,7 +277,6 @@ const App = () => {
                                         <Route path="/owner/camera/listing" element={<OwnerListingCamera />} />
                                         <Route path="/owner/filters" element={<OwnerFilters />} />
 
-
                                         {/* Shared routes (both roles) */}
                                         <Route path="/dashboard" element={<MyHub />} />
                                         <Route path="/messages" element={<MessagingDashboard />} />
@@ -278,6 +285,15 @@ const App = () => {
                                         <Route path="/radio" element={<RetroRadioStation />} />
                                         <Route path="/radio/playlists" element={<RadioPlaylists />} />
                                         <Route path="/radio/favorites" element={<RadioFavorites />} />
+
+                                        {/* New feature routes */}
+                                        <Route path="/explore/zones" element={<NeighborhoodMap />} />
+                                        <Route path="/explore/prices" element={<PriceTracker />} />
+                                        <Route path="/explore/tours" element={<VideoTours />} />
+                                        <Route path="/explore/intel" element={<LocalIntel />} />
+                                        <Route path="/explore/roommates" element={<RoommateMatching />} />
+                                        <Route path="/documents" element={<DocumentVault />} />
+                                        <Route path="/escrow" element={<EscrowDashboard />} />
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
@@ -306,9 +322,6 @@ const App = () => {
                                       {import.meta.env.DEV && (
                                         <Route path="/test/mock-owners" element={<MockOwnersTestPage />} />
                                       )}
-
-                                      {/* Tutorial / Onboarding - Public Access */}
-                                      <Route path="/tutorial" element={<TutorialSwipePage />} />
 
                                       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                                       <Route path="*" element={<NotFound />} />

@@ -84,7 +84,7 @@ if (typeof window !== 'undefined') {
   if (storedVersion !== CACHE_VERSION) {
     localStorage.removeItem(CACHE_KEY);
     localStorage.setItem(CACHE_VERSION_KEY, CACHE_VERSION);
-    console.log('[SwipeDeckStore] Cleared stale cache - version mismatch');
+    if (import.meta.env.DEV) console.log('[SwipeDeckStore] Cleared stale cache - version mismatch');
   }
 }
 

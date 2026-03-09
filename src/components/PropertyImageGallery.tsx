@@ -214,7 +214,6 @@ function PropertyImageGalleryComponent({
                   isZoomed ? 'scale-150 cursor-grab' : 'cursor-zoom-in'
                 }`}
                 style={{
-                  willChange: 'transform',
                   transform: 'translateZ(0)',
                   backfaceVisibility: 'hidden',
                   // GPU acceleration

@@ -37,7 +37,7 @@ import {
 } from '@/data/tutorialCards';
 import { triggerHaptic } from '@/utils/haptics';
 import { useNavigate } from 'react-router-dom';
-import { AmbientSwipeBackground } from '@/components/AmbientSwipeBackground';
+
 import { GradientOverlay } from '@/components/ui/GradientMasks';
 import CardImage from '@/components/CardImage';
 
@@ -116,7 +116,7 @@ function InsightsModal({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(12px)' }}
+        style={{ background: 'rgba(0,0,0,0.65)' }}
       />
 
       {/* ── Glass Sheet ── */}
@@ -130,8 +130,8 @@ function InsightsModal({
         style={{
           /* LIQUID GLASS base */
           backgroundColor: 'rgba(14,14,18,0.88)',
-          backdropFilter: 'blur(40px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+          backdropFilter: 'none',
+          WebkitBackdropFilter: 'none',
           border: '1px solid rgba(255,255,255,0.12)',
           borderBottom: 'none',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -16px 48px rgba(0,0,0,0.50)',
@@ -216,7 +216,6 @@ function InsightsModal({
               className="w-full py-4 rounded-2xl text-sm font-black text-white relative overflow-hidden"
               style={{
                 background: 'rgba(255,255,255,0.10)',
-                backdropFilter: 'blur(16px)',
                 border: '1px solid rgba(255,255,255,0.18)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 12px rgba(0,0,0,0.30)',
               }}
@@ -288,14 +287,14 @@ function SwipeCard({ stackIndex, children, onSwipe }: {
           <motion.div style={{ opacity: likeOpacity }}
             className="absolute top-7 left-5 z-30 pointer-events-none">
             <div className="border-[3px] border-green-400 rounded-xl px-3 py-1 -rotate-12"
-              style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,200,80,0.12)' }}>
+              style={{ background: 'rgba(0,200,80,0.18)' }}>
               <span className="text-green-400 font-black text-xl tracking-widest drop-shadow-lg">LIKE</span>
             </div>
           </motion.div>
           <motion.div style={{ opacity: passOpacity }}
             className="absolute top-7 right-5 z-30 pointer-events-none">
             <div className="border-[3px] border-red-400 rounded-xl px-3 py-1 rotate-12"
-              style={{ backdropFilter: 'blur(8px)', background: 'rgba(255,60,60,0.12)' }}>
+              style={{ background: 'rgba(255,60,60,0.18)' }}>
               <span className="text-red-400 font-black text-xl tracking-widest drop-shadow-lg">PASS</span>
             </div>
           </motion.div>
@@ -364,8 +363,8 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
         <div className="absolute top-8 right-4 z-20">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white"
             style={{
-              backdropFilter: 'blur(16px) saturate(180%)',
-              background: 'rgba(255,255,255,0.12)',
+              backdropFilter: 'none',
+              background: 'rgba(20,20,24,0.85)',
               border: '1px solid rgba(255,255,255,0.22)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
             }}>
@@ -407,7 +406,7 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
               style={{
                 background: 'rgba(74,222,128,0.12)',
                 border: '1px solid rgba(74,222,128,0.30)',
-                backdropFilter: 'blur(12px)',
+                backdropFilter: 'none',
               }}>
               <span className="text-green-400 font-black text-sm">{fmt(listing.price, listing.priceUnit)}</span>
             </div>
@@ -442,7 +441,7 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest relative overflow-hidden"
             style={{
               background: 'rgba(245,158,11,0.16)',
-              backdropFilter: 'blur(16px) saturate(180%)',
+              backdropFilter: 'none',
               border: '1px solid rgba(245,158,11,0.40)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 4px 12px rgba(245,158,11,0.20)',
               color: '#fbbf24',
@@ -498,8 +497,7 @@ function ClientCardContent({ profile, onInsights, imgIdx, setImgIdx }: {
         <div className="absolute top-8 right-4 z-20">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider text-white"
             style={{
-              backdropFilter: 'blur(16px) saturate(180%)',
-              background: 'rgba(255,255,255,0.12)',
+              background: 'rgba(20,20,24,0.85)',
               border: '1px solid rgba(255,255,255,0.22)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
             }}>
@@ -570,7 +568,7 @@ function ClientCardContent({ profile, onInsights, imgIdx, setImgIdx }: {
             className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest relative overflow-hidden"
             style={{
               background: 'rgba(245,158,11,0.16)',
-              backdropFilter: 'blur(16px) saturate(180%)',
+              backdropFilter: 'none',
               border: '1px solid rgba(245,158,11,0.40)',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 4px 12px rgba(245,158,11,0.20)',
               color: '#fbbf24',
@@ -649,8 +647,8 @@ function GlassActionButton({
         height: size,
         borderRadius: '50%',
         background: pressed ? `rgba(${glowColor},0.28)` : `rgba(${glowColor},0.12)`,
-        backdropFilter: 'blur(28px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
         border: `1px solid ${borderColor}`,
         boxShadow: pressed
           ? `inset 0 2px 6px rgba(0,0,0,0.40)`
@@ -694,7 +692,7 @@ function EmptyState({ label, onReset }: { label: string; onReset: () => void }) 
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[28px]"
       style={{
         background: 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(16px)',
+        backdropFilter: 'none',
         border: '1px dashed rgba(255,255,255,0.15)',
       }}>
       <div className="w-16 h-16 rounded-full flex items-center justify-center"
@@ -711,8 +709,7 @@ function EmptyState({ label, onReset }: { label: string; onReset: () => void }) 
         whileTap={{ scale: 0.95, transition: TAP_SPRING }}
         className="px-8 py-3 rounded-2xl text-white text-xs font-black uppercase tracking-widest relative overflow-hidden"
         style={{
-          background: 'rgba(255,255,255,0.10)',
-          backdropFilter: 'blur(16px)',
+          background: 'rgba(255,255,255,0.15)',
           border: '1px solid rgba(255,255,255,0.18)',
           boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18)',
         }}
@@ -781,9 +778,6 @@ export default function TutorialSwipePage() {
       className="w-full relative flex flex-col"
       style={{ minHeight: '100dvh', overflowX: 'hidden', overflowY: 'hidden' }}
     >
-      {/* ── AMBIENT BACKGROUND — now fully visible ── */}
-      <AmbientSwipeBackground />
-
       {/* Dark vignette — replaces the white/90 killer; darkens without hiding */}
       <div className="absolute inset-0 pointer-events-none" style={{
         zIndex: 0,
@@ -808,9 +802,7 @@ export default function TutorialSwipePage() {
                 className="flex items-center justify-center rounded-2xl shrink-0 relative overflow-hidden"
                 style={{
                   width: 44, height: 44,
-                  background: 'rgba(255,255,255,0.08)',
-                  backdropFilter: 'blur(24px) saturate(180%)',
-                  WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+                  background: 'rgba(20,20,24,0.90)',
                   border: '1px solid rgba(255,255,255,0.16)',
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.18), 0 2px 8px rgba(0,0,0,0.30)',
                 }}
@@ -842,9 +834,7 @@ export default function TutorialSwipePage() {
             {/* Like / Pass counters — glass pills */}
             <div className="flex items-center gap-2 p-1.5 rounded-2xl"
               style={{
-                background: 'rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.10)',
+                background: 'rgba(20,20,24,0.85)',
               }}>
               <div className="px-3 py-1.5 rounded-xl text-center min-w-[48px]"
                 style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.22)' }}>
@@ -863,8 +853,7 @@ export default function TutorialSwipePage() {
           <div className="flex gap-1.5 p-1.5 rounded-[22px]"
             style={{
               background: 'rgba(255,255,255,0.06)',
-              backdropFilter: 'blur(20px) saturate(160%)',
-              border: '1px solid rgba(255,255,255,0.10)',
+              backdropFilter: 'none',
               boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
             }}>
             {([
@@ -880,7 +869,7 @@ export default function TutorialSwipePage() {
                   className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[18px] text-xs font-black uppercase tracking-widest relative overflow-hidden transition-colors"
                   style={active ? {
                     background: 'rgba(255,255,255,0.14)',
-                    backdropFilter: 'blur(16px)',
+                    backdropFilter: 'none',
                     border: '1px solid rgba(255,255,255,0.22)',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.30)',
                     color: 'white',
@@ -931,13 +920,13 @@ export default function TutorialSwipePage() {
                   className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[11px] font-black uppercase tracking-widest relative overflow-hidden transition-all"
                   style={active ? {
                     background: 'rgba(255,255,255,0.14)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
+                    backdropFilter: 'none',
                     border: `1px solid rgba(255,255,255,0.25)`,
                     boxShadow: `inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 12px rgba(0,0,0,0.25)`,
                     color: 'white',
                   } : {
                     background: 'rgba(255,255,255,0.05)',
-                    backdropFilter: 'blur(12px)',
+                    backdropFilter: 'none',
                     border: '1px solid rgba(255,255,255,0.08)',
                     color: 'rgba(255,255,255,0.50)',
                   }}
@@ -979,7 +968,7 @@ export default function TutorialSwipePage() {
                 className="flex items-center gap-3 px-4 py-3 rounded-[20px]"
                 style={{
                   background: 'rgba(245,158,11,0.10)',
-                  backdropFilter: 'blur(20px) saturate(160%)',
+                  backdropFilter: 'none',
                   border: '1px solid rgba(245,158,11,0.28)',
                   boxShadow: 'inset 0 1px 0 rgba(255,220,80,0.14)',
                 }}

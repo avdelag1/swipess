@@ -337,25 +337,6 @@ const ImageCarouselComponent = ({
           style={{ zIndex: 1 }}
         />
 
-        {/* LAYER 2: Blurred version of current image (if available) as enhanced placeholder */}
-        {displayedSrc && (
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{
-              zIndex: 2,
-              filter: 'blur(20px)',
-              transform: 'scale(1.1)',
-            }}
-          >
-            <img
-              src={displayedSrc}
-              alt=""
-              className="w-full h-full object-cover"
-              loading="eager"
-              aria-hidden="true"
-            />
-          </div>
-        )}
 
         {/* LAYER 3: Previous image - stays visible during transition */}
         {previousSrc && isTransitioning && (
@@ -386,7 +367,6 @@ const ImageCarouselComponent = ({
               zIndex: 4,
               opacity: showImage && !(isTransitioning && previousSrc) ? 1 : 0,
               transform: 'translateZ(0)',
-              willChange: 'opacity',
               backfaceVisibility: 'hidden',
             }}
             onLoad={() => {

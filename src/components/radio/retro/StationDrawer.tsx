@@ -83,29 +83,29 @@ export function StationDrawer({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute inset-x-0 bottom-0 max-h-[85vh] rounded-t-3xl overflow-hidden"
+            className="absolute inset-x-0 bottom-0 max-h-[85vh] rounded-t-3xl overflow-hidden bg-card"
             style={{
-              background: 'linear-gradient(180deg, rgba(20,20,20,0.98) 0%, rgba(10,10,10,0.99) 100%)',
+              background: 'linear-gradient(180deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%)',
             }}
           >
             {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
             </div>
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 pb-4">
               <div>
-                <h2 className="text-white text-lg font-bold">{isFavoritesView ? 'Liked Stations' : 'Stations'}</h2>
-                <p className="text-white/40 text-xs">{isFavoritesView ? 'Your favorites' : theme?.name} - {stations.length} available</p>
+                <h2 className="text-foreground text-lg font-bold">{isFavoritesView ? 'Liked Stations' : 'Stations'}</h2>
+                <p className="text-muted-foreground text-xs">{isFavoritesView ? 'Your favorites' : theme?.name} - {stations.length} available</p>
               </div>
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
                 aria-label="Close station drawer"
               >
-                <X className="w-4 h-4 text-white/70" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </motion.button>
             </div>
 
@@ -122,8 +122,8 @@ export function StationDrawer({
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onCitySelect(city)}
                         className={`flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all ${isActive
-                            ? 'text-white'
-                            : 'bg-white/5 text-white/50 hover:bg-white/10'
+                            ? 'text-foreground'
+                            : 'bg-muted text-muted-foreground hover:bg-muted/80'
                           }`}
                         style={isActive ? {
                           background: `linear-gradient(135deg, ${ct.primaryColor}80, ${ct.secondaryColor}60)`,
@@ -159,8 +159,8 @@ export function StationDrawer({
                         onClose();
                       }}
                       className={`w-full flex items-center gap-3 p-3 rounded-2xl transition-all ${isCurrent
-                          ? 'bg-white/10 border border-white/10'
-                          : 'hover:bg-white/5'
+                          ? 'bg-muted border border-border'
+                          : 'hover:bg-muted/50'
                         }`}
                     >
                       {/* Station icon */}
@@ -175,7 +175,7 @@ export function StationDrawer({
                             {[0, 1, 2].map((i) => (
                               <motion.div
                                 key={i}
-                                className="w-1 bg-white rounded-full"
+                                className="w-1 bg-foreground rounded-full"
                                 animate={{
                                   height: ['40%', '100%', '60%', '100%', '40%'],
                                 }}
@@ -189,16 +189,16 @@ export function StationDrawer({
                             ))}
                           </div>
                         ) : (
-                          <Radio className="w-4 h-4 text-white/60" />
+                          <Radio className="w-4 h-4 text-muted-foreground" />
                         )}
                       </div>
 
                       {/* Station info */}
                       <div className="flex-1 text-left min-w-0">
-                        <p className={`text-sm font-medium truncate ${isCurrent ? 'text-white' : 'text-white/80'}`}>
+                        <p className={`text-sm font-medium truncate ${isCurrent ? 'text-foreground' : 'text-foreground/80'}`}>
                           {station.name}
                         </p>
-                        <p className="text-xs text-white/40 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {station.frequency} · {station.genre}
                         </p>
                       </div>
@@ -214,13 +214,13 @@ export function StationDrawer({
                         aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Heart
-                          className={`w-4 h-4 transition-colors ${isFav ? 'text-red-400 fill-red-400' : 'text-white/20'
+                          className={`w-4 h-4 transition-colors ${isFav ? 'text-red-400 fill-red-400' : 'text-muted-foreground/30'
                             }`}
                         />
                       </motion.button>
 
                       {/* Arrow */}
-                      <ChevronRight className="w-4 h-4 text-white/15 flex-shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/30 flex-shrink-0" />
                     </button>
                   </motion.div>
                 );

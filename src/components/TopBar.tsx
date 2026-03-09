@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText } from 'lucide-react';
+import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -58,6 +58,7 @@ interface TopBarProps {
   hideOnScroll?: boolean;
   title?: string;
   onAISearchClick?: () => void;
+  showBack?: boolean;
 }
 
 function TopBarComponent({
@@ -70,6 +71,7 @@ function TopBarComponent({
   hideOnScroll = false,
   title,
   onAISearchClick,
+  showBack = false,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
   const navigate = useNavigate();
@@ -84,18 +86,14 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'var(--glass-bg)'
-    : 'rgba(0, 0, 0, 0.07)';
+    : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
-    ? '1.5px solid var(--glass-border)'
-    : '1.5px solid rgba(0, 0, 0, 0.15)';
+    ? '1px solid var(--glass-border)'
+    : '1px solid rgba(0, 0, 0, 0.05)';
   const floatingShadow = isDark
-    ? 'inset 0 1px 0 hsl(var(--foreground) / 0.1), 0 4px 12px hsl(0 0% 0% / 0.3)'
-    : '0 2px 10px rgba(0,0,0,0.08)';
-  const controlBlur = isDark ? `blur(var(--glass-blur))` : 'none';
-  const headerBackgroundClass = isDark
-    ? 'bg-gradient-to-b from-background/90 via-background/40 to-transparent border-transparent'
-    : 'bg-transparent border-transparent';
-
+    ? '0 10px 30px -10px rgba(0,0,0,0.5)'
+    : '0 10px 30px -10px rgba(0,0,0,0.1)';
+  // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // Fetch the three token packages
@@ -155,19 +153,61 @@ function TopBarComponent({
     }
   };
 
+  const handleBack = (e: React.MouseEvent | React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    haptics.tap();
+    navigate(-1);
+  };
+
   return (
     <>
       <header
         className={cn(
           'app-header',
-          headerBackgroundClass,
           shouldHide && 'header-hidden',
           className
         )}
       >
-        <div className="flex items-center justify-between h-10 max-w-screen-xl mx-auto gap-1.5 px-1.5 sm:px-3">
+        {/* Premium multi-stop gradient overlay for flagship header readability */}
+        <div
+          className="pointer-events-none absolute left-0 right-0 top-0 h-[100px] -z-10"
+          style={{
+            background: isDark
+              ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.5) 35%, rgba(0, 0, 0, 0.2) 65%, rgba(0, 0, 0, 0) 100%)'
+              : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 35%, rgba(255, 255, 255, 0.2) 65%, rgba(255, 255, 255, 0) 100%)'
+          }}
+          aria-hidden="true"
+        />
+        {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
+        <div
+          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none z-0"
+          style={{
+            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)'} 0%, transparent 100%)`,
+            opacity: 0.8
+          }}
+        />
+
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pr-2">
           {/* Left section: Avatar + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+            {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
+            {showBack && (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onPointerDown={handleBack}
+                className={cn(
+                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg",
+                  isDark
+                    ? "bg-white/10 border border-white/20 text-white"
+                    : "bg-black/5 border border-black/10 text-foreground"
+                )}
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-4 h-4" strokeWidth={3} />
+              </motion.button>
+            )}
+
             {/* User Avatar - Tapping navigates to profile */}
             {user ? (
               <motion.button
@@ -182,7 +222,7 @@ function TopBarComponent({
                 className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
                 aria-label="Go to profile"
               >
-                <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
@@ -190,17 +230,11 @@ function TopBarComponent({
                 </Avatar>
               </motion.button>
             ) : (
-              <>
-                {!title && <SwipessLogo size="sm" className="flex-shrink-0" />}
-                {title && (
-                  <div className="flex-shrink-0 font-black text-sm sm:text-base text-foreground whitespace-nowrap uppercase tracking-tight">
-                    {title}
-                  </div>
-                )}
-              </>
+              !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />
             )}
 
-            <div className="flex items-center gap-1.5 flex-shrink-0">
+
+            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               <ThemeToggle />
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
               <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
@@ -213,9 +247,9 @@ function TopBarComponent({
             )}
           </div>
 
-          {/* Center tap zone - navigates back to dashboard */}
+          {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
           <div
-            className="flex-1 h-full cursor-pointer"
+            className="flex-1 h-full cursor-pointer flex items-center justify-center"
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
@@ -223,7 +257,18 @@ function TopBarComponent({
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
-          />
+          >
+            {title ? (
+              <span className={cn(
+                "font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none",
+                isDark
+                  ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  : "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+              )}>
+                {title}
+              </span>
+            ) : null}
+          </div>
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
@@ -246,8 +291,8 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", isDark ? "text-amber-300" : "text-amber-600")} />
-                  <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
+                  <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
+                  <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase hidden sm:inline">
                     Tokens
                   </span>
                 </Button>
@@ -372,7 +417,7 @@ function TopBarComponent({
               className={cn(
                 "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
                 "hover:scale-105 active:scale-95 group",
-                "group flex-shrink-0",
+                "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
                 "-webkit-tap-highlight-color-transparent",
                 "liquid-glass-card refraction-edge glass-nano-texture"
@@ -387,31 +432,28 @@ function TopBarComponent({
                   className={cn(
                     "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
                     notificationCount > 0
-                      ? (isDark ? "text-orange-200 group-hover:text-orange-100" : "text-orange-600 group-hover:text-orange-700")
-                      : (isDark ? "text-gray-50 group-hover:text-white" : "text-foreground group-hover:text-foreground")
+                      ? (isDark ? "text-orange-300 group-hover:text-orange-100" : "text-orange-500 group-hover:text-orange-700")
+                      : (isDark ? "text-white group-hover:text-white" : "text-foreground group-hover:text-foreground")
                   )}
                 />
-                <AnimatePresence>
-                  {notificationCount > 0 && (
-                    <div className="absolute inset-0 rounded-full border border-pink-500/30" />
-                  )}
-                </AnimatePresence>
               </div>
-              <AnimatePresence mode="wait">
-                {notificationCount > 0 && (
-                  <motion.span
-                    key="notification-badge"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] font-bold rounded-full min-w-[18px] sm:min-w-[20px] h-[18px] sm:h-[20px] flex items-center justify-center ring-2 ring-background"
-                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-                  >
-                    {notificationCount > 99 ? '99+' : notificationCount}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+              {notificationCount > 0 ? (
+                <motion.span
+                  key="notification-badge"
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                  className="text-white text-[10px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                >
+                  {notificationCount > 99 ? '99+' : notificationCount}
+                </motion.span>
+              ) : (
+                <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
+                  Alerts
+                </span>
+              )}
             </Button>
           </div>
         </div>

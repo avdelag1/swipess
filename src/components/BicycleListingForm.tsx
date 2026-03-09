@@ -2,13 +2,15 @@ import { useForm, Controller } from 'react-hook-form';
 import { useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 
 export interface BicycleFormData {
   id?: string;
   title?: string;
+  description?: string;
   mode?: 'sale' | 'rent' | 'both';
   price?: number;
   rental_rates?: {
@@ -27,7 +29,6 @@ export interface BicycleFormData {
   number_of_gears?: number;
   electric_assist?: boolean;
   battery_range?: number;
-  motor_power?: string;
   condition?: string;
   city?: string;
   neighborhood?: string;
@@ -52,6 +53,27 @@ const BRAKE_TYPES = ['Disc (Hydraulic)', 'Disc (Mechanical)', 'Rim Brakes', 'Coa
 const CONDITIONS = ['Excellent', 'Good', 'Fair', 'Needs Work'];
 const SUSPENSION_TYPES = ['None (Rigid)', 'Front Only (Hardtail)', 'Full Suspension'];
 
+const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
+  <div className={cn("rounded-3xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] shadow-xl overflow-hidden", className)}>
+    <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
+      <div className="w-2 h-2 rounded-full bg-purple-500" />
+      <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
+    </div>
+    <div className="px-5 pb-5 space-y-4">{children}</div>
+  </div>
+);
+
+const FormLabel = ({ children }: { children: React.ReactNode }) => (
+  <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">{children}</Label>
+);
+
+const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
+  <div className="flex items-center space-x-3 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] transition-colors cursor-pointer">
+    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg" />
+    <Label htmlFor={id} className="cursor-pointer text-sm font-medium text-foreground/80">{label}</Label>
+  </div>
+);
+
 export function BicycleListingForm({ onDataChange, initialData }: BicycleListingFormProps) {
   const { register, control, watch } = useForm<BicycleFormData>({
     defaultValues: initialData || { mode: 'rent', electric_assist: false }
@@ -65,221 +87,150 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
   }, [formData, onDataChange]);
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Information (Optional)</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="space-y-5">
+      <Section title="Basic Information">
+        <div>
+          <FormLabel>Listing Title</FormLabel>
+          <Input {...register('title')} placeholder="e.g., 2022 Specialized Turbo Levo" />
+        </div>
+        <div>
+          <FormLabel>Description</FormLabel>
+          <Textarea {...register('description')} placeholder="Describe the bicycle, its condition, accessories, and riding experience..." rows={3} />
+        </div>
+        <div>
+          <FormLabel>Bicycle Type</FormLabel>
+          <Controller
+            name="bicycle_type"
+            control={control}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectContent>
+                  {BICYCLE_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
+        <div>
+          <FormLabel>Location / City</FormLabel>
+          <Input {...register('city')} placeholder="e.g., Tulum, Playa del Carmen" />
+        </div>
+      </Section>
+
+      <Section title="Specifications">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="title">Listing Title</Label>
-            <Input
-              id="title"
-              {...register('title')}
-              placeholder="e.g., 2022 Specialized Turbo Levo"
-            />
+            <FormLabel>Brand</FormLabel>
+            <Input {...register('brand')} placeholder="Specialized, Trek, Giant..." />
           </div>
-
           <div>
-            <Label htmlFor="bicycle_type">Bicycle Type</Label>
-            <Controller
-              name="bicycle_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="bicycle_type">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {BICYCLE_TYPES.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <FormLabel>Model</FormLabel>
+            <Input {...register('model')} placeholder="Turbo Levo" />
           </div>
-
           <div>
-            <Label htmlFor="city">Location / City</Label>
-            <Input
-              id="city"
-              {...register('city')}
-              placeholder="e.g., Tulum, Playa del Carmen"
-            />
+            <FormLabel>Year</FormLabel>
+            <Input type="number" {...register('year', { valueAsNumber: true })} placeholder="2022" />
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Bicycle Specifications (Optional)</CardTitle></CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="brand">Brand</Label>
-            <Input id="brand" {...register('brand')} placeholder="Specialized, Trek, Giant..." />
+            <FormLabel>Condition</FormLabel>
+            <Controller name="condition" control={control} render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger>
+                <SelectContent>{CONDITIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              </Select>
+            )} />
           </div>
-
           <div>
-            <Label htmlFor="model">Model</Label>
-            <Input id="model" {...register('model')} placeholder="Turbo Levo" />
+            <FormLabel>Frame Size</FormLabel>
+            <Controller name="frame_size" control={control} render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select frame size" /></SelectTrigger>
+                <SelectContent>{FRAME_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            )} />
           </div>
-
           <div>
-            <Label htmlFor="year">Year</Label>
-            <Input id="year" type="number" {...register('year', { valueAsNumber: true })} placeholder="2022" />
+            <FormLabel>Frame Material</FormLabel>
+            <Controller name="frame_material" control={control} render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select material" /></SelectTrigger>
+                <SelectContent>{FRAME_MATERIALS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+              </Select>
+            )} />
           </div>
-
           <div>
-            <Label htmlFor="condition">Condition</Label>
-            <Controller
-              name="condition"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="condition"><SelectValue placeholder="Select condition" /></SelectTrigger>
-                  <SelectContent>
-                    {CONDITIONS.map(cond => <SelectItem key={cond} value={cond}>{cond}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <FormLabel>Wheel Size</FormLabel>
+            <Controller name="wheel_size" control={control} render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select wheel size" /></SelectTrigger>
+                <SelectContent>{WHEEL_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+              </Select>
+            )} />
           </div>
-
           <div>
-            <Label htmlFor="frame_size">Frame Size</Label>
-            <Controller
-              name="frame_size"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="frame_size"><SelectValue placeholder="Select frame size" /></SelectTrigger>
-                  <SelectContent>
-                    {FRAME_SIZES.map(size => <SelectItem key={size} value={size}>{size}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <FormLabel>Brake Type</FormLabel>
+            <Controller name="brake_type" control={control} render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select brake type" /></SelectTrigger>
+                <SelectContent>{BRAKE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            )} />
           </div>
-
           <div>
-            <Label htmlFor="frame_material">Frame Material</Label>
-            <Controller
-              name="frame_material"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="frame_material"><SelectValue placeholder="Select material" /></SelectTrigger>
-                  <SelectContent>
-                    {FRAME_MATERIALS.map(mat => <SelectItem key={mat} value={mat}>{mat}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <FormLabel>Number of Gears</FormLabel>
+            <Input type="number" {...register('number_of_gears', { valueAsNumber: true })} placeholder="21" />
           </div>
-
           <div>
-            <Label htmlFor="wheel_size">Wheel Size</Label>
-            <Controller
-              name="wheel_size"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="wheel_size"><SelectValue placeholder="Select wheel size" /></SelectTrigger>
-                  <SelectContent>
-                    {WHEEL_SIZES.map(size => <SelectItem key={size} value={size}>{size}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <FormLabel>Suspension</FormLabel>
+            <Controller name="suspension_type" control={control} render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select suspension" /></SelectTrigger>
+                <SelectContent>{SUSPENSION_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            )} />
           </div>
+        </div>
+      </Section>
 
+      <Section title="Electric Features">
+        <CheckboxRow
+          id="electric_assist"
+          checked={!!watch('electric_assist')}
+          onCheckedChange={(v) => {
+            // Manual setValue workaround since we use Controller elsewhere
+            const form = watch();
+            onDataChange({ ...form, electric_assist: v as boolean });
+          }}
+          label="Electric Assist (E-Bike)"
+        />
+        {isElectric && (
           <div>
-            <Label htmlFor="brake_type">Brake Type</Label>
-            <Controller
-              name="brake_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="brake_type"><SelectValue placeholder="Select brake type" /></SelectTrigger>
-                  <SelectContent>
-                    {BRAKE_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+            <FormLabel>Battery Range (km)</FormLabel>
+            <Input type="number" {...register('battery_range', { valueAsNumber: true })} placeholder="80" />
           </div>
+        )}
+      </Section>
 
-          <div>
-            <Label htmlFor="number_of_gears">Number of Gears</Label>
-            <Input id="number_of_gears" type="number" {...register('number_of_gears', { valueAsNumber: true })} placeholder="21" />
-          </div>
-
-          <div>
-            <Label htmlFor="suspension_type">Suspension</Label>
-            <Controller
-              name="suspension_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger id="suspension_type"><SelectValue placeholder="Select suspension" /></SelectTrigger>
-                  <SelectContent>
-                    {SUSPENSION_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Electric Features (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Controller name="electric_assist" control={control} render={({ field }) => <Checkbox id="electric_assist" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="electric_assist">Electric Assist (E-Bike)</Label>
-          </div>
-
-          {isElectric && (
-            <div className="grid md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <Label htmlFor="battery_range">Battery Range (km)</Label>
-                <Input id="battery_range" type="number" {...register('battery_range', { valueAsNumber: true })} placeholder="80" />
-              </div>
-              <div>
-                <Label htmlFor="motor_power">Motor Power</Label>
-                <Input id="motor_power" {...register('motor_power')} placeholder="250W, 500W, etc." />
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Included Accessories (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Controller name="includes_helmet" control={control} render={({ field }) => <Checkbox id="includes_helmet" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="includes_helmet">Helmet Included</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Controller name="includes_lock" control={control} render={({ field }) => <Checkbox id="includes_lock" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="includes_lock">Lock Included</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Controller name="includes_lights" control={control} render={({ field }) => <Checkbox id="includes_lights" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="includes_lights">Lights Included</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Controller name="includes_basket" control={control} render={({ field }) => <Checkbox id="includes_basket" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="includes_basket">Basket/Rack Included</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Controller name="includes_pump" control={control} render={({ field }) => <Checkbox id="includes_pump" checked={field.value} onCheckedChange={field.onChange} />} />
-            <Label htmlFor="includes_pump">Pump Included</Label>
-          </div>
-        </CardContent>
-      </Card>
+      <Section title="Included Accessories">
+        <div className="grid grid-cols-2 gap-2">
+          <Controller name="includes_helmet" control={control} render={({ field }) => (
+            <CheckboxRow id="includes_helmet" checked={!!field.value} onCheckedChange={field.onChange} label="Helmet" />
+          )} />
+          <Controller name="includes_lock" control={control} render={({ field }) => (
+            <CheckboxRow id="includes_lock" checked={!!field.value} onCheckedChange={field.onChange} label="Lock" />
+          )} />
+          <Controller name="includes_lights" control={control} render={({ field }) => (
+            <CheckboxRow id="includes_lights" checked={!!field.value} onCheckedChange={field.onChange} label="Lights" />
+          )} />
+          <Controller name="includes_basket" control={control} render={({ field }) => (
+            <CheckboxRow id="includes_basket" checked={!!field.value} onCheckedChange={field.onChange} label="Basket/Rack" />
+          )} />
+          <Controller name="includes_pump" control={control} render={({ field }) => (
+            <CheckboxRow id="includes_pump" checked={!!field.value} onCheckedChange={field.onChange} label="Pump" />
+          )} />
+        </div>
+      </Section>
     </div>
   );
 }

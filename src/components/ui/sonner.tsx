@@ -22,10 +22,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
             "group-[.toast]:bg-white/10 group-[.toast]:text-white group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 hover:group-[.toast]:bg-white/20",
           title: "group-[.toast]:text-white group-[.toast]:font-black group-[.toast]:text-sm group-[.toast]:uppercase group-[.toast]:tracking-tight",
           icon: "group-[.toast]:w-5 group-[.toast]:h-5 group-[.toast]:text-brand-accent-2",
-          success: "group-[.toaster]:border-l-emerald-500",
-          error: "group-[.toaster]:border-l-rose-500",
-          warning: "group-[.toaster]:border-l-amber-500",
-          info: "group-[.toaster]:border-l-cyan-500",
+          success: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-green-600 group-[.toaster]:via-emerald-600 group-[.toaster]:to-teal-600 group-[.toaster]:shadow-green-500/50",
+          error: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-red-600 group-[.toaster]:via-rose-600 group-[.toaster]:to-pink-600 group-[.toaster]:shadow-red-500/50",
+          warning: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-amber-600 group-[.toaster]:via-orange-600 group-[.toaster]:to-yellow-600 group-[.toaster]:shadow-amber-500/50",
+          info: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-pink-500 group-[.toaster]:via-rose-500 group-[.toaster]:to-orange-500 group-[.toaster]:shadow-pink-500/50",
         },
       }}
       {...props}

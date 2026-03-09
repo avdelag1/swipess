@@ -76,7 +76,7 @@ export function BlueCassette({ isPlaying, stationName, frequency, genre }: BlueC
             {/* Label Overlays (Dynamic Text) */}
             <div className="absolute top-[55px] left-[75px] right-[75px] h-[50px] flex flex-col items-center justify-center overflow-hidden pointer-events-none z-10">
                 <span
-                    className="text-white/70 font-handwriting text-lg leading-tight truncate w-full text-center drop-shadow-lg"
+                    className="text-foreground/70 font-handwriting text-lg leading-tight truncate w-full text-center drop-shadow-lg"
                     style={{
                         textShadow: '0 0 16px rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.8)',
                     }}
@@ -84,10 +84,10 @@ export function BlueCassette({ isPlaying, stationName, frequency, genre }: BlueC
                     {stationName || 'Swipess Mix'}
                 </span>
                 <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                         {frequency || '98.5 FM'}
                     </span>
-                    <span className="text-[10px] font-medium text-white/30 uppercase italic">
+                    <span className="text-[10px] font-medium text-muted-foreground/70 uppercase italic">
                         {genre || 'Live'}
                     </span>
                 </div>
@@ -109,32 +109,32 @@ export function BlueCassette({ isPlaying, stationName, frequency, genre }: BlueC
             {/* Interactive Hotspots (Invisible Buttons) */}
             <button
                 onClick={handleVolumeDown}
-                className="absolute bottom-[20px] left-[55px] w-[45px] h-[45px] rounded-full active:bg-white/10 transition-colors"
+                className="absolute bottom-[20px] left-[55px] w-[45px] h-[45px] rounded-full active:bg-foreground/10 transition-colors"
                 aria-label="Volume Down"
             />
             <button
                 onClick={handleVolumeUp}
-                className="absolute bottom-[20px] right-[55px] w-[45px] h-[45px] rounded-full active:bg-white/10 transition-colors"
+                className="absolute bottom-[20px] right-[55px] w-[45px] h-[45px] rounded-full active:bg-foreground/10 transition-colors"
                 aria-label="Volume Up"
             />
             <button
                 onClick={handleTogglePlay}
-                className="absolute bottom-[75px] left-1/2 -translate-x-1/2 w-[55px] h-[55px] rounded-full active:bg-white/10 transition-colors"
+                className="absolute bottom-[75px] left-1/2 -translate-x-1/2 w-[55px] h-[55px] rounded-full active:bg-foreground/10 transition-colors"
                 aria-label="Play/Pause"
             />
             <button
                 onClick={handlePrev}
-                className="absolute bottom-[88px] left-[130px] w-[35px] h-[35px] rounded-full active:bg-white/10 transition-colors"
+                className="absolute bottom-[88px] left-[130px] w-[35px] h-[35px] rounded-full active:bg-foreground/10 transition-colors"
                 aria-label="Previous Station"
             />
             <button
                 onClick={handleNext}
-                className="absolute bottom-[88px] right-[130px] w-[35px] h-[35px] rounded-full active:bg-white/10 transition-colors"
+                className="absolute bottom-[88px] right-[130px] w-[35px] h-[35px] rounded-full active:bg-foreground/10 transition-colors"
                 aria-label="Next Station"
             />
             <button
                 onClick={handleSave}
-                className="absolute bottom-[75px] left-[55px] w-[110px] h-[35px] rounded-md active:bg-white/10 transition-colors"
+                className="absolute bottom-[75px] left-[55px] w-[110px] h-[35px] rounded-md active:bg-foreground/10 transition-colors"
                 aria-label="Save Station"
             />
         </div>

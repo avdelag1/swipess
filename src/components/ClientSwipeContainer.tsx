@@ -2,11 +2,12 @@ import { useState, useCallback, useRef, useEffect, memo, lazy, Suspense } from '
 import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
-import { SimpleOwnerSwipeCard } from './SimpleOwnerSwipeCard';
+
 import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
+import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
 // FIX: Lazy-load modals via portal to prevent re-renders from bleeding into swipe tree
 const MatchCelebration = lazy(() => import('./MatchCelebration').then(m => ({ default: m.MatchCelebration })));
@@ -30,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, CircleDot, Wrench, User } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, CircleDot, Wrench, User, Sparkles } from 'lucide-react';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -38,47 +39,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 
-/**
- * PrefetchScheduler - Throttles prefetch operations to prevent competition with image decoding
- * Uses requestIdleCallback to defer prefetch until browser is idle
- */
-class PrefetchScheduler {
-  private scheduled = false;
-  private callback: (() => void) | null = null;
-  private idleHandle: number | null = null;
-
-  schedule(callback: () => void, delayMs = 300): void {
-    // Cancel any pending prefetch
-    this.cancel();
-
-    this.callback = callback;
-    this.scheduled = true;
-
-    // Wait for a brief delay to let current image decode complete
-    setTimeout(() => {
-      if (!this.scheduled || !this.callback) return;
-
-      if ('requestIdleCallback' in window) {
-        this.idleHandle = (window as any).requestIdleCallback(() => {
-          if (this.callback) this.callback();
-          this.scheduled = false;
-        }, { timeout: 2000 });
-      } else {
-        this.callback();
-        this.scheduled = false;
-      }
-    }, delayMs);
-  }
-
-  cancel(): void {
-    this.scheduled = false;
-    this.callback = null;
-    if (this.idleHandle !== null && 'cancelIdleCallback' in window) {
-      (window as any).cancelIdleCallback(this.idleHandle);
-      this.idleHandle = null;
-    }
-  }
-}
+// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
 interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
@@ -287,7 +248,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem(`swipe-deck-owner-${category}`); } catch (err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem(`swipe - deck - owner - ${category} `); } catch (err) { /* Ignore session storage errors */ }
   }, [category]);
 
   // ========================================
@@ -689,6 +650,14 @@ const ClientSwipeContainerComponent = ({
   const handleSendMessage = useCallback(async (message: string) => {
     if (isCreatingConversation || !selectedClientId) return;
 
+    // Content moderation check
+    const { validateContent: vc } = await import('@/utils/contactInfoValidation');
+    const result = vc(message);
+    if (!result.isClean) {
+      sonnerToast.error('Content blocked', { description: result.message || undefined });
+      return;
+    }
+
     setIsCreatingConversation(true);
 
     try {
@@ -704,7 +673,7 @@ const ClientSwipeContainerComponent = ({
         sonnerToast.success('Opening chat...', { id: 'start-conv' });
         setMessageDialogOpen(false);
         await new Promise(resolve => setTimeout(resolve, 300));
-        navigate(`/messages?conversationId=${result.conversationId}`);
+        navigate(`/ messages ? conversationId = ${result.conversationId} `);
       }
     } catch (error) {
       sonnerToast.error('Could not start conversation', {
@@ -796,55 +765,52 @@ const ClientSwipeContainerComponent = ({
   // "All Caught Up" - finished swiping through all cards
   if (isDeckFinished) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background overflow-hidden">
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20"
+          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20 text-center"
         >
           {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
-          <div className="relative group">
+          <div className="relative group mb-2">
             <RadarSearchEffect
-              size={140}
+              size={120}
               color="#E4007C"
               isActive={isRefreshing}
               icon={labels.icon}
             />
           </div>
 
-          <div className="space-y-4 text-center">
-            <div className="space-y-2">
-              <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter leading-none">
-                All Caught Up!
-              </h3>
-              <p className="text-muted-foreground text-base font-bold tracking-tight opacity-70 px-4">
-                You've seen all available {labels.plural.toLowerCase()}. Check back soon for fresh opportunities.
-              </p>
-            </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">
+              All Caught Up!
+            </h3>
+            <p className="text-muted-foreground text-sm font-extrabold opacity-80 px-4">
+              You've seen all available {labels.plural.toLowerCase()}. Check back soon for fresh opportunities.
+            </p>
+          </div>
 
-            <div className="pt-2 flex flex-col items-center gap-4">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="relative h-16 px-12 rounded-[2rem] bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-[0_8px_30px_rgb(249,115,22,0.3)] hover:shadow-[0_8px_40px_rgb(249,115,22,0.4)] transition-all duration-300 group overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative flex items-center gap-3">
-                    {isRefreshing ? (
-                      <RadarSearchIcon size={20} isActive={true} color="white" />
-                    ) : (
-                      <RefreshCw className={cn("w-5 h-5 stroke-[3.5px]", isRefreshing && "animate-spin")} />
-                    )}
-                    <span className="text-base font-black uppercase tracking-widest">{isRefreshing ? 'Scanning...' : 'Discover More'}</span>
-                  </div>
-                </Button>
-              </motion.div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
-                New {labels.plural.toLowerCase()} are added daily
-              </p>
-            </div>
+          <div className="flex flex-col w-full gap-4">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="w-full h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
+              >
+                {isRefreshing ? (
+                  <RadarSearchIcon size={20} isActive={true} color="white" />
+                ) : (
+                  <RefreshCw className={cn("w-5 h-5 stroke-[3.5px]", isRefreshing && "animate-spin")} />
+                )}
+                <span>{isRefreshing ? 'Scanning...' : 'Discover More'}</span>
+              </Button>
+            </motion.div>
+
+
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
+              New {labels.plural.toLowerCase()} are added daily
+            </p>
           </div>
         </motion.div>
       </div>
@@ -875,55 +841,52 @@ const ClientSwipeContainerComponent = ({
   // Empty state (no cards fetched yet)
   if (showEmptyState || !topCard) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 bg-background overflow-hidden">
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20"
+          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20 text-center"
         >
           {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
-          <div className="relative group">
+          <div className="relative group mb-2">
             <RadarSearchEffect
-              size={140}
+              size={120}
               color="#E4007C"
               isActive={isRefreshing}
               icon={labels.icon}
             />
           </div>
 
-          <div className="space-y-4 text-center">
-            <div className="space-y-2">
-              <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter leading-none">
-                No {labels.plural} Found
-              </h3>
-              <p className="text-muted-foreground text-base font-bold tracking-tight opacity-70 px-4">
-                Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()} in your area.
-              </p>
-            </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">
+              No {labels.plural} Found
+            </h3>
+            <p className="text-muted-foreground text-sm font-extrabold opacity-80 px-4">
+              Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()} in your area.
+            </p>
+          </div>
 
-            <div className="pt-2 flex flex-col items-center gap-4">
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <Button
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="relative h-16 px-12 rounded-[2rem] bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-[0_8px_30px_rgb(249,115,22,0.3)] hover:shadow-[0_8px_40px_rgb(249,115,22,0.4)] transition-all duration-300 group overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative flex items-center gap-3">
-                    {isRefreshing ? (
-                      <RadarSearchIcon size={20} isActive={true} color="white" />
-                    ) : (
-                      <RefreshCw className={cn("w-5 h-5 stroke-[3.5px]", isRefreshing && "animate-spin")} />
-                    )}
-                    <span className="text-base font-black uppercase tracking-widest">{isRefreshing ? 'Scanning...' : `Refresh ${labels.plural}`}</span>
-                  </div>
-                </Button>
-              </motion.div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
-                Fresh listings arrive every hour
-              </p>
-            </div>
+          <div className="flex flex-col w-full gap-4">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="w-full h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
+              >
+                {isRefreshing ? (
+                  <RadarSearchIcon size={20} isActive={true} color="white" />
+                ) : (
+                  <RefreshCw className={cn("w-5 h-5 stroke-[3.5px]", isRefreshing && "animate-spin")} />
+                )}
+                <span>{isRefreshing ? 'Scanning...' : `Refresh ${labels.plural}`}</span>
+              </Button>
+            </motion.div>
+
+
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
+              Fresh listings arrive every hour
+            </p>
           </div>
         </motion.div>
       </div>
@@ -932,12 +895,12 @@ const ClientSwipeContainerComponent = ({
 
   // Main swipe view - edge-to-edge cards with next card visible behind
   return (
-    <div className="relative w-full h-full flex-1 flex flex-col bg-zinc-900">
+    <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
       <div className="relative flex-1 w-full">
         {/* Next card visible behind - creates depth and anticipation */}
         {nextCard && (
           <div
-            key={`next-${nextCard.user_id}`}
+            key={`next - ${nextCard.user_id} `}
             className="w-full h-full absolute inset-0"
             style={{
               zIndex: 5,
@@ -950,7 +913,6 @@ const ClientSwipeContainerComponent = ({
               profile={nextCard}
               onSwipe={() => { /* noop: non-interactive card */ }}
               isTop={false}
-              hideActions={true}
             />
           </div>
         )}
@@ -972,13 +934,12 @@ const ClientSwipeContainerComponent = ({
             onUndo={undoLastSwipe}
             canUndo={canUndo}
             isTop={true}
-            hideActions={insightsOpen}
           />
         </div>
 
         {/* Static Action Buttons - Floating bottom bar */}
         {topCard && !insightsOpen && (
-          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
+          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
@@ -1019,13 +980,13 @@ const ClientSwipeContainerComponent = ({
             open={shareDialogOpen}
             onOpenChange={setShareDialogOpen}
             profileId={topCard.user_id}
-            title={topCard.name ? `Check out ${String(topCard.name)}'s profile` : 'Check out this profile'}
+            title={topCard.name ? `Check out ${String(topCard.name)} 's profile` : 'Check out this profile'}
             description={`Budget: $${topCard.budget_max?.toLocaleString() || 'N/A'} - Looking for: ${Array.isArray(topCard.preferred_listing_types) ? topCard.preferred_listing_types.join(', ') : 'Various properties'}`}
           />
-        </Suspense>,
+        </Suspense >,
         document.body
       )}
-    </div>
+    </div >
   );
 };
 

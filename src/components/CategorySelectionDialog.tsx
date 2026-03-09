@@ -23,8 +23,11 @@ interface Category {
   icon: React.ReactNode;
   gradient: string;
   iconColor: string;
+  glowColor: string;
   popular?: boolean;
 }
+
+const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
 
 const categories: Category[] = [
   {
@@ -32,8 +35,9 @@ const categories: Category[] = [
     name: 'Property',
     description: 'Apartments, houses, condos, villas',
     icon: <Home className="w-7 h-7" />,
-    gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
-    iconColor: 'text-emerald-500 bg-emerald-500/10',
+    gradient: 'from-emerald-500/25 via-emerald-500/8 to-transparent',
+    iconColor: 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/20',
+    glowColor: 'hover:shadow-emerald-500/15',
     popular: true,
   },
   {
@@ -41,24 +45,27 @@ const categories: Category[] = [
     name: 'Motorcycle',
     description: 'Motorcycles, scooters, ATVs',
     icon: <CircleDot className="w-7 h-7" />,
-    gradient: 'from-orange-500/20 via-orange-500/5 to-transparent',
-    iconColor: 'text-orange-500 bg-orange-500/10',
+    gradient: 'from-orange-500/25 via-orange-500/8 to-transparent',
+    iconColor: 'text-orange-400 bg-orange-500/15 border border-orange-500/20',
+    glowColor: 'hover:shadow-orange-500/15',
   },
   {
     id: 'bicycle',
     name: 'Bicycle',
     description: 'Bikes, e-bikes, mountain bikes',
     icon: <Bike className="w-7 h-7" />,
-    gradient: 'from-purple-500/20 via-purple-500/5 to-transparent',
-    iconColor: 'text-purple-500 bg-purple-500/10',
+    gradient: 'from-purple-500/25 via-purple-500/8 to-transparent',
+    iconColor: 'text-purple-400 bg-purple-500/15 border border-purple-500/20',
+    glowColor: 'hover:shadow-purple-500/15',
   },
   {
     id: 'worker',
     name: 'Jobs & Services',
     description: 'Chef, cleaner, nanny, handyman, and more',
     icon: <Briefcase className="w-7 h-7" />,
-    gradient: 'from-amber-500/20 via-amber-500/5 to-transparent',
-    iconColor: 'text-amber-500 bg-amber-500/10',
+    gradient: 'from-amber-500/25 via-amber-500/8 to-transparent',
+    iconColor: 'text-amber-400 bg-amber-500/15 border border-amber-500/20',
+    glowColor: 'hover:shadow-amber-500/15',
   },
 ];
 
@@ -80,7 +87,6 @@ export function CategorySelectionDialog({
   const [step, setStep] = useState<'category' | 'mode'>('category');
   const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (resetTimeoutRef.current) {
@@ -91,7 +97,6 @@ export function CategorySelectionDialog({
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
-    // Workers/services don't need rent/sale mode - go directly to form
     if (category.id === 'worker') {
       if (navigateToNewPage) {
         navigate(`/owner/listings/new?category=${category.id}&mode=rent`);
@@ -125,7 +130,6 @@ export function CategorySelectionDialog({
       onOpenChange(false);
     }
     
-    // Reset state
     if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
     resetTimeoutRef.current = setTimeout(() => {
       setSelectedCategory(null);
@@ -159,33 +163,33 @@ export function CategorySelectionDialog({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className={cn(
-        // Mobile: full screen — covers the entire viewport including the TopBar area
         "!top-0 !left-0 !translate-x-0 !translate-y-0 !w-full !max-w-none !h-[100dvh] !max-h-none !rounded-none",
-        // Desktop (sm+): restore centered modal with rounded corners
         "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[var(--radius-xl)]",
         "flex flex-col p-0 gap-0 overflow-hidden"
       )}>
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-background">
+        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
           
-          {/* AI BUTTON - Prominent at top */}
-          <Button
+          {/* AI BUTTON — Shimmer gradient */}
+          <motion.button
             onClick={handleOpenAI}
-            className="w-full mb-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/25"
-            size="lg"
+            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.01 }}
+            transition={springTap}
+            className="relative w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white border-0 shadow-2xl shadow-purple-500/30 px-5 py-3.5 font-bold text-base flex items-center justify-center gap-2.5"
           >
-            <Zap className="w-5 h-5 mr-2" />
+            <Zap className="w-5 h-5" />
             ✨ Generate Listing with AI
-          </Button>
+          </motion.button>
           
           <div className="flex items-center gap-3">
-            <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10">
+            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
               <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
             <div>
               <DialogTitle className="text-lg sm:text-xl font-bold">
                 {step === 'category' ? 'Create New Listing' : `${selectedCategory?.name} Listing`}
               </DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm">
+              <DialogDescription className="text-xs sm:text-sm text-muted-foreground/80">
                 {step === 'category'
                   ? 'Select the type of listing you want to create'
                   : 'Choose how you want to list this item'}
@@ -210,35 +214,44 @@ export function CategorySelectionDialog({
                       key={category.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.04 }}
+                      transition={{ delay: index * 0.05 }}
+                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.02, y: -2 }}
                       onClick={() => handleCategorySelect(category)}
                       className={cn(
-                        "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 text-left transition-all duration-300",
-                        "hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 active:scale-[0.98]",
-                        "bg-gradient-to-br", category.gradient,
-                        "border-border/50"
+                        "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl text-left transition-all duration-300",
+                        "bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]",
+                        "hover:border-white/20 hover:bg-white/[0.07]",
+                        "shadow-lg hover:shadow-2xl",
+                        category.glowColor
                       )}
                     >
+                      {/* Category gradient overlay */}
+                      <div className={cn("absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br opacity-60", category.gradient)} />
+                      
                       {category.popular && (
-                        <Badge className="absolute -top-2 right-3 bg-primary text-primary-foreground text-[10px] sm:text-xs px-2 py-0.5">
+                        <Badge className="absolute -top-2 right-3 bg-primary text-primary-foreground text-[10px] sm:text-xs px-2.5 py-0.5 shadow-lg shadow-primary/30 z-10">
                           Popular
                         </Badge>
                       )}
 
-                      <div className={cn("p-2.5 sm:p-3 rounded-lg sm:rounded-xl shrink-0", category.iconColor)}>
+                      <div className={cn(
+                        "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg",
+                        category.iconColor
+                      )}>
                         {category.icon}
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-foreground text-base sm:text-lg group-hover:text-primary transition-colors">
+                      <div className="relative z-10 flex-1 min-w-0">
+                        <h3 className="font-bold text-foreground text-base sm:text-lg group-hover:text-white transition-colors">
                           {category.name}
                         </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-1">
+                        <p className="text-xs sm:text-sm text-muted-foreground/80 mt-0.5 line-clamp-1">
                           {category.description}
                         </p>
                       </div>
 
-                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-1 transition-all self-center shrink-0" />
+                      <ArrowRight className="relative z-10 w-5 h-5 text-muted-foreground/40 group-hover:text-white group-hover:translate-x-1 transition-all self-center shrink-0" />
                     </motion.button>
                   ))}
                 </motion.div>
@@ -261,44 +274,47 @@ export function CategorySelectionDialog({
 
                   {selectedCategory && (
                     <div className={cn(
-                      "flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl mb-4 sm:mb-6",
-                      "bg-gradient-to-r", selectedCategory.gradient
+                      "relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 overflow-hidden",
+                      "bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]"
                     )}>
-                      <div className={cn("p-2.5 sm:p-3 rounded-lg sm:rounded-xl", selectedCategory.iconColor)}>
+                      <div className={cn("absolute inset-0 bg-gradient-to-r opacity-60", selectedCategory.gradient)} />
+                      <div className={cn("relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg", selectedCategory.iconColor)}>
                         {selectedCategory.icon}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground text-sm sm:text-base">{selectedCategory.name}</h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground">{selectedCategory.description}</p>
+                      <div className="relative z-10">
+                        <h3 className="font-bold text-foreground text-sm sm:text-base">{selectedCategory.name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground/80">{selectedCategory.description}</p>
                       </div>
                     </div>
                   )}
 
                   <div className="space-y-2.5 sm:space-y-3">
-                    <h4 className="text-xs sm:text-sm font-medium text-muted-foreground">Listing Type</h4>
+                    <h4 className="text-xs sm:text-sm font-semibold text-muted-foreground/80 uppercase tracking-wider">Listing Type</h4>
                     {modes.map((mode, index) => (
                       <motion.button
                         key={mode.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.08 }}
+                        whileTap={{ scale: 0.96 }}
+                        whileHover={{ scale: 1.02, y: -1 }}
                         onClick={() => handleModeSelect(mode.id)}
                         className={cn(
-                          "group w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 text-left transition-all duration-300",
-                          "hover:border-primary hover:bg-primary/5 hover:shadow-md active:scale-[0.98]",
-                          "border-border/50 bg-card"
+                          "group w-full flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl text-left transition-all duration-300",
+                          "bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]",
+                          "hover:border-white/20 hover:bg-white/[0.07] hover:shadow-xl"
                         )}
                       >
-                        <span className="text-2xl sm:text-3xl">{mode.emoji}</span>
+                        <span className="text-3xl sm:text-4xl">{mode.emoji}</span>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
+                          <h3 className="font-bold text-foreground text-sm sm:text-base group-hover:text-white transition-colors">
                             {mode.label}
                           </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground/80">
                             {mode.description}
                           </p>
                         </div>
-                        <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-1 transition-all shrink-0" />
+                        <ArrowRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
                       </motion.button>
                     ))}
                   </div>
