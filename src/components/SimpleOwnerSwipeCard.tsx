@@ -618,7 +618,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute top-8 left-8 z-30 pointer-events-none"
           style={{
             opacity: likeOpacity,
-            willChange: 'opacity',
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
