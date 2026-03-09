@@ -180,12 +180,6 @@
 /*  4. TYPOGRAPHY REFINEMENTS                                            */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-.text-display-premium {
-  font-size: clamp(32px, 8vw, 48px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
 
 .text-title-premium {
   font-size: clamp(20px, 5vw, 28px);
