@@ -195,27 +195,18 @@ const AmbientCard: React.FC<AmbientCardProps> = React.memo(({ card, isPaused }) 
       }}
     >
       <div
-        className="w-full h-full rounded-3xl overflow-hidden shadow-2xl"
+        className="w-full h-full rounded-3xl overflow-hidden"
         style={{
-          // Match main card rounded corners (24px)
           borderRadius: '24px',
-          // Reduced opacity and subtle blur for ambient feel
-          // Should look like ghosted cards in the background
-          opacity: 0.2,
-          filter: 'blur(1.5px)',
-          // GPU acceleration
+          opacity: 0.15,
+          // NO blur, NO shadow — pure opacity ghost cards
           transform: 'translateZ(0)',
-          willChange: 'opacity',
         }}
       >
         <img
           src={card.imageUrl}
           alt=""
           className="w-full h-full object-cover"
-          style={{
-            // GPU acceleration
-            transform: 'translateZ(0)',
-          }}
           loading="lazy"
         />
       </div>
