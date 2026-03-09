@@ -821,7 +821,6 @@ const ClientSwipeContainerComponent = ({
   if (showInitialError) {
     return (
       <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
-        <AmbientSwipeBackground isPaused={true} /> {/* Added AmbientSwipeBackground */}
         <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
           <div className="text-6xl mb-4">😞</div>
           <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
