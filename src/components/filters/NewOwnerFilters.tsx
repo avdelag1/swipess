@@ -606,44 +606,62 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
                 <div className="space-y-4">
                   <div>
                     <span className="text-xs font-medium text-muted-foreground mb-2 block">Smoking</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
                       {['any', 'non-smoker', 'occasional', 'regular'].map((s) => {
                         const isActive = (filters.smokingHabit || 'any') === s;
                         return (
-                          <button
+                          <motion.button
                             key={s}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, smokingHabit: s })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {s === 'any' ? 'Any' : s.replace('-', ' ')}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="smoking-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{s === 'any' ? 'Any' : s.replace('-', ' ')}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
                   </div>
                   <div>
                     <span className="text-xs font-medium text-muted-foreground mb-2 block">Drinking</span>
-                    <div className="flex rounded-xl bg-muted/50 p-1 gap-1">
+                    <div className="flex rounded-xl bg-muted/30 p-1 gap-0.5 shadow-[inset_0_1px_3px_rgba(0,0,0,0.2)]">
                       {['any', 'non-drinker', 'social', 'regular'].map((d) => {
                         const isActive = (filters.drinkingHabit || 'any') === d;
                         return (
-                          <button
+                          <motion.button
                             key={d}
+                            whileTap={{ scale: 0.94 }}
+                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                             onClick={() => setFilters({ ...filters, drinkingHabit: d })}
                             className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-all",
+                              "relative flex-1 py-2 rounded-lg text-xs font-semibold capitalize transition-colors z-10",
                               isActive
-                                ? "bg-primary text-primary-foreground"
+                                ? "text-primary-foreground"
                                 : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            {d === 'any' ? 'Any' : d.replace('-', ' ')}
-                          </button>
+                            {isActive && (
+                              <motion.div
+                                layoutId="drinking-pill"
+                                className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary to-primary/80 shadow-sm shadow-primary/20"
+                                transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+                              />
+                            )}
+                            <span className="relative z-10">{d === 'any' ? 'Any' : d.replace('-', ' ')}</span>
+                          </motion.button>
                         );
                       })}
                     </div>
