@@ -22,7 +22,7 @@ import swipessLogo from '@/assets/swipess-logo-transparent.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs' | 'cheetah';
+type EffectMode = 'off' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
