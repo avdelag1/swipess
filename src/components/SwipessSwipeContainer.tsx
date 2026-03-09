@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { AmbientSwipeBackground } from './AmbientSwipeBackground';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
