@@ -54,7 +54,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
   const initStars = useCallback((w: number, h: number) => {
     // Higher density for more 'premium' feel
-    const count = Math.floor((w * h) / 600);
+    const count = Math.floor((w * h) / 1800);
     starsRef.current = Array.from({ length: Math.min(count, 300) }, () => {
       const x = Math.random() * w;
       const y = Math.random() * h;
