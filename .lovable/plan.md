@@ -1,46 +1,44 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Swipe Action Buttons: Frameless Icon Redesign + PWA Polish
 
-### 1. Replace App Icon with Fire S Logo
+## What Changes
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+### 1. Remove All Backgrounds from Action Buttons
+The current `SwipeActionButtonBar.tsx` has:
+- Glass tray container behind buttons (lines 360-375) — **remove entirely**
+- Each button has `backgroundColor`, `backdropFilter`, `border` — **remove all**
+- Replace with **pure icon-only design**: just the colored icon floating with expressive shadows and glow
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### 2. New "Phantom Icon" Aesthetic
+Each button becomes a **borderless, backgroundless icon** with:
+- **Deep colored drop-shadow** (e.g., `0 4px 20px rgba(255,107,53,0.5)` for Like) — gives depth without a frame
+- **Radial glow pulse** on tap — a brief colored light bloom behind the icon that fades
+- **Spring scale compression** on press (keep existing `TAP_SCALE: 0.87`)
+- **Icon stroke weight increase** for visual authority (2.5-3.0 strokeWidth)
+- Large icons get slightly bigger (`34px`) for dominance without a container
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### 3. Liquid Tap Effect (replaces ripple)
+Instead of the current ripple-inside-circle effect:
+- On tap, a **soft radial glow expands outward** from the icon center and fades — like a light burst
+- Color-matched to each button's identity color
+- Duration: 400ms, ease-out
 
-### 2. Profile Photo Already Shows in Top-Left
+### 4. PWA & Performance Smoothness Pass
+- Remove `backdropFilter: blur(28px)` from all 5 buttons — this is the single biggest PWA performance killer (5 blur layers per frame)
+- Remove the tray's `backdropFilter: blur(12px)` — another expensive layer
+- Total: **6 blur layers eliminated** from the most interactive part of the UI
+- Keep `transform: translateZ(0)` for GPU compositing
+- Result: significantly smoother swipe + button interactions in PWA mode
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### Files Modified
+- `src/components/SwipeActionButtonBar.tsx` — full redesign of ActionButton and container
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
-
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+### What Stays the Same
+- Button order: Undo, Dislike, Share, Like, Message
+- Sizing hierarchy: large for Like/Dislike, small for Undo/Share/Message
+- Haptic feedback on tap
+- Icon choices (Flame, ThumbsDown, Share2, RotateCcw, MessageCircle)
+- Spring animation configs
+- All click handlers and props interface
 
