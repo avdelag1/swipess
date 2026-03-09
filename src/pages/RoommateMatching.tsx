@@ -98,7 +98,7 @@ export default function RoommateMatching() {
     const target = candidates[currentIndex];
     setSwipeDirection(direction);
 
-    await supabase.from('roommate_matches' as any).insert({
+    await supabase.from('roommate_matches').insert({
       user_id: user.id,
       target_user_id: target.user_id,
       direction,
