@@ -577,7 +577,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           rotate: cardRotate,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
-          willChange: 'transform, opacity',
+          willChange: 'auto',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'none',
