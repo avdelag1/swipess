@@ -127,7 +127,7 @@ const LandingView = memo(({
           ].map(({ icon: Icon, label }) => (
             <div
               key={label}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-black/50 rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
             >
               <Icon className="w-3.5 h-3.5 text-white/90" />
               <span className="text-white/90 text-xs font-medium">{label}</span>
