@@ -206,8 +206,8 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                               className={cn(
                                 "group cursor-pointer transition-all duration-200 border overflow-hidden hover:shadow-md hover:-translate-y-0.5",
                                 !notification.read
-                                  ? isDark ? 'bg-gradient-to-r from-primary/5 via-card to-card border-primary/20' : 'bg-gradient-to-r from-primary/5 via-white to-white border-primary/20 shadow-sm'
-                                  : isDark ? 'hover:bg-accent/10 border-border/50 bg-card' : 'hover:bg-gray-50 border-gray-100 bg-white'
+                                  ? 'bg-gradient-to-r from-primary/5 via-card to-card border-primary/20'
+                                  : 'hover:bg-accent/10 border-border/50 bg-card'
                               )}
                               onClick={() => {
                                 handleNotificationClick(notification);
