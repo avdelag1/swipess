@@ -70,12 +70,10 @@ html.pwa-mode .animate-out {
 /*  Instagram/Tinder-level performance for React PWA                   */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* FIX #1: Touch Thread Optimization - Never block touch events */
+/* Global performance defaults */
 * {
     /* Remove iOS tap highlight */
     -webkit-tap-highlight-color: transparent;
-    /* Prevent touch delay on all interactive elements */
-    touch-action: manipulation;
 }
 
 /* FIX #2: GPU Acceleration - Force hardware acceleration on key elements */
