@@ -8,7 +8,7 @@ import { calculateListingMatch } from './matchCalculators';
 
 // Worker fields added for complete card display
 const SWIPE_CARD_FIELDS = `
-  id, title, description, price, images, city, neighborhood, beds, baths,
+  id, title, description, price, images, image_url, city, neighborhood, beds, baths,
   square_footage, category, listing_type, property_type, vehicle_brand,
   vehicle_model, year, mileage, amenities, pet_friendly, furnished,
   owner_id, created_at, currency,
