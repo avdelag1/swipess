@@ -145,7 +145,7 @@ export function BlueCassette({ isPlaying, stationName, frequency, genre }: BlueC
 if (typeof document !== 'undefined' && !document.getElementById('cassette-fonts')) {
     const style = document.createElement('style');
     style.id = 'cassette-fonts';
-    style.innerHTML = `
+    style.textContent = `
     @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
     .font-handwriting { font-family: 'Permanent Marker', cursive; }
   `;

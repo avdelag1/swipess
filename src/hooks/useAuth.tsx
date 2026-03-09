@@ -139,7 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Email user profile setup (e.g. after email confirmation click)
             // Ensures user_roles, client/owner profiles, and onboarding are set up
             processedUserIdRef.current = session.user.id;
-            const metadataRole = (session.user.user_metadata?.role as 'client' | 'owner') || 'client';
+            const rawRole = session.user.user_metadata?.role;
+          const metadataRole: 'client' | 'owner' = (rawRole === 'client' || rawRole === 'owner') ? rawRole : 'client';
             createProfileIfMissing(session.user, metadataRole).catch((err) => {
               logger.error('[Auth] Email user profile setup failed:', err);
             });
@@ -309,17 +310,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // Invalidate role query cache to ensure fresh data
-        queryClient.invalidateQueries({ queryKey: ['user-role', data.user.id] });
-
-        // Brief wait for cache invalidation to propagate
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Invalidate role query cache and await completion before navigating
+        await queryClient.invalidateQueries({ queryKey: ['user-role', data.user.id] });
+        await queryClient.invalidateQueries();
 
         // Determine dashboard path from role
         const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
-
-        // AUTO-REFRESH: Invalidate all queries to force fresh data
-        queryClient.invalidateQueries();
 
         toast.success("Account Created!", { description: "Loading your dashboard..." });
 

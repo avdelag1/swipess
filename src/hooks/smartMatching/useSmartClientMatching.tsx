@@ -133,7 +133,7 @@ export function useSmartClientMatching(
 
                 if (swipedProfileIds.size > 0) {
                     const idsToExclude = Array.from(swipedProfileIds);
-                    profileQuery = profileQuery.not('user_id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
+                    profileQuery = profileQuery.not('user_id', 'in', `(${idsToExclude.join(',')})`);
                 }
 
                 const start = page * pageSize;

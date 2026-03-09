@@ -70,12 +70,12 @@ Return ONLY valid JSON: {"safe": true/false, "reasons": ["reason1"], "confidence
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
 
-    // Parse the AI response
+    // Parse the AI response — use outermost braces to handle nested JSON correctly
     try {
-      // Extract JSON from potential markdown code blocks
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const verdict = JSON.parse(jsonMatch[0]);
+      const firstBrace = content.indexOf('{');
+      const lastBrace = content.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace > firstBrace) {
+        const verdict = JSON.parse(content.slice(firstBrace, lastBrace + 1));
         return new Response(JSON.stringify(verdict), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });

@@ -28,8 +28,11 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
 
     // Price range matching with 20% flexibility
     // Support both DB column names (price_min/price_max) and legacy aliases (min_price/max_price)
-    const priceMin = preferences.price_min ?? (preferences as any).min_price;
-    const priceMax = preferences.price_max ?? (preferences as any).max_price;
+    // Support legacy DB column aliases (min_price/max_price) alongside current (price_min/price_max)
+    type PrefsWithLegacy = typeof preferences & { min_price?: number; max_price?: number };
+    const prefsLegacy = preferences as PrefsWithLegacy;
+    const priceMin = preferences.price_min ?? prefsLegacy.min_price;
+    const priceMax = preferences.price_max ?? prefsLegacy.max_price;
     if (priceMin && priceMax) {
         const priceFlexibility = 0.2;
         const adjustedMinPrice = priceMin * (1 - priceFlexibility);

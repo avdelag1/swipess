@@ -124,7 +124,7 @@ export function useSmartListingMatching(
 
                 if (swipedListingIds.size > 0) {
                     const idsToExclude = Array.from(swipedListingIds);
-                    query = query.not('id', 'in', `(${idsToExclude.map(id => `"${id}"`).join(',')})`);
+                    query = query.not('id', 'in', `(${idsToExclude.join(',')})`);
                 }
 
                 query = query.order('created_at', { ascending: false });
