@@ -22,7 +22,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
-import { useParallaxStore } from '@/state/parallaxStore';
+
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 
