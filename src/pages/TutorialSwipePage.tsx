@@ -288,7 +288,7 @@ function SwipeCard({ stackIndex, children, onSwipe }: {
           <motion.div style={{ opacity: likeOpacity }}
             className="absolute top-7 left-5 z-30 pointer-events-none">
             <div className="border-[3px] border-green-400 rounded-xl px-3 py-1 -rotate-12"
-              style={{ backdropFilter: 'blur(8px)', background: 'rgba(0,200,80,0.12)' }}>
+              style={{ background: 'rgba(0,200,80,0.18)' }}>
               <span className="text-green-400 font-black text-xl tracking-widest drop-shadow-lg">LIKE</span>
             </div>
           </motion.div>
