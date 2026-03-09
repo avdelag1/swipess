@@ -196,8 +196,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const renderOwnerFilters = () => {
     return (
       <div className={cn(
-        "backdrop-blur-xl border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
-        isDark ? "bg-card/95 border-border/20" : "bg-card/95 border-border/30"
+        "border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
+        isDark ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"
       )}>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
