@@ -326,24 +326,6 @@
 /*  8. UTILITY CLASSES                                                   */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-/* GPU acceleration for animations */
-.gpu-accelerated {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  8. UTILITY CLASSES                                                   */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* Soft shadows */
-.shadow-soft-sm {
-  box-shadow: var(--shadow-soft-sm);
-}
-
-.shadow-soft-md {
-  box-shadow: var(--shadow-soft-md);
-}
 
 .shadow-soft-lg {
   box-shadow: var(--shadow-soft-lg);
@@ -351,72 +333,6 @@
 
 .shadow-glow-accent {
   box-shadow: var(--shadow-glow-accent);
-}
-
-/* Spacing utilities */
-.space-xs {
-  margin: var(--space-xs);
-}
-
-.space-sm {
-  margin: var(--space-sm);
-}
-
-.space-md {
-  margin: var(--space-md);
-}
-
-.space-lg {
-  margin: var(--space-lg);
-}
-
-.space-xl {
-  margin: var(--space-xl);
-}
-
-.space-2xl {
-  margin: var(--space-2xl);
-}
-
-.space-3xl {
-  margin: var(--space-3xl);
-}
-
-.space-4xl {
-  margin: var(--space-4xl);
-}
-
-/* Padding utilities */
-.p-xs {
-  padding: var(--space-xs);
-}
-
-.p-sm {
-  padding: var(--space-sm);
-}
-
-.p-md {
-  padding: var(--space-md);
-}
-
-.p-lg {
-  padding: var(--space-lg);
-}
-
-.p-xl {
-  padding: var(--space-xl);
-}
-
-.p-2xl {
-  padding: var(--space-2xl);
-}
-
-.p-3xl {
-  padding: var(--space-3xl);
-}
-
-.p-4xl {
-  padding: var(--space-4xl);
 }
 
 /* Enhanced border radius */
