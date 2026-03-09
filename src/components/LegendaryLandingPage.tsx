@@ -107,9 +107,10 @@ const LandingView = memo(({
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[96vw] max-w-[680px] sm:max-w-[820px] md:max-w-[960px] h-auto object-contain mx-auto mix-blend-screen opacity-70 transition-opacity duration-700 hover:opacity-100"
+            className="w-[70vw] max-w-[420px] sm:max-w-[520px] md:max-w-[600px] h-auto object-contain mx-auto transition-opacity duration-700"
             style={{
-              filter: 'drop-shadow(0 0 30px rgba(255, 60, 0, 0.4)) contrast(1.1) brightness(1.2)',
+              mixBlendMode: 'screen',
+              filter: 'brightness(1.15) saturate(1.2)',
             }}
           />
         </div>
