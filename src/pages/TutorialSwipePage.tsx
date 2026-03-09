@@ -295,7 +295,7 @@ function SwipeCard({ stackIndex, children, onSwipe }: {
           <motion.div style={{ opacity: passOpacity }}
             className="absolute top-7 right-5 z-30 pointer-events-none">
             <div className="border-[3px] border-red-400 rounded-xl px-3 py-1 rotate-12"
-              style={{ backdropFilter: 'blur(8px)', background: 'rgba(255,60,60,0.12)' }}>
+              style={{ background: 'rgba(255,60,60,0.18)' }}>
               <span className="text-red-400 font-black text-xl tracking-widest drop-shadow-lg">PASS</span>
             </div>
           </motion.div>
