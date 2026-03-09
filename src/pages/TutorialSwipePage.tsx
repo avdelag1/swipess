@@ -974,7 +974,7 @@ export default function TutorialSwipePage() {
                 className="flex items-center gap-3 px-4 py-3 rounded-[20px]"
                 style={{
                   background: 'rgba(245,158,11,0.10)',
-                  backdropFilter: 'blur(20px) saturate(160%)',
+                  backdropFilter: 'none',
                   border: '1px solid rgba(245,158,11,0.28)',
                   boxShadow: 'inset 0 1px 0 rgba(255,220,80,0.14)',
                 }}
