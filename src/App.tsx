@@ -30,8 +30,6 @@ import { useProfileAutoSync, useEnsureSpecializedProfile } from "@/hooks/useProf
 // SPEED OF LIGHT: Persistent layout wrapper - mounted ONCE, never remounts
 import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayout";
 
-// DISABLED: DepthParallaxBackground was causing performance issues
-// import { DepthParallaxBackground } from "@/components/DepthParallaxBackground";
 
 // Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
 import { Toaster } from "@/components/ui/toaster";
