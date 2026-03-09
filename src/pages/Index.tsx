@@ -170,7 +170,7 @@ const Index = () => {
           .select('active_mode')
           .eq('user_id', user.id)
           .maybeSingle();
-        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000));
+        const timeoutPromise = new Promise<null>((resolve) => setTimeout(() => resolve(null), 1500));
         const result = await Promise.race([dbPromise, timeoutPromise]);
 
         if (result && 'data' in result && (result.data?.active_mode === 'client' || result.data?.active_mode === 'owner')) {
@@ -251,7 +251,7 @@ const Index = () => {
         logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
         navigate(targetPath, { replace: true });
       }
-    }, 4000);
+    }, 2000);
 
     performRedirection();
     return () => clearTimeout(safetyTimeout);
@@ -267,7 +267,7 @@ const Index = () => {
 
   // Escape hatch: show a recovery UI if loading is stuck beyond 6 seconds
   useEffect(() => {
-    if (!user || !initialized || hasNavigated.current) return;
+    if (!user || !initialized) return;
     const timer = setTimeout(() => setShowEscapeHatch(true), 6000);
     return () => clearTimeout(timer);
   }, [user, initialized]);
@@ -340,7 +340,21 @@ const Index = () => {
   // Caso final (redirigiendo)
   return (
     <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-      <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      {showEscapeHatch ? (
+        <div className="text-center space-y-4 p-4 max-w-sm">
+          <div className="text-orange-500 text-3xl">⏳</div>
+          <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
+          <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+          <button
+            onClick={() => { window.location.href = '/?clear-cache=1'; }}
+            className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
+          >
+            Refresh & Continue
+          </button>
+        </div>
+      ) : (
+        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      )}
     </div>
   );
 };
