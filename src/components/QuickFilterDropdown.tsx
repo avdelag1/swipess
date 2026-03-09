@@ -288,7 +288,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         {/* Category Options - always inline (no flyout) */}
         <div className="py-2 max-h-[60vh] overflow-y-auto">
           {categoryOptionBase.map((category, index) => {
-            const gradientClass = getCategoryGradientClass(category.id, isDark);
+            const isActive = categories.includes(category.id);
             return (
             <motion.div
               key={category.id}
@@ -301,25 +301,26 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 onClick={() => handleCategoryClick(category.id)}
                 className={cn(
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
-                  categories.includes(category.id)
-                    ? cn('bg-gradient-to-r', gradientClass, 'text-white')
+                  isActive
+                    ? cn('bg-gradient-to-r', category.color, 'text-white')
                     : 'text-foreground hover:bg-white/10'
                 )}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className={cn(
                     'p-1.5 sm:p-2 rounded-lg',
-                    categories.includes(category.id)
+                    isActive
                       ? 'bg-white/20 text-white'
-                      : 'bg-white/5 text-foreground'
+                      : cn('bg-white/5', category.inactiveColor)
                   )}>
                     {category.icon}
                   </span>
-                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
+                  <span className={cn("font-medium text-sm sm:text-base", !isActive && category.inactiveColor)}>{category.label}</span>
                 </div>
                 {category.hasSubOptions && (
                   <ChevronRight strokeWidth={3} className={cn(
-                    "w-5 h-5 text-muted-foreground transition-transform",
+                    "w-5 h-5 transition-transform",
+                    isActive ? "text-white/70" : "text-muted-foreground",
                     clickedCategory === category.id && "rotate-90"
                   )} />
                 )}
