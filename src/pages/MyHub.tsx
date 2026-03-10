@@ -24,7 +24,7 @@ export default function MyHub() {
     // Connect to the global filter state
     const filterVersion = useFilterStore((s) => s.filterVersion);
     const getListingFilters = useFilterStore((s) => s.getListingFilters);
-    const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
+    const storeFilters = useMemo(() => getListingFilters() as any, [filterVersion]);
 
     return (
         <div className="w-full min-h-screen bg-background pb-32 overflow-x-hidden">

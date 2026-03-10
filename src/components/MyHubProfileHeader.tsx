@@ -28,10 +28,10 @@ export function MyHubProfileHeader() {
 
     // Combine data for a unified "Presentable" Profile
     const profile = {
-        name: clientProfile?.name || ownerProfile?.full_name || user?.email?.split('@')[0] || 'Explorer',
+        name: clientProfile?.name || ownerProfile?.business_name || user?.email?.split('@')[0] || 'Explorer',
         avatar: clientProfile?.profile_images?.[0] || ownerProfile?.profile_images?.[0],
-        bio: clientProfile?.bio || ownerProfile?.bio || 'No bio set',
-        location: clientProfile?.location || ownerProfile?.location || 'Everywhere',
+        bio: clientProfile?.bio || ownerProfile?.business_description || 'No bio set',
+        location: clientProfile?.city || ownerProfile?.business_location || 'Everywhere',
         completion: calculateCompletion(clientProfile, ownerProfile),
     };
 

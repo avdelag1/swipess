@@ -6,7 +6,8 @@ import {
     Bike,
     Briefcase,
     Search,
-    Check
+    Check,
+    Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
@@ -14,12 +15,12 @@ import { QuickFilterCategory } from '@/types/filters';
 
 const categories: { id: QuickFilterCategory; label: string; icon: any; color: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-blue-500 to-cyan-400' },
-    { id: 'moto', label: 'Moto', icon: Zap, color: 'from-amber-500 to-orange-400' },
+    { id: 'motorcycle', label: 'Moto', icon: Zap, color: 'from-amber-500 to-orange-400' },
     { id: 'bicycle', label: 'Bicycle', icon: Bike, color: 'from-emerald-500 to-teal-400' },
     { id: 'services', label: 'Services', icon: Briefcase, color: 'from-purple-500 to-pink-400' },
 ];
 
-import { Zap } from 'lucide-react';
+
 
 export function MyHubQuickFilters() {
     const activeCategory = useFilterStore(s => s.activeCategory);
@@ -50,7 +51,7 @@ export function MyHubQuickFilters() {
                             key={cat.id}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => {
-                                haptics.selection();
+                                haptics.select();
                                 setActiveCategory(isActive ? null : cat.id);
                             }}
                             className={cn(
