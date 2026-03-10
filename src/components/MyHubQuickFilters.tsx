@@ -20,7 +20,7 @@ const categories: { id: QuickFilterCategory; label: string; icon: any; color: st
     { id: 'services', label: 'Services', icon: Briefcase, color: 'from-purple-500 to-pink-400' },
 ];
 
-import { Zap } from 'lucide-react';
+
 
 export function MyHubQuickFilters() {
     const activeCategory = useFilterStore(s => s.activeCategory);
