@@ -37,6 +37,7 @@ export function useOwnerClientPreferences() {
 
   const { data: preferences, isLoading, error } = useQuery({
     queryKey: ['owner-client-preferences'],
+    retry: false,
     queryFn: async () => {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError) {
@@ -52,7 +53,9 @@ export function useOwnerClientPreferences() {
         .maybeSingle();
 
       if (error) {
-        if (import.meta.env.DEV) {
+        // Suppress 404 (table not provisioned) — expected before migration runs
+        const isTableMissing = (error as any).status === 404 || error.code === 'PGRST116';
+        if (import.meta.env.DEV && !isTableMissing) {
           logger.error('Error fetching owner client preferences:', error);
         }
         return null;
