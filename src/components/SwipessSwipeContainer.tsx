@@ -35,188 +35,21 @@ import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchE
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
+import {
+  getActiveCategoryInfo,
+  useDebounce,
+  useNavigationGuard,
+  PrefetchScheduler
+} from './swipe/SwipeUtils';
+import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
+import { AllCaughtUpView, ErrorStateView, EmptyStateView } from './swipe/SwipeStates';
+import { MatchedListing as Listing } from '@/hooks/smartMatching/types';
 
-// Custom motorcycle icon with configurable stroke
-const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5" cy="17" r="3" />
-    <circle cx="19" cy="17" r="3" />
-    <path d="M9 17h6" />
-    <path d="M19 17l-2-5h-4l-3-4H6l1 4" />
-    <path d="M14 7h3l2 5" />
-  </svg>
-);
-
-// Category configuration for dynamic empty states
-const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
-  property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
-  moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-emerald-500' },
-  services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
-  worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
-};
-
-// Helper to get the active category display info from filters
-// Accepts optional storeCategory (directly from Zustand) for guaranteed sync with quick filters
-const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string | null) => {
-  try {
-    // PRIORITY 1: Direct store category (most reliable - always in sync with quick filter UI)
-    if (storeCategory && typeof storeCategory === 'string' && categoryConfig[storeCategory]) {
-      return categoryConfig[storeCategory];
-    }
-
-    // Safety: Handle null/undefined filters
-    if (!filters) return categoryConfig.property;
-
-    // Check for activeUiCategory first (original UI category before DB mapping)
-    const activeUiCategory = (filters as any).activeUiCategory;
-    if (activeUiCategory && typeof activeUiCategory === 'string' && categoryConfig[activeUiCategory]) {
-      return categoryConfig[activeUiCategory];
-    }
-
-    // Check for activeCategory string first (from AdvancedFilters)
-    const activeCategory = (filters as any).activeCategory;
-    if (activeCategory && typeof activeCategory === 'string' && categoryConfig[activeCategory]) {
-      return categoryConfig[activeCategory];
-    }
-
-    // Check for categories array (from quick filters) - may be DB-mapped names
-    const categories = filters?.categories;
-    if (Array.isArray(categories) && categories.length > 0) {
-      const cat = categories[0] as any;
-      if (typeof cat === 'string') {
-        // Direct match
-        if (categoryConfig[cat]) {
-          return categoryConfig[cat];
-        }
-        // Handle DB-mapped names back to UI names
-        if (cat === 'worker' && categoryConfig['services']) {
-          return categoryConfig['services'];
-        }
-        // Handle common variations/misspellings
-        const normalized = cat.toLowerCase().replace(/s$/, ''); // Remove trailing 's'
-        if (categoryConfig[normalized]) {
-          return categoryConfig[normalized];
-        }
-        // Map 'services' -> 'worker' (common mapping)
-        if (cat === 'services' && categoryConfig['worker']) {
-          return categoryConfig['worker'];
-        }
-        // Map 'moto' <-> 'motorcycle'
-        if ((cat === 'moto' || cat === 'motorcycle')) {
-          return categoryConfig['motorcycle'];
-        }
-      }
-    }
-
-    // Check for single category
-    const category = filters?.category;
-    if (category && typeof category === 'string' && categoryConfig[category]) {
-      return categoryConfig[category];
-    }
-
-    // Default to properties (no category filter selected)
-    return categoryConfig.property;
-  } catch (error) {
-    logger.error('[SwipessSwipeContainer] Error in getActiveCategoryInfo:', error);
-    return categoryConfig.property;
-  }
-};
-
-// Debounce utility for preventing rapid-fire actions
-function useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const callbackRef = useRef(callback);
-
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  return useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      callbackRef.current(...args);
-    }, delay);
-  }, [delay]) as T;
-}
-
-// Navigation guard to prevent double-taps
-function useNavigationGuard() {
-  const isNavigatingRef = useRef(false);
-  const lastNavigationRef = useRef(0);
-
-  const canNavigate = useCallback(() => {
-    const now = Date.now();
-    if (isNavigatingRef.current || now - lastNavigationRef.current < 300) {
-      return false;
-    }
-    return true;
-  }, []);
-
-  const startNavigation = useCallback(() => {
-    isNavigatingRef.current = true;
-    lastNavigationRef.current = Date.now();
-  }, []);
-
-  const endNavigation = useCallback(() => {
-    isNavigatingRef.current = false;
-  }, []);
-
-  return { canNavigate, startNavigation, endNavigation };
-}
-
-// =============================================================================
-// PERF: Throttled prefetch scheduler - prevents competing with current decode
-// Uses requestIdleCallback to ensure prefetch only runs when browser is idle
-// =============================================================================
-class PrefetchScheduler {
-  private scheduled = false;
-  private callback: (() => void) | null = null;
-  private idleHandle: number | null = null;
-
-  schedule(callback: () => void, delayMs = 300): void {
-    // Cancel any pending prefetch
-    this.cancel();
-
-    this.callback = callback;
-    this.scheduled = true;
-
-    // Wait for a brief delay to let current image decode complete
-    setTimeout(() => {
-      if (!this.scheduled || !this.callback) return;
-
-      if ('requestIdleCallback' in window) {
-        this.idleHandle = (window as any).requestIdleCallback(() => {
-          if (this.callback) this.callback();
-          this.scheduled = false;
-        }, { timeout: 2000 });
-      } else {
-        this.callback();
-        this.scheduled = false;
-      }
-    }, delayMs);
-  }
-
-  cancel(): void {
-    this.scheduled = false;
-    this.callback = null;
-    if (this.idleHandle !== null && 'cancelIdleCallback' in window) {
-      (window as any).cancelIdleCallback(this.idleHandle);
-      this.idleHandle = null;
-    }
-  }
-}
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
@@ -241,7 +74,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const [isRefreshMode, setIsRefreshMode] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<any | null>(null);
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
 
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
@@ -274,7 +107,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // This is the key to "Tinder-level" feel: freeze React during the swipe gesture
   // =============================================================================
   interface PendingSwipe {
-    listing: any;
+    listing: Listing;
     direction: 'left' | 'right';
     newIndex: number;
   }
@@ -290,10 +123,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     return [];
   };
 
-  // CONSTANT-TIME SWIPE DECK: Use refs for queue management (no re-renders on swipe)
   // Initialize synchronously from persisted state to prevent dark/empty cards
   // PERF: Use getState() for initial values - no subscription needed
-  const deckQueueRef = useRef<any[]>(getInitialDeck());
+  const deckQueueRef = useRef<Listing[]>(getInitialDeck());
   const currentIndexRef = useRef(useSwipeDeckStore.getState().clientDeck.currentIndex);
   const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDeck.swipedIds));
   const initializedRef = useRef(deckQueueRef.current.length > 0);
@@ -660,8 +492,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       setDeckLength(deckQueueRef.current.length);
 
       // PERSIST: Save to store and session for navigation survival
-      setClientDeck(deckQueueRef.current, true);
-      persistDeckToSession('client', 'listings', deckQueueRef.current);
+      setClientDeck(deckQueueRef.current as any, true);
+      persistDeckToSession('client', 'listings', deckQueueRef.current as any);
 
       // PERF: Mark deck as ready for instant return on re-navigation
       // This ensures that when user returns to dashboard, we skip all initialization
@@ -775,12 +607,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // This prevents sessionStorage from blocking the main thread
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(() => {
-        persistDeckToSession('client', 'listings', deckQueueRef.current);
+        persistDeckToSession('client', 'listings', deckQueueRef.current as any);
       }, { timeout: 2000 });
     } else {
       // Fallback: defer to next frame at minimum
       setTimeout(() => {
-        persistDeckToSession('client', 'listings', deckQueueRef.current);
+        persistDeckToSession('client', 'listings', deckQueueRef.current as any);
       }, 0);
     }
 
@@ -1066,309 +898,47 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   const progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
-  // Check if we have hydrated data (from store/session) - prevents blank deck flash
-  // isReady means we've fully initialized at least once - skip loading UI on return
-  // CRITICAL FIX: When filters change, deck is reset, so check if we're actually loading new data
-  const hasHydratedData = (isClientHydrated() || isClientReady() || deckQueue.length > 0) && !isLoading;
 
-  // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
-  // Once hydrated or ready, never show full skeleton again (use placeholderData from query)
-  // PERF: GPU-accelerated skeleton to match card styling
+  const currentCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
+
+  // STABLE LOADING SHELL: GPU-accelerated skeleton while fetching initial deck
+  const hasHydratedData = isClientHydrated && deckQueue.length > 0;
   if (!hasHydratedData && isLoading) {
-    return (
-      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3">
-        <div className="relative flex-1 w-full">
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{
-              transform: 'translateZ(0)',
-              contain: 'paint',
-            }}
-          >
-            {/* Base gradient - matches TinderSwipeCard skeleton */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)',
-              }}
-            />
-            {/* Animated shimmer - GPU accelerated */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-                willChange: 'background-position',
-                transform: 'translateZ(0)',
-              }}
-            />
-            {/* Story dots placeholder */}
-            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/30" />
-              ))}
-            </div>
-            {/* Bottom sheet skeleton */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 rounded-t-[24px] p-4 pt-6">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-              </div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 space-y-2">
-                  <div className="h-5 w-3/4 bg-white/20 rounded-lg" />
-                  <div className="h-4 w-1/2 bg-white/15 rounded-lg" />
-                </div>
-                <div className="text-right space-y-1">
-                  <div className="h-6 w-20 bg-white/20 rounded-lg" />
-                  <div className="h-3 w-12 bg-white/15 rounded-lg ml-auto" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="h-4 w-12 bg-white/15 rounded-full" />
-                <div className="h-4 w-12 bg-white/15 rounded-full" />
-                <div className="h-4 w-16 bg-white/15 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Action buttons skeleton */}
-        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-          </div>
-        </div>
-      </div>
-    );
+    return <SwipeLoadingSkeleton />;
   }
 
-  // CRITICAL FIX: Show "All Caught Up" when user has swiped through cards
-  // This must come BEFORE error check to prevent errors from showing when deck exhausted
-  // Check if currentIndex > 0 (user has swiped at least once) regardless of deck state
-  if (currentIndex > 0 && currentIndex >= deckQueue.length) {
-    const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    const categoryLabel = String(categoryInfo?.plural || 'Listings');
-    const categoryLower = categoryLabel.toLowerCase();
-    const CategoryIcon = categoryInfo?.icon || Home;
-    const iconColor = categoryInfo?.color || 'text-primary';
-
-    // Generate specific message based on category
-    const getCaughtUpMessage = () => {
-      if (categoryLower === 'properties') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all available properties. Check back later for new opportunities!",
-          cta: 'Discover More Properties'
-        };
-      }
-      if (categoryLower === 'motorcycles') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all motorcycles. Check back later for new listings!",
-          cta: 'Discover More Motorcycles'
-        };
-      }
-      if (categoryLower === 'bicycles') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all bicycles. New bikes are added regularly!",
-          cta: 'Discover More Bicycles'
-        };
-      }
-      if (categoryLower === 'workers' || categoryLower === 'services') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all available workers. Check back later for new service providers!",
-          cta: 'Discover More Workers'
-        };
-      }
-      // Generic fallback
-      return {
-        title: 'All Caught Up!',
-        description: `You've seen all available ${categoryLower}. Check back later for new ${categoryLower}!`,
-        cta: `Discover More ${categoryLabel}`
-      };
-    };
-
-    const { title, description, cta } = getCaughtUpMessage();
-
+  // All caught up state - shown when deck is exhausted (already seen some cards)
+  if (currentIndex > 0 && currentIndex >= deckQueue.length && !isLoading) {
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="text-center space-y-6 p-8"
-        >
-          {/* Category-specific icon with heartbeat pulse animation */}
-          <div className="flex justify-center">
-            <motion.div
-              animate={isRefreshing ? { rotate: 360 } : { scale: [1, 1.15, 1, 1.1, 1] }}
-              transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
-            >
-              <CategoryIcon className="w-10 h-10" />
-            </motion.div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-foreground">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-              {description}
-            </p>
-          </div>
-          <div className="flex flex-col gap-3">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-base"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} />
-                ) : (
-                  <RefreshCw className="w-5 h-5" />
-                )}
-                {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
-              </Button>
-            </motion.div>
-            <p className="text-xs text-muted-foreground">New {categoryLower} are added daily</p>
-          </div>
-        </motion.div>
-      </div>
+      <AllCaughtUpView
+        categoryInfo={currentCategoryInfo}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+      />
     );
   }
 
   // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
-  // FIX: Only show error on initial load (currentIndex === 0), never after swipe exhaustion
   if (error && currentIndex === 0 && deckQueue.length === 0) {
-    const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    // FIX: Ensure categoryLabel is always a string, never an object
-    const categoryLabel = String(categoryInfo?.plural || 'listings');
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
-          <div className="text-6xl mb-4">:(</div>
-          <h3 className="text-xl font-bold mb-2">Oops! Something went wrong</h3>
-          <p className="text-muted-foreground mb-4">Let's try again to find some {categoryLabel.toLowerCase()}.</p>
-          <Button onClick={handleRefresh} variant="outline" className="gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Try Again
-          </Button>
-        </Card>
-      </div>
+      <ErrorStateView
+        categoryInfo={currentCategoryInfo}
+        onRefresh={handleRefresh}
+      />
     );
   }
 
-  // Empty state - dynamic based on category (no cards fetched yet)
-  if (deckQueue.length === 0) {
-    const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    const categoryLabel = String(categoryInfo?.plural || 'Listings');
-    const categoryLower = categoryLabel.toLowerCase();
-    const CategoryIcon = categoryInfo?.icon || Home;
-    const iconColor = categoryInfo?.color || 'text-primary';
-
-    // Generate specific empty message based on category - Action-oriented titles
-    const getEmptyMessage = () => {
-      if (categoryLower === 'properties') {
-        return {
-          title: 'Refresh to discover more Properties',
-          description: 'New opportunities appear every day. Keep swiping!'
-        };
-      }
-      if (categoryLower === 'motorcycles') {
-        return {
-          title: 'Refresh to find more Motorcycles',
-          description: 'New bikes listed daily. Stay tuned!'
-        };
-      }
-      if (categoryLower === 'bicycles') {
-        return {
-          title: 'Refresh to discover more Bicycles',
-          description: 'Fresh rides added regularly. Keep checking!'
-        };
-      }
-      if (categoryLower === 'workers' || categoryLower === 'services') {
-        return {
-          title: 'Refresh to find more Workers',
-          description: 'New professionals join every day.'
-        };
-      }
-      // Generic fallback
-      return {
-        title: `Refresh to discover more ${categoryLabel}`,
-        description: `New ${categoryLabel.toLowerCase()} added regularly.`
-      };
-    };
-
-    const { title, description } = getEmptyMessage();
-
+  // Empty state - dynamic based on category (no cards found for filters)
+  if (deckQueue.length === 0 && !isLoading) {
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="text-center space-y-6 p-8"
-        >
-          {/* Category-specific icon with heartbeat pulse animation */}
-          <div className="flex justify-center">
-            <motion.div
-              animate={{ scale: [1, 1.15, 1, 1.1, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-[3px] border-current flex items-center justify-center ${iconColor}`}
-            >
-              <CategoryIcon className="w-10 h-10" strokeWidth={4} />
-            </motion.div>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
-              {description}
-            </p>
-          </div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="gap-2 rounded-full px-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg font-black uppercase tracking-widest text-xs"
-            >
-              {isRefreshing ? (
-                <RadarSearchIcon size={18} isActive={true} />
-              ) : (
-                <RefreshCw className="w-4 h-4" strokeWidth={4} />
-              )}
-              {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
-            </Button>
-          </motion.div>
-
-          {/* Tutorial shortcut — lets new users explore demo cards while waiting */}
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/tutorial')}
-              className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-black uppercase tracking-widest text-xs"
-            >
-              <Sparkles className="w-4 h-4" strokeWidth={4} />
-              Try Tutorial Cards
-            </Button>
-          </motion.div>
-        </motion.div>
-      </div>
+      <EmptyStateView
+        categoryInfo={currentCategoryInfo}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        onTutorial={() => navigate('/tutorial')}
+      />
     );
   }
-
-  // Get current category info for the page title
-  const activeCategoryInfo = getActiveCategoryInfo(filters);
-  const activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
-  const ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
-  const activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
 
   // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
   return (

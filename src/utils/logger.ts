@@ -1,15 +1,11 @@
 /**
- * Logger utility for conditional logging based on environment
- * Replaces direct console.log calls throughout the application
+ * Unified Logger utility for conditional logging based on environment
+ * Replaces both logger.ts and prodLogger.ts
  *
- * Usage:
- *   import { logger } from '@/utils/logger';
- *   logger.log('Debug message');
- *   logger.warn('Warning message');
- *   logger.error('Error message');
+ * Automatically disables non-error logs in production while keeping errors visible.
  */
 
-const isDevelopment = import.meta.env.DEV;
+const isDev = import.meta.env.DEV;
 
 type LogLevel = 'log' | 'warn' | 'error' | 'info' | 'debug';
 
@@ -29,8 +25,7 @@ class Logger {
    * Log general debug messages (only in development)
    */
   log(...args: unknown[]): void {
-    if (isDevelopment) {
-      // eslint-disable-next-line no-console
+    if (isDev) {
       console.log(...args);
     }
   }
@@ -39,8 +34,7 @@ class Logger {
    * Log informational messages (only in development)
    */
   info(...args: unknown[]): void {
-    if (isDevelopment) {
-      // eslint-disable-next-line no-console
+    if (isDev) {
       console.info(...args);
     }
   }
@@ -49,16 +43,14 @@ class Logger {
    * Log debug messages with context (only in development)
    */
   debug(message: string, data?: unknown, options?: LoggerOptions): void {
-    if (isDevelopment) {
+    if (isDev) {
       const formatted = options?.timestamp
         ? this.formatMessage('debug', message, options.context)
         : message;
 
       if (data) {
-        // eslint-disable-next-line no-console
         console.debug(formatted, data);
       } else {
-        // eslint-disable-next-line no-console
         console.debug(formatted);
       }
     }
@@ -66,53 +58,88 @@ class Logger {
 
   /**
    * Log warning messages (only in development)
-   * Warnings should be reviewed but don't break functionality
    */
   warn(...args: unknown[]): void {
-    if (isDevelopment) {
-      // eslint-disable-next-line no-console
+    if (isDev) {
       console.warn(...args);
     }
   }
 
   /**
    * Log error messages (always logged, even in production)
-   * Errors indicate something went wrong and should be tracked
    */
   error(...args: any[]): void {
     console.error(...args);
   }
 
+  // Compatibility methods for prodLogger.ts
+  group = isDev ? console.group : () => { };
+  groupEnd = isDev ? console.groupEnd : () => { };
+  table = isDev ? console.table : () => { };
+  time = isDev ? console.time : () => { };
+  timeEnd = isDev ? console.timeEnd : () => { };
+  trace = isDev ? console.trace : () => { };
+
   /**
    * Create a scoped logger with a fixed context
-   * Useful for component or module-specific logging
-   *
-   * Example:
-   *   const authLogger = logger.scope('Auth');
-   *   authLogger.log('User logged in'); // Outputs: [Auth] User logged in
    */
   scope(context: string) {
     return {
-      log: (...args: any[]) => this.log(`[${context}]`, ...args),
-      info: (...args: any[]) => this.info(`[${context}]`, ...args),
+      log: (message: string, ...args: any[]) => this.log(`[${context}] ${message}`, ...args),
+      info: (message: string, ...args: any[]) => this.info(`[${context}] ${message}`, ...args),
       debug: (message: string, data?: any) => this.debug(message, data, { context }),
-      warn: (...args: any[]) => this.warn(`[${context}]`, ...args),
-      error: (...args: any[]) => this.error(`[${context}]`, ...args),
+      warn: (message: string, ...args: any[]) => this.warn(`[${context}] ${message}`, ...args),
+      error: (message: string, ...args: any[]) => this.error(`[${context}] ${message}`, ...args),
     };
   }
 
-  /**
-   * Utility to check if development mode is active
-   */
   get isDevelopment(): boolean {
-    return isDevelopment;
+    return isDev;
   }
 }
 
 // Export singleton instance
 export const logger = new Logger();
 
-// Export typed scope function for easier usage
+/**
+ * Create a context-specific logger
+ * @param context - The context/component name for prefixing logs
+ */
 export function createLogger(context: string) {
   return logger.scope(context);
 }
+
+/**
+ * Performance monitoring utility
+ * Only active in development
+ */
+export const perfMonitor = {
+  mark: (name: string) => {
+    if (isDev && typeof performance !== 'undefined' && performance.mark) {
+      performance.mark(name);
+    }
+  },
+
+  measure: (name: string, startMark: string, endMark?: string) => {
+    if (isDev && typeof performance !== 'undefined' && performance.measure) {
+      try {
+        performance.measure(name, startMark, endMark);
+        const measure = performance.getEntriesByName(name)[0];
+        if (measure) {
+          logger.info(`⏱️ ${name}: ${measure.duration.toFixed(2)}ms`);
+        }
+      } catch (error) {
+        // Silently fail if marks don't exist
+      }
+    }
+  },
+
+  clear: () => {
+    if (isDev && typeof performance !== 'undefined') {
+      performance.clearMarks();
+      performance.clearMeasures();
+    }
+  },
+};
+
+export default logger;

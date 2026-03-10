@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface ProfileView {
   id: string;

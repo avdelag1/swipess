@@ -12,7 +12,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 // All profile-related query keys that should be refreshed on sync
 const PROFILE_QUERY_KEYS = [

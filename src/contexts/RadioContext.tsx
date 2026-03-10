@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { RadioStation, CityLocation, RadioSkin, RadioPlayerState } from '@/types/radio';
 import { getStationsByCity, getStationById, getRandomStation } from '@/data/radioStations';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface RadioContextType {
   state: RadioPlayerState;

@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 export interface DigitalContract {
   id: string;

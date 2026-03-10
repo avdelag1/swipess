@@ -21,7 +21,7 @@ import type {
   QuickFilters,
   ListingFilters
 } from '@/types/filters';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface FilterState {
   // ========== CLIENT FILTERS ==========

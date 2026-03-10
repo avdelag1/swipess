@@ -248,8 +248,8 @@ export default function SubscriptionPackagesPage() {
 
   const handleMessagePurchase = (pkg: any) => {
     // Save return path for silent redirect after payment
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
       price: pkg.price,
@@ -264,8 +264,8 @@ export default function SubscriptionPackagesPage() {
 
   const handlePremiumPurchase = (plan: typeof premiumPlans[0]) => {
     // Save return path for silent redirect after payment
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-    localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
       role: userRole,
       planId: plan.id,
       name: plan.name,

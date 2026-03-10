@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface ErrorReport {
   error: Error;

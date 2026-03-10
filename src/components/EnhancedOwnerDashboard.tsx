@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;

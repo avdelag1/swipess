@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, memo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface ImageCarouselProps {
   images: string[];

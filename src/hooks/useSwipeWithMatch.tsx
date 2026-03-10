@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface SwipeWithMatchOptions {
   onMatch?: (clientProfile: Record<string, unknown>, ownerProfile: Record<string, unknown>) => void;

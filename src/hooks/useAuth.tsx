@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 
 interface AuthContextType {

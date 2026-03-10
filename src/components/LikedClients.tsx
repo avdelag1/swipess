@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useStartConversation } from "@/hooks/useConversations";
-import { logger } from "@/utils/prodLogger";
+import { logger } from "@/utils/logger";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
 import { PageHeader } from "@/components/PageHeader";

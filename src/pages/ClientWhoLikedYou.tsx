@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
 import { useMessagingQuota } from "@/hooks/useMessagingQuota";
-import { logger } from "@/utils/prodLogger";
+import { logger } from "@/utils/logger";
 import { PageHeader } from "@/components/PageHeader";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { cn } from "@/lib/utils";

@@ -3,10 +3,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Bell, Heart, Home, Bike, Car, Ship, Sparkles } from 'lucide-react';
+import { Bell, Heart, Home, Bike, Car, Ship, Sparkles, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface NotificationPreferences {
     client_interested?: boolean;
@@ -19,6 +20,7 @@ interface NotificationPreferences {
 export const NotificationPreferencesSettings = ({ role }: { role: 'client' | 'owner' }) => {
     const { user } = useAuth();
     const queryClient = useQueryClient();
+    const { isSupported, isSubscribed, subscribe, unsubscribe } = usePushNotifications();
 
     const { data: profile, isLoading } = useQuery({
         queryKey: ['profile-preferences', user?.id],
@@ -151,6 +153,42 @@ export const NotificationPreferencesSettings = ({ role }: { role: 'client' | 'ow
                         </div>
                     </>
                 )}
+            </div>
+
+            <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-3 mb-4">
+                    <Smartphone className="w-5 h-5 text-primary" />
+                    <h3 className="text-lg font-bold">Device Notifications</h3>
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                    <div className="space-y-1">
+                        <Label className="text-sm font-bold flex items-center gap-2">
+                            <Bell className="w-4 h-4 text-primary" />
+                            Real-time Push
+                        </Label>
+                        <p className="text-xs text-muted-foreground italic">Receive alerts on this device even when the app is closed</p>
+                    </div>
+                    {isSupported ? (
+                        <Switch
+                            checked={isSubscribed}
+                            disabled={updatePreferencesMutation.isPending}
+                            onCheckedChange={async (checked) => {
+                                if (checked) {
+                                    const success = await subscribe();
+                                    if (success) toast.success("Push notifications enabled!");
+                                } else {
+                                    const success = await unsubscribe();
+                                    if (success) toast.info("Push notifications disabled");
+                                }
+                            }}
+                        />
+                    ) : (
+                        <div className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded-full border border-border">
+                            Not supported
+                        </div>
+                    )}
+                </div>
             </div>
 
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex gap-3 items-start">

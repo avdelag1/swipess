@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Upload, X, Image, Star, Camera, MoveVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateImageFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { motion, Reorder } from 'framer-motion';
 
 interface PhotoUploadManagerProps {

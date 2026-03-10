@@ -1,4 +1,4 @@
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 /**
  * Safely call async functions with automatic error logging

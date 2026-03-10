@@ -4,43 +4,52 @@ import { Button } from '@/components/ui/button';
 import { Bell, BellRing, MessageSquare, Flame, Crown, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const NOTIFICATION_PROMPT_KEY = 'notification_prompt_dismissed';
 const PROMPT_DELAY_DAYS = 7; // Days before showing prompt again if dismissed
 
 export function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSupported, setIsSupported] = useState(false);
+  const { isSupported, subscribe } = usePushNotifications();
 
   useEffect(() => {
     // SPEED OF LIGHT: Do NOT auto-show notification prompt on startup
     // This prompt should only be triggered by user action (settings button)
-    // Just track if notifications are supported for the settings UI
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      setIsSupported(true);
-    }
     // REMOVED: Auto-show timer that was blocking user experience
     // Permission is now requested only from settings
   }, []);
 
   const handleEnableNotifications = async () => {
     try {
-      const permission = await Notification.requestPermission();
+      // Create push subscription and save to database via hook
+      const success = await subscribe();
 
-      if (permission === 'granted') {
-        toast.success("Notifications Enabled!", { description: "You'll now receive real-time updates for messages, likes, and more.", duration: 4000 });
-
-        // Show a test notification
-        const notification = new Notification('Notifications Enabled!', {
-          body: 'You will now receive updates when someone messages or likes you.',
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          tag: 'welcome-notification',
+      if (success) {
+        toast.success("Notifications Enabled!", {
+          description: "You'll now receive real-time updates for messages, likes, and more.",
+          duration: 4000
         });
-        setTimeout(() => notification.close(), 5000);
-      } else if (permission === 'denied') {
-        toast.error("Notifications Blocked", { description: "You can enable notifications later in your browser settings.", duration: 5000 });
+
+        // Show a test notification to confirm browser-level permission
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+          const notification = new Notification('Notifications Enabled!', {
+            body: 'You will now receive updates when someone messages or likes you.',
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            tag: 'welcome-notification',
+          });
+          setTimeout(() => notification.close(), 5000);
+        }
+      } else {
+        // subscribe() handles its own internal logging, but we can notify user if it failed due to permission
+        if (Notification.permission === 'denied') {
+          toast.error("Notifications Blocked", {
+            description: "You can enable notifications later in your browser settings.",
+            duration: 5000
+          });
+        }
       }
     } catch (error) {
       if (import.meta.env.DEV) {

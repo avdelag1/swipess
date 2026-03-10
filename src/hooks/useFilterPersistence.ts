@@ -9,7 +9,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 import type { Json } from '@/integrations/supabase/types';
 

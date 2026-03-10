@@ -17,7 +17,7 @@ import { MessageActivationPackages } from '@/components/MessageActivationPackage
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { SubscriptionPackages } from '@/components/SubscriptionPackages';
 import { ChatPreviewSheet } from '@/components/ChatPreviewSheet';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';

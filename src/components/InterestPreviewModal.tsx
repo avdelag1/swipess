@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface InterestPreviewModalProps {
     isOpen: boolean;

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { toast } from '@/components/ui/sonner';
 
 export type DismissalTargetType = 'listing' | 'client';

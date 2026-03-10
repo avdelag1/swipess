@@ -34,7 +34,7 @@ import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 /**
  * PrefetchScheduler - Throttles prefetch operations to prevent competition with image decoding

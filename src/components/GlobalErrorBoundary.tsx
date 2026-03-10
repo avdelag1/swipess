@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Copy, Check, Home } from 'lucide-react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface Props {
   children: ReactNode;

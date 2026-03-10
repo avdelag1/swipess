@@ -19,7 +19,7 @@ import {
   getCitiesInCountry,
   getCityByName,
 } from '@/data/worldLocations';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 // Predefined tag categories
 const PROPERTY_TAGS = [

@@ -21,7 +21,7 @@ import {
   RectangleHorizontal,
   RectangleVertical,
 } from 'lucide-react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import {
   FilterType,
   CAMERA_FILTERS,

@@ -19,7 +19,7 @@ import { StarRatingInput } from './RatingDisplay';
 import { useRatingCategory, useCreateRating, useCanRate, useHasRated } from '@/hooks/useRatingSystem';
 import type { CreateRatingInput } from '@/hooks/useRatingSystem';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface RatingSubmissionDialogProps {
   open: boolean;

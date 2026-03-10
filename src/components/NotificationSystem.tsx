@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 export function NotificationSystem() {
   const { user } = useAuth();

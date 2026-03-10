@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
-import { logger } from '@/utils/prodLogger'
+import { logger } from '@/utils/logger'
 import { useFilterStore } from '@/state/filterStore'
 import type { QuickFilterCategory } from '@/types/filters'
 
