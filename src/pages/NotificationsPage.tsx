@@ -162,7 +162,7 @@ export default function NotificationsPage() {
 
   const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    haptics.impact('light');
+    haptics.tap();
     try {
       const { error } = await supabase.from('notifications').delete().eq('id', id);
       if (error) throw error;
