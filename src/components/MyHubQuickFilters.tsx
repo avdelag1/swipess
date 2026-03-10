@@ -6,7 +6,8 @@ import {
     Bike,
     Briefcase,
     Search,
-    Check
+    Check,
+    Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
