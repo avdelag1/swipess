@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface DeleteAccountResult {
   success: boolean;

@@ -18,7 +18,8 @@ import { toast } from '@/components/ui/sonner';
 
 // Get build timestamp from Vite injected environment variable
 // This changes EVERY deployment, ensuring all users get updates
-const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || Date.now().toString();
+// FALLBACK: If Vite fails to inject, we use a constant string to avoid infinite loops
+const BUILD_TIMESTAMP = import.meta.env.VITE_BUILD_TIME || 'stable-fallback';
 
 // Current app version - derived from build timestamp for automatic updates
 export const APP_VERSION = `1.0.${BUILD_TIMESTAMP.slice(-6)}`;
@@ -147,7 +148,7 @@ export function useAutomaticUpdates() {
 
   const performUpdate = useCallback(async () => {
     if (isUpdating) return;
-    
+
     setIsUpdating(true);
     try {
       // Clear React Query cache
@@ -280,30 +281,41 @@ function checkHtmlVersionMismatch(): boolean {
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
-    // GUARD 1: Session-level cooldown — only trigger one reload per session
+    // 1. SESSION-LEVEL COOLDOWN
+    // We set this IMMEDIATELY to prevent even a single extra reload if something goes wrong
     const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
-    if (alreadyReloaded) return;
+    if (alreadyReloaded) {
+      console.warn('[AutoUpdate] Guard active: reload already triggered this session. Blocking loop. Current: ' + BUILD_TIMESTAMP);
+      return;
+    }
 
-    // GUARD 2: Minimum time on page — don't reload within the first 30s of a fresh load
-    // This prevents the infinite reload loop on initial page visits
+    // 2. CHECK FOR MISMATCH
+    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
+    const versionMismatch = storedVersion && storedVersion !== BUILD_TIMESTAMP;
+    const htmlMismatch = checkHtmlVersionMismatch();
+
+    if (!versionMismatch && !htmlMismatch) {
+      // Everything is fine, mark current version as installed and exit
+      markVersionAsInstalled();
+      return;
+    }
+
+    // 3. SAFE RELOAD LOGIC
+    // We only trigger a reload if we've been on the page for a "safe" amount of time
+    // OR if we are absolutely certain it's a stale JS issue.
     const pageLoadTime = performance.now();
-    if (pageLoadTime < 30000) {
-      // Only silently mark the version as installed on fresh load
-      // and skip the forced update — user just arrived
-      const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
-      if (!storedVersion) {
-        markVersionAsInstalled();
-      }
+    const IS_CRITICAL_MISMATCH = htmlMismatch; // HTML mismatch means the SW served dead JS
 
-      // Schedule a deferred check after the user has been on the page for 30s
+    if (pageLoadTime < 30000 && !IS_CRITICAL_MISMATCH) {
+      // If we just loaded and it's just a version string change (not necessarily broken JS),
+      // we wait 30 seconds to let the app stabilize before considering a refresh.
+      console.log('[AutoUpdate] Update pending. Waiting for stabilization...');
+
       const timer = setTimeout(() => {
-        const stillMismatch = checkHtmlVersionMismatch();
-        const versionChanged = localStorage.getItem(VERSION_STORAGE_KEY) !== BUILD_TIMESTAMP;
-        if (stillMismatch || versionChanged) {
+        const stillMismatch = localStorage.getItem(VERSION_STORAGE_KEY) !== BUILD_TIMESTAMP || checkHtmlVersionMismatch();
+        if (stillMismatch) {
           sessionStorage.setItem('swipes_reload_triggered', '1');
           forceAppUpdate();
-        } else {
-          markVersionAsInstalled();
         }
       }, 30000);
 
@@ -311,7 +323,6 @@ export function useForceUpdateOnVersionChange() {
     }
 
     // If already been on page 30s+ (e.g. focus regain), do the normal check
-    const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
     if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
       sessionStorage.setItem('swipes_reload_triggered', '1');
       forceAppUpdate();

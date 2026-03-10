@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 export type ClientProfileLite = {
   id?: number;
@@ -91,7 +91,7 @@ export function useSaveClientProfile() {
         .select('id')
         .eq('user_id', uid)
         .maybeSingle();
-      
+
       if (existingError && existingError.code !== 'PGRST116') {
         logger.error('Error checking existing profile:', existingError);
         throw existingError;
@@ -125,7 +125,7 @@ export function useSaveClientProfile() {
       }
 
       // SYNC to profiles table - so owner sees updated data on swipe cards!
-      const syncPayload: any = {
+      const syncPayload: Record<string, unknown> = {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 

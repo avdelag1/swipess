@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Listing } from '../useListings';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { normalizeCategoryName } from '@/types/filters';
 import { MatchedListing, ListingFilters, shuffleArray } from './types';
 import { calculateListingMatch } from './matchCalculators';

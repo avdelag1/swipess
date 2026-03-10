@@ -7,7 +7,7 @@ import { motion, Reorder } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { validateImageFile, formatFileSize, FILE_SIZE_LIMITS } from '@/utils/fileValidation';
 import { compressImage, LISTING_COMPRESSION } from '@/utils/imageCompression';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface ImageUploadProps {
   images: string[];

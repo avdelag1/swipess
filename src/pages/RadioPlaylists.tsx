@@ -58,8 +58,10 @@ export default function RadioPlaylistsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => navigate('/radio')}
+              onClick={() => navigate(-1)}
+              title="Go back"
               className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80"
+              aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -67,6 +69,7 @@ export default function RadioPlaylistsPage() {
           </div>
           <button
             onClick={() => setShowAddForm(true)}
+            title="Create new playlist"
             className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center text-background hover:opacity-90 transition-opacity"
           >
             <Plus className="w-5 h-5" />
@@ -104,6 +107,7 @@ export default function RadioPlaylistsPage() {
                 </Button>
                 <button
                   onClick={() => { setShowAddForm(false); setNewPlaylistName(''); }}
+                  title="Cancel"
                   className="p-3 text-muted-foreground hover:text-foreground"
                 >
                   <X className="w-5 h-5" />
@@ -146,12 +150,14 @@ export default function RadioPlaylistsPage() {
                     <button
                       onClick={() => handleShufflePlay(playlist.station_ids)}
                       disabled={playlist.station_ids.length === 0}
+                      title="Shuffle playlist"
                       className="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center disabled:opacity-30"
                     >
                       <Shuffle className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => deletePlaylist(playlist.id)}
+                      title="Delete playlist"
                       className="w-10 h-10 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center"
                     >
                       <Trash2 className="w-4 h-4" />

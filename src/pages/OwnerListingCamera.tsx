@@ -5,7 +5,7 @@ import { CapturedPhoto } from '@/hooks/useCamera';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 // Upload timeout in milliseconds (60 seconds for multiple photos)
 const UPLOAD_TIMEOUT = 60000;

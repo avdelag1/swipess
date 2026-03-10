@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { STORAGE } from '@/constants/app';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 /**
  * PaymentSuccess - Silent Payment Processing
@@ -29,9 +29,9 @@ export default function PaymentSuccess() {
     processedRef.current = true;
 
     const processPayment = async () => {
-      const pendingPurchase = localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-                               localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
-      const returnPath = localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+      const pendingPurchase = sessionStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
+        sessionStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
+      const returnPath = sessionStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
       if (!pendingPurchase) {
         // No pending purchase - might be a refresh, just redirect
@@ -73,10 +73,10 @@ export default function PaymentSuccess() {
           await processPayPerUseActivation(user.id, pkg);
         }
 
-        // Clear all payment-related localStorage
-        localStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
-        localStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
-        localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+        // Clear all payment-related sessionStorage
+        sessionStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
+        sessionStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
+        sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
         // Invalidate relevant queries for immediate UI update
         queryClient.invalidateQueries({ queryKey: ['tokens'] });

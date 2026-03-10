@@ -405,6 +405,18 @@ serve(async (req) => {
   try {
     // Handle unauthenticated GET ping — no auth required
     if (req.method === "GET") {
+      const url = new URL(req.url);
+      if (url.searchParams.get("task") === "ping") {
+        return new Response(
+          JSON.stringify({
+            status: "ready",
+            message: "AI Orchestrator Reachable via GET (Auth Bypassed)",
+            gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
+            minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
       return new Response(
         JSON.stringify({
           status: "ready",
@@ -416,19 +428,19 @@ serve(async (req) => {
       );
     }
 
-    // Read body once up-front so we can check task before auth
+    // Read body once up-front
     const body = await req.json();
     const task: string = body.task || body.type;
     const data: Record<string, unknown> = body.data || body;
 
-    // Handle ping — no auth required
+    // Handle POST ping — no auth required
     if (task === "ping") {
       return new Response(
         JSON.stringify({
           status: "ready",
-          message: "AI Orchestrator is alive",
-          gemini_configured: !!Deno.env.get("LOVABLE_API_KEY"),
-          minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
+          message: "AI Orchestrator Reachable via POST (Auth Bypassed)",
+          gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -439,33 +451,19 @@ serve(async (req) => {
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("[AI Orchestrator] Missing core configuration: SUPABASE_URL or SUPABASE_ANON_KEY");
-      return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Server configuration error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Authenticate the request
+    // Authenticate all other tasks
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!, {
+      global: { headers: { Authorization: authHeader || "" } }
+    });
 
     const { data: userData, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !userData?.user) {
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     let messages: Message[];

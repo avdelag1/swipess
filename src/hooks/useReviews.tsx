@@ -13,7 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 // ============================================================================
 // TYPES
@@ -357,7 +357,7 @@ export function useCreateReview() {
         throw new Error('Must specify a listing or user to review');
       }
 
-      const insertData: any = {
+      const insertData: Record<string, any> = {
         reviewer_id: user.id,
         listing_id: input.listing_id || null,
         reviewed_id: input.reviewed_id || input.reviewed_user_id || null,
@@ -372,7 +372,7 @@ export function useCreateReview() {
         value_rating: input.value_rating || null,
       };
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('reviews')
         .insert(insertData)
         .select()
@@ -400,7 +400,7 @@ export function useCreateReview() {
         description: 'Thank you for your feedback!',
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       const message = error.message?.includes('Cannot review your own')
         ? "You can't review your own listing"
         : error.message?.includes('duplicate key')

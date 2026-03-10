@@ -12,7 +12,7 @@ import { logger } from '@/utils/logger';
 
 export interface DeckItem {
   id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface DeckState {
@@ -84,7 +84,7 @@ if (typeof window !== 'undefined') {
   if (storedVersion !== CACHE_VERSION) {
     localStorage.removeItem(CACHE_KEY);
     localStorage.setItem(CACHE_VERSION_KEY, CACHE_VERSION);
-    if (import.meta.env.DEV) console.log('[SwipeDeckStore] Cleared stale cache - version mismatch');
+    logger.info('[SwipeDeckStore] Cleared stale cache - version mismatch');
   }
 }
 
@@ -127,10 +127,10 @@ const customStorage = {
       return null;
     }
   },
-  setItem: (name: string, value: any) => {
+  setItem: (name: string, value: unknown) => {
     try {
       // Convert Sets to arrays for JSON serialization
-      const toSerialize = { ...value };
+      const toSerialize = { ...(value as any) };
       if (toSerialize.state?.clientDeck?.swipedIds instanceof Set) {
         toSerialize.state = { ...toSerialize.state };
         toSerialize.state.clientDeck = { ...toSerialize.state.clientDeck };
@@ -445,7 +445,7 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
     }),
     {
       name: 'swipe-deck-store',
-      storage: createJSONStorage(() => customStorage as any),
+      storage: createJSONStorage(() => customStorage as unknown as any), // Radix/Zustand internal type cast
       partialize: (state) => ({
         // INSTANT DECK CACHE: Persist minimal deck items for instant render on return
         // Store first 20 items with minimal fields needed for card render
@@ -474,7 +474,7 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
             model: item.model,
             year: item.year,
             mileage: item.mileage,
-            amenities: item.amenities?.slice(0, 5), // First 5 amenities
+            amenities: (item as any).amenities?.slice(0, 5), // First 5 amenities
           })),
           lastFetchAt: state.clientDeck.lastFetchAt,
         },
@@ -502,8 +502,8 @@ export const useSwipeDeckStore = create<SwipeDeckSlice>()(
                 verified: item.verified,
                 budget_max: item.budget_max,
                 budget_min: item.budget_min,
-                interests: item.interests?.slice(0, 5),
-                lifestyle_tags: item.lifestyle_tags?.slice(0, 5),
+                interests: (item as any).interests?.slice(0, 5),
+                lifestyle_tags: (item as any).lifestyle_tags?.slice(0, 5),
               })),
               lastFetchAt: deck.lastFetchAt,
             }

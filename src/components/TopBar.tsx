@@ -129,13 +129,13 @@ function TopBarComponent({
   const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
 
   const handleQuickPurchase = (pkg: any, tier: string) => {
-    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.message_activations,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole || 'client'}/dashboard`);
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole || 'client'}/dashboard`);
 
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');

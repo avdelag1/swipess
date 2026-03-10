@@ -1,6 +1,6 @@
 import { Capacitor } from '@capacitor/core';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { logger } from './prodLogger';
+import { logger } from './logger';
 
 /**
  * Trigger haptic feedback with various patterns

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCreateContract } from '@/hooks/useContracts';
 import { toast } from 'sonner';
 import { Upload, FileText } from 'lucide-react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 interface ContractUploadDialogProps {
   open: boolean;

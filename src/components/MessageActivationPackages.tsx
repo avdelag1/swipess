@@ -131,13 +131,13 @@ export function MessageActivationPackages({
   };
 
   const handlePurchase = async (pkg: TokenPackage) => {
-    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
 
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');

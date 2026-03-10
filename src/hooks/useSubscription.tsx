@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 // Lightweight types to avoid deep Supabase type inference and match DB shapes
 type SubscriptionPackageLite = {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { UserPlaylist } from '@/types/radio';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { toast } from 'sonner';
 
 export function useRadioPlaylists() {

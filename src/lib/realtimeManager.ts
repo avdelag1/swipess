@@ -13,7 +13,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 // Event types we support
 export type RealtimeEventType =

@@ -4,17 +4,26 @@ import path from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
+// Build version calculation - SHARED between JS define and HTML injection
+// This ensures that import.meta.env.VITE_BUILD_TIME and <meta name="app-version">
+// match exactly, preventing infinite reload loops.
+const GLOBAL_BUILD_TIME = Date.now().toString();
+
 // Build version injector plugin for automatic cache busting
-function buildVersionPlugin() {
-  const buildTime = Date.now().toString();
+function buildVersionPlugin(buildTime: string) {
   return {
     name: 'build-version-injector',
     transformIndexHtml(html: string) {
       // Inject version, preconnect hints, and performance optimizations
+      // We look for the first meta tag or the end of head to ensure correct placement
       const preconnects = `
     <link rel="preconnect" href="${process.env.VITE_SUPABASE_URL || ''}" crossorigin>
     <link rel="dns-prefetch" href="${process.env.VITE_SUPABASE_URL || ''}">
     <meta name="app-version" content="${buildTime}" />`;
+
+      if (html.includes('<meta')) {
+        return html.replace('<meta', `${preconnects}\n    <meta`);
+      }
       return html.replace('</head>', `${preconnects}\n</head>`);
     },
     transform(code: string, id: string) {
@@ -125,7 +134,7 @@ function resourceHintsPlugin(): import('vite').Plugin {
 export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
-    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(Date.now().toString()),
+    'import.meta.env.VITE_BUILD_TIME': JSON.stringify(GLOBAL_BUILD_TIME),
   },
   server: {
     host: "::",
@@ -134,7 +143,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     basicSsl(),
     react(),
-    buildVersionPlugin(),
+    buildVersionPlugin(GLOBAL_BUILD_TIME),
     cssOptimizationPlugin(),
     preloadPlugin(),
     resourceHintsPlugin(),

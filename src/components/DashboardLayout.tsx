@@ -8,7 +8,7 @@ import { toast } from '@/hooks/use-toast'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
-import { logger } from '@/utils/prodLogger'
+import { logger } from '@/utils/logger'
 import { useFilterStore } from '@/state/filterStore'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import type { QuickFilterCategory } from '@/types/filters'
@@ -596,7 +596,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const bottomNavHeight = responsive.isMobile ? 68 : 72;
 
   return (
-    <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
+    <div className="app-root min-h-screen min-h-dvh overflow-hidden relative w-full max-w-[100vw]">
+      {/* DISABLED: LiveHDBackground was causing performance issues on mobile
+          - Animated orbs and CSS animations were slowing down page transitions
+          - Removed for snappier navigation */}
+      {/* <LiveHDBackground theme="default" showOrbs={true} intensity={0.7} /> */}
+
+      {/* REMOVED: NotificationSystem was causing duplicate realtime subscriptions.
+          Global notification handling is now done exclusively by NotificationWrapper (useNotifications)
+          in App.tsx. This prevents race conditions and UI flickers from multiple handlers
+          firing on the same conversation_messages INSERT event. */}
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
@@ -618,21 +627,21 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
-        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
+        className="dashboard-main-scroll scroll-area-momentum"
         style={{
-          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
+          '--dashboard-pt': (isCameraRoute || isRadioRoute || isImmersiveDashboard)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
-          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
+          '--dashboard-pb': (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          '--dashboard-pl': isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
+          '--dashboard-pr': isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
           zIndex: 0,
           transform: 'translateZ(0)',
           WebkitOverflowScrolling: 'touch',
-        }}
+        } as React.CSSProperties}
       >
         <motion.div
           key={location.pathname}

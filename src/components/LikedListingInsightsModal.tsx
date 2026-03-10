@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from '@/components/ui/sonner';
 import { useState, useEffect, useCallback, memo } from 'react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CompactRatingDisplay } from './RatingDisplay';

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Bell, BellRing, MessageSquare, Flame, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const NOTIFICATION_PROMPT_KEY = 'notification_prompt_dismissed';
@@ -13,30 +14,47 @@ export function PushNotificationPrompt() {
   const [isLoading, setIsLoading] = useState(false);
   const { subscribe, isSupported, isSubscribed } = usePushNotifications();
 
+  // useEffect removed - auto-show logic no longer needed here as it's handled by trigger or hook state
+
   const handleEnableNotifications = async () => {
     setIsLoading(true);
     try {
-      // This calls the hook's subscribe() which:
-      // 1. Requests browser permission
-      // 2. Creates PushManager subscription
-      // 3. Saves endpoint + keys to push_subscriptions table
+      // Create push subscription and save to database via hook
       const success = await subscribe();
 
       if (success) {
-        toast.success("Notifications Enabled!", { 
-          description: "You'll now receive real-time updates for messages, likes, and more.", 
-          duration: 4000 
+        toast.success("Notifications Enabled!", {
+          description: "You'll now receive real-time updates for messages, likes, and more.",
+          duration: 4000
         });
+
+        // Show a test notification to confirm browser-level permission
+        if (typeof window !== 'undefined' && 'Notification' in window) {
+          try {
+            const notification = new Notification('Notifications Enabled!', {
+              body: 'You will now receive updates when someone messages or likes you.',
+              icon: '/favicon.ico',
+              badge: '/favicon.ico',
+              tag: 'welcome-notification',
+            });
+            setTimeout(() => notification.close(), 5000);
+          } catch (e) {
+            // Some browsers don't support new Notification() inside web apps
+            logger.warn('[PushNotificationPrompt] Could not show test notification:', e);
+          }
+        }
       } else {
-        toast.error("Notifications Not Enabled", { 
-          description: "You can enable notifications later in your browser settings.", 
-          duration: 5000 
+        toast.error("Notifications Not Enabled", {
+          description: Notification.permission === 'denied'
+            ? "You can enable notifications later in your browser settings."
+            : "Please try again later.",
+          duration: 5000
         });
       }
     } catch (error) {
-      toast.error("Something went wrong", { 
-        description: "Please try again later.", 
-        duration: 4000 
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+        duration: 4000
       });
     } finally {
       setIsLoading(false);

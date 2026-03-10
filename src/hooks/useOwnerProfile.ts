@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 export type OwnerProfile = {
   id?: string;
@@ -92,7 +92,7 @@ export function useSaveOwnerProfile() {
       }
 
       // SYNC to profiles table - so owner info shows in messages/public profiles
-      const syncPayload: any = {
+      const syncPayload: Record<string, any> = {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 

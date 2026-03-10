@@ -7,19 +7,19 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
  * Renders the premium NotificationBar at the top of the screen
  */
 export function NotificationSystem() {
-    const {
-        notifications,
-        dismissNotification,
-        markAllAsRead,
-        handleNotificationClick
-    } = useNotificationSystem();
+  const {
+    notifications,
+    dismissNotification,
+    markAllAsRead,
+    handleNotificationClick
+  } = useNotificationSystem();
 
-    return (
-        <NotificationBar
-            notifications={notifications}
-            onDismiss={dismissNotification}
-            onMarkAllRead={markAllAsRead}
-            onNotificationClick={handleNotificationClick}
-        />
-    );
+  return (
+    <NotificationBar
+      notifications={notifications}
+      onDismiss={dismissNotification}
+      onMarkAllRead={markAllAsRead}
+      onNotificationClick={handleNotificationClick}
+    />
+  );
 }

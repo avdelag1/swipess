@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, memo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/utils/logger';
 
 interface ImageCarouselProps {
   images: string[];
@@ -51,7 +52,7 @@ function preloadImageImmediate(url: string): void {
 
   const img = new Image();
   img.decoding = 'async';
-  (img as any).fetchPriority = 'high';
+  (img as HTMLImageElement & { fetchPriority?: string }).fetchPriority = 'high';
 
   img.onload = () => {
     preloadingUrls.delete(url);
@@ -66,7 +67,8 @@ function preloadImageImmediate(url: string): void {
           lastAccessed: Date.now(),
           element: img
         });
-      }).catch(() => {
+      }).catch((err) => {
+        logger.warn('[ImageCarousel] Decode error:', err);
         globalImageCache.set(url, { loaded: true, decoded: true, lastAccessed: Date.now() });
       });
     } else {
@@ -101,7 +103,9 @@ function preloadImageBackground(url: string): void {
             cached.element = img;
             cached.lastAccessed = Date.now();
           }
-        }).catch(() => {});
+        }).catch((err) => {
+          logger.warn('[ImageCarousel] Background decode error:', err);
+        });
       }
     };
     img.onerror = () => {
@@ -127,7 +131,7 @@ async function decodeImageFastFast(src: string): Promise<boolean> {
 
   return new Promise((resolve) => {
     const img = new Image();
-    (img as any).fetchPriority = 'high';
+    (img as HTMLImageElement & { fetchPriority?: string }).fetchPriority = 'high';
     img.decoding = 'sync'; // Synchronous for faster response
     img.src = src;
 
@@ -319,16 +323,11 @@ const ImageCarouselComponent = ({
       {/* Main Image Container - GPU accelerated for instant response */}
       <div
         className={cn(
-          "relative w-full overflow-hidden rounded-lg cursor-pointer group touch-manipulation",
+          "relative w-full overflow-hidden rounded-lg cursor-pointer group touch-manipulation carousel-container",
           aspectRatioClass
         )}
         onClick={handleImageClick}
         onTouchEnd={handleImageClick}
-        style={{
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden',
-          WebkitTapHighlightColor: 'transparent',
-        }}
       >
         {/* LAYER 1: Neutral blur placeholder - always visible as base
             Uses a light neutral gradient instead of dark/black */}
@@ -337,17 +336,32 @@ const ImageCarouselComponent = ({
           style={{ zIndex: 1 }}
         />
 
+        {/* LAYER 2: Blurred version of current image (if available) as enhanced placeholder */}
+        {displayedSrc && (
+          <div
+            className="absolute inset-0 overflow-hidden z-layer-2"
+            style={{
+              '--tw-blur': 'blur(20px)',
+              '--tw-scale-x': '1.1',
+              '--tw-scale-y': '1.1',
+            } as React.CSSProperties}
+          >
+            <img
+              src={displayedSrc}
+              alt=""
+              className="w-full h-full object-cover"
+              loading="eager"
+              aria-hidden="true"
+            />
+          </div>
+        )}
 
         {/* LAYER 3: Previous image - stays visible during transition */}
         {previousSrc && isTransitioning && (
           <img
             src={previousSrc}
             alt=""
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{
-              zIndex: 3,
-              opacity: 1,
-            }}
+            className="carousel-image-layer z-layer-3"
             aria-hidden="true"
           />
         )}
@@ -357,18 +371,19 @@ const ImageCarouselComponent = ({
           <img
             src={displayedSrc}
             alt={`${alt} ${currentIndex + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover ${
-              startedCachedRef.current ? '' : 'transition-opacity duration-100'
-            }`}
+            className={cn(
+              "carousel-image-layer z-layer-4",
+              !startedCachedRef.current && "transition-opacity duration-100"
+            )}
             loading="eager"
             decoding="sync"
             fetchPriority="high"
             style={{
-              zIndex: 4,
               opacity: showImage && !(isTransitioning && previousSrc) ? 1 : 0,
+              willChange: 'opacity',
               transform: 'translateZ(0)',
               backfaceVisibility: 'hidden',
-            }}
+            } as React.CSSProperties}
             onLoad={() => {
               if (!showImage) {
                 setShowImage(true);
@@ -389,14 +404,12 @@ const ImageCarouselComponent = ({
         {images.length > 1 && (
           <>
             <div
-              className="absolute left-0 top-0 w-[35%] h-full bg-gradient-to-r from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-start pl-4 pointer-events-none"
-              style={{ zIndex: 10 }}
+              className="absolute left-0 top-0 w-[35%] h-full bg-gradient-to-r from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-start pl-4 pointer-events-none z-[10]"
             >
               <ChevronLeft className="w-8 h-8 text-white drop-shadow-lg" />
             </div>
             <div
-              className="absolute right-0 top-0 w-[35%] h-full bg-gradient-to-l from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-end pr-4 pointer-events-none"
-              style={{ zIndex: 10 }}
+              className="absolute right-0 top-0 w-[35%] h-full bg-gradient-to-l from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-end pr-4 pointer-events-none z-[10]"
             >
               <ChevronRight className="w-8 h-8 text-white drop-shadow-lg" />
             </div>
@@ -409,8 +422,7 @@ const ImageCarouselComponent = ({
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              style={{ zIndex: 11 }}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[11]"
               onClick={(e) => {
                 e.stopPropagation();
                 goToPrevious();
@@ -421,8 +433,7 @@ const ImageCarouselComponent = ({
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              style={{ zIndex: 11 }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-[11]"
               onClick={(e) => {
                 e.stopPropagation();
                 goToNext();
@@ -436,8 +447,7 @@ const ImageCarouselComponent = ({
         {/* Image Counter */}
         {images.length > 1 && (
           <div
-            className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-2 py-1 rounded text-sm backdrop-blur-sm"
-            style={{ zIndex: 12 }}
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/60 text-white px-2 py-1 rounded text-sm backdrop-blur-sm z-[12]"
           >
             {currentIndex + 1} / {images.length}
           </div>
@@ -446,8 +456,7 @@ const ImageCarouselComponent = ({
         {/* Progress dots (mobile-friendly) */}
         {images.length > 1 && images.length <= 10 && (
           <div
-            className="absolute top-2 left-0 right-0 flex justify-center gap-1 px-4"
-            style={{ zIndex: 12 }}
+            className="absolute top-2 left-0 right-0 flex justify-center gap-1 px-4 z-[12]"
           >
             {images.map((_, idx) => (
               <button
@@ -470,35 +479,37 @@ const ImageCarouselComponent = ({
       </div>
 
       {/* Thumbnail Navigation */}
-      {showThumbnails && images.length > 1 && (
-        <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-thin">
-          {images.map((image, index) => (
-            <button
-              key={`thumb-${image}-${index}`}
-              onClick={() => setCurrentIndex(index)}
-              className={cn(
-                "flex-shrink-0 w-16 h-12 rounded border-2 overflow-hidden transition-all duration-200",
-                index === currentIndex
-                  ? 'border-primary scale-105'
-                  : 'border-transparent hover:border-primary/50'
-              )}
-            >
-              <img
-                src={image}
-                alt={`${alt} thumbnail ${index + 1}`}
-                className="w-full h-full object-cover"
-                loading="lazy"
-                decoding="async"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder.svg';
-                }}
-              />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+      {
+        showThumbnails && images.length > 1 && (
+          <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-thin">
+            {images.map((image, index) => (
+              <button
+                key={`thumb-${image}-${index}`}
+                onClick={() => setCurrentIndex(index)}
+                className={cn(
+                  "flex-shrink-0 w-16 h-12 rounded border-2 overflow-hidden transition-all duration-200",
+                  index === currentIndex
+                    ? 'border-primary scale-105'
+                    : 'border-transparent hover:border-primary/50'
+                )}
+              >
+                <img
+                  src={image}
+                  alt={`${alt} thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/placeholder.svg';
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        )
+      }
+    </div >
   );
 };
 

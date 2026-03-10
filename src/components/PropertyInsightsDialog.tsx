@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from 'sonner';
 import { useState, useMemo, useCallback, memo } from 'react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 /**
  * iOS-grade skeleton loader for dialog content

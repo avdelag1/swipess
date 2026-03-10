@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 

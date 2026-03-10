@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Navigation, Loader2, AlertCircle, Search, Globe, Star, Building } from 'lucide-react';
 import { toast } from 'sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 import {
   getRegions,
   getCountriesInRegion,

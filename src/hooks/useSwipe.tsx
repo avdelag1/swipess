@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { logger } from '@/utils/prodLogger';
+import { logger } from '@/utils/logger';
 
 /**
  * SIMPLE SWIPE LIKE HANDLER
@@ -62,7 +62,7 @@ export function useSwipe() {
     },
     onSuccess: (data, variables) => {
       logger.info('[useSwipe] Swipe success, invalidating queries:', data);
-      
+
       // Invalidate ALL relevant query keys to ensure UI updates
       const keysToInvalidate = [
         ['liked-properties'],
@@ -79,16 +79,16 @@ export function useSwipe() {
 
       // Invalidate each key
       keysToInvalidate.forEach(key => {
-        queryClient.invalidateQueries({ queryKey: key }).catch(() => {});
+        queryClient.invalidateQueries({ queryKey: key }).catch(err => logger.error('[useSwipe] Invalidation error:', err));
       });
-      
+
       // CRITICAL: Also invalidate listings deck so swiped cards disappear immediately
-      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(() => {});
-      
+      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => logger.error('[useSwipe] Invalidation error:', err));
+
       // Also invalidate any queries that start with these prefixes
-      queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['match'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(err => logger.error('[useSwipe] Invalidation error:', err));
+      queryClient.invalidateQueries({ queryKey: ['match'] }).catch(err => logger.error('[useSwipe] Invalidation error:', err));
+      queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(err => logger.error('[useSwipe] Invalidation error:', err));
     },
     onError: (error: any) => {
       logger.error('[useSwipe] Error:', error);
