@@ -210,7 +210,9 @@ const App = () => {
                             <NotificationWrapper>
                               <PushNotificationWrapper>
                                 {/* Guided tour for first-time users */}
-                                <GuidedTourLazy />
+                                <Suspense fallback={null}>
+                                  <GuidedTourLazy />
+                                </Suspense>
 
                                 {/* Update notification banner */}
                                 <UpdateNotification />
