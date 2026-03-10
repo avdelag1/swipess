@@ -68,7 +68,13 @@ interface FilterState {
   setClientAgeRange: (range: [number, number] | null) => void;
   setClientBudgetRange: (range: [number, number] | null) => void;
   setClientNationalities: (nationalities: string[]) => void;
-  
+  hydrateOwnerPrefs: (prefs: {
+    clientGender?: ClientGender;
+    clientAgeRange?: [number, number] | null;
+    clientBudgetRange?: [number, number] | null;
+    clientNationalities?: string[];
+  }) => void;
+
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
@@ -207,7 +213,18 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-    
+
+    hydrateOwnerPrefs: (prefs) => {
+      set((state) => ({
+        ...(prefs.clientGender !== undefined && { clientGender: prefs.clientGender }),
+        ...(prefs.clientAgeRange !== undefined && { clientAgeRange: prefs.clientAgeRange }),
+        ...(prefs.clientBudgetRange !== undefined && { clientBudgetRange: prefs.clientBudgetRange }),
+        ...(prefs.clientNationalities !== undefined && { clientNationalities: prefs.clientNationalities }),
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+
     // ========== ADVANCED FILTER ACTIONS ==========
     setPriceRange: (range) => {
       set((state) => ({

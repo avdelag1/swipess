@@ -31,10 +31,7 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs } = useOwnerClientPreferences();
-  const setClientGender = useFilterStore((s) => s.setClientGender);
-  const setClientAgeRange = useFilterStore((s) => s.setClientAgeRange);
-  const setClientBudgetRange = useFilterStore((s) => s.setClientBudgetRange);
-  const setClientNationalities = useFilterStore((s) => s.setClientNationalities);
+  const hydrateOwnerPrefs = useFilterStore((s) => s.hydrateOwnerPrefs);
   const storeGender = useFilterStore((s) => s.clientGender);
   const hydratedRef = useRef(false);
 
@@ -45,19 +42,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     const genders = ownerPrefs.selected_genders as string[] | null;
     const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
 
-    if (storeGender === 'any' && genders?.length) {
-      setClientGender(genders[0] as any);
-    }
-    if (ownerPrefs.min_age != null || ownerPrefs.max_age != null) {
-      setClientAgeRange([ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65]);
-    }
-    if (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null) {
-      setClientBudgetRange([ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000]);
-    }
-    if (nationalities?.length) {
-      setClientNationalities(nationalities);
-    }
-  }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
+    const updates: Parameters<typeof hydrateOwnerPrefs>[0] = {};
+    if (storeGender === 'any' && genders?.length) updates.clientGender = genders[0] as any;
+    if (ownerPrefs.min_age != null || ownerPrefs.max_age != null)
+      updates.clientAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
+    if (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)
+      updates.clientBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
+    if (nationalities?.length) updates.clientNationalities = nationalities;
+    if (Object.keys(updates).length > 0) hydrateOwnerPrefs(updates);
+  }, [ownerPrefs, storeGender, hydrateOwnerPrefs]);
 
   // Connect filter store to swipe container (fixes missing filters when rendered as a route)
   const filterVersion = useFilterStore((s) => s.filterVersion);
