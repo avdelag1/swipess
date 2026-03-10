@@ -1,46 +1,56 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Fix All Build Errors — 6 Files, 12 Errors
 
-### 1. Replace App Icon with Fire S Logo
+These are pre-existing type errors in files that were NOT touched in Round 10, but they block the build. Here's what's wrong and the fix for each.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## 1. `src/components/MyHubActivityFeed.tsx` — Missing `Button` import
+**Error:** `Cannot find name 'Button'` (lines 102, 111)
+**Fix:** Add `import { Button } from '@/components/ui/button';` to the imports.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+## 2. `src/components/MyHubProfileHeader.tsx` — Wrong property names on types
+**Errors:**
+- `full_name` doesn't exist on `OwnerProfile` → use `business_name`
+- `bio` doesn't exist on `OwnerProfile` → use `business_description`
+- `location` doesn't exist on either type → use `business_location` for owner, remove for client (or fallback)
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**Fix:** Update the profile object construction to use the correct field names from the `OwnerProfile` type (`business_name`, `business_description`, `business_location`).
 
-### 2. Profile Photo Already Shows in Top-Left
+## 3. `src/components/MyHubQuickFilters.tsx` — Two issues
+**Errors:**
+- `'moto'` not assignable to `QuickFilterCategory` → must be `'motorcycle'`
+- `haptics.selection` doesn't exist → must be `haptics.select`
+- Duplicate `import { Zap }` (line 22) — `Zap` already imported at line 4 block but actually NOT there, it's imported standalone after the array. Need to move `Zap` into the main import and remove the duplicate.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**Fix:** Change `'moto'` → `'motorcycle'`, `haptics.selection()` → `haptics.select()`, consolidate Zap import.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+## 4. `src/pages/MessagingDashboard.tsx` — `role: string` not assignable to `'client' | 'owner'`
+**Error:** The `otherUser` object has `role: string` but `MessagingInterfaceProps` requires `role: 'client' | 'owner'`.
+**Fix:** Cast the role: `role: (otherUser.role as 'client' | 'owner') || 'client'` or construct the object with explicit typing.
 
-### 3. Fix Header Too Close to Top Edge
+## 5. `src/pages/MyHub.tsx` — `ListingFilters` type mismatch
+**Error:** `category: string | undefined` from `src/types/filters.ts` not assignable to the union type in `smartMatching/types.ts`.
+**Fix:** Cast `storeFilters` with `as import('...smartMatching/types').ListingFilters` or use a type assertion on the category field.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+## 6. `src/pages/NotificationsPage.tsx` — Three issues
+**Errors:**
+- `haptics.impact` doesn't exist → use `haptics.tap` (for light) or the direct `triggerHaptic` import
+- `Argument of type 'string | undefined'` not assignable to `string` → add nullish coalescing
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**Fix:** Replace `haptics.impact('light')` with `haptics.tap()`, add `|| ''` or `!` to the undefined string argument.
 
-### 4. Fix MarketingSlide Build Error
+---
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+## Summary
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+| File | Errors | Fix |
+|------|--------|-----|
+| MyHubActivityFeed.tsx | 2 | Add Button import |
+| MyHubProfileHeader.tsx | 4 | Use correct OwnerProfile field names |
+| MyHubQuickFilters.tsx | 2 | `motorcycle` + `haptics.select` + fix Zap import |
+| MessagingDashboard.tsx | 1 | Cast role to union type |
+| MyHub.tsx | 1 | Type assertion on filters |
+| NotificationsPage.tsx | 3 | Replace `haptics.impact` + fix undefined arg |
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+**Total: 6 files, 12 errors, zero functional changes — pure type fixes.**
 
