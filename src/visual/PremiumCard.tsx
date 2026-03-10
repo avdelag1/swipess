@@ -100,6 +100,7 @@ export const SwipeCard = forwardRef<HTMLDivElement, SwipeCardProps>(
     return (
       <motion.div
         ref={ref}
+        data-no-swipe-nav
         drag="x"
         dragConstraints={{ left: -100, right: 100 }}
         onDragEnd={(_, info) => {

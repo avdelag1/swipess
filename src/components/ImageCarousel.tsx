@@ -381,6 +381,8 @@ const ImageCarouselComponent = ({
             style={{
               opacity: showImage && !(isTransitioning && previousSrc) ? 1 : 0,
               willChange: 'opacity',
+              transform: 'translateZ(0)',
+              backfaceVisibility: 'hidden',
             } as React.CSSProperties}
             onLoad={() => {
               if (!showImage) {

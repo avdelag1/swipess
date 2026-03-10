@@ -23,8 +23,10 @@ import { PropertyListingForm } from './PropertyListingForm';
 import { WorkerListingForm, WorkerFormData } from './WorkerListingForm';
 import { validateImageFile } from '@/utils/fileValidation';
 import { uploadPhotoBatch } from '@/utils/photoUpload';
+import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
+import { ListingVideoUpload } from './video/ListingVideoUpload';
 
 interface EditingListing {
   id?: string;
@@ -57,6 +59,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [location, setLocation] = useState<{ lat?: number; lng?: number }>({});
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -93,6 +96,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setImageFiles([]);
       setFormData(editingProperty);
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
+      setVideoUrl((editingProperty.video_url as string) || null);
     } else if (editingProperty?.category) {
       setEditingId(null);
       setSelectedCategory(editingProperty.category);
@@ -101,6 +105,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setImageFiles([]);
       setFormData(editingProperty.images ? editingProperty : { mode: editingProperty.mode || 'rent' });
       setLocation({ lat: editingProperty.latitude, lng: editingProperty.longitude });
+      setVideoUrl((editingProperty.video_url as string) || null);
     } else {
       setEditingId(null);
       setSelectedCategory('property');
@@ -109,6 +114,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       setImageFiles([]);
       setFormData({ mode: 'rent' });
       setLocation({});
+      setVideoUrl(null);
     }
   }, [editingProperty, isOpen]);
 
@@ -123,6 +129,21 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       if (currentImages.length + currentImageFiles.length < 1) {
         throw new Error('At least 1 photo required');
+      }
+
+      // Content moderation: check title, description, house_rules
+      const fieldsToCheck = [
+        { text: formData.title as string, label: 'Title' },
+        { text: formData.description as string, label: 'Description' },
+        { text: formData.house_rules as string, label: 'House Rules' },
+      ];
+      for (const field of fieldsToCheck) {
+        if (field.text) {
+          const result = validateContent(field.text);
+          if (!result.isClean) {
+            throw new Error(`${field.label}: ${result.message}`);
+          }
+        }
       }
 
       let uploadedImageUrls: string[] = [];
@@ -167,6 +188,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         address: formData.address,
         latitude: selectedCategory === 'property' ? null : (location.lat || null),
         longitude: selectedCategory === 'property' ? null : (location.lng || null),
+        video_url: videoUrl,
         // JSONB arrays
         images: allImages,
         amenities,
@@ -525,6 +547,25 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               </Card>
             </motion.div>
 
+            {/* Video Looper Section */}
+            <motion.div variants={itemFadeScale}>
+              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center justify-between text-base">
+                    <span>10-Second Loop Video <span className="text-xs font-normal text-muted-foreground ml-2">(Optional)</span></span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 pt-0">
+                  <ListingVideoUpload
+                    userId={user?.id || ''}
+                    videoUrl={videoUrl}
+                    onUploadSuccess={setVideoUrl}
+                    onRemove={() => setVideoUrl(null)}
+                  />
+                </CardContent>
+              </Card>
+            </motion.div>
+
             {/* Legal / Verification Section */}
             <motion.div variants={itemFadeScale}>
               <div className="rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-400/20 shadow-2xl shadow-blue-500/5">
@@ -550,20 +591,27 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-8 py-5 border-t border-white/5 bg-background/60 backdrop-blur-xl">
-          <Button
-            variant="ghost"
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.06] bg-background/80 backdrop-blur-2xl">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-white/5 px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
-          </Button>
+          </motion.button>
 
           <div className="flex items-center gap-3">
-            <Button
+            <motion.button
+              whileTap={{ scale: 0.96 }}
               onClick={handleSubmit}
               disabled={createListingMutation.isPending}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 rounded-2xl h-12 font-bold shadow-xl shadow-primary/20 active:scale-[0.96] transition-all flex items-center gap-2"
+              className={cn(
+                "px-10 rounded-2xl h-12 font-bold shadow-xl transition-all flex items-center gap-2 text-white disabled:opacity-50",
+                selectedCategory === 'property' && "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20",
+                selectedCategory === 'motorcycle' && "bg-orange-600 hover:bg-orange-500 shadow-orange-500/20",
+                selectedCategory === 'bicycle' && "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20",
+                selectedCategory === 'worker' && "bg-amber-600 hover:bg-amber-500 shadow-amber-500/20",
+              )}
             >
               {createListingMutation.isPending ? (
                 <>
@@ -576,7 +624,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}
-            </Button>
+            </motion.button>
           </div>
         </div>
       </DialogContent>

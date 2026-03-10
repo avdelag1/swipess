@@ -124,7 +124,7 @@ export default function PaymentSuccess() {
       .from('user_subscriptions')
       .insert({
         user_id: userId,
-        subscription_package_id: pkg.id,
+        package_id: pkg.id,
         payment_status: 'paid',
         is_active: true,
       });

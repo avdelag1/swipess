@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="340" viewBox="0 0 1200 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+
+    <!-- ── Gradients matching icon.svg exactly ── -->
+
+    <!-- Top half: fire yellow → orange (same as topGradient in icon.svg) -->
+    <linearGradient id="topGrad" x1="0" y1="140" x2="0" y2="215"
+                    gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#FFF4CC"/>
+      <stop offset="20%"  stop-color="#FFE999"/>
+      <stop offset="50%"  stop-color="#FFD666"/>
+      <stop offset="80%"  stop-color="#FFBA44"/>
+      <stop offset="100%" stop-color="#FF9E33"/>
+    </linearGradient>
+
+    <!-- Bottom half: cyan → blue (same as bottomGradient in icon.svg) -->
+    <linearGradient id="bottomGrad" x1="0" y1="215" x2="0" y2="285"
+                    gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#66E0FF"/>
+      <stop offset="30%"  stop-color="#55CCFF"/>
+      <stop offset="60%"  stop-color="#5599FF"/>
+      <stop offset="100%" stop-color="#6666FF"/>
+    </linearGradient>
+
+    <!-- Flame outer body: white tip → yellow → orange, fading out at base -->
+    <linearGradient id="flameOuter" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="15%"  stop-color="#FFF4CC"/>
+      <stop offset="50%"  stop-color="#FFD666"/>
+      <stop offset="80%"  stop-color="#FF9E33"/>
+      <stop offset="100%" stop-color="#FF4D00" stop-opacity="0.55"/>
+    </linearGradient>
+
+    <!-- Flame hot core: bright white center fades down -->
+    <linearGradient id="flameInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#FFFFFF"/>
+      <stop offset="40%"  stop-color="#FFF4CC"/>
+      <stop offset="100%" stop-color="#FFE566" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- ── Clip paths to split letters at midline ── -->
+    <clipPath id="aboveMid">
+      <rect x="0" y="0"   width="1200" height="215"/>
+    </clipPath>
+    <clipPath id="belowMid">
+      <rect x="0" y="215" width="1200" height="125"/>
+    </clipPath>
+
+    <!-- ── Filters ── -->
+
+    <!-- Orange glow on flames -->
+    <filter id="flameGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0.3 0 0 0.05  0.15 0.1 0 0 0  0 0 0 0 0  0 0 0 0.7 0"
+        result="colored"/>
+      <feMerge>
+        <feMergeNode in="colored"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Warm glow on top (fire) half of text -->
+    <filter id="topGlow" x="-5%" y="-30%" width="110%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0.5 0 0 0  0.3 0.2 0 0 0  0 0 0 0 0  0 0 0 0.35 0"
+        result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Drop shadow on full text -->
+    <filter id="shadow" x="-5%" y="-10%" width="110%" height="130%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="8" result="blur"/>
+      <feOffset dx="0" dy="6" result="offset"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.3"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FLAMES  — one above each letter (W gets two, it's wide)
+       Approximate letter-center x positions for Poppins 900 at 190px:
+         S≈310  W-left≈420  W-right≈478  I≈553  P≈645  E≈760  S≈868
+       ═══════════════════════════════════════════════════════ -->
+  <g filter="url(#flameGlow)">
+
+    <!-- above S (first) -->
+    <g transform="translate(310,0)">
+      <path d="M0 122 C-20 96,-25 52,0 12 C25 52,20 96,0 122Z" fill="url(#flameOuter)"/>
+      <path d="M0 110 C-11 88,-12 62,0 36 C12 62,11 88,0 110Z"  fill="url(#flameInner)"/>
+    </g>
+
+    <!-- above W — left hump -->
+    <g transform="translate(420,0)">
+      <path d="M0 126 C-19 100,-23 55,0 14 C23 55,19 100,0 126Z" fill="url(#flameOuter)"/>
+      <path d="M0 114 C-11 91,-12 65,0 38 C12 65,11 91,0 114Z"   fill="url(#flameInner)"/>
+    </g>
+
+    <!-- above W — right hump -->
+    <g transform="translate(478,0)">
+      <path d="M0 119 C-18 94,-22 50,0 11 C22 50,18 94,0 119Z" fill="url(#flameOuter)"/>
+      <path d="M0 108 C-10 87,-11 61,0 35 C11 61,10 87,0 108Z" fill="url(#flameInner)"/>
+    </g>
+
+    <!-- above I -->
+    <g transform="translate(553,0)">
+      <path d="M0 124 C-19 98,-23 53,0 13 C23 53,19 98,0 124Z" fill="url(#flameOuter)"/>
+      <path d="M0 112 C-11 90,-12 64,0 38 C12 64,11 90,0 112Z" fill="url(#flameInner)"/>
+    </g>
+
+    <!-- above P -->
+    <g transform="translate(645,0)">
+      <path d="M0 122 C-20 96,-24 52,0 12 C24 52,20 96,0 122Z" fill="url(#flameOuter)"/>
+      <path d="M0 110 C-11 88,-12 62,0 36 C12 62,11 88,0 110Z" fill="url(#flameInner)"/>
+    </g>
+
+    <!-- above E -->
+    <g transform="translate(760,0)">
+      <path d="M0 125 C-19 99,-23 55,0 14 C23 55,19 99,0 125Z" fill="url(#flameOuter)"/>
+      <path d="M0 113 C-11 91,-12 65,0 39 C12 65,11 91,0 113Z" fill="url(#flameInner)"/>
+    </g>
+
+    <!-- above S (second) -->
+    <g transform="translate(868,0)">
+      <path d="M0 122 C-20 96,-25 52,0 12 C25 52,20 96,0 122Z" fill="url(#flameOuter)"/>
+      <path d="M0 110 C-11 88,-12 62,0 36 C12 62,11 88,0 110Z"  fill="url(#flameInner)"/>
+    </g>
+
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════
+       TEXT — rendered twice, each half clipped
+       Bottom half first (behind), top half on top with glow
+       ═══════════════════════════════════════════════════════ -->
+
+  <!-- Bottom half · cyan → blue -->
+  <text
+    x="600" y="282"
+    text-anchor="middle"
+    font-family="Poppins, 'Arial Black', Impact, sans-serif"
+    font-weight="900"
+    font-size="190"
+    letter-spacing="4"
+    fill="url(#bottomGrad)"
+    clip-path="url(#belowMid)"
+    filter="url(#shadow)"
+  >SWIPES</text>
+
+  <!-- Top half · fire yellow → orange + warm glow -->
+  <text
+    x="600" y="282"
+    text-anchor="middle"
+    font-family="Poppins, 'Arial Black', Impact, sans-serif"
+    font-weight="900"
+    font-size="190"
+    letter-spacing="4"
+    fill="url(#topGrad)"
+    clip-path="url(#aboveMid)"
+    filter="url(#topGlow)"
+  >SWIPES</text>
+
+</svg>

@@ -39,6 +39,7 @@ export interface TutorialListing {
   ownerRating: number;
   ownerVerified: boolean;
   insights: TutorialInsight[];  // Exactly 6 insights
+  video_url?: string;
 }
 
 export interface TutorialClientProfile {
@@ -71,10 +72,11 @@ const propertyListings: TutorialListing[] = [
     city: 'Tulum',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1571939228382-b2f2b585ce15?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1560185127-6a6b0baed07d?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop`,
+      'marketing:property:slide1',
+      'marketing:property:slide2',
+      'marketing:property:slide3',
     ],
+    video_url: 'https://cdn.pixabay.com/video/2018/06/07/16641-274191081_large.mp4',
     description:
       'Stunning penthouse in the heart of Tulum with panoramic jungle views. Fully furnished with high-end finishes, private rooftop terrace, plunge pool and concierge service. Walking distance to cenotes and the famous Tulum strip.',
     tags: ['Furnished', 'Rooftop Pool', 'Pet-Friendly', 'Concierge', 'Long-Term'],
@@ -127,9 +129,9 @@ const propertyListings: TutorialListing[] = [
     city: 'Playa del Carmen',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1499793983690-e29da59ef1c2?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1560185008-b033106af5c3?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop`,
+      'marketing:property:slide1',
+      'marketing:property:slide2',
+      'marketing:property:slide3',
     ],
     description:
       'Cozy beachfront studio with direct ocean access. Includes high-speed WiFi, air conditioning, fully equipped kitchen and a private balcony with hammock. Perfect for digital nomads or couples.',
@@ -183,9 +185,9 @@ const propertyListings: TutorialListing[] = [
     city: 'Mérida',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1464146072230-91cabc968ddb?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1600607687939-ce8a6c25118c?w=800&h=600&fit=crop`,
+      'marketing:property:slide1',
+      'marketing:property:slide2',
+      'marketing:property:slide3',
     ],
     description:
       'Authentic 1930s colonial house fully restored with modern comforts. Thick stone walls keep it naturally cool. Private courtyard garden with fountain. 10 minutes walk from the main plaza and top restaurants.',
@@ -245,9 +247,9 @@ const workerListings: TutorialListing[] = [
     city: 'Cancún',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1621905251189-08b45d6a269e?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1558618047-f4e60cef26b2?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1504328345606-18bbc8c9d7d1?w=800&h=600&fit=crop`,
+      'marketing:worker:slide1',
+      'marketing:worker:slide2',
+      'marketing:worker:slide3',
     ],
     description:
       'CFE-certified electrician specializing in residential and commercial installations. Fault diagnosis, panel upgrades, solar pre-wiring, EV charger installation, and emergency callouts. Fully insured with 3-month work guarantee.',
@@ -301,9 +303,9 @@ const workerListings: TutorialListing[] = [
     city: 'Tulum',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1466637574441-749b8f19452f?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1414235077428-338989a2e8c0?w=800&h=600&fit=crop`,
+      'marketing:worker:slide1',
+      'marketing:worker:slide2',
+      'marketing:worker:slide3',
     ],
     description:
       'Private chef with 8 years in top Tulum restaurants. Specializes in Mexican fusion, raw vegan, and Mediterranean cuisine. Available for intimate dinners, villa events, weekly meal prep, and private cooking classes.',
@@ -357,9 +359,9 @@ const workerListings: TutorialListing[] = [
     city: 'Playa del Carmen',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1517836357463-d25dfeac3438?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1540497077202-7c8a3999166f?w=800&h=600&fit=crop`,
+      'marketing:worker:slide1',
+      'marketing:worker:slide2',
+      'marketing:worker:slide3',
     ],
     description:
       'NASM-certified personal trainer specializing in strength training, HIIT, and outdoor beach workouts. Offers personalized nutrition plans and can train at your home, beach, or a local gym. Online sessions available.',
@@ -419,9 +421,9 @@ const motorcycleListings: TutorialListing[] = [
     city: 'Cancún',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1558981806-ec527fa84c3d?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1568772585407-9361f9bf3a87?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1449426468159-d96dbf08f19f?w=800&h=600&fit=crop`,
+      'marketing:moto:slide1',
+      'marketing:moto:slide2',
+      'marketing:moto:slide3',
     ],
     description:
       'One owner, garage kept. The MT-07 is one of the most thrilling and accessible naked bikes on the market. Low mileage, recent service. Includes original toolkit, keys, and manual. SOAT and tenencia up to date.',
@@ -475,9 +477,9 @@ const motorcycleListings: TutorialListing[] = [
     city: 'Playa del Carmen',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1609630875171-b1321377ee65?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1558981359-219d6364c9c8?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1547036967-23d11aacaee0?w=800&h=600&fit=crop`,
+      'marketing:moto:slide1',
+      'marketing:moto:slide2',
+      'marketing:moto:slide3',
     ],
     description:
       'Nearly new 2023 Kawasaki Z400 — perfect beginner to intermediate bike. Sharp styling, light chassis, and punchy 400cc twin. Ideal for city commuting and weekend fun. Selling due to upgrade.',
@@ -531,9 +533,9 @@ const motorcycleListings: TutorialListing[] = [
     city: 'Mérida',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1591637333184-19aa84b3e01f?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1615197449578-f0a384f96e36?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1558981403-c5f9899a28bc?w=800&h=600&fit=crop`,
+      'marketing:moto:slide1',
+      'marketing:moto:slide2',
+      'marketing:moto:slide3',
     ],
     description:
       'Royal Enfield Meteor 350 in Supernova Bronze — the most comfortable 350cc cruiser you can ride. Upright posture, smooth torque, and classic styling. Great for long hauls on the Yucatan peninsula. Like new.',
@@ -593,9 +595,9 @@ const bicycleListings: TutorialListing[] = [
     city: 'Cancún',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1507035895480-08acdf9b909d?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1576435728678-68d0fbf94e91?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1502744688674-c619d1586c9e?w=800&h=600&fit=crop`,
+      'marketing:bicycle:slide1',
+      'marketing:bicycle:slide2',
+      'marketing:bicycle:slide3',
     ],
     description:
       'Trek FX 3 Disc in matte black — the perfect city speedster. Hydraulic disc brakes, Shimano Deore groupset, and Bontrager tires. Includes rear rack, fenders and Bontrager Ion light set. Barely used, showroom condition.',
@@ -649,9 +651,9 @@ const bicycleListings: TutorialListing[] = [
     city: 'Guadalajara',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1485965120184-e224f721d03e?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1534787238916-9ba6764efd4f?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1541625602538-5f5f44cc779b?w=800&h=600&fit=crop`,
+      'marketing:bicycle:slide1',
+      'marketing:bicycle:slide2',
+      'marketing:bicycle:slide3',
     ],
     description:
       'Cannondale Synapse Carbon with Shimano 105 Di2 electronic shifting. Endurance geometry for long rides with compliance. Light and fast — 8.2 kg complete. Carbon wheels upgraded. Perfect for gran fondos and century rides.',
@@ -705,9 +707,9 @@ const bicycleListings: TutorialListing[] = [
     city: 'Ciudad de México',
     country: 'Mexico',
     images: [
-      `${UNS}/photo-1526178613658-3f1622045557?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop`,
-      `${UNS}/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop`,
+      'marketing:bicycle:slide1',
+      'marketing:bicycle:slide2',
+      'marketing:bicycle:slide3',
     ],
     description:
       'Giant Escape E+ 1 — the perfect electric commuter. SyncDrive Sport motor with 80km real-world range, Shimano hydraulic disc brakes, and integrated lights. Arrives fully charged. Barely 600 km on the odometer.',
@@ -766,9 +768,9 @@ const maleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Remote software engineer from Mexico City, relocating to Tulum for a year. I work from home, keep a clean space, and love the ocean. Looking for a furnished place with strong WiFi. No pets, no parties.',
     profile_images: [
-      `${UNS}/photo-1507003211169-0a1dd7228f2d?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1500648767791-00dcc994a43e?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1552374196-c4e7ffc6e126?w=600&h=800&fit=crop&crop=face`,
+      'marketing:client:slide1',
+      'marketing:client:slide2',
+      'marketing:client:slide3',
     ],
     interests: ['Remote Work', 'Surfing', 'Photography', 'Coffee', 'Cycling'],
     verified: true,
@@ -818,9 +820,9 @@ const maleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Entrepreneur and weekend rider. Looking for a sport or naked bike to ride on weekends and some commuting. I have an A license and 6 years riding experience. Prefer something between 400cc and 700cc.',
     profile_images: [
-      `${UNS}/photo-1568602471122-7832951cc4c5?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1472099645785-5658abf4ff4e?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1519085360753-af0119f7cbe7?w=600&h=800&fit=crop&crop=face`,
+      'marketing:client:slide1',
+      'marketing:client:slide2',
+      'marketing:client:slide3',
     ],
     interests: ['Motorcycles', 'Entrepreneurship', 'Travel', 'MotoGP', 'Gym'],
     verified: true,
@@ -870,9 +872,9 @@ const maleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Corporate executive relocating from Monterrey with my family. Looking for a high-quality 3–4 bedroom house or apartment. We have two kids and a golden retriever. Need 2 parking spaces and proximity to top schools.',
     profile_images: [
-      `${UNS}/photo-1506794778202-cad84cf45f1d?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1566492031773-4f4e44671857?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1537368910025-700350fe46c7?w=600&h=800&fit=crop&crop=face`,
+      'marketing:client:slide1',
+      'marketing:client:slide2',
+      'marketing:client:slide3',
     ],
     interests: ['Family Life', 'Golf', 'Real Estate', 'Travel', 'Fine Dining'],
     verified: true,
@@ -928,9 +930,9 @@ const femaleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Digital nomad and content creator based in Tulum. I travel often but this is my home base. I need a beautiful, well-lit furnished studio or 1-bedroom with fast internet. Very tidy, quiet, and responsible.',
     profile_images: [
-      `${UNS}/photo-1494790108377-be9c29b29330?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1544005313-94ddf0286df2?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1508214751196-bcfd4ca60f91?w=600&h=800&fit=crop&crop=face`,
+      'marketing:client:slide1',
+      'marketing:client:slide2',
+      'marketing:client:slide3',
     ],
     interests: ['Content Creation', 'Yoga', 'Travel', 'Sustainability', 'Art'],
     verified: true,
@@ -980,9 +982,9 @@ const femaleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Yoga instructor and cycling enthusiast. Looking for a quality bicycle to use daily for teaching commutes and weekend beach rides. I ride about 20–30 km daily. Eco-conscious and prefer sustainable brands.',
     profile_images: [
-      `${UNS}/photo-1438761681033-6461ffad8d80?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1487412720507-e7ab37603c6f?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1531746020798-e6953c6e8e04?w=600&h=800&fit=crop&crop=face`,
+      'marketing:client:slide1',
+      'marketing:client:slide2',
+      'marketing:client:slide3',
     ],
     interests: ['Yoga', 'Cycling', 'Nutrition', 'Nature', 'Mindfulness'],
     verified: true,
@@ -1032,9 +1034,9 @@ const femaleClients: TutorialClientProfile[] = [
     country: 'Mexico',
     bio: 'Architect and studio owner looking for a rental property that doubles as home + client meeting space. Need a spacious, modern property with at least one area I can use as a studio/office. Design-forward aesthetic preferred.',
     profile_images: [
-      `${UNS}/photo-1573496359142-b8d87734a5a2?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1580489944761-15a19d654956?w=600&h=800&fit=crop&crop=face`,
-      `${UNS}/photo-1567532939604-b6b5b0db2604?w=600&h=800&fit=crop&crop=face`,
+      'marketing:client:slide1',
+      'marketing:client:slide2',
+      'marketing:client:slide3',
     ],
     interests: ['Architecture', 'Interior Design', 'Art', 'Photography', 'Cooking'],
     verified: true,

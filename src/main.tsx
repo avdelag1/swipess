@@ -1,37 +1,3 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import "./index.css";
-import "./styles/responsive.css";
-import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// CACHE RECOVERY - Force clear all caches if ?clear-cache=1 in URL
-// This helps recover from stale service worker or cache issues
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('clear-cache') === '1') {
-  // Unregister all service workers
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => registration.unregister());
-    });
-  }
-  // Clear all caches
-  if ('caches' in window) {
-    caches.keys().then((names) => {
-      names.forEach((name) => caches.delete(name));
-    });
-  }
-  // Clear local/session storage
-  localStorage.clear();
-  sessionStorage.clear();
-  // Remove the query param and reload
-  const cleanUrl = window.location.pathname + window.location.hash;
-  window.history.replaceState({}, '', cleanUrl);
-  window.location.reload();
-}
-
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // FAST INITIAL RENDER - Quita el loader apenas carga la página
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -39,6 +5,16 @@ const initialLoader = document.getElementById("initial-loader");
 if (initialLoader) {
   initialLoader.remove(); // Instant removal — no fade delay
 }
+
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+import "./styles/responsive.css";
+import "./styles/PremiumShine.css";
+
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
+import { logger } from "@/utils/logger";
 
 // Arranca la app normalmente
 // NOTE: StrictMode REMOVED intentionally for production-like performance
@@ -109,12 +85,12 @@ deferredInit(async () => {
 }, 5000);
 
 // Service Worker with AGGRESSIVE update handling for PWA
-if ("serviceWorker" in navigator && import.meta.env.PROD) {
+if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
       .then((registration) => {
-        console.log('[SW] Registered successfully');
+        logger.info('[SW] Registered successfully');
 
         // Check for updates immediately
         registration.update();
@@ -126,10 +102,10 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
         registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
-            console.log('[SW] New version installing...');
+            logger.info('[SW] New version installing...');
             newWorker.addEventListener("statechange", () => {
               if (newWorker.state === "installed") {
-                console.log('[SW] New version installed');
+                logger.info('[SW] New version installed');
                 // If there's a waiting worker, it will auto-activate via skipWaiting()
                 // The page will reload when controllerchange fires
               }
@@ -139,20 +115,16 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
       })
       .catch((err) => console.error('[SW] Registration failed:', err));
 
-    // Reload when new SW takes control (regardless of previous state)
-    let refreshing = false;
+    // Graceful update handling instead of forced reload
     navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (!refreshing) {
-        refreshing = true;
-        console.log('[SW] New version active, reloading...');
-        window.location.reload();
-      }
+      logger.info('[SW] New version active. App will update on next navigation or via Automatic Updates UI.');
+      window.dispatchEvent(new CustomEvent('sw-controller-changed'));
     });
 
     // Listen for update messages from SW
     navigator.serviceWorker.addEventListener('message', (event) => {
       if (event.data?.type === 'SW_UPDATED') {
-        console.log('[SW] Update notification received:', event.data.version);
+        window.dispatchEvent(new CustomEvent('sw-updated', { detail: event.data }));
       }
     });
   });

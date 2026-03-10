@@ -23,19 +23,19 @@ const ToastViewport = React.forwardRef<
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName
 
 const toastVariants = cva(
-  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border p-5 pr-8 transition-all backdrop-blur-xl data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full",
+  "group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-2xl border p-5 pr-8 transition-all data-[swipe=cancel]:translate-x-0 data-[swipe=end]:translate-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full",
   {
-    variants: {
+     variants: {
       variant: {
-        default: "border-white/10 bg-[#1C1C1E]/95 text-white [box-shadow:0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.08)]",
+        default: "border-border/20 bg-card/95 text-foreground [box-shadow:0_8px_32px_rgba(0,0,0,0.15),0_2px_8px_rgba(0,0,0,0.1)] dark:[box-shadow:0_8px_32px_rgba(0,0,0,0.5),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.08)]",
         destructive:
-          "destructive group border-red-500/20 bg-[#1C1C1E]/95 text-white [box-shadow:0_8px_32px_rgba(239,68,68,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
+          "destructive group border-red-500/20 bg-card/95 text-foreground [box-shadow:0_8px_32px_rgba(239,68,68,0.1),0_2px_8px_rgba(0,0,0,0.1)] dark:[box-shadow:0_8px_32px_rgba(239,68,68,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
         success:
-          "border-emerald-500/20 bg-[#1C1C1E]/95 text-white [box-shadow:0_8px_32px_rgba(16,185,129,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
+          "border-emerald-500/20 bg-card/95 text-foreground [box-shadow:0_8px_32px_rgba(16,185,129,0.1),0_2px_8px_rgba(0,0,0,0.1)] dark:[box-shadow:0_8px_32px_rgba(16,185,129,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
         warning:
-          "border-amber-500/20 bg-[#1C1C1E]/95 text-white [box-shadow:0_8px_32px_rgba(245,158,11,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
+          "border-amber-500/20 bg-card/95 text-foreground [box-shadow:0_8px_32px_rgba(245,158,11,0.1),0_2px_8px_rgba(0,0,0,0.1)] dark:[box-shadow:0_8px_32px_rgba(245,158,11,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
         info:
-          "border-orange-500/20 bg-[#1C1C1E]/95 text-white [box-shadow:0_8px_32px_rgba(249,115,22,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
+          "border-orange-500/20 bg-card/95 text-foreground [box-shadow:0_8px_32px_rgba(249,115,22,0.1),0_2px_8px_rgba(0,0,0,0.1)] dark:[box-shadow:0_8px_32px_rgba(249,115,22,0.2),0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.06)]",
       },
     },
     defaultVariants: {
@@ -81,7 +81,7 @@ const ToastClose = React.forwardRef<
   <ToastPrimitives.Close
     ref={ref}
     className={cn(
-      "absolute right-2 top-2 rounded-lg p-1 text-white/40 opacity-0 transition-opacity hover:text-white/80 hover:bg-white/10 focus:opacity-100 focus:outline-none group-hover:opacity-100",
+      "absolute right-2 top-2 rounded-lg p-1 text-foreground/40 opacity-0 transition-opacity hover:text-foreground/80 hover:bg-foreground/10 focus:opacity-100 focus:outline-none group-hover:opacity-100",
       className
     )}
     toast-close=""

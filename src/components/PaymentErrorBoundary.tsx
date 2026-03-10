@@ -39,16 +39,37 @@ export class PaymentErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center p-8 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="w-12 h-12 text-red-600 mb-4" />
-          <h2 className="text-xl font-bold text-red-900 mb-2">Payment Error</h2>
-          <p className="text-red-700 mb-4 text-center max-w-sm">
+        <div
+          className="flex flex-col items-center justify-center p-8 rounded-lg border"
+          style={{
+            backgroundColor: 'hsl(var(--destructive) / 0.1)',
+            borderColor: 'hsl(var(--destructive) / 0.3)',
+          }}
+        >
+          <AlertCircle
+            className="w-12 h-12 mb-4"
+            style={{ color: 'hsl(var(--destructive))' }}
+          />
+          <h2
+            className="text-xl font-bold mb-2"
+            style={{ color: 'hsl(var(--destructive))' }}
+          >
+            Payment Error
+          </h2>
+          <p
+            className="mb-4 text-center max-w-sm"
+            style={{ color: 'hsl(var(--destructive) / 0.8)' }}
+          >
             {this.state.error?.message || 'An unexpected error occurred while processing your payment.'}
           </p>
-          <Button 
+          <Button
             onClick={this.handleReset}
             variant="outline"
-            className="border-red-600 text-red-600 hover:bg-red-50"
+            className="hover:opacity-80"
+            style={{
+              borderColor: 'hsl(var(--destructive))',
+              color: 'hsl(var(--destructive))',
+            }}
           >
             Try Again
           </Button>

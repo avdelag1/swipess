@@ -34,7 +34,9 @@ interface FilterState {
   // Client filters for owner swipe deck
   clientGender: ClientGender;
   clientType: ClientType;
-
+  clientAgeRange: [number, number] | null;
+  clientBudgetRange: [number, number] | null;
+  clientNationalities: string[];
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
   bedrooms: number[];
@@ -62,6 +64,15 @@ interface FilterState {
   // Owner filter actions
   setClientGender: (gender: ClientGender) => void;
   setClientType: (type: ClientType) => void;
+  setClientAgeRange: (range: [number, number] | null) => void;
+  setClientBudgetRange: (range: [number, number] | null) => void;
+  setClientNationalities: (nationalities: string[]) => void;
+  hydrateOwnerPrefs: (prefs: {
+    clientGender?: ClientGender;
+    clientAgeRange?: [number, number] | null;
+    clientBudgetRange?: [number, number] | null;
+    clientNationalities?: string[];
+  }) => void;
 
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
@@ -99,6 +110,9 @@ export const useFilterStore = create<FilterState>()(
     listingType: 'both',
     clientGender: 'any',
     clientType: 'all',
+    clientAgeRange: null,
+    clientBudgetRange: null,
+    clientNationalities: [],
     priceRange: null,
     bedrooms: [],
     bathrooms: [],
@@ -170,6 +184,40 @@ export const useFilterStore = create<FilterState>()(
       logger.info('[FilterStore] setClientType:', type);
       set((state) => ({
         clientType: type,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    setClientAgeRange: (range) => {
+      set((state) => ({
+        clientAgeRange: range,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+
+    setClientBudgetRange: (range) => {
+      set((state) => ({
+        clientBudgetRange: range,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+
+    setClientNationalities: (nationalities) => {
+      set((state) => ({
+        clientNationalities: nationalities,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+
+    hydrateOwnerPrefs: (prefs) => {
+      set((state) => ({
+        ...(prefs.clientGender !== undefined && { clientGender: prefs.clientGender }),
+        ...(prefs.clientAgeRange !== undefined && { clientAgeRange: prefs.clientAgeRange }),
+        ...(prefs.clientBudgetRange !== undefined && { clientBudgetRange: prefs.clientBudgetRange }),
+        ...(prefs.clientNationalities !== undefined && { clientNationalities: prefs.clientNationalities }),
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -256,6 +304,9 @@ export const useFilterStore = create<FilterState>()(
         listingType: 'both',
         clientGender: 'any',
         clientType: 'all',
+        clientAgeRange: null,
+        clientBudgetRange: null,
+        clientNationalities: [],
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
@@ -308,6 +359,9 @@ export const useFilterStore = create<FilterState>()(
         showHireServices: hasServices || undefined,
         clientGender: state.clientGender !== 'any' ? state.clientGender : undefined,
         clientType: state.clientType !== 'all' ? state.clientType : undefined,
+        ageRange: state.clientAgeRange ?? undefined,
+        budgetRange: state.clientBudgetRange ?? undefined,
+        nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
       };
     },
 
@@ -324,7 +378,7 @@ export const useFilterStore = create<FilterState>()(
       if (role === 'client') {
         return state.categories.length + (state.listingType !== 'both' ? 1 : 0);
       }
-      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
+      return (state.clientGender !== 'any' ? 1 : 0) + (state.clientType !== 'all' ? 1 : 0) + (state.clientAgeRange ? 1 : 0) + (state.clientBudgetRange ? 1 : 0) + (state.clientNationalities.length > 0 ? 1 : 0) + state.categories.length + (state.listingType !== 'both' ? 1 : 0);
     },
   }))
 );

@@ -100,7 +100,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
             }}
             className="relative z-10 w-full max-w-md"
           >
-            <Card className="p-8 text-center bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 shadow-2xl">
+            <Card className="p-8 text-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/50 dark:to-red-950/50 border-2 border-orange-200 dark:border-orange-800 shadow-2xl">
               {/* Match Text Animation */}
               <motion.div
                 initial={{ y: -50, opacity: 0 }}
@@ -170,7 +170,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
                             </div>
                           )}
                         </div>
-                        <p className="text-sm font-semibold mt-2 text-gray-700">
+                        <p className="text-sm font-semibold mt-2 text-foreground">
                           {matchedUser?.name || 'User'}
                         </p>
                       </motion.div>
@@ -202,14 +202,14 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
                             You
                           </div>
                         </div>
-                        <p className="text-sm font-semibold mt-2 text-gray-700">
+                        <p className="text-sm font-semibold mt-2 text-foreground">
                           You
                         </p>
                       </motion.div>
                     </div>
 
                     <motion.p 
-                      className="text-gray-600 mb-6"
+                      className="text-muted-foreground mb-6"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.8 }}
@@ -233,7 +233,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
                       <Button
                         onClick={onClose}
                         variant="outline"
-                        className="border-gray-300 hover:bg-gray-50"
+                        className="border-border hover:bg-muted"
                       >
                         Keep Browsing
                       </Button>

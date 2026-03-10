@@ -368,12 +368,12 @@ export function ListingPreviewDialog({
             <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
               <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-muted/20 rounded-lg">
                 <Eye className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-muted-foreground" />
-                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.views || listing.view_count || 0}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.views || 0}</div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">Views</div>
               </div>
               <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-muted/20 rounded-lg">
                 <Flame className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-muted-foreground" />
-                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.likes || listing.like_count || 0}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-primary">{listing.likes || 0}</div>
                 <div className="text-[10px] sm:text-xs text-muted-foreground">Flames</div>
               </div>
               <div className="space-y-1 sm:space-y-2 p-2 sm:p-3 bg-muted/20 rounded-lg">

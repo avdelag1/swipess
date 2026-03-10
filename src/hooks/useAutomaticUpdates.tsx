@@ -322,10 +322,21 @@ export function useForceUpdateOnVersionChange() {
       return () => clearTimeout(timer);
     }
 
-    // If we've been here a while, or it's a critical HTML/JS content mismatch, trigger now
-    console.log(`[AutoUpdate] Forcing update: versionMismatch=${versionMismatch}, htmlMismatch=${htmlMismatch}`);
-    sessionStorage.setItem('swipes_reload_triggered', '1');
-    forceAppUpdate();
+    // If already been on page 30s+ (e.g. focus regain), do the normal check
+    if (storedVersion && storedVersion !== BUILD_TIMESTAMP) {
+      sessionStorage.setItem('swipes_reload_triggered', '1');
+      forceAppUpdate();
+      return;
+    }
+
+    if (checkHtmlVersionMismatch()) {
+      if (import.meta.env.DEV) console.log('[AutoUpdate] HTML version differs from JS — stale JS detected, forcing update');
+      sessionStorage.setItem('swipes_reload_triggered', '1');
+      forceAppUpdate();
+      return;
+    }
+
+    markVersionAsInstalled();
   }, []);
 }
 

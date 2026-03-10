@@ -1,96 +1,151 @@
+#!/usr/bin/env node
 /**
- * Swipess AI Diagnostic Script
- * ----------------------------
- * Tests the `ai-orchestrator` Edge Function directly from Node.js.
- * This script allows testing "inside" without a browser.
- * 
- * Usage: node scripts/diagnose-ai.js [test_query]
+ * AI Orchestrator Diagnostic Script
+ * Run: node scripts/diagnose-ai.js
+ *
+ * Tests:
+ *   1. Unauthenticated GET ping  — verifies the function is deployed and reachable
+ *   2. Unauthenticated POST ping — same, via task: "ping"
+ *   3. Authenticated chat        — sends a real AI message (requires SUPABASE_AUTH_TOKEN in .env)
  */
 
-import { createClient } from '@supabase/supabase-js';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { readFileSync } from "fs";
+import { resolve } from "path";
 
-// Load environment variables from .env
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '../.env') });
+// ─── Load .env ────────────────────────────────────────────────────────────────
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('❌ Error: VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY missing in .env');
-    process.exit(1);
+function loadEnv() {
+  try {
+    const raw = readFileSync(resolve(process.cwd(), ".env"), "utf8");
+    for (const line of raw.split("\n")) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eq = trimmed.indexOf("=");
+      if (eq === -1) continue;
+      const key = trimmed.slice(0, eq).trim();
+      const val = trimmed.slice(eq + 1).trim().replace(/^["']|["']$/g, "");
+      if (!process.env[key]) process.env[key] = val;
+    }
+  } catch {
+    console.warn("  ⚠  Could not read .env — using existing environment variables\n");
+  }
 }
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+loadEnv();
 
-async function runDiagnostic() {
-    const query = process.argv[2] || "Hello Swipess Oracle, are you online? Respond with 'Ready for matches! ✨'";
+// ─── Config ───────────────────────────────────────────────────────────────────
 
-    console.log('🚀 Starting AI Diagnostic...');
-    console.log(`🔗 URL: ${supabaseUrl}`);
-    console.log(`🤖 Query: "${query}"`);
+const SUPABASE_URL =
+  process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "";
+const ANON_KEY =
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY || "";
+const AUTH_TOKEN = process.env.SUPABASE_AUTH_TOKEN || ""; // optional: user JWT for chat test
 
-    // 1. Create a temporary test user
-    const testEmail = `diagnostic-${Date.now()}@swipess.test`;
-    const testPassword = 'diagnostic-pwd-123';
-
-    console.log(`👤 Creating temporary user: ${testEmail}...`);
-
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: testEmail,
-        password: testPassword,
-        options: {
-            data: { role: 'client' }
-        }
-    });
-
-    if (signUpError) {
-        console.error('❌ Sign-up failed:', signUpError.message);
-        return;
-    }
-
-    console.log('✅ User created (Auto-confirmed)');
-
-    // 2. Invoke AI Orchestrator
-    console.log('📡 Calling ai-orchestrator...');
-
-    const startTime = Date.now();
-
-    try {
-        const { data, error: invokeError } = await supabase.functions.invoke('ai-orchestrator', {
-            body: {
-                task: 'ping',
-                data: {}
-            }
-        });
-
-        const duration = Date.now() - startTime;
-
-        if (invokeError) {
-            console.error('❌ AI Invocation failed:');
-            console.error(invokeError);
-            if (invokeError.status === 401) console.log('💡 Tip: Ensure the Edge Function supports the current auth session.');
-            return;
-        }
-
-        // 3. Report Results
-        console.log('\n✨ --- AI RESPONSE --- ✨');
-        console.log(data?.result?.text || data?.result?.message || JSON.stringify(data, null, 2));
-        console.log('-------------------------');
-        console.log(`⏱️  Duration: ${duration}ms`);
-        console.log(`🛡️  Provider: ${data?.provider_used || 'Unknown'}`);
-        console.log('✅ Diagnostic Complete!');
-    } catch (err) {
-        console.error('❌ Fetch or Invocation crash:');
-        console.error(err);
-    }
+if (!SUPABASE_URL || !ANON_KEY) {
+  console.error(
+    "ERROR: VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY must be set in .env"
+  );
+  process.exit(1);
 }
 
-runDiagnostic().catch(err => {
-    console.error('💥 Critical script error:', err);
-    process.exit(1);
-});
+const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/ai-orchestrator`;
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function pass(label, extra = "") {
+  console.log(`  ✅  ${label}${extra ? "  →  " + extra : ""}`);
+}
+
+function fail(label, reason) {
+  console.log(`  ❌  ${label}  →  ${reason}`);
+}
+
+async function request(method, body, token) {
+  const headers = {
+    "Content-Type": "application/json",
+    apikey: ANON_KEY,
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+
+  const res = await fetch(FUNCTION_URL, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  let json;
+  try {
+    json = await res.json();
+  } catch {
+    json = null;
+  }
+  return { status: res.status, json };
+}
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+async function testGetPing() {
+  console.log("\n[1] GET /ai-orchestrator  (unauthenticated ping)");
+  try {
+    const { status, json } = await request("GET");
+    if (status === 200 && json?.status === "ready") {
+      pass("Function reachable", JSON.stringify(json));
+    } else {
+      fail("Unexpected response", `HTTP ${status}  ${JSON.stringify(json)}`);
+    }
+  } catch (err) {
+    fail("Network error", err.message);
+  }
+}
+
+async function testPostPing() {
+  console.log("\n[2] POST ping task  (unauthenticated)");
+  try {
+    const { status, json } = await request("POST", { task: "ping" });
+    if (status === 200 && json?.status === "ready") {
+      pass("Ping task responded", JSON.stringify(json));
+    } else {
+      fail("Unexpected response", `HTTP ${status}  ${JSON.stringify(json)}`);
+    }
+  } catch (err) {
+    fail("Network error", err.message);
+  }
+}
+
+async function testAuthenticatedChat() {
+  console.log("\n[3] POST chat task  (authenticated AI call)");
+  if (!AUTH_TOKEN) {
+    console.log(
+      "  ⏭   Skipped — add SUPABASE_AUTH_TOKEN=<your-jwt> to .env to run this test"
+    );
+    return;
+  }
+  try {
+    const { status, json } = await request(
+      "POST",
+      { task: "chat", data: { messages: [{ role: "user", content: "Say hello in one sentence." }] } },
+      AUTH_TOKEN
+    );
+    if (status === 200 && (json?.result || json?.message)) {
+      const reply = json?.result?.message || json?.result?.text || json?.message || "";
+      pass(`AI replied via ${json?.provider_used || "?"}`, reply.slice(0, 120));
+    } else {
+      fail("AI call failed", `HTTP ${status}  ${JSON.stringify(json)}`);
+    }
+  } catch (err) {
+    fail("Network error", err.message);
+  }
+}
+
+// ─── Run ──────────────────────────────────────────────────────────────────────
+
+console.log("━━━ AI Orchestrator Diagnostics ━━━");
+console.log(`Endpoint: ${FUNCTION_URL}`);
+
+(async () => {
+  await testGetPing();
+  await testPostPing();
+  await testAuthenticatedChat();
+  console.log("\n━━━ Done ━━━\n");
+})();
+

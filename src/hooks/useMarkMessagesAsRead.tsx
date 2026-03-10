@@ -13,7 +13,7 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
     const markAsRead = async () => {
       const { error } = await supabase
         .from('conversation_messages')
-        .update({ is_read: true })
+        .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('conversation_id', conversationId)
         .neq('sender_id', user.id)
         .eq('is_read', false);
@@ -42,7 +42,7 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
           if (payload.new.sender_id !== user.id) {
             supabase
               .from('conversation_messages')
-              .update({ is_read: true })
+              .update({ is_read: true, read_at: new Date().toISOString() })
               .eq('id', payload.new.id)
               .then(({ error }) => {
                 if (error && import.meta.env.DEV) {
@@ -60,6 +60,7 @@ export function useMarkMessagesAsRead(conversationId: string, isActive: boolean)
       // FIX: Use .unsubscribe() instead of .removeChannel() for proper cleanup
       // .unsubscribe() properly stops event listening and prevents memory leaks
       channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [conversationId, user?.id, isActive]);
 }

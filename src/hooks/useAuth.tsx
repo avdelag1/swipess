@@ -139,7 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Email user profile setup (e.g. after email confirmation click)
             // Ensures user_roles, client/owner profiles, and onboarding are set up
             processedUserIdRef.current = session.user.id;
-            const metadataRole = (session.user.user_metadata?.role as 'client' | 'owner') || 'client';
+            const rawRole = session.user.user_metadata?.role;
+            const metadataRole: 'client' | 'owner' = (rawRole === 'client' || rawRole === 'owner') ? rawRole : 'client';
             createProfileIfMissing(session.user, metadataRole).catch((err) => {
               logger.error('[Auth] Email user profile setup failed:', err);
             });
@@ -310,17 +311,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        // Invalidate role query cache to ensure fresh data
-        queryClient.invalidateQueries({ queryKey: ['user-role', data.user.id] });
-
-        // Brief wait for cache invalidation to propagate
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Invalidate role query cache and await completion before navigating
+        await queryClient.invalidateQueries({ queryKey: ['user-role', data.user.id] });
+        await queryClient.invalidateQueries();
 
         // Determine dashboard path from role
         const targetPath = role === 'client' ? '/client/dashboard' : '/owner/dashboard';
-
-        // AUTO-REFRESH: Invalidate all queries to force fresh data
-        queryClient.invalidateQueries();
 
         toast.success("Account Created!", { description: "Loading your dashboard..." });
 
@@ -415,26 +411,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: null };
       }
 
-      return { error: null };
-    } catch (error: unknown) {
+    } catch (error: any) {
       logger.error('[Auth] Sign in error:', error);
       let errorMessage = 'Failed to sign in. Please try again.';
-      const err = error as any;
 
-      if (err.message === 'Invalid login credentials') {
-        errorMessage = 'Invalid email or password. Please check your credentials and try again.';
-      } else if (err.message?.includes('Email not confirmed')) {
-        errorMessage = 'Please check your email and click the confirmation link before signing in.';
-      } else if (err.message?.includes('Too many requests')) {
-        errorMessage = 'Too many login attempts. Please wait a moment and try again.';
-      } else if (err.message?.includes('Account setup incomplete')) {
-        errorMessage = err.message;
-      } else if (err.message) {
-        errorMessage = err.message;
+      if (error.message === 'Invalid login credentials') {
+        errorMessage = "We couldn't find a match for those credentials. Please check your email and password, or try resetting your password.";
+      } else if (error.message?.includes('Email not confirmed')) {
+        errorMessage = 'Your email address needs to be verified before you can sign in. Please check your inbox for the confirmation link.';
+      } else if (error.message?.includes('Too many requests')) {
+        errorMessage = 'For security reasons, your account is temporarily locked due to too many failed attempts. Please try again in a few minutes.';
+      } else if (error.message?.includes('Account setup incomplete')) {
+        errorMessage = error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       toast.error("Sign In Failed", { description: errorMessage });
-      return { error: error as AuthError | Error | null };
+      return { error: error };
     }
   };
 
@@ -506,6 +500,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      // 1. First navigate to home replacing history so user can't "swipe back" to protected page
+      navigate('/', { replace: true });
+
       // Dispatch sign out event
       window.dispatchEvent(new CustomEvent('user-signout'));
 
@@ -513,10 +510,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('pendingOAuthRole');
       localStorage.removeItem('rememberMe');
 
-      // Clear React Query cache
-      queryClient.clear();
+      // Clear React Query cache AFTER navigation to avoid components crashing mid-render
+      setTimeout(() => {
+        queryClient.clear();
+      }, 500);
 
-      // Clear local state FIRST to ensure UI updates immediately
+      // Clear local state
       setUser(null);
       setSession(null);
 
@@ -525,19 +524,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         logger.error('[Auth] Sign out error:', error);
-        // Still navigate to home even if there's an error
       }
 
       toast.success("Signed out", { description: "You have been signed out successfully." });
 
-      // Force navigation to landing page with full page refresh
-      // This ensures a clean state and shows the landing page immediately
-      window.location.href = '/';
     } catch (error) {
       logger.error('[Auth] Unexpected sign out error:', error);
       toast.error("Sign Out Error", { description: "An unexpected error occurred during sign out." });
-      // Even on error, try to redirect to home
-      window.location.href = '/';
+      navigate('/', { replace: true });
     }
   };
 

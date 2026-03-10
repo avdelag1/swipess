@@ -68,8 +68,6 @@ export interface Listing {
   battery_range?: number;
 
   // Worker/Service fields
-  service_type?: string;
-  hourly_rate?: number;
   experience_years?: number;
   skills?: string[];
   certifications?: string[];
@@ -89,6 +87,17 @@ export interface Listing {
   // Timestamps
   updated_at?: string;
   created_at?: string;
+
+  // Video
+  video_url?: string | null;
+
+  // New common fields
+  rental_duration_type?: string | null;
+  vehicle_brand?: string | null;
+  vehicle_model?: string | null;
+  has_verified_documents?: boolean | null;
+  image_url?: string | null;
+  provider_name?: string | null;
 }
 
 export function useListings(excludeSwipedIds: string[] = [], options: { enabled?: boolean } = {}) {
@@ -249,6 +258,7 @@ export function useOwnerListings() {
       isMounted = false;
       if (subscription) {
         subscription.unsubscribe();
+        supabase.removeChannel(subscription);
       }
     };
   }, [queryClient]);

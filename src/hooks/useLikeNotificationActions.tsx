@@ -23,65 +23,60 @@ export function useLikeNotificationActions() {
       if (!user) throw new Error('Not authenticated');
 
       // Determine roles
-      let clientId = '';
-      let ownerId = '';
+      // matches table has: user_id (client/swiper), owner_id, listing_id
+      let matchUserId = '';
+      let matchOwnerId = '';
       let listingId = '';
 
       if (targetType === 'listing') {
         // likerId is client, user is owner
-        clientId = likerId;
-        ownerId = user.id;
+        matchUserId = likerId;
+        matchOwnerId = user.id;
         listingId = targetId;
       } else {
         // likerId is owner, user is client
-        clientId = user.id;
-        ownerId = likerId;
+        matchUserId = user.id;
+        matchOwnerId = likerId;
       }
 
-      // Create or update match
-      const { data: existingMatch } = await (supabase as any)
+      // Create match (matches table: id, user_id, owner_id, listing_id, created_at)
+      const { data: existingMatch } = await supabase
         .from('matches')
-        .select('id, status')
-        .eq('client_id', clientId)
-        .eq('owner_id', ownerId)
+        .select('id')
+        .eq('user_id', matchUserId)
+        .eq('owner_id', matchOwnerId)
         .maybeSingle();
 
-      if (existingMatch) {
-        // Update existing match
-      const { error: updateError } = await (supabase as any)
-          .from('matches')
-          .update({
-            status: 'active',
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', existingMatch.id);
+      let matchId = existingMatch?.id;
 
-        if (updateError) throw updateError;
-      } else {
-        // Create new match
-        const { error: insertError } = await (supabase as any)
+      if (!existingMatch && listingId) {
+        const { data: newMatch, error: insertError } = await supabase
           .from('matches')
           .insert([{
-            client_id: clientId,
-            owner_id: ownerId,
-            listing_id: listingId || null,
-            status: 'active',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }]);
+            user_id: matchUserId,
+            owner_id: matchOwnerId,
+            listing_id: listingId,
+          }])
+          .select('id')
+          .single();
 
         if (insertError) throw insertError;
+        matchId = newMatch?.id;
       }
 
       // Create conversation for chat
-      const { data: conversations } = await supabase
+      // conversations table: client_id, owner_id, listing_id
+      const clientId = matchUserId;
+      const ownerId = matchOwnerId;
+
+      const { data: existingConversation } = await supabase
         .from('conversations')
         .select('id')
         .eq('client_id', clientId)
         .eq('owner_id', ownerId)
         .maybeSingle();
 
-      let conversationId = conversations?.id;
+      let conversationId = existingConversation?.id;
       if (!conversationId) {
         const { data: newConversation, error: convError } = await supabase
           .from('conversations')
@@ -89,8 +84,6 @@ export function useLikeNotificationActions() {
             client_id: clientId,
             owner_id: ownerId,
             listing_id: listingId || null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
           }])
           .select('id')
           .single();
@@ -99,24 +92,23 @@ export function useLikeNotificationActions() {
         conversationId = newConversation?.id;
       }
 
-      // Mark notification as read
+      // Mark notification as read (notifications has: is_read, NO read_at)
       await supabase
         .from('notifications')
-        .update({ is_read: true, read_at: new Date().toISOString() })
+        .update({ is_read: true })
         .eq('id', notificationId);
 
       // Send reciprocal notification
-      await supabase.from('notifications').insert([{
-        user_id: likerId,
-        notification_type: 'new_match',
-        title: '💕 It\'s a Match!',
-        message: 'Someone accepted your like. Start chatting now!',
-        related_user_id: user.id,
-        related_match_id: existingMatch?.id,
-        metadata: { conversationId }
-      }] as any);
+      await supabase.rpc('create_notification_for_user', {
+        p_user_id: likerId,
+        p_notification_type: 'new_match',
+        p_title: '💕 It\'s a Match!',
+        p_message: 'Someone accepted your like. Start chatting now!',
+        p_related_user_id: user.id,
+        p_metadata: { conversationId, matchId }
+      });
 
-      return { conversationId, matchId: existingMatch?.id };
+      return { conversationId, matchId };
     },
     onSuccess: (data) => {
       toast({
@@ -135,14 +127,10 @@ export function useLikeNotificationActions() {
 
   const rejectLikeMutation = useMutation({
     mutationFn: async ({ notificationId }: { notificationId: string }) => {
-
-      // Just mark notification as read/archived
+      // Just mark notification as read (no read_at column)
       await supabase
         .from('notifications')
-        .update({
-          is_read: true,
-          read_at: new Date().toISOString()
-        })
+        .update({ is_read: true })
         .eq('id', notificationId);
     },
     onSuccess: () => {

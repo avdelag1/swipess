@@ -60,8 +60,8 @@ export function useProfileSetup() {
       // Verify referrer exists
       const { data: referrerProfile } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('id', referrerId)
+        .select('user_id')
+        .eq('user_id', referrerId)
         .maybeSingle();
 
       if (!referrerProfile) {
@@ -114,9 +114,9 @@ export function useProfileSetup() {
           .from('notifications')
           .insert([{
             user_id: referrerId,
-            type: 'system',
+            notification_type: 'system_announcement',
             title: 'Referral Reward',
-            content: 'You earned 1 free message for inviting a new user!',
+            message: 'You earned 1 free message for inviting a new user!',
             is_read: false,
           }])
           .then(() => { });
@@ -433,8 +433,8 @@ export function useProfileSetup() {
                   // Verify referrer exists
                   const { data: referrerProfile } = await supabase
                     .from('profiles')
-                    .select('id')
-                    .eq('id', referrerId)
+                    .select('user_id')
+                    .eq('user_id', referrerId)
                     .maybeSingle();
 
                   if (referrerProfile) {

@@ -7,8 +7,8 @@
 
   <!-- Critical: Preconnect with high priority for maximum performance -->
   <!-- PERF: Preconnect to Supabase API + Storage for instant image loading -->
-  <link rel="preconnect" href="https://qegyisokrxdsszzswsqk.supabase.co" crossorigin>
-  <link rel="dns-prefetch" href="https://qegyisokrxdsszzswsqk.supabase.co">
+  <link rel="preconnect" href="https://vplgtcguxujxwrgguxqq.supabase.co" crossorigin>
+  <link rel="dns-prefetch" href="https://vplgtcguxujxwrgguxqq.supabase.co">
 
   <!-- Fonts - deferred priority -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -21,6 +21,47 @@
 
   <!-- CRITICAL CSS - Inlined for instant First Contentful Paint -->
   <!-- Styles moved to src/index.css for proper processing -->
+
+  <!-- Splash screen styles — applied before React loads so logo is centered with heartbeat animation -->
+  <style>
+    .initial-loader {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: #050505;
+    }
+
+    .splash-logo {
+      width: 65vw;
+      max-width: 380px;
+      height: auto;
+      object-fit: contain;
+      animation: splash-heartbeat 2s ease-in-out infinite;
+    }
+
+    @keyframes splash-heartbeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      25% {
+        transform: scale(1.06);
+      }
+
+      50% {
+        transform: scale(1);
+      }
+
+      75% {
+        transform: scale(1.06);
+      }
+    }
+  </style>
 
   <!-- Defer font loading - not render blocking -->
 
@@ -35,7 +76,8 @@
   </noscript>
 
   <title>Swipess — The Elite Multi-Vertical Hub</title>
-  <meta name="description" content="Discover premium properties, high-performance vehicles, and expert services. Swipess connects you to what matters most with elite precision.">
+  <meta name="description"
+    content="Discover premium properties, high-performance vehicles, and expert services. Swipess connects you to what matters most with elite precision.">
   <meta name="author" content="Swipess" />
   <meta name="keywords"
     content="exclusive properties, luxury vehicles, professional services, premium matching, elite marketplace">
@@ -45,7 +87,8 @@
   <meta property="og:url" content="https://swipess.com/">
 
 
-  <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/qyGlrqJHe9g2hyHsAc6ZZroRlyF2/social-images/social-1772255591388-1000651100.webp">
+  <meta property="og:image"
+    content="https://storage.googleapis.com/gpt-engineer-file-uploads/qyGlrqJHe9g2hyHsAc6ZZroRlyF2/social-images/social-1772255591388-1000651100.webp">
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
@@ -67,7 +110,10 @@
   <meta name="format-detection" content="telephone=no">
   <meta name="apple-touch-fullscreen" content="yes">
 
-  <!-- Favicon - SVG (modern browsers) + PNG fallbacks + ICO (legacy) -->
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/fire-s-logo.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/fire-s-logo.png">
+  <link rel="shortcut icon" href="/icons/fire-s-logo.png">
 
   <!-- Apple Touch Icons - All required sizes -->
   <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -90,7 +136,7 @@
   <!-- Security Headers -->
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://storage.googleapis.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co https://storage.googleapis.com https://*.googleusercontent.com https://images.unsplash.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://accounts.google.com https://storage.googleapis.com https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; media-src 'self' blob: https://ice1.somafm.com https://ice2.somafm.com https://streaming.tmcrental.com https://ice64.securenetsystems.net https://fm939.wnyc.org https://wqxr.streamguys1.com https://api.ibizaglobalradio.com:8443 https://s3.sonicabroadcast.com http://wkcr.streamguys1.com; frame-src https://accounts.google.com; worker-src 'self' blob:;">
 
   <!-- Reduced Motion: apply class when user prefers reduced motion -->
   <script>
@@ -119,19 +165,13 @@
       } catch (e) { }
     })();
   </script>
-  <meta property="og:title" content="Swipess — The Elite Multi-Vertical Hub">
-  <meta name="twitter:title" content="Swipess — The Elite Multi-Vertical Hub">
-  <meta property="og:description" content="Discover premium properties, high-performance vehicles, and expert services. Swipess connects you to what matters most with elite precision.">
-  <meta name="twitter:description" content="Discover premium properties, high-performance vehicles, and expert services. Swipess connects you to what matters most with elite precision.">
-  <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/qyGlrqJHe9g2hyHsAc6ZZroRlyF2/social-images/social-1772255591388-1000651100.webp">
-  <meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body>
   <!-- Clean logo splash — removed when React mounts -->
   <div id="root">
     <div class="initial-loader" id="initial-loader">
-      <img class="splash-logo" src="/icons/swipess-logo-script.png" alt="Swipess" />
+      <img class="splash-logo" src="/icons/fire-s-logo.png" alt="Swipess" />
     </div>
   </div>
 

@@ -189,11 +189,42 @@ export function useNotificationSystem() {
           setPendingNotifications(prev => [...prev, notification]);
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const updated = payload.new as any;
+          if (updated) {
+            setNotifications(prev => prev.map(n => n.id === updated.id ? { ...n, read: updated.is_read } : n));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const deleted = payload.old as any;
+          if (deleted) {
+            setNotifications(prev => prev.filter(n => n.id !== deleted.id));
+          }
+        }
+      )
       .subscribe();
 
     return () => {
       // Properly unsubscribe before removing channel to prevent memory leaks
       notificationsChannel.unsubscribe();
+      supabase.removeChannel(notificationsChannel);
     };
   }, [user?.id]);
 
@@ -216,10 +247,20 @@ export function useNotificationSystem() {
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    // Mark as read
+    // Mark as read locally
     setNotifications(prev =>
       prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
     );
+
+    // Persist to database to maintain state consistency
+    if (user?.id && !notification.read) {
+      Promise.resolve(
+        supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', notification.id)
+      ).catch((err) => logger.error('[Notifications] Failed to mark as read', err));
+    }
 
     // Navigate to appropriate page
     if (notification.actionUrl) {

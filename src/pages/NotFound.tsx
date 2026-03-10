@@ -39,7 +39,6 @@ const NotFound = () => {
     }}>
       {/* Animated background */}
       <div className="absolute inset-0 opacity-20" style={{
-        willChange: 'opacity',
         contain: 'layout style paint'
       }}>
         <motion.div

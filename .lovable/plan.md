@@ -1,57 +1,46 @@
 
 
-# Fix Plan: Background Color Issues + Build Errors + AI Orchestrator
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Problem Analysis
+### 1. Replace App Icon with Fire S Logo
 
-### 1. Pink/Weird Background Color on Light Theme
-The `GradientMasks.tsx` system in `AppLayout.tsx` renders fixed gradient overlays (top, bottom, vignette) across all pages. In light theme (`white-matte`), these use white (`rgb(255,255,255)`) base colors at up to 40% opacity, creating a washed-out, pinkish tint over the content. The overlays sit at z-index 15-20, covering buttons and content areas. This is what creates the "something on top of buttons" effect you're seeing.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### 2. AI Orchestrator + MiniMax
-The `MINIMAX_API_KEY` secret is already configured. The orchestrator code in `supabase/functions/ai-orchestrator/index.ts` already has MiniMax as a fallback provider with `isMinimaxForced = false` (Gemini primary, MiniMax fallback). This is working as designed.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### 3. Build Errors (25+ errors blocking the app)
-Multiple TypeScript errors need fixing across several files.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
----
+### 2. Profile Photo Already Shows in Top-Left
 
-## Plan
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### Step 1: Fix Light Theme Gradient Overlays
-**File: `src/components/ui/GradientMasks.tsx`**
-- Reduce intensity of gradients in light mode significantly (max opacity from 0.35/0.40 down to ~0.10-0.15)
-- Use fully transparent vignette in light mode to avoid the dirty/pink look
-- This preserves the cinematic effect in dark mode while keeping light mode clean
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### Step 2: Fix Build Errors (all files)
+### 3. Fix Header Too Close to Top Edge
 
-**`src/components/ConversationalListingCreator.tsx`** - Missing imports:
-- Add `import { motion } from 'framer-motion'` and `import { cn } from '@/lib/utils'`
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**`src/components/LegendaryLandingPage.tsx`** (lines 416, 431):
-- Change `autocomplete` to `autoComplete` (React JSX attribute)
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**`src/components/SwipessSwipeContainer.tsx`** (line 641):
-- Add `existingIds` and `dismissedSet` variable definitions before the filter call using the existing `deckQueueRef` and `dismissedIds`
+### 4. Fix MarketingSlide Build Error
 
-**`src/components/UnifiedListingForm.tsx`**:
-- Remove duplicate `import { cn } from '@/lib/utils'` (line 19)
-- Replace `notifications.listing.updated/created` with `toast()` calls
-- Fix the `stagger` variants type issue (wrap in proper Variants format)
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-**`src/pages/ClientProfileNew.tsx`** and **`src/pages/OwnerProfileNew.tsx`**:
-- Remove duplicate `SharedProfileSection` import (line 5 / line 4)
-- Fix `staggerChildren` variants type (same pattern as UnifiedListingForm)
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**`src/pages/MessagingDashboard.tsx`**:
-- Remove unused `@ts-expect-error` directive (line 30)
-- Remove references to `stats.unreadCount` (property doesn't exist on stats type) - use optional chaining or cast
-
-**Remaining files** (ClientWhoLikedYou, ClientWorkerDiscovery, ClientFilters, ClientContracts, OwnerContracts, OwnerInterestedClients, OwnerViewClientProfile, useSwipeAnalytics, realtimeManager, SwipeQueue):
-- Add missing type annotations, fix null/undefined handling, add missing properties to interfaces
-
-### Step 3: Verify AI Orchestrator MiniMax Configuration
-- The MiniMax API key is already stored as a secret
-- The orchestrator already uses it as fallback
-- No code changes needed -- it's functional
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

@@ -1,6 +1,6 @@
 import { Bike, Home, CircleDot, Briefcase } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export type Category = 'property' | 'motorcycle' | 'bicycle' | 'worker';
 export type Mode = 'sale' | 'rent' | 'both';
@@ -12,6 +12,27 @@ interface CategorySelectorProps {
   onModeChange: (mode: Mode) => void;
   className?: string;
 }
+
+const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
+
+const categoryStyles: Record<Category, { active: string; glow: string }> = {
+  property: {
+    active: 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/25',
+    glow: 'hover:border-emerald-500/40',
+  },
+  motorcycle: {
+    active: 'bg-gradient-to-r from-orange-600 to-orange-500 text-white border-orange-500/50 shadow-lg shadow-orange-500/25',
+    glow: 'hover:border-orange-500/40',
+  },
+  bicycle: {
+    active: 'bg-gradient-to-r from-purple-600 to-purple-500 text-white border-purple-500/50 shadow-lg shadow-purple-500/25',
+    glow: 'hover:border-purple-500/40',
+  },
+  worker: {
+    active: 'bg-gradient-to-r from-amber-600 to-amber-500 text-white border-amber-500/50 shadow-lg shadow-amber-500/25',
+    glow: 'hover:border-amber-500/40',
+  },
+};
 
 export function CategorySelector({
   selectedCategory,
@@ -32,35 +53,71 @@ export function CategorySelector({
     { value: 'sale' as Mode, label: 'For Sale', emoji: '💰' },
   ];
 
+  const handleModeToggle = (clicked: 'rent' | 'sale') => {
+    if (selectedMode === 'both') {
+      onModeChange(clicked === 'rent' ? 'sale' : 'rent');
+    } else if (selectedMode === clicked) {
+      return;
+    } else {
+      onModeChange('both');
+    }
+  };
+
+  const isModeActive = (mode: 'rent' | 'sale') =>
+    selectedMode === mode || selectedMode === 'both';
+
   return (
     <div className={`space-y-4 ${className}`}>
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2">
-        {categories.map(({ value, label, icon: Icon }) => (
-          <Button
-            key={value}
-            variant={selectedCategory === value ? 'default' : 'outline'}
-            onClick={() => onCategoryChange(value)}
-            className="flex items-center gap-2 transition-all"
-          >
-            <Icon className="w-4 h-4" />
-            {label}
-          </Button>
-        ))}
+        {categories.map(({ value, label, icon: Icon }) => {
+          const active = selectedCategory === value;
+          const styles = categoryStyles[value];
+          return (
+            <motion.button
+              key={value}
+              type="button"
+              onClick={() => onCategoryChange(value)}
+              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.03 }}
+              transition={springTap}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border",
+                active
+                  ? styles.active
+                  : cn('bg-white/[0.04] text-muted-foreground border-white/[0.08]', styles.glow, 'hover:text-foreground hover:bg-white/[0.07]')
+              )}
+            >
+              <Icon className="w-5 h-5" />
+              {label}
+            </motion.button>
+          );
+        })}
       </div>
 
       {/* Mode Toggle */}
       <div className="flex gap-2">
-        {modes.map(({ value, label, emoji }) => (
-          <Badge
-            key={value}
-            variant={selectedMode === value || selectedMode === 'both' ? 'default' : 'outline'}
-            className="cursor-pointer px-4 py-2 text-sm transition-all hover:scale-105"
-            onClick={() => onModeChange(value)}
-          >
-            {emoji} {label}
-          </Badge>
-        ))}
+        {modes.map(({ value, label, emoji }) => {
+          const active = isModeActive(value as 'rent' | 'sale');
+          return (
+            <motion.button
+              key={value}
+              type="button"
+              onClick={() => handleModeToggle(value as 'rent' | 'sale')}
+              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.03 }}
+              transition={springTap}
+              className={cn(
+                "px-4 py-2.5 rounded-full text-sm font-semibold transition-all border cursor-pointer",
+                active
+                  ? 'bg-primary text-primary-foreground border-primary/50 shadow-lg shadow-primary/20'
+                  : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-primary/40 hover:text-foreground hover:bg-white/[0.07]'
+              )}
+            >
+              {emoji} {label}
+            </motion.button>
+          );
+        })}
       </div>
     </div>
   );

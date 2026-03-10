@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Bell, MessageCircle, Heart, Star, UserPlus, Zap, Crown } from 'lucide-react';
+import { X, MessageCircle, Heart, Star, UserPlus, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -29,14 +29,14 @@ interface NotificationBarProps {
   onNotificationClick: (notification: Notification) => void;
 }
 
-const typeConfigs: Record<NotificationType, { icon: any, color: string, ring: string }> = {
-  like: { icon: Heart, color: 'text-pink-500', ring: 'ring-pink-500/20' },
-  match: { icon: SparklesIcon, color: 'text-[#E4007C]', ring: 'ring-[#E4007C]/20' },
-  super_like: { icon: Star, color: 'text-amber-400', ring: 'ring-amber-400/20' },
-  message: { icon: MessageCircle, color: 'text-blue-400', ring: 'ring-blue-400/20' },
-  new_user: { icon: UserPlus, color: 'text-emerald-400', ring: 'ring-emerald-400/20' },
-  premium_purchase: { icon: Crown, color: 'text-purple-400', ring: 'ring-purple-400/20' },
-  activation_purchase: { icon: Zap, color: 'text-orange-400', ring: 'ring-orange-400/20' },
+const typeConfigs: Record<NotificationType, { icon: any; accentColor: string; glowColor: string }> = {
+  like:                { icon: Heart,        accentColor: '#ec4899', glowColor: 'rgba(236,72,153,0.35)' },
+  match:               { icon: SparklesIcon, accentColor: '#E4007C', glowColor: 'rgba(228,0,124,0.35)' },
+  super_like:          { icon: Star,         accentColor: '#fbbf24', glowColor: 'rgba(251,191,36,0.35)' },
+  message:             { icon: MessageCircle,accentColor: '#60a5fa', glowColor: 'rgba(96,165,250,0.35)' },
+  new_user:            { icon: UserPlus,     accentColor: '#34d399', glowColor: 'rgba(52,211,153,0.35)' },
+  premium_purchase:    { icon: Crown,        accentColor: '#a78bfa', glowColor: 'rgba(167,139,250,0.35)' },
+  activation_purchase: { icon: Zap,          accentColor: '#fb923c', glowColor: 'rgba(251,146,60,0.35)' },
 };
 
 function SparklesIcon(props: any) {
@@ -68,7 +68,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
         const timer = setTimeout(() => {
           setVisible(false);
           dismissedRef.current = true;
-        }, 5000); // 5 seconds visibility for better readability
+        }, 5000);
         return () => clearTimeout(timer);
       }
     } else {
@@ -95,44 +95,76 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: -60, opacity: 0, scale: 0.9 }}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          className="fixed top-2 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
+          className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
         >
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className={cn(
-              "pointer-events-auto flex items-center min-w-[280px] max-w-[90vw] h-12 gap-3 px-4 rounded-full",
-              "bg-black/80 dark:bg-[#0e0e11]/90 backdrop-blur-2xl border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.5)] cursor-pointer group",
-              !isDark && "bg-white/90 border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
-            )}
+            className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer group"
+            style={{
+              background: isDark
+                ? 'rgba(14,14,17,0.92)'
+                : 'rgba(255,255,255,0.95)',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}`,
+              boxShadow: isDark
+                ? `0 12px 40px rgba(0,0,0,0.6), 0 0 20px ${config.glowColor}`
+                : `0 8px 30px rgba(0,0,0,0.15), 0 0 16px ${config.glowColor}`,
+            }}
             onClick={() => {
               onNotificationClick(currentNotification);
               handleDismiss();
             }}
           >
-            {/* Visual Indicator - Glowing Circle */}
-            <div className={cn("relative flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center ring-4 transition-all duration-300", config.ring)}>
-              <Icon className={cn("w-3.5 h-3.5", config.color)} />
-              {/* Type-specific glow */}
-              <div className={cn("absolute inset-0 rounded-full blur-[6px] opacity-40 group-hover:opacity-70 transition-opacity", config.color.replace('text-', 'bg-'))} />
-            </div>
+            {/* Left accent bar — type-specific color */}
+            <div
+              className="w-1 flex-shrink-0"
+              style={{ background: config.accentColor }}
+            />
 
-            <div className="flex-1 min-w-0 pr-2">
-              <h4 className={cn("text-[11px] font-black uppercase tracking-wider leading-none mb-0.5 truncate", isDark ? "text-white" : "text-black")}>
-                {unreadCount > 1 ? `(${unreadCount}) Swipess Alerts` : currentNotification.title}
-              </h4>
-              <p className={cn("text-[10px] font-bold truncate leading-tight", isDark ? "text-white/50" : "text-black/50")}>
-                {unreadCount > 1 ? 'Check your notifications center' : currentNotification.message}
-              </p>
-            </div>
+            {/* Content area */}
+            <div className="flex items-center gap-3 px-4 py-3 flex-1 min-w-0">
+              {/* Icon circle */}
+              <div
+                className="relative flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
+                style={{
+                  background: isDark
+                    ? `${config.accentColor}18`
+                    : `${config.accentColor}12`,
+                  boxShadow: `inset 0 1px 0 rgba(255,255,255,${isDark ? 0.08 : 0.4})`,
+                }}
+              >
+                <Icon
+                  className="w-4.5 h-4.5"
+                  style={{ color: config.accentColor, width: 18, height: 18 }}
+                />
+              </div>
 
-            <button
-              onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
-              className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/10 transition-colors"
-              aria-label="Dismiss"
-            >
-              <X className="w-3 h-3 text-white/40 group-hover:text-white" />
-            </button>
+              <div className="flex-1 min-w-0 pr-2">
+                <h4 className={cn(
+                  "text-xs font-black uppercase tracking-wide leading-none mb-1 truncate",
+                  isDark ? "text-foreground" : "text-foreground"
+                )}>
+                  {unreadCount > 1 ? `${unreadCount} New Alerts` : currentNotification.title}
+                </h4>
+                <p className={cn(
+                  "text-[11px] font-semibold truncate leading-tight",
+                  isDark ? "text-muted-foreground" : "text-muted-foreground"
+                )}>
+                  {unreadCount > 1 ? 'Tap to view your notifications' : currentNotification.message}
+                </p>
+              </div>
+
+              <button
+                onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
+                className={cn(
+                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors",
+                  isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/8 hover:bg-black/15"
+                )}
+                aria-label="Dismiss"
+              >
+                <X className={cn("w-3.5 h-3.5", isDark ? "text-muted-foreground group-hover:text-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       )}

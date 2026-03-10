@@ -43,8 +43,6 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
             )}
             style={{
                 backgroundColor: glassBg,
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
                 border: glassBorder,
                 boxShadow: floatingShadow,
             }}

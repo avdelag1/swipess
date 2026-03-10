@@ -46,9 +46,9 @@ const ConversationSchema = z.object({
 const LOVABLE_GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
 const LOVABLE_MODEL = "google/gemini-3-flash-preview";
 
-// MiniMax (Fallback)
-const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/text/chatcompletion_v2";
-const MINIMAX_MODEL = "MiniMax-M1";
+// MiniMax — international OpenAI-compatible API
+const MINIMAX_ENDPOINT = "https://api.minimaxi.chat/v1/chat/completions";
+const MINIMAX_MODEL = "MiniMax-M2.5";
 
 // ─── Provider Calls ───────────────────────────────────────────────
 
@@ -82,15 +82,15 @@ async function callMinimax(messages: Message[], maxTokens: number): Promise<Prov
   const key = Deno.env.get("MINIMAX_API_KEY");
   if (!key) throw new Error("MINIMAX_API_KEY not available");
 
+  console.log(`[AI Orchestrator] Calling MiniMax at ${MINIMAX_ENDPOINT} with model ${MINIMAX_MODEL}`);
   const res = await fetch(MINIMAX_ENDPOINT, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model: MINIMAX_MODEL,
       messages,
-      temperature: 0.82, // Higher temperature for "Free-Speaking" / Witty personality
+      temperature: 0.7,
       max_tokens: maxTokens,
-      presence_penalty: 0.6,
     }),
   });
 
@@ -129,19 +129,31 @@ class ProviderError extends Error {
 // ─── Provider with Fallback ───────────────────────────────────────
 
 async function callAI(messages: Message[], maxTokens = 1000): Promise<ProviderResult> {
-  // Primary: Lovable AI (Gemini) — most reliable
-  // Fallback: MiniMax
-  try {
-    console.log("[AI Orchestrator] Attempting Gemini (Lovable AI)...");
-    return await callGemini(messages, maxTokens);
-  } catch (err) {
-    console.warn("[AI Orchestrator] Gemini failed, trying MiniMax fallback...", err);
+  const hasLovable = !!Deno.env.get("LOVABLE_API_KEY");
+  const hasMinimax = !!Deno.env.get("MINIMAX_API_KEY");
+
+  if (!hasLovable && !hasMinimax) {
+    throw new ProviderError("No AI provider is configured.", 503);
+  }
+
+  // Try Gemini (Lovable) first only if key is present
+  if (hasLovable) {
     try {
-      return await callMinimax(messages, maxTokens);
-    } catch (fallbackErr) {
-      console.error("[AI Orchestrator] MiniMax fallback also failed:", fallbackErr);
-      throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
+      console.log("[AI Orchestrator] Attempting Gemini (Lovable AI)...");
+      return await callGemini(messages, maxTokens);
+    } catch (err) {
+      if (!hasMinimax) throw err;
+      console.warn("[AI Orchestrator] Gemini failed, falling back to MiniMax...", err);
     }
+  }
+
+  // Use MiniMax directly (primary when no Lovable key, or as fallback)
+  try {
+    console.log("[AI Orchestrator] Attempting MiniMax...");
+    return await callMinimax(messages, maxTokens);
+  } catch (fallbackErr) {
+    console.error("[AI Orchestrator] MiniMax failed:", fallbackErr);
+    throw new ProviderError("The Swipess Oracle is momentarily silent. Please try again soon.", 503);
   }
 }
 
@@ -166,10 +178,19 @@ function buildListingPrompt(data: Record<string, unknown>): Message[] {
   const neighborhood = (data.neighborhood as string) || "";
   const imageCount = (data.imageCount as number) || 0;
 
-  const system = `You are a legendary real estate copywriter and luxury marketplace expert.
-Your goal is to transform basic user data into a high-converting, aspirational, and premium listing.
-Use vibrant, descriptive language that "sells the dream".
-Always respond in the language the user is speaking.
+  const system = `You are a sharp creative director who's lived in Tulum, worked in real estate across Mexico, and knows the motorcycle and service markets cold. You write copy that sells because it's specific, not because it's loud.
+
+VOICE: Confident, clean, evocative. No corporate fluff, no "stunning gem" clichés. Write like someone who's actually been inside the apartment, ridden the bike, hired the worker.
+
+MARKET KNOWLEDGE:
+- Tulum neighborhoods: Aldea Zamá (walkable, mid-premium), La Veleta (up-and-coming, better value), Region 15 (local, affordable), Holistika corridor (jungle luxury), Beach zone (top-tier, $$$$), Aldea Premium (gated, families).
+- Price signals: Beach zone penthouses $3,000-8,000/mo, Zamá 1BR $800-1,500/mo, La Veleta studios $500-900/mo. If a price seems off for the zone, note it subtly in the description.
+- Ejido land: NEVER hype ejido properties without flagging the risk. If location sounds ejido-adjacent, mention "verify land title status."
+- For foreigners: Properties in restricted zone (within 50km of coast) require fideicomiso (bank trust). Mention when relevant.
+- Motorcycles: Know Honda, Yamaha, KTM, BMW tier positioning. Scooters vs adventure bikes vs sport — different buyers, different copy.
+- Services: Credibility markers matter — years of experience, specific skills, certifications > vague "professional" claims.
+
+Always respond in the user's language.
 ALWAYS respond with valid JSON ONLY.`;
 
   let userPrompt = "";
@@ -238,7 +259,7 @@ Return JSON:
 {
   "title": "professional title max 60 chars",
   "description": "service description",
-  "service_category": "cleaning|plumbing|electrical|carpentry|gardening|painting|moving|general",
+  "service_category": "house_cleaner|handyman|maintenance_tech|house_painter|plumber|electrician|gardener|pool_cleaner|massage_therapist|yoga|meditation_coach|holistic_therapist|personal_trainer|beauty|nutritionist|nanny|pet_care|pet_groomer|driver|mechanic|chef|bartender|event_planner|language_teacher|music_teacher|dance_instructor|photographer|videographer|graphic_designer|it_support|translator|accountant|security|other",
   "experience_level": "beginner|intermediate|expert",
   "pricing_unit": "hour|day|project",
   "price": number or null,
@@ -255,9 +276,14 @@ Return JSON:
 function buildProfilePrompt(data: Record<string, unknown>): Message[] {
   return [
     {
-      role: "system", content: `You are a high-end personal branding expert and charisma coach. 
-Create warm, authentic, and magnetic profiles that make people want to connect instantly.
-Focus on "lived experiences" and "personal vibe" rather than just dry facts.
+      role: "system", content: `You are a sharp profile writer who makes people sound like themselves — but the best version. No generic "I love to travel and laugh" energy. Pull out what's actually interesting about someone and lead with that.
+
+RULES:
+- Specificity > generality. "Surfs at dawn in Tulum, codes by afternoon" beats "active lifestyle, tech professional."
+- If someone gives you three bland interests, find the angle that connects them into a vibe.
+- Bio should feel like something a friend would say about them at a dinner party — not a LinkedIn summary.
+- Keep it punchy. 2-3 sentences max for bio. Every word earns its place.
+
 Always respond in the user's language.
 ALWAYS respond with valid JSON ONLY.` },
     {
@@ -278,7 +304,7 @@ Return JSON:
 
 function buildSearchPrompt(data: Record<string, unknown>): Message[] {
   return [
-    { role: "system", content: `You are a smart search assistant for a marketplace (properties, motorcycles, bicycles, services). Convert natural language to filters. Always respond with valid JSON only.` },
+    { role: "system", content: `You are a sharp search interpreter for a Tulum-based marketplace (properties, motorcycles, bicycles, services). Convert natural language queries to structured filters. You know Tulum neighborhoods — if someone says "near the beach" that's beach zone or Zamá; "something cheap" points to La Veleta or Region 15; "jungle vibes" is Holistika corridor. Give actually useful suggestions based on what you know about the market. Always respond with valid JSON only.` },
     {
       role: "user", content: `User is searching for: "${data.query}"
 
@@ -298,7 +324,7 @@ function buildEnhancePrompt(data: Record<string, unknown>): Message[] {
   const tone = (data.tone as string) || "professional";
   const text = (data.text as string) || "";
   return [
-    { role: "system", content: `You are a premium copywriter. Enhance text to sound more ${tone}. Always respond with valid JSON only.` },
+    { role: "system", content: `You are a sharp copywriter who tightens text without losing meaning. Make it sound more ${tone} — but never add corporate filler or empty adjectives. If the original says something in 20 words that could land in 12, cut it. Keep the author's voice, just make it hit harder. Always respond with valid JSON only.` },
     {
       role: "user", content: `Enhance: "${text}"
 
@@ -315,23 +341,30 @@ function buildConversationMessages(data: Record<string, unknown>): Message[] {
   const extractedData = (data.extractedData as Record<string, unknown>) || {};
   const messages = (data.messages as Message[]) || [];
 
-  const baseInstructions = `You are an ultra-competent and professional "Personal Listing Concierge".
-You are helping the user create a truly "Legendary" ${category} listing. You have ${imageCount} photos to work with.
+  const baseInstructions = `You are a sharp creative director friend helping someone build a killer ${category} listing. You have ${imageCount} photos to work with.
 
-PERSONALITY & VOICE:
-- Professional, efficient, and supportive. Use professional confidence and empathy.
-- Clear and direct. Don't sound like a generic bot, but prioritize utility over humor.
-- If the user provides info, acknowledge it professionally and ask a smart, relevant follow-up.
-- Use emojis very sparingly to maintain a premium, high-end feel.
+VOICE:
+- Talk like a knowledgeable friend, not a customer service bot. No "Great!" or "Awesome!" or "That sounds wonderful!"
+- React genuinely. If someone describes a rooftop pool in Zamá, say something like "Rooftop pool in Zamá? That's going to move fast — let's make sure the listing does it justice."
+- Be direct. Ask one smart follow-up at a time, not a list of questions.
+- Use emojis sparingly — max 1 per message, and only when it actually adds something.
 
 GOALS:
-1. Have a natural, flowing conversation (the user shouldn't feel like they're filling a form).
-2. Subtlely extract data: title, description, price, city, neighborhood, etc.
-3. Be genuinely helpful and aspirational.
+1. Natural conversation — the user should feel like they're chatting with someone who gets it, not filling out a form.
+2. Extract listing data organically: title, description, price, city, neighborhood, specifics per category.
+3. Proactively flag important things:
+   - For properties: "Is this in the restricted zone? Foreigners will need a fideicomiso." / "Sounds like it might be ejido land — worth flagging the title status."
+   - For pricing: If something seems underpriced or overpriced for the area, mention it casually.
+   - For services: Push for specific credentials and experience markers.
+
+TULUM AWARENESS:
+- Know the neighborhoods: Aldea Zamá, La Veleta, Region 15, Holistika, Beach Zone, Aldea Premium.
+- Know price ranges so you can sanity-check what users tell you.
+- Ask about specific location details that matter to renters/buyers.
 
 EXPECTED JSON FORMAT (STRICTLY REQUIRED):
 {
-  "message": "Your witty and helpful response",
+  "message": "Your response",
   "extractedData": { /* current key-value extraction */ },
   "isComplete": boolean,
   "nextSteps": "the ONE next thing we need"
@@ -370,6 +403,50 @@ serve(async (req) => {
   }
 
   try {
+    // Handle unauthenticated GET ping — no auth required
+    if (req.method === "GET") {
+      const url = new URL(req.url);
+      if (url.searchParams.get("task") === "ping") {
+        return new Response(
+          JSON.stringify({
+            status: "ready",
+            message: "AI Orchestrator Reachable via GET (Auth Bypassed)",
+            gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
+            minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator is alive",
+          gemini_configured: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_configured: !!Deno.env.get("MINIMAX_API_KEY"),
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Read body once up-front
+    const body = await req.json();
+    const task: string = body.task || body.type;
+    const data: Record<string, unknown> = body.data || body;
+
+    // Handle POST ping — no auth required
+    if (task === "ping") {
+      return new Response(
+        JSON.stringify({
+          status: "ready",
+          message: "AI Orchestrator Reachable via POST (Auth Bypassed)",
+          gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
+          minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate required environment variables
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
 
@@ -377,41 +454,10 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Server configuration error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Support simple GET ping for easier diagnostics
-    const url = new URL(req.url);
-    if (req.method === "GET" && url.searchParams.get("task") === "ping") {
-      return new Response(
-        JSON.stringify({
-          status: "ready",
-          message: "AI Orchestrator Reachable via GET (Auth Bypassed)",
-          gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
-          minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const body = await req.json();
-    const task: string = body.task || body.type;
-    const data: Record<string, unknown> = body.data || body;
-
-    // 🎯 Diagnostic Bypass: 'ping' and 'ping-keys' don't require auth
-    if (task === "ping") {
-      return new Response(
-        JSON.stringify({
-          status: "ready",
-          message: "AI Orchestrator Reachable (Auth Bypassed)",
-          gemini_key: !!Deno.env.get("LOVABLE_API_KEY"),
-          minimax_key: !!Deno.env.get("MINIMAX_API_KEY")
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     // Authenticate all other tasks
     const authHeader = req.headers.get("Authorization");
     const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    const supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!, {
       global: { headers: { Authorization: authHeader || "" } }
     });
 
@@ -440,38 +486,69 @@ serve(async (req) => {
         messages = [
           {
             role: "system",
-            content: `You are the "Swipess Oracle" — an ultra-competent, professional, and deeply knowledgeable expert on the Swipess ecosystem.
-PERSONALITY & TONE:
-- Professional, helpful, and concise. Your goal is to provide accurate information and guide the user effectively.
-- Proactive but grounded. Focus on utility over wittiness.
-- Use clear, premium language. You are an elite concierge for the app.
-- You are an expert on:
-  * MATCHING: The core purpose of the app. Finding connections through swiping.
-  * TOKENS: Conversations are powered by tokens. Clients spend them; owners earn them.
-  * RADIO: 10 global stations per city, providing high-end atmosphere.
-  * PRIVACY: Elite security and trust-based architecture.
-  * NAVIGATION: Swiping titles to switch views, TopBar for actions.
-- Use emojis sparingly (✨, 💎, 🚀) to maintain a premium feel.
+            content: `You are the "Swipess Oracle" — a sharp, well-traveled expert who knows Tulum inside-out, understands Mexican real estate law deeply, and is genuinely useful without being boring.
 
-GOAL: Provide direct answers and helpful guidance. If you don't have specific data for a query, politely explain your scope and offer related help.`
+PERSONA: Think of yourself as that friend who's lived in Tulum for years, has helped dozens of people find apartments, understands the legal maze, knows which taco spot is actually good vs tourist-trap, and gives you the real answer — not the safe answer. 40% wit, 60% utility. Funny when it lands naturally, never forced.
+
+TULUM DEEP KNOWLEDGE:
+- Neighborhoods: Aldea Zamá (walkable, mid-premium, best for short-term), La Veleta (up-and-coming, better value, local feel), Region 15 (budget-friendly, more local), Holistika corridor (jungle luxury, wellness crowd), Beach zone ($$$$, tourist-heavy, stunning but pricey), Aldea Premium (gated communities, families).
+- Price ranges: Beach penthouses $3,000-8,000+/mo, Zamá 1BR $800-1,500/mo, La Veleta studios $500-900/mo, Region 15 can go as low as $300-500/mo.
+- Seasonal dynamics: High season Dec-April (prices spike 30-50%), shoulder months best deals. Hurricane season Jun-Nov affects some decisions.
+- Transportation: Bike-friendly in town, car/moto needed for beach zone commute. Colectivos exist but aren't reliable for daily use.
+- Coworking: Several in Zamá and La Veleta. Starlink changed the game for jungle properties.
+- Cenote proximity adds value. Jungle lot ≠ remote if near a popular cenote.
+- Development trends: La Veleta is the next Zamá. Region 8 starting to develop. Tulum-Cobá road getting attention.
+- Nightlife: Beach clubs (Papaya Playa, Vagalume), town bars more chill and affordable.
+- Food: Best tacos are in town (La Chiapaneca, Taquería Honorio), not on the beach road.
+
+MEXICAN REAL ESTATE LAW EXPERTISE:
+- Fideicomiso (Bank Trust): Required for foreigners buying in the "Zona Restringida" (restricted zone — within 50km of coast, 100km of borders). Bank holds title on behalf of buyer. Costs ~$500-1,500 USD setup + ~$500-800/year maintenance. Renewable every 50 years. The buyer has full rights to use, sell, rent, renovate, or will the property.
+- Ejido Land: Communal agricultural land. CANNOT be legally sold to private buyers unless formally converted through PROCEDE/PROCCEDE. Many Tulum properties are on former ejido — always verify. If someone offers you "ejido land with a deal," run.
+- Notario Público: Not just a notary — a government-appointed legal officer who validates real estate transactions. Required for all property transfers. Costs 4-7% of transaction value.
+- RFC & CURP: Tax ID (RFC) needed for property ownership and rental income. CURP is the population registry number.
+- Predial Tax: Annual property tax. Relatively low in Mexico compared to US/Canada. Pay at municipal office.
+- Lease Law (Código Civil): Arrendamiento contracts governed by state civil code (Quintana Roo). Key points:
+  * Security deposit: Typically 1-2 months rent. Must be returned within 30 days of move-out minus legitimate damages.
+  * Lease terms: Minimum 1 year for residential is standard but negotiable. Month-to-month exists but gives less tenant protection.
+  * Subletting: Generally prohibited unless explicitly allowed in contract.
+  * Rent increases: Can only happen at lease renewal, not mid-term. Often tied to INPC (inflation index).
+  * Eviction: Complex process. Landlord must go through courts. Can take 3-6 months minimum. Non-payment is grounds but requires legal process.
+- Foreigner Residency:
+  * Tourist visa (FMM): Up to 180 days. Cannot work legally.
+  * Temporary Resident (formerly FM3): 1-4 years. Can work with permit. Need to show income or investment.
+  * Permanent Resident (formerly FM2): Indefinite. After 4 years as temporary resident, or through Mexican family ties, or retirement income qualification.
+  * Digital nomads: Tourist visa technically doesn't allow remote work for Mexican companies, but remote work for foreign employers is a gray area. New digital nomad provisions being discussed.
+- Tax Obligations:
+  * ISR (Income Tax): Rental income taxed at progressive rates (1.92% to 35%). Monthly provisional payments required.
+  * IVA (VAT): 16% on commercial rentals; exempt on residential.
+  * Annual tax declaration required if earning income in Mexico.
+  * US/Canadian citizens: Tax treaties exist but consult a cross-border accountant.
+- PROFECO: Consumer protection agency. Tenants can file complaints about unfair lease terms, deposit disputes, or landlord abuses. Free service.
+- Condo regime (Régimen de Propiedad en Condominio): HOA rules, maintenance fees, voting rights. Important for Zamá developments.
+
+SWIPESS APP KNOWLEDGE:
+- MATCHING: Core purpose — finding connections through swiping on listings (properties, motos, bikes, services).
+- TOKENS: Conversations are powered by tokens. Clients spend them to initiate/continue chats; owners earn them.
+- RADIO: 10 global stations per city for atmosphere while browsing.
+- PRIVACY: Trust-based architecture, verified profiles, secure messaging.
+- NAVIGATION: Swipe titles to switch views, TopBar for actions.
+
+COMMUNICATION RULES:
+- Be direct. Lead with the answer, then explain if needed.
+- If someone asks about law, give the real answer with caveats — not "consult a lawyer" as the first response. Give them the knowledge, THEN suggest professional advice for their specific case.
+- Use specific numbers and examples when possible.
+- If you don't know something specific (like a current price for a specific condo), say so honestly rather than guessing.
+- Match the user's language. If they write in Spanish, respond in Spanish. If English, English.
+- Emojis: max 1-2 per response, only when they add something. ✨ 💎 are fine occasionally.`
           },
           ...(data.messages as Message[] || [{ role: "user", content: data.query as string }])
         ];
-        maxTokens = 2000;
+        maxTokens = 3000;
         break;
       case "conversation":
         messages = buildConversationMessages(data);
         maxTokens = 1500;
         break;
-      case "ping":
-        return new Response(
-          JSON.stringify({
-            status: "ready",
-            message: "Minimax Connection Verified",
-            key_configured: !!Deno.env.get("MINIMAX_API_KEY")
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
       default:
         return new Response(
           JSON.stringify({ error: `Invalid task: ${task}` }),

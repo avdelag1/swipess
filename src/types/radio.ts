@@ -14,7 +14,13 @@ export type CityLocation =
   | 'texas'
   | 'french'
   | 'italy'
-  | 'podcasts';
+  | 'podcasts'
+  | 'reggae'
+  | 'jazz'
+  | 'arabic'
+  | 'persian'
+  | 'meditation'
+  | 'bongs';
 
 export interface RadioStation {
   id: string;

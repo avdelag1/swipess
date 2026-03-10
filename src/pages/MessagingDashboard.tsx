@@ -1,5 +1,5 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { PageTransition } from '@/components/PageTransition';
+import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -177,8 +177,9 @@ export function MessagingDashboard() {
       if (refetchTimeoutRef.current) {
         clearTimeout(refetchTimeoutRef.current);
       }
-      // Properly unsubscribe before removing channel
+      // Properly unsubscribe AND remove channel to prevent memory leaks
       conversationsChannel.unsubscribe();
+      supabase.removeChannel(conversationsChannel);
     };
   }, [user?.id, debouncedRefetch]);
 
@@ -366,7 +367,7 @@ export function MessagingDashboard() {
             {otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
-                otherUser={otherUser}
+                otherUser={{ ...otherUser, role: (otherUser.role as 'client' | 'owner') || 'client' }}
                 listing={listing}
                 currentUserRole={userRole}
                 onBack={() => {
@@ -412,32 +413,14 @@ export function MessagingDashboard() {
       <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
 
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground tracking-tight">Messages</h1>
-              {filteredConversations.length > 0 && (
-                <p className="text-[13px] text-muted-foreground mt-0.5">
-                  {filteredConversations.length} active conversation{filteredConversations.length !== 1 ? 's' : ''}
-                </p>
-              )}
-            </div>
-            {(stats as any)?.unreadCount > 0 && (
-              <div
-                className="px-3 py-1.5 rounded-full text-xs font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-              >
-                {(stats as any).unreadCount} new
-              </div>
-            )}
-          </div>
+
 
           {/* Search */}
           <div className="relative mb-5">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <input
               placeholder="Search conversations..."
-              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-muted border border-border"
+              className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] focus:border-primary/40"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -451,69 +434,75 @@ export function MessagingDashboard() {
                 <p className="text-sm text-muted-foreground">Loading conversations...</p>
               </div>
             ) : filteredConversations.length > 0 ? (
-              filteredConversations.map((conversation) => {
+              filteredConversations.map((conversation, index) => {
                 const isOwner = conversation.other_user?.role === 'owner';
                 const hasUnread = conversation.last_message?.sender_id !== user?.id &&
                   conversation.last_message_at &&
                   new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
 
                 return (
-                  <button
+                  <motion.div
                     key={conversation.id}
-                    className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-muted/60 active:scale-[0.98] text-left group"
-                    onClick={() => setSelectedConversationId(conversation.id)}
+                    initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 28, delay: index * 0.04 }}
                   >
-                    {/* Avatar with gradient ring */}
-                    <div className="relative shrink-0">
-                      <div className={`p-[2px] rounded-full ${isOwner
-                        ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                        : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                        }`}>
-                        <Avatar className="w-13 h-13 border-2 border-background">
-                          <AvatarImage src={conversation.other_user?.avatar_url} />
-                          <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
-                            ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
-                            : 'bg-gradient-to-br from-blue-500 to-cyan-500'
-                            }`}>
-                            {conversation.other_user?.full_name?.charAt(0) || '?'}
-                          </AvatarFallback>
-                        </Avatar>
+                    <button
+                      className="w-full flex items-center gap-3.5 p-3.5 rounded-2xl transition-all duration-200 hover:bg-white/[0.04] active:scale-[0.98] text-left group"
+                      onClick={() => setSelectedConversationId(conversation.id)}
+                    >
+                      {/* Avatar with gradient ring */}
+                      <div className="relative shrink-0">
+                        <div className={`p-[2px] rounded-full ${isOwner
+                          ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                          : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                          }`}>
+                          <Avatar className="w-13 h-13 border-2 border-background">
+                            <AvatarImage src={conversation.other_user?.avatar_url} />
+                            <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
+                              ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
+                              : 'bg-gradient-to-br from-blue-500 to-cyan-500'
+                              }`}>
+                              {conversation.other_user?.full_name?.charAt(0) || '?'}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                        {/* Online dot */}
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
                       </div>
-                      {/* Online dot */}
-                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
-                    </div>
 
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
-                            {conversation.other_user?.full_name || 'Unknown'}
-                          </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
-                            ? 'bg-purple-500/15 text-purple-400'
-                            : 'bg-blue-500/15 text-blue-400'
-                            }`}>
-                            {isOwner ? 'Provider' : 'Explorer'}
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
+                              {conversation.other_user?.full_name || 'Unknown'}
+                            </span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
+                              ? 'bg-purple-500/15 text-purple-400'
+                              : 'bg-blue-500/15 text-blue-400'
+                              }`}>
+                              {isOwner ? 'Provider' : 'Explorer'}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground ml-2 shrink-0">
+                            {conversation.last_message_at
+                              ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
+                              : ''
+                            }
                           </span>
                         </div>
-                        <span className="text-[11px] text-muted-foreground ml-2 shrink-0">
-                          {conversation.last_message_at
-                            ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
-                            : ''
-                          }
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
+                            {conversation.last_message?.content || 'Start a conversation...'}
+                          </p>
+                          {hasUnread && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
-                          {conversation.last_message?.message_text || 'Start a conversation...'}
-                        </p>
-                        {hasUnread && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
-                        )}
-                      </div>
-                    </div>
-                  </button>
+                    </button>
+                  </motion.div>
                 );
               })
             ) : (

@@ -1,8 +1,11 @@
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
-import { ClientInsightsDialog } from '@/components/ClientInsightsDialog';
+// Lazy-load the 50kb ClientInsightsDialog — only needed when insights panel opens
+const ClientInsightsDialog = lazy(() =>
+  import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
+);
 import { useClientProfiles } from '@/hooks/useClientProfiles';
 
 interface OwnerClientSwipeDialogProps {
@@ -40,22 +43,23 @@ export function OwnerClientSwipeDialog({ open, onOpenChange }: OwnerClientSwipeD
             <ClientSwipeContainer
               onClientTap={handleClientTap}
               onInsights={handleInsights}
-              onMessageClick={() => {}}
+              onMessageClick={() => { }}
               insightsOpen={showInsights}
             />
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Client Insights Dialog */}
-      <ClientInsightsDialog
-        open={showInsights}
-        onOpenChange={(open) => {
-          setShowInsights(open);
-          if (!open) setSelectedClientId(null);
-        }}
-        profile={selectedProfile || null}
-      />
+      <Suspense fallback={null}>
+        <ClientInsightsDialog
+          open={showInsights}
+          onOpenChange={(open) => {
+            setShowInsights(open);
+            if (!open) setSelectedClientId(null);
+          }}
+          profile={selectedProfile || null}
+        />
+      </Suspense>
     </>
   );
 }

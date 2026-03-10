@@ -19,7 +19,7 @@ interface AccountSecurityProps {
 
 export function AccountSecurity({ userRole }: AccountSecurityProps) {
   const navigate = useNavigate();
-  const { user, session } = useAuth(); // Get auth from context - single source of truth
+  const { user, session, signOut } = useAuth(); // Get auth from context - single source of truth
   // Destructure with fallback for both API versions
   const {
     settings,
@@ -29,11 +29,11 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
     isSaving,
     saving
   } = useSecuritySettings();
-  
+
   // Use fallback logic for loading and saving states
   const loadingState = isLoading ?? loading ?? false;
   const savingState = isSaving ?? saving ?? false;
-  
+
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const [showTwoFactorDialog, setShowTwoFactorDialog] = useState(false);
   const [showDeleteAccountDialog, setShowDeleteAccountDialog] = useState(false);
@@ -44,7 +44,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
   const [showPasswords, setShowPasswords] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false); // ✅ Button reliability
-  
+
   // Security settings state - sync with database
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [loginAlerts, setLoginAlerts] = useState(true);
@@ -73,7 +73,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
 
     if (newPassword !== confirmPassword) {
       toast({
-        title: 'Error', 
+        title: 'Error',
         description: 'New passwords do not match.',
         variant: 'destructive'
       });
@@ -96,7 +96,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
       // the current password provides defense-in-depth against session hijacking
       // and ensures the user actively knows their current credentials.
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user?.email) {
         throw new Error('User email not found');
       }
@@ -130,7 +130,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
         title: 'Password Updated',
         description: 'Your password has been successfully changed.'
       });
-      
+
       setShowPasswordDialog(false);
       setCurrentPassword('');
       setNewPassword('');
@@ -226,15 +226,17 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
       }
 
       // Account successfully deleted
-      await supabase.auth.signOut();
+      if (signOut) {
+        await signOut();
+      } else {
+        await supabase.auth.signOut();
+        navigate('/', { replace: true });
+      }
 
       toast({
         title: 'Account Deleted',
         description: 'Your account has been successfully deleted.',
       });
-
-      // Navigate to home page
-      navigate('/');
     } catch (error) {
       if (import.meta.env.DEV) {
         logger.error('Error deleting account:', error);
@@ -288,10 +290,9 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
           </div>
           <div className="w-full bg-gray-600/50 rounded-full h-2">
             <div
-              className={`h-2 rounded-full ${
-                securityScore() >= 80 ? 'bg-green-500' :
+              className={`h-2 rounded-full ${securityScore() >= 80 ? 'bg-green-500' :
                 securityScore() >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
+                }`}
               style={{ width: `${securityScore()}%` }}
             />
           </div>
