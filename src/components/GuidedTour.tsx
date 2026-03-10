@@ -42,10 +42,10 @@ export function GuidedTour() {
     const pos = step.position || 'bottom';
     if (pos === 'bottom') {
       tooltipStyle.top = targetRect.bottom + padding + 12;
-      tooltipStyle.left = Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - 140, window.innerWidth - 296));
+      tooltipStyle.left = 16;
     } else if (pos === 'top') {
       tooltipStyle.bottom = window.innerHeight - targetRect.top + padding + 12;
-      tooltipStyle.left = Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - 140, window.innerWidth - 296));
+      tooltipStyle.left = 16;
     }
   } else {
     tooltipStyle.top = '50%';
