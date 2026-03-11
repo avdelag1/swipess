@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPriceMXN } from '@/utils/subscriptionPricing';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
@@ -77,7 +77,6 @@ function TopBarComponent({
   const navigate = useNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
 
   const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;

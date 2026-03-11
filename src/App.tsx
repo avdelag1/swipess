@@ -32,7 +32,6 @@ import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayou
 
 
 // Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -220,7 +219,6 @@ const App = () => {
                                 <AppLayout>
                                   <TooltipProvider>
                                     <Sonner />
-                                    <Toaster />
                                   </TooltipProvider>
                                   <Suspense fallback={<SuspenseFallback />}>
                                     <Routes>
