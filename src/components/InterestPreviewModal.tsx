@@ -232,7 +232,7 @@ export const InterestPreviewModal: React.FC<InterestPreviewModalProps> = ({
                                         {preferences.interested_in_properties && <Badge variant="outline" className="flex gap-1 items-center"><Home className="w-3 h-3" /> Property</Badge>}
                                         {preferences.interested_in_motorcycles && <Badge variant="outline" className="flex gap-1 items-center"><Car className="w-3 h-3" /> Moto</Badge>}
                                         {preferences.interested_in_bicycles && <Badge variant="outline" className="flex gap-1 items-center"><Bike className="w-3 h-3" /> Bike</Badge>}
-                                        {preferences.interested_in_yachts && <Badge variant="outline" className="flex gap-1 items-center"><Ship className="w-3 h-3" /> Yacht</Badge>}
+                                        {preferences.interested_in_vehicles && <Badge variant="outline" className="flex gap-1 items-center"><Ship className="w-3 h-3" /> Vehicle</Badge>}
                                     </div>
 
                                     {preferences.max_price && (
