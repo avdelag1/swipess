@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/sonner";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,7 +41,6 @@ export function MessageActivationPackages({
   showAsPage = false,
   userRole
 }: MessageActivationPackagesProps) {
-  const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme !== 'white-matte';
