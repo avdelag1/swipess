@@ -985,7 +985,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const currentCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
 
   // STABLE LOADING SHELL: GPU-accelerated skeleton while fetching initial deck
-  const hasHydratedData = isClientHydrated && deckQueue.length > 0;
+  const hasHydratedData = isClientHydrated() && deckQueue.length > 0;
   if (!hasHydratedData && isLoading) {
     return <SwipeLoadingSkeleton />;
   }

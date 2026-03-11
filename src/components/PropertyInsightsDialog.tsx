@@ -533,27 +533,27 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                   Service Rates
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
-                  {(listing.rental_rates as Record<string, unknown>).hourly && (
+                  {(listing.rental_rates as any)?.hourly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as Record<string, unknown>).hourly)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).hourly)}</div>
                       <div className="text-xs text-muted-foreground">per hour</div>
                     </div>
                   )}
-                  {(listing.rental_rates as Record<string, unknown>).daily && (
+                  {(listing.rental_rates as any)?.daily && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as Record<string, unknown>).daily)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).daily)}</div>
                       <div className="text-xs text-muted-foreground">per day</div>
                     </div>
                   )}
-                  {(listing.rental_rates as Record<string, unknown>).weekly && (
+                  {(listing.rental_rates as any)?.weekly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as Record<string, unknown>).weekly)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).weekly)}</div>
                       <div className="text-xs text-muted-foreground">per week</div>
                     </div>
                   )}
-                  {(listing.rental_rates as Record<string, unknown>).monthly && (
+                  {(listing.rental_rates as any)?.monthly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as Record<string, unknown>).monthly)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).monthly)}</div>
                       <div className="text-xs text-muted-foreground">per month</div>
                     </div>
                   )}
