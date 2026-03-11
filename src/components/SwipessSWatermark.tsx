@@ -1,103 +1,52 @@
-import { memo } from 'react';
-import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
-interface SwipessSWatermarkProps {
-  className?: string;
-  /** Opacity of the watermark (0-1). Default 0.05 for subtle branding */
-  opacity?: number;
-  /** Size in pixels or CSS value */
-  size?: number | string;
-}
-
-/**
- * SWIPESS S WATERMARK
- *
- * Uses the actual s-logo-app.png (the fire-S icon) as a watermark.
- * Guaranteed visual consistency with the app icon/branding.
- *
- * Designed for:
- * - Background watermark on landing page
- * - Subtle branding element across app sections
- * - Visual identity marker that users recognize as "Swipess"
- */
-function SwipessSWatermarkComponent({
-  className,
-  opacity = 0.05,
-  size = 400,
-}: SwipessSWatermarkProps) {
-  const sizeValue = typeof size === 'number' ? `${size}px` : size;
-
-  return (
-    <img
-      src="/icons/s-logo-app.png"
-      alt=""
-      aria-hidden="true"
-      draggable={false}
-      className={cn('pointer-events-none select-none', className)}
-      style={{
-        width: sizeValue,
-        height: sizeValue,
-        opacity,
-        objectFit: 'contain',
-      }}
-    />
-  );
-}
-
-export const SwipessSWatermark = memo(SwipessSWatermarkComponent);
-
-/**
- * SWIPESS S PATTERN
- *
- * Scattered fire-S marks across a section for branded background texture.
- * Each S is positioned at different locations with varied rotation and scale
- * to create an organic, non-repeating pattern.
- */
 interface SwipessSPatternProps {
-  className?: string;
-  /** Opacity for each S instance. Default 0.03 */
-  opacity?: number;
-  /** Number of S marks to render (max 7) */
-  count?: number;
+    opacity?: number;
+    count?: number;
 }
 
-const PATTERN_POSITIONS = [
-  { top: '5%', right: '-2%', rotate: 15, scale: 1.1 },
-  { bottom: '8%', left: '-4%', rotate: -20, scale: 0.9 },
-  { top: '45%', right: '3%', rotate: 10, scale: 0.65 },
-  { top: '12%', left: '5%', rotate: -12, scale: 0.5 },
-  { bottom: '30%', right: '8%', rotate: 22, scale: 0.55 },
-  { top: '65%', left: '-2%', rotate: -15, scale: 0.75 },
-  { bottom: '5%', right: '25%', rotate: 8, scale: 0.4 },
-] as const;
+/**
+ * SwipessSPattern - Premium branded watermark layer.
+ * Scatters subtle cinematic 'S' marks across the interface to enhance brand depth.
+ */
+export const SwipessSPattern = ({ opacity = 0.02, count = 5 }: SwipessSPatternProps) => {
+    // Strategic positions to avoid cluttering key content areas
+    const positions = [
+        { top: '12%', left: '8%', rotate: -12 },
+        { top: '48%', right: '12%', rotate: 8 },
+        { bottom: '18%', left: '12%', rotate: 15 },
+        { top: '28%', right: '25%', rotate: -5 },
+        { bottom: '35%', right: '8%', rotate: 10 },
+    ];
 
-function SwipessSPatternComponent({
-  className,
-  opacity = 0.03,
-  count = 5,
-}: SwipessSPatternProps) {
-  return (
-    <div
-      className={cn('absolute inset-0 overflow-hidden pointer-events-none', className)}
-      aria-hidden="true"
-    >
-      {PATTERN_POSITIONS.slice(0, Math.min(count, 7)).map((pos, i) => (
-        <div
-          key={i}
-          className="absolute"
-          style={{
-            top: 'top' in pos ? pos.top : undefined,
-            bottom: 'bottom' in pos ? pos.bottom : undefined,
-            left: 'left' in pos ? pos.left : undefined,
-            right: 'right' in pos ? pos.right : undefined,
-            transform: `rotate(${pos.rotate}deg) scale(${pos.scale})`,
-          }}
-        >
-          <SwipessSWatermark opacity={opacity} size={280} />
+    return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none -z-20">
+            {positions.slice(0, count).map((pos, i) => (
+                <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity, scale: 1 }}
+                    transition={{
+                        duration: 2.5,
+                        delay: i * 0.5,
+                        ease: [0.23, 1, 0.32, 1]
+                    }}
+                    style={{
+                        position: 'absolute',
+                        ...pos,
+                    }}
+                    className="text-[#E4007C] select-none pointer-events-none"
+                >
+                    {/* Stylized 'S' with a slight glow / flame feel */}
+                    <div className="relative">
+                        <span className="text-[14vw] font-black italic leading-none block drop-shadow-2xl">
+                            S
+                        </span>
+                        {/* Subtle glow behind the S */}
+                        <div className="absolute inset-0 blur-[40px] bg-[#E4007C]/20 rounded-full scale-150 -z-10" />
+                    </div>
+                </motion.div>
+            ))}
         </div>
-      ))}
-    </div>
-  );
-}
-
-export const SwipessSPattern = memo(SwipessSPatternComponent);
+    );
+};

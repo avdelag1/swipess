@@ -781,7 +781,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const handleMessage = () => {
     const listing = deckQueueRef.current[currentIndexRef.current];
 
-    if (!canNavigate()) return;
+    if (!canNavigate) return;
 
     if (!listing?.owner_id) {
       toast.error('Cannot Start Conversation', {

@@ -147,10 +147,18 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
 
   const handleNavPress = (event: React.PointerEvent, item: NavItem) => {
+    // Only handle haptics and prefetch on pointer down
+    haptics.select();
+    
+    if (item.path) {
+      prefetchRoute(item.path);
+    }
+  };
+
+  const handleNavClick = (event: React.MouseEvent, item: NavItem) => {
     event.stopPropagation();
     event.preventDefault();
-    haptics.select();
-
+    
     if (item.onClick) {
       item.onClick();
     } else if (item.path) {
@@ -193,9 +201,9 @@ export function BottomNavigation({ userRole, onFilterClick, onAddListingClick, o
             <button
               id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
               key={item.id}
-              onPointerDown={(e) => { handleNavPress(e, item); if (item.path) prefetchRoute(item.path); }}
+              onPointerDown={(e) => { handleNavPress(e, item); }}
               onTouchStart={(e) => { e.stopPropagation(); }}
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => handleNavClick(e, item)}
               className={cn(
                 'relative flex flex-col items-center justify-center rounded-xl gap-0.5',
                 'transition-all duration-100 ease-out',

@@ -212,8 +212,8 @@ function TopBarComponent({
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
-              onClick={(e) => e.preventDefault()}
+              onPointerDown={() => haptics.tap()}
+              onClick={() => onNotificationsClick?.()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
@@ -231,13 +231,11 @@ function TopBarComponent({
           {/* Center tap zone - navigates back to dashboard */}
           <div
             className="flex-1 h-full cursor-pointer"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              haptics.tap();
+            onPointerDown={() => haptics.tap()}
+            onClick={() => {
               const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
               navigate(dashboardPath);
             }}
-            onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
           />
 
@@ -264,8 +262,8 @@ function TopBarComponent({
                     border: glassBorder,
                     boxShadow: floatingShadow,
                   }}
-                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
-                  onClick={(e) => e.preventDefault()}
+                  onPointerDown={() => haptics.tap()}
+                  onClick={() => setTokensOpen(!tokensOpen)}
                   aria-label="Token Packages"
                 >
                   <Zap strokeWidth={4} className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-300" />
@@ -405,8 +403,8 @@ function TopBarComponent({
                 border: glassBorder,
                 boxShadow: floatingShadow,
               }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
-              onClick={(e) => e.preventDefault()}
+              onPointerDown={() => haptics.tap()}
+              onClick={() => onNotificationsClick?.()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
