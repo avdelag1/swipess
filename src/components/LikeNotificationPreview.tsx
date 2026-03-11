@@ -63,7 +63,7 @@ export function LikeNotificationPreview({
           const { data: profile } = await supabase
             .from('profiles')
             .select('city')
-            .eq('id', likerId)
+            .eq('user_id', likerId)
             .maybeSingle();
 
           setLikerInfo({
@@ -85,7 +85,7 @@ export function LikeNotificationPreview({
           const { data: profile } = await (supabase as any)
             .from('profiles')
             .select('city')
-            .eq('id', likerId)
+            .eq('user_id', likerId)
             .maybeSingle();
 
           const { count } = await (supabase as any)

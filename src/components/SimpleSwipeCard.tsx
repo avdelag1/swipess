@@ -12,7 +12,7 @@
  */
 
 import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
+import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls, MotionValue } from 'framer-motion';
 import { triggerHaptic } from '@/utils/haptics';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import { Listing } from '@/hooks/useListings';
@@ -22,7 +22,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
-import { useParallaxStore } from '@/state/parallaxStore';
+
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 
@@ -34,7 +34,7 @@ export interface SimpleSwipeCardRef {
 // Tinder-style thresholds
 const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
-const FALLBACK_PLACEHOLDER = '/placeholder.svg';
+const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
 
 // Max rotation angle (degrees) based on horizontal position
 const MAX_ROTATION = 18; // Increased from 12 for more dramatic swing
@@ -62,6 +62,9 @@ interface SimpleSwipeCardProps {
   onTap?: () => void;
   onInsights?: () => void;
   isTop?: boolean;
+  /** Optional shared MotionValue from parent — lets container animate the card below in real-time */
+  externalX?: MotionValue<number>;
+  externalY?: MotionValue<number>;
 }
 
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
@@ -70,6 +73,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   onTap,
   onInsights,
   isTop = true,
+  externalX,
+  externalY,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -81,19 +86,24 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
   // Motion values for BOTH X and Y - enables diagonal movement
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  // Always create internal values (hooks must not be conditional)
+  // Use external MotionValue if provided so the parent can observe drag position in real-time
+  const _internalX = useMotionValue(0);
+  const _internalY = useMotionValue(0);
+  const x = externalX ?? _internalX;
+  const y = externalY ?? _internalY;
 
   // Tinder-style rotation: pivots from bottom of card based on X drag
   // When you drag right, card rotates clockwise (positive rotation)
   // Rotation is proportional to X position, giving natural "pivot" feel
   const cardRotate = useTransform(x, [-300, 0, 300], [-MAX_ROTATION, 0, MAX_ROTATION]);
 
-  // Card opacity decreases as it moves away from center
+  // Card opacity stays at 1 during drag for max smoothness (no compositing flicker)
+  // Only fade slightly at extreme positions to hint at exit
   const cardOpacity = useTransform(
     x,
-    [-300, -100, 0, 100, 300],
-    [0.6, 0.9, 1, 0.9, 0.6]
+    [-300, -150, 0, 150, 300],
+    [0.85, 1, 1, 1, 0.85]
   );
 
   // Like/Pass overlay opacity based on X position
@@ -107,14 +117,21 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const [magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
+    let result: string[] = [];
+    if (listing.video_url) {
+      result.push('video_attachment');
+    }
     if (Array.isArray(listing.images) && listing.images.length > 0) {
-      return listing.images;
+      result = [...result, ...listing.images];
+    } else if (listing.image_url) {
+      result.push(listing.image_url);
     }
-    if ((listing as any).image_url) {
-      return [(listing as any).image_url];
+
+    if (result.length === 0) {
+      return [FALLBACK_PLACEHOLDER];
     }
-    return [FALLBACK_PLACEHOLDER];
-  }, [listing.images, (listing as any).image_url]);
+    return result;
+  }, [listing.images, listing.image_url, listing.video_url]);
 
   const imageCount = images.length;
   const currentImage = images[currentImageIndex] || FALLBACK_PLACEHOLDER;
@@ -154,28 +171,14 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // FULL-IMAGE ZOOM: Entire image zooms on press-and-hold, no lens/clipping
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8, // Edge-to-edge zoom level
-    holdDelay: 500, // Longer delay to prevent accidental zoom during swipe
+    holdDelay: 300, // Balanced delay so taps aren't interpreted as zooms but zooms happen quickly
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
 
   // Fetch rating aggregate for this listing
-  const categoryId = listing.category === 'vehicle' || listing.vehicle_type ? 'vehicle' : 'property';
-  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, categoryId);
+  const { data: ratingAggregate, isLoading: isRatingLoading } = useListingRatingAggregate(listing.id, listing.category);
 
-  // Parallax store for ambient background effect
-  const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
-  const endParallaxDrag = useParallaxStore((s) => s.endDrag);
-
-  // Subscribe motion value to parallax store for ambient background effect
-  useEffect(() => {
-    const unsubscribe = x.on('change', (latestX) => {
-      if (isDragging.current && isTop) {
-        updateParallaxDrag(latestX, 0, x.getVelocity());
-      }
-    });
-    return unsubscribe;
-  }, [x, isTop, updateParallaxDrag]);
 
   // Unified pointer down handler: starts magnifier hold timer AND stores event for potential drag
   const handleUnifiedPointerDown = useCallback((e: React.PointerEvent) => {
@@ -201,7 +204,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
 
-      if (dx > 8 || dy > 8) {
+      if (dx > 15 || dy > 15) {
         // Any meaningful movement: cancel hold timer, start drag
         magnifierPointerHandlers.onPointerUp(e); // Force cancel magnifier completely
         if (!dragStartedRef.current && storedPointerEventRef.current) {
@@ -237,7 +240,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   }, []);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    endParallaxDrag();
+
 
     if (hasExited.current) return;
 
@@ -261,27 +264,31 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       const exitX = direction === 'right' ? exitDistance : -exitDistance;
 
       // Calculate Y exit based on swipe angle - maintains diagonal trajectory
+      // For near-horizontal swipes (offsetY ≈ 0), add a subtle arc so the card
+      // floats upward on like (right) and drops slightly on dislike (left)
       const swipeAngle = Math.atan2(offsetY, Math.abs(offsetX));
-      const exitY = Math.tan(swipeAngle) * exitDistance * (offsetY > 0 ? 1 : 1);
+      const rawExitY = Math.tan(swipeAngle) * exitDistance;
+      const clampedExitY = Math.min(Math.max(rawExitY, -300), 300);
+      const arcBias = direction === 'right' ? -70 : 40;
+      const exitY = Math.abs(clampedExitY) < 40 ? arcBias : clampedExitY;
 
-      // Spring-based exit animation - feels more natural than tween
+      // Tween-based exit — faster and lighter than spring for PWA
+      // Spring exit causes extra frames of oscillation; tween exits cleanly
       animate(x, exitX, {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityX,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
         onComplete: () => {
           isExitingRef.current = false;
           onSwipe(direction);
         },
       });
 
-      // Animate Y in parallel
+      // Animate Y in parallel — tween for consistency
       animate(y, Math.min(Math.max(exitY, -300), 300), {
-        type: 'spring',
-        stiffness: 600,
-        damping: 30,
-        velocity: velocityY,
+        type: 'tween',
+        duration: 0.28,
+        ease: [0.32, 0, 0.67, 0],
       });
     } else {
       // Spring snap-back to center - BOTH X and Y
@@ -298,7 +305,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [listing.id, onSwipe, x, y, endParallaxDrag]);
+  }, [listing.id, onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     // Card tap does nothing by default - image taps handle photo navigation
@@ -350,23 +357,23 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
       onSwipe(direction);
     };
 
-    // Spring-based exit for button taps (consistent physics)
+    // Tween exit for button taps — fast, clean, no spring oscillation
     animate(x, exitX, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
       onComplete: fireSwipe,
     });
 
-    // Slight upward arc for button swipes
-    animate(y, -50, {
-      type: 'spring',
-      stiffness: 500,
-      damping: 30,
+    // Arc: like floats up, dislike falls slightly — mirrors natural card-flick feel
+    animate(y, direction === 'right' ? -60 : 32, {
+      type: 'tween',
+      duration: 0.26,
+      ease: [0.32, 0, 0.67, 0],
     });
 
-    // SAFETY NET: If animation callback doesn't fire within 350ms, force it
-    setTimeout(fireSwipe, 350);
+    // SAFETY NET: tighter timeout matching tween duration
+    setTimeout(fireSwipe, 300);
   }, [listing.id, onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
@@ -376,7 +383,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Format price
   // Format price - moved before conditional render to avoid hook order issues
-  const rentalType = (listing as any).rental_duration_type;
+  const rentalType = listing.rental_duration_type;
   const formattedPrice = listing.price
     ? `$${listing.price.toLocaleString()}${rentalType === 'monthly' ? '/mo' : rentalType === 'daily' ? '/day' : ''}`
     : null;
@@ -391,7 +398,19 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           pointerEvents: 'none',
         }}
       >
-        <CardImage src={currentImage} alt={listing.title || 'Listing'} />
+        {currentImage === 'video_attachment' && listing.video_url ? (
+          <video
+            src={listing.video_url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover z-[1]"
+            style={{ pointerEvents: 'none', zIndex: 1 }}
+          />
+        ) : (
+          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+        )}
         {/* No gradient - full-bleed cards */}
       </div>
     );
@@ -428,7 +447,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg liquid-glass-card refraction-edge glass-nano-texture"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -441,8 +460,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             userSelect: 'none',
           }}
         >
-          {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
-          <CardImage src={currentImage} alt={listing.title || 'Listing'} />
+          {/* PHOTO OR VIDEO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
+          {currentImage === 'video_attachment' && listing.video_url ? (
+            <video
+              src={listing.video_url}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover z-[1]"
+              style={{ pointerEvents: 'none', zIndex: 1 }}
+            />
+          ) : (
+            <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+          )}
 
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
@@ -462,7 +493,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute top-8 left-8 z-30 pointer-events-none"
           style={{
             opacity: likeOpacity,
-            willChange: 'opacity',
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -484,7 +514,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-            willChange: 'opacity',
+
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -501,18 +531,20 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           </div>
         </motion.div>
 
-        {/* Content overlay - Using CardInfoHierarchy for 2-second scanning */}
-        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
+        {/* Content overlay - Using CardInfoHierarchy for 2-second scanning
+             Dynamic bottom positioning: scales with viewport height so info
+             stays above action buttons on all devices (SE → Pro Max → tablets) */}
+        <div
+          className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
+          style={{ bottom: 'clamp(140px, 24vh, 200px)' }}
+        >
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.35)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.45)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
               }}
             >
               <CompactRatingDisplay
@@ -527,46 +559,44 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           {listing.category === 'vehicle' || listing.vehicle_type ? (
             <VehicleCardInfo
               price={listing.price || 0}
-              priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'day'}
-              make={(listing as any).vehicle_brand}
-              model={(listing as any).vehicle_model}
-              year={listing.year}
-              location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'day'}
+              make={listing.vehicle_brand ?? undefined}
+              model={listing.vehicle_model ?? undefined}
+              year={listing.year ?? undefined}
+              location={listing.city ?? undefined}
+              isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
-          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_type ? (
+          ) : listing.category === 'worker' || listing.category === 'services' || (listing as any).service_category ? (
             <ServiceCardInfo
-              hourlyRate={(listing as any).hourly_rate}
-              serviceName={(listing as any).service_type || listing.title || 'Service'}
-              name={(listing as any).provider_name}
-              location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              hourlyRate={listing.price || 0}
+              pricingUnit={(listing as any).pricing_unit || 'hr'}
+              serviceName={(listing as any).service_category || listing.title || 'Service'}
+              name={listing.title}
+              location={listing.city ?? undefined}
+              isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
           ) : (
             <PropertyCardInfo
               price={listing.price || 0}
-              priceType={(listing as any).rental_duration_type === 'monthly' ? 'month' : 'night'}
-              propertyType={listing.property_type}
-              beds={listing.beds}
-              baths={listing.baths}
-              location={listing.city}
-              isVerified={(listing as any).has_verified_documents}
+              priceType={listing.rental_duration_type === 'monthly' ? 'month' : 'night'}
+              propertyType={listing.property_type ?? undefined}
+              beds={listing.beds ?? undefined}
+              baths={listing.baths ?? undefined}
+              location={listing.city ?? undefined}
+              isVerified={(listing as any).has_verified_documents ?? undefined}
               photoIndex={currentImageIndex}
             />
           )}
         </div>
 
         {/* Verified badge - now using TrustSignals component */}
-        {(listing as any).has_verified_documents && (
+        {listing.has_verified_documents && (
           <div className="absolute top-16 right-4 z-20">
             <div className="px-2.5 py-1.5 rounded-full flex items-center gap-1.5" style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.35)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              backgroundColor: 'rgba(0, 0, 0, 0.45)',
               border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
             }}>
               <VerifiedBadge size="sm" />
               <span className="text-xs font-medium text-white">Verified</span>

@@ -12,7 +12,6 @@ import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
 import { useState } from "react";
-import { NotificationPreferencesSettings } from "@/components/NotificationPreferencesSettings";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const stagger = { staggerChildren: 0.05, delayChildren: 0.02 };
@@ -117,16 +116,9 @@ const OwnerSettingsNew = () => {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveSection(null)}
-            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Settings
-          </motion.button>
 
-          <PageHeader title="Account Security" subtitle="Manage your password and security settings" />
+
+          <PageHeader title="Account Security" subtitle="Manage your password and security settings" showBack={false} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <div className="rounded-2xl overflow-hidden bg-card border border-border">
@@ -151,23 +143,12 @@ const OwnerSettingsNew = () => {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setActiveSection(null)}
-            className="mb-4 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-1"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Settings
-          </motion.button>
 
-          <PageHeader title="Preferences" subtitle="Customize your app experience" />
+
+          <PageHeader title="Preferences" subtitle="Customize your app experience" showBack={false} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />
-
-            <div className="h-px bg-border my-6" />
-
-            <NotificationPreferencesSettings role="owner" />
           </motion.div>
         </div>
       </div>
@@ -177,10 +158,7 @@ const OwnerSettingsNew = () => {
   return (
     <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide">
       <div className="max-w-3xl mx-auto space-y-10">
-        <PageHeader
-          title="Owner Settings"
-          subtitle="Management tools & profile configuration"
-        />
+
 
         <motion.div
           initial="hidden"

@@ -17,6 +17,16 @@ const globalSwipeImageCache = new Map<string, {
   lastAccessed: number;
 }>();
 
+// =============================================================================
+// CLIENT PROFILE IMAGE CACHE
+// Separate cache for client profile images (no URL transformation needed)
+// =============================================================================
+const globalClientImageCache = new Map<string, {
+  loaded: boolean;
+  decoded: boolean;
+  failed: boolean;
+}>();
+
 /**
  * Evict least recently used image from cache when size exceeds limit
  */
@@ -116,16 +126,6 @@ export function clearImageCache(): void {
 export function getImageCacheSize(): number {
   return globalSwipeImageCache.size + globalClientImageCache.size;
 }
-
-// =============================================================================
-// CLIENT PROFILE IMAGE CACHE
-// Separate cache for client profile images (no URL transformation needed)
-// =============================================================================
-const globalClientImageCache = new Map<string, {
-  loaded: boolean;
-  decoded: boolean;
-  failed: boolean;
-}>();
 
 /**
  * Check if a client profile image is already decoded in cache

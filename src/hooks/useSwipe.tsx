@@ -45,7 +45,7 @@ export function useSwipe() {
           ignoreDuplicates: false
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         logger.error('[useSwipe] Error saving swipe:', {

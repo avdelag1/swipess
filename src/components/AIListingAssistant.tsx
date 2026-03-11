@@ -11,6 +11,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { validateImageFile } from '@/utils/fileValidation';
+import { useTheme } from '@/hooks/useTheme';
+import { getCategoryColorClass } from '@/types/filters';
 import {
   Sparkles,
   Camera,
@@ -39,10 +41,10 @@ interface CategoryOption {
 }
 
 const CATEGORIES: CategoryOption[] = [
-  { id: 'property', name: 'Property', icon: <Home className="w-6 h-6" />, description: 'Apartments, houses, rooms', color: 'bg-blue-500' },
-  { id: 'motorcycle', name: 'Motorcycle', icon: <Bike className="w-6 h-6" />, description: 'Bikes, scooters', color: 'bg-orange-500' },
-  { id: 'bicycle', name: 'Bicycle', icon: <Bike className="w-6 h-6" />, description: 'Electric, mountain, city', color: 'bg-green-500' },
-  { id: 'worker', name: 'Service', icon: <Wrench className="w-6 h-6" />, description: 'Your skills & services', color: 'bg-purple-500' },
+  { id: 'property', name: 'Property', icon: <Home className="w-6 h-6" />, description: 'Apartments, houses, rooms', color: 'bg-gray-500' },
+  { id: 'motorcycle', name: 'Motorcycle', icon: <Bike className="w-6 h-6" />, description: 'Bikes, scooters', color: 'bg-gray-500' },
+  { id: 'bicycle', name: 'Bicycle', icon: <Bike className="w-6 h-6" />, description: 'Electric, mountain, city', color: 'bg-gray-500' },
+  { id: 'worker', name: 'Service', icon: <Wrench className="w-6 h-6" />, description: 'Your skills & services', color: 'bg-gray-500' },
 ];
 
 interface AIListingAssistantProps {
@@ -56,6 +58,8 @@ interface AIListingAssistantProps {
 }
 
 export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAssistantProps) {
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
   const [step, setStep] = useState<'category' | 'photos' | 'details' | 'generating' | 'review'>('category');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [images, setImages] = useState<string[]>([]);
@@ -263,7 +267,11 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {CATEGORIES.map((cat) => (
+                    {CATEGORIES.map((cat) => {
+                      // Map worker category to services for getCategoryColorClass
+                      const categoryForColor = cat.id === 'worker' ? 'services' : cat.id;
+                      const categoryColor = getCategoryColorClass(categoryForColor as any, isDark);
+                      return (
                       <motion.button
                         key={cat.id}
                         whileHover={{ scale: 1.03, y: -5 }}
@@ -278,7 +286,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                       >
                         <div className={cn(
                           "w-14 h-14 rounded-[1.2rem] flex items-center justify-center mb-5 transition-transform duration-500 group-hover:scale-110",
-                          selectedCategory === cat.id ? "bg-white/20 shadow-lg" : "bg-card/30 text-primary shadow-inner"
+                          selectedCategory === cat.id ? "bg-white/20 shadow-lg" : cn(categoryColor, "text-white shadow-inner")
                         )}>
                           {cat.icon}
                         </div>
@@ -288,7 +296,8 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                           selectedCategory === cat.id ? "text-white/80" : "text-muted-foreground"
                         )}>{cat.description}</p>
                       </motion.button>
-                    ))}
+                    );
+                    })}
                   </div>
                 </motion.div>
               )}

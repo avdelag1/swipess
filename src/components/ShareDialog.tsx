@@ -183,15 +183,14 @@ export function ShareDialog({
           <div className="space-y-3">
             <label className="text-sm font-medium">Share via</label>
             <div className="grid grid-cols-2 gap-3">
-              {/* Native Share (if available) */}
               {typeof navigator.share === 'function' && (
                 <Button
                   onClick={handleNativeShare}
                   variant="outline"
-                  className="w-full justify-start gap-3"
+                  className="w-full justify-start gap-3 col-span-2 bg-primary/10 hover:bg-primary/20 border-primary/20 text-primary mb-2"
                 >
                   <Share2 className="w-4 h-4" />
-                  Share
+                  Instagram, TikTok, Snapchat & More...
                 </Button>
               )}
 

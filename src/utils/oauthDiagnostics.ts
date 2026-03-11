@@ -171,8 +171,8 @@ export async function runOAuthDiagnostics() {
   return results;
 }
 
-// FIX: Only expose globally in development mode (security)
+// Only expose globally in development mode
 if (import.meta.env.DEV && typeof window !== 'undefined') {
-  (window as any).runOAuthDiagnostics = runOAuthDiagnostics;
-  (window as any).diagnoseOAuthSetup = diagnoseOAuthSetup;
+  (window as Window & { runOAuthDiagnostics?: typeof runOAuthDiagnostics }).runOAuthDiagnostics = runOAuthDiagnostics;
+  (window as Window & { diagnoseOAuthSetup?: typeof diagnoseOAuthSetup }).diagnoseOAuthSetup = diagnoseOAuthSetup;
 }

@@ -224,8 +224,8 @@ export function PhotoUploadManager({
 
                   {/* Drag Handle */}
                   {currentPhotos.length > 1 && (
-                    <div className="absolute top-1 right-9 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
-                      <div className="bg-black/60 backdrop-blur-sm rounded p-0.5">
+                    <div className="absolute top-1 right-9 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                      <div className="bg-black/70 rounded p-0.5">
                         <MoveVertical className="w-3.5 h-3.5 text-white" />
                       </div>
                     </div>

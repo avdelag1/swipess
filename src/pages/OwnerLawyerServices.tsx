@@ -159,8 +159,8 @@ const OwnerLawyerServices = () => {
             <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Scale className="w-8 h-8 text-purple-400" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Legal Services for Owners</h1>
-            <p className="text-white/80 text-sm sm:text-base">Professional legal assistance for property owners and landlords</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">Legal Services for Owners</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">Professional legal assistance for property owners and landlords</p>
           </div>
         </div>
 
@@ -172,7 +172,7 @@ const OwnerLawyerServices = () => {
                 <Clock className="w-6 h-6 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-white font-semibold">Direct Lawyer Access - Coming Soon</h3>
+                <h3 className="text-foreground font-semibold">Direct Lawyer Access - Coming Soon</h3>
                 <p className="text-purple-200/80 text-sm">
                   We're building a direct connection to verified real estate lawyers. Submit your request now and we'll match you with the right legal expert.
                 </p>
@@ -182,13 +182,13 @@ const OwnerLawyerServices = () => {
         </Card>
 
         {/* Owner Benefits */}
-        <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+        <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start gap-4">
               <Building2 className="w-5 h-5 text-green-400 shrink-0 mt-1" />
               <div>
-                <h3 className="text-white font-semibold mb-1">Property Owner Legal Support</h3>
-                <p className="text-gray-400 text-sm mb-3">
+                <h3 className="text-foreground font-semibold mb-1">Property Owner Legal Support</h3>
+                <p className="text-muted-foreground text-sm mb-3">
                   Get specialized legal assistance designed for landlords and property owners. From tenant disputes to contract creation.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -203,27 +203,27 @@ const OwnerLawyerServices = () => {
         </Card>
 
         {/* Package Info */}
-        <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+        <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start gap-4">
               <Lock className="w-5 h-5 text-amber-400 shrink-0 mt-1" />
               <div>
-                <h3 className="text-white font-semibold mb-1">Premium Legal Packages</h3>
-                <p className="text-gray-400 text-sm mb-3">
+                <h3 className="text-foreground font-semibold mb-1">Premium Legal Packages</h3>
+                <p className="text-muted-foreground text-sm mb-3">
                   Choose from flexible legal service packages tailored for property owners.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                  <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700">
-                    <h4 className="text-white font-medium text-sm">Quick Consultation</h4>
-                    <p className="text-gray-400 text-xs mt-1">30-min call with lawyer</p>
+                  <div className="p-3 bg-secondary/50 rounded-lg border border-border">
+                    <h4 className="text-foreground font-medium text-sm">Quick Consultation</h4>
+                    <p className="text-muted-foreground text-xs mt-1">30-min call with lawyer</p>
                   </div>
-                  <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700">
-                    <h4 className="text-white font-medium text-sm">Document Package</h4>
-                    <p className="text-gray-400 text-xs mt-1">Lease review & creation</p>
+                  <div className="p-3 bg-secondary/50 rounded-lg border border-border">
+                    <h4 className="text-foreground font-medium text-sm">Document Package</h4>
+                    <p className="text-muted-foreground text-xs mt-1">Lease review & creation</p>
                   </div>
-                  <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-700">
-                    <h4 className="text-white font-medium text-sm">Full Support</h4>
-                    <p className="text-gray-400 text-xs mt-1">Ongoing legal representation</p>
+                  <div className="p-3 bg-secondary/50 rounded-lg border border-border">
+                    <h4 className="text-foreground font-medium text-sm">Full Support</h4>
+                    <p className="text-muted-foreground text-xs mt-1">Ongoing legal representation</p>
                   </div>
                 </div>
               </div>
@@ -243,12 +243,12 @@ const OwnerLawyerServices = () => {
                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle2 className="w-8 h-8 text-green-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">Request Submitted!</h3>
-                <p className="text-gray-300 mb-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">Request Submitted!</h3>
+                <p className="text-muted-foreground mb-6">
                   Your legal assistance request has been received. Our team will review your case and contact you with available options and pricing for legal services.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button variant="outline" onClick={handleReset} className="border-gray-600">
+                  <Button variant="outline" onClick={handleReset} className="border-border">
                     Submit Another Request
                   </Button>
                   <Button onClick={() => navigate('/owner/settings')} className="bg-green-600 hover:bg-green-700">
@@ -261,9 +261,9 @@ const OwnerLawyerServices = () => {
         ) : (
           <>
             {/* Issue Selection */}
-            <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+            <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
+                <CardTitle className="text-foreground flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-orange-400" />
                   What Do You Need Help With?
                 </CardTitle>
@@ -271,24 +271,24 @@ const OwnerLawyerServices = () => {
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="max-h-[400px]">
-                  <div className="divide-y divide-gray-700/50">
+                  <div className="divide-y divide-border/50">
                     {ownerLegalIssueCategories.map((category) => (
                       <div key={category.id}>
                         <button
                           onClick={() => handleCategoryClick(category.id)}
-                          className="w-full p-4 flex items-center gap-4 hover:bg-gray-700/30 transition-colors text-left"
+                          className="w-full p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors text-left"
                         >
                           <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center shrink-0 text-purple-400">
                             {category.icon}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-white">{category.title}</h4>
-                            <p className="text-sm text-gray-400 truncate">{category.description}</p>
+                            <h4 className="font-medium text-foreground">{category.title}</h4>
+                            <p className="text-sm text-muted-foreground truncate">{category.description}</p>
                           </div>
                           {expandedCategory === category.id ? (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                            <ChevronDown className="w-5 h-5 text-muted-foreground" />
                           ) : (
-                            <ChevronRight className="w-5 h-5 text-gray-400" />
+                            <ChevronRight className="w-5 h-5 text-muted-foreground" />
                           )}
                         </button>
 
@@ -299,26 +299,26 @@ const OwnerLawyerServices = () => {
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="overflow-hidden bg-gray-900/30"
+                              className="overflow-hidden bg-secondary/30"
                             >
                               {category.subcategories.map((sub) => (
                                 <button
                                   key={sub.id}
                                   onClick={() => handleSubcategorySelect(category.id, sub.id)}
-                                  className={`w-full pl-16 pr-4 py-3 flex items-center gap-3 hover:bg-gray-700/30 transition-colors text-left ${selectedIssue?.subcategory === sub.id ? 'bg-purple-500/20' : ''
+                                  className={`w-full pl-16 pr-4 py-3 flex items-center gap-3 hover:bg-muted/30 transition-colors text-left ${selectedIssue?.subcategory === sub.id ? 'bg-purple-500/20' : ''
                                     }`}
                                 >
                                   <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${selectedIssue?.subcategory === sub.id
                                       ? 'border-purple-500 bg-purple-500'
-                                      : 'border-gray-500'
+                                      : 'border-muted-foreground/50'
                                     }`}>
                                     {selectedIssue?.subcategory === sub.id && (
-                                      <div className="w-2 h-2 bg-white rounded-full" />
+                                      <div className="w-2 h-2 bg-foreground rounded-full" />
                                     )}
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <h5 className="text-sm font-medium text-white">{sub.title}</h5>
-                                    <p className="text-xs text-gray-400">{sub.description}</p>
+                                    <h5 className="text-sm font-medium text-foreground">{sub.title}</h5>
+                                    <p className="text-xs text-muted-foreground">{sub.description}</p>
                                   </div>
                                 </button>
                               ))}
@@ -339,9 +339,9 @@ const OwnerLawyerServices = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="mb-6 bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+                <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
                   <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
+                    <CardTitle className="text-foreground flex items-center gap-2">
                       <MessageSquare className="w-5 h-5 text-green-400" />
                       Describe Your Situation
                     </CardTitle>
@@ -352,21 +352,21 @@ const OwnerLawyerServices = () => {
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="description" className="text-white">Your Message</Label>
+                        <Label htmlFor="description" className="text-foreground">Your Message</Label>
                         <Textarea
                           id="description"
                           placeholder="Describe the situation, include relevant dates, names, and any documentation you have..."
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
                           rows={6}
-                          className="mt-2 bg-gray-900/50 border-gray-600 text-white placeholder:text-gray-500"
+                          className="mt-2 bg-secondary/50 border-border text-foreground placeholder:text-muted-foreground"
                         />
                       </div>
                       <div className="flex flex-col sm:flex-row gap-3 pt-2">
                         <Button
                           variant="outline"
                           onClick={handleReset}
-                          className="border-gray-600"
+                          className="border-border"
                         >
                           Cancel
                         </Button>
@@ -377,7 +377,7 @@ const OwnerLawyerServices = () => {
                         >
                           {isSubmitting ? (
                             <>
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-foreground mr-2" />
                               Submitting...
                             </>
                           ) : (
@@ -397,38 +397,38 @@ const OwnerLawyerServices = () => {
         )}
 
         {/* How It Works */}
-        <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
+        <Card className="bg-card/50 backdrop-blur-sm border-border/50">
           <CardHeader>
-            <CardTitle className="text-white">How Our Legal Service Works</CardTitle>
+            <CardTitle className="text-foreground">How Our Legal Service Works</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center shrink-0 text-purple-400 font-semibold">1</div>
                 <div>
-                  <h4 className="font-medium text-white">Select Your Issue</h4>
-                  <p className="text-sm text-gray-400">Choose the category that matches your legal need</p>
+                  <h4 className="font-medium text-foreground">Select Your Issue</h4>
+                  <p className="text-sm text-muted-foreground">Choose the category that matches your legal need</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center shrink-0 text-purple-400 font-semibold">2</div>
                 <div>
-                  <h4 className="font-medium text-white">Describe Your Situation</h4>
-                  <p className="text-sm text-gray-400">Provide details so we understand your case fully</p>
+                  <h4 className="font-medium text-foreground">Describe Your Situation</h4>
+                  <p className="text-sm text-muted-foreground">Provide details so we understand your case fully</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center shrink-0 text-purple-400 font-semibold">3</div>
                 <div>
-                  <h4 className="font-medium text-white">Review & Quote</h4>
-                  <p className="text-sm text-gray-400">Our team reviews and sends you service options</p>
+                  <h4 className="font-medium text-foreground">Review & Quote</h4>
+                  <p className="text-sm text-muted-foreground">Our team reviews and sends you service options</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center shrink-0 text-green-400 font-semibold">4</div>
                 <div>
-                  <h4 className="font-medium text-white">Get Your Solution</h4>
-                  <p className="text-sm text-gray-400">Purchase a package and receive professional legal assistance</p>
+                  <h4 className="font-medium text-foreground">Get Your Solution</h4>
+                  <p className="text-sm text-muted-foreground">Purchase a package and receive professional legal assistance</p>
                 </div>
               </div>
             </div>

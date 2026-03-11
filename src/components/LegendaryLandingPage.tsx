@@ -3,20 +3,22 @@ import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import {
-  Shield, Sparkles, Users, Eye, EyeOff, Mail, Lock, User,
+  Shield, Eye, EyeOff, Mail, Lock, User,
   ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { Capacitor } from '@capacitor/core';
+import { nuclearReset } from '@/utils/cacheManager';
 import LandingBackgroundEffects from './LandingBackgroundEffects';
-import StarFieldBackground from './StarFieldBackground';
-import swipessLogo from '@/assets/swipess-logo-transparent.png';
+
+
+const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
@@ -82,7 +84,7 @@ const LandingView = memo(({
   return (
     <motion.div
       key="landing"
-      className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center px-4"
       style={{ paddingBottom: '10vh' }}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
@@ -101,78 +103,21 @@ const LandingView = memo(({
         whileTap={{ scale: 0.97 }}
         className="cursor-grab active:cursor-grabbing touch-none select-none"
       >
-        <motion.div
-          animate={{ scale: [1, 1.06, 1, 1.06, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 1 }}
-        >
+        <div className="relative">
           <img
             src={swipessLogo}
             alt="Swipess"
-            className="w-[65vw] max-w-[380px] sm:max-w-[450px] md:max-w-[520px] h-auto object-contain rounded-3xl drop-shadow-2xl mx-auto"
+            className="w-[70vw] max-w-[420px] sm:max-w-[520px] md:max-w-[600px] h-auto object-contain mx-auto"
           />
-        </motion.div>
-      </motion.div>
-
-      {/* Tagline */}
-      <motion.p
-        className="-mt-4 relative z-10 cursor-pointer"
-        onTap={handleTap}
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-      >
-        <span
-          className="text-3xl sm:text-4xl md:text-5xl font-bold italic"
-          style={{
-            background: 'linear-gradient(to right, #E4007C, #FFD700)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
-          luxury meets precision
-        </span>
-      </motion.p>
-
-      {/* Info chips */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.25 }}
-        className="mt-3"
-      >
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {[
-            { icon: Sparkles, label: 'Elite Assets' },
-            { icon: Shield, label: 'Encrypted Chat' },
-            { icon: Users, label: 'Global Network' },
-          ].map(({ icon: Icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-white/[0.12] backdrop-blur-md rounded-full border border-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.1)]"
-            >
-              <Icon className="w-3.5 h-3.5 text-white/90" />
-              <span className="text-white/90 text-xs font-medium">{label}</span>
-            </div>
-          ))}
         </div>
       </motion.div>
 
-      {/* Tap hint */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className="mt-7 text-white/25 text-xs tracking-widest uppercase cursor-pointer select-none"
-        onClick={handleTap}
-      >
-        tap to enter
-      </motion.p>
 
       {/* Effects toggle */}
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-white/[0.1] backdrop-blur-md border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-sm font-bold active:bg-white/20 transition-colors"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-black/50 border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-xl font-bold active:bg-white/20 transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -274,13 +219,48 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         action: isLogin ? 'Sign In' : 'Sign Up',
       };
       setErrorDetails(errorInfo);
+
       if (error.message?.toLowerCase().includes('email not confirmed')) {
         setShowResendConfirmation(true);
       }
+
+      // DETERMINISTIC SENTIENT RECOVERY
+      // Map common auth errors to user-friendly "sentient" advice
+      let sentientTitle = `${isLogin ? 'Sign In' : 'Sign Up'} Failed`;
+      let sentientDescription = error.message || 'Authentication failed.';
+
+      if (error.message === 'Invalid login credentials') {
+        sentientTitle = "Login Issue Detected";
+        sentientDescription = "We couldn't find a match for those credentials. Would you like to reset your password?";
+      } else if (error.message?.includes('Too many requests')) {
+        sentientTitle = "Security Cooldown";
+        sentientDescription = "Too many attempts. For your safety, please wait a few minutes before trying again.";
+      }
+
       toast({
-        title: `${isLogin ? 'Sign In' : 'Sign Up'} Failed`,
-        description: error.errors?.[0]?.message || error.message || 'Authentication failed.',
+        title: sentientTitle,
+        description: sentientDescription,
         variant: 'destructive',
+        action: (
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setShowErrorDetails(true)}
+              className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-white/10"
+            >
+              Details
+            </button>
+            <button
+              onClick={() => {
+                if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
+                  nuclearReset();
+                }
+              }}
+              className="px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-orange-500/20"
+            >
+              System Fix
+            </button>
+          </div>
+        )
       });
     } finally {
       setIsLoading(false);
@@ -322,7 +302,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       animate={{ y: 0, opacity: 1, transition: { duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] } }}
       exit={{ y: 16, opacity: 0, transition: { duration: 0.15, ease: [0.4, 0, 1, 1] } }}
     >
-      <StarFieldBackground />
+
 
       {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -336,7 +316,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         initial={{ opacity: 0, x: -12 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.15, duration: 0.3 }}
-        className="absolute top-4 left-4 z-20 text-white/60 hover:text-white px-3 py-2 rounded-lg hover:bg-white/5 transition-all duration-200 active:scale-95"
+        className="absolute top-4 left-4 z-20 text-muted-foreground hover:text-foreground px-3 py-2 rounded-lg hover:bg-muted transition-all duration-200 active:scale-95"
         style={{ paddingTop: 'max(16px, env(safe-area-inset-top))' }}
       >
         <ArrowLeft className="w-5 h-5" />
@@ -351,68 +331,45 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           animate="visible"
         >
           {/* Header */}
-          <motion.div variants={itemVariants} className="text-center mb-5">
-            <h2 className="text-xl font-bold text-white">
-              {isForgotPassword ? 'Reset Password' : isLogin ? 'Welcome to Swipess' : 'Create account'}
-            </h2>
-          </motion.div>
+          {(isForgotPassword || !isLogin) && (
+            <motion.div variants={itemVariants} className="text-center mb-5">
+              <h2 className="text-xl font-bold text-foreground">
+                {isForgotPassword ? 'Reset Password' : 'Create account'}
+              </h2>
+            </motion.div>
+          )}
 
           {/* Card */}
           <motion.div
             variants={itemVariants}
-            className="bg-white/[0.02] border border-white/10 rounded-2xl p-5"
+            className="bg-card border border-border rounded-2xl p-5"
           >
-            {/* Google OAuth */}
-            {!isForgotPassword && !isNativePlatform && (
-              <motion.div variants={itemVariants}>
-                <Button
-                  type="button"
-                  onClick={(e) => handleOAuthSignIn(e, 'google')}
-                  disabled={isLoading}
-                  variant="outline"
-                  className="w-full h-12 font-semibold text-sm text-white hover:border-white/20 transition-all active:scale-[0.97]"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.06)',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.15)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
-                  }}
-                >
-                  {isLoading ? <><Loader className="w-4 h-4 mr-2 animate-spin" />Connecting...</> : <><FaGoogle className="w-4 h-4 mr-2 text-white" />Continue with Google</>}
-                </Button>
-                <div className="relative flex items-center my-4">
-                  <div className="flex-grow border-t border-white/10" />
-                  <span className="flex-shrink mx-3 text-white/30 text-xs font-medium">or</span>
-                  <div className="flex-grow border-t border-white/10" />
-                </div>
-              </motion.div>
-            )}
+            {/* Email-only auth (Google OAuth removed) */}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-3">
               {/* Name (sign-up) */}
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants} className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                   <Input
                     type="text" value={name} onChange={(e) => setName(e.target.value)} required
                     placeholder="Full Name"
-                    className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                    className="pl-10 h-11 text-sm bg-muted border border-border rounded-full text-foreground placeholder:text-muted-foreground"
                   />
                 </motion.div>
               )}
 
               {/* Email */}
               <motion.div variants={itemVariants} className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                 <Input
                   type="email"
                   name="email"
                   autoComplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
-                  className="pl-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                  className="pl-10 h-11 text-sm bg-muted border border-border rounded-full text-foreground placeholder:text-muted-foreground"
                 />
               </motion.div>
 
@@ -420,23 +377,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-orange-400 transition-colors" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400 transition-colors" />
                     <Input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
-                      className="pl-10 pr-10 h-11 text-sm bg-white/[0.03] border border-white/10 rounded-lg text-white placeholder:text-white/30"
+                      className="pl-10 pr-10 h-11 text-sm bg-muted border border-border rounded-full text-foreground placeholder:text-muted-foreground"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
                   {!isLogin && password && (
                     <div className="mt-2 flex items-center gap-2">
-                      <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                      <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
                         <div className={`h-full ${passwordStrength.color} rounded-full transition-all duration-300`}
                           style={{ width: `${(passwordStrength.score / 4) * 100}%` }} />
                       </div>
@@ -455,11 +412,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   <label className="flex items-center gap-2 cursor-pointer group">
                     <div className="relative">
                       <input type="checkbox" checked={agreeToTerms} onChange={(e) => setAgreeToTerms(e.target.checked)} className="sr-only peer" />
-                      <div className="w-4 h-4 rounded border-2 border-white/30 bg-white/5 peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
+                      <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
                         {agreeToTerms && <Check className="w-2.5 h-2.5 text-white" />}
                       </div>
                     </div>
-                    <span className="text-xs text-white/50">
+                    <span className="text-xs text-muted-foreground">
                       I agree to the{' '}
                       <a href="/terms-of-service" target="_blank" className="text-orange-400 underline">Terms</a>{' & '}
                       <a href="/privacy-policy" target="_blank" className="text-orange-400 underline">Privacy</a>
@@ -475,11 +432,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                     <label className="flex items-center gap-2 cursor-pointer">
                       <div className="relative">
                         <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="sr-only peer" />
-                        <div className="w-4 h-4 rounded border-2 border-white/30 bg-white/5 peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
+                        <div className="w-4 h-4 rounded border-2 border-border bg-muted peer-checked:bg-orange-500 peer-checked:border-transparent transition-all flex items-center justify-center">
                           {rememberMe && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
                       </div>
-                      <span className="text-sm text-white/60">Remember me</span>
+                      <span className="text-sm text-muted-foreground">Remember me</span>
                     </label>
                     <button type="button" onClick={() => setIsForgotPassword(true)}
                       className="text-sm text-orange-400 hover:underline font-medium">
@@ -537,7 +494,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 
       {/* Error details modal */}
       {showErrorDetails && errorDetails && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90">
           <div className="bg-zinc-900 border border-red-500/20 rounded-xl max-w-2xl w-full max-h-[80vh] overflow-hidden shadow-2xl">
             <div className="bg-red-500/10 border-b border-red-500/20 px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -578,14 +535,18 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const [effectMode, setEffectMode] = useState<EffectMode>('orbs');
+  const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: orbs → stars → off (dark) → orbs
-  const cycleEffect = () => setEffectMode((p) => p === 'orbs' ? 'stars' : p === 'stars' ? 'off' : 'orbs');
+  // Cycle: stars → orbs → off → stars
+  const cycleEffect = () => setEffectMode((p) => {
+    if (p === 'stars') return 'orbs';
+    if (p === 'orbs') return 'off';
+    return 'stars';
+  });
   const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden">
       <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">

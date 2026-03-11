@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { AmbientSwipeBackground } from './AmbientSwipeBackground';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+// PrefetchScheduler imported from SwipeUtils below
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
@@ -34,7 +35,7 @@ import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles } from 'lucide-re
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/logger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -49,7 +50,6 @@ import {
 import { SwipeLoadingSkeleton } from './swipe/SwipeLoadingSkeleton';
 import { AllCaughtUpView, ErrorStateView, EmptyStateView } from './swipe/SwipeStates';
 import { MatchedListing as Listing } from '@/hooks/smartMatching/types';
-
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
@@ -168,7 +168,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
       prevFiltersRef.current?.category !== filters?.category ||
       prevFiltersRef.current?.listingType !== filters?.listingType ||
-      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange);
+      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange) ||
+      !arraysEqual(prevFiltersRef.current?.serviceCategory, filters?.serviceCategory) ||
+      !arraysEqual(prevFiltersRef.current?.workTypes, filters?.workTypes) ||
+      !arraysEqual(prevFiltersRef.current?.skills, filters?.skills) ||
+      !arraysEqual(prevFiltersRef.current?.daysAvailable, filters?.daysAvailable) ||
+      !arraysEqual(prevFiltersRef.current?.experienceLevel, filters?.experienceLevel) ||
+      !arraysEqual(prevFiltersRef.current?.scheduleTypes, filters?.scheduleTypes);
 
     if (filtersChanged) {
       logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');
@@ -237,6 +243,30 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // Navigation guard
   const { canNavigate, startNavigation, endNavigation } = useNavigationGuard();
 
+  // ─── PREDICTIVE CARD TRANSITIONS ─────────────────────────────────────────
+  // Shared MotionValue: top card writes its X position here so the card
+  // underneath can react in real-time without any React re-renders.
+  const topCardX = useMotionValue(0);
+
+  // Next card scales up and brightens as the top card is dragged away.
+  // At rest (topCardX=0): scale 0.97, opacity 0.72  — the normal "peek" state.
+  // At threshold (topCardX=±280): scale 1.0, opacity 0.98 — fully revealed.
+  const nextCardScale = useTransform(
+    topCardX,
+    [-280, -60, 0, 60, 280],
+    [1.0, 1.0, 0.97, 1.0, 1.0]
+  );
+  const nextCardOpacity = useTransform(
+    topCardX,
+    [-280, -60, 0, 60, 280],
+    [0.98, 0.92, 0.72, 0.92, 0.98]
+  );
+
+  // Tracks whether the user has completed at least one swipe this session.
+  // Used to gate the entrance spring so the very first card doesn't animate in.
+  const hasSwipedRef = useRef(false);
+  // ─────────────────────────────────────────────────────────────────────────
+
   // FIX: Hydration sync disabled — DB query is the single source of truth
   // The query with refetchOnMount:'always' ensures fresh data on every mount
   // No need to restore stale cached decks that may contain already-swiped items
@@ -244,6 +274,44 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Clear any stale session storage on mount
     try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
+
+  // HYDRATE FILTER STORE FROM DATABASE on mount
+  // If the Zustand store has no categories selected but the DB has stored preferences,
+  // seed the store so the swipe deck uses the user's saved filters
+  useEffect(() => {
+    if (!user?.id) return;
+    const state = useFilterStore.getState();
+    // Only hydrate if store is empty (user hasn't actively set filters this session)
+    if (state.categories.length > 0 || state.listingType !== 'both') return;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('client_filter_preferences')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!data) return;
+        const currentState = useFilterStore.getState();
+        // Double-check store is still empty (race condition guard)
+        if (currentState.categories.length > 0) return;
+
+        const cats = Array.isArray(data.preferred_categories) ? data.preferred_categories as string[] : [];
+        const listingTypes = Array.isArray(data.preferred_listing_types) ? data.preferred_listing_types as string[] : [];
+
+        if (cats.length > 0) {
+          useFilterStore.getState().setCategories(cats as any);
+        }
+        if (listingTypes.length === 1 && listingTypes[0] !== 'both') {
+          useFilterStore.getState().setListingType(listingTypes[0] as any);
+        }
+        logger.info('[SwipessSwipeContainer] Hydrated filter store from DB:', { cats, listingTypes });
+      } catch (err) {
+        logger.error('[SwipessSwipeContainer] Error hydrating filters from DB:', err);
+      }
+    })();
+  }, [user?.id]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -413,7 +481,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   usePrefetchImages({
     currentIndex: currentIndex,
     profiles: deckQueueRef.current,
-    prefetchCount: 3,
+    prefetchCount: 5,
     trigger: currentIndex
   });
 
@@ -529,6 +597,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Clear pending immediately to prevent double-flush
     pendingSwipeRef.current = null;
     isSwipeAnimatingRef.current = false;
+
+    // Reset shared motion value BEFORE React re-render so new top card
+    // mounts with x=0 (prevents stale rotation/opacity on the incoming card)
+    topCardX.set(0);
+
+    // Gate entrance animation — only spring-in for cards after the first swipe
+    hasSwipedRef.current = true;
 
     // NOW it's safe to update React state - animation is done
     setCurrentIndex(newIndex);
@@ -651,7 +726,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
-  }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget]);
+  }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
   // PHASE 1: Called when user swipes - ONLY updates refs and triggers animation
   // NO React state updates, NO Zustand updates, NO persistence
@@ -699,10 +774,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // The next card will show with skeleton placeholder until image loads
     executeSwipe(direction);
 
-    // AGGRESSIVE PREFETCH: Preload ALL images of next 3 cards to prevent blink
+    // AGGRESSIVE PREFETCH: Preload ALL images of next 5 cards to prevent blink
     // Use BOTH preloaders for maximum cache coverage and instant display
     const imagesToPreload: string[] = [];
-    [1, 2, 3].forEach((offset) => {
+    [1, 2, 3, 4, 5].forEach((offset) => {
       const futureCard = deckQueueRef.current[currentIndexRef.current + offset];
       if (futureCard?.images && Array.isArray(futureCard.images)) {
         futureCard.images.forEach((imgUrl: string) => {
@@ -831,6 +906,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const handleSendMessage = async (message: string) => {
     if (isCreatingConversation || !selectedListing?.owner_id) return;
 
+    // Content moderation check
+    const { validateContent: vc } = await import('@/utils/contactInfoValidation');
+    const result = vc(message);
+    if (!result.isClean) {
+      toast.error('Content blocked', { description: result.message });
+      return;
+    }
+
     setIsCreatingConversation(true);
     startNavigation();
 
@@ -902,12 +985,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const currentCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
 
   // STABLE LOADING SHELL: GPU-accelerated skeleton while fetching initial deck
-  const hasHydratedData = isClientHydrated && deckQueue.length > 0;
+  const hasHydratedData = isClientHydrated() && deckQueue.length > 0;
   if (!hasHydratedData && isLoading) {
     return <SwipeLoadingSkeleton />;
   }
 
-  // All caught up state - shown when deck is exhausted (already seen some cards)
   if (currentIndex > 0 && currentIndex >= deckQueue.length && !isLoading) {
     return (
       <AllCaughtUpView
@@ -928,14 +1010,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     );
   }
 
-  // Empty state - dynamic based on category (no cards found for filters)
   if (deckQueue.length === 0 && !isLoading) {
     return (
       <EmptyStateView
         categoryInfo={currentCategoryInfo}
         isRefreshing={isRefreshing}
         onRefresh={handleRefresh}
-        onTutorial={() => navigate('/tutorial')}
       />
     );
   }
@@ -944,16 +1024,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   return (
     <div
       className="relative w-full flex flex-col"
-      style={{ minHeight: '100dvh' }}
+      style={{ height: '100%', minHeight: '100dvh' }}
       onMouseEnter={handleDeckHover}
     >
-      {/* AMBIENT BACKGROUND: Diagonal carousel of swipe cards
-          - Lives at z-index: -1 (below everything)
-          - Non-interactive (pointer-events: none)
-          - Slows down during swipe animation (when swipeDirection is active)
-          - Communicates "swipe marketplace" at first glance */}
-      <AmbientSwipeBackground isPaused={swipeDirection !== null} />
-
       {/* Category title removed - clean immersive card experience */}
 
       <div className="relative flex-1 w-full">
@@ -965,13 +1038,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           const nextCard = deckQueueRef.current[currentIndexRef.current + 1];
           if (!nextCard) return null;
           return (
-            <div
+            <motion.div
               key={`next-${nextCard.id}`}
-              className="w-full h-full absolute inset-0"
+              className="w-full h-full absolute inset-0 gpu-layer"
               style={{
                 zIndex: 5,
-                transform: 'scale(0.95)',
-                opacity: 0.7,
+                scale: nextCardScale,
+                opacity: nextCardOpacity,
+                translateZ: 0,
                 pointerEvents: 'none',
               }}
             >
@@ -980,15 +1054,20 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                 onSwipe={() => { }}
                 isTop={false}
               />
-            </div>
+            </motion.div>
           );
         })()}
 
         {/* CURRENT CARD - Top of stack, fully interactive */}
         {topCard && (
-          <div
+          <motion.div
             key={topCard.id}
             className="w-full h-full absolute inset-0"
+            // Spring-forward entrance: card pops from "peeked" position to full size.
+            // Skipped on first card (hasSwipedRef.current=false) to avoid jarring load animation.
+            initial={hasSwipedRef.current ? { scale: 0.97, opacity: 0.72 } : false}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 28, mass: 0.85 }}
             style={{ zIndex: 10 }}
           >
             <SimpleSwipeCard
@@ -998,13 +1077,14 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
               onTap={() => onListingTap(topCard.id)}
               onInsights={handleInsights}
               isTop={true}
+              externalX={topCardX}
             />
-          </div>
+          </motion.div>
         )}
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute bottom-24 left-0 right-0 flex justify-center z-30">
+          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}

@@ -19,6 +19,7 @@ import { SubscriptionPackages } from '@/components/SubscriptionPackages';
 import { ChatPreviewSheet } from '@/components/ChatPreviewSheet';
 import { logger } from '@/utils/logger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
+import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { RatingSubmissionDialog } from '@/components/RatingSubmissionDialog';
 
@@ -28,7 +29,7 @@ interface MessagingInterfaceProps {
     id: string;
     full_name: string;
     avatar_url?: string;
-    role: string;
+    role: 'client' | 'owner';
   };
   listing?: {
     id: string;
@@ -127,7 +128,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const [showConnecting, setShowConnecting] = useState(false);
-  const connectingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check monthly message limits
   const { canSendMessage, messagesRemaining, isAtLimit, hasMonthlyLimit } = useMonthlyMessageLimits();
@@ -202,11 +203,17 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
     }
   }, [messages, isScrolledToBottom]);
 
+  const { moderate } = useContentModeration();
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
     const messageText = newMessage.trim();
+
+    // Content moderation check
+    if (!moderate(messageText, 'message', conversationId)) return;
+
     setNewMessage('');
     stopTyping(); // Stop typing indicator when message is sent
 
@@ -276,8 +283,6 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           className="shrink-0 border-b px-3 py-2.5"
           style={{
             background: 'hsl(var(--background) / 0.97)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
             borderColor: 'hsl(var(--border))',
           }}
         >
@@ -416,8 +421,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
           onSubmit={handleSendMessage}
           className="px-3 py-3 shrink-0"
           style={{
-            background: 'hsl(var(--background) / 0.95)',
-            backdropFilter: 'blur(20px)',
+            background: 'hsl(var(--background) / 0.97)',
             borderTop: '1px solid hsl(var(--border))',
           }}
         >

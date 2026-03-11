@@ -363,16 +363,16 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
               {/* Service-specific */}
               {propertyInsights?.isWorker && (
                 <>
-                  {listing.service_type && (
+                  {(listing as any).service_category && (
                     <div className="flex items-center gap-2">
                       <Briefcase className="w-4 h-4" />
-                      <span>{listing.service_type}</span>
+                      <span>{(listing as any).service_category}</span>
                     </div>
                   )}
-                  {listing.hourly_rate && (
+                  {listing.price && (
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4" />
-                      <span>${listing.hourly_rate}/hour</span>
+                      <span>${listing.price}/{(listing as any).pricing_unit || 'hr'}</span>
                     </div>
                   )}
                   {listing.experience_years && (
@@ -533,27 +533,27 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                   Service Rates
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
-                  {listing.rental_rates.hourly && (
+                  {(listing.rental_rates as any)?.hourly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.hourly}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).hourly)}</div>
                       <div className="text-xs text-muted-foreground">per hour</div>
                     </div>
                   )}
-                  {listing.rental_rates.daily && (
+                  {(listing.rental_rates as any)?.daily && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.daily}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).daily)}</div>
                       <div className="text-xs text-muted-foreground">per day</div>
                     </div>
                   )}
-                  {listing.rental_rates.weekly && (
+                  {(listing.rental_rates as any)?.weekly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.weekly}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).weekly)}</div>
                       <div className="text-xs text-muted-foreground">per week</div>
                     </div>
                   )}
-                  {listing.rental_rates.monthly && (
+                  {(listing.rental_rates as any)?.monthly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.monthly}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).monthly)}</div>
                       <div className="text-xs text-muted-foreground">per month</div>
                     </div>
                   )}

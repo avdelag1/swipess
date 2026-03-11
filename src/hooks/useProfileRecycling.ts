@@ -103,11 +103,11 @@ export function usePermanentlyExcludedProfiles(viewType: 'profile' | 'listing' =
         const profileIds = passedCards.map(p => p.viewed_profile_id);
         const { data: profiles } = await supabase
           .from('profiles')
-          .select('id, updated_at')
-          .in('id', profileIds);
+          .select('user_id, updated_at')
+          .in('user_id', profileIds);
 
         const stillExcluded = passedCards.filter(card => {
-          const profile = profiles?.find(p => p.id === card.viewed_profile_id);
+          const profile = profiles?.find(p => p.user_id === card.viewed_profile_id);
           if (!profile?.updated_at) return true;
           return new Date(profile.updated_at) <= new Date(card.created_at);
         });

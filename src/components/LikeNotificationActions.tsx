@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Flame, MessageCircle, X, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 interface LikeNotificationActionsProps {
   onAccept: () => void;
@@ -21,6 +22,8 @@ export function LikeNotificationActions({
   showChat = false,
   onChat,
 }: LikeNotificationActionsProps) {
+  const { theme } = useTheme();
+  const isWhite = theme === 'white-matte';
   const isLoading = isAccepting || isRejecting;
 
   if (variant === 'stacked') {
@@ -49,7 +52,7 @@ export function LikeNotificationActions({
             onClick={onChat}
             disabled={isLoading}
             variant="outline"
-            className="w-full border-orange-200 hover:bg-orange-50"
+            className={isWhite ? "w-full border-orange-400 hover:bg-orange-100" : "w-full border-orange-200 hover:bg-orange-50"}
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             Open Chat
@@ -110,7 +113,7 @@ export function LikeNotificationActions({
           disabled={isLoading}
           size="sm"
           variant="outline"
-          className="border-orange-200 hover:bg-orange-50"
+          className={isWhite ? "border-orange-400 hover:bg-orange-100" : "border-orange-200 hover:bg-orange-50"}
         >
           <MessageCircle className="w-3 h-3 mr-1.5" />
           Chat

@@ -121,7 +121,7 @@ export function useAccountLinking() {
         await supabase
           .from('profiles')
           .update(profileUpdate)
-          .eq('id', existingProfile.id);
+          .eq('user_id', existingProfile.id);
       }
 
       toast.success("Account Linked Successfully", {

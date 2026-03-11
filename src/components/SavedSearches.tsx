@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -33,11 +34,11 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
 
   if (savedFilters.length === 0) {
     return (
-      <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+      <Card className="bg-muted/30 border-border">
         <CardContent className="p-6 text-center">
-          <Search className="w-12 h-12 mx-auto text-white/50 mb-4" />
-          <p className="text-white/70">No saved filters yet</p>
-          <p className="text-white/50 text-sm">
+          <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-foreground/70">No saved filters yet</p>
+          <p className="text-muted-foreground text-sm">
             {userRole === 'owner' 
               ? 'Save your client discovery filters for quick access' 
               : 'Save your property search filters for quick access'}
@@ -47,20 +48,31 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 14, filter: 'blur(4px)' },
+    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { type: 'spring' as const, stiffness: 380, damping: 28 } },
+  };
+
   return (
-    <div className="space-y-3">
+    <motion.div className="space-y-3" initial="hidden" animate="visible" variants={containerVariants}>
       {savedFilters.map((filter) => {
         const isActive = activeFilter?.id === filter.id;
-        
+
         return (
-          <Card key={filter.id} className={`bg-white/10 backdrop-blur-sm border-white/20 transition-all ${
+          <motion.div key={filter.id} variants={itemVariants}>
+          <Card className={`bg-muted/30 border-border transition-all ${
             isActive ? 'ring-2 ring-primary shadow-lg shadow-primary/20' : ''
           }`}>
             <CardContent className="p-4">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-white">{filter.name}</h4>
+                    <h4 className="font-medium text-foreground">{filter.name}</h4>
                     {isActive && (
                       <Badge className="bg-primary/20 text-primary border-primary/30">
                         <Star className="w-3 h-3 mr-1 fill-primary" />
@@ -68,7 +80,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-white/60 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Saved {new Date(filter.created_at!).toLocaleDateString()}
                   </p>
                 </div>
@@ -78,7 +90,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                       size="sm"
                       variant="ghost"
                       onClick={() => handleApplyFilter(filter.id!)}
-                      className="text-white/70 hover:text-white hover:bg-white/10"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent"
                     >
                       <Check className="w-4 h-4 mr-1" />
                       Apply
@@ -88,7 +100,7 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                     size="sm"
                     variant="ghost"
                     onClick={() => deleteFilter(filter.id!)}
-                    className="text-white/70 hover:text-red-400 hover:bg-white/10"
+                    className="text-muted-foreground hover:text-red-400 hover:bg-accent"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
@@ -125,14 +137,35 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
                           {fd.preferred_occupations.length} occupations
                         </Badge>
                       )}
+                      {fd.service_categories?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.service_categories.join(', ')}
+                        </Badge>
+                      )}
+                      {fd.work_types?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.work_types.length} work types
+                        </Badge>
+                      )}
+                      {fd.skills?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.skills.length} skills
+                        </Badge>
+                      )}
+                      {fd.days_available?.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {fd.days_available.length} days
+                        </Badge>
+                      )}
                     </>
                   );
                 })()}
               </div>
             </CardContent>
           </Card>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }

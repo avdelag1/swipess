@@ -5,6 +5,7 @@ import { useOfflineDetection } from '@/hooks/useOfflineDetection';
 import { useErrorReporting } from '@/hooks/useErrorReporting';
 import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/components/ui/GradientMasks';
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer';
+import { NotificationSystem } from '@/components/NotificationSystem';
 import { useTheme } from '@/hooks/useTheme';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
@@ -31,6 +32,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen min-h-dvh w-full bg-background overflow-x-hidden">
       <SkipToMainContent />
+      <NotificationSystem />
 
       {/* Lazy-loaded visual engine - does not block first paint */}
       <Suspense fallback={null}>

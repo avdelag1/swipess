@@ -1,27 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Bell, BellRing, MessageSquare, Flame, Crown, X } from 'lucide-react';
+import { Bell, BellRing, MessageSquare, Flame, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { logger } from '@/utils/logger';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const NOTIFICATION_PROMPT_KEY = 'notification_prompt_dismissed';
-const PROMPT_DELAY_DAYS = 7; // Days before showing prompt again if dismissed
 
 export function PushNotificationPrompt() {
   const [isOpen, setIsOpen] = useState(false);
-  const { isSupported, subscribe } = usePushNotifications();
+  const [isLoading, setIsLoading] = useState(false);
+  const { subscribe, isSupported, isSubscribed } = usePushNotifications();
 
-  useEffect(() => {
-    // SPEED OF LIGHT: Do NOT auto-show notification prompt on startup
-    // This prompt should only be triggered by user action (settings button)
-    // REMOVED: Auto-show timer that was blocking user experience
-    // Permission is now requested only from settings
-  }, []);
+  // useEffect removed - auto-show logic no longer needed here as it's handled by trigger or hook state
 
   const handleEnableNotifications = async () => {
+    setIsLoading(true);
     try {
       // Create push subscription and save to database via hook
       const success = await subscribe();
@@ -34,30 +30,36 @@ export function PushNotificationPrompt() {
 
         // Show a test notification to confirm browser-level permission
         if (typeof window !== 'undefined' && 'Notification' in window) {
-          const notification = new Notification('Notifications Enabled!', {
-            body: 'You will now receive updates when someone messages or likes you.',
-            icon: '/favicon.ico',
-            badge: '/favicon.ico',
-            tag: 'welcome-notification',
-          });
-          setTimeout(() => notification.close(), 5000);
+          try {
+            const notification = new Notification('Notifications Enabled!', {
+              body: 'You will now receive updates when someone messages or likes you.',
+              icon: '/favicon.ico',
+              badge: '/favicon.ico',
+              tag: 'welcome-notification',
+            });
+            setTimeout(() => notification.close(), 5000);
+          } catch (e) {
+            // Some browsers don't support new Notification() inside web apps
+            logger.warn('[PushNotificationPrompt] Could not show test notification:', e);
+          }
         }
       } else {
-        // subscribe() handles its own internal logging, but we can notify user if it failed due to permission
-        if (Notification.permission === 'denied') {
-          toast.error("Notifications Blocked", {
-            description: "You can enable notifications later in your browser settings.",
-            duration: 5000
-          });
-        }
+        toast.error("Notifications Not Enabled", {
+          description: Notification.permission === 'denied'
+            ? "You can enable notifications later in your browser settings."
+            : "Please try again later.",
+          duration: 5000
+        });
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        logger.error('Error requesting notification permission:', error);
-      }
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+        duration: 4000
+      });
+    } finally {
+      setIsLoading(false);
+      setIsOpen(false);
     }
-
-    setIsOpen(false);
   };
 
   const handleDismiss = () => {
@@ -65,7 +67,8 @@ export function PushNotificationPrompt() {
     setIsOpen(false);
   };
 
-  if (!isSupported) return null;
+  // Don't render if not supported or already subscribed
+  if (!isSupported || isSubscribed) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -131,10 +134,11 @@ export function PushNotificationPrompt() {
         <div className="px-6 pb-6 pt-2 space-y-3">
           <Button
             onClick={handleEnableNotifications}
+            disabled={isLoading}
             className="w-full h-12 font-semibold bg-primary hover:bg-primary/90"
           >
             <Bell className="w-4 h-4 mr-2" />
-            Enable Notifications
+            {isLoading ? "Enabling..." : "Enable Notifications"}
           </Button>
 
           <Button

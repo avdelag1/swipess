@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { OwnerLocationSelector } from './location/OwnerLocationSelector';
+import { cn } from '@/lib/utils';
 
 interface PropertyFormData {
   title?: string;
@@ -64,8 +64,29 @@ const AMENITIES = ['Pool', 'Gym', 'Parking', 'AC', 'WiFi', 'Security', 'Garden',
 const SERVICES = ['Water', 'Electricity', 'Gas', 'Internet', 'Cleaning', 'Maintenance', 'Trash', 'Cable TV'];
 const STATES = ['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas', 'Chihuahua', 'Mexico City', 'Coahuila', 'Colima', 'Durango', 'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Mexico State', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas'];
 
+// Premium section wrapper
+const Section = ({ title, accent = 'emerald', children, className }: { title: string; accent?: string; children: React.ReactNode; className?: string }) => (
+  <div className={cn("rounded-3xl bg-muted/30 border border-border shadow-xl overflow-hidden", className)}>
+    <div className="px-5 pt-5 pb-3 flex items-center gap-2.5">
+      <div className={cn("w-2 h-2 rounded-full", accent === 'emerald' ? 'bg-emerald-500' : 'bg-primary')} />
+      <h3 className="text-sm font-bold text-foreground/90 uppercase tracking-wider">{title}</h3>
+    </div>
+    <div className="px-5 pb-5 space-y-4">{children}</div>
+  </div>
+);
+
+const FormLabel = ({ children }: { children: React.ReactNode }) => (
+  <Label className="text-sm font-semibold text-foreground/80 mb-1.5 block">{children}</Label>
+);
+
+const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; checked: boolean; onCheckedChange: (v: boolean) => void; label: string }) => (
+  <div className="flex items-center space-x-3 p-3 rounded-xl bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer">
+    <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} className="h-5 w-5 rounded-lg" />
+    <Label htmlFor={id} className="cursor-pointer text-sm font-medium text-foreground/80">{label}</Label>
+  </div>
+);
+
 export function PropertyListingForm({ onDataChange, initialData = {} }: PropertyListingFormProps) {
-  // Safe parsing of initial data to strip weird DB nulls
   const parsedResult = propertyFormSchema.safeParse(initialData);
   const safeInitialData = parsedResult.success ? parsedResult.data : {};
 
@@ -94,167 +115,148 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader><CardTitle>Basic Information (Optional)</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+    <div className="space-y-5">
+      <Section title="Basic Information" accent="emerald">
+        <div>
+          <FormLabel>Title</FormLabel>
+          <Input {...register('title')} placeholder="Beautiful 2BR Apartment" />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Title</Label>
-            <Input {...register('title')} placeholder="Beautiful 2BR Apartment" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Price ($/month)</Label>
-              <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="2500" />
-            </div>
-            <div>
-              <Label>Minimum Stay</Label>
-              <Controller
-                name="rental_duration_type"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value || ''}>
-                    <SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger>
-                    <SelectContent>
-                      {RENTAL_DURATIONS.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
+            <FormLabel>Price ($/month)</FormLabel>
+            <Input type="number" {...register('price', { valueAsNumber: true })} placeholder="2500" />
           </div>
           <div>
-            <Label>Address</Label>
-            <Input {...register('address')} placeholder="123 Main Street" />
+            <FormLabel>Minimum Stay</FormLabel>
+            <Controller
+              name="rental_duration_type"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value || ''}>
+                  <SelectTrigger><SelectValue placeholder="Select duration" /></SelectTrigger>
+                  <SelectContent>
+                    {RENTAL_DURATIONS.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              )}
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div>
+          <FormLabel>Address</FormLabel>
+          <Input {...register('address')} placeholder="123 Main Street" />
+        </div>
+      </Section>
 
-      <Card>
-        <CardHeader><CardTitle>Location</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
+      <Section title="Location" accent="emerald">
+        <Controller
+          name="country"
+          control={control}
+          render={({ field }) => (
+            <OwnerLocationSelector
+              country={field.value}
+              onCountryChange={field.onChange}
+              city={watch('city')}
+              onCityChange={(city) => setValue('city', city)}
+              neighborhood={watch('neighborhood')}
+              onNeighborhoodChange={(neighborhood) => setValue('neighborhood', neighborhood)}
+            />
+          )}
+        />
+        <div>
+          <FormLabel>State</FormLabel>
           <Controller
-            name="country"
+            name="state"
             control={control}
             render={({ field }) => (
-              <OwnerLocationSelector
-                country={field.value}
-                onCountryChange={field.onChange}
-                city={watch('city')}
-                onCityChange={(city) => setValue('city', city)}
-                neighborhood={watch('neighborhood')}
-                onNeighborhoodChange={(neighborhood) => setValue('neighborhood', neighborhood)}
-              />
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
+                <SelectContent>
+                  {STATES.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}
+                </SelectContent>
+              </Select>
             )}
           />
+        </div>
+      </Section>
 
-          <div>
-            <Label>State</Label>
-            <Controller
-              name="state"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
-                  <SelectContent>
-                    {STATES.map(state => <SelectItem key={state} value={state}>{state}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Property Details</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Property Type</Label>
-            <Controller
-              name="property_type"
-              control={control}
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value || ''}>
-                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                  <SelectContent>
-                    {PROPERTY_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label>Bedrooms</Label>
-              <Input type="number" {...register('beds', { valueAsNumber: true, min: 0 })} placeholder="2" />
-            </div>
-            <div>
-              <Label>Bathrooms</Label>
-              <Input type="number" step="0.5" {...register('baths', { valueAsNumber: true, min: 0 })} placeholder="2" />
-            </div>
-            <div>
-              <Label>Sq. Ft.</Label>
-              <Input type="number" {...register('square_footage', { valueAsNumber: true })} placeholder="1200" />
-            </div>
-          </div>
-
-          <div className="flex gap-6">
-            <div className="flex items-center space-x-2">
-              <Controller name="furnished" control={control} render={({ field }) => <Checkbox id="furnished" checked={field.value} onCheckedChange={field.onChange} />} />
-              <Label htmlFor="furnished">Furnished</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Controller name="pet_friendly" control={control} render={({ field }) => <Checkbox id="pet_friendly" checked={field.value} onCheckedChange={field.onChange} />} />
-              <Label htmlFor="pet_friendly">Pet Friendly</Label>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>House Rules</CardTitle></CardHeader>
-        <CardContent>
-          <Textarea
-            {...register('house_rules')}
-            placeholder="Enter any house rules or restrictions (e.g., No smoking, Quiet hours after 10 PM, etc.)"
-            className="min-h-24"
+      <Section title="Property Details" accent="emerald">
+        <div>
+          <FormLabel>Property Type</FormLabel>
+          <Controller
+            name="property_type"
+            control={control}
+            render={({ field }) => (
+              <Select onValueChange={field.onChange} value={field.value || ''}>
+                <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                <SelectContent>
+                  {PROPERTY_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
           />
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card>
-        <CardHeader><CardTitle>Amenities</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <FormLabel>Bedrooms</FormLabel>
+            <Input type="number" {...register('beds', { valueAsNumber: true, min: 0 })} placeholder="2" />
+          </div>
+          <div>
+            <FormLabel>Bathrooms</FormLabel>
+            <Input type="number" step="0.5" {...register('baths', { valueAsNumber: true, min: 0 })} placeholder="2" />
+          </div>
+          <div>
+            <FormLabel>Sq. Ft.</FormLabel>
+            <Input type="number" {...register('square_footage', { valueAsNumber: true })} placeholder="1200" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Controller name="furnished" control={control} render={({ field }) => (
+            <CheckboxRow id="furnished" checked={!!field.value} onCheckedChange={field.onChange} label="Furnished" />
+          )} />
+          <Controller name="pet_friendly" control={control} render={({ field }) => (
+            <CheckboxRow id="pet_friendly" checked={!!field.value} onCheckedChange={field.onChange} label="Pet Friendly" />
+          )} />
+        </div>
+      </Section>
+
+      <Section title="House Rules" accent="emerald">
+        <Textarea
+          {...register('house_rules')}
+          placeholder="Enter any house rules or restrictions (e.g., No smoking, Quiet hours after 10 PM, etc.)"
+          className="min-h-24"
+        />
+      </Section>
+
+      <Section title="Amenities" accent="emerald">
+        <div className="grid grid-cols-2 gap-2">
           {AMENITIES.map(amenity => (
-            <div key={amenity} className="flex items-center space-x-2">
-              <Checkbox
-                id={`amenity-${amenity}`}
-                checked={watch('amenities')?.includes(amenity)}
-                onCheckedChange={() => toggleArrayItem('amenities', amenity)}
-              />
-              <Label htmlFor={`amenity-${amenity}`}>{amenity}</Label>
-            </div>
+            <CheckboxRow
+              key={amenity}
+              id={`amenity-${amenity}`}
+              checked={!!watch('amenities')?.includes(amenity)}
+              onCheckedChange={() => toggleArrayItem('amenities', amenity)}
+              label={amenity}
+            />
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
 
-      <Card>
-        <CardHeader><CardTitle>Services Included</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3">
+      <Section title="Services Included" accent="emerald">
+        <div className="grid grid-cols-2 gap-2">
           {SERVICES.map(service => (
-            <div key={service} className="flex items-center space-x-2">
-              <Checkbox
-                id={`service-${service}`}
-                checked={watch('services_included')?.includes(service)}
-                onCheckedChange={() => toggleArrayItem('services_included', service)}
-              />
-              <Label htmlFor={`service-${service}`}>{service}</Label>
-            </div>
+            <CheckboxRow
+              key={service}
+              id={`service-${service}`}
+              checked={!!watch('services_included')?.includes(service)}
+              onCheckedChange={() => toggleArrayItem('services_included', service)}
+              label={service}
+            />
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </Section>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
+import { useTheme } from '@/hooks/useTheme';
 
 interface AISearchDialogProps {
   isOpen: boolean;
@@ -33,6 +34,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: clientProfile } = useClientProfile();
+  const { theme } = useTheme();
+  const isDark = theme !== 'white-matte';
 
   const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
@@ -131,11 +134,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
-    { icon: Home, label: 'Properties', text: 'Show me apartments to rent' },
-    { icon: Flame, label: 'Matches', text: 'Where are my matches?' },
-    { icon: Zap, label: 'Tokens', text: 'How do tokens work?' },
-    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?' },
-  ], []);
+    { icon: Home, label: 'Properties', text: 'Show me apartments to rent', color: 'text-blue-400', bg: isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-200' },
+    { icon: Flame, label: 'Matches', text: 'Where are my matches?', color: 'text-pink-400', bg: isDark ? 'bg-pink-500/10 border-pink-500/20' : 'bg-pink-50 border-pink-200' },
+    { icon: Zap, label: 'Tokens', text: 'How do tokens work?', color: 'text-amber-400', bg: isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200' },
+    { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?', color: 'text-emerald-400', bg: isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200' },
+  ], [isDark]);
 
   const applyQuickPrompt = (text: string) => {
     setQuery(text);
@@ -147,22 +150,25 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className="sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] bg-background dark:bg-[#0e0e11] border border-border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0"
+        className={cn("sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-white/10" : "bg-white border-gray-200")}
         hideCloseButton={true}
       >
         {/* Header */}
-        <div className="relative px-5 py-3.5 border-b border-border flex items-center justify-between">
+        <div className={cn("relative px-5 py-4 border-b flex items-center justify-between", isDark ? "border-white/10" : "border-gray-200")}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-[1rem] flex items-center justify-center shadow-lg bg-zinc-900 border border-white/10 relative overflow-hidden group">
+            <div className={cn(
+              "w-10 h-10 rounded-[1rem] flex items-center justify-center shadow-lg relative overflow-hidden group border",
+              isDark ? "bg-zinc-800 border-white/15" : "bg-orange-50 border-orange-200"
+            )}>
               <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
               <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             <div>
-              <h2 className="text-foreground font-black text-sm tracking-tighter leading-none mb-0.5 uppercase italic italic">Swipess <span className="text-primary not-italic tracking-normal">Oracle</span></h2>
+              <h2 className={cn("font-black text-sm tracking-tighter leading-none mb-0.5 uppercase italic", isDark ? "text-white" : "text-gray-900")}>Swipess <span className="text-primary not-italic tracking-normal">Oracle</span></h2>
               <div className="flex items-center gap-1.5">
                 <div className="w-1 h-1 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(255,77,0,0.8)]" />
-                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Neural Interface v2.5</p>
+                <p className={cn("text-[9px] font-black uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-400")}>Neural Interface v2.5</p>
               </div>
             </div>
           </div>
@@ -171,9 +177,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             variant="ghost"
             size="icon"
             onClick={handleClose}
-            className="h-8 w-8 rounded-full hover:bg-white/10 transition-colors"
+            className={cn("h-9 w-9 rounded-full transition-colors border", isDark ? "hover:bg-white/15 border-white/15 text-white/80 hover:text-white" : "hover:bg-gray-100 border-gray-200 text-gray-600 hover:text-gray-900")}
           >
-            <X className="w-4 h-4 text-foreground/60" />
+            <X className="w-4 h-4" />
           </Button>
         </div>
 
@@ -187,7 +193,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               animate={{ opacity: 1, y: 0 }}
               className="text-center space-y-6 py-10"
             >
-              <div className="w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl bg-zinc-900 border border-white/10">
+              <div className={cn(
+                "w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl border",
+                isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
+              )}>
                 <Sparkles className="w-10 h-10 text-orange-400" />
               </div>
               <p className="text-muted-foreground text-sm font-bold">Connecting to Oracle...</p>
@@ -204,8 +213,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               >
                 <div className={cn("flex gap-2.5", message.role === 'user' && "flex-row-reverse")}>
                   <div className={cn(
-                    "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm",
-                    message.role === 'ai' ? "bg-zinc-900 border border-white/10" : "bg-muted dark:bg-white/10 border border-border dark:border-white/5"
+                    "w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm border",
+                    message.role === 'ai'
+                      ? (isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8")
+                      : "bg-muted border-border"
                   )}>
                     {message.role === 'ai' ? (
                       <Sparkles className="w-4 h-4 text-orange-400" />
@@ -222,7 +233,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                     "max-w-[85%] px-4 py-3 rounded-[1.5rem] text-xs font-semibold leading-relaxed shadow-sm",
                     message.role === 'user'
                       ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
-                      : "bg-muted/80 dark:bg-zinc-900/50 text-foreground rounded-tl-sm border border-border dark:border-white/5 backdrop-blur-xl"
+                      : cn(
+                        "rounded-tl-sm border backdrop-blur-xl",
+                        isDark ? "bg-zinc-900/50 border-white/5 text-foreground" : "bg-gray-50 border-black/5 text-gray-800 shadow-sm"
+                      )
                   )}>
                     {message.content}
                   </div>
@@ -245,7 +259,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
           {isTyping && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 pl-2">
-              <div className="w-9 h-9 rounded-xl bg-zinc-900 border border-white/10 flex items-center justify-center shadow-lg relative overflow-hidden">
+              <div className={cn(
+                "w-9 h-9 rounded-xl flex items-center justify-center border relative overflow-hidden",
+                isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
+              )}>
                 <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
                 <div className="absolute inset-0 bg-primary/5 animate-pulse" />
               </div>
@@ -265,16 +282,17 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
 
         {/* Quick Suggestions */}
         {messages.length > 0 && messages[messages.length - 1].role === 'ai' && !isSearching && !isTyping && (
-          <div className="px-6 pb-2">
+          <div className="px-5 pb-3">
+            <p className={cn("text-[10px] font-bold uppercase tracking-wider mb-2", isDark ? "text-white/35" : "text-gray-400")}>Quick prompts</p>
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-[10px] bg-muted dark:bg-white/5 border border-border dark:border-white/10 rounded-full text-muted-foreground hover:text-foreground dark:text-white/70 dark:hover:text-white transition-all font-bold uppercase tracking-wider"
+                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold border", prompt.bg)}
                 >
-                  <prompt.icon className="w-3 h-3 text-orange-500" />
-                  {prompt.label}
+                  <prompt.icon className={cn("w-3.5 h-3.5", prompt.color)} />
+                  <span className={isDark ? "text-white/80" : "text-gray-700"}>{prompt.label}</span>
                 </button>
               ))}
             </div>
@@ -282,7 +300,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         )}
 
         {/* Input Area */}
-        <div className="p-4 sm:p-5 mt-auto border-t border-border dark:border-white/5 bg-background/80 dark:bg-[#0e0e10]/80 backdrop-blur-xl">
+        <div className="p-4 sm:p-5 mt-auto border-t border-border bg-background/80 backdrop-blur-xl">
           <div className="relative">
             <Input
               ref={inputRef}
@@ -291,7 +309,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="pr-20 h-12 bg-muted dark:bg-white/5 border-border dark:border-white/10 text-foreground dark:text-white placeholder:text-muted-foreground dark:placeholder:text-white/35 rounded-2xl focus:ring-1 focus:border-orange-500/40 font-bold"
+              className={cn("pr-20 h-12 rounded-2xl focus:ring-1 focus:border-orange-500/40 font-bold", isDark ? "bg-muted border-border text-foreground placeholder:text-muted-foreground" : "bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 shadow-inner")}
               disabled={isSearching}
             />
 

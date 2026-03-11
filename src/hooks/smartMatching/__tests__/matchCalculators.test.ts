@@ -17,6 +17,7 @@ describe('Match Calculators', () => {
 
         it('calculates a high match percentage for strongly matching criteria', () => {
             const preferences = {
+                user_id: 'test-user',
                 min_price: 1000,
                 max_price: 2000,
                 min_bedrooms: 2,
@@ -43,7 +44,7 @@ describe('Match Calculators', () => {
         });
 
         it('handles flexible budget limits with 20% margin', () => {
-            const preferences = { min_price: 1000, max_price: 2000 } as ClientFilterPreferences;
+            const preferences = { user_id: 'test-user', min_price: 1000, max_price: 2000 } as ClientFilterPreferences;
 
             // Within 20% margin
             const listingInRange = { price: 2300 } as Listing;

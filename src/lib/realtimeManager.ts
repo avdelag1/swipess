@@ -89,7 +89,8 @@ class RealtimeSubscriptionManager {
     if (!entry) {
       // Create new channel
       const config = this.getChannelConfig(eventType, customFilter);
-      const channelName = `global-${subscriptionKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+      // Encode non-alphanumeric chars as hex to prevent different keys colliding on the same channel name
+      const channelName = `global-${subscriptionKey.replace(/[^a-zA-Z0-9]/g, (c) => `_${c.charCodeAt(0).toString(16)}`).slice(0, 64)}`;
 
       const channel = supabase
         .channel(channelName)

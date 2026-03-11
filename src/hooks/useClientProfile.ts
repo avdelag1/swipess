@@ -132,6 +132,9 @@ export function useSaveClientProfile() {
       // Sync images
       if (updates.profile_images !== undefined) {
         syncPayload.images = updates.profile_images;
+        if (updates.profile_images && updates.profile_images.length > 0) {
+          syncPayload.avatar_url = updates.profile_images[0];
+        }
       }
 
       // Sync name → full_name
@@ -215,6 +218,7 @@ export function useSaveClientProfile() {
       // Also invalidate owner's view of client profiles
       qc.invalidateQueries({ queryKey: ['client-profiles'] });
       qc.invalidateQueries({ queryKey: ['client-profile'] });
+      qc.invalidateQueries({ queryKey: ['topbar-user-profile'] });
     },
   });
 }

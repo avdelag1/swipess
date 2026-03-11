@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Save, Filter, Check } from 'lucide-react';
-import { useOwnerClientPreferences, OwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
+import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 import { useSavedFilters } from '@/hooks/useSavedFilters';
 import { useToast } from '@/hooks/useToast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,22 +30,12 @@ const CLIENT_TYPE_OPTIONS = [
   { value: 'buyer', label: 'Buyers', emoji: '💰' },
 ];
 
-const LIFESTYLE_OPTIONS = [
-  'Digital Nomad', 'Professional', 'Student', 'Family-Oriented',
-  'Party-Friendly', 'Quiet', 'Social', 'Health-Conscious', 'Pet Lover', 'Eco-Friendly'
-];
-
-const OCCUPATION_OPTIONS = [
-  'Remote Worker', 'Entrepreneur', 'Student', 'Teacher',
-  'Healthcare', 'Tech', 'Creative', 'Hospitality', 'Finance', 'Retired'
-];
-
-const GENDER_OPTIONS = [
-  { value: 'Any Gender', emoji: '🌍', label: 'All' },
-  { value: 'Male', emoji: '👨', label: 'Men' },
-  { value: 'Female', emoji: '👩', label: 'Women' },
-  { value: 'Non-Binary', emoji: '🧑', label: 'Other' },
-];
+import {
+  LIFESTYLE_TAGS as LIFESTYLE_OPTIONS,
+  WORK_SCHEDULE_OPTIONS as OCCUPATION_OPTIONS,
+  GENDER_OPTIONS,
+  BUDGET_RANGES as OWNER_BUDGET_RANGES,
+} from '@/constants/profileConstants';
 
 // Category card component matching client style
 function CategoryCard({
@@ -145,41 +135,49 @@ function SegmentedControl({
   );
 }
 
-// Predefined budget ranges
-const OWNER_BUDGET_RANGES = [
-  { value: '0-500', label: '$0-500', min: 0, max: 500 },
-  { value: '500-1000', label: '$500-1K', min: 500, max: 1000 },
-  { value: '1000-3000', label: '$1K-3K', min: 1000, max: 3000 },
-  { value: '3000-5000', label: '$3K-5K', min: 3000, max: 5000 },
-  { value: '5000+', label: '$5K+', min: 5000, max: 50000 },
-];
+// Budget ranges are now imported from profileConstants.ts
+
+/**
+ * UI-only form state for fields that don't persist to DB.
+ * These are kept separate from OwnerClientPreferences to avoid type conflicts.
+ */
+interface LocalFilterState {
+  compatible_lifestyle_tags: string[];
+  preferred_occupations: string[];
+  allows_pets: boolean;
+  allows_smoking: boolean;
+  allows_parties: boolean;
+  requires_employment_proof: boolean;
+  requires_references: boolean;
+}
 
 export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilterDialogProps) {
-  
+
   const { preferences, updatePreferences, isUpdating } = useOwnerClientPreferences();
   const { saveFilter } = useSavedFilters();
   const { toast } = useToast();
-  
+
   const [filterName, setFilterName] = useState('');
   const [showSaveAs, setShowSaveAs] = useState(false);
-  const [formData, setFormData] = useState<Partial<OwnerClientPreferences>>({
-    min_budget: undefined,
-    max_budget: undefined,
-    min_age: 18,
-    max_age: 65,
+
+  // DB-persisted fields
+  const [minBudget, setMinBudget] = useState<number | undefined>(undefined);
+  const [maxBudget, setMaxBudget] = useState<number | undefined>(undefined);
+  const [minAge, setMinAge] = useState<number>(18);
+  const [maxAge, setMaxAge] = useState<number>(65);
+  const [selectedGenders, setSelectedGenders] = useState<string[]>(['Any Gender']);
+  const [selectedBudgetRange, setSelectedBudgetRange] = useState<string>('');
+
+  // UI-only fields (not saved to DB, but used for local filtering/saved filters)
+  const [localFilters, setLocalFilters] = useState<LocalFilterState>({
     compatible_lifestyle_tags: [],
+    preferred_occupations: [],
     allows_pets: true,
     allows_smoking: false,
     allows_parties: false,
     requires_employment_proof: false,
     requires_references: false,
-    min_monthly_income: undefined,
-    preferred_occupations: [],
   });
-
-  // New demographic filter states
-  const [selectedGenders, setSelectedGenders] = useState<string[]>(['Any Gender']);
-  const [selectedBudgetRange, setSelectedBudgetRange] = useState<string>('');
 
   const [selectedListingTypes, setSelectedListingTypes] = useState<string[]>(['property']);
   const [selectedClientTypes, setSelectedClientTypes] = useState<string[]>(['tenant']);
@@ -187,53 +185,32 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
 
   useEffect(() => {
     if (preferences) {
-      setFormData({
-        min_budget: preferences.min_budget,
-        max_budget: preferences.max_budget,
-        min_age: preferences.min_age || 18,
-        max_age: preferences.max_age || 65,
-        compatible_lifestyle_tags: preferences.compatible_lifestyle_tags || [],
-        allows_pets: preferences.allows_pets ?? true,
-        allows_smoking: preferences.allows_smoking ?? false,
-        allows_parties: preferences.allows_parties ?? false,
-        requires_employment_proof: preferences.requires_employment_proof ?? false,
-        requires_references: preferences.requires_references ?? false,
-        min_monthly_income: preferences.min_monthly_income,
-        preferred_occupations: preferences.preferred_occupations || [],
-      });
-
+      setMinBudget(preferences.min_budget ?? undefined);
+      setMaxBudget(preferences.max_budget ?? undefined);
+      setMinAge(preferences.min_age || 18);
+      setMaxAge(preferences.max_age || 65);
       if (preferences.selected_genders) setSelectedGenders(preferences.selected_genders);
     }
   }, [preferences]);
 
   const toggleLifestyleTag = (tag: string) => {
-    const current = formData.compatible_lifestyle_tags || [];
-    if (current.includes(tag)) {
-      setFormData({
-        ...formData,
-        compatible_lifestyle_tags: current.filter(t => t !== tag),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        compatible_lifestyle_tags: [...current, tag],
-      });
-    }
+    const current = localFilters.compatible_lifestyle_tags;
+    setLocalFilters({
+      ...localFilters,
+      compatible_lifestyle_tags: current.includes(tag)
+        ? current.filter((t: string) => t !== tag)
+        : [...current, tag],
+    });
   };
 
   const toggleOccupation = (occupation: string) => {
-    const current = formData.preferred_occupations || [];
-    if (current.includes(occupation)) {
-      setFormData({
-        ...formData,
-        preferred_occupations: current.filter(o => o !== occupation),
-      });
-    } else {
-      setFormData({
-        ...formData,
-        preferred_occupations: [...current, occupation],
-      });
-    }
+    const current = localFilters.preferred_occupations;
+    setLocalFilters({
+      ...localFilters,
+      preferred_occupations: current.includes(occupation)
+        ? current.filter((o: string) => o !== occupation)
+        : [...current, occupation],
+    });
   };
 
   const handleGenderToggle = (gender: string) => {
@@ -251,12 +228,14 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
   };
 
   const handleSave = async () => {
-    const completePreferences = {
-      ...formData,
+    await updatePreferences({
       selected_genders: selectedGenders,
-    };
-
-    await updatePreferences(completePreferences);
+      min_budget: minBudget ?? null,
+      max_budget: maxBudget ?? null,
+      min_age: minAge !== 18 ? minAge : null,
+      max_age: maxAge !== 65 ? maxAge : null,
+      preferred_nationalities: null, // preserve existing or clear
+    });
     toast.success("Filters Applied", { description: "Client cards will refresh with your preferences." });
     onOpenChange(false);
   };
@@ -266,33 +245,41 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
 
     await saveFilter({
       name: filterName,
-      category: 'client',
-      mode: 'discovery',
-      filters: { ...formData, selected_genders: selectedGenders },
-      listing_types: selectedListingTypes,
-      client_types: selectedClientTypes,
-      min_budget: formData.min_budget,
-      max_budget: formData.max_budget,
-      min_age: formData.min_age,
-      max_age: formData.max_age,
-      lifestyle_tags: formData.compatible_lifestyle_tags,
-      preferred_occupations: formData.preferred_occupations,
+      user_role: 'owner',
+      filter_data: {
+        ...localFilters,
+        category: 'client',
+        mode: 'discovery',
+        selected_genders: selectedGenders,
+        min_budget: minBudget,
+        max_budget: maxBudget,
+        min_age: minAge,
+        max_age: maxAge,
+        listing_types: selectedListingTypes,
+        client_types: selectedClientTypes,
+      },
     });
 
-    await updatePreferences({ ...formData, selected_genders: selectedGenders });
+    await updatePreferences({
+      selected_genders: selectedGenders,
+      min_budget: minBudget ?? null,
+      max_budget: maxBudget ?? null,
+      min_age: minAge !== 18 ? minAge : null,
+      max_age: maxAge !== 65 ? maxAge : null,
+    });
     toast.success("Filter Saved!", { description: `"${filterName}" saved successfully.` });
     setFilterName('');
     setShowSaveAs(false);
     onOpenChange(false);
   };
 
-  const activeFilterCount = 
+  const activeFilterCount =
     (selectedGenders.length > 0 && !selectedGenders.includes('Any Gender') ? 1 : 0) +
     (selectedBudgetRange ? 1 : 0) +
-    (formData.min_age !== 18 || formData.max_age !== 65 ? 1 : 0) +
-    (formData.compatible_lifestyle_tags?.length || 0) +
-    (formData.preferred_occupations?.length || 0) +
-    (formData.allows_pets === false ? 1 : 0);
+    (minAge !== 18 || maxAge !== 65 ? 1 : 0) +
+    (localFilters.compatible_lifestyle_tags.length) +
+    (localFilters.preferred_occupations.length) +
+    (localFilters.allows_pets === false ? 1 : 0);
 
   return (
     <AnimatePresence>
@@ -419,16 +406,17 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                           <Badge
                             key={range.value}
                             variant={isSelected ? "default" : "outline"}
-                            className={`cursor-pointer text-xs py-2 px-4 transition-all duration-200 ${
-                              isSelected ? 'shadow-md' : 'hover:shadow-sm'
-                            }`}
+                            className={`cursor-pointer text-xs py-2 px-4 transition-all duration-200 ${isSelected ? 'shadow-md' : 'hover:shadow-sm'
+                              }`}
                             onClick={() => {
                               if (isSelected) {
                                 setSelectedBudgetRange('');
-                                setFormData({ ...formData, min_budget: undefined, max_budget: undefined });
+                                setMinBudget(undefined);
+                                setMaxBudget(undefined);
                               } else {
                                 setSelectedBudgetRange(range.value);
-                                setFormData({ ...formData, min_budget: range.min, max_budget: range.max });
+                                setMinBudget(range.min);
+                                setMaxBudget(range.max);
                               }
                             }}
                           >
@@ -450,11 +438,11 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                         <Label className="text-sm text-muted-foreground">Min Age</Label>
                         <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
                           {[18, 21, 25, 30, 35, 40].map((age) => {
-                            const isActive = formData.min_age === age;
+                            const isActive = minAge === age;
                             return (
                               <button
                                 key={age}
-                                onClick={() => setFormData({ ...formData, min_age: age })}
+                                onClick={() => setMinAge(age)}
                                 className={cn(
                                   "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
                                   isActive
@@ -472,11 +460,11 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                         <Label className="text-sm text-muted-foreground">Max Age</Label>
                         <div className="flex rounded-xl bg-muted/50 p-1 gap-1 mt-1">
                           {[30, 35, 40, 50, 60, 65].map((age) => {
-                            const isActive = formData.max_age === age;
+                            const isActive = maxAge === age;
                             return (
                               <button
                                 key={age}
-                                onClick={() => setFormData({ ...formData, max_age: age })}
+                                onClick={() => setMaxAge(age)}
                                 className={cn(
                                   "flex-1 py-2 rounded-lg text-xs font-semibold transition-all",
                                   isActive
@@ -517,7 +505,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                     <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Lifestyle</Label>
                     <div className="flex flex-wrap gap-2">
                       {LIFESTYLE_OPTIONS.map((tag) => {
-                        const isSelected = (formData.compatible_lifestyle_tags || []).includes(tag);
+                        const isSelected = localFilters.compatible_lifestyle_tags.includes(tag);
                         return (
                           <PillToggle
                             key={tag}
@@ -535,7 +523,7 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                     <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Occupation</Label>
                     <div className="flex flex-wrap gap-2">
                       {OCCUPATION_OPTIONS.map((occupation) => {
-                        const isSelected = (formData.preferred_occupations || []).includes(occupation);
+                        const isSelected = localFilters.preferred_occupations.includes(occupation);
                         return (
                           <PillToggle
                             key={occupation}
@@ -556,24 +544,24 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                         <Label htmlFor="allows-pets" className="text-sm">Allows Pets</Label>
                         <Switch
                           id="allows-pets"
-                          checked={formData.allows_pets ?? true}
-                          onCheckedChange={(checked) => setFormData({ ...formData, allows_pets: checked })}
+                          checked={localFilters.allows_pets}
+                          onCheckedChange={(checked) => setLocalFilters({ ...localFilters, allows_pets: checked })}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <Label htmlFor="allows-parties" className="text-sm">Allows Parties</Label>
                         <Switch
                           id="allows-parties"
-                          checked={formData.allows_parties ?? false}
-                          onCheckedChange={(checked) => setFormData({ ...formData, allows_parties: checked })}
+                          checked={localFilters.allows_parties}
+                          onCheckedChange={(checked) => setLocalFilters({ ...localFilters, allows_parties: checked })}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <Label htmlFor="requires-employment" className="text-sm">Requires Employment Proof</Label>
                         <Switch
                           id="requires-employment"
-                          checked={formData.requires_employment_proof ?? false}
-                          onCheckedChange={(checked) => setFormData({ ...formData, requires_employment_proof: checked })}
+                          checked={localFilters.requires_employment_proof}
+                          onCheckedChange={(checked) => setLocalFilters({ ...localFilters, requires_employment_proof: checked })}
                         />
                       </div>
                     </div>

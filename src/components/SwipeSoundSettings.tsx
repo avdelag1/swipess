@@ -84,7 +84,7 @@ export function SwipeSoundSettings() {
     none: 'Silent mode - no sounds will play',
     book: 'Satisfying page turning sounds',
     water: 'Calming water droplets and splashes',
-    funny: 'Playful and humorous sound effects',
+    funny: 'Like = random funny sound 🎉 · Dislike = random fart 💨 (notifications go funny too!)',
     calm: 'Peaceful meditation bells',
     randomZen: 'Random zen sounds - bells, gongs, and chimes'
   };
@@ -134,6 +134,7 @@ export function SwipeSoundSettings() {
             <p className="text-xs text-muted-foreground">
               Sounds will play when you swipe left or right on properties.
               {theme === 'randomZen' && ' Random Zen picks a different sound each time.'}
+              {theme === 'funny' && ' Every dislike is a different fart. Every like is a different funny sound. Notifications get the funny treatment too!'}
             </p>
           </div>
         )}

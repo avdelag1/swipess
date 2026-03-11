@@ -4,20 +4,19 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/hooks/use-toast'
+import { toast } from '@/components/ui/sonner'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/logger'
 import { useFilterStore } from '@/state/filterStore'
+import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import type { QuickFilterCategory } from '@/types/filters'
 
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { AdvancedFilters } from '@/components/AdvancedFilters'
-// DISABLED: LiveHDBackground was causing performance issues
-// import { LiveHDBackground } from '@/components/LiveHDBackground'
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
 import { AISearchDialog } from './AISearchDialog';
 
@@ -138,6 +137,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
+
+  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+      document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
   // Single source of truth - no more local quickFilters state
@@ -302,6 +311,28 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
   }, [location.pathname]);
 
+  // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
+  const clientSwipePaths = [
+    '/client/dashboard',
+    '/client/profile',
+    '/client/liked-properties',
+    '/messages',
+    '/client/filters',
+  ];
+  const ownerSwipePaths = [
+    '/owner/dashboard',
+    '/owner/profile',
+    '/owner/liked-clients',
+    '/owner/properties',
+    '/messages',
+    '/owner/filters',
+  ];
+  useSwipeNavigation({
+    paths: userRole === 'client' ? clientSwipePaths : ownerSwipePaths,
+    containerSelector: '#dashboard-scroll-container',
+    enabled: true,
+  });
+
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
   // This ensures welcome shows only on first signup, never on subsequent sign-ins
   // (survives localStorage clears from external preview URLs)
@@ -382,7 +413,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // Convert AdvancedFilters format to ListingFilters format
     const convertedFilters: any = {
       ...filters,
-      propertyType: filters.propertyTypes, // propertyTypes -> propertyType
+      propertyType: filters.propertyTypes,
       listingType: filters.listingTypes?.length === 1 ? filters.listingTypes[0] :
         filters.listingTypes?.includes('rent') && filters.listingTypes?.includes('buy') ? 'both' :
           filters.listingTypes?.[0] || 'rent',
@@ -391,6 +422,43 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       verified: filters.verified || false,
       premiumOnly: filters.premiumOnly || false,
     };
+
+    // Unprefix category-specific keys from AdvancedFilters
+    // e.g. services_service_categories → serviceCategory, services_work_types → workTypes
+    const prefixMap: Record<string, string> = {
+      services_service_categories: 'serviceCategory',
+      services_work_types: 'workTypes',
+      services_schedule_types: 'scheduleTypes',
+      services_days_available: 'daysAvailable',
+      services_time_slots_available: 'timeSlotsAvailable',
+      services_location_types: 'locationTypes',
+      services_experience_levels: 'experienceLevel',
+      services_skills: 'skills',
+      services_required_skills: 'skills',
+      services_certifications: 'certifications',
+      services_required_certifications: 'certifications',
+      services_needs_emergency_service: 'offersEmergencyService',
+      services_needs_background_check: 'backgroundCheckVerified',
+      services_needs_insurance: 'insuranceVerified',
+      services_price_min: '_priceMin',
+      services_price_max: '_priceMax',
+      property_priceMin: 'priceRange',
+      property_priceMax: 'priceRange',
+    };
+
+    Object.entries(filters).forEach(([key, value]) => {
+      const mapped = prefixMap[key];
+      if (mapped && value != null) {
+        // Special handling for priceRange pairs
+        if (key === 'property_priceMin' || key === 'services_price_min') {
+          convertedFilters.priceRange = [value as number, convertedFilters.priceRange?.[1] ?? Infinity];
+        } else if (key === 'property_priceMax' || key === 'services_price_max') {
+          convertedFilters.priceRange = [convertedFilters.priceRange?.[0] ?? 0, value as number];
+        } else {
+          convertedFilters[mapped] = value;
+        }
+      }
+    });
 
     setAppliedFilters(convertedFilters);
 
@@ -520,32 +588,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
 
-  const pageTitle = useMemo(() => {
-    const path = location.pathname;
-
-    // Dashboard/discovery pages show active filter category
-    if (path === '/client/dashboard') {
-      return '';
-    }
-    if (path === '/owner/dashboard') {
-      return '';
-    }
-    if (path.includes('discovery')) return 'Discover';
-
-    // Other pages show section names
-    if (path.includes('/profile')) return 'Profile';
-    if (path.includes('/settings')) return 'Settings';
-    if (path.includes('/messages')) return 'Messages';
-    if (path.includes('/notifications')) return 'Notifications';
-    if (path.includes('/liked-clients')) return 'Liked Clients';
-    if (path.includes('/liked')) return 'Liked';
-    if (path.includes('/properties')) return 'Properties';
-    if (path.includes('/listings')) return 'Listings';
-    if (path.includes('/filters')) return 'Filters';
-    if (path.includes('/contracts')) return 'Contracts';
-
-    return '';
-  }, [location.pathname, activeCategory, clientType]);
+  // Round 8: Page titles removed — bottom nav is sufficient indicator
+  const pageTitle = '';
 
   // Calculate responsive layout values
   const topBarHeight = responsive.isMobile ? 52 : 56;
@@ -575,6 +619,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           transparent={isImmersiveDashboard}
           hideOnScroll={true}
           title={pageTitle}
+          showBack={!isOnDiscoveryPage}
         />
       )}
 
@@ -590,6 +635,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           '--dashboard-pb': (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           '--dashboard-pl': isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
           '--dashboard-pr': isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
+          width: '100%',
+          maxWidth: '100vw',
+          boxSizing: 'border-box',
+          zIndex: 0,
+          transform: 'translateZ(0)',
+          WebkitOverflowScrolling: 'touch',
         } as React.CSSProperties}
       >
         <motion.div

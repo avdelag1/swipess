@@ -1,8 +1,8 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { componentTagger } from "lovable-tagger";
 import { visualizer } from "rollup-plugin-visualizer";
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 // Build version calculation - SHARED between JS define and HTML injection
 // This ensures that import.meta.env.VITE_BUILD_TIME and <meta name="app-version">
@@ -17,8 +17,8 @@ function buildVersionPlugin(buildTime: string) {
       // Inject version, preconnect hints, and performance optimizations
       // We look for the first meta tag or the end of head to ensure correct placement
       const preconnects = `
-    <link rel="preconnect" href="https://qegyisokrxdsszzswsqk.supabase.co" crossorigin>
-    <link rel="dns-prefetch" href="https://qegyisokrxdsszzswsqk.supabase.co">
+    <link rel="preconnect" href="${process.env.VITE_SUPABASE_URL || ''}" crossorigin>
+    <link rel="dns-prefetch" href="${process.env.VITE_SUPABASE_URL || ''}">
     <meta name="app-version" content="${buildTime}" />`;
 
       if (html.includes('<meta')) {
@@ -141,12 +141,12 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
+    basicSsl(),
     react(),
     buildVersionPlugin(GLOBAL_BUILD_TIME),
     cssOptimizationPlugin(),
     preloadPlugin(),
     resourceHintsPlugin(),
-    mode === 'development' && componentTagger(),
     // Bundle analyzer - generates stats.html in dist folder
     mode === 'production' && visualizer({
       filename: 'dist/stats.html',
@@ -299,10 +299,12 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/react-hook-form') || id.includes('node_modules/@hookform')) {
             return 'forms';
           }
+          /* 
           // Charts - only needed on dashboard analytics
           if (id.includes('node_modules/recharts') || id.includes('node_modules/d3')) {
             return 'charts';
           }
+          */
           // Capacitor - only needed in native apps
           if (id.includes('node_modules/@capacitor')) {
             return 'capacitor';
@@ -324,6 +326,12 @@ export default defineConfig(({ mode }) => ({
       // Safe tree shaking - don't break React context
       treeshake: {
         preset: 'safest',
+      },
+      // Suppress known benign module resolution warnings
+      onwarn(warning, warn) {
+        // DOMPurify ESM exports sanitize as a method on the default object, not as a named export
+        if (warning.code === 'MISSING_EXPORT' && warning.exporter?.includes('dompurify')) return;
+        warn(warning);
       },
     },
     // Warn on chunks larger than 1000KB to reduce noise

@@ -1,57 +1,33 @@
 
 
-# Fix Plan: Background Color Issues + Build Errors + AI Orchestrator
+# Diagnosis: Two Critical Issues Blocking the App
 
-## Problem Analysis
+## Root Cause 1: Wrong Backend Connection
 
-### 1. Pink/Weird Background Color on Light Theme
-The `GradientMasks.tsx` system in `AppLayout.tsx` renders fixed gradient overlays (top, bottom, vignette) across all pages. In light theme (`white-matte`), these use white (`rgb(255,255,255)`) base colors at up to 40% opacity, creating a washed-out, pinkish tint over the content. The overlays sit at z-index 15-20, covering buttons and content areas. This is what creates the "something on top of buttons" effect you're seeing.
+The `src/integrations/supabase/client.ts` file (auto-generated) has hardcoded fallback values pointing to an **old** project (`vplgtcguxujxwrgguxqq`). The current Lovable Cloud project is `qegyisokrxdsszzswsqk`. The 404 error on `owner_client_preferences` confirms the app is talking to the wrong backend — the table exists in Lovable Cloud but not in the old project.
 
-### 2. AI Orchestrator + MiniMax
-The `MINIMAX_API_KEY` secret is already configured. The orchestrator code in `supabase/functions/ai-orchestrator/index.ts` already has MiniMax as a fallback provider with `isMinimaxForced = false` (Gemini primary, MiniMax fallback). This is working as designed.
+The env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) should override the fallbacks, but they are not being picked up — likely because the file was previously hand-modified (it has a custom `prodLogger` import and validation logic that the auto-generation system wouldn't produce), preventing automatic regeneration.
 
-### 3. Build Errors (25+ errors blocking the app)
-Multiple TypeScript errors need fixing across several files.
+**Fix**: Since `client.ts` is already broken and was manually modified, we need to reset it to a clean auto-generated state with the correct Lovable Cloud credentials. This is the single most important fix.
 
----
+## Root Cause 2: React Error #185 (Maximum update depth exceeded)
 
-## Plan
+When every Supabase query returns 404 (wrong backend), error handlers fire, triggering toasts and state updates, which cause re-renders, which fire more queries — creating an infinite update loop. Additionally:
 
-### Step 1: Fix Light Theme Gradient Overlays
-**File: `src/components/ui/GradientMasks.tsx`**
-- Reduce intensity of gradients in light mode significantly (max opacity from 0.35/0.40 down to ~0.10-0.15)
-- Use fully transparent vignette in light mode to avoid the dirty/pink look
-- This preserves the cinematic effect in dark mode while keeping light mode clean
+- **Duplicate toast renderers**: `App.tsx` renders both `<Toaster />` and `<Sonner />`, which are now the **same component** (since `toaster.tsx` re-exports from `sonner.tsx`). This means two identical Sonner instances both calling `useTheme()`.
+- **Mixed toast systems**: `LegendaryLandingPage.tsx`, `TopBar.tsx`, and `DashboardLayout.tsx` import from the OLD `@/hooks/use-toast` (which has a global listener/dispatch pattern), while most other components use `@/components/ui/sonner`. The old system's `dispatch` triggers `setState` for all registered listeners.
 
-### Step 2: Fix Build Errors (all files)
+## Implementation Plan
 
-**`src/components/ConversationalListingCreator.tsx`** - Missing imports:
-- Add `import { motion } from 'framer-motion'` and `import { cn } from '@/lib/utils'`
+### Step 1: Fix `client.ts` — Correct backend connection
+Write a clean `client.ts` that uses the correct Lovable Cloud project ID (`qegyisokrxdsszzswsqk`) and anon key as fallbacks, while keeping the `import.meta.env` overrides. Remove the custom `prodLogger` import (use standard console or no logging).
 
-**`src/components/LegendaryLandingPage.tsx`** (lines 416, 431):
-- Change `autocomplete` to `autoComplete` (React JSX attribute)
+### Step 2: Remove duplicate Toaster in `App.tsx`
+Remove one of the duplicate Sonner instances. Since `Toaster` from `toaster.tsx` now re-exports the same component as `Sonner` from `sonner.tsx`, we only need one.
 
-**`src/components/SwipessSwipeContainer.tsx`** (line 641):
-- Add `existingIds` and `dismissedSet` variable definitions before the filter call using the existing `deckQueueRef` and `dismissedIds`
+### Step 3: Unify toast imports
+Update `LegendaryLandingPage.tsx`, `TopBar.tsx`, and `DashboardLayout.tsx` to import `toast` from `@/components/ui/sonner` instead of `@/hooks/use-toast`. This eliminates the old global listener system that can cascade state updates.
 
-**`src/components/UnifiedListingForm.tsx`**:
-- Remove duplicate `import { cn } from '@/lib/utils'` (line 19)
-- Replace `notifications.listing.updated/created` with `toast()` calls
-- Fix the `stagger` variants type issue (wrap in proper Variants format)
-
-**`src/pages/ClientProfileNew.tsx`** and **`src/pages/OwnerProfileNew.tsx`**:
-- Remove duplicate `SharedProfileSection` import (line 5 / line 4)
-- Fix `staggerChildren` variants type (same pattern as UnifiedListingForm)
-
-**`src/pages/MessagingDashboard.tsx`**:
-- Remove unused `@ts-expect-error` directive (line 30)
-- Remove references to `stats.unreadCount` (property doesn't exist on stats type) - use optional chaining or cast
-
-**Remaining files** (ClientWhoLikedYou, ClientWorkerDiscovery, ClientFilters, ClientContracts, OwnerContracts, OwnerInterestedClients, OwnerViewClientProfile, useSwipeAnalytics, realtimeManager, SwipeQueue):
-- Add missing type annotations, fix null/undefined handling, add missing properties to interfaces
-
-### Step 3: Verify AI Orchestrator MiniMax Configuration
-- The MiniMax API key is already stored as a secret
-- The orchestrator already uses it as fallback
-- No code changes needed -- it's functional
+### Step 4: Add defensive error handling
+In the `useOwnerClientPreferences` hook and similar hooks that query the database, ensure 404 errors don't cascade into re-render loops by properly short-circuiting on errors.
 

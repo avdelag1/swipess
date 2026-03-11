@@ -62,7 +62,6 @@ export const GradientMaskTop = memo(function GradientMaskTop({
     )`,
     // GPU acceleration
     transform: 'translateZ(0)',
-    willChange: 'opacity',
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
     // Click-through
@@ -110,7 +109,6 @@ export const GradientMaskBottom = memo(function GradientMaskBottom({
     )`,
     // GPU acceleration
     transform: 'translateZ(0)',
-    willChange: 'opacity',
     backfaceVisibility: 'hidden',
     WebkitBackfaceVisibility: 'hidden',
     // Click-through

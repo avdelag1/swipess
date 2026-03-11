@@ -65,8 +65,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         )}
         style={{
           backgroundColor: glassBg,
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
           border: glassBorder,
           boxShadow: floatingShadow,
         }}
@@ -139,7 +137,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
           'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
-          activeMode === 'client' ? 'text-teal-400 font-black scale-105' : 'text-white/50 hover:text-white/80'
+          activeMode === 'client' ? 'text-teal-400 font-black scale-105' : (isDark ? 'text-white/50 hover:text-white/80' : 'text-foreground/50 hover:text-foreground/80')
         )}>
           <User strokeWidth={4} className="h-3 w-3" />
           <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Client</span>
@@ -147,7 +145,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
         <div className={cn(
           'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
-          activeMode === 'owner' ? 'text-orange-400 font-black scale-105' : 'text-white/50 hover:text-white/80'
+          activeMode === 'owner' ? 'text-orange-400 font-black scale-105' : (isDark ? 'text-white/50 hover:text-white/80' : 'text-foreground/50 hover:text-foreground/80')
         )}>
           <UserCog strokeWidth={4} className="h-3 w-3" />
           <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Business</span>
@@ -185,8 +183,6 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
       )}
       style={{
         backgroundColor: glassBg,
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
         border: glassBorder,
         boxShadow: floatingShadow,
       }}
@@ -203,7 +199,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}
           {isSwitching ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-white" />
+            <Loader2 className={cn("h-3.5 w-3.5 animate-spin", isDark ? "text-white" : "text-foreground")} />
           ) : activeMode === 'client' ? (
             <>
               <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
@@ -218,7 +214,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         </motion.div>
       </AnimatePresence>
 
-      <ArrowLeftRight className="h-3 w-3 text-white/80" />
+      <ArrowLeftRight className={cn("h-3 w-3", isDark ? "text-white/80" : "text-foreground/60")} />
     </button>
   );
 }

@@ -1,5 +1,9 @@
 node_modules/
 dist/
+__pycache__/
+*.pyc
+*.pyo
+.tmp/
 .env
 .env.local
 .env.*.local

@@ -15,11 +15,11 @@ import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, us
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
 import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
-import { SwipeActionButtonBar } from './SwipeActionButtonBar';
+
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
-import { useParallaxStore } from '@/state/parallaxStore';
+
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleOwnerSwipeCardRef {
@@ -31,7 +31,7 @@ const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 12;
+const MAX_ROTATION = 18; // Matches client card for consistency
 
 // Calculate exit distance dynamically based on viewport
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -45,11 +45,11 @@ const SPRING_CONFIGS = {
   SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
   // NATIVE: iOS-like balanced feel (DEFAULT)
   NATIVE: { stiffness: 400, damping: 28, mass: 1 },
-  // SOFT: Playful with bounce
-  SOFT: { stiffness: 300, damping: 22, mass: 1.2 },
+  // SOFT: Playful with bounce - matches client card
+  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE;
+const ACTIVE_SPRING = SPRING_CONFIGS.SOFT;
 
 // Client profile type
 interface ClientProfile {
@@ -156,10 +156,6 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
     return <PlaceholderImage name={name} />;
   }
 
-  if (isPlaceholder) {
-    return <PlaceholderImage name={name} />;
-  }
-
   return (
     <div
       className="absolute inset-0 w-full h-full rounded-[24px]"
@@ -221,7 +217,6 @@ interface SimpleOwnerSwipeCardProps {
   onMessage?: () => void;
   onShare?: () => void;
   isTop?: boolean;
-  hideActions?: boolean;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -234,7 +229,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onMessage,
   onShare,
   isTop = true,
-  hideActions = false,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -316,24 +310,11 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     }
   }, [profile?.user_id, x, y]);
 
-  // Parallax store for ambient background effect
-  const updateParallaxDrag = useParallaxStore((s) => s.updateDrag);
-  const endParallaxDrag = useParallaxStore((s) => s.endDrag);
-
-  // Subscribe motion value to parallax store for ambient background effect
-  useEffect(() => {
-    const unsubscribe = x.on('change', (latestX) => {
-      if (isDragging.current && isTop) {
-        updateParallaxDrag(latestX, 0, x.getVelocity());
-      }
-    });
-    return unsubscribe;
-  }, [x, isTop, updateParallaxDrag]);
 
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8,
-    holdDelay: 350,
+    holdDelay: 300,
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
@@ -391,8 +372,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, []);
 
   const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    endParallaxDrag();
-
     if (hasExited.current) return;
 
     const offsetX = info.offset.x;
@@ -452,7 +431,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [profile?.user_id, onSwipe, x, y, endParallaxDrag]);
+  }, [profile?.user_id, onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     if (!isDragging.current && onTap) {
@@ -583,7 +562,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           rotate: cardRotate,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
-          willChange: 'transform, opacity',
+          willChange: 'auto',
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'none',
@@ -624,7 +603,6 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute top-8 left-8 z-30 pointer-events-none"
           style={{
             opacity: likeOpacity,
-            willChange: 'opacity',
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -646,7 +624,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           className="absolute top-8 right-8 z-30 pointer-events-none"
           style={{
             opacity: passOpacity,
-            willChange: 'opacity',
+            
             backfaceVisibility: 'hidden',
             transform: 'translateZ(0)',
           }}
@@ -663,16 +641,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </motion.div>
 
-        {/* Content overlay - Positioned higher for Tinder style (above button area) */}
-        <div className="absolute bottom-32 left-0 right-0 p-4 z-20 pointer-events-none">
+        {/* Content overlay - INSIDE motion.div so it moves with the card on swipe
+             Dynamic bottom positioning: scales with viewport height */}
+        <div
+          className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
+          style={{ bottom: 'clamp(140px, 24vh, 200px)' }}
+        >
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
                 border: '1px solid rgba(255, 255, 255, 0.12)',
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)',
               }}
@@ -720,9 +700,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               )}
               {!budgetText && profile.work_schedule && (
                 <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
                 }}>
@@ -746,9 +724,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
               )}
               {profile.work_schedule && (
                 <div className="flex items-center gap-1 px-3 py-2 rounded-full w-fit" style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
                   border: '1px solid rgba(255, 255, 255, 0.12)',
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
                 }}>
@@ -799,27 +775,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             </>
           )}
         </div>
-
-        {/* Action buttons INSIDE card - Tinder style */}
-        {!hideActions && (
-          <div
-            className="absolute bottom-24 left-0 right-0 flex justify-center z-30"
-            onClick={(e) => {
-              // Prevent clicks in button area from bubbling to card handler
-              e.stopPropagation();
-            }}
-          >
-            <SwipeActionButtonBar
-              onLike={() => handleButtonSwipe('right')}
-              onDislike={() => handleButtonSwipe('left')}
-              onShare={onShare}
-              onUndo={onUndo}
-              onMessage={onMessage}
-              canUndo={canUndo}
-            />
-          </div>
-        )}
       </motion.div>
+
     </div>
   );
 });

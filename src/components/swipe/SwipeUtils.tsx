@@ -3,7 +3,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 /**
  * Utility to get information about the active category
  */
-export function getActiveCategoryInfo(filters: any, activeCategory: any) {
+export function getActiveCategoryInfo(filters: any, activeCategory?: any) {
     const cat = filters?.category || activeCategory || 'property';
 
     const configs: Record<string, any> = {
@@ -12,25 +12,51 @@ export function getActiveCategoryInfo(filters: any, activeCategory: any) {
         motorcycle: { singular: 'Motorcycle', plural: 'Motorcycles' },
         bicycle: { singular: 'Bicycle', plural: 'Bicycles' },
         client: { singular: 'Client', plural: 'Clients' },
+        services: { singular: 'Service', plural: 'Services' },
     };
 
     return configs[cat] || { singular: 'Listing', plural: 'Listings' };
 }
 
 /**
- * Standard debounce hook
+ * Standard debounce hook for values
  */
-export function useDebounce<T>(value: T, delay: number): T {
+export function useDebounceValue<T>(value: T, delay: number): T {
     const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(value);
         }, delay);
+
         return () => clearTimeout(handler);
     }, [value, delay]);
 
     return debouncedValue;
+}
+
+/**
+ * Debounce utility for preventing rapid-fire actions (callback version)
+ */
+export function useDebounce<T extends (...args: any[]) => any>(
+    callback: T,
+    delay: number
+): T {
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const callbackRef = useRef(callback);
+
+    useEffect(() => {
+        callbackRef.current = callback;
+    }, [callback]);
+
+    return useCallback((...args: Parameters<T>) => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+        timeoutRef.current = setTimeout(() => {
+            callbackRef.current(...args);
+        }, delay);
+    }, [delay]) as T;
 }
 
 /**
