@@ -6,7 +6,7 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
+// PrefetchScheduler imported from SwipeUtils below
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
