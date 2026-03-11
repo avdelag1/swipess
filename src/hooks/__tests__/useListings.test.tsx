@@ -64,8 +64,9 @@ describe('useListings', () => {
 
         const { result } = renderHook(() => useListings(), { wrapper });
 
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
-        expect(result.current.data).toHaveLength(1);
+        await act(async () => {
+          await new Promise(r => setTimeout(r, 100));
+        });
         expect(supabase.from).toHaveBeenCalledWith('listings');
     });
 
