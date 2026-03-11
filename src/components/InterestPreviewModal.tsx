@@ -209,7 +209,7 @@ export const InterestPreviewModal: React.FC<InterestPreviewModalProps> = ({
                                         {offerings.map((listing) => (
                                             <div key={listing.id} className="group relative rounded-xl overflow-hidden bg-muted/50 aspect-video border border-transparent hover:border-primary/30 transition-all">
                                                 <img
-                                                    src={listing.images?.[0] || '/placeholder-listing.jpg'}
+                                                    src={(listing.images as string[])?.[0] || '/placeholder-listing.jpg'}
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
