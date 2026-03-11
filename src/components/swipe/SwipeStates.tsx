@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, RotateCcw, Sparkles } from 'lucide-react';
+import { RefreshCw, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
@@ -128,7 +128,7 @@ export const ErrorStateView = ({ categoryInfo, onRefresh }: Omit<StateViewProps,
 /**
  * Empty State View: Shown when no cards are found
  */
-export const EmptyStateView = ({ categoryInfo, isRefreshing, onRefresh, onTutorial }: StateViewProps & { onTutorial: () => void }) => {
+export const EmptyStateView = ({ categoryInfo, isRefreshing, onRefresh }: StateViewProps) => {
     const categoryLabel = categoryInfo.plural;
     const categoryLower = categoryLabel.toLowerCase();
     const CategoryIcon = categoryInfo.icon;
@@ -206,16 +206,6 @@ export const EmptyStateView = ({ categoryInfo, isRefreshing, onRefresh, onTutori
                     </Button>
                 </motion.div>
 
-                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                    <Button
-                        variant="outline"
-                        onClick={onTutorial}
-                        className="gap-2 rounded-full px-6 border-amber-500/30 text-amber-500 hover:bg-amber-500/10 font-black uppercase tracking-widest text-xs"
-                    >
-                        <Sparkles className="w-4 h-4" strokeWidth={4} />
-                        Try Tutorial Cards
-                    </Button>
-                </motion.div>
             </motion.div>
         </div>
     );
