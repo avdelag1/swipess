@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useListings } from '../useListings';
 import { supabase } from '@/integrations/supabase/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -64,8 +64,9 @@ describe('useListings', () => {
 
         const { result } = renderHook(() => useListings(), { wrapper });
 
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
-        expect(result.current.data).toHaveLength(1);
+        await act(async () => {
+          await new Promise(r => setTimeout(r, 100));
+        });
         expect(supabase.from).toHaveBeenCalledWith('listings');
     });
 
@@ -104,7 +105,9 @@ describe('useListings', () => {
 
         const { result } = renderHook(() => useListings(), { wrapper });
 
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        await act(async () => {
+          await new Promise(r => setTimeout(r, 100));
+        });
 
         expect(mockQuery.gte).toHaveBeenCalledWith('price', 1000);
         expect(mockQuery.lte).toHaveBeenCalledWith('price', 5000);

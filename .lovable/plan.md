@@ -1,74 +1,46 @@
 
 
-# Fix All 30+ Build Errors — Comprehensive Repair
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-The app is broken because of ~30 TypeScript build errors across 10+ files. Here's a categorized breakdown and the fix for each.
+### 1. Replace App Icon with Fire S Logo
 
-## Error Categories & Fixes
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### 1. Missing `@/utils/prodLogger` module (3 files)
-`prodLogger.ts` doesn't exist — it was merged into `@/utils/logger.ts`. Three files still import from the old path:
-- `src/integrations/supabase/client.ts` — **CANNOT EDIT** (auto-generated). This is a problem.
-- `src/hooks/useContentModeration.ts`
-- `src/hooks/useImageModeration.ts`
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Fix:** Create `src/utils/prodLogger.ts` as a re-export shim: `export { logger } from './logger';`. This fixes all three files without editing the auto-generated client.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### 2. `NodeJS.Timeout` namespace errors (7 occurrences across 6 files)
-TypeScript doesn't know about `NodeJS` namespace in browser context.
+### 2. Profile Photo Already Shows in Top-Left
 
-**Files:** `CategorySelectionDialog.tsx`, `MessagingInterface.tsx`, `SwipeUtils.tsx`, `RadioContext.tsx`, `useAuth.tsx`, `useFilterPersistence.ts`, `useRealtimeChat.tsx`, `MessagingDashboard.tsx`
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**Fix:** Add `/// <reference types="node" />` at the top of each file, OR change `NodeJS.Timeout` to `ReturnType<typeof setTimeout>` in each file. The latter is cleaner for a browser project.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### 3. `InterestPreviewModal.tsx` — Wrong property names (3 errors)
-- `images?.[0]` — indexing `Json` type with `[0]` fails (line 212)
-- `interested_in_yachts` doesn't exist on `client_filter_preferences` (line 235)
-- `max_price` doesn't exist — should be `price_max` (lines 238, 240)
+### 3. Fix Header Too Close to Top Edge
 
-**Fix:** Cast `listing.images` as `string[]`, replace `interested_in_yachts` with `interested_in_vehicles`, replace `max_price` with `price_max`.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-### 4. `PropertyInsightsDialog.tsx` — `unknown` type in JSX (8 errors)
-`rental_rates` is `Record<string, unknown>`, so `.hourly`, `.daily`, `.weekly`, `.monthly` return `unknown` which can't be rendered in JSX.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**Fix:** Cast values with `as React.ReactNode` or `String(...)` when rendering, e.g., `${String(listing.rental_rates.hourly)}`.
+### 4. Fix MarketingSlide Build Error
 
-### 5. `SwipessSwipeContainer.tsx` — Duplicate `PrefetchScheduler` (2 errors + 1 warning)
-- Line 9: `import { PrefetchScheduler }` from `@/lib/swipe/PrefetchScheduler`
-- Line 48: `import { PrefetchScheduler }` from `./swipe/SwipeUtils`
-- Line 988: `if (condition)` always true warning
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-**Fix:** Remove the duplicate import on line 9 (keep the one from SwipeUtils at line 48). Fix the redundant nested `if` at line 990.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### 6. `RadioPlayer.tsx` — Missing `navigate` (line 69)
-`useNavigate` is not imported/called.
-
-**Fix:** Add `const navigate = useNavigate();` and ensure `useNavigate` is imported from `react-router-dom`.
-
-### 7. `useAuth.tsx` — `signIn` return type mismatch
-The `signIn` function can return `undefined` (implicit) in some code paths, but the interface requires `Promise<{ error: ... }>`.
-
-**Fix:** Add `return { error: null };` at the end of the `signIn` function to cover all paths.
-
-### 8. `useListings.test.tsx` — Missing `waitFor` export
-`@testing-library/react` doesn't export `waitFor` in the installed version.
-
-**Fix:** Remove the `waitFor` import or replace with the correct import path.
-
----
-
-## Summary
-
-| Category | Files | Fix |
-|----------|-------|-----|
-| Missing prodLogger | 3 | Create re-export shim |
-| NodeJS.Timeout | 6-8 | Use `ReturnType<typeof setTimeout>` |
-| InterestPreviewModal | 1 | Fix property names + cast |
-| PropertyInsightsDialog | 1 | Cast `unknown` to `string` in JSX |
-| SwipessSwipeContainer | 1 | Remove duplicate import, fix nested if |
-| RadioPlayer | 1 | Add useNavigate |
-| useAuth signIn | 1 | Add missing return |
-| Test file | 1 | Fix waitFor import |
-
-**Total: ~30 errors across ~12 files. All pure type/import fixes — zero functional changes.**
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

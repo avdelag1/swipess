@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const processingOAuthRef = useRef(false);
   const processedUserIdRef = useRef<string | null>(null);
   // Track OAuth timeout for cleanup on unmount
-  const oauthTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const oauthTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -430,6 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error("Sign In Failed", { description: errorMessage });
       return { error: error };
     }
+    return { error: null };
   };
 
   const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner') => {

@@ -6,7 +6,7 @@ import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
 import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
+// PrefetchScheduler imported from SwipeUtils below
 
 // FIX #3: Lazy-load modals to prevent them from affecting swipe tree
 // These are rendered via portal outside the swipe container's React tree
@@ -985,11 +985,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const currentCategoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
 
   // STABLE LOADING SHELL: GPU-accelerated skeleton while fetching initial deck
-  const hasHydratedData = isClientHydrated && deckQueue.length > 0;
+  const hasHydratedData = isClientHydrated() && deckQueue.length > 0;
   if (!hasHydratedData && isLoading) {
-    if (!hasHydratedData && isLoading) {
-      return <SwipeLoadingSkeleton />;
-    }
+    return <SwipeLoadingSkeleton />;
   }
 
   if (currentIndex > 0 && currentIndex >= deckQueue.length && !isLoading) {

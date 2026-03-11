@@ -209,7 +209,7 @@ export const InterestPreviewModal: React.FC<InterestPreviewModalProps> = ({
                                         {offerings.map((listing) => (
                                             <div key={listing.id} className="group relative rounded-xl overflow-hidden bg-muted/50 aspect-video border border-transparent hover:border-primary/30 transition-all">
                                                 <img
-                                                    src={listing.images?.[0] || '/placeholder-listing.jpg'}
+                                                    src={(listing.images as string[])?.[0] || '/placeholder-listing.jpg'}
                                                     className="w-full h-full object-cover"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-2">
@@ -232,12 +232,12 @@ export const InterestPreviewModal: React.FC<InterestPreviewModalProps> = ({
                                         {preferences.interested_in_properties && <Badge variant="outline" className="flex gap-1 items-center"><Home className="w-3 h-3" /> Property</Badge>}
                                         {preferences.interested_in_motorcycles && <Badge variant="outline" className="flex gap-1 items-center"><Car className="w-3 h-3" /> Moto</Badge>}
                                         {preferences.interested_in_bicycles && <Badge variant="outline" className="flex gap-1 items-center"><Bike className="w-3 h-3" /> Bike</Badge>}
-                                        {preferences.interested_in_yachts && <Badge variant="outline" className="flex gap-1 items-center"><Ship className="w-3 h-3" /> Yacht</Badge>}
+                                        {preferences.interested_in_vehicles && <Badge variant="outline" className="flex gap-1 items-center"><Ship className="w-3 h-3" /> Vehicle</Badge>}
                                     </div>
 
-                                    {preferences.max_price && (
+                                    {preferences.price_max && (
                                         <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                                            <DollarSign className="w-3 h-3" /> Budget: Up to ${preferences.max_price.toLocaleString()}
+                                            <DollarSign className="w-3 h-3" /> Budget: Up to ${preferences.price_max.toLocaleString()}
                                         </p>
                                     )}
                                 </div>
