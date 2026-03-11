@@ -36,32 +36,13 @@ interface Orb {
   mass: number;
 }
 
-interface LeopardBlob {
-  angle: number;
-  dist: number;
-  rx: number;
-  ry: number;
-  rotation: number;
-}
-
-interface LeopardSpot {
-  x: number;
-  y: number;
-  blobs: LeopardBlob[];
-  pulsePhase: number;
-  pulseSpeed: number;
-}
-
 function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
-  const leopardCanvasRef = useRef<HTMLCanvasElement>(null);
   const animCanvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const starsRef = useRef<Star[]>([]);
   const orbsRef = useRef<Orb[]>([]);
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const initializedRef = useRef<EffectMode | null>(null);
-  const leopardSpotsRef = useRef<LeopardSpot[]>([]);
-  const leopardTimeRef = useRef(0);
 
   const pointerRef = useRef({
     x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
@@ -69,132 +50,6 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     isDown: false,
     isActive: false,
   });
-
-  /* ─── Leopard pattern ─────────────────────────────────── */
-  const initLeopardSpots = useCallback((w: number, h: number) => {
-    const count = Math.floor((w * h) / 7000);
-    leopardSpotsRef.current = Array.from({ length: Math.min(count, 120) }, () => {
-      const blobCount = Math.floor(Math.random() * 3) + 3; // 3–5 blobs per rosette
-      return {
-        x: Math.random() * w,
-        y: Math.random() * h,
-        blobs: Array.from({ length: blobCount }, (_, j) => ({
-          angle: (j / blobCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.9,
-          dist: Math.random() * 10 + 10,
-          rx: Math.random() * 7 + 5,
-          ry: Math.random() * 4 + 3,
-          rotation: Math.random() * Math.PI,
-        })),
-        pulsePhase: Math.random() * Math.PI * 2,
-        pulseSpeed: Math.random() * 0.015 + 0.005,
-      };
-    });
-  }, []);
-
-  const drawLeopardPattern = useCallback((canvas: HTMLCanvasElement, time: number) => {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-
-    // Deep warm-dark base
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#0e0805';
-    ctx.fillRect(0, 0, w, h);
-
-    // Warm radial vignette — center slightly lighter amber
-    const centreGrad = ctx.createRadialGradient(w * 0.5, h * 0.42, 0, w * 0.5, h * 0.42, Math.max(w, h) * 0.75);
-    centreGrad.addColorStop(0, 'rgba(70, 38, 8, 0.55)');
-    centreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = centreGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Draw rosette spots
-    for (const spot of leopardSpotsRef.current) {
-      const pulse = Math.sin(time * spot.pulseSpeed + spot.pulsePhase) * 0.12 + 0.88;
-
-      // Outer rosette blobs (the dark ring)
-      for (const blob of spot.blobs) {
-        const bx = spot.x + Math.cos(blob.angle) * blob.dist;
-        const by = spot.y + Math.sin(blob.angle) * blob.dist;
-
-        ctx.save();
-        ctx.translate(bx, by);
-        ctx.rotate(blob.rotation);
-
-        // Soft glow halo first (warm amber)
-        const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, blob.rx * 2.2);
-        halo.addColorStop(0, `rgba(200, 110, 15, ${0.18 * pulse})`);
-        halo.addColorStop(1, 'rgba(200, 110, 15, 0)');
-        ctx.beginPath();
-        ctx.ellipse(0, 0, blob.rx * 2.2, blob.ry * 2.2, 0, 0, Math.PI * 2);
-        ctx.fillStyle = halo;
-        ctx.fill();
-
-        // Core blob — dark rich amber
-        ctx.beginPath();
-        ctx.ellipse(0, 0, blob.rx, blob.ry, 0, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(165, 80, 8, ${0.52 * pulse})`;
-        ctx.fill();
-
-        // Inner bright rim
-        ctx.beginPath();
-        ctx.ellipse(0, 0, blob.rx * 0.55, blob.ry * 0.55, 0, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220, 145, 30, ${0.22 * pulse})`;
-        ctx.fill();
-
-        ctx.restore();
-      }
-
-      // Tiny dark centre dot
-      ctx.beginPath();
-      ctx.arc(spot.x, spot.y, 3.5, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(80, 35, 5, ${0.5 * pulse})`;
-      ctx.fill();
-    }
-
-    // Subtle noise-like grain overlay for texture (optional fine dots)
-    // Kept very sparse so it adds texture without killing performance
-    ctx.fillStyle = 'rgba(255, 200, 100, 0.018)';
-    for (let i = 0; i < 120; i++) {
-      const gx = Math.random() * w;
-      const gy = Math.random() * h;
-      ctx.fillRect(gx, gy, 1, 1);
-    }
-  }, []);
-
-  /* ─── Init leopard canvas (static-ish — redraws slowly for pulse) ── */
-  useEffect(() => {
-    const canvas = leopardCanvasRef.current;
-    if (!canvas) return;
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-      const ctx = canvas.getContext('2d');
-      if (ctx) ctx.scale(dpr, dpr);
-      initLeopardSpots(window.innerWidth, window.innerHeight);
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-
-    let rafId: number;
-    const tick = () => {
-      leopardTimeRef.current += 1;
-      drawLeopardPattern(canvas, leopardTimeRef.current);
-      rafId = requestAnimationFrame(tick);
-    };
-    tick();
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', resize);
-    };
-  }, [initLeopardSpots, drawLeopardPattern]);
 
   /* ─── Stars / orbs init ───────────────────────────────── */
   const initStars = useCallback((w: number, h: number) => {
@@ -430,12 +285,6 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
   return (
     <>
-      {/* Leopard pattern — always visible base layer */}
-      <canvas
-        ref={leopardCanvasRef}
-        className="absolute inset-0 z-0 pointer-events-none"
-      />
-      {/* Stars / orbs — animated overlay */}
       {mode !== 'off' && (
         <canvas
           ref={animCanvasRef}
