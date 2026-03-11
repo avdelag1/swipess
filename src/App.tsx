@@ -126,7 +126,6 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
-const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
 const queryClient = new QueryClient({
@@ -208,11 +207,6 @@ const App = () => {
                           <ProfileSyncWrapper>
                             <NotificationWrapper>
                               <PushNotificationWrapper>
-                                {/* Guided tour for first-time users */}
-                                <Suspense fallback={null}>
-                                  <GuidedTourLazy />
-                                </Suspense>
-
                                 {/* Update notification banner */}
                                 <UpdateNotification />
 
