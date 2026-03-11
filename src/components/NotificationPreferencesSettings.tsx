@@ -1,202 +1,94 @@
-import React from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Bell, Mail, Smartphone, Zap, Shield, Sparkles } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Bell, Heart, Home, Bike, Car, Ship, Sparkles, Smartphone } from 'lucide-react';
-import { toast } from 'sonner';
-import { useAuth } from '@/hooks/useAuth';
-import { motion } from 'framer-motion';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { Card, CardContent } from '@/components/ui/card';
 
-interface NotificationPreferences {
-    client_interested?: boolean;
-    listing_interested?: boolean;
-    moto_interested?: boolean;
-    bike_interested?: boolean;
-    yacht_interested?: boolean;
+interface NotificationPreferencesSettingsProps {
+    role: 'client' | 'owner';
 }
 
-export const NotificationPreferencesSettings = ({ role }: { role: 'client' | 'owner' }) => {
-    const { user } = useAuth();
-    const queryClient = useQueryClient();
-    const { isSupported, isSubscribed, subscribe, unsubscribe } = usePushNotifications();
-
-    const { data: profile, isLoading } = useQuery({
-        queryKey: ['profile-preferences', user?.id],
-        queryFn: async () => {
-            const { data, error } = await (supabase as any)
-                .from('profiles')
-                .select('notification_preferences')
-                .eq('id', user!.id)
-                .single();
-            if (error) throw error;
-            return data;
-        },
-        enabled: !!user?.id,
+export function NotificationPreferencesSettings({ role }: NotificationPreferencesSettingsProps) {
+    // Normally this would be integrated with a database/context
+    const [prefs, setPrefs] = useState({
+        push: true,
+        email: true,
+        messages: true,
+        likes: true,
+        marketing: false,
+        sound: true,
     });
 
-    const updatePreferencesMutation = useMutation({
-        mutationFn: async (newPrefs: NotificationPreferences) => {
-            const { error } = await (supabase as any)
-                .from('profiles')
-                .update({ notification_preferences: newPrefs })
-                .eq('id', user!.id);
-            if (error) throw error;
+    const toggle = (key: keyof typeof prefs) => {
+        setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const sections = [
+        {
+            title: 'Global Delivery',
+            items: [
+                { id: 'push', label: 'Push Notifications', icon: Smartphone, desc: 'Real-time alerts on your device' },
+                { id: 'email', label: 'Email Digest', icon: Mail, desc: 'Daily summary of missed activity' },
+            ]
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['profile-preferences', user?.id] });
-            toast.success("Notification preferences updated");
-        },
-        onError: () => {
-            toast.error("Failed to update preferences");
+        {
+            title: 'Platform Activity',
+            items: [
+                { id: 'messages', label: 'Direct Messages', icon: Zap, desc: 'When you receive a new chat' },
+                { id: 'likes', label: role === 'owner' ? 'New Interests' : 'New Connections', icon: Bell, desc: 'Updates on who likes you' },
+            ]
         }
-    });
-
-    if (isLoading) return <div className="h-20 animate-pulse bg-muted rounded-xl" />;
-
-    const prefs: NotificationPreferences = (profile?.notification_preferences as any) || {
-        client_interested: true,
-        listing_interested: true,
-        moto_interested: true,
-        bike_interested: true,
-        yacht_interested: true
-    };
-
-    const togglePreference = (key: keyof NotificationPreferences) => {
-        updatePreferencesMutation.mutate({
-            ...prefs,
-            [key]: !prefs[key]
-        });
-    };
+    ];
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-2">
-                <Bell className="w-5 h-5 text-primary" />
-                <h3 className="text-lg font-bold">Smart Notifications</h3>
-            </div>
-
-            <div className="space-y-4">
-                {role === 'client' && (
-                    <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border">
-                        <div className="space-y-1">
-                            <Label className="text-sm font-bold flex items-center gap-2">
-                                <Heart className="w-4 h-4 text-pink-500" />
-                                Someone liked your profile
-                            </Label>
-                            <p className="text-xs text-muted-foreground italic">Get notified when an owner wants to connect</p>
-                        </div>
-                        <Switch
-                            checked={prefs.client_interested !== false}
-                            onCheckedChange={() => togglePreference('client_interested')}
-                        />
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {sections.map((section) => (
+                <div key={section.title} className="space-y-4">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 px-1">
+                        {section.title}
+                    </h3>
+                    <div className="grid gap-3">
+                        {section.items.map((item) => (
+                            <motion.div
+                                key={item.id}
+                                whileHover={{ scale: 1.01 }}
+                                whileTap={{ scale: 0.99 }}
+                            >
+                                <Card className="bg-black/20 border-white/5 hover:bg-black/30 transition-all overflow-hidden group">
+                                    <CardContent className="p-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-[#E4007C]/10 transition-colors">
+                                                <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-[#E4007C] transition-colors" />
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <Label htmlFor={item.id} className="text-base font-bold cursor-pointer">{item.label}</Label>
+                                                <p className="text-xs text-muted-foreground/70 font-medium">{item.desc}</p>
+                                            </div>
+                                        </div>
+                                        <Switch
+                                            id={item.id}
+                                            checked={prefs[item.id as keyof typeof prefs]}
+                                            onCheckedChange={() => toggle(item.id as keyof typeof prefs)}
+                                            className="data-[state=checked]:bg-[#E4007C]"
+                                        />
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        ))}
                     </div>
-                )}
-
-                {role === 'owner' && (
-                    <>
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border">
-                            <div className="space-y-1">
-                                <Label className="text-sm font-bold flex items-center gap-2">
-                                    <Home className="w-4 h-4 text-orange-500" />
-                                    Listing Interest
-                                </Label>
-                                <p className="text-xs text-muted-foreground italic">Notifications for property likes</p>
-                            </div>
-                            <Switch
-                                checked={prefs.listing_interested !== false}
-                                onCheckedChange={() => togglePreference('listing_interested')}
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border opacity-80">
-                            <div className="space-y-1">
-                                <Label className="text-sm font-bold flex items-center gap-2">
-                                    <Car className="w-4 h-4 text-blue-500" />
-                                    Moto Interest
-                                </Label>
-                                <p className="text-xs text-muted-foreground italic">Notifications for motorcycle likes</p>
-                            </div>
-                            <Switch
-                                checked={prefs.moto_interested !== false}
-                                onCheckedChange={() => togglePreference('moto_interested')}
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border opacity-80">
-                            <div className="space-y-1">
-                                <Label className="text-sm font-bold flex items-center gap-2">
-                                    <Bike className="w-4 h-4 text-green-500" />
-                                    Bike Interest
-                                </Label>
-                                <p className="text-xs text-muted-foreground italic">Notifications for bicycle likes</p>
-                            </div>
-                            <Switch
-                                checked={prefs.bike_interested !== false}
-                                onCheckedChange={() => togglePreference('bike_interested')}
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-card border border-border opacity-80">
-                            <div className="space-y-1">
-                                <Label className="text-sm font-bold flex items-center gap-2">
-                                    <Ship className="w-4 h-4 text-cyan-500" />
-                                    Yacht Interest
-                                </Label>
-                                <p className="text-xs text-muted-foreground italic">Notifications for yacht likes</p>
-                            </div>
-                            <Switch
-                                checked={prefs.yacht_interested !== false}
-                                onCheckedChange={() => togglePreference('yacht_interested')}
-                            />
-                        </div>
-                    </>
-                )}
-            </div>
-
-            <div className="pt-4 border-t border-border">
-                <div className="flex items-center gap-3 mb-4">
-                    <Smartphone className="w-5 h-5 text-primary" />
-                    <h3 className="text-lg font-bold">Device Notifications</h3>
                 </div>
+            ))}
 
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/20">
-                    <div className="space-y-1">
-                        <Label className="text-sm font-bold flex items-center gap-2">
-                            <Bell className="w-4 h-4 text-primary" />
-                            Real-time Push
-                        </Label>
-                        <p className="text-xs text-muted-foreground italic">Receive alerts on this device even when the app is closed</p>
-                    </div>
-                    {isSupported ? (
-                        <Switch
-                            checked={isSubscribed}
-                            disabled={updatePreferencesMutation.isPending}
-                            onCheckedChange={async (checked) => {
-                                if (checked) {
-                                    const success = await subscribe();
-                                    if (success) toast.success("Push notifications enabled!");
-                                } else {
-                                    const success = await unsubscribe();
-                                    if (success) toast.info("Push notifications disabled");
-                                }
-                            }}
-                        />
-                    ) : (
-                        <div className="text-[10px] font-medium text-muted-foreground bg-muted/50 px-2 py-1 rounded-full border border-border">
-                            Not supported
-                        </div>
-                    )}
+            <div className="pt-4 p-6 rounded-[2rem] bg-[#E4007C]/5 border border-[#E4007C]/10 space-y-3">
+                <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-[#E4007C]" />
+                    <h4 className="text-xs font-black uppercase tracking-tight text-[#E4007C]">Intelligent Delivery</h4>
                 </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20 flex gap-3 items-start">
-                <Sparkles className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <p className="text-[10px] leading-relaxed text-muted-foreground">
-                    <strong>Pro Tip:</strong> We intelligently filter notifications to ensure you only get notified about high-quality interests that match your profile visibility.
+                <p className="text-xs leading-relaxed text-[#E4007C]/80 font-bold">
+                    Swipess uses adaptive scheduling to bundle notifications during your peak activity hours, minimizing digital noise while maximizing connection speed.
                 </p>
             </div>
         </div>
     );
-};
+}

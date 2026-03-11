@@ -113,13 +113,26 @@ export function BottomNavigation({
 
   const handleNavPress = useCallback(
     (event: React.PointerEvent, item: NavItem) => {
+      // Only handle haptics and prefetch on pointer down
+      haptics.select();
+      if (item.path) {
+        prefetchRoute(item.path);
+      }
+    },
+    [],
+  );
+
+  const handleNavClick = useCallback(
+    (event: React.MouseEvent, item: NavItem) => {
       event.stopPropagation();
       event.preventDefault();
-      haptics.select();
+      
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        startTransition(() => {
+          navigate(item.path!);
+        });
       }
     },
     [navigate],
@@ -177,25 +190,9 @@ export function BottomNavigation({
           WebkitBackfaceVisibility: 'hidden',
           position: 'relative',
           overflow: 'hidden',
+          zIndex: 100, // Ensure it's above other elements
         }}
       >
-        {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
-        <div
-          aria-hidden="true"
-          className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
-          style={{
-            borderRadius: 'inherit',
-            background: `
-              radial-gradient(ellipse 160% 50% at 15% 0%,
-                rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
-              radial-gradient(ellipse 100% 60% at 85% 100%,
-                rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)
-            `,
-            backgroundSize: '220% 220%, 100% 100%',
-            zIndex: 1,
-          }}
-        />
-
         {/* Nav items row */}
         <div
           className="relative flex items-center justify-between w-full px-1 py-1.5"
@@ -209,13 +206,10 @@ export function BottomNavigation({
               <motion.button
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
-                onPointerDown={(e) => {
-                  handleNavPress(e, item);
-                  if (item.path) prefetchRoute(item.path);
-                }}
+                onPointerDown={(e) => handleNavPress(e, item)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
-                onClick={(e) => e.preventDefault()}
+                onClick={(e) => handleNavClick(e, item)}
                 whileTap={{ scale: 0.88, transition: TAP_SPRING }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}

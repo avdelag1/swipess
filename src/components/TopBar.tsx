@@ -217,21 +217,71 @@ function TopBarComponent({
             </div>
 
             {showFilters && userRole && (
-              <div className="flex-shrink-0">
-                <QuickFilterDropdown userRole={userRole} />
-              </div>
+              <QuickFilterDropdown userRole={userRole} className="flex-shrink-0" />
             )}
+
+            {/* AI Search integrated into scrollable list */}
+            <Button
+              id="ai-search-button"
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "relative h-8 w-8 rounded-xl transition-all duration-100 ease-out flex-shrink-0",
+                "active:scale-[0.95]",
+                "touch-manipulation",
+                "-webkit-tap-highlight-color-transparent"
+              )}
+              style={{
+                backgroundColor: glassBg,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
+              onClick={() => onAISearchClick?.()}
+              aria-label="AI Search"
+            >
+              <Sparkles className="h-3 w-3 text-pink-400 animate-pulse" />
+            </Button>
+
+            {/* Notifications integrated into scrollable list */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "relative h-8 w-8 rounded-xl transition-all duration-100 ease-out flex-shrink-0",
+                "active:scale-[0.95]",
+                "group",
+                "touch-manipulation",
+                "-webkit-tap-highlight-color-transparent"
+              )}
+              style={{
+                backgroundColor: glassBg,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
+              onPointerDown={() => haptics.tap()}
+              onClick={() => onNotificationsClick?.()}
+              aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
+            >
+              <div className="relative">
+                <Bell
+                  strokeWidth={4}
+                  className={cn(
+                    "h-3 w-3 transition-colors duration-150",
+                    notificationCount > 0 ? (isDark ? "text-orange-200" : "text-orange-600") : (isDark ? "text-gray-50" : "text-gray-900")
+                  )}
+                />
+              </div>
+            </Button>
           </div>
 
           {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
           <div
             className="flex-1 h-full cursor-pointer flex items-center justify-center"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              haptics.tap();
-              navigate('/dashboard');
+            onPointerDown={() => haptics.tap()}
+            onClick={() => {
+              const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
+              navigate(dashboardPath);
             }}
-            onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
           >
             {title ? (
@@ -263,8 +313,13 @@ function TopBarComponent({
                     "flex items-center gap-1",
                     "liquid-glass-card refraction-edge glass-nano-texture"
                   )}
-                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
-                  onClick={(e) => e.preventDefault()}
+                  style={{
+                    backgroundColor: glassBg,
+                    border: glassBorder,
+                    boxShadow: floatingShadow,
+                  }}
+                  onPointerDown={() => haptics.tap()}
+                  onClick={() => setTokensOpen(!tokensOpen)}
                   aria-label="Token Packages"
                 >
                   <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
@@ -398,8 +453,13 @@ function TopBarComponent({
                 "-webkit-tap-highlight-color-transparent",
                 "liquid-glass-card refraction-edge glass-nano-texture"
               )}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
-              onClick={(e) => e.preventDefault()}
+              style={{
+                backgroundColor: glassBg,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
+              onPointerDown={() => haptics.tap()}
+              onClick={() => onNotificationsClick?.()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
