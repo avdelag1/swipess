@@ -1016,7 +1016,6 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
         categoryInfo={currentCategoryInfo}
         isRefreshing={isRefreshing}
         onRefresh={handleRefresh}
-        onTutorial={() => navigate('/tutorial')}
       />
     );
   }
