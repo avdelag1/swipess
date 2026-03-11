@@ -987,9 +987,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // STABLE LOADING SHELL: GPU-accelerated skeleton while fetching initial deck
   const hasHydratedData = isClientHydrated && deckQueue.length > 0;
   if (!hasHydratedData && isLoading) {
-    if (!hasHydratedData && isLoading) {
-      return <SwipeLoadingSkeleton />;
-    }
+    return <SwipeLoadingSkeleton />;
   }
 
   if (currentIndex > 0 && currentIndex >= deckQueue.length && !isLoading) {

@@ -85,7 +85,7 @@ export function useDebounce<T extends (...args: any[]) => any>(
     callback: T,
     delay: number
 ): T {
-    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const callbackRef = React.useRef(callback);
 
     React.useEffect(() => {

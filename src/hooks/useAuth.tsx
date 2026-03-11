@@ -430,6 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error("Sign In Failed", { description: errorMessage });
       return { error: error };
     }
+    return { error: null };
   };
 
   const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner') => {

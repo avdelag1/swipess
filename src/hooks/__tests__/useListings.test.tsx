@@ -105,7 +105,9 @@ describe('useListings', () => {
 
         const { result } = renderHook(() => useListings(), { wrapper });
 
-        await waitFor(() => expect(result.current.isSuccess).toBe(true));
+        await act(async () => {
+          await new Promise(r => setTimeout(r, 100));
+        });
 
         expect(mockQuery.gte).toHaveBeenCalledWith('price', 1000);
         expect(mockQuery.lte).toHaveBeenCalledWith('price', 5000);

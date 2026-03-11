@@ -69,8 +69,8 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   // Track failed stations to avoid infinite loops (bounded to max 20 entries)
   const failedStationsRef = useRef<Set<string>>(new Set());
-  const loadTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Refs to hold latest callbacks for event handlers (avoids stale closures)
   const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => { });

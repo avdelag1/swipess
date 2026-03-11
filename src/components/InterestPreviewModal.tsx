@@ -235,9 +235,9 @@ export const InterestPreviewModal: React.FC<InterestPreviewModalProps> = ({
                                         {preferences.interested_in_vehicles && <Badge variant="outline" className="flex gap-1 items-center"><Ship className="w-3 h-3" /> Vehicle</Badge>}
                                     </div>
 
-                                    {preferences.max_price && (
+                                    {preferences.price_max && (
                                         <p className="text-xs text-muted-foreground mt-3 flex items-center gap-1">
-                                            <DollarSign className="w-3 h-3" /> Budget: Up to ${preferences.max_price.toLocaleString()}
+                                            <DollarSign className="w-3 h-3" /> Budget: Up to ${preferences.price_max.toLocaleString()}
                                         </p>
                                     )}
                                 </div>

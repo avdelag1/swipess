@@ -7,6 +7,7 @@ import { CityLocation } from '@/types/radio';
 import { ArrowLeft, Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Heart, Shuffle, ListMusic, Power } from 'lucide-react';
 
 export default function RadioPlayer() {
+  const navigate = useNavigate();
   const { state, error, togglePlayPause, togglePower, changeStation, setCity, toggleFavorite, play, setVolume, toggleShuffle, playFavorites, setSkin, setMiniPlayerMode } = useRadio();
   const [showCitySelector, setShowCitySelector] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);

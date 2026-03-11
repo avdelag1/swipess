@@ -106,7 +106,7 @@ export function MessagingDashboard() {
   }, [conversations, prefetchTopConversationMessages]);
 
   // Debounced refetch to prevent excessive queries on rapid real-time events
-  const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedRefetch = useCallback(() => {
     if (refetchTimeoutRef.current) {
       clearTimeout(refetchTimeoutRef.current);

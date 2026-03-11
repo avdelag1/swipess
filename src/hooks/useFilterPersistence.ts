@@ -18,7 +18,7 @@ const DEBOUNCE_MS = 1000;
 
 export function useFilterPersistence() {
   const { user } = useAuth();
-  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRestoringRef = useRef(false);
   
   const {
