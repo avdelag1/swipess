@@ -189,6 +189,21 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
     });
   };
 
+  // Auto-notify parent when filters change
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const budgetValues = getBudgetValues();
+    onApply({
+      category: 'moto', interest_type: interestType, moto_types: motoTypes,
+      selected_budget_range: selectedBudgetRange, price_min: budgetValues.min, price_max: budgetValues.max,
+      engine_cc_min: engineRange[0], engine_cc_max: engineRange[1],
+      year_min: yearRange[0], year_max: yearRange[1], transmission, condition, has_abs: hasABS,
+      location_countries: locationCountries, location_cities: locationCities, location_neighborhoods: locationNeighborhoods
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interestType, motoTypes, selectedBudgetRange, engineRange, yearRange, transmission, condition, hasABS, locationCountries, locationCities, locationNeighborhoods]);
+
   const handleClear = () => {
     setInterestType('both');
     setMotoTypes([]);

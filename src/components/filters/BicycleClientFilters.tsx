@@ -175,6 +175,20 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
     });
   };
 
+  // Auto-notify parent when filters change
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const budgetValues = getBudgetValues();
+    onApply({
+      category: 'bicycle', interest_type: interestType, bicycle_types: bicycleTypes,
+      selected_budget_range: selectedBudgetRange, price_min: budgetValues.min, price_max: budgetValues.max,
+      frame_size: frameSize, condition, suspension_type: suspensionType, is_electric_only: isElectricOnly,
+      location_countries: locationCountries, location_cities: locationCities, location_neighborhoods: locationNeighborhoods
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interestType, bicycleTypes, selectedBudgetRange, frameSize, condition, suspensionType, isElectricOnly, locationCountries, locationCities, locationNeighborhoods]);
+
   const handleClear = () => {
     setInterestType('both');
     setBicycleTypes([]);
