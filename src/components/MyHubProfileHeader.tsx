@@ -37,7 +37,7 @@ export function MyHubProfileHeader() {
 
     function calculateCompletion(c: any, o: any) {
         let score = 0;
-        if (c?.name || o?.full_name) score += 20;
+        if (c?.name || o?.business_name) score += 20;
         if (c?.bio || o?.bio) score += 20;
         if (c?.profile_images?.length || o?.profile_images?.length) score += 40;
         if (c?.interests?.length || o?.contact_info) score += 20;

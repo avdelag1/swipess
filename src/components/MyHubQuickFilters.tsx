@@ -50,7 +50,7 @@ export function MyHubQuickFilters() {
                             key={cat.id}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => {
-                                haptics.selection();
+                                haptics.select();
                                 setActiveCategory(isActive ? null : cat.id);
                             }}
                             className={cn(

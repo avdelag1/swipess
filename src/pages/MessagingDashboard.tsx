@@ -367,7 +367,7 @@ export function MessagingDashboard() {
             {otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
-                otherUser={otherUser}
+                otherUser={{ ...otherUser, role: (otherUser.role === 'owner' ? 'owner' : 'client') as 'client' | 'owner' }}
                 listing={listing}
                 currentUserRole={userRole}
                 onBack={() => {

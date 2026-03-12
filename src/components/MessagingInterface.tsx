@@ -128,7 +128,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const [showConnecting, setShowConnecting] = useState(false);
-  const connectingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check monthly message limits
   const { canSendMessage, messagesRemaining, isAtLimit, hasMonthlyLimit } = useMonthlyMessageLimits();
