@@ -57,11 +57,14 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
-  // Connect filter store to swipe container (fixes missing filters when rendered as a route)
-  const filterVersion = useFilterStore((s) => s.filterVersion);
-  const getListingFilters = useFilterStore((s) => s.getListingFilters);
-  const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
-  const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
+  // PERF FIX: Read filters from store directly using filterVersion as change signal
+  // Avoids cascading object recreation through prop drilling
+  const storeFilterVersion = useFilterStore((s) => s.filterVersion);
+  const mergedFilters = useMemo(() => {
+    const storeFilters = useFilterStore.getState().getListingFilters();
+    return { ...filters, ...storeFilters };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeFilterVersion, filters]);
 
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
