@@ -208,7 +208,7 @@ export function useAutomaticUpdates() {
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [checkUpdates, performUpdate]);
+  }, [checkUpdates]);
 
   return {
     updateInfo,
