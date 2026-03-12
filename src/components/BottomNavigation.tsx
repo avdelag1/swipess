@@ -119,7 +119,7 @@ export function BottomNavigation({
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        navigate(item.path!);
       }
     },
     [navigate],
