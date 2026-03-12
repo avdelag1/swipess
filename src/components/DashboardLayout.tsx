@@ -313,7 +313,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
   const clientSwipePaths = [
-    '/dashboard',
+    '/client/dashboard',
     '/client/profile',
     '/client/liked-properties',
     '/messages',
