@@ -311,6 +311,9 @@ const App = () => {
                                       {/* AI Test — public, no login required */}
                                       <Route path="/ai-test" element={<AITestPage />} />
 
+                                      {/* Legacy /dashboard redirect — always go to client dashboard */}
+                                      <Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />
+
                                       {/* Info Pages - Public Access */}
                                       <Route path="/about" element={<AboutPage />} />
                                       <Route path="/faq/client" element={<FAQClientPage />} />
