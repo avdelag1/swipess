@@ -21,7 +21,7 @@ export function getActiveCategoryInfo(filters: any, activeCategory?: any): Categ
         property: { singular: 'Property', plural: 'Properties', icon: Home, color: 'text-primary' },
         worker: { singular: 'Worker', plural: 'Workers', icon: Wrench, color: 'text-amber-500' },
         motorcycle: { singular: 'Motorcycle', plural: 'Motorcycles', icon: Bike, color: 'text-red-500' },
-        bicycle: { singular: 'Bicycle', plural: 'Bicycles', icon: Bicycle, color: 'text-green-500' },
+        bicycle: { singular: 'Bicycle', plural: 'Bicycles', icon: Bike, color: 'text-green-500' },
         client: { singular: 'Client', plural: 'Clients', icon: Users, color: 'text-blue-500' },
         services: { singular: 'Service', plural: 'Services', icon: Briefcase, color: 'text-purple-500' },
     };
