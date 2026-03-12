@@ -9,6 +9,11 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 // match exactly, preventing infinite reload loops.
 const GLOBAL_BUILD_TIME = Date.now().toString();
 
+// Canonical backend constants (do not depend on process env to avoid stale key/url mismatches)
+const BACKEND_URL = 'https://qegyisokrxdsszzswsqk.supabase.co';
+const BACKEND_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU';
+const BACKEND_PROJECT_ID = 'qegyisokrxdsszzswsqk';
+
 // Build version injector plugin for automatic cache busting
 function buildVersionPlugin(buildTime: string) {
   return {
@@ -17,8 +22,8 @@ function buildVersionPlugin(buildTime: string) {
       // Inject version, preconnect hints, and performance optimizations
       // We look for the first meta tag or the end of head to ensure correct placement
       const preconnects = `
-    <link rel="preconnect" href="${process.env.VITE_SUPABASE_URL || ''}" crossorigin>
-    <link rel="dns-prefetch" href="${process.env.VITE_SUPABASE_URL || ''}">
+    <link rel="preconnect" href="${BACKEND_URL}" crossorigin>
+    <link rel="dns-prefetch" href="${BACKEND_URL}">
     <meta name="app-version" content="${buildTime}" />`;
 
       if (html.includes('<meta')) {
@@ -135,10 +140,11 @@ export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(GLOBAL_BUILD_TIME),
-    // Ensure correct Lovable Cloud backend — overrides stale fallbacks in client.ts
-    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://qegyisokrxdsszzswsqk.supabase.co'),
-    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU'),
-    'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(process.env.VITE_SUPABASE_PROJECT_ID || 'qegyisokrxdsszzswsqk'),
+    // Force correct backend keys/URL at compile time to prevent Invalid API key auth failures
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(BACKEND_URL),
+    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(BACKEND_PUBLISHABLE_KEY),
+    'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(BACKEND_PROJECT_ID),
+    'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(BACKEND_PUBLISHABLE_KEY),
   },
   server: {
     host: "::",
