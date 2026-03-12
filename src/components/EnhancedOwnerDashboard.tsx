@@ -4,11 +4,9 @@ import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
 );
-import { NotificationBar } from '@/components/NotificationBar';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
-import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
@@ -86,8 +84,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }
 
-  const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
-
   const handleClientTap = (clientId: string) => {
     onClientInsights?.(clientId);
   };
@@ -96,14 +92,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   };
 
+  // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (
     <>
-      <NotificationBar
-        notifications={notifications}
-        onDismiss={dismissNotification}
-        onMarkAllRead={markAllAsRead}
-        onNotificationClick={handleNotificationClick}
-      />
       <ClientSwipeContainer
         onClientTap={handleClientTap}
         onInsights={handleInsights}

@@ -1,12 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useCallback, useMemo } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
-import { PropertyInsightsDialog } from '@/components/PropertyInsightsDialog';
-import { NotificationBar } from '@/components/NotificationBar';
-import { useNotificationSystem } from '@/hooks/useNotificationSystem';
-import { supabase } from '@/integrations/supabase/client';
 import { ListingFilters } from '@/hooks/useSmartMatching';
-import { Listing } from '@/hooks/useListings';
 import { useFilterStore } from '@/state/filterStore';
 
 interface ClientDashboardProps {
@@ -19,6 +13,7 @@ interface ClientDashboardProps {
  * SPEED OF LIGHT: Client Dashboard
  * DashboardLayout is now rendered ONCE at route level via PersistentDashboardLayout
  * This component only renders its inner content
+ * NotificationBar is rendered globally in AppLayout — no duplicate here
  */
 export default function ClientDashboard({
   onPropertyInsights,
@@ -31,27 +26,17 @@ export default function ClientDashboard({
   const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
   const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
 
-  const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
-
   const handleListingTap = useCallback((listingId: string) => {
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
 
   return (
-    <>
-      <NotificationBar
-        notifications={notifications}
-        onDismiss={dismissNotification}
-        onMarkAllRead={markAllAsRead}
-        onNotificationClick={handleNotificationClick}
-      />
-      <SwipessSwipeContainer
-        onListingTap={handleListingTap}
-        onInsights={handleListingTap}
-        onMessageClick={onMessageClick}
-        filters={mergedFilters as ListingFilters}
-      />
-    </>
+    <SwipessSwipeContainer
+      onListingTap={handleListingTap}
+      onInsights={handleListingTap}
+      onMessageClick={onMessageClick}
+      filters={mergedFilters as ListingFilters}
+    />
   );
 }
 
