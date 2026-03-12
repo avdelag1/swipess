@@ -10,7 +10,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import {
@@ -191,7 +191,6 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence mode="popLayout">
               {orderedFilteredProperties.map((property) => (
                 <Reorder.Item
                   key={property.id}
@@ -206,7 +205,6 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   />
                 </Reorder.Item>
               ))}
-            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div
