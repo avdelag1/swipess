@@ -181,9 +181,9 @@ function TopBarComponent({
         />
         {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
         <div
-          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none z-0"
+          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none -z-10"
           style={{
-            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)'} 0%, transparent 100%)`,
+            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.82)' : 'rgba(255,255,255,0.75)'} 0%, transparent 100%)`,
             opacity: 0.8
           }}
         />
@@ -204,7 +204,7 @@ function TopBarComponent({
                 )}
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-4 h-4" strokeWidth={3} />
+                <ArrowLeft className={cn("w-4 h-4", isDark ? "text-white" : "text-foreground")} strokeWidth={3} />
               </motion.button>
             )}
 
