@@ -200,8 +200,9 @@ const OwnerProfileNew = () => {
           />
         </motion.div>
 
-        {/* Radio Player */}
-        <motion.div variants={childVariant}>
+        {/* Action Buttons - unified compact stack */}
+        <motion.div variants={childVariant} className="space-y-2">
+          {/* Radio Station */}
           <button
             onClick={() => { haptics.tap(); navigate('/radio'); }}
             className={cn(
@@ -212,24 +213,10 @@ const OwnerProfileNew = () => {
             )}
           >
             <Radio className="w-5 h-5 text-emerald-400" />
-            Radio Player
+            Radio Station
           </button>
-        </motion.div>
 
-        {/* Upgrade Button */}
-        <motion.div variants={childVariant}>
-          <button
-            onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl mexican-pink-premium relative overflow-hidden active:scale-[0.97] transition-transform shadow-lg font-bold text-sm"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
-            <Crown className="w-5 h-5 relative z-10 drop-shadow-lg" />
-            <span className="relative z-10">Premium Upgrade</span>
-          </button>
-        </motion.div>
-
-        {/* Secondary Actions */}
-        <motion.div variants={childVariant} className="space-y-3">
+          {/* Settings */}
           <button
             onClick={() => { haptics.tap(); navigate('/owner/settings'); }}
             className={cn(
@@ -243,6 +230,7 @@ const OwnerProfileNew = () => {
             Settings
           </button>
 
+          {/* Sign Out */}
           <button
             onClick={() => { haptics.warning(); signOut(); }}
             className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border border-red-500/20 bg-red-500/5 text-red-500"
