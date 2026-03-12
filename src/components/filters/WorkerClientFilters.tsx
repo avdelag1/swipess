@@ -510,12 +510,6 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
         defaultOpen={false}
       />
 
-      {/* Action Button */}
-      <div className="pt-4">
-        <Button onClick={handleApply} className="w-full rounded-xl bg-gradient-to-r from-primary to-primary/80 h-12 text-base font-semibold">
-          Apply
-        </Button>
-      </div>
     </div>
   );
 }
