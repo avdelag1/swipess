@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface Conversation {
   id: string;

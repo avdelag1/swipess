@@ -1,33 +1,46 @@
 
 
-# Diagnosis: Two Critical Issues Blocking the App
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Root Cause 1: Wrong Backend Connection
+### 1. Replace App Icon with Fire S Logo
 
-The `src/integrations/supabase/client.ts` file (auto-generated) has hardcoded fallback values pointing to an **old** project (`vplgtcguxujxwrgguxqq`). The current Lovable Cloud project is `qegyisokrxdsszzswsqk`. The 404 error on `owner_client_preferences` confirms the app is talking to the wrong backend — the table exists in Lovable Cloud but not in the old project.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-The env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) should override the fallbacks, but they are not being picked up — likely because the file was previously hand-modified (it has a custom `prodLogger` import and validation logic that the auto-generation system wouldn't produce), preventing automatic regeneration.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**Fix**: Since `client.ts` is already broken and was manually modified, we need to reset it to a clean auto-generated state with the correct Lovable Cloud credentials. This is the single most important fix.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## Root Cause 2: React Error #185 (Maximum update depth exceeded)
+### 2. Profile Photo Already Shows in Top-Left
 
-When every Supabase query returns 404 (wrong backend), error handlers fire, triggering toasts and state updates, which cause re-renders, which fire more queries — creating an infinite update loop. Additionally:
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-- **Duplicate toast renderers**: `App.tsx` renders both `<Toaster />` and `<Sonner />`, which are now the **same component** (since `toaster.tsx` re-exports from `sonner.tsx`). This means two identical Sonner instances both calling `useTheme()`.
-- **Mixed toast systems**: `LegendaryLandingPage.tsx`, `TopBar.tsx`, and `DashboardLayout.tsx` import from the OLD `@/hooks/use-toast` (which has a global listener/dispatch pattern), while most other components use `@/components/ui/sonner`. The old system's `dispatch` triggers `setState` for all registered listeners.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-## Implementation Plan
+### 3. Fix Header Too Close to Top Edge
 
-### Step 1: Fix `client.ts` — Correct backend connection
-Write a clean `client.ts` that uses the correct Lovable Cloud project ID (`qegyisokrxdsszzswsqk`) and anon key as fallbacks, while keeping the `import.meta.env` overrides. Remove the custom `prodLogger` import (use standard console or no logging).
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-### Step 2: Remove duplicate Toaster in `App.tsx`
-Remove one of the duplicate Sonner instances. Since `Toaster` from `toaster.tsx` now re-exports the same component as `Sonner` from `sonner.tsx`, we only need one.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-### Step 3: Unify toast imports
-Update `LegendaryLandingPage.tsx`, `TopBar.tsx`, and `DashboardLayout.tsx` to import `toast` from `@/components/ui/sonner` instead of `@/hooks/use-toast`. This eliminates the old global listener system that can cascade state updates.
+### 4. Fix MarketingSlide Build Error
 
-### Step 4: Add defensive error handling
-In the `useOwnerClientPreferences` hook and similar hooks that query the database, ensure 404 errors don't cascade into re-render loops by properly short-circuiting on errors.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

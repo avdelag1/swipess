@@ -136,8 +136,8 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
         is_read: false
       }]).then(
-        () => { },
-        () => { }
+        () => {},
+        () => {}
       );
     }
   };

@@ -1,12 +1,12 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useRef } from 'react';
-import { User, Session, AuthError } from '@supabase/supabase-js';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate } from 'react-router-dom';
 import { useProfileSetup, resetProfileCreationLock } from './useProfileSetup';
 import { useAccountLinking } from './useAccountLinking';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 
 interface AuthContextType {
@@ -14,9 +14,9 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   initialized: boolean; // TRUE after first auth check completes (regardless of user logged in or not)
-  signUp: (email: string, password: string, role: 'client' | 'owner', name?: string) => Promise<{ error: AuthError | Error | null }>;
-  signIn: (email: string, password: string, role: 'client' | 'owner') => Promise<{ error: AuthError | Error | null }>;
-  signInWithOAuth: (provider: 'google', role: 'client' | 'owner') => Promise<{ error: AuthError | Error | null }>;
+  signUp: (email: string, password: string, role: 'client' | 'owner', name?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string, role: 'client' | 'owner') => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google', role: 'client' | 'owner') => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
 
@@ -140,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Ensures user_roles, client/owner profiles, and onboarding are set up
             processedUserIdRef.current = session.user.id;
             const rawRole = session.user.user_metadata?.role;
-            const metadataRole: 'client' | 'owner' = (rawRole === 'client' || rawRole === 'owner') ? rawRole : 'client';
+          const metadataRole: 'client' | 'owner' = (rawRole === 'client' || rawRole === 'owner') ? rawRole : 'client';
             createProfileIfMissing(session.user, metadataRole).catch((err) => {
               logger.error('[Auth] Email user profile setup failed:', err);
             });
@@ -235,13 +235,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         const result = await Promise.race([checkPromise, timeoutPromise]);
         existingProfile = result.profile;
-      } catch (checkError: unknown) {
+      } catch (checkError: any) {
         // Log timeout specifically so we can track if this is happening frequently
-        const errorMsg = (checkError as Error)?.message || 'Unknown error';
-        if (errorMsg === 'Check timeout') {
+        if (checkError?.message === 'Check timeout') {
           logger.warn('[Auth] Existing account check timed out after 5s, proceeding with signup');
         } else {
-          logger.warn('[Auth] Existing account check failed:', errorMsg);
+          logger.warn('[Auth] Existing account check failed:', checkError?.message || checkError);
         }
       }
 
@@ -324,23 +323,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { error: null };
-    } catch (error: unknown) {
+    } catch (error: any) {
       if (import.meta.env.DEV) logger.error('[Auth] Sign up error:', error);
       let errorMessage = "Failed to create account. Please try again.";
-      const err = error as any;
 
-      if (err.message?.includes('User already registered')) {
+      if (error.message?.includes('User already registered')) {
         errorMessage = "An account with this email already exists. Please sign in instead.";
-      } else if (err.message?.includes('Password should be at least')) {
+      } else if (error.message?.includes('Password should be at least')) {
         errorMessage = "Password should be at least 6 characters long.";
-      } else if (err.message?.includes('Invalid email')) {
+      } else if (error.message?.includes('Invalid email')) {
         errorMessage = "Please enter a valid email address.";
-      } else if (err.message) {
-        errorMessage = err.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       toast.error("Sign Up Failed", { description: errorMessage });
-      return { error: error as AuthError | Error | null };
+      return { error };
     }
   };
 
@@ -411,6 +409,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: null };
       }
 
+      return { error: null };
     } catch (error: any) {
       logger.error('[Auth] Sign in error:', error);
       let errorMessage = 'Failed to sign in. Please try again.';
@@ -428,9 +427,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       toast.error("Sign In Failed", { description: errorMessage });
-      return { error: error };
+      return { error };
     }
-    return { error: null };
   };
 
   const signInWithOAuth = async (provider: 'google', role: 'client' | 'owner') => {
@@ -465,37 +463,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       return { error: null };
-    } catch (error: unknown) {
+    } catch (error: any) {
       if (import.meta.env.DEV) logger.error(`[Auth] ${provider} OAuth error:`, error);
       localStorage.removeItem('pendingOAuthRole');
 
       let errorMessage = `Failed to sign in with ${provider}. Please try again.`;
-      const err = error as any;
 
-      if (err.message?.includes('Supabase configuration is missing')) {
-        errorMessage = err.message;
-      } else if (err.message?.includes('Email link is invalid')) {
+      if (error.message?.includes('Supabase configuration is missing')) {
+        errorMessage = error.message;
+      } else if (error.message?.includes('Email link is invalid')) {
         errorMessage = 'OAuth link expired. Please try signing in again.';
-      } else if (err.message?.includes('access_denied')) {
+      } else if (error.message?.includes('access_denied')) {
         errorMessage = `Access denied. Please grant permission to continue with ${provider}.`;
-      } else if (err.message?.includes('Provider not enabled') || err.message?.includes('not enabled')) {
+      } else if (error.message?.includes('Provider not enabled') || error.message?.includes('not enabled')) {
         errorMessage = `${provider === 'google' ? 'Google' : 'Facebook'} OAuth is not enabled in Supabase.`;
-      } else if (err.message?.includes('redirect_uri_mismatch')) {
+      } else if (error.message?.includes('redirect_uri_mismatch')) {
         errorMessage = 'Redirect URL configuration error.';
-      } else if (err.message?.includes('invalid_client')) {
+      } else if (error.message?.includes('invalid_client')) {
         errorMessage = 'Invalid OAuth credentials.';
-      } else if (err.message?.includes('invalid_grant')) {
+      } else if (error.message?.includes('invalid_grant')) {
         errorMessage = 'Authorization grant error. Please try signing in again.';
-      } else if (err.status === 400) {
+      } else if (error.status === 400) {
         errorMessage = 'Bad OAuth request.';
-      } else if (err.status === 401 || err.status === 403) {
-        errorMessage = `OAuth authentication failed (${err.status}).`;
-      } else if (err.message) {
-        errorMessage = err.message;
+      } else if (error.status === 401 || error.status === 403) {
+        errorMessage = `OAuth authentication failed (${error.status}).`;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
 
       toast.error("OAuth Sign In Failed", { description: errorMessage });
-      return { error: error as AuthError | Error | null };
+      return { error };
     }
   };
 

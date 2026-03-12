@@ -42,15 +42,15 @@ export function GuidedTour() {
     const pos = step.position || 'bottom';
     if (pos === 'bottom') {
       tooltipStyle.top = targetRect.bottom + padding + 12;
-      tooltipStyle.left = 16;
+      tooltipStyle.left = Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - 140, window.innerWidth - 296));
     } else if (pos === 'top') {
       tooltipStyle.bottom = window.innerHeight - targetRect.top + padding + 12;
-      tooltipStyle.left = 16;
+      tooltipStyle.left = Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - 140, window.innerWidth - 296));
     }
   } else {
     tooltipStyle.top = '50%';
-    tooltipStyle.left = 16;
-    tooltipStyle.transform = 'translateY(-50%)';
+    tooltipStyle.left = '50%';
+    tooltipStyle.transform = 'translate(-50%, -50%)';
   }
 
   return createPortal(
@@ -85,8 +85,8 @@ export function GuidedTour() {
           initial={{ opacity: 0, y: 10, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10 }}
-          className="absolute rounded-2xl bg-card border border-border shadow-2xl p-4 space-y-3"
-          style={{ ...tooltipStyle, width: 'min(280px, calc(100vw - 32px))' }}
+          className="absolute w-[280px] rounded-2xl bg-card border border-border shadow-2xl p-4 space-y-3"
+          style={tooltipStyle}
         >
           {/* Progress dots */}
           <div className="flex items-center justify-between">

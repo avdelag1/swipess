@@ -4,11 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/components/ui/sonner'
+import { toast } from '@/hooks/use-toast'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import type { QuickFilterCategory } from '@/types/filters'
@@ -313,14 +313,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
   const clientSwipePaths = [
-    '/dashboard',
+    '/client/dashboard',
     '/client/profile',
     '/client/liked-properties',
     '/messages',
     '/client/filters',
   ];
   const ownerSwipePaths = [
-    '/dashboard',
+    '/owner/dashboard',
     '/owner/profile',
     '/owner/liked-clients',
     '/owner/properties',
@@ -536,23 +536,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
-  const isOnDiscoveryPage = (userRole === 'client' && (location.pathname === '/client/dashboard' || location.pathname === '/dashboard')) ||
-    (userRole === 'owner' && (location.pathname === '/owner/dashboard' || location.pathname === '/dashboard'));
+  const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
+    (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
-  // FIX: Memoize cloned children to prevent infinite re-renders
-  const enhancedChildren = useMemo(() => {
-    return React.Children.map(children, (child) => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child as React.ReactElement, {
-          onPropertyInsights: handlePropertyInsights,
-          onClientInsights: handleClientInsights,
-          onMessageClick: handleMessageClick,
-          filters: combinedFilters,
-        } as any);
-      }
-      return child;
-    });
-  }, [children, handlePropertyInsights, handleClientInsights, handleMessageClick, combinedFilters]);
+  // PERF FIX: Do NOT clone children with props — route elements (MyHub, ClientProfile, etc.)
+  // get their data from hooks/stores directly, not from cloneElement props.
+  // The old cloneElement pattern caused cascading re-renders (React #185) because
+  // combinedFilters changed identity on every filter store update, triggering
+  // AnimatedOutlet to re-clone the outlet element with new props on every render.
+  const enhancedChildren = children;
 
   // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
   // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back
@@ -567,7 +559,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const immersiveRoutes = [
       '/client/dashboard',
       '/owner/dashboard',
-      '/dashboard',
       '/client/profile',
       '/owner/profile',
       '/client/liked-properties',
@@ -597,16 +588,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const bottomNavHeight = responsive.isMobile ? 68 : 72;
 
   return (
-    <div className="app-root min-h-screen min-h-dvh overflow-hidden relative w-full max-w-[100vw]">
-      {/* DISABLED: LiveHDBackground was causing performance issues on mobile
-          - Animated orbs and CSS animations were slowing down page transitions
-          - Removed for snappier navigation */}
-      {/* <LiveHDBackground theme="default" showOrbs={true} intensity={0.7} /> */}
-
-      {/* REMOVED: NotificationSystem was causing duplicate realtime subscriptions.
-          Global notification handling is now done exclusively by NotificationWrapper (useNotifications)
-          in App.tsx. This prevents race conditions and UI flickers from multiple handlers
-          firing on the same conversation_messages INSERT event. */}
+    <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
@@ -628,30 +610,28 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
-        className="dashboard-main-scroll scroll-area-momentum"
+        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
         style={{
-          '--dashboard-pt': (isCameraRoute || isRadioRoute || isImmersiveDashboard)
+          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          '--dashboard-pb': (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          '--dashboard-pl': isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
-          '--dashboard-pr': isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
+          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
           zIndex: 0,
           transform: 'translateZ(0)',
           WebkitOverflowScrolling: 'touch',
-        } as React.CSSProperties}
+        }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
-        >
+        {/* PERF FIX: Removed motion.div key={location.pathname} wrapper.
+            AnimatedOutlet already handles page transitions with key={location.key}.
+            The double wrapper was causing unnecessary unmount/remount cycles. */}
+        <div style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
           {enhancedChildren}
-        </motion.div>
+        </div>
       </main>
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera and radio routes for fullscreen UX */}

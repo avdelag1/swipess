@@ -37,7 +37,7 @@ import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
@@ -162,10 +162,23 @@ const ClientSwipeContainerComponent = ({
     ].join('|');
   })();
 
+  // Track previous filter signature to detect filter changes
+  const prevFilterSignatureRef = useRef<string>(filterSignature);
+  const filterChangedRef = useRef(false);
+
+  // Detect filter changes synchronously during render (not in useEffect)
+  if (filterSignature !== prevFilterSignatureRef.current) {
+    filterChangedRef.current = true;
+    prevFilterSignatureRef.current = filterSignature;
+  }
+
   // PERF FIX: Reset deck ONLY when filters actually change (not on navigation return)
-  const isFirstFilterRenderRef = useRef(true);
   useEffect(() => {
-    if (isFirstFilterRenderRef.current) { isFirstFilterRenderRef.current = false; return; }
+    // Skip on initial mount
+    if (!filterChangedRef.current) return;
+
+    // Reset the filter changed flag
+    filterChangedRef.current = false;
 
     logger.info('[ClientSwipeContainer] Filters changed, resetting deck');
 

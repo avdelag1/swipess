@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface CachedProfile {
   id: string;

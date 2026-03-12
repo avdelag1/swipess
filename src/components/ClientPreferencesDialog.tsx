@@ -10,8 +10,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useClientFilterPreferences } from '@/hooks/useClientFilterPreferences'
 import { toast } from 'sonner'
-import { Slider } from '@/components/ui/slider'
-import { useQueryClient } from '@tanstack/react-query'
 
 interface ClientPreferencesDialogProps {
   open: boolean
@@ -145,12 +143,9 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
     }
   }, [preferences])
 
-  const queryClient = useQueryClient()
-
   const handleSave = async () => {
     try {
       await updatePreferences(formData)
-      queryClient.invalidateQueries({ queryKey: ['listings'] })
       toast.success('Preferences Updated', { description: 'Your filter preferences have been saved successfully.' })
       onOpenChange(false)
     } catch (error) {
@@ -226,20 +221,26 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
               <div className="space-y-6 py-4">
                 {/* Price Range */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Budget Range</h3>
-                    <span className="text-sm font-medium text-muted-foreground">
-                      ${formData.min_price.toLocaleString()} - ${formData.max_price.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="px-2 pt-2">
-                    <Slider
-                      min={0}
-                      max={500000}
-                      step={100}
-                      value={[formData.min_price, formData.max_price]}
-                      onValueChange={(values: number[]) => setFormData({ ...formData, min_price: values[0], max_price: values[1] })}
-                    />
+                  <h3 className="text-lg font-semibold">Price Range</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="min_price">Min Price ($)</Label>
+                      <Input
+                        id="min_price"
+                        type="number"
+                        value={formData.min_price}
+                        onChange={(e) => setFormData({ ...formData, min_price: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="max_price">Max Price ($)</Label>
+                      <Input
+                        id="max_price"
+                        type="number"
+                        value={formData.max_price}
+                        onChange={(e) => setFormData({ ...formData, max_price: parseInt(e.target.value) || 100000 })}
+                      />
+                    </div>
                   </div>
                 </div>
 

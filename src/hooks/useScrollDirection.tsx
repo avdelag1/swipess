@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 
 export type ScrollDirection = 'up' | 'down' | 'none';
 
@@ -45,7 +44,6 @@ export function useScrollDirection({
   showAtTop = true,
   targetSelector,
 }: UseScrollDirectionOptions = {}): UseScrollDirectionReturn {
-  const { pathname } = useLocation();
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>('none');
   const [isVisible, setIsVisible] = useState(true);
   const [scrollY, setScrollY] = useState(0);
@@ -176,11 +174,6 @@ export function useScrollDirection({
         }
       }
     }, 1000);
-
-    // RESET ON NAVIGATION: Ensure visibility resets when changing routes
-    setIsVisible(true);
-    setScrollDirection('none');
-    setIsAtTop(true);
     
     // Initialize scroll position
     const initialTarget = findScrollContainer();

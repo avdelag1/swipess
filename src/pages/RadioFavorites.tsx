@@ -54,10 +54,9 @@ export default function RadioFavoritesPage() {
           <div className="flex items-center gap-3">
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => navigate(-1)}
-              title="Go back"
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 text-white hover:bg-white/10 transition-colors"
-              aria-label="Go back"
+              onClick={() => navigate('/radio')}
+              className="w-10 h-10 rounded-full flex items-center justify-center"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
             >
               <ArrowLeft className="w-5 h-5 text-white/70" />
             </motion.button>

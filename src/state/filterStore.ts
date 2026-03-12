@@ -13,15 +13,15 @@
 
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import type {
-  QuickFilterCategory,
-  QuickFilterListingType,
-  ClientGender,
+import type { 
+  QuickFilterCategory, 
+  QuickFilterListingType, 
+  ClientGender, 
   ClientType,
   QuickFilters,
   ListingFilters
 } from '@/types/filters';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface FilterState {
   // ========== CLIENT FILTERS ==========
@@ -29,7 +29,7 @@ interface FilterState {
   activeCategory: QuickFilterCategory | null;
   categories: QuickFilterCategory[];
   listingType: QuickFilterListingType;
-
+  
   // ========== OWNER FILTERS ==========
   // Client filters for owner swipe deck
   clientGender: ClientGender;
@@ -37,58 +37,53 @@ interface FilterState {
   clientAgeRange: [number, number] | null;
   clientBudgetRange: [number, number] | null;
   clientNationalities: string[];
+  
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
   bedrooms: number[];
   bathrooms: number[];
   amenities: string[];
   propertyTypes: string[];
-
+  
   // ========== STATE FLAGS ==========
   // Version number that increments on every filter change
   // Swipe containers watch this to know when to reset their decks
   filterVersion: number;
-
+  
   // Timestamp of last filter change for cache invalidation
   lastChangedAt: number;
-
+  
   // ========== ACTIONS ==========
   // Category actions
   setActiveCategory: (category: QuickFilterCategory | null) => void;
   toggleCategory: (category: QuickFilterCategory) => void;
   setCategories: (categories: QuickFilterCategory[]) => void;
-
+  
   // Listing type actions
   setListingType: (type: QuickFilterListingType) => void;
-
+  
   // Owner filter actions
   setClientGender: (gender: ClientGender) => void;
   setClientType: (type: ClientType) => void;
   setClientAgeRange: (range: [number, number] | null) => void;
   setClientBudgetRange: (range: [number, number] | null) => void;
   setClientNationalities: (nationalities: string[]) => void;
-  hydrateOwnerPrefs: (prefs: {
-    clientGender?: ClientGender;
-    clientAgeRange?: [number, number] | null;
-    clientBudgetRange?: [number, number] | null;
-    clientNationalities?: string[];
-  }) => void;
-
+  
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
   setBathrooms: (bathrooms: number[]) => void;
   setAmenities: (amenities: string[]) => void;
   setPropertyTypes: (types: string[]) => void;
-
+  
   // Bulk update
   setFilters: (filters: Partial<QuickFilters>) => void;
-
+  
   // Reset actions
   resetClientFilters: () => void;
   resetOwnerFilters: () => void;
   resetAllFilters: () => void;
-
+  
   // Getters
   getQuickFilters: () => QuickFilters;
   getListingFilters: () => ListingFilters;
@@ -120,7 +115,7 @@ export const useFilterStore = create<FilterState>()(
     propertyTypes: [],
     filterVersion: 0,
     lastChangedAt: Date.now(),
-
+    
     // ========== CATEGORY ACTIONS ==========
     setActiveCategory: (category) => {
       logger.info('[FilterStore] setActiveCategory:', category);
@@ -132,7 +127,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     toggleCategory: (category) => {
       logger.info('[FilterStore] toggleCategory:', category);
       set((state) => {
@@ -140,7 +135,7 @@ export const useFilterStore = create<FilterState>()(
         const newCategories = isActive
           ? state.categories.filter(c => c !== category)
           : [...state.categories, category];
-
+        
         return {
           categories: newCategories,
           activeCategory: newCategories.length === 1 ? newCategories[0] : null,
@@ -149,7 +144,7 @@ export const useFilterStore = create<FilterState>()(
         };
       });
     },
-
+    
     setCategories: (categories) => {
       logger.info('[FilterStore] setCategories:', categories);
       set((state) => ({
@@ -159,7 +154,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     // ========== LISTING TYPE ACTIONS ==========
     setListingType: (type) => {
       logger.info('[FilterStore] setListingType:', type);
@@ -169,7 +164,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     // ========== OWNER FILTER ACTIONS ==========
     setClientGender: (gender) => {
       logger.info('[FilterStore] setClientGender:', gender);
@@ -179,7 +174,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setClientType: (type) => {
       logger.info('[FilterStore] setClientType:', type);
       set((state) => ({
@@ -188,6 +183,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
+    
     setClientAgeRange: (range) => {
       set((state) => ({
         clientAgeRange: range,
@@ -195,7 +191,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setClientBudgetRange: (range) => {
       set((state) => ({
         clientBudgetRange: range,
@@ -203,7 +199,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setClientNationalities: (nationalities) => {
       set((state) => ({
         clientNationalities: nationalities,
@@ -211,28 +207,16 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
-    hydrateOwnerPrefs: (prefs) => {
-      set((state) => ({
-        ...(prefs.clientGender !== undefined && { clientGender: prefs.clientGender }),
-        ...(prefs.clientAgeRange !== undefined && { clientAgeRange: prefs.clientAgeRange }),
-        ...(prefs.clientBudgetRange !== undefined && { clientBudgetRange: prefs.clientBudgetRange }),
-        ...(prefs.clientNationalities !== undefined && { clientNationalities: prefs.clientNationalities }),
-        filterVersion: state.filterVersion + 1,
-        lastChangedAt: Date.now(),
-      }));
-    },
-
+    
     // ========== ADVANCED FILTER ACTIONS ==========
     setPriceRange: (range) => {
-      logger.info('[FilterStore] setPriceRange:', range);
       set((state) => ({
         priceRange: range,
         filterVersion: state.filterVersion + 1,
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setBedrooms: (bedrooms) => {
       set((state) => ({
         bedrooms,
@@ -240,7 +224,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setBathrooms: (bathrooms) => {
       set((state) => ({
         bathrooms,
@@ -248,7 +232,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setAmenities: (amenities) => {
       set((state) => ({
         amenities,
@@ -256,7 +240,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     setPropertyTypes: (types) => {
       set((state) => ({
         propertyTypes: types,
@@ -264,7 +248,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     // ========== BULK UPDATE ==========
     setFilters: (filters) => {
       logger.info('[FilterStore] setFilters:', filters);
@@ -278,7 +262,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     // ========== RESET ACTIONS ==========
     resetClientFilters: () => {
       logger.info('[FilterStore] resetClientFilters');
@@ -295,7 +279,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     resetOwnerFilters: () => {
       logger.info('[FilterStore] resetOwnerFilters');
       set((state) => ({
@@ -311,7 +295,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     resetAllFilters: () => {
       logger.info('[FilterStore] resetAllFilters');
       set((state) => ({
@@ -329,7 +313,7 @@ export const useFilterStore = create<FilterState>()(
         lastChangedAt: Date.now(),
       }));
     },
-
+    
     // ========== GETTERS ==========
     getQuickFilters: () => {
       const state = get();
@@ -342,11 +326,11 @@ export const useFilterStore = create<FilterState>()(
         activeCategory: state.activeCategory ?? undefined,
       };
     },
-
+    
     getListingFilters: () => {
       const state = get();
       const hasServices = state.categories.includes('services');
-
+      
       return {
         category: state.activeCategory ?? undefined,
         categories: state.categories.map(mapCategoryToDb),
@@ -364,7 +348,7 @@ export const useFilterStore = create<FilterState>()(
         nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
       };
     },
-
+    
     hasActiveFilters: (role) => {
       const state = get();
       if (role === 'client') {
@@ -372,7 +356,7 @@ export const useFilterStore = create<FilterState>()(
       }
       return state.clientGender !== 'any' || state.clientType !== 'all' || state.categories.length > 0 || state.listingType !== 'both';
     },
-
+    
     getActiveFilterCount: (role) => {
       const state = get();
       if (role === 'client') {
@@ -394,15 +378,19 @@ export const useClientType = () => useFilterStore((state) => state.clientType);
 export const useFilterVersion = () => useFilterStore((state) => state.filterVersion);
 
 // Combined selectors for quick filter UI
-export const useQuickFilters = () => useFilterStore((state) => ({
+// PERF FIX: Use useShallow to prevent re-renders when values haven't changed
+import { useShallow } from 'zustand/react/shallow';
+
+export const useQuickFilters = () => useFilterStore(useShallow((state) => ({
   categories: state.categories,
   listingType: state.listingType,
   clientGender: state.clientGender,
   clientType: state.clientType,
-}));
+})));
 
 // Filter actions hook
-export const useFilterActions = () => useFilterStore((state) => ({
+// PERF FIX: Use useShallow — action references are stable but the object wrapper is new each time
+export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   setActiveCategory: state.setActiveCategory,
   toggleCategory: state.toggleCategory,
   setCategories: state.setCategories,
@@ -413,4 +401,4 @@ export const useFilterActions = () => useFilterStore((state) => ({
   resetClientFilters: state.resetClientFilters,
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,
-}));
+})));

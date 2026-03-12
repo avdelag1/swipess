@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface SwipeWithMatchOptions {
-  onMatch?: (clientProfile: Record<string, unknown>, ownerProfile: Record<string, unknown>) => void;
+  onMatch?: (clientProfile: any, ownerProfile: any) => void;
 }
 
 export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
@@ -51,7 +51,7 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         }
       }
 
-      let like: Record<string, any> | null = null;
+      let like: any;
 
       if (targetType === 'profile') {
         // Owner swiping on a client profile
@@ -378,7 +378,7 @@ async function detectAndCreateMatch({
   targetId: string;
   targetType: 'listing' | 'profile';
   userId: string;
-  onMatch?: (clientProfile: Record<string, unknown>, ownerProfile: Record<string, unknown>) => void;
+  onMatch?: (clientProfile: any, ownerProfile: any) => void;
 }) {
   let mutualLike = null;
   let matchClientId: string;

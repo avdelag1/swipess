@@ -22,7 +22,7 @@ import { MessageActivationPackages } from '@/components/MessageActivationPackage
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 // Helper to check free messaging eligibility - extracted to avoid TS deep instantiation
 async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
@@ -367,7 +367,7 @@ export function MessagingDashboard() {
             {otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
-                otherUser={{ ...otherUser, role: (otherUser.role as 'client' | 'owner') || 'client' }}
+                otherUser={{ ...otherUser, role: (otherUser.role === 'owner' ? 'owner' : 'client') as 'client' | 'owner' }}
                 listing={listing}
                 currentUserRole={userRole}
                 onBack={() => {

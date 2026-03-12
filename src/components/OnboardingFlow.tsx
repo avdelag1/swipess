@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import { SwipessLogo } from './SwipessLogo';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 const NATIONALITY_OPTIONS = [
   'United States', 'Canada', 'Mexico', 'United Kingdom', 'Germany', 'France', 'Spain', 'Italy',

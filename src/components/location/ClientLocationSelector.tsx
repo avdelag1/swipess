@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MapPin, Navigation, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface ClientLocationSelectorProps {
   latitude?: number;

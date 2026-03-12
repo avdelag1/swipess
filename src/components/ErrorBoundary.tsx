@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AppError } from './AppError';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface Props {
   children: ReactNode;

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface ProfileView {
   id: string;
@@ -16,13 +16,13 @@ export function useRecordProfileView() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      profileId,
-      viewType,
-      action
-    }: {
-      profileId: string;
-      viewType: 'profile' | 'listing';
+    mutationFn: async ({ 
+      profileId, 
+      viewType, 
+      action 
+    }: { 
+      profileId: string; 
+      viewType: 'profile' | 'listing'; 
       action: 'like' | 'pass' | 'view';
     }) => {
       const { data: user } = await supabase.auth.getUser();
@@ -70,7 +70,7 @@ export function usePermanentlyExcludedProfiles(viewType: 'profile' | 'listing' =
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
         .eq('action', 'pass')
-        .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string; created_at: string }[] | null; error: Error | null };
+        .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string; created_at: string }[] | null; error: any };
 
       if (error) {
         logger.error('Error fetching permanently excluded profiles:', error);
@@ -138,7 +138,7 @@ export function useTemporarilyExcludedProfiles(viewType: 'profile' | 'listing' =
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
         .eq('action', 'like')
-        .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string }[] | null; error: Error | null };
+        .gte('created_at', oneDayAgo) as { data: { viewed_profile_id: string }[] | null; error: any };
 
       if (error) {
         logger.error('Error fetching temporarily excluded profiles:', error);
@@ -155,7 +155,7 @@ export function useTemporarilyExcludedProfiles(viewType: 'profile' | 'listing' =
 export function useExcludedProfiles(viewType: 'profile' | 'listing' = 'profile') {
   const { data: permanent = [] } = usePermanentlyExcludedProfiles(viewType);
   const { data: temporary = [] } = useTemporarilyExcludedProfiles(viewType);
-
+  
   return {
     data: [...permanent, ...temporary],
     isLoading: false,
@@ -176,7 +176,7 @@ export function useUserSwipePatterns(viewType: 'profile' | 'listing' = 'profile'
         .select('viewed_profile_id, action')
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
-        .in('action', ['like', 'pass']) as { data: { viewed_profile_id: string; action: string }[] | null; error: Error | null };
+        .in('action', ['like', 'pass']) as { data: { viewed_profile_id: string; action: string }[] | null; error: any };
 
       if (error) {
         logger.error('Error fetching swipe patterns:', error);
@@ -208,7 +208,7 @@ export function useRecycledProfiles(viewType: 'profile' | 'listing' = 'profile')
         .select('viewed_profile_id, action, created_at')
         .eq('user_id', user.user.id)
         .eq('view_type', viewType)
-        .lt('created_at', oneDayAgo) as { data: { viewed_profile_id: string; action: string; created_at: string }[] | null; error: Error | null };
+        .lt('created_at', oneDayAgo) as { data: { viewed_profile_id: string; action: string; created_at: string }[] | null; error: any };
 
       if (error) {
         logger.error('Error fetching recycled profiles:', error);

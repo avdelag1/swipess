@@ -3,13 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
-import { useMessagingQuota } from "@/hooks/useMessagingQuota";
-import { logger } from "@/utils/logger";
-import { PageHeader } from "@/components/PageHeader";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { cn } from "@/lib/utils";
 import {
@@ -181,8 +178,8 @@ const ClientWhoLikedYou = () => {
                 selectedCategory === id
                   ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
                   : isLight
-                    ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
-                    : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
+                  ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                  : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
               )}
             >
               <Icon className="w-4 h-4" />
@@ -234,7 +231,6 @@ const ClientWhoLikedYou = () => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence mode="popLayout">
               {filteredOwners.map((owner) => (
                 <Reorder.Item
                   key={owner.id}
@@ -249,7 +245,6 @@ const ClientWhoLikedYou = () => {
                   />
                 </Reorder.Item>
               ))}
-            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">

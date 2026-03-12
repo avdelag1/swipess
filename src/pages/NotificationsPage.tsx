@@ -18,7 +18,7 @@ import { useLikedProperties } from '@/hooks/useLikedProperties';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -184,9 +184,10 @@ export default function NotificationsPage() {
   const removeLike = async (listingId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     haptics.tap();
+    if (!user?.id) return;
     setRemovingLikeId(listingId);
     try {
-      await supabase.from('likes').delete().eq('user_id', user?.id || '').eq('target_id', listingId).eq('target_type', 'listing');
+      await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', listingId).eq('target_type', 'listing');
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
       toast.success('Removed');
     } catch (e) { toast.error('Failed'); }

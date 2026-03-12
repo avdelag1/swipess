@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { MatchedClientProfile, ClientFilters } from './types';
 import { calculateClientMatch } from './matchCalculators';
 

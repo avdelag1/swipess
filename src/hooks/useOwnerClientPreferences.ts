@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * Interface aligned with actual DB columns in owner_client_preferences table.
@@ -37,7 +37,6 @@ export function useOwnerClientPreferences() {
 
   const { data: preferences, isLoading, error } = useQuery({
     queryKey: ['owner-client-preferences'],
-    retry: false,
     queryFn: async () => {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError) {
@@ -53,9 +52,7 @@ export function useOwnerClientPreferences() {
         .maybeSingle();
 
       if (error) {
-        // Suppress 404 (table not provisioned) — expected before migration runs
-        const isTableMissing = (error as any).status === 404 || error.code === 'PGRST116';
-        if (import.meta.env.DEV && !isTableMissing) {
+        if (import.meta.env.DEV) {
           logger.error('Error fetching owner client preferences:', error);
         }
         return null;

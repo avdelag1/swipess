@@ -15,7 +15,7 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 export interface QueuedSwipe {
   id: string;

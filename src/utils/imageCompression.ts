@@ -5,7 +5,7 @@
  */
 
 import imageCompression from 'browser-image-compression';
-import { logger } from './logger';
+import { logger } from './prodLogger';
 
 interface CompressionOptions {
   maxSizeMB?: number;
@@ -34,7 +34,7 @@ export async function compressImage(
   options: CompressionOptions = {}
 ): Promise<File> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
-
+  
   // Skip compression for already small files (< 200KB)
   if (file.size < 200 * 1024) {
     return file;

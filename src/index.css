@@ -2377,11 +2377,3 @@ html[data-navigation-direction="back"] {
 /*  FILTER-BASED LIGHT THEME -> REPLACED WITH NATIVE VARIABLES      */
 /*  (Removed global invert in favor of native light mode variables)    */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-
-/* ── Preserve border-radius on browser autofill (pill inputs) ────── */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  border-radius: inherit !important;
-}

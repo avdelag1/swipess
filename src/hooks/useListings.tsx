@@ -2,7 +2,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 export interface Listing {
   id: string;
@@ -48,7 +48,7 @@ export interface Listing {
   engines?: string;
   fuel_type?: string;
   equipment?: string[];
-  rental_rates?: Record<string, unknown>;
+  rental_rates?: any;
 
   // Motorcycle fields
   mileage?: number;
@@ -111,19 +111,10 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
         const { data: user } = await supabase.auth.getUser();
         let preferredListingTypes = ['rent']; // Default to rent
 
-        let query = supabase
-          .from('listings')
-          .select('*')
-          .eq('status', 'active')
-          .order('created_at', { ascending: false });
-
         if (user.user) {
-          // CRITICAL: Exclude own listings
-          query = query.neq('owner_id', user.user.id);
-
-          const { data: preferences, error: prefError } = await (supabase as any)
+          const { data: preferences, error: prefError } = await supabase
             .from('client_filter_preferences')
-            .select('preferred_listing_types, min_price, max_price')
+            .select('preferred_listing_types')
             .eq('user_id', user.user.id)
             .maybeSingle();
 
@@ -131,19 +122,20 @@ export function useListings(excludeSwipedIds: string[] = [], options: { enabled?
             if (import.meta.env.DEV) logger.error('Error fetching filter preferences:', prefError);
           }
 
-          if (preferences) {
-            if (Array.isArray(preferences.preferred_listing_types) && preferences.preferred_listing_types.length > 0) {
-              preferredListingTypes = preferences.preferred_listing_types as string[];
-            }
-
-            // Apply budget filtering if set
-            if (preferences.min_price !== null && preferences.min_price !== undefined) {
-              query = query.gte('price', preferences.min_price);
-            }
-            if (preferences.max_price !== null && preferences.max_price !== undefined) {
-              query = query.lte('price', preferences.max_price);
-            }
+          if ((preferences?.preferred_listing_types as any)?.length) {
+            preferredListingTypes = (preferences as any).preferred_listing_types;
           }
+        }
+
+        let query = supabase
+          .from('listings')
+          .select('*')
+          .eq('status', 'active')
+          .order('created_at', { ascending: false }); // Newest first
+
+        // CRITICAL: Exclude own listings - user shouldn't see their own listings when browsing
+        if (user.user) {
+          query = query.neq('owner_id', user.user.id);
         }
 
         // Filter by listing types (rent/buy) based on user preferences

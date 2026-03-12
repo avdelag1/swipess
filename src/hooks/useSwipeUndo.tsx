@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
 
 export interface LastSwipe {
@@ -31,7 +31,7 @@ export function useSwipeUndo() {
 
   // Track if the undo was successful for components to react
   const [undoSuccess, setUndoSuccess] = useState(false);
-
+  
   const queryClient = useQueryClient();
   const undoClientSwipe = useSwipeDeckStore((state) => state.undoClientSwipe);
   const undoOwnerSwipe = useSwipeDeckStore((state) => state.undoOwnerSwipe);
@@ -110,9 +110,9 @@ export function useSwipeUndo() {
       saveLastSwipe(null);
 
       // Refresh queries
-      queryClient.invalidateQueries({ queryKey: ['swipe-dismissals'] }).catch(err => logger.error('[useSwipeUndo] Invalidation error:', err));
-      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => logger.error('[useSwipeUndo] Invalidation error:', err));
-      queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(err => logger.error('[useSwipeUndo] Invalidation error:', err));
+      queryClient.invalidateQueries({ queryKey: ['swipe-dismissals'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['liked-properties'] }).catch(() => {});
 
       toast({
         title: '↩️ Card Returned',

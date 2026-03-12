@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Home, Flame, Loader2 } from 'lucide-react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface LikeNotificationPreviewProps {
   likerId: string;

@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 export type UserRole = 'client' | 'owner' | 'admin';
 

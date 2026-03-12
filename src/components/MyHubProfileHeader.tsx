@@ -31,13 +31,13 @@ export function MyHubProfileHeader() {
         name: clientProfile?.name || ownerProfile?.business_name || user?.email?.split('@')[0] || 'Explorer',
         avatar: clientProfile?.profile_images?.[0] || ownerProfile?.profile_images?.[0],
         bio: clientProfile?.bio || ownerProfile?.business_description || 'No bio set',
-        location: clientProfile?.city || ownerProfile?.business_location || 'Everywhere',
+        location: clientProfile?.city || clientProfile?.country || ownerProfile?.business_location || 'Everywhere',
         completion: calculateCompletion(clientProfile, ownerProfile),
     };
 
     function calculateCompletion(c: any, o: any) {
         let score = 0;
-        if (c?.name || o?.full_name) score += 20;
+        if (c?.name || o?.business_name) score += 20;
         if (c?.bio || o?.bio) score += 20;
         if (c?.profile_images?.length || o?.profile_images?.length) score += 40;
         if (c?.interests?.length || o?.contact_info) score += 20;

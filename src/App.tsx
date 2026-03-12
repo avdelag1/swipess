@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -32,6 +32,7 @@ import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayou
 
 
 // Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
+import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -126,6 +127,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
 const queryClient = new QueryClient({
@@ -207,12 +209,18 @@ const App = () => {
                           <ProfileSyncWrapper>
                             <NotificationWrapper>
                               <PushNotificationWrapper>
+                                {/* Guided tour for first-time users */}
+                                <Suspense fallback={null}>
+                                  <GuidedTourLazy />
+                                </Suspense>
+
                                 {/* Update notification banner */}
                                 <UpdateNotification />
 
                                 <AppLayout>
                                   <TooltipProvider>
                                     <Sonner />
+                                    <Toaster />
                                   </TooltipProvider>
                                   <Suspense fallback={<SuspenseFallback />}>
                                     <Routes>
@@ -235,7 +243,7 @@ const App = () => {
                                         </ProtectedRoute>
                                       }>
                                         {/* Client routes */}
-                                        <Route path="/client/dashboard" element={<MyHub />} />
+                                        <Route path="/client/dashboard" element={<ClientDashboard />} />
                                         <Route path="/client/profile" element={<ClientProfile />} />
                                         <Route path="/client/settings" element={<ClientSettings />} />
                                         <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
@@ -250,7 +258,7 @@ const App = () => {
                                         <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
                                         {/* Owner routes */}
-                                        <Route path="/owner/dashboard" element={<MyHub />} />
+                                        <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
                                         <Route path="/owner/profile" element={<OwnerProfile />} />
                                         <Route path="/owner/settings" element={<OwnerSettings />} />
                                         <Route path="/owner/properties" element={<OwnerProperties />} />
@@ -272,7 +280,7 @@ const App = () => {
                                         <Route path="/owner/filters" element={<OwnerFilters />} />
 
                                         {/* Shared routes (both roles) */}
-                                        <Route path="/dashboard" element={<MyHub />} />
+                                        {/* /dashboard removed — redirect handled below */}
                                         <Route path="/messages" element={<MessagingDashboard />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
@@ -302,6 +310,9 @@ const App = () => {
 
                                       {/* AI Test — public, no login required */}
                                       <Route path="/ai-test" element={<AITestPage />} />
+
+                                      {/* Legacy /dashboard redirect — always go to client dashboard */}
+                                      <Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />
 
                                       {/* Info Pages - Public Access */}
                                       <Route path="/about" element={<AboutPage />} />

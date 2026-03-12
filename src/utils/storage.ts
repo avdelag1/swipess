@@ -2,7 +2,7 @@
  * Centralized localStorage utility with error handling
  * Prevents silent failures and quota exceeded errors
  */
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * Safely get item from localStorage

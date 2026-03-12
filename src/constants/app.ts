@@ -65,16 +65,15 @@ export const FEATURES = {
 
 // API and Storage configuration
 export const STORAGE = {
-  // localStorage keys (persist across sessions)
+  // localStorage keys
   WEB_VITALS_KEY: 'webVitals',
   USER_PREFERENCES_KEY: 'userPreferences',
   SEARCH_HISTORY_KEY: 'searchHistory',
-  // Referral system
-  REFERRAL_CODE_KEY: 'referral_code',
-
-  // sessionStorage keys (sensitive data, cleared on tab close)
   SELECTED_PLAN_KEY: 'swipes_selected_plan',
   PENDING_ACTIVATION_KEY: 'pendingActivationPurchase',
+  // Referral system
+  REFERRAL_CODE_KEY: 'referral_code',
+  // Payment return location
   PAYMENT_RETURN_PATH_KEY: 'payment_return_path',
 
   // localStorage limits

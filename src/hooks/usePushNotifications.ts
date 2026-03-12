@@ -18,7 +18,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 // VAPID public key from environment variables
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
@@ -26,7 +26,7 @@ const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undef
 // Detect Capacitor native platform (iOS/Android) — Web Push doesn't work there
 function isNativePlatform(): boolean {
   try {
-     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { Capacitor } = (window as any);
     return Capacitor?.isNativePlatform?.() === true;
   } catch {
@@ -53,7 +53,7 @@ function isPushSupported(): boolean {
 
 // Typed accessor for pushManager to avoid DOM lib gaps
 function getPushManager(registration: ServiceWorkerRegistration): PushManager | null {
-   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (registration as any).pushManager ?? null;
 }
 
@@ -160,7 +160,7 @@ export function usePushNotifications() {
       const auth = (subJSON.keys as { p256dh: string; auth: string }).auth;
 
       // 5. Save to database (upsert so re-subscribing updates the record)
-       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await (supabase as any)
         .from('push_subscriptions')
         .upsert(
@@ -207,7 +207,7 @@ export function usePushNotifications() {
           await subscription.unsubscribe();
 
           // Remove from DB
-           
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (supabase as any)
             .from('push_subscriptions')
             .delete()

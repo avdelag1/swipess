@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { useSwipeDeckStore } from '@/state/swipeDeckStore';
 
@@ -239,7 +239,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       logger.error('[ActiveMode] Navigation failed:', navError);
       // Fallback navigation
       try {
-        navigate('/dashboard', { replace: true });
+        navigate('/client/dashboard', { replace: true });
       } catch (fallbackError) {
         logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
       }

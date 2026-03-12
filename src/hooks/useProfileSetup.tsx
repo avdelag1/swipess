@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { STORAGE, REFERRAL } from '@/constants/app';
 
 interface CreateProfileData {
@@ -404,7 +404,7 @@ export function useProfileSetup() {
       const grantWelcomeActivation = async (userId: string) => {
         try {
           // Check if welcome activation already granted - escape deep type inference
-           
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const welcomeResult = await (supabase as any)
             .from('tokens')
             .select('id')
