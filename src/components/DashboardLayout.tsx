@@ -539,20 +539,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
     (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
-  // FIX: Memoize cloned children to prevent infinite re-renders
-  const enhancedChildren = useMemo(() => {
-    return React.Children.map(children, (child) => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child as React.ReactElement, {
-          onPropertyInsights: handlePropertyInsights,
-          onClientInsights: handleClientInsights,
-          onMessageClick: handleMessageClick,
-          filters: combinedFilters,
-        } as any);
-      }
-      return child;
-    });
-  }, [children, handlePropertyInsights, handleClientInsights, handleMessageClick, combinedFilters]);
+  // PERF FIX: Do NOT clone children with props — route elements (MyHub, ClientProfile, etc.)
+  // get their data from hooks/stores directly, not from cloneElement props.
+  // The old cloneElement pattern caused cascading re-renders (React #185) because
+  // combinedFilters changed identity on every filter store update, triggering
+  // AnimatedOutlet to re-clone the outlet element with new props on every render.
+  const enhancedChildren = children;
 
   // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
   // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back

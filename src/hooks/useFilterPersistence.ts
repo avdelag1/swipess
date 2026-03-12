@@ -21,17 +21,13 @@ export function useFilterPersistence() {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRestoringRef = useRef(false);
   
-  const {
-    categories,
-    listingType,
-    clientGender,
-    clientType,
-    setCategories,
-    setListingType,
-    setClientGender,
-    setClientType,
-    filterVersion,
-  } = useFilterStore();
+  // PERF FIX: Use getState() for reads inside callbacks to avoid subscribing
+  // this hook to every filter store change. Only subscribe to what we need for effects.
+  const setCategories = useFilterStore((s) => s.setCategories);
+  const setListingType = useFilterStore((s) => s.setListingType);
+  const setClientGender = useFilterStore((s) => s.setClientGender);
+  const setClientType = useFilterStore((s) => s.setClientType);
+  const filterVersion = useFilterStore((s) => s.filterVersion);
 
   // Restore active filter from database on mount
   useEffect(() => {

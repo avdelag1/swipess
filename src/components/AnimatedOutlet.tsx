@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
  * NO blur, NO rotateY, NO 3D transforms — these cause massive frame drops
  * on mobile/PWA during every single navigation.
  */
-export function AnimatedOutlet(props: any) {
+export function AnimatedOutlet() {
     const location = useLocation();
     const element = useOutlet();
 
@@ -45,7 +45,7 @@ export function AnimatedOutlet(props: any) {
                         transform: 'translateZ(0)',
                     }}
                 >
-                    {React.cloneElement(element, { ...props, key: location.key })}
+                    {element}
                 </motion.div>
             ) : null}
         </AnimatePresence>
