@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, createContext, useContext, ReactNode, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, createContext, useContext, ReactNode, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -130,6 +130,12 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     refetchOnMount: false,
   });
 
+  // Sync refs with state to maintain stable callbacks
+  const localModeRef = useRef<ActiveMode>(localMode);
+  useEffect(() => {
+    localModeRef.current = localMode;
+  }, [localMode]);
+
   // Save mode to database in background (fire and forget)
   const saveModeToDatabase = useCallback(async (newMode: ActiveMode) => {
     if (!user?.id) return;
@@ -154,7 +160,6 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   // Get target path for navigation
   const getTargetPath = useCallback((newMode: ActiveMode): string => {
     const currentPath = location.pathname;
-    if (import.meta.env.DEV) console.log(`[getTargetPath] newMode: ${newMode}, currentPath: ${currentPath}`);
 
     // Default paths
     const defaultPaths = {
@@ -177,26 +182,25 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
 
       // Look up where this page maps to in the OTHER mode
       const mappedPath = PAGE_MAPPING[fromMode]?.[currentPageType];
-      if (import.meta.env.DEV) console.log(`[getTargetPath] fromMode: ${fromMode}, currentPageType: ${currentPageType}, mappedPath: ${mappedPath}`);
       if (mappedPath) {
         return mappedPath;
       }
     }
 
     // Default fallback
-    return newMode === 'client' ? defaultPaths.client : defaultPaths.owner;
+    return defaultPaths[newMode];
   }, [location.pathname]);
 
   // FAST mode switch - everything happens synchronously
   const switchMode = useCallback((newMode: ActiveMode) => {
-    // CRITICAL: Prevent mode switch if already switching or if mode is the same
+    // CRITICAL: Use ref for comparison to prevent dependency on localMode
     // This prevents accidental rapid clicks or event bubbling from causing unwanted switches
-    if (!user?.id || isSwitching || newMode === localMode) {
+    if (!user?.id || isSwitching || newMode === localModeRef.current) {
       logger.info('[ActiveMode] switchMode blocked:', {
         hasUser: !!user?.id,
         isSwitching,
         newMode,
-        currentMode: localMode
+        currentMode: localModeRef.current
       });
       return;
     }
@@ -230,19 +234,14 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     // 7. Navigate with error handling
     try {
       const targetPath = getTargetPath(newMode);
-      if (import.meta.env.DEV) console.log(`[switchMode] Navigating to targetPath: ${targetPath}`);
       navigate(targetPath, { replace: true });
     } catch (navError) {
       logger.error('[ActiveMode] Navigation failed:', navError);
-      console.error('[switchMode] Navigation failed:', navError);
       // Fallback navigation
       try {
-        const fallbackPath = newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
-        if (import.meta.env.DEV) console.log(`[switchMode] Fallback navigating to: ${fallbackPath}`);
-        navigate(fallbackPath, { replace: true });
+        navigate('/dashboard', { replace: true });
       } catch (fallbackError) {
         logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
-        console.error('[switchMode] Fallback navigation also failed:', fallbackError);
       }
     }
 
@@ -263,17 +262,18 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     // 10. Save to database in background (fire and forget)
     saveModeToDatabase(newMode);
 
-  }, [user?.id, isSwitching, localMode, queryClient, getTargetPath, navigate, saveModeToDatabase, resetClientDeck, resetOwnerDeck]);
+  }, [user?.id, isSwitching, queryClient, getTargetPath, navigate, saveModeToDatabase, resetClientDeck, resetOwnerDeck]);
 
   // Toggle between modes
   const toggleMode = useCallback(() => {
-    const newMode = localMode === 'client' ? 'owner' : 'client';
+    const newMode = localModeRef.current === 'client' ? 'owner' : 'client';
     switchMode(newMode);
-  }, [localMode, switchMode]);
+  }, [switchMode]);
 
   // Sync mode without navigation (used for route-based sync)
   const syncMode = useCallback((newMode: ActiveMode) => {
-    if (!user?.id || newMode === localMode) {
+    // CRITICAL: Use ref for comparison to keep callback stable
+    if (!user?.id || newMode === localModeRef.current) {
       return;
     }
 
@@ -288,7 +288,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
 
     // Save to database in background (fire and forget)
     saveModeToDatabase(newMode);
-  }, [user?.id, localMode, queryClient, saveModeToDatabase]);
+  }, [user?.id, queryClient, saveModeToDatabase]);
 
   // Allow all authenticated users to switch
   const canSwitchMode = !!user?.id;

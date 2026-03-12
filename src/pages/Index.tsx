@@ -148,7 +148,8 @@ const Index = () => {
       if (metadataRole) {
         hasNavigated.current = true;
         logger.log("[Index] New user - navigating to unified hub");
-        navigate("/dashboard", { replace: true });
+        const target = metadataRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
+        navigate(target, { replace: true });
         return;
       }
     }
@@ -202,7 +203,8 @@ const Index = () => {
       if (activeMode) {
         hasNavigated.current = true;
         logger.log("[Index] Navigating to unified hub with sticky mode:", activeMode);
-        navigate("/dashboard", { replace: true });
+        const target = activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard";
+        navigate(target, { replace: true });
         return;
       }
 
@@ -210,7 +212,7 @@ const Index = () => {
       if (userRole === 'admin') {
         hasNavigated.current = true;
         logger.log("[Index] Admin detected, navigating to unified hub");
-        navigate('/dashboard', { replace: true });
+        navigate('/client/dashboard', { replace: true }); // Admin defaults to client
         return;
       }
 
@@ -218,7 +220,8 @@ const Index = () => {
       if (userRole) {
         hasNavigated.current = true;
         logger.log("[Index] Navigating to unified hub with role:", userRole);
-        navigate("/dashboard", { replace: true });
+        const target = userRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
+        navigate(target, { replace: true });
         return;
       }
 
@@ -226,7 +229,7 @@ const Index = () => {
       if (!isNewUser && !isLoadingRole) {
         hasNavigated.current = true;
         logger.log("[Index] Last resort navigation to unified hub");
-        navigate("/dashboard", { replace: true });
+        navigate("/client/dashboard", { replace: true });
         return;
       }
 
@@ -234,10 +237,8 @@ const Index = () => {
       // Fires when role query is in-flight AND user is new with no metadata role
       if (!hasNavigated.current) {
         hasNavigated.current = true;
-        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.warn("[Index] Unconditional fallback navigation to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.warn("[Index] Unconditional fallback navigation to unified hub");
+        navigate("/client/dashboard", { replace: true });
       }
     };
 
@@ -246,10 +247,8 @@ const Index = () => {
     const safetyTimeout = setTimeout(() => {
       if (!hasNavigated.current && user) {
         hasNavigated.current = true;
-        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.warn("[Index] Safety timeout triggered — forcing navigation to unified hub");
+        navigate("/client/dashboard", { replace: true });
       }
     }, 2000);
 
