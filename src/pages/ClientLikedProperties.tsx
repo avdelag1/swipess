@@ -1,5 +1,4 @@
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
-import { PropertyImageGallery } from "@/components/PropertyImageGallery";
 
 import { useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
@@ -35,25 +34,20 @@ const categories = [
 ];
 
 interface ClientLikedPropertiesProps {
-  onPropertyInsights?: (listingId: string) => void;
   onClientInsights?: (clientId: string) => void;
   onMessageClick?: () => void;
 }
 
-const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProps) => {
+const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const { theme } = useTheme();
   const isLight = theme === "white-matte";
-  const [galleryState, setGalleryState] = useState<{
-    isOpen: boolean;
-    images: string[];
-    alt: string;
-    initialIndex: number;
-  }>({ isOpen: false, images: [], alt: "", initialIndex: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
   const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showInsightsModal, setShowInsightsModal] = useState(false);
+  const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<any>(null);
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -110,7 +104,8 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
       return;
     }
     if (action === "view") {
-      onPropertyInsights?.(property.id);
+      setSelectedPropertyForModal(property);
+      setShowInsightsModal(true);
       return;
     }
     if (action === "message") {
@@ -236,12 +231,10 @@ const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProp
         )}
       </div>
 
-      <PropertyImageGallery
-        images={galleryState.images}
-        alt={galleryState.alt}
-        isOpen={galleryState.isOpen}
-        onClose={() => setGalleryState((prev) => ({ ...prev, isOpen: false }))}
-        initialIndex={galleryState.initialIndex}
+      <LikedListingInsightsModal
+        open={showInsightsModal}
+        onOpenChange={setShowInsightsModal}
+        listing={selectedPropertyForModal}
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
