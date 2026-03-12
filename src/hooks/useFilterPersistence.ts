@@ -84,17 +84,17 @@ export function useFilterPersistence() {
   const saveFiltersToDb = useCallback(async () => {
     if (!user?.id || isRestoringRef.current) return;
 
-    // Pack everything into filter_data JSONB
+    // Read current values from store at call time (not via subscription)
+    const state = useFilterStore.getState();
     const filterData = {
-      categories,
-      listingType,
-      clientGender,
-      clientType,
+      categories: state.categories,
+      listingType: state.listingType,
+      clientGender: state.clientGender,
+      clientType: state.clientType,
       savedAt: new Date().toISOString(),
     };
 
     try {
-      // Check if user has an active filter preset
       const { data: existingActive } = await supabase
         .from('saved_filters')
         .select('id')
@@ -103,7 +103,6 @@ export function useFilterPersistence() {
         .maybeSingle();
 
       if (existingActive) {
-        // Update existing active filter — use filter_data column
         await supabase
           .from('saved_filters')
           .update({
@@ -114,14 +113,12 @@ export function useFilterPersistence() {
         
         logger.info('[FilterPersistence] Updated active filter');
       } else {
-        // Create a new "Current Session" filter if none exists
-        const hasFilters = categories.length > 0 || 
-                          listingType !== 'both' || 
-                          clientGender !== 'any' || 
-                          clientType !== 'all';
+        const hasFilters = state.categories.length > 0 || 
+                          state.listingType !== 'both' || 
+                          state.clientGender !== 'any' || 
+                          state.clientType !== 'all';
         
         if (hasFilters) {
-          // Only use columns that exist: user_id, name, filter_data, is_active, user_role
           await supabase
             .from('saved_filters')
             .insert({
@@ -138,7 +135,7 @@ export function useFilterPersistence() {
     } catch (error) {
       logger.error('[FilterPersistence] Error saving filters:', error);
     }
-  }, [user?.id, categories, listingType, clientGender, clientType]);
+  }, [user?.id]);
 
   // Watch for filter changes and save with debounce
   useEffect(() => {
