@@ -1,46 +1,66 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# UI/UX Premium Refinement + Critical Navigation Fix
 
-### 1. Replace App Icon with Fire S Logo
+## Issues Identified
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+### 1. Navigation Stuck Bug (CRITICAL)
+`AnimatedOutlet` uses `useOutlet()` which captures the outlet element at render time. Combined with `AnimatePresence mode="wait"`, the exit animation must fully complete before the new route renders. If the exit animation stalls or the outlet reference gets stale, navigation appears frozen — the bottom nav highlights the new tab but the page content doesn't change.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**Fix**: Replace `useOutlet()` with `<Outlet />` inside the motion wrapper keyed by `location.pathname`. This ensures React Router always renders the correct route element immediately on location change.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### 2. Status Bar Color (Pink on Load)
+`index.html` line 103 has `<meta name="theme-color" content="#ff69b4">` (pink). The `useTheme` hook updates this dynamically, but on app launch the pink flashes before React hydrates.
 
-### 2. Profile Photo Already Shows in Top-Left
+**Fix**: Change `index.html` theme-color to `#000000` (matches default dark theme). Also change `apple-mobile-web-app-status-bar-style` from `black-translucent` to `default` for dark mode, and ensure the splash screen background matches.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### 3. "Alerts" Text in Header
+`TopBar.tsx` lines 452-455: When notification count is 0, it shows the word "Alerts" next to the bell icon on `sm+` screens.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Fix**: Remove the "Alerts" text span entirely. The bell icon alone is sufficient.
 
-### 3. Fix Header Too Close to Top Edge
+### 4. Header Button Size Inconsistency
+The token button uses `h-7 sm:h-8` with variable padding, while the notification button uses `h-7 w-7 sm:h-8 sm:w-8`. The avatar is `h-8 w-8 sm:h-10 sm:w-10` (larger).
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**Fix**: Standardize all header action buttons to `h-9 w-9` (36px). Avatar stays at `h-8 w-8` (slightly smaller is fine for circular elements). Uniform `rounded-xl` on all.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### 5. Profile Page: Remove MyHub Sections
+The MyHub components (`MyHubProfileHeader`, `MyHubQuickFilters`, `MyHubActivityFeed`) were added to both profile pages but create clutter and redundancy. The profile page should be clean: avatar, name, edit button, action grid, settings, sign out.
 
-### 4. Fix MarketingSlide Build Error
+**Fix**: Remove all three MyHub component blocks from `ClientProfileNew.tsx` and `OwnerProfileNew.tsx`. Also remove the "Marketplace Feed" header/live-updates badge.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### 6. Global Button Consistency
+Most buttons use the shared `<Button>` component which is already standardized. The profile pages have raw `<button>` and `<motion.button>` elements with varying heights (`h-14`, `h-16`). 
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**Fix**: Standardize all full-width action buttons on profile pages to `h-14` with consistent `rounded-2xl`, `font-bold text-sm`, and uniform icon size `w-5 h-5`.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+## Files to Modify
+
+### `src/components/AnimatedOutlet.tsx`
+- Replace `useOutlet()` with `<Outlet />` inside the keyed motion div
+- Key by `location.pathname` instead of `location.key` to prevent duplicate animations on same-route navigations
+
+### `index.html`
+- Change `<meta name="theme-color" content="#ff69b4">` → `content="#000000"`
+- Change splash `.initial-loader` background to match both themes (stays `#050505`, already correct)
+
+### `src/components/TopBar.tsx`
+- Remove "Alerts" text (lines 452-455)
+- Standardize token button and notification button to same dimensions (`h-9 w-9`)
+
+### `src/pages/ClientProfileNew.tsx`
+- Remove `MyHubProfileHeader`, `MyHubQuickFilters`, `MyHubActivityFeed` imports and JSX blocks
+- Standardize all action button heights to `h-14`
+
+### `src/pages/OwnerProfileNew.tsx`
+- Same cleanup: remove MyHub sections
+- Standardize button heights to `h-14`
+
+## Expected Outcome
+- Navigation between all tabs works instantly — no more frozen/stuck screens
+- Status bar shows pure black on launch (matches dark theme default)
+- Clean bell-icon-only notification button in header
+- Uniform header button sizing
+- Clean, structured profile pages without redundant hub sections
+- Consistent button sizes throughout
 
