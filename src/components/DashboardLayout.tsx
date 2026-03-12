@@ -320,7 +320,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/client/filters',
   ];
   const ownerSwipePaths = [
-    '/dashboard',
+    '/owner/dashboard',
     '/owner/profile',
     '/owner/liked-clients',
     '/owner/properties',
