@@ -94,6 +94,29 @@ const OwnerProfileNew = () => {
           </div>
         </motion.div>
 
+        {/* Quick Stats Grid */}
+        <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#E4007C]' },
+            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: Heart, color: 'text-amber-400' },
+            { label: 'Listings', value: stats?.activeListingsCount ?? 0, icon: Building2, color: 'text-blue-400' },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className={cn(
+                "rounded-2xl p-4 text-center border",
+                isLight
+                  ? "bg-card border-border/40 shadow-sm"
+                  : "bg-white/[0.04] border-white/[0.06]"
+              )}
+            >
+              <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
+              <div className="text-lg font-black text-foreground leading-none mb-1">{stat.value}</div>
+              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
+
         {/* Edit Profile Button */}
         <motion.div variants={childVariant}>
           <motion.button
