@@ -378,14 +378,18 @@ export const useClientType = () => useFilterStore((state) => state.clientType);
 export const useFilterVersion = () => useFilterStore((state) => state.filterVersion);
 
 // Combined selectors for quick filter UI
+// PERF FIX: Use shallow comparison to prevent re-renders when values haven't changed
+import { shallow } from 'zustand/shallow';
+
 export const useQuickFilters = () => useFilterStore((state) => ({
   categories: state.categories,
   listingType: state.listingType,
   clientGender: state.clientGender,
   clientType: state.clientType,
-}));
+}), shallow);
 
 // Filter actions hook
+// PERF FIX: Use shallow comparison — action references are stable but the object wrapper is new each time
 export const useFilterActions = () => useFilterStore((state) => ({
   setActiveCategory: state.setActiveCategory,
   toggleCategory: state.toggleCategory,
@@ -397,4 +401,4 @@ export const useFilterActions = () => useFilterStore((state) => ({
   resetClientFilters: state.resetClientFilters,
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,
-}));
+}), shallow);
