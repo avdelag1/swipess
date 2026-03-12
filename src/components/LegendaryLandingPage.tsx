@@ -22,7 +22,7 @@ const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs';
+type EffectMode = 'cheetah' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -537,17 +537,17 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: stars → orbs → off → stars
+  // Cycle: stars → orbs → cheetah → stars
   const cycleEffect = () => setEffectMode((p) => {
     if (p === 'stars') return 'orbs';
-    if (p === 'orbs') return 'off';
+    if (p === 'orbs') return 'cheetah';
     return 'stars';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '🐆';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
+      <LandingBackgroundEffects mode={view === 'auth' ? 'cheetah' : effectMode} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
