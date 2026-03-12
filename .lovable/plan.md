@@ -1,33 +1,60 @@
 
+I found two concrete issues that explain why access keeps breaking:
 
-# Diagnosis: Two Critical Issues Blocking the App
+1) Build is currently blocked by a TypeScript error:
+- `src/components/swipe/SwipeStates.tsx` imports `CategoryInfo` from `SwipeUtils`, but `SwipeUtils` does not export it.
 
-## Root Cause 1: Wrong Backend Connection
+2) The app is still wired to an old backend fallback in code:
+- `src/integrations/supabase/client.ts` fallback URL/key still point to the old project.
+- `index.html` preconnect hints also point to the old project.
+This matches your 404 logs and can trigger the React #185 crash loop after sign-in.
 
-The `src/integrations/supabase/client.ts` file (auto-generated) has hardcoded fallback values pointing to an **old** project (`vplgtcguxujxwrgguxqq`). The current Lovable Cloud project is `qegyisokrxdsszzswsqk`. The 404 error on `owner_client_preferences` confirms the app is talking to the wrong backend — the table exists in Lovable Cloud but not in the old project.
+Implementation plan (single recovery pass):
 
-The env vars (`VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`) should override the fallbacks, but they are not being picked up — likely because the file was previously hand-modified (it has a custom `prodLogger` import and validation logic that the auto-generation system wouldn't produce), preventing automatic regeneration.
+1. Unblock build immediately (swipe type fix)
+- File: `src/components/swipe/SwipeUtils.tsx`
+  - Export `CategoryInfo` type.
+  - Type `getActiveCategoryInfo` to return `CategoryInfo`.
+  - Include required `icon` + `color` fields in category config so `SwipeStates` always gets valid values.
+- File: `src/components/swipe/SwipeStates.tsx`
+  - Keep using `CategoryInfo` but as a proper exported type (type-safe import).
 
-**Fix**: Since `client.ts` is already broken and was manually modified, we need to reset it to a clean auto-generated state with the correct Lovable Cloud credentials. This is the single most important fix.
+2. Remove backend drift without touching auto-generated backend client file
+- File: `vite.config.ts`
+  - Add reliable build-time `define` values for:
+    - `import.meta.env.VITE_SUPABASE_URL`
+    - `import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY`
+    - `import.meta.env.VITE_SUPABASE_PROJECT_ID`
+  - This ensures runtime never falls back to the old backend host.
+- File: `index.html`
+  - Replace stale preconnect host with the current backend host (or remove hardcoded static preconnect and let Vite/plugin inject correct one).
 
-## Root Cause 2: React Error #185 (Maximum update depth exceeded)
+3. Stop post-login crash loops
+- Audit and harden query error paths that can repeatedly set state/toast on failed fetches (especially owner preference query path).
+- Ensure missing-table/404 responses short-circuit cleanly without repeated UI state churn.
 
-When every Supabase query returns 404 (wrong backend), error handlers fire, triggering toasts and state updates, which cause re-renders, which fire more queries — creating an infinite update loop. Additionally:
+4. Validate AI and access end-to-end
+- Smoke test:
+  - Sign up / sign in / dashboard route.
+  - Confirm no requests go to old backend host.
+  - Confirm no React #185 after login.
+  - Run one AI prompt through `ai-orchestrator` flow and verify response returns (Gemini primary, MiniMax fallback path still available).
 
-- **Duplicate toast renderers**: `App.tsx` renders both `<Toaster />` and `<Sonner />`, which are now the **same component** (since `toaster.tsx` re-exports from `sonner.tsx`). This means two identical Sonner instances both calling `useTheme()`.
-- **Mixed toast systems**: `LegendaryLandingPage.tsx`, `TopBar.tsx`, and `DashboardLayout.tsx` import from the OLD `@/hooks/use-toast` (which has a global listener/dispatch pattern), while most other components use `@/components/ui/sonner`. The old system's `dispatch` triggers `setState` for all registered listeners.
+Technical patch scope
+- `src/components/swipe/SwipeUtils.tsx`
+- `src/components/swipe/SwipeStates.tsx`
+- `vite.config.ts`
+- `index.html`
+- (if needed after quick check) one or two query hooks for loop hardening
 
-## Implementation Plan
+Acceptance criteria
+- Build passes (no TS2305 in SwipeStates).
+- No old backend hostname in network calls.
+- Login lands on dashboard without crash.
+- AI response succeeds in app chat flow.
 
-### Step 1: Fix `client.ts` — Correct backend connection
-Write a clean `client.ts` that uses the correct Lovable Cloud project ID (`qegyisokrxdsszzswsqk`) and anon key as fallbacks, while keeping the `import.meta.env` overrides. Remove the custom `prodLogger` import (use standard console or no logging).
-
-### Step 2: Remove duplicate Toaster in `App.tsx`
-Remove one of the duplicate Sonner instances. Since `Toaster` from `toaster.tsx` now re-exports the same component as `Sonner` from `sonner.tsx`, we only need one.
-
-### Step 3: Unify toast imports
-Update `LegendaryLandingPage.tsx`, `TopBar.tsx`, and `DashboardLayout.tsx` to import `toast` from `@/components/ui/sonner` instead of `@/hooks/use-toast`. This eliminates the old global listener system that can cascade state updates.
-
-### Step 4: Add defensive error handling
-In the `useOwnerClientPreferences` hook and similar hooks that query the database, ensure 404 errors don't cascade into re-render loops by properly short-circuiting on errors.
-
+<lov-actions>
+<lov-suggestion message="Test the full flow end-to-end: sign up, sign in, open dashboard, swipe once, and send one AI message to confirm stability.">Verify end-to-end</lov-suggestion>
+<lov-suggestion message="Implement a startup health check panel that validates backend connectivity, auth session, and AI orchestrator availability before rendering the main app.">Add startup health checks</lov-suggestion>
+<lov-suggestion message="Add a global error telemetry banner that captures React runtime crashes and failed API endpoints so future regressions are detected instantly.">Add runtime error telemetry</lov-suggestion>
+</lov-actions>
