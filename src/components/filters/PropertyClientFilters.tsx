@@ -183,6 +183,22 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
     });
   };
 
+  // Auto-notify parent when filters change
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    const budgetValues = getBudgetValues();
+    const durationValues = getRentalDurationValues();
+    onApply({
+      category: 'property', interest_type: interestType, property_types: propertyTypes,
+      selected_budget_range: selectedBudgetRange, budget_min: budgetValues.min, budget_max: budgetValues.max,
+      rental_duration: rentalDuration, rental_min_months: durationValues.minMonths, rental_max_months: durationValues.maxMonths,
+      bedrooms_min: bedrooms, bathrooms_min: bathrooms, amenities, pet_friendly: petFriendly, furnished,
+      location_countries: locationCountries, location_cities: locationCities, location_neighborhoods: locationNeighborhoods
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interestType, propertyTypes, selectedBudgetRange, rentalDuration, bedrooms, bathrooms, amenities, petFriendly, furnished, locationCountries, locationCities, locationNeighborhoods]);
+
   const handleClear = () => {
     setInterestType('both');
     setPropertyTypes([]);
