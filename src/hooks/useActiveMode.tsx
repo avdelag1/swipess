@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, createContext, useContext, ReactNode, useMemo } from 'react';
+import { useState, useCallback, useEffect, useRef, createContext, useContext, ReactNode, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -188,7 +188,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
     }
 
     // Default fallback
-    return newMode === 'client' ? defaultPaths.client : defaultPaths.owner;
+    return defaultPaths[newMode];
   }, [location.pathname]);
 
   // FAST mode switch - everything happens synchronously
@@ -239,8 +239,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       logger.error('[ActiveMode] Navigation failed:', navError);
       // Fallback navigation
       try {
-        const fallbackPath = newMode === 'client' ? '/client/dashboard' : '/owner/dashboard';
-        navigate(fallbackPath, { replace: true });
+        navigate('/dashboard', { replace: true });
       } catch (fallbackError) {
         logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
       }

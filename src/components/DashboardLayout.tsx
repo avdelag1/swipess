@@ -313,14 +313,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
   const clientSwipePaths = [
-    '/client/dashboard',
+    '/dashboard',
     '/client/profile',
     '/client/liked-properties',
     '/messages',
     '/client/filters',
   ];
   const ownerSwipePaths = [
-    '/owner/dashboard',
+    '/dashboard',
     '/owner/profile',
     '/owner/liked-clients',
     '/owner/properties',
@@ -536,8 +536,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
-  const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
-    (userRole === 'owner' && location.pathname === '/owner/dashboard');
+  const isOnDiscoveryPage = (userRole === 'client' && (location.pathname === '/client/dashboard' || location.pathname === '/dashboard')) ||
+    (userRole === 'owner' && (location.pathname === '/owner/dashboard' || location.pathname === '/dashboard'));
 
   // FIX: Memoize cloned children to prevent infinite re-renders
   const enhancedChildren = useMemo(() => {
@@ -567,6 +567,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const immersiveRoutes = [
       '/client/dashboard',
       '/owner/dashboard',
+      '/dashboard',
       '/client/profile',
       '/owner/profile',
       '/client/liked-properties',
@@ -580,7 +581,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/settings'
     ];
 
-    return immersiveRoutes.some(route => path === route || path.startsWith(route + '/')) ||
+    return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') ||
       path.includes('view-client');
   }, [location.pathname]);

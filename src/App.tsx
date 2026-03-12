@@ -235,7 +235,7 @@ const App = () => {
                                         </ProtectedRoute>
                                       }>
                                         {/* Client routes */}
-                                        <Route path="/client/dashboard" element={<ClientDashboard />} />
+                                        <Route path="/client/dashboard" element={<MyHub />} />
                                         <Route path="/client/profile" element={<ClientProfile />} />
                                         <Route path="/client/settings" element={<ClientSettings />} />
                                         <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
@@ -250,7 +250,7 @@ const App = () => {
                                         <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
                                         {/* Owner routes */}
-                                        <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
+                                        <Route path="/owner/dashboard" element={<MyHub />} />
                                         <Route path="/owner/profile" element={<OwnerProfile />} />
                                         <Route path="/owner/settings" element={<OwnerSettings />} />
                                         <Route path="/owner/properties" element={<OwnerProperties />} />

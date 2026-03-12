@@ -90,7 +90,7 @@ export function BottomNavigation({
 
   // Client nav items
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: 'Explore', path: '/dashboard' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
@@ -100,7 +100,7 @@ export function BottomNavigation({
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
+    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
     { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
     { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
