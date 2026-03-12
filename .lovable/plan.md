@@ -1,46 +1,56 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Fix: React Error #185 (Infinite Re-render Loop) on Dashboard Routes
 
-### 1. Replace App Icon with Fire S Logo
+## Root Cause Analysis
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+After tracing the full component tree (`PersistentDashboardLayout` → `DashboardLayout` → `AnimatedOutlet` → `MyHub` → `ClientDashboard` → `SwipessSwipeContainer`), the crash is caused by **cascading filter object recreation** that compounds into a render storm:
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### The Chain Reaction
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+1. **`useFilterPersistence`** (in `PersistentDashboardLayout`) restores saved filters on mount → calls `setCategories()`, `setListingType()`, etc. — each call bumps `filterVersion` independently
+2. **`MyHub`** subscribes to `filterVersion` (line 25) and calls `getListingFilters()` in a `useMemo` (line 27) — creates a **new object** on every version bump
+3. **`ClientDashboard`** ALSO subscribes to `filterVersion` (line 8) and creates ANOTHER new filter object via `getListingFilters()` + merges with the prop from MyHub — producing yet ANOTHER new object
+4. **`SwipessSwipeContainer`** receives new `filters` prop → `filterSignature` useMemo re-runs (dep: `[filters]`), and the filter hydration effect (lines 356-389) ALSO tries to set filters from `client_filter_preferences` DB table
+5. **Competing hydration**: Two async hydration paths (`useFilterPersistence` and `SwipessSwipeContainer` line 356-389) race to set the same store values, each bumping `filterVersion` and triggering the whole chain again
+6. **Unstable selectors**: `useFilterActions()` and `useQuickFilters()` return new `{}` objects on every store update (no shallow comparison), causing unnecessary re-renders of `MyHubQuickFilters` and other consumers, compounding the storm
 
-### 2. Profile Photo Already Shows in Top-Left
+### Additionally: Double Animation Wrapper
+`DashboardLayout` wraps children in `<motion.div key={location.pathname}>` (line 629), and `AnimatedOutlet` wraps the outlet in `<motion.div key={location.key}>`. This double-wrapping forces unnecessary unmount/remount cycles.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+## Fix Plan (6 files)
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+### 1. `src/components/SwipessSwipeContainer.tsx`
+- **Remove competing filter hydration** (lines 356-389): Delete the `useEffect` that fetches from `client_filter_preferences` and calls `setCategories()`. `useFilterPersistence` is already handling this.
+- **Read filters from Zustand store directly** instead of relying on props. Add store selectors for `categories`, `listingType`, etc., and build `stableFilters` from store state + props fallback.
+- This eliminates the prop-drilling chain that creates new objects on every `filterVersion` bump.
 
-### 3. Fix Header Too Close to Top Edge
+### 2. `src/pages/MyHub.tsx`
+- **Remove `filterVersion` subscription** (line 25) and `getListingFilters` call (lines 26-27).
+- Pass `undefined` or no filters to `ClientDashboard` — it will read from the store directly.
+- This stops MyHub from re-rendering on every filter change and creating new object references.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+### 3. `src/pages/ClientDashboard.tsx`
+- **Remove `filterVersion` subscription** and `getListingFilters` / `mergedFilters` computation (lines 8-10).
+- Pass `filters={undefined}` to `SwipessSwipeContainer` or let it use its own store reads.
+- Simplify to a thin wrapper.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### 4. `src/state/filterStore.ts`
+- **Fix `useFilterActions` selector** (line 389): Add `shallow` from `zustand/shallow` as the equality function. This prevents re-renders when action function references haven't changed.
+- **Fix `useQuickFilters` selector** (line 381): Same — add `shallow` comparison.
 
-### 4. Fix MarketingSlide Build Error
+### 5. `src/components/DashboardLayout.tsx`
+- **Remove the outer `motion.div key={location.pathname}`** wrapper (lines 629-637). The `AnimatedOutlet` already handles page transitions with its own `key={location.key}`. The double wrapper causes unnecessary remounts and animation conflicts.
+- Replace with a plain `<div>` or just render `{enhancedChildren}` directly.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### 6. `src/hooks/useFilterPersistence.ts`
+- **Guard the save effect** more robustly: Track restore completion with a state flag (not just ref) so that the save effect waits until restore is truly done before watching `filterVersion`.
+- **Skip save on initial mount**: Add a `didMountRef` to skip the first `filterVersion` trigger (which is always the restore itself).
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+## Expected Outcome
+- No more React Error #185 on `/client/dashboard` or `/owner/dashboard`
+- Filter state managed by single hydration path (`useFilterPersistence`)
+- No cascading object recreation through the component tree
+- Stable Zustand selectors prevent unnecessary re-renders
+- Dashboard loads instantly with correct filter state
 
