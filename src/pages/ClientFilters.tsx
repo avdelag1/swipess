@@ -136,7 +136,7 @@ export default function ClientFilters() {
   return (
     <div className="min-h-full bg-background transition-colors duration-500">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
             <motion.button

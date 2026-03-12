@@ -1,49 +1,46 @@
 
 
-# Fix Filter Page First-Tap Delay + Global App Responsiveness
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Root Cause: Filter Page "Doesn't Show Until Second Press"
+### 1. Replace App Icon with Fire S Logo
 
-The `AnimatedOutlet` uses `AnimatePresence mode="wait"` which **blocks the new page from mounting until the old page's exit animation finishes** (150ms). On mobile devices with complex pages (dashboard with swipe cards), this exit takes longer than expected, making it feel like the first tap did nothing. The user taps again, which by then the first navigation has completed.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Fix 1: Make Route Transitions Instant
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**File: `src/components/AnimatedOutlet.tsx`**
-- Change `mode="wait"` to `mode="popLayout"` — this immediately mounts the new page and pops the old one out without blocking
-- Remove the exit animation entirely (set to just `opacity: 0` with `duration: 0.08`) so old pages disappear instantly
-- This is now safe because we previously removed all nested `AnimatePresence mode="popLayout"` from Likes pages — no more conflicts
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## Fix 2: Reduce Motion Overhead on Page Enter
+### 2. Profile Photo Already Shows in Top-Left
 
-**File: `src/components/AnimatedOutlet.tsx`**
-- Simplify the enter spring: reduce stiffness from 380→500, increase damping from 30→35, reduce mass from 0.6→0.5 for snappier settle
-- Reduce initial x offset from 12→6 (less travel = faster perceived load)
-- Keep `willChange: 'opacity'` for GPU acceleration
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-## Fix 3: Eliminate Filter Page Mount Delay
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**File: `src/pages/ClientFilters.tsx`**
-- The page reads `useClientFilterPreferences()` (a React Query hook) on mount. If the query is loading, the `useState` initializer may get empty values, then re-render when data arrives. Add `placeholderData` or use store values as defaults so the page renders immediately without waiting for DB.
+### 3. Fix Header Too Close to Top Edge
 
-**File: `src/pages/OwnerFilters.tsx`**
-- Same: `useOwnerClientPreferences()` may cause a loading flash. Ensure store values are used as immediate defaults.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-## Fix 4: Global Responsiveness — Remove Backdrop Blur on TopBar During Scroll
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**File: `src/pages/ClientFilters.tsx`** (header)
-- The sticky header uses `backdrop-blur-xl` which is expensive on mobile. Change to `backdrop-blur-md` (lighter) or use solid `bg-background/95` without blur for the filter page header specifically.
+### 4. Fix MarketingSlide Build Error
 
-## Summary of Changes
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-| File | Change |
-|------|--------|
-| `AnimatedOutlet.tsx` | `mode="popLayout"`, faster enter spring, minimal exit |
-| `ClientFilters.tsx` | Lighter header blur, stable initial state |
-| `OwnerFilters.tsx` | Same header blur fix, stable initial state |
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-## Expected Result
-- Filter page appears **instantly** on first tap (no second tap needed)
-- All page transitions feel snappy and responsive
-- No visual effects or designs removed — just faster execution
-- Both client and owner filter pages load immediately
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
