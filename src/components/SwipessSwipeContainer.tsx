@@ -404,51 +404,39 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
   }, [user?.id]);
 
-  // PERF: Memoize filters to prevent unnecessary query re-runs
+  // PERF FIX: Build filters from Zustand store directly instead of props.
+  // This eliminates the cascading object recreation chain:
+  // MyHub → ClientDashboard → SwipessSwipeContainer
+  // Each intermediary was creating new filter objects on every filterVersion bump.
+  const storeFilterVersion = useFilterStore((state) => state.filterVersion);
   const stableFilters = useMemo(() => {
-    return filters;
-  }, [
-    // Only re-create when actual filter values change
-    filters?.category,
-    filters?.categories?.join(','),
-    filters?.listingType,
-    filters?.priceRange?.[0],
-    filters?.priceRange?.[1],
-    filters?.bedrooms?.join(','),
-    filters?.bathrooms?.join(','),
-    filters?.amenities?.join(','),
-    filters?.propertyType?.join(','),
-    filters?.petFriendly,
-    filters?.furnished,
-    filters?.verified,
-    filters?.premiumOnly,
-    filters?.showHireServices,
-    filters?.clientGender,
-    filters?.clientType,
-  ]);
+    const state = useFilterStore.getState();
+    return state.getListingFilters() as ListingFilters;
+    // Only recompute when filterVersion changes (actual filter mutation)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeFilterVersion]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
   const filterSignature = useMemo(() => {
-    if (!filters) return 'default';
     return [
-      filters.category || '',
-      filters.categories?.join(',') || '',
-      filters.listingType || '',
-      filters.priceRange?.join('-') || '',
-      filters.bedrooms?.join(',') || '',
-      filters.bathrooms?.join(',') || '',
-      filters.amenities?.join(',') || '',
-      filters.propertyType?.join(',') || '',
-      filters.petFriendly ? '1' : '0',
-      filters.furnished ? '1' : '0',
-      filters.verified ? '1' : '0',
-      filters.premiumOnly ? '1' : '0',
-      filters.showHireServices ? '1' : '0',
-      filters.clientGender || '',
-      filters.clientType || '',
+      stableFilters.category || '',
+      stableFilters.categories?.join(',') || '',
+      stableFilters.listingType || '',
+      stableFilters.priceRange?.join('-') || '',
+      stableFilters.bedrooms?.join(',') || '',
+      stableFilters.bathrooms?.join(',') || '',
+      stableFilters.amenities?.join(',') || '',
+      stableFilters.propertyType?.join(',') || '',
+      stableFilters.petFriendly ? '1' : '0',
+      stableFilters.furnished ? '1' : '0',
+      stableFilters.verified ? '1' : '0',
+      stableFilters.premiumOnly ? '1' : '0',
+      stableFilters.showHireServices ? '1' : '0',
+      stableFilters.clientGender || '',
+      stableFilters.clientType || '',
     ].join('|');
-  }, [filters]);
+  }, [stableFilters]);
 
   // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);
