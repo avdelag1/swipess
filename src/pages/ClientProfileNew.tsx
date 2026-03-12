@@ -2,6 +2,9 @@
 import { ClientProfileDialog } from "@/components/ClientProfileDialog";
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
+import { MyHubProfileHeader } from "@/components/MyHubProfileHeader";
+import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
+import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
 import { useState, useCallback } from "react";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,6 +85,30 @@ const ClientProfileNew = () => {
         className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
 
+
+        {/* Hub: Profile Presence */}
+        <motion.div variants={childVariant}>
+          <MyHubProfileHeader />
+        </motion.div>
+
+        {/* Hub: Quick Filters */}
+        <motion.div variants={childVariant}>
+          <MyHubQuickFilters />
+        </motion.div>
+
+        {/* Hub: Activity Feed */}
+        <motion.div variants={childVariant}>
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+              Marketplace Feed
+            </h3>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
+              <span className="text-[9px] font-black uppercase text-white/50 tracking-tighter">Live Updates</span>
+            </div>
+          </div>
+          <MyHubActivityFeed />
+        </motion.div>
 
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
