@@ -412,7 +412,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
+                "relative h-9 w-9 rounded-xl transition-all duration-300 ease-out",
                 "hover:scale-105 active:scale-95 group",
                 "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
