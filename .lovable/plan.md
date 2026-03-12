@@ -1,46 +1,47 @@
 
+Goal: fix (1) Likes pages getting “stuck” (client + owner) and (2) app launch/top bar color showing pink instead of black in installed shortcut/PWA launch.
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+What I found:
+1) The Likes pages all use `usePersistentReorder()`. That hook currently calls `setOrderedIds(...)` on every render and always returns a new array reference, which can create a render loop on those pages.
+2) Bottom nav navigation uses `startTransition(() => navigate(...))`. Under heavy continuous renders, navigation can be deprioritized and appear frozen.
+3) Launch color is still pink because both manifests still have `"theme_color": "#ff69b4"`. Also native status bar fallback in `main.tsx` is currently red (`#FF0000`).
 
-### 1. Replace App Icon with Fire S Logo
+Implementation plan:
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+1) Stabilize Likes pages (critical)
+- File: `src/hooks/usePersistentReorder.ts`
+  - Add an array equality guard (`same order + same ids`) so state is only updated when order actually changes.
+  - In the effect, return previous state when computed `next` matches `prev`.
+  - Use a stable dependency (IDs signature) instead of raw `items` reference to avoid unnecessary effect firing.
+  - In `handleReorder`, no-op if the resulting order is unchanged.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+2) Make bottom-nav route changes immediate/reliable
+- File: `src/components/BottomNavigation.tsx`
+  - Remove `startTransition` around `navigate`.
+  - Use direct `navigate(item.path!)` in pointer and keyboard handlers.
+  - Keep tap animation/haptics unchanged.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+3) Force black launch/status color for installed app/shortcut
+- Files: `public/manifest.webmanifest`, `public/manifest.json`
+  - Change `"theme_color"` to `#000000`.
+  - Keep `"background_color"` as `#000000`.
+- File: `index.html`
+  - Keep `<meta name="theme-color" content="#000000">` (already correct).
+  - Add cache-busting to manifest link (e.g. `/manifest.webmanifest?v=20260312-black`) so devices pull the updated manifest faster.
+  - Set `apple-mobile-web-app-status-bar-style` to `black` for consistent black launch bar.
+- File: `src/main.tsx`
+  - Change native status bar background from `#FF0000` to `#000000`.
 
-### 2. Profile Photo Already Shows in Top-Left
+4) Regression pass (focus on what user reported)
+- Client side:
+  - Open `/client/liked-properties`, then navigate via bottom nav to Explore/Profile/Messages/Filters repeatedly.
+  - Repeat from `/client/who-liked-you`.
+- Owner side:
+  - Open `/owner/liked-clients` and `/owner/interested-clients`, then navigate to Dashboard/Profile/Listings/Messages/Filters repeatedly.
+- Confirm no frozen screen, no delayed route switch, and swipe nav still works where expected.
+- Confirm installed shortcut/PWA launch top color is black (note: existing installed shortcut may require close/reopen; in some devices uninstall/reinstall shortcut is needed after manifest theme change).
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
-
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
-
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
-
+Expected result:
+- Likes pages no longer lock navigation.
+- Bottom nav transitions are immediate across all sections/routes.
+- Launch/top color for home-screen app opens in black instead of pink/red.
