@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { Home, Wrench, Bike, Bicycle, Users, Briefcase, type LucideIcon } from 'lucide-react';
+import { Home, Wrench, Bike, PersonStanding, Users, Briefcase, type LucideIcon } from 'lucide-react';
 
 /**
  * Category info returned by getActiveCategoryInfo
