@@ -259,6 +259,19 @@ const ClientProfileNew = () => {
           </motion.div>
         )}
 
+        {/* Discover Categories */}
+        <motion.div variants={childVariant}>
+          <MyHubQuickFilters />
+        </motion.div>
+
+        {/* Recent Activity */}
+        <motion.div variants={childVariant}>
+          <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 mb-4 px-1">
+            Recent Activity
+          </h3>
+          <MyHubActivityFeed />
+        </motion.div>
+
         {/* Share Profile */}
         <motion.div variants={childVariant}>
           <SharedProfileSection
