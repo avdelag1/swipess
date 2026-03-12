@@ -350,43 +350,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
 
-  // HYDRATE FILTER STORE FROM DATABASE on mount
-  // If the Zustand store has no categories selected but the DB has stored preferences,
-  // seed the store so the swipe deck uses the user's saved filters
-  useEffect(() => {
-    if (!user?.id) return;
-    const state = useFilterStore.getState();
-    // Only hydrate if store is empty (user hasn't actively set filters this session)
-    if (state.categories.length > 0 || state.listingType !== 'both') return;
-
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('client_filter_preferences')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (!data) return;
-        const currentState = useFilterStore.getState();
-        // Double-check store is still empty (race condition guard)
-        if (currentState.categories.length > 0) return;
-
-        const cats = Array.isArray(data.preferred_categories) ? data.preferred_categories as string[] : [];
-        const listingTypes = Array.isArray(data.preferred_listing_types) ? data.preferred_listing_types as string[] : [];
-
-        if (cats.length > 0) {
-          useFilterStore.getState().setCategories(cats as any);
-        }
-        if (listingTypes.length === 1 && listingTypes[0] !== 'both') {
-          useFilterStore.getState().setListingType(listingTypes[0] as any);
-        }
-        logger.info('[SwipessSwipeContainer] Hydrated filter store from DB:', { cats, listingTypes });
-      } catch (err) {
-        logger.error('[SwipessSwipeContainer] Error hydrating filters from DB:', err);
-      }
-    })();
-  }, [user?.id]);
+  // PERF FIX: Removed competing filter hydration from client_filter_preferences.
+  // useFilterPersistence (in PersistentDashboardLayout) is the SINGLE source of truth
+  // for restoring saved filters from the database. Having two hydration paths
+  // caused a race condition where both bumped filterVersion, triggering cascading
+  // re-renders that led to React Error #185 (Maximum update depth exceeded).
 
   // Cleanup on unmount
   useEffect(() => {
@@ -436,51 +404,39 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
   }, [user?.id]);
 
-  // PERF: Memoize filters to prevent unnecessary query re-runs
+  // PERF FIX: Build filters from Zustand store directly instead of props.
+  // This eliminates the cascading object recreation chain:
+  // MyHub → ClientDashboard → SwipessSwipeContainer
+  // Each intermediary was creating new filter objects on every filterVersion bump.
+  const storeFilterVersion = useFilterStore((state) => state.filterVersion);
   const stableFilters = useMemo(() => {
-    return filters;
-  }, [
-    // Only re-create when actual filter values change
-    filters?.category,
-    filters?.categories?.join(','),
-    filters?.listingType,
-    filters?.priceRange?.[0],
-    filters?.priceRange?.[1],
-    filters?.bedrooms?.join(','),
-    filters?.bathrooms?.join(','),
-    filters?.amenities?.join(','),
-    filters?.propertyType?.join(','),
-    filters?.petFriendly,
-    filters?.furnished,
-    filters?.verified,
-    filters?.premiumOnly,
-    filters?.showHireServices,
-    filters?.clientGender,
-    filters?.clientType,
-  ]);
+    const state = useFilterStore.getState();
+    return state.getListingFilters() as ListingFilters;
+    // Only recompute when filterVersion changes (actual filter mutation)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeFilterVersion]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
   const filterSignature = useMemo(() => {
-    if (!filters) return 'default';
     return [
-      filters.category || '',
-      filters.categories?.join(',') || '',
-      filters.listingType || '',
-      filters.priceRange?.join('-') || '',
-      filters.bedrooms?.join(',') || '',
-      filters.bathrooms?.join(',') || '',
-      filters.amenities?.join(',') || '',
-      filters.propertyType?.join(',') || '',
-      filters.petFriendly ? '1' : '0',
-      filters.furnished ? '1' : '0',
-      filters.verified ? '1' : '0',
-      filters.premiumOnly ? '1' : '0',
-      filters.showHireServices ? '1' : '0',
-      filters.clientGender || '',
-      filters.clientType || '',
+      stableFilters.category || '',
+      stableFilters.categories?.join(',') || '',
+      stableFilters.listingType || '',
+      stableFilters.priceRange?.join('-') || '',
+      stableFilters.bedrooms?.join(',') || '',
+      stableFilters.bathrooms?.join(',') || '',
+      stableFilters.amenities?.join(',') || '',
+      stableFilters.propertyType?.join(',') || '',
+      stableFilters.petFriendly ? '1' : '0',
+      stableFilters.furnished ? '1' : '0',
+      stableFilters.verified ? '1' : '0',
+      stableFilters.premiumOnly ? '1' : '0',
+      stableFilters.showHireServices ? '1' : '0',
+      stableFilters.clientGender || '',
+      stableFilters.clientType || '',
     ].join('|');
-  }, [filters]);
+  }, [stableFilters]);
 
   // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);

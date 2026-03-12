@@ -1,12 +1,9 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { SwipessSwipeContainer } from '@/components/SwipessSwipeContainer';
-import { ListingFilters } from '@/hooks/useSmartMatching';
-import { useFilterStore } from '@/state/filterStore';
 
 interface ClientDashboardProps {
   onPropertyInsights?: (listingId: string) => void;
   onMessageClick?: () => void;
-  filters?: ListingFilters;
 }
 
 /**
@@ -14,18 +11,15 @@ interface ClientDashboardProps {
  * DashboardLayout is now rendered ONCE at route level via PersistentDashboardLayout
  * This component only renders its inner content
  * NotificationBar is rendered globally in AppLayout — no duplicate here
+ * 
+ * PERF FIX: No longer subscribes to filterVersion or creates filter objects.
+ * SwipessSwipeContainer reads filters directly from the Zustand store,
+ * eliminating the cascading object recreation that caused React Error #185.
  */
 export default function ClientDashboard({
   onPropertyInsights,
   onMessageClick,
-  filters
 }: ClientDashboardProps) {
-  // Connect filter store to swipe container
-  const filterVersion = useFilterStore((s) => s.filterVersion);
-  const getListingFilters = useFilterStore((s) => s.getListingFilters);
-  const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
-  const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
-
   const handleListingTap = useCallback((listingId: string) => {
     onPropertyInsights?.(listingId);
   }, [onPropertyInsights]);
@@ -35,8 +29,6 @@ export default function ClientDashboard({
       onListingTap={handleListingTap}
       onInsights={handleListingTap}
       onMessageClick={onMessageClick}
-      filters={mergedFilters as ListingFilters}
     />
   );
 }
-

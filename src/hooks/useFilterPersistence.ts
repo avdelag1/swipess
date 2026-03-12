@@ -4,30 +4,28 @@
  * Connects the Zustand filterStore to the saved_filters database table.
  * Provides automatic sync on filter changes and restoration on mount.
  * 
+ * PERF FIX: Uses getState() for ALL reads to avoid subscribing this hook
+ * to filter store changes. Only subscribes to filterVersion for the save trigger.
+ * Uses didMountRef to skip saving on the initial restore.
+ * 
  * DB columns: id, user_id, filter_data (JSONB), is_active, name, user_role, created_at, updated_at
  */
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { logger } from '@/utils/prodLogger';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
-const DEBOUNCE_MS = 1000;
+const DEBOUNCE_MS = 1500;
 
 export function useFilterPersistence() {
   const { user } = useAuth();
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRestoringRef = useRef(false);
-  
-  // PERF FIX: Use getState() for reads inside callbacks to avoid subscribing
-  // this hook to every filter store change. Only subscribe to what we need for effects.
-  const setCategories = useFilterStore((s) => s.setCategories);
-  const setListingType = useFilterStore((s) => s.setListingType);
-  const setClientGender = useFilterStore((s) => s.setClientGender);
-  const setClientType = useFilterStore((s) => s.setClientType);
-  const filterVersion = useFilterStore((s) => s.filterVersion);
+  const didMountRef = useRef(false);
+  const [restoreComplete, setRestoreComplete] = useState(false);
 
   // Restore active filter from database on mount
   useEffect(() => {
@@ -52,21 +50,28 @@ export function useFilterPersistence() {
         if (data) {
           logger.info('[FilterPersistence] Restoring active filter:', data.name);
           
-          // Read from filter_data JSONB column (the correct column name)
           const filters = data.filter_data as Record<string, unknown> | null;
           
           if (filters) {
+            // Batch all filter restorations using setFilters to bump filterVersion only ONCE
+            const store = useFilterStore.getState();
+            const updates: Record<string, unknown> = {};
+            
             if (Array.isArray(filters.categories)) {
-              setCategories(filters.categories as QuickFilterCategory[]);
+              updates.categories = filters.categories;
             }
             if (filters.listingType) {
-              setListingType(filters.listingType as QuickFilterListingType);
+              updates.listingType = filters.listingType;
             }
             if (filters.clientGender) {
-              setClientGender(filters.clientGender as 'any' | 'male' | 'female' | 'other' | 'all');
+              updates.clientGender = filters.clientGender;
             }
             if (filters.clientType) {
-              setClientType(filters.clientType as 'individual' | 'family' | 'business' | 'hire' | 'rent' | 'buy' | 'all');
+              updates.clientType = filters.clientType;
+            }
+            
+            if (Object.keys(updates).length > 0) {
+              store.setFilters(updates as any);
             }
           }
         }
@@ -74,17 +79,17 @@ export function useFilterPersistence() {
         logger.error('[FilterPersistence] Unexpected error:', error);
       } finally {
         isRestoringRef.current = false;
+        setRestoreComplete(true);
       }
     };
 
     restoreActiveFilter();
-  }, [user?.id, setCategories, setListingType, setClientGender, setClientType]);
+  }, [user?.id]);
 
-  // Debounced save function
+  // Debounced save function — reads from store at call time (no subscription)
   const saveFiltersToDb = useCallback(async () => {
     if (!user?.id || isRestoringRef.current) return;
 
-    // Read current values from store at call time (not via subscription)
     const state = useFilterStore.getState();
     const filterData = {
       categories: state.categories,
@@ -137,24 +142,40 @@ export function useFilterPersistence() {
     }
   }, [user?.id]);
 
-  // Watch for filter changes and save with debounce
+  // Watch for filter changes via Zustand subscribe (non-reactive)
+  // This avoids re-rendering this hook's parent on every filterVersion bump
   useEffect(() => {
-    if (!user?.id || isRestoringRef.current) return;
-    
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
+    if (!user?.id || !restoreComplete) return;
+
+    // Skip the first trigger after restore completes — that IS the restore
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
     }
 
-    saveTimeoutRef.current = setTimeout(() => {
-      saveFiltersToDb();
-    }, DEBOUNCE_MS);
+    const unsub = useFilterStore.subscribe(
+      (state) => state.filterVersion,
+      (version, prevVersion) => {
+        if (isRestoringRef.current) return;
+        if (version === prevVersion) return;
+
+        if (saveTimeoutRef.current) {
+          clearTimeout(saveTimeoutRef.current);
+        }
+
+        saveTimeoutRef.current = setTimeout(() => {
+          saveFiltersToDb();
+        }, DEBOUNCE_MS);
+      }
+    );
 
     return () => {
+      unsub();
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [filterVersion, saveFiltersToDb, user?.id]);
+  }, [user?.id, restoreComplete, saveFiltersToDb]);
 
   return {
     isRestoring: isRestoringRef.current,
