@@ -7,8 +7,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, Crown, Flame, Heart, Settings, Radio
+  LogOut, Building2, User, Camera, Crown, Flame, Heart, Settings, Radio, Zap, MessageSquare, Sparkles
 } from "lucide-react";
+import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
+import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -92,6 +94,29 @@ const OwnerProfileNew = () => {
           </div>
         </motion.div>
 
+        {/* Quick Stats Grid */}
+        <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#E4007C]' },
+            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: Heart, color: 'text-amber-400' },
+            { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-400' },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className={cn(
+                "rounded-2xl p-4 text-center border",
+                isLight
+                  ? "bg-card border-border/40 shadow-sm"
+                  : "bg-white/[0.04] border-white/[0.06]"
+              )}
+            >
+              <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
+              <div className="text-lg font-black text-foreground leading-none mb-1">{stat.value}</div>
+              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+            </div>
+          ))}
+        </motion.div>
+
         {/* Edit Profile Button */}
         <motion.div variants={childVariant}>
           <motion.button
@@ -151,6 +176,19 @@ const OwnerProfileNew = () => {
               </div>
             </div>
           </motion.button>
+        </motion.div>
+
+        {/* Discover Categories */}
+        <motion.div variants={childVariant}>
+          <MyHubQuickFilters />
+        </motion.div>
+
+        {/* Recent Activity */}
+        <motion.div variants={childVariant}>
+          <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 mb-4 px-1">
+            Recent Activity
+          </h3>
+          <MyHubActivityFeed />
         </motion.div>
 
         {/* Share Profile */}

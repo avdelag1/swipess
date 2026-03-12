@@ -8,8 +8,11 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, Heart, Settings, Radio
+  Flame, Heart, Settings, Radio, Zap, MessageSquare
 } from "lucide-react";
+import { useClientStats } from "@/hooks/useClientStats";
+import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
+import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -34,6 +37,7 @@ const ClientProfileNew = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
+  const { data: stats } = useClientStats();
 
   const handlePhotoClick = useCallback((index: number) => {
     setSelectedPhotoIndex(index);
@@ -111,6 +115,29 @@ const ClientProfileNew = () => {
             </h1>
             <p className="text-sm font-medium text-muted-foreground mt-0.5">{user?.email}</p>
           </div>
+        </motion.div>
+
+        {/* Quick Stats Grid */}
+        <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: Heart, color: 'text-[#E4007C]' },
+            { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-400' },
+            { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400' },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className={cn(
+                "rounded-2xl p-4 text-center border",
+                isLight
+                  ? "bg-card border-border/40 shadow-sm"
+                  : "bg-white/[0.04] border-white/[0.06]"
+              )}
+            >
+              <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
+              <div className="text-lg font-black text-foreground leading-none mb-1">{stat.value}</div>
+              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+            </div>
+          ))}
         </motion.div>
 
         {/* Edit Profile Button */}
@@ -231,6 +258,19 @@ const ClientProfileNew = () => {
             </div>
           </motion.div>
         )}
+
+        {/* Discover Categories */}
+        <motion.div variants={childVariant}>
+          <MyHubQuickFilters />
+        </motion.div>
+
+        {/* Recent Activity */}
+        <motion.div variants={childVariant}>
+          <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 mb-4 px-1">
+            Recent Activity
+          </h3>
+          <MyHubActivityFeed />
+        </motion.div>
 
         {/* Share Profile */}
         <motion.div variants={childVariant}>

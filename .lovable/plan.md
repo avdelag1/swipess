@@ -1,52 +1,46 @@
 
 
-# Integrate MyHub into Profile Pages + Full Navigation Audit
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## What's Happening
+### 1. Replace App Icon with Fire S Logo
 
-The profile pages (`ClientProfileNew`, `OwnerProfileNew`) already have their own profile header (avatar, name, email, edit button). The MyHub components (`MyHubProfileHeader`, `MyHubQuickFilters`, `MyHubActivityFeed`) contain additional valuable content that should be merged in — but **without duplicating** the profile header/avatar that already exists.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## What to Add (Common Sense Merge)
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### Unique value from MyHub to integrate into profile pages:
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-1. **Quick Stats Grid** (from `MyHubProfileHeader`) — Connections count, Activity level, Matches count. This is useful context that the current profile pages lack. Add it below the profile header as a 3-column stat grid.
+### 2. Profile Photo Already Shows in Top-Left
 
-2. **Quick Filters** (`MyHubQuickFilters`) — Category discovery buttons (Property, Moto, Bicycle, Services). Useful shortcut from the profile. Add below stats.
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-3. **Activity Feed** (`MyHubActivityFeed`) — Recent matches, messages, likes. Shows marketplace liveness. Add below filters with "Recent Activity" label.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### What NOT to add (already exists on profile):
-- Profile avatar/name/email — already on both profile pages
-- Profile completion bar — `ClientProfileNew` already has its own
-- Edit button — already exists
+### 3. Fix Header Too Close to Top Edge
 
-## Files to Modify
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-### `src/pages/ClientProfileNew.tsx`
-- Import `MyHubQuickFilters` and `MyHubActivityFeed`
-- Add a **Quick Stats** section (3-col grid: Connections, Activity, Matches) after the profile header, using the same card styling as the existing profile page
-- Add `<MyHubQuickFilters />` after the action grid (Likes / Who Liked You)
-- Add `<MyHubActivityFeed />` with a "Recent Activity" section header after quick filters
-- Keep everything else (bio, interests, share, radio, premium, settings, sign out)
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-### `src/pages/OwnerProfileNew.tsx`
-- Same additions: Quick Stats grid, `<MyHubQuickFilters />`, `<MyHubActivityFeed />`
-- Placed in the same logical position as client profile
+### 4. Fix MarketingSlide Build Error
 
-### Navigation Audit — Verify All Routes Work
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-All routes are already correctly defined in `App.tsx` (lines 245-299). The `AnimatedOutlet` fix (using `<Outlet />` instead of `useOutlet()`) is already in place. The `BottomNavigation` correctly maps to all paths. No navigation fixes needed — the core issue was already resolved in the previous iteration.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**Buttons to verify are functional:**
-- Client: Explore → `/client/dashboard`, Profile → `/client/profile`, Likes → `/client/liked-properties`, Messages → `/messages`, Filters → `/client/filters`
-- Owner: Dashboard → `/owner/dashboard`, Profile → `/owner/profile`, Liked Clients → `/owner/liked-clients`, Listings → `/owner/properties`, Messages → `/messages`, Filters → `/owner/filters`
-- Profile page buttons: Your Likes, Who Liked You, Radio, Premium, Settings, Sign Out — all have correct `navigate()` calls and matching routes
-
-All navigation paths are correctly wired. No dead buttons or broken routes.
-
-## Expected Result
-- Profile pages become the **unified hub**: identity + stats + category filters + activity feed + actions
-- No duplicate information (single avatar, single completion bar)
-- All navigation continues to work across all tabs and sub-pages
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
