@@ -446,11 +446,7 @@ function TopBarComponent({
                 >
                   {notificationCount > 99 ? '99+' : notificationCount}
                 </motion.span>
-              ) : (
-                <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
-                  Alerts
-                </span>
-              )}
+              ) : null}
             </Button>
           </div>
         </div>

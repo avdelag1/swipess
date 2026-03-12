@@ -2,17 +2,13 @@
 import { ClientProfileDialog } from "@/components/ClientProfileDialog";
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
-import { MyHubProfileHeader } from "@/components/MyHubProfileHeader";
-import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
-import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
 import { useState, useCallback } from "react";
-import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  LogOut, User, Camera, Sparkles, Crown, ArrowLeft,
-  Flame, Palette, Heart, Settings, Radio
+  LogOut, User, Camera, Sparkles, Crown,
+  Flame, Heart, Settings, Radio
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -84,32 +80,6 @@ const ClientProfileNew = () => {
         variants={stagger}
         className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
-
-
-        {/* Hub: Profile Presence */}
-        <motion.div variants={childVariant}>
-          <MyHubProfileHeader />
-        </motion.div>
-
-        {/* Hub: Quick Filters */}
-        <motion.div variants={childVariant}>
-          <MyHubQuickFilters />
-        </motion.div>
-
-        {/* Hub: Activity Feed */}
-        <motion.div variants={childVariant}>
-          <div className="flex items-center justify-between mb-4 px-1">
-            <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80">
-              Marketplace Feed
-            </h3>
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
-              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
-              <span className="text-[9px] font-black uppercase text-white/50 tracking-tighter">Live Updates</span>
-            </div>
-          </div>
-          <MyHubActivityFeed />
-        </motion.div>
-
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">
@@ -154,7 +124,7 @@ const ClientProfileNew = () => {
             }}
           >
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <User className="w-6 h-6 relative z-10" />
+            <User className="w-5 h-5 relative z-10" />
             <span className="relative z-10 tracking-tight">Edit Profile</span>
           </motion.button>
         </motion.div>
@@ -163,11 +133,10 @@ const ClientProfileNew = () => {
         {profile && completionPercent < 100 && (
           <motion.div variants={childVariant}>
             <div
-              className="rounded-[2rem] p-5 cursor-pointer border-2 transition-all hover:bg-white/5"
+              className="rounded-2xl p-5 cursor-pointer border transition-all hover:bg-muted/50"
               style={{
                 background: isLight ? 'rgba(228,0,124,0.03)' : 'rgba(228,0,124,0.05)',
                 borderColor: 'rgba(228,0,124,0.15)',
-                
               }}
               onClick={() => { haptics.select(); setShowEditDialog(true); }}
             >
@@ -192,18 +161,17 @@ const ClientProfileNew = () => {
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/liked-properties'); }}
             className={cn(
-              "rounded-3xl p-5 flex flex-col gap-3 text-left transition-all shadow-lg overflow-hidden relative group",
+              "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
               isLight
-                ? "bg-white border border-border/40 hover:border-border"
-                : "bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.06]"
+                ? "bg-card border border-border/40 hover:border-border shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
-              <Flame className="w-6 h-6 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
+              <Flame className="w-5 h-5 text-[#E4007C]" />
             </div>
-            <div className="relative z-10">
-              <div className="text-sm font-black tracking-tight mt-1 text-foreground">Your Likes</div>
+            <div>
+              <div className="text-sm font-black tracking-tight text-foreground">Your Likes</div>
               <div className="text-[10px] font-bold uppercase tracking-widest mt-0.5 text-muted-foreground">Properties</div>
             </div>
           </motion.button>
@@ -212,18 +180,17 @@ const ClientProfileNew = () => {
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/who-liked-you'); }}
             className={cn(
-              "rounded-3xl p-5 flex flex-col gap-3 text-left transition-all shadow-lg overflow-hidden relative group",
+              "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
               isLight
-                ? "bg-white border border-border/40 hover:border-border"
-                : "bg-white/[0.04] backdrop-blur-md border border-white/[0.06] hover:bg-white/[0.06]"
+                ? "bg-card border border-border/40 hover:border-border shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(228,0,124,0.2)] bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 relative z-10">
-              <Heart className="w-6 h-6 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
+              <Heart className="w-5 h-5 text-[#E4007C]" />
             </div>
-            <div className="relative z-10">
-              <div className="text-sm font-black tracking-tight mt-1 text-foreground">Who Liked You</div>
+            <div>
+              <div className="text-sm font-black tracking-tight text-foreground">Who Liked You</div>
               <div className="text-[10px] font-bold uppercase tracking-widest mt-0.5 text-muted-foreground">Interested</div>
             </div>
           </motion.button>
@@ -231,11 +198,10 @@ const ClientProfileNew = () => {
 
         {/* Bio Section */}
         {profile?.bio && (
-          <motion.div variants={childVariant} className="rounded-[2.5rem] p-6 border-2"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'
-            }}>
+          <motion.div variants={childVariant} className={cn(
+            "rounded-2xl p-6 border",
+            isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
+          )}>
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">About You</h3>
             <p className="text-sm font-bold text-foreground leading-relaxed italic opacity-90">"{profile.bio}"</p>
           </motion.div>
@@ -243,11 +209,10 @@ const ClientProfileNew = () => {
 
         {/* Interests Section */}
         {profile?.interests && profile.interests.length > 0 && (
-          <motion.div variants={childVariant} className="rounded-[2.5rem] p-6 border-2"
-            style={{
-              background: isLight ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
-              borderColor: isLight ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'
-            }}>
+          <motion.div variants={childVariant} className={cn(
+            "rounded-2xl p-6 border",
+            isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
+          )}>
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">Interests</h3>
             <div className="flex flex-wrap gap-2">
               {profile.interests.map((interest) => (
@@ -276,29 +241,31 @@ const ClientProfileNew = () => {
           />
         </motion.div>
 
-
-
-        {/* Radio Player Action */}
+        {/* Radio Player */}
         <motion.div variants={childVariant}>
           <button
             onClick={() => { haptics.tap(); navigate('/radio'); }}
-            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-border relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl group"
+            className={cn(
+              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
+              isLight
+                ? "bg-card border-border/40 text-foreground shadow-sm"
+                : "bg-white/[0.04] border-white/[0.06] text-foreground"
+            )}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Radio className="w-7 h-7 relative z-10 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-            <span className={cn("relative z-10 font-black tracking-tight text-lg", isLight ? "text-gray-900" : "text-white")}>Radio Player</span>
+            <Radio className="w-5 h-5 text-emerald-400" />
+            Radio Player
           </button>
         </motion.div>
 
-        {/* Upgrade Button - Flagship Mexican Pink */}
+        {/* Upgrade Button */}
         <motion.div variants={childVariant}>
           <button
             onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
-            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] mexican-pink-premium relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl"
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl mexican-pink-premium relative overflow-hidden active:scale-[0.97] transition-transform shadow-lg font-bold text-sm"
           >
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
-            <Crown className="w-7 h-7 relative z-10 drop-shadow-lg animate-pulse" />
-            <span className="relative z-10 font-black tracking-tight text-lg">Premium Upgrade</span>
+            <Crown className="w-5 h-5 relative z-10 drop-shadow-lg" />
+            <span className="relative z-10">Premium Upgrade</span>
           </button>
         </motion.div>
 
@@ -306,13 +273,12 @@ const ClientProfileNew = () => {
         <motion.div variants={childVariant} className="space-y-3">
           <button
             onClick={() => { haptics.tap(); navigate('/client/settings'); }}
-            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] font-black text-sm transition-all active:scale-[0.97] border-2"
-            style={{
-              background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
-              borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)',
-              color: 'var(--foreground)',
-              boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.03)' : 'none'
-            }}
+            className={cn(
+              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
+              isLight
+                ? "bg-card border-border/40 text-foreground shadow-sm"
+                : "bg-white/[0.04] border-white/[0.06] text-foreground"
+            )}
           >
             <Settings className="w-5 h-5 opacity-70" />
             Settings
@@ -320,7 +286,7 @@ const ClientProfileNew = () => {
 
           <button
             onClick={() => { haptics.warning(); signOut(); }}
-            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border border-red-500/20 bg-red-500/5 text-red-500"
           >
             <LogOut className="w-5 h-5" />
             Sign Out
