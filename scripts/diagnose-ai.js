@@ -148,4 +148,3 @@ console.log(`Endpoint: ${FUNCTION_URL}`);
   await testAuthenticatedChat();
   console.log("\n━━━ Done ━━━\n");
 })();
-

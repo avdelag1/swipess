@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 export interface InterestedClient {
   id: string; // like id

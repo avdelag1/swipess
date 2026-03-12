@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast as sonnerToast } from 'sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 export default function OwnerPropertyClientDiscovery() {
   const navigate = useNavigate();

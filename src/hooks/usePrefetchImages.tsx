@@ -132,6 +132,6 @@ export function usePrefetchImages({
       const toRemove = keys.slice(0, keys.length - 40);
       toRemove.forEach(key => imageCache.current.delete(key));
     }
-     
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, profiles, prefetchCount, nextProfileIds, trigger]);
 }

@@ -46,18 +46,19 @@ const deferredInit = (callback: () => void, timeout = 3000) => {
 deferredInit(async () => {
   try {
     const [
-      { checkAppVersion, setupUpdateChecker },
+      { logBundleSize },
+      { setupUpdateChecker, checkAppVersion },
       { initPerformanceOptimizations },
       { initWebVitalsMonitoring },
       { initOfflineSync },
     ] = await Promise.all([
-      // import("@/utils/performance"),
+      import("@/utils/performance"),
       import("@/utils/cacheManager"),
       import("@/utils/performanceMonitor"),
       import("@/utils/webVitals"),
       import("@/utils/offlineSwipeQueue"),
     ]);
-    // logBundleSize();
+    logBundleSize();
     checkAppVersion();
     // Check for updates every 60 seconds (more aggressive)
     setupUpdateChecker(60000);

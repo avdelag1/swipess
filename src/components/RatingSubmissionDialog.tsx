@@ -20,7 +20,7 @@ import { useRatingCategory, useCreateRating, useCanRate, useHasRated } from '@/h
 import type { CreateRatingInput } from '@/hooks/useRatingSystem';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/components/ui/sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 
 interface RatingSubmissionDialogProps {

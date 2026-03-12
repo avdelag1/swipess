@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * Type aligned with actual DB columns in client_filter_preferences table.

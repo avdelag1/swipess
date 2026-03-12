@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface Conversation {
   id: string;
@@ -22,7 +22,7 @@ interface Conversation {
     role: string;
   };
   last_message?: {
-    content: string;
+    message_text: string;
     created_at: string;
     sender_id: string;
   };
@@ -108,7 +108,7 @@ export function useConversations() {
         // OPTIMIZED: Single query for all last messages instead of N queries
         const { data: messagesData, error: messagesError } = await supabase
           .from('conversation_messages')
-          .select('conversation_id, content, created_at, sender_id')
+          .select('conversation_id, message_text, created_at, sender_id')
           .in('conversation_id', conversationIds)
           .order('created_at', { ascending: false });
 
@@ -219,7 +219,7 @@ export function useConversations() {
       const [profileResult, listingResult, messagesResult] = await Promise.all([
         otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
-        supabase.from('conversation_messages').select('conversation_id, content, created_at, sender_id').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
+        supabase.from('conversation_messages').select('conversation_id, message_text, created_at, sender_id').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
 
       const otherUserProfile = (profileResult as any).data;

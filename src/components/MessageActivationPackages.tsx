@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X } from "lucide-react";
-import { toast } from "@/components/ui/sonner";
+import { useToast } from "@/hooks/use-toast";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,7 @@ export function MessageActivationPackages({
   showAsPage = false,
   userRole
 }: MessageActivationPackagesProps) {
+  const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme !== 'white-matte';
@@ -130,13 +131,13 @@ export function MessageActivationPackages({
   };
 
   const handlePurchase = async (pkg: TokenPackage) => {
-    sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
-    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
+    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
 
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');

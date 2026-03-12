@@ -8,7 +8,7 @@ import { DigitalSignaturePad } from '@/components/DigitalSignaturePad';
 import { useSignContract } from '@/hooks/useContracts';
 import { FileText, Download } from 'lucide-react';
 import { toast } from 'sonner';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface ContractSigningDialogProps {
   contractId: string;

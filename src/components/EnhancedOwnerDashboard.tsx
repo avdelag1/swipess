@@ -11,13 +11,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
-import { logger } from '@/utils/logger';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
   onMessageClick?: () => void;
-  filters?: Record<string, unknown>; // Combined quick filters + advanced filters from DashboardLayout
+  filters?: any; // Combined quick filters + advanced filters from DashboardLayout
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
@@ -32,7 +31,10 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs } = useOwnerClientPreferences();
-  const hydrateOwnerPrefs = useFilterStore((s) => s.hydrateOwnerPrefs);
+  const setClientGender = useFilterStore((s) => s.setClientGender);
+  const setClientAgeRange = useFilterStore((s) => s.setClientAgeRange);
+  const setClientBudgetRange = useFilterStore((s) => s.setClientBudgetRange);
+  const setClientNationalities = useFilterStore((s) => s.setClientNationalities);
   const storeGender = useFilterStore((s) => s.clientGender);
   const hydratedRef = useRef(false);
 
@@ -43,15 +45,19 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     const genders = ownerPrefs.selected_genders as string[] | null;
     const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
 
-    const updates: Parameters<typeof hydrateOwnerPrefs>[0] = {};
-    if (storeGender === 'any' && genders?.length) updates.clientGender = genders[0] as any;
-    if (ownerPrefs.min_age != null || ownerPrefs.max_age != null)
-      updates.clientAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
-    if (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)
-      updates.clientBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
-    if (nationalities?.length) updates.clientNationalities = nationalities;
-    if (Object.keys(updates).length > 0) hydrateOwnerPrefs(updates);
-  }, [ownerPrefs, storeGender, hydrateOwnerPrefs]);
+    if (storeGender === 'any' && genders?.length) {
+      setClientGender(genders[0] as any);
+    }
+    if (ownerPrefs.min_age != null || ownerPrefs.max_age != null) {
+      setClientAgeRange([ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65]);
+    }
+    if (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null) {
+      setClientBudgetRange([ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000]);
+    }
+    if (nationalities?.length) {
+      setClientNationalities(nationalities);
+    }
+  }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
   // Connect filter store to swipe container (fixes missing filters when rendered as a route)
   const filterVersion = useFilterStore((s) => s.filterVersion);
@@ -65,16 +71,16 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   if (import.meta.env.DEV) console.log('[EnhancedOwnerDashboard] Rendering with filters:', mergedFilters);
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
-    filterCategory as 'property' | 'moto' | 'bicycle' | undefined,
+    filterCategory as any,
     0,      // page
     50,     // limit
     false,  // isRefreshMode
-    mergedFilters as Record<string, unknown> // FIX: Now includes synced filters!
+    mergedFilters as any // FIX: Now includes synced filters!
   );
 
   if (import.meta.env.DEV) {
     if (error) {
-      logger.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
+      console.error('[EnhancedOwnerDashboard] Profile fetch error:', error);
     } else {
       console.log('[EnhancedOwnerDashboard] Fetched profiles count:', clientProfiles.length);
     }

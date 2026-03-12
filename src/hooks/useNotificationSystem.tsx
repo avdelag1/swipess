@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
 
 type NotificationType = 'like' | 'message' | 'super_like' | 'match' | 'new_user' | 'premium_purchase' | 'activation_purchase';
@@ -21,7 +21,7 @@ interface Notification {
   metadata?: {
     role?: 'client' | 'owner';
     targetType?: 'listing' | 'profile';
-    [key: string]: unknown;
+    [key: string]: any;
   };
 }
 
@@ -36,7 +36,7 @@ interface DBNotification {
   title?: string;
   link_url?: string;
   related_user_id?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: any;
 }
 
 export function useNotificationSystem() {
@@ -145,7 +145,7 @@ export function useNotificationSystem() {
           filter: `user_id=eq.${user.id}`,
         },
         async (payload) => {
-          const dbNotification = payload.new as DBNotification;
+          const dbNotification = payload.new as any;
           if (!dbNotification) return;
 
           // Map database notification to frontend format
@@ -178,11 +178,11 @@ export function useNotificationSystem() {
 
           // Add avatar from metadata if available
           if (dbNotification.metadata?.liker_avatar) {
-            notification.avatar = dbNotification.metadata.liker_avatar as string;
+            notification.avatar = dbNotification.metadata.liker_avatar;
           } else if (dbNotification.metadata?.owner_avatar) {
-            notification.avatar = dbNotification.metadata.owner_avatar as string;
+            notification.avatar = dbNotification.metadata.owner_avatar;
           } else if (dbNotification.metadata?.sender_avatar) {
-            notification.avatar = dbNotification.metadata.sender_avatar as string;
+            notification.avatar = dbNotification.metadata.sender_avatar;
           }
 
           // OPTIMIZATION: Add to pending queue instead of immediate state update

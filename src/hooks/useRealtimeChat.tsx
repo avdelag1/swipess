@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { useProfileCache } from '@/hooks/useProfileCache';
 
 interface TypingUser {
@@ -29,9 +29,9 @@ export function useRealtimeChat(conversationId: string) {
   const [isConnected, setIsConnected] = useState(true); // Start as true to avoid initial flicker
 
   // Track typing with debounce - use ref to avoid circular dependencies
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const typingChannelRef = useRef<any>(null);
-  const connectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use ref to track typing state to avoid dependency on isTyping in callback
   const isTypingRef = useRef(false);

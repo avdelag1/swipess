@@ -15,7 +15,6 @@ import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
-import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import Index from "./pages/Index";
@@ -33,6 +32,7 @@ import { PersistentDashboardLayout } from "@/components/PersistentDashboardLayou
 
 
 // Import UI components directly (not lazy) to avoid useContext issues with ThemeProvider
+import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -127,6 +127,7 @@ const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 // Test pages
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
 const AITestPage = lazy(() => import("./pages/AITestPage"));
+const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
 const queryClient = new QueryClient({
@@ -208,12 +209,16 @@ const App = () => {
                           <ProfileSyncWrapper>
                             <NotificationWrapper>
                               <PushNotificationWrapper>
+                                {/* Guided tour for first-time users */}
+                                <GuidedTourLazy />
+
                                 {/* Update notification banner */}
                                 <UpdateNotification />
 
                                 <AppLayout>
                                   <TooltipProvider>
                                     <Sonner />
+                                    <Toaster />
                                   </TooltipProvider>
                                   <Suspense fallback={<SuspenseFallback />}>
                                     <Routes>
@@ -292,8 +297,8 @@ const App = () => {
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
-                                      <Route path="/payment/success" element={<PaymentErrorBoundary><PaymentSuccess /></PaymentErrorBoundary>} />
-                                      <Route path="/payment/cancel" element={<PaymentErrorBoundary><PaymentCancel /></PaymentErrorBoundary>} />
+                                      <Route path="/payment/success" element={<PaymentSuccess />} />
+                                      <Route path="/payment/cancel" element={<PaymentCancel />} />
 
                                       {/* Legal Pages - Public Access */}
                                       <Route path="/privacy-policy" element={<PrivacyPolicy />} />

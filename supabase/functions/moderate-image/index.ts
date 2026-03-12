@@ -5,19 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const ALLOWED_IMAGE_HOSTS = ["supabase.co", "supabase.in"];
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
-  // Require a valid Bearer token
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
 
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -25,24 +14,6 @@ serve(async (req) => {
 
     const { imageUrl } = await req.json();
     if (!imageUrl) throw new Error("imageUrl is required");
-
-    // Validate imageUrl to prevent SSRF — only allow Supabase storage hosts
-    let parsedUrl: URL;
-    try {
-      parsedUrl = new URL(imageUrl);
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid imageUrl" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    const isAllowedHost = ALLOWED_IMAGE_HOSTS.some(h => parsedUrl.hostname.endsWith(h));
-    if (!isAllowedHost) {
-      return new Response(JSON.stringify({ error: "imageUrl host not permitted" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

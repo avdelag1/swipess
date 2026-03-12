@@ -20,7 +20,7 @@ import {
   getCitiesInCountry,
   getCityByName,
 } from '@/data/worldLocations';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 
 import {

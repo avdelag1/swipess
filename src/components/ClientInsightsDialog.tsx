@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from 'sonner';
 import { useState, memo, useMemo, useCallback } from 'react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';
 
 // Interest category icons for visual display

@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { ClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useState as useReactState } from 'react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 export default function OwnerViewClientProfile() {

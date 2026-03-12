@@ -17,7 +17,7 @@ import { MessageActivationPackages } from '@/components/MessageActivationPackage
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { SubscriptionPackages } from '@/components/SubscriptionPackages';
 import { ChatPreviewSheet } from '@/components/ChatPreviewSheet';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
 import { useContentModeration } from '@/hooks/useContentModeration';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
@@ -128,7 +128,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
   const [showConnecting, setShowConnecting] = useState(false);
-  const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check monthly message limits
   const { canSendMessage, messagesRemaining, isAtLimit, hasMonthlyLimit } = useMonthlyMessageLimits();

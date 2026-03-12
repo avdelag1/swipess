@@ -22,7 +22,7 @@ import { MessageActivationPackages } from '@/components/MessageActivationPackage
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 // Helper to check free messaging eligibility - extracted to avoid TS deep instantiation
 async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
@@ -106,7 +106,7 @@ export function MessagingDashboard() {
   }, [conversations, prefetchTopConversationMessages]);
 
   // Debounced refetch to prevent excessive queries on rapid real-time events
-  const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const refetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedRefetch = useCallback(() => {
     if (refetchTimeoutRef.current) {
       clearTimeout(refetchTimeoutRef.current);
@@ -367,7 +367,7 @@ export function MessagingDashboard() {
             {otherUser ? (
               <MessagingInterface
                 conversationId={selectedConversationId}
-                otherUser={{ ...otherUser, role: (otherUser.role as 'client' | 'owner') || 'client' }}
+                otherUser={otherUser}
                 listing={listing}
                 currentUserRole={userRole}
                 onBack={() => {
@@ -494,7 +494,7 @@ export function MessagingDashboard() {
                         </div>
                         <div className="flex items-center gap-2">
                           <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
-                            {conversation.last_message?.content || 'Start a conversation...'}
+                            {conversation.last_message?.message_text || 'Start a conversation...'}
                           </p>
                           {hasUnread && (
                             <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />

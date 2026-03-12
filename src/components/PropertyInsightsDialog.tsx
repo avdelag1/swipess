@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStartConversation } from '@/hooks/useConversations';
 import { toast } from 'sonner';
 import { useState, useMemo, useCallback, memo } from 'react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * iOS-grade skeleton loader for dialog content
@@ -533,27 +533,27 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                   Service Rates
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
-                  {(listing.rental_rates as any)?.hourly && (
+                  {listing.rental_rates.hourly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).hourly)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.hourly}</div>
                       <div className="text-xs text-muted-foreground">per hour</div>
                     </div>
                   )}
-                  {(listing.rental_rates as any)?.daily && (
+                  {listing.rental_rates.daily && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).daily)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.daily}</div>
                       <div className="text-xs text-muted-foreground">per day</div>
                     </div>
                   )}
-                  {(listing.rental_rates as any)?.weekly && (
+                  {listing.rental_rates.weekly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).weekly)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.weekly}</div>
                       <div className="text-xs text-muted-foreground">per week</div>
                     </div>
                   )}
-                  {(listing.rental_rates as any)?.monthly && (
+                  {listing.rental_rates.monthly && (
                     <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${String((listing.rental_rates as any).monthly)}</div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.monthly}</div>
                       <div className="text-xs text-muted-foreground">per month</div>
                     </div>
                   )}

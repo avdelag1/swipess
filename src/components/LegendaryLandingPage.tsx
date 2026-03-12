@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { FaGoogle } from 'react-icons/fa';
@@ -355,7 +355,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   <Input
                     type="text" value={name} onChange={(e) => setName(e.target.value)} required
                     placeholder="Full Name"
-                    className="pl-10 h-11 text-sm bg-muted border border-border rounded-full text-foreground placeholder:text-muted-foreground"
+                    className="pl-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                   />
                 </motion.div>
               )}
@@ -369,7 +369,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   autoComplete="username"
                   value={email} onChange={(e) => setEmail(e.target.value)} required
                   placeholder="Email"
-                  className="pl-10 h-11 text-sm bg-muted border border-border rounded-full text-foreground placeholder:text-muted-foreground"
+                  className="pl-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                 />
               </motion.div>
 
@@ -384,7 +384,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                       autoComplete={isLogin ? "current-password" : "new-password"}
                       value={password} onChange={(e) => setPassword(e.target.value)} required
                       placeholder="Password"
-                      className="pl-10 pr-10 h-11 text-sm bg-muted border border-border rounded-full text-foreground placeholder:text-muted-foreground"
+                      className="pl-10 pr-10 h-11 text-sm bg-muted border border-border rounded-lg text-foreground placeholder:text-muted-foreground"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
@@ -546,7 +546,7 @@ function LegendaryLandingPage() {
   const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden">
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
       <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">

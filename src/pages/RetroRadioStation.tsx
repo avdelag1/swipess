@@ -100,8 +100,7 @@ export default function RetroRadioStation() {
     play, setMiniPlayerMode, toggleShuffle
   } = useRadio();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setMiniPlayerMode('expanded'); }, []);
+  useEffect(() => { setMiniPlayerMode('expanded'); }, [setMiniPlayerMode]);
 
   const [showDrawer, setShowDrawer] = useState(false);
   const [showFavoritesDrawer, setShowFavoritesDrawer] = useState(false);

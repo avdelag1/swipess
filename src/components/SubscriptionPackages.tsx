@@ -118,8 +118,8 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
 
   const handleSubscribe = async (plan: Plan) => {
     const selection = { role: userRole, planId: plan.id, name: plan.name, price: plan.price, at: new Date().toISOString() };
-    sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
-    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify(selection));
+    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
 
     window.open(plan.paypalUrl, '_blank');
 
@@ -136,8 +136,8 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         message: `You selected the ${plan.name} package (${plan.price}). Complete payment to activate your premium benefits!`,
         is_read: false
       }]).then(
-        () => { },
-        () => { }
+        () => {},
+        () => {}
       );
     }
   };

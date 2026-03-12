@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPriceMXN } from '@/utils/subscriptionPricing';
-import { toast } from '@/components/ui/sonner';
+import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
@@ -77,6 +77,7 @@ function TopBarComponent({
   const navigate = useNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;
@@ -128,13 +129,13 @@ function TopBarComponent({
   const tierNames: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
 
   const handleQuickPurchase = (pkg: any, tier: string) => {
-    sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.message_activations,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
-    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole || 'client'}/dashboard`);
+    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole || 'client'}/dashboard`);
 
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');
@@ -207,7 +208,30 @@ function TopBarComponent({
               </motion.button>
             )}
 
-            {!user && !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />}
+            {/* User Avatar - Tapping navigates to profile */}
+            {user ? (
+              <motion.button
+                whileTap={{ scale: 0.92 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  haptics.tap();
+                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                  navigate(profilePath);
+                }}
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
+                aria-label="Go to profile"
+              >
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
+                  <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
+                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </motion.button>
+            ) : (
+              !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />
+            )}
 
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
@@ -217,71 +241,21 @@ function TopBarComponent({
             </div>
 
             {showFilters && userRole && (
-              <QuickFilterDropdown userRole={userRole} className="flex-shrink-0" />
-            )}
-
-            {/* AI Search integrated into scrollable list */}
-            <Button
-              id="ai-search-button"
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "relative h-8 w-8 rounded-xl transition-all duration-100 ease-out flex-shrink-0",
-                "active:scale-[0.95]",
-                "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent"
-              )}
-              style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
-              onClick={() => onAISearchClick?.()}
-              aria-label="AI Search"
-            >
-              <Sparkles className="h-3 w-3 text-pink-400 animate-pulse" />
-            </Button>
-
-            {/* Notifications integrated into scrollable list */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "relative h-8 w-8 rounded-xl transition-all duration-100 ease-out flex-shrink-0",
-                "active:scale-[0.95]",
-                "group",
-                "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent"
-              )}
-              style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
-              onPointerDown={() => haptics.tap()}
-              onClick={() => onNotificationsClick?.()}
-              aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
-            >
-              <div className="relative">
-                <Bell
-                  strokeWidth={4}
-                  className={cn(
-                    "h-3 w-3 transition-colors duration-150",
-                    notificationCount > 0 ? (isDark ? "text-orange-200" : "text-orange-600") : (isDark ? "text-gray-50" : "text-gray-900")
-                  )}
-                />
+              <div className="flex-shrink-0">
+                <QuickFilterDropdown userRole={userRole} />
               </div>
-            </Button>
+            )}
           </div>
 
           {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
           <div
             className="flex-1 h-full cursor-pointer flex items-center justify-center"
-            onPointerDown={() => haptics.tap()}
-            onClick={() => {
-              const dashboardPath = userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard';
-              navigate(dashboardPath);
+            onPointerDown={(e) => {
+              e.preventDefault();
+              haptics.tap();
+              navigate('/dashboard');
             }}
+            onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
           >
             {title ? (
@@ -313,13 +287,8 @@ function TopBarComponent({
                     "flex items-center gap-1",
                     "liquid-glass-card refraction-edge glass-nano-texture"
                   )}
-                  style={{
-                    backgroundColor: glassBg,
-                    border: glassBorder,
-                    boxShadow: floatingShadow,
-                  }}
-                  onPointerDown={() => haptics.tap()}
-                  onClick={() => setTokensOpen(!tokensOpen)}
+                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
+                  onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
                   <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
@@ -453,13 +422,8 @@ function TopBarComponent({
                 "-webkit-tap-highlight-color-transparent",
                 "liquid-glass-card refraction-edge glass-nano-texture"
               )}
-              style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
-              onPointerDown={() => haptics.tap()}
-              onClick={() => onNotificationsClick?.()}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
+              onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
             >
               <div className="relative">
@@ -491,29 +455,6 @@ function TopBarComponent({
                 </span>
               )}
             </Button>
-
-            {/* User Avatar - rightmost item, tapping navigates to profile */}
-            {user && (
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  haptics.tap();
-                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                  navigate(profilePath);
-                }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
-                aria-label="Go to profile"
-              >
-                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
-                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
-                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </motion.button>
-            )}
           </div>
         </div>
       </header>

@@ -6,7 +6,7 @@ import LegendaryLandingPage from "@/components/LegendaryLandingPage";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { logger } from "@/utils/logger";
+import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 
 const Index = () => {

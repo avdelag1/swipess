@@ -165,10 +165,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </div>
 
             <div>
-              <h2 className={cn("font-black text-sm tracking-tighter leading-none mb-0.5 uppercase italic", isDark ? "text-white" : "text-gray-900")}>Swipess <span className="text-primary not-italic tracking-normal">Oracle</span></h2>
+              <h2 className={cn("font-black text-base tracking-tight leading-none mb-0.5", isDark ? "text-white" : "text-gray-900")}>AI Assistant</h2>
               <div className="flex items-center gap-1.5">
-                <div className="w-1 h-1 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(255,77,0,0.8)]" />
-                <p className={cn("text-[9px] font-black uppercase tracking-widest", isDark ? "text-white/40" : "text-gray-400")}>Neural Interface v2.5</p>
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-orange-400 to-pink-400")}>Personal Concierge</p>
               </div>
             </div>
           </div>
@@ -260,19 +260,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           {isTyping && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 pl-2">
               <div className={cn(
-                "w-9 h-9 rounded-xl flex items-center justify-center border relative overflow-hidden",
+                "w-10 h-10 rounded-2xl flex items-center justify-center border",
                 isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
               )}>
                 <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
-                <div className="absolute inset-0 bg-primary/5 animate-pulse" />
               </div>
-              <div className="bg-muted/40 backdrop-blur-md px-5 py-3 rounded-[1.8rem] rounded-tl-sm text-xs font-black text-primary flex items-center gap-2.5 shadow-sm border border-primary/10">
-                <div className="flex gap-1">
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
-                  <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
-                </div>
-                Oracle Thinking
+              <div className="bg-muted px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-muted-foreground flex items-center gap-2">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Thinking...
               </div>
             </motion.div>
           )}

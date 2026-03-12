@@ -11,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useSecuritySettings } from '@/hooks/useSecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 interface AccountSecurityProps {
   userRole: 'client' | 'owner';
