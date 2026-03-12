@@ -1,46 +1,84 @@
 
+Goal: fully stabilize access by fixing all compile-time blockers first, then hardening runtime paths causing the dashboard crash.
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+Do I know what the issue is? Yes.
+There are 3 root causes:
+1) TypeScript regressions from recent UI edits (the listed build errors).
+2) Type drift between two different `ListingFilters` type definitions.
+3) Runtime instability on `/dashboard` (React #185 / max update depth symptoms) likely amplified by backend config drift and repeated error/re-render paths.
 
-### 1. Replace App Icon with Fire S Logo
+What is noise vs real blocker from your logs:
+- Noise (not app-breaking): adblocker `ERR_BLOCKED_BY_ADBLOCKER`, marketing pixel timeouts, consent warnings, iframe sandbox warnings.
+- Real blockers: React error #185, failing app route render to error boundary, and mismatched backend URL usage in app requests.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+Implementation plan (in order)
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+1) Unblock build (strict compile fixes)
+- Replace all `NodeJS.Timeout` refs with browser-safe timeout type:
+  - `ReturnType<typeof setTimeout>`
+  - Files:
+    - `src/components/CategorySelectionDialog.tsx`
+    - `src/components/MessagingInterface.tsx`
+    - `src/components/SwipessSwipeContainer.tsx`
+    - `src/contexts/RadioContext.tsx`
+    - `src/hooks/useAuth.tsx`
+    - `src/hooks/useFilterPersistence.ts`
+    - `src/hooks/useRealtimeChat.tsx`
+    - `src/pages/MessagingDashboard.tsx`
+- Add missing import in `src/components/MyHubActivityFeed.tsx`:
+  - `import { Button } from '@/components/ui/button';`
+- Fix profile field mismatches in `src/components/MyHubProfileHeader.tsx`:
+  - Replace `ownerProfile.full_name` → `ownerProfile.business_name`
+  - Replace `ownerProfile.bio` → `ownerProfile.business_description`
+  - Replace `location` access with derived string from known fields:
+    - client: `city/country/neighborhood`
+    - owner: `business_location`
+- Fix quick-filter typing/haptics in `src/components/MyHubQuickFilters.tsx`:
+  - category id `'moto'` → `'motorcycle'`
+  - `haptics.selection()` → `haptics.select()`
+- Fix notifications haptics and nullable user id in `src/pages/NotificationsPage.tsx`:
+  - `haptics.impact('light')` → valid haptic call (`triggerHaptic('light')` or `haptics.tap/select`)
+  - guard `if (!user?.id) return` before delete query, then use `user.id` (non-optional).
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+2) Remove type drift (prevents repeat breakage)
+- Unify `ListingFilters` so dashboard/filter/store/smart-matching all use one source of truth.
+- Preferred approach:
+  - In `src/hooks/smartMatching/types.ts`, alias/export `ListingFilters` from `src/types/filters`.
+  - Keep smart-matching-specific types for matched entities only.
+- This resolves:
+  - `src/pages/MyHub.tsx` filter type incompatibility
+  - downstream casts between `ClientDashboard` and `SwipessSwipeContainer`.
 
-### 2. Profile Photo Already Shows in Top-Left
+3) Fix messaging role typing at boundary
+- In `src/pages/MessagingDashboard.tsx` (and optionally `src/hooks/useConversations.tsx`), enforce:
+  - `role: 'client' | 'owner'` instead of `string`
+- Normalize `otherUser` before passing to `MessagingInterface`:
+  - `role = otherUser.role === 'owner' ? 'owner' : 'client'`
+- This resolves the `otherUser` prop assignment error safely.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+4) Runtime access audit + hardening (/dashboard crash)
+- Backend config correction:
+  - App requests are hitting an old backend project ref in runtime.
+  - Restore generated backend client configuration to current project env values (no stale hardcoded fallback behavior).
+- React #185 hardening:
+  - Add defensive short-circuiting for repeated failed fetch paths (especially listing/feed hooks) to avoid cascading state updates/toasts.
+  - Ensure any error toast/state update is deduped/throttled during persistent backend failure states.
+  - Keep error paths returning stable values (`[]` / `null`) without triggering reset loops.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+5) Verification checklist (must pass before closing)
+- Typecheck/build: zero TS errors.
+- Route smoke tests:
+  - `/dashboard` loads without error boundary.
+  - `/messages` opens conversation list and thread.
+  - `/notifications` can remove single item and unlike without TS/runtime errors.
+- Data path checks:
+  - network requests target the current project backend (not old project ref).
+  - listing fetches return valid status and no infinite retry/render loop.
+- Stability:
+  - no recurring React #185 after refresh + navigation back to `/dashboard`.
 
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
-
+Technical notes (for implementation quality)
+- Keep timeout typing browser-native to avoid coupling app tsconfig to Node globals.
+- Don’t keep duplicate filter interfaces in multiple modules.
+- Normalize role/type data at integration boundaries (API → UI props).
+- Treat adblocker/marketing script console noise as non-blocking unless core app APIs fail.
