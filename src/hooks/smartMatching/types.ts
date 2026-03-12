@@ -1,6 +1,5 @@
 import { Listing } from '../useListings';
 import { ClientFilterPreferences } from '../useClientFilterPreferences';
-import type { ListingFilters } from '@/types/filters';
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Types
