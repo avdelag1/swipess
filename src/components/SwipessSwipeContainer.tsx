@@ -267,62 +267,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  // FILTER CHANGE DETECTION: Reset deck when filters change
-  // Track previous filter state to detect changes
-  const prevFiltersRef = useRef(filters);
-  useEffect(() => {
-    // Skip on initial mount
-    if (!prevFiltersRef.current && !filters) return;
-
-    // PERFORMANCE: Use efficient comparison instead of JSON.stringify
-    const arraysEqual = (a?: any[], b?: any[]) => {
-      if (!a && !b) return true;
-      if (!a || !b) return false;
-      if (a.length !== b.length) return false;
-      return a.every((val, i) => val === b[i]);
-    };
-
-    const objectsEqual = (a?: any, b?: any) => {
-      if (!a && !b) return true;
-      if (!a || !b) return false;
-      const keysA = Object.keys(a);
-      const keysB = Object.keys(b);
-      if (keysA.length !== keysB.length) return false;
-      return keysA.every(key => a[key] === b[key]);
-    };
-
-    // Check if filters actually changed (optimized comparison)
-    // FIX: category is a string, not an array - use direct comparison
-    const filtersChanged =
-      !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
-      prevFiltersRef.current?.category !== filters?.category ||
-      prevFiltersRef.current?.listingType !== filters?.listingType ||
-      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange) ||
-      !arraysEqual(prevFiltersRef.current?.serviceCategory, filters?.serviceCategory) ||
-      !arraysEqual(prevFiltersRef.current?.workTypes, filters?.workTypes) ||
-      !arraysEqual(prevFiltersRef.current?.skills, filters?.skills) ||
-      !arraysEqual(prevFiltersRef.current?.daysAvailable, filters?.daysAvailable) ||
-      !arraysEqual(prevFiltersRef.current?.experienceLevel, filters?.experienceLevel) ||
-      !arraysEqual(prevFiltersRef.current?.scheduleTypes, filters?.scheduleTypes);
-
-    if (filtersChanged) {
-      logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');
-
-      // Reset local state and refs
-      currentIndexRef.current = 0;
-      setCurrentIndex(0);
-      setDeckLength(0);
-      deckQueueRef.current = [];
-      swipedIdsRef.current.clear();
-      setPage(0);
-
-      // Reset store
-      resetClientDeck();
-
-      // Update prev filters
-      prevFiltersRef.current = filters;
-    }
-  }, [filters, resetClientDeck]);
+  // FILTER CHANGE DETECTION: Handled by the filterSignature-based effect below (lines ~556-578).
+  // A single reset path prevents duplicate state mutations that cause React error #185.
 
   // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
   // When true, skip initial animations to prevent "double render" feeling

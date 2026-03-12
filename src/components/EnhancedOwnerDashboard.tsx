@@ -84,8 +84,6 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }
 
-  const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
-
   const handleClientTap = (clientId: string) => {
     onClientInsights?.(clientId);
   };
@@ -94,14 +92,9 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   };
 
+  // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (
     <>
-      <NotificationBar
-        notifications={notifications}
-        onDismiss={dismissNotification}
-        onMarkAllRead={markAllAsRead}
-        onNotificationClick={handleNotificationClick}
-      />
       <ClientSwipeContainer
         onClientTap={handleClientTap}
         onInsights={handleInsights}
