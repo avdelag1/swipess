@@ -1,21 +1,32 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { Home, Wrench, Bike, PersonStanding, Users, Briefcase, type LucideIcon } from 'lucide-react';
+
+/**
+ * Category info returned by getActiveCategoryInfo
+ */
+export interface CategoryInfo {
+    singular: string;
+    plural: string;
+    icon: LucideIcon;
+    color: string;
+}
 
 /**
  * Utility to get information about the active category
  */
-export function getActiveCategoryInfo(filters: any, activeCategory?: any) {
+export function getActiveCategoryInfo(filters: any, activeCategory?: any): CategoryInfo {
     const cat = filters?.category || activeCategory || 'property';
 
-    const configs: Record<string, any> = {
-        property: { singular: 'Property', plural: 'Properties' },
-        worker: { singular: 'Worker', plural: 'Workers' },
-        motorcycle: { singular: 'Motorcycle', plural: 'Motorcycles' },
-        bicycle: { singular: 'Bicycle', plural: 'Bicycles' },
-        client: { singular: 'Client', plural: 'Clients' },
-        services: { singular: 'Service', plural: 'Services' },
+    const configs: Record<string, CategoryInfo> = {
+        property: { singular: 'Property', plural: 'Properties', icon: Home, color: 'text-primary' },
+        worker: { singular: 'Worker', plural: 'Workers', icon: Wrench, color: 'text-amber-500' },
+        motorcycle: { singular: 'Motorcycle', plural: 'Motorcycles', icon: Bike, color: 'text-red-500' },
+        bicycle: { singular: 'Bicycle', plural: 'Bicycles', icon: Bike, color: 'text-green-500' },
+        client: { singular: 'Client', plural: 'Clients', icon: Users, color: 'text-blue-500' },
+        services: { singular: 'Service', plural: 'Services', icon: Briefcase, color: 'text-purple-500' },
     };
 
-    return configs[cat] || { singular: 'Listing', plural: 'Listings' };
+    return configs[cat] || { singular: 'Listing', plural: 'Listings', icon: Home, color: 'text-primary' };
 }
 
 /**

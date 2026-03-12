@@ -135,6 +135,10 @@ export default defineConfig(({ mode }) => ({
   // Define global constants available in app code
   define: {
     'import.meta.env.VITE_BUILD_TIME': JSON.stringify(GLOBAL_BUILD_TIME),
+    // Ensure correct Lovable Cloud backend — overrides stale fallbacks in client.ts
+    'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(process.env.VITE_SUPABASE_URL || 'https://qegyisokrxdsszzswsqk.supabase.co'),
+    'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(process.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ3lpc29rcnhkc3N6enN3c3FrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNjY0NTIsImV4cCI6MjA4NTg0MjQ1Mn0.4tdJ82fDnFXaJ6SHpfveCiGxGm2S4II6NNIbGUnT2ZU'),
+    'import.meta.env.VITE_SUPABASE_PROJECT_ID': JSON.stringify(process.env.VITE_SUPABASE_PROJECT_ID || 'qegyisokrxdsszzswsqk'),
   },
   server: {
     host: "::",
