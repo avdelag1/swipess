@@ -6,6 +6,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
+import { MyHubProfileHeader } from "@/components/MyHubProfileHeader";
+import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
+import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
 import {
   LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Heart, Settings, Radio
 } from "lucide-react";
