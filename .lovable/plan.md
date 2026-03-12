@@ -1,76 +1,46 @@
 
 
-## Problem
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-The `/dashboard` route is a "dead" path that shows a blank/broken page. Multiple places in the app navigate to `/dashboard` instead of the role-specific `/client/dashboard` or `/owner/dashboard`, trapping users on a non-functional page. The user keeps getting stuck there.
+### 1. Replace App Icon with Fire S Logo
 
-Additionally, the backend client file (`src/integrations/supabase/client.ts`) has hardcoded fallback values pointing to an OLD project (`vplgtcguxujxwrgguxqq`), while the actual Lovable Cloud project is `qegyisokrxdsszzswsqk`. This means all data requests hit the wrong backend.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Root Causes
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-1. **`/dashboard` route exists** in `App.tsx` (line 283) as a shared route rendering `<MyHub />`, but it has no role context and breaks layout derivation
-2. **Several navigation paths** send users to `/dashboard` instead of role-specific paths:
-   - `TopBar.tsx` center tap zone (line 256)
-   - `useActiveMode.tsx` fallback navigation (line 242)
-   - `DashboardLayout.tsx` swipe navigation paths (lines 316, 323)
-   - `AITestPage.tsx` back button (line 122)
-3. **Backend project drift**: `client.ts` falls back to project `vplgtcguxujxwrgguxqq` (old project) when env vars are missing, causing 400 errors on listing fetches
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## Plan
+### 2. Profile Photo Already Shows in Top-Left
 
-### Phase 1: Remove /dashboard route and fix all references
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**`src/App.tsx`** (line 283):
-- Delete the route `<Route path="/dashboard" element={<MyHub />} />`
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**`src/components/TopBar.tsx`** (line 256):
-- Change `navigate('/dashboard')` to navigate to the mode-specific dashboard using `useActiveMode`:
-  - `navigate(activeMode === 'owner' ? '/owner/dashboard' : '/client/dashboard')`
+### 3. Fix Header Too Close to Top Edge
 
-**`src/hooks/useActiveMode.tsx`** (line 242):
-- Change fallback `navigate('/dashboard')` to `navigate('/client/dashboard')`
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**`src/components/DashboardLayout.tsx`** (lines 316, 323):
-- Replace `'/dashboard'` in `clientSwipePaths` with `'/client/dashboard'`
-- Replace `'/dashboard'` in `ownerSwipePaths` with `'/owner/dashboard'`
-- Update `isOnDiscoveryPage` check (line 539-540) to remove `|| location.pathname === '/dashboard'`
-- Update `immersiveRoutes` array (line 570) to remove `'/dashboard'`
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**`src/components/PersistentDashboardLayout.tsx`** (lines 31-33):
-- Remove the `/dashboard` case from `getRoleFromPath`
+### 4. Fix MarketingSlide Build Error
 
-**`src/pages/AITestPage.tsx`** (line 122):
-- Change `navigate('/dashboard')` to `navigate('/client/dashboard')`
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-### Phase 2: Add redirect catch for /dashboard
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-In `App.tsx`, add a redirect route so any bookmarks or stale links to `/dashboard` automatically go to the right place:
-```
-<Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />
-```
-This is placed OUTSIDE the protected route group as a simple redirect.
-
-### Phase 3: Fix backend project drift
-
-The auto-generated `src/integrations/supabase/client.ts` currently has hardcoded fallback values pointing to the OLD project. Since this file is auto-generated and must not be edited manually, this issue needs to be resolved by ensuring the `.env` values are always loaded. The `.env` file already has the correct values (`qegyisokrxdsszzswsqk`), so the fallback in the generated file should not normally activate. However, I will verify the env loading path is correct.
-
-### Phase 4: Update test file
-
-**`src/test/indexNavigation.test.tsx`**:
-- No changes needed -- tests already assert navigation to `/client/dashboard` and `/owner/dashboard`
-
-### Files to modify
-1. `src/App.tsx` -- remove route, add redirect
-2. `src/components/TopBar.tsx` -- fix center tap navigation
-3. `src/hooks/useActiveMode.tsx` -- fix fallback navigation
-4. `src/components/DashboardLayout.tsx` -- fix swipe paths + discovery check
-5. `src/components/PersistentDashboardLayout.tsx` -- remove /dashboard case
-6. `src/pages/AITestPage.tsx` -- fix back button
-
-### Expected outcome
-- `/dashboard` no longer exists as a renderable page
-- Any access to `/dashboard` redirects to `/client/dashboard`
-- All navigation paths use role-specific dashboard routes
-- Users always land on a working, role-aware dashboard
-- Landing page and auth flow remain unchanged for logged-out users
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

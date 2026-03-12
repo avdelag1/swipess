@@ -239,7 +239,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       logger.error('[ActiveMode] Navigation failed:', navError);
       // Fallback navigation
       try {
-        navigate('/dashboard', { replace: true });
+        navigate('/client/dashboard', { replace: true });
       } catch (fallbackError) {
         logger.error('[ActiveMode] Fallback navigation also failed:', fallbackError);
       }

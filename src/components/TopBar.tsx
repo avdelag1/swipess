@@ -253,7 +253,7 @@ function TopBarComponent({
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
-              navigate('/dashboard');
+              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
