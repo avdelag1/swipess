@@ -1,46 +1,55 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Plan: Swipe-Only Dashboards + Move MyHub to Profile Pages + Store Gemini API Key
 
-### 1. Replace App Icon with Fire S Logo
+## What You Want (Summary)
+- Both `/client/dashboard` and `/owner/dashboard` should show **only the swipe cards** (like Tinder)
+- The MyHub content (profile header, activity feed, quick filters) moves **inside the profile pages**
+- Store your Gemini API key as a backend secret for AI features
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+## Changes
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### 1. Store the Gemini API Key
+Add your Google/Gemini API key (`AIzaSyAYmqLXiAtZ5RLznHOhhq-KAkf5IUjFU0E`) as a secret called `GOOGLE_API_KEY` in the backend. The current AI orchestrator uses the Lovable Gateway (which already works), but this key will be available if we need direct Gemini API calls later.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### 2. Make Dashboards Swipe-Only
 
-### 2. Profile Photo Already Shows in Top-Left
+**`src/App.tsx`**:
+- Change `/client/dashboard` from `<MyHub />` to `<ClientDashboard />` (swipe cards only)
+- Change `/owner/dashboard` from `<MyHub />` to `<EnhancedOwnerDashboard />` (owner swipe cards only)
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**`src/pages/ClientDashboard.tsx`**:
+- Already renders `<SwipessSwipeContainer />` — this is exactly what we want. No changes needed.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**`src/components/EnhancedOwnerDashboard.tsx`**:
+- Already renders `<ClientSwipeContainer />` for owner card swiping. No changes needed.
 
-### 3. Fix Header Too Close to Top Edge
+### 3. Move MyHub Content into Profile Pages
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**`src/pages/ClientProfileNew.tsx`** (client profile):
+- Add `<MyHubProfileHeader />` at the top (unified presence card)
+- Add `<MyHubQuickFilters />` below the profile header
+- Add `<MyHubActivityFeed />` section with "Marketplace Feed" label
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**`src/pages/OwnerProfileNew.tsx`** (owner profile):
+- Same additions: `<MyHubProfileHeader />`, `<MyHubQuickFilters />`, `<MyHubActivityFeed />`
 
-### 4. Fix MarketingSlide Build Error
+### 4. Keep MyHub.tsx file
+We keep the file for now but it won't be used by any route. Can be cleaned up later.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+## Files to Modify
+1. `src/App.tsx` — swap route elements from MyHub to swipe containers
+2. `src/pages/ClientProfileNew.tsx` — add MyHub sections
+3. `src/pages/OwnerProfileNew.tsx` — add MyHub sections
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+## Files NOT Modified
+- `src/components/SwipessSwipeContainer.tsx` — already works standalone
+- `src/components/EnhancedOwnerDashboard.tsx` — already works standalone
+- `src/state/filterStore.ts` — no changes needed
+- `src/hooks/useFilterPersistence.ts` — no changes needed
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+## Expected Result
+- Tapping "Explore" (client) or "Dashboard" (owner) in bottom nav → shows **full-screen swipe cards** immediately
+- Profile pages show the hub content: your profile card, quick category filters, activity feed
+- AI orchestrator has access to your Gemini key
 
