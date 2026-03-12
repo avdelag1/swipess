@@ -280,7 +280,7 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-300 ease-out",
+                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-300 ease-out",
                     "hover:scale-105 active:scale-95 group",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
@@ -292,9 +292,6 @@ function TopBarComponent({
                   aria-label="Token Packages"
                 >
                   <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
-                  <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase hidden sm:inline">
-                    Tokens
-                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -415,7 +412,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
+                "relative h-9 w-9 rounded-xl transition-all duration-300 ease-out",
                 "hover:scale-105 active:scale-95 group",
                 "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
@@ -449,11 +446,7 @@ function TopBarComponent({
                 >
                   {notificationCount > 99 ? '99+' : notificationCount}
                 </motion.span>
-              ) : (
-                <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
-                  Alerts
-                </span>
-              )}
+              ) : null}
             </Button>
           </div>
         </div>
