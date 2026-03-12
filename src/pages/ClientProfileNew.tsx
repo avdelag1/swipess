@@ -2,6 +2,9 @@
 import { ClientProfileDialog } from "@/components/ClientProfileDialog";
 import { PhotoPreview } from "@/components/PhotoPreview";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
+import { MyHubProfileHeader } from "@/components/MyHubProfileHeader";
+import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
+import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
 import { useState, useCallback } from "react";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
