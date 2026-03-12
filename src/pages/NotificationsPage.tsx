@@ -162,7 +162,7 @@ export default function NotificationsPage() {
 
   const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    haptics.impact('light');
+    haptics.tap();
     try {
       const { error } = await supabase.from('notifications').delete().eq('id', id);
       if (error) throw error;
@@ -183,10 +183,11 @@ export default function NotificationsPage() {
 
   const removeLike = async (listingId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    haptics.impact('light');
+    haptics.tap();
+    if (!user?.id) return;
     setRemovingLikeId(listingId);
     try {
-      await supabase.from('likes').delete().eq('user_id', user?.id).eq('target_id', listingId).eq('target_type', 'listing');
+      await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', listingId).eq('target_type', 'listing');
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
       toast.success('Removed');
     } catch (e) { toast.error('Failed'); }
