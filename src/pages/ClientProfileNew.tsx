@@ -37,6 +37,7 @@ const ClientProfileNew = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isLight = theme === 'white-matte';
+  const { data: stats } = useClientStats();
 
   const handlePhotoClick = useCallback((index: number) => {
     setSelectedPhotoIndex(index);
