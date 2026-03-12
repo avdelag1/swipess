@@ -243,7 +243,7 @@ const App = () => {
                                         </ProtectedRoute>
                                       }>
                                         {/* Client routes */}
-                                        <Route path="/client/dashboard" element={<MyHub />} />
+                                        <Route path="/client/dashboard" element={<ClientDashboard />} />
                                         <Route path="/client/profile" element={<ClientProfile />} />
                                         <Route path="/client/settings" element={<ClientSettings />} />
                                         <Route path="/client/liked-properties" element={<ClientLikedProperties />} />
