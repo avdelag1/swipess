@@ -826,7 +826,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
         profileId: listing.id,
         viewType: 'listing',
         action: direction === 'right' ? 'like' : 'pass'
-      }).catch(() => { });
+      }).catch(() => { /* fire-and-forget: ignore analytics errors */ });
     });
 
     // Clear direction for next swipe
