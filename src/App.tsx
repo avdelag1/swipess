@@ -15,6 +15,7 @@ import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
+import { PaymentErrorBoundary } from "@/components/PaymentErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
 import Index from "./pages/Index";
@@ -291,8 +292,8 @@ const App = () => {
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
-                                      <Route path="/payment/success" element={<PaymentSuccess />} />
-                                      <Route path="/payment/cancel" element={<PaymentCancel />} />
+                                      <Route path="/payment/success" element={<PaymentErrorBoundary><PaymentSuccess /></PaymentErrorBoundary>} />
+                                      <Route path="/payment/cancel" element={<PaymentErrorBoundary><PaymentCancel /></PaymentErrorBoundary>} />
 
                                       {/* Legal Pages - Public Access */}
                                       <Route path="/privacy-policy" element={<PrivacyPolicy />} />
