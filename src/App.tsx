@@ -280,7 +280,7 @@ const App = () => {
                                         <Route path="/owner/filters" element={<OwnerFilters />} />
 
                                         {/* Shared routes (both roles) */}
-                                        <Route path="/dashboard" element={<MyHub />} />
+                                        {/* /dashboard removed — redirect handled below */}
                                         <Route path="/messages" element={<MessagingDashboard />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
