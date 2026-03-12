@@ -536,8 +536,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // Check if we're on a discovery page where filters should be shown
   // MUST be declared BEFORE enhancedChildren useMemo that references it
-  const isOnDiscoveryPage = (userRole === 'client' && (location.pathname === '/client/dashboard' || location.pathname === '/dashboard')) ||
-    (userRole === 'owner' && (location.pathname === '/owner/dashboard' || location.pathname === '/dashboard'));
+  const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
+    (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
   // FIX: Memoize cloned children to prevent infinite re-renders
   const enhancedChildren = useMemo(() => {
