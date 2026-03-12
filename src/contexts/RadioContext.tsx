@@ -40,7 +40,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     isShuffle: false,
     skin: 'retro',
     favorites: [],
-    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'expanded',
+    miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
 
   // Set loading to false immediately - don't block UI for preferences
