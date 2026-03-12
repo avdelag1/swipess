@@ -64,6 +64,30 @@ const OwnerProfileNew = () => {
       >
 
 
+        {/* Hub: Profile Presence */}
+        <motion.div variants={childVariant}>
+          <MyHubProfileHeader />
+        </motion.div>
+
+        {/* Hub: Quick Filters */}
+        <motion.div variants={childVariant}>
+          <MyHubQuickFilters />
+        </motion.div>
+
+        {/* Hub: Activity Feed */}
+        <motion.div variants={childVariant}>
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+              Marketplace Feed
+            </h3>
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
+              <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
+              <span className="text-[9px] font-black uppercase text-white/50 tracking-tighter">Live Updates</span>
+            </div>
+          </div>
+          <MyHubActivityFeed />
+        </motion.div>
+
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">

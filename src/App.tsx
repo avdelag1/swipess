@@ -258,7 +258,7 @@ const App = () => {
                                         <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
                                         {/* Owner routes */}
-                                        <Route path="/owner/dashboard" element={<MyHub />} />
+                                        <Route path="/owner/dashboard" element={<EnhancedOwnerDashboard />} />
                                         <Route path="/owner/profile" element={<OwnerProfile />} />
                                         <Route path="/owner/settings" element={<OwnerSettings />} />
                                         <Route path="/owner/properties" element={<OwnerProperties />} />
