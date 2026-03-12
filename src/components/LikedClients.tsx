@@ -6,7 +6,7 @@ import {
   Flame, Users, Search, Heart, ShieldCheck, ShieldAlert,
   Home, Briefcase, DollarSign, GripVertical,
 } from "lucide-react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
