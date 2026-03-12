@@ -231,7 +231,6 @@ const ClientWhoLikedYou = () => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence mode="popLayout">
               {filteredOwners.map((owner) => (
                 <Reorder.Item
                   key={owner.id}
@@ -246,7 +245,6 @@ const ClientWhoLikedYou = () => {
                   />
                 </Reorder.Item>
               ))}
-            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">

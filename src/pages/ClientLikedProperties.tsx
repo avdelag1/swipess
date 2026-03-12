@@ -191,7 +191,6 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence mode="popLayout">
               {orderedFilteredProperties.map((property) => (
                 <Reorder.Item
                   key={property.id}
@@ -206,7 +205,6 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   />
                 </Reorder.Item>
               ))}
-            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div
