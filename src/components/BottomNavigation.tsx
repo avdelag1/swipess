@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { startTransition, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -119,7 +119,7 @@ export function BottomNavigation({
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        navigate(item.path!);
       }
     },
     [navigate],
@@ -133,7 +133,7 @@ export function BottomNavigation({
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        navigate(item.path!);
       }
     },
     [navigate],
