@@ -58,6 +58,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const ripplesRef = useRef<Ripple[]>([]);
   const cloudsRef = useRef<CloudPuff[]>([]);
   const cheetahImgRef = useRef<HTMLImageElement | null>(null);
+  const beachImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
 
   const pointerRef = useRef({
