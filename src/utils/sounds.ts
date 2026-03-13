@@ -76,6 +76,16 @@ export const funnyLikePool: string[] = [
 ];
 
 /**
+ * Pool of jungle/jaguar sounds for the animal print background theme.
+ * Soft purrs and growls — exotic but not scary.
+ */
+export const jungleSoundPool: string[] = [
+  '/sounds/jungle-purr-1.mp3',
+  '/sounds/jungle-purr-2.mp3',
+  '/sounds/jungle-purr-3.mp3',
+];
+
+/**
  * Theme display names for UI
  */
 export const themeDisplayNames: Record<SwipeTheme, string> = {
@@ -132,6 +142,19 @@ export function playRandomZen(volume = 0.45): void {
   audio.volume = volume;
   audio.play().catch((error) => {
     console.warn('Random zen sound playback failed:', error);
+  });
+}
+
+/**
+ * Play a random jungle/jaguar purr sound
+ * @param volume - Volume level (0.0 to 1.0), default 0.3
+ */
+export function playJungleSound(volume = 0.3): void {
+  if (!jungleSoundPool.length) return;
+  const audio = new Audio(pickRandom(jungleSoundPool));
+  audio.volume = volume;
+  audio.play().catch((error) => {
+    console.warn('Jungle sound playback failed:', error);
   });
 }
 

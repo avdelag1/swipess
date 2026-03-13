@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useCallback } from 'react';
-import { playRandomZen } from '@/utils/sounds';
+import { playRandomZen, playJungleSound } from '@/utils/sounds';
 
-type EffectMode = 'cheetah' | 'stars' | 'orbs';
+export type EffectMode = 'cheetah' | 'stars' | 'orbs' | 'sunset';
 
 interface Star {
   x: number; y: number; baseX: number; baseY: number;
@@ -24,6 +24,18 @@ interface Ripple {
   x: number; y: number; birth: number; maxRadius: number;
 }
 
+interface CloudPuff {
+  x: number; y: number; birth: number;
+  particles: CloudParticle[];
+  hasRainbow: boolean;
+  hasSunRay: boolean;
+}
+
+interface CloudParticle {
+  x: number; y: number; vx: number; vy: number;
+  radius: number; opacity: number;
+}
+
 function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
@@ -31,6 +43,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const orbsRef = useRef<Orb[]>([]);
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const ripplesRef = useRef<Ripple[]>([]);
+  const cloudsRef = useRef<CloudPuff[]>([]);
   const cheetahImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
 
@@ -118,44 +131,75 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       });
     };
 
+    const spawnCloudPuff = (x: number, y: number) => {
+      const particles: CloudParticle[] = Array.from({ length: 10 }, () => {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 0.8 + 0.3;
+        return {
+          x: x + (Math.random() - 0.5) * 20,
+          y: y + (Math.random() - 0.5) * 20,
+          vx: Math.cos(angle) * speed,
+          vy: -Math.random() * 0.6 - 0.2, // float upward
+          radius: Math.random() * 6 + 3,
+          opacity: 0.7 + Math.random() * 0.3,
+        };
+      });
+      cloudsRef.current.push({
+        x, y, birth: performance.now(), particles,
+        hasRainbow: Math.random() < 0.05,
+        hasSunRay: Math.random() < 0.05,
+      });
+    };
+
+    // Pointer move on window (no sound)
     const handlePointerMove = (e: PointerEvent) => {
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
       pointerRef.current.isActive = true;
     };
-    const handlePointerDown = (e: PointerEvent) => {
+
+    // Pointer down on CANVAS only (sound + effects)
+    const handleCanvasPointerDown = (e: PointerEvent) => {
       pointerRef.current.isDown = true;
       pointerRef.current.isActive = true;
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
 
-      // Singing bowl sound on tap for stars & orbs
-      if (mode === 'stars' || mode === 'orbs') {
+      // Play exactly ONE sound per tap, based on mode
+      if (mode === 'stars' || mode === 'orbs' || mode === 'sunset') {
         playRandomZen(0.3);
+      } else if (mode === 'cheetah') {
+        playJungleSound(0.3);
       }
 
+      // Mode-specific visual effects
       if (mode === 'stars') {
         spawnShootingStar(e.clientX, e.clientY);
       }
-
       if (mode === 'cheetah') {
-        playRandomZen(0.3);
         ripplesRef.current.push({
           x: e.clientX, y: e.clientY,
           birth: performance.now(),
           maxRadius: 200,
         });
       }
+      if (mode === 'sunset') {
+        spawnCloudPuff(e.clientX, e.clientY);
+      }
     };
+
     const handlePointerUp = () => {
       pointerRef.current.isDown = false;
       pointerRef.current.isActive = false;
     };
 
+    // Attach pointer move/up to window (non-sound interactions)
     window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('pointercancel', handlePointerUp);
+
+    // Attach pointer down to CANVAS ONLY (sound + visual effects)
+    canvas.addEventListener('pointerdown', handleCanvasPointerDown);
 
     // ── Stars drawing ──
     const drawStars = () => {
@@ -248,10 +292,9 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       }
 
       // Breathing scale
-      const breathCycle = (Math.sin(performance.now() / 2000) * 0.5 + 0.5); // 0-1
-      const scale = 1 + breathCycle * 0.03; // 1.0 to 1.03
+      const breathCycle = (Math.sin(performance.now() / 2000) * 0.5 + 0.5);
+      const scale = 1 + breathCycle * 0.03;
 
-      // Draw base image scaled to cover with breathing
       const imgRatio = img.width / img.height;
       const screenRatio = w / h;
       let drawW: number, drawH: number;
@@ -268,12 +311,11 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
 
       // Apply ripple distortion
       const now = performance.now();
-      const duration = 800; // ms
+      const duration = 800;
       const activeRipples = ripplesRef.current.filter(r => now - r.birth < duration);
       ripplesRef.current = activeRipples;
 
       if (activeRipples.length > 0) {
-        // Get current pixels
         const imageData = ctx.getImageData(0, 0, w, h);
         const src = new Uint8ClampedArray(imageData.data);
         const dst = imageData.data;
@@ -286,7 +328,6 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
           const amplitude = 12 * fadeOut;
           const waveWidth = 30;
 
-          // Only process pixels near the ripple ring for performance
           const minX = Math.max(0, Math.floor(ripple.x - currentRadius - waveWidth));
           const maxX = Math.min(w - 1, Math.ceil(ripple.x + currentRadius + waveWidth));
           const minY = Math.max(0, Math.floor(ripple.y - currentRadius - waveWidth));
@@ -298,7 +339,6 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
               const dy = py - ripple.y;
               const dist = Math.sqrt(dx * dx + dy * dy);
 
-              // Only affect pixels near the wave front
               const distFromRing = Math.abs(dist - currentRadius);
               if (distFromRing > waveWidth) continue;
 
@@ -328,10 +368,147 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       ctx.fillRect(0, 0, w, h);
     };
 
+    // ── Sunset drawing with cloud puffs ──
+    const drawSunset = () => {
+      const now = performance.now();
+
+      // Animated sunset gradient base
+      const t = now / 20000; // very slow shift
+      const shift1 = Math.sin(t) * 0.5 + 0.5;
+      const shift2 = Math.sin(t * 0.7 + 1) * 0.5 + 0.5;
+      const shift3 = Math.sin(t * 0.5 + 2) * 0.5 + 0.5;
+
+      // Soft white base
+      ctx.fillStyle = '#faf8f5';
+      ctx.fillRect(0, 0, w, h);
+
+      // Sunset gradient overlay - top to bottom
+      const grad = ctx.createLinearGradient(0, 0, w * 0.3, h);
+      const coralR = Math.round(255);
+      const coralG = Math.round(120 + shift1 * 40);
+      const coralB = Math.round(100 + shift2 * 30);
+      const goldR = 255;
+      const goldG = Math.round(200 + shift3 * 30);
+      const goldB = Math.round(100 + shift1 * 50);
+      const peachR = 255;
+      const peachG = Math.round(180 + shift2 * 40);
+      const peachB = Math.round(150 + shift3 * 30);
+
+      grad.addColorStop(0, `rgba(${coralR},${coralG},${coralB},0.12)`);
+      grad.addColorStop(0.3, `rgba(${goldR},${goldG},${goldB},0.18)`);
+      grad.addColorStop(0.6, `rgba(${peachR},${peachG},${peachB},0.15)`);
+      grad.addColorStop(1, `rgba(255,200,220,0.1)`);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Secondary moving gradient (diagonal)
+      const grad2 = ctx.createRadialGradient(
+        w * (0.3 + shift1 * 0.4), h * (0.2 + shift2 * 0.3),
+        0,
+        w * 0.5, h * 0.5, w * 0.6
+      );
+      grad2.addColorStop(0, `rgba(255,180,120,${0.08 + shift3 * 0.06})`);
+      grad2.addColorStop(0.5, `rgba(255,200,180,0.04)`);
+      grad2.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = grad2;
+      ctx.fillRect(0, 0, w, h);
+
+      // Draw cloud puffs
+      const cloudDuration = 1200; // 1.2 seconds total
+      const expandTime = 400;
+      const activeClouds = cloudsRef.current.filter(c => now - c.birth < cloudDuration);
+      cloudsRef.current = activeClouds;
+
+      for (const cloud of activeClouds) {
+        const elapsed = now - cloud.birth;
+        const totalProgress = elapsed / cloudDuration;
+
+        if (elapsed < expandTime) {
+          // Phase 1: Cloud expanding
+          const expandProgress = elapsed / expandTime;
+          const cloudRadius = expandProgress * 50;
+          const cloudOpacity = 0.6 * (1 - expandProgress * 0.3);
+
+          // Draw fluffy cloud (overlapping circles)
+          for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2;
+            const cx = cloud.x + Math.cos(angle) * cloudRadius * 0.3;
+            const cy = cloud.y + Math.sin(angle) * cloudRadius * 0.3;
+            const r = cloudRadius * (0.5 + Math.random() * 0.2);
+
+            const cGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+            cGrad.addColorStop(0, `rgba(255,255,255,${cloudOpacity})`);
+            cGrad.addColorStop(0.6, `rgba(255,245,235,${cloudOpacity * 0.5})`);
+            cGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.fillStyle = cGrad;
+            ctx.fill();
+          }
+
+          // Rare rainbow effect
+          if (cloud.hasRainbow && expandProgress > 0.5) {
+            const rainbowOpacity = (expandProgress - 0.5) * 2 * 0.3 * (1 - totalProgress);
+            ctx.beginPath();
+            ctx.arc(cloud.x, cloud.y + 30, 40, Math.PI, 0, false);
+            ctx.lineWidth = 3;
+            const rainbowGrad = ctx.createLinearGradient(cloud.x - 40, cloud.y, cloud.x + 40, cloud.y);
+            rainbowGrad.addColorStop(0, `rgba(255,0,0,${rainbowOpacity})`);
+            rainbowGrad.addColorStop(0.2, `rgba(255,165,0,${rainbowOpacity})`);
+            rainbowGrad.addColorStop(0.4, `rgba(255,255,0,${rainbowOpacity})`);
+            rainbowGrad.addColorStop(0.6, `rgba(0,255,0,${rainbowOpacity})`);
+            rainbowGrad.addColorStop(0.8, `rgba(0,0,255,${rainbowOpacity})`);
+            rainbowGrad.addColorStop(1, `rgba(128,0,255,${rainbowOpacity})`);
+            ctx.strokeStyle = rainbowGrad;
+            ctx.stroke();
+          }
+        } else {
+          // Phase 2: Break into mist particles floating up
+          const mistProgress = (elapsed - expandTime) / (cloudDuration - expandTime);
+          const fadeOut = 1 - mistProgress;
+
+          for (const p of cloud.particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy -= 0.005; // drift upward more
+            const alpha = p.opacity * fadeOut;
+            if (alpha < 0.01) continue;
+
+            const pGrad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+            pGrad.addColorStop(0, `rgba(255,255,255,${alpha})`);
+            pGrad.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius * (1 + mistProgress * 0.5), 0, Math.PI * 2);
+            ctx.fillStyle = pGrad;
+            ctx.fill();
+          }
+        }
+
+        // Rare sun ray shimmer
+        if (cloud.hasSunRay && totalProgress < 0.6) {
+          const rayOpacity = 0.15 * (1 - totalProgress / 0.6);
+          for (let i = 0; i < 6; i++) {
+            const angle = (i / 6) * Math.PI * 2 + now * 0.0005;
+            const rayLen = 60 + Math.sin(now * 0.002 + i) * 20;
+            ctx.beginPath();
+            ctx.moveTo(cloud.x, cloud.y);
+            ctx.lineTo(
+              cloud.x + Math.cos(angle) * rayLen,
+              cloud.y + Math.sin(angle) * rayLen
+            );
+            ctx.strokeStyle = `rgba(255,220,150,${rayOpacity})`;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+          }
+        }
+      }
+    };
+
     const animate = () => {
       if (mode === 'stars') drawStars();
       if (mode === 'orbs') drawOrbs();
       if (mode === 'cheetah') drawCheetah();
+      if (mode === 'sunset') drawSunset();
       animRef.current = requestAnimationFrame(animate);
     };
     animate();
@@ -340,17 +517,20 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', handlePointerUp);
+      canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
   }, [mode, initStars, initOrbs]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 z-0 pointer-events-none"
-      style={{ mixBlendMode: mode === 'cheetah' ? 'normal' : 'screen' }}
+      className="absolute inset-0 z-0"
+      style={{
+        mixBlendMode: mode === 'cheetah' ? 'normal' : mode === 'sunset' ? 'normal' : 'screen',
+        pointerEvents: 'auto',
+      }}
     />
   );
 }
