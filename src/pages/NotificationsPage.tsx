@@ -276,7 +276,7 @@ export default function NotificationsPage() {
                     >
                       <Card
                         className={cn(
-                          "group relative overflow-hidden rounded-3xl border-white/5 transition-all bg-black/40 backdrop-blur-3xl hover:bg-white/[0.03] active:scale-[0.98] cursor-pointer",
+                          "group relative overflow-hidden rounded-3xl border-border transition-all bg-card backdrop-blur-3xl hover:bg-accent/50 active:scale-[0.98] cursor-pointer",
                           !n.is_read && "border-l-4 border-l-brand-accent-2"
                         )}
                         onClick={() => handleNotificationClick(n)}
