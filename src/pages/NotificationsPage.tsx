@@ -386,13 +386,13 @@ export default function NotificationsPage() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-[2.5rem] bg-black/90 backdrop-blur-2xl border-white/10 p-8">
+        <AlertDialogContent className="rounded-[2.5rem] bg-card backdrop-blur-2xl border-border p-8">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-black text-white">Clear your inbox?</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60 font-bold">This will permanently remove all activity notifications. Liked items will be preserved.</AlertDialogDescription>
+            <AlertDialogTitle className="text-xl font-black text-foreground">Clear your inbox?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">This will permanently remove all activity notifications. Liked items will be preserved.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3 mt-6">
-            <AlertDialogCancel className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-black text-xs uppercase tracking-widest">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-2xl border-border bg-muted/30 hover:bg-muted/50 text-foreground font-black text-xs uppercase tracking-widest">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={deleteAllNotifications} className="bg-brand-accent-2 hover:bg-brand-accent-2/80 text-white rounded-2xl font-black text-xs uppercase tracking-widest px-8">
               {deletingAll ? 'Clearing...' : 'Clear All'}
             </AlertDialogAction>
