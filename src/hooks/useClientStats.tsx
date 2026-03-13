@@ -35,11 +35,18 @@ export function useClientStats() {
         .eq('target_type', 'profile')
         .eq('direction', 'right');
 
-      // Count mutual matches (using user_id/owner_id columns)
-      const { count: matchesCount } = await supabase
-        .from('matches')
-        .select('*', { count: 'exact', head: true })
-        .or(`user_id.eq.${user.id},owner_id.eq.${user.id}`);
+      // Count mutual matches
+      let matchesCount = 0;
+      try {
+        const { count } = await supabase
+          .from('matches')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        matchesCount = count || 0;
+      } catch {
+        // Graceful fallback if matches query fails
+        matchesCount = 0;
+      }
 
       // Count active conversations
       const { count: activeChats } = await supabase
