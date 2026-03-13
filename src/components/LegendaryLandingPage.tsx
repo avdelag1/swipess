@@ -141,7 +141,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
   const { signIn, signUp, signInWithOAuth } = useAuth();
-  const isNativePlatform = Capacitor.isNativePlatform();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   // Load remembered email on mount
