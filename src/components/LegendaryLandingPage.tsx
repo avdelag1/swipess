@@ -475,7 +475,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
             <motion.div variants={itemVariants} className="text-center mt-4">
               {isForgotPassword ? (
                 <button type="button" onClick={() => { setIsForgotPassword(false); setEmail(''); }}
-                  className="text-xs text-white/50 hover:text-white transition-colors flex items-center gap-1 mx-auto">
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 mx-auto">
                   <ArrowLeft className="w-3 h-3" /> Back to Sign In
                 </button>
               ) : (
