@@ -80,9 +80,9 @@ export const funnyLikePool: string[] = [
  * Soft purrs and growls — exotic but not scary.
  */
 export const jungleSoundPool: string[] = [
-  '/sounds/jungle-purr-1.mp3',
-  '/sounds/jungle-purr-2.mp3',
-  '/sounds/jungle-purr-3.mp3',
+  '/sounds/large-gong-2-232438.mp3',
+  '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3',
+  '/sounds/bells-2-31725.mp3',
 ];
 
 /**
