@@ -8,6 +8,11 @@
 @tailwind components;
 @tailwind utilities;
 
+body, html {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  NEXT-GEN DESIGN PRIMITIVES (BEYOND 2025 STANDARD)               */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */

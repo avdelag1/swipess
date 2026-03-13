@@ -26,10 +26,10 @@ const CATEGORY_OPTIONS: { value: Category; label: string; icon: string; descript
 ];
 
 const MAX_PHOTOS: Record<Category, number> = {
-  property: 15,
-  motorcycle: 5,
-  bicycle: 5,
-  worker: 10,
+  property: 1,
+  motorcycle: 1,
+  bicycle: 1,
+  worker: 1,
 };
 
 export function ConversationalListingCreator() {

@@ -232,7 +232,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
               <p className="text-white/70">Upload at least one photo to get started</p>
             </div>
             <PhotoUploadManager
-              maxPhotos={10}
+              maxPhotos={1}
               currentPhotos={profileImages}
               onPhotosChange={setProfileImages}
               uploadType="profile"

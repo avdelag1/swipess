@@ -74,13 +74,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const { saveListingDraft } = useAnonymousDrafts();
 
   const getMaxPhotos = () => {
-    switch (selectedCategory) {
-      case 'property': return 15;
-      case 'motorcycle': return 5;
-      case 'bicycle': return 5;
-      case 'worker': return 10;
-      default: return 15;
-    }
+    return 1;
   };
 
   const maxPhotos = getMaxPhotos();
