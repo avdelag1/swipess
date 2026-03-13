@@ -1,61 +1,46 @@
 
 
-# Theme Adaptation: Make White Mode Fully White, Black Mode Fully Black
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Problem
+### 1. Replace App Icon with Fire S Logo
 
-There are **2,800+ instances of `text-white`** and **hundreds of `bg-black`, `bg-[#0...]`, `bg-[#1...]`** hardcoded across 82 component files and 36 page files. When you switch to white-matte theme, these elements stay white text on white backgrounds (invisible) or show dark cards on a white page (visual clash).
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Strategy
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-Rather than editing all 100+ files individually (which would take many sessions and risk regressions), we use a **CSS-level override** approach. This is the same pattern used by major apps (Slack, Linear, Discord) — a single stylesheet that remaps hardcoded colors when a specific theme class is active.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### How It Works
+### 2. Profile Photo Already Shows in Top-Left
 
-We add a new CSS file `src/styles/theme-overrides.css` that targets the `.white-matte` class and overrides all hardcoded dark-mode colors at the CSS level:
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-- `text-white` → dark text
-- `text-white/XX` (opacity variants) → dark text with appropriate opacity
-- `bg-black`, `bg-[#000000]`, `bg-[#0e0e11]`, etc. → white/light backgrounds
-- `bg-white/5`, `bg-white/10` (glass surfaces) → dark equivalents
-- `border-white/XX` → dark border equivalents
-- `placeholder:text-white/XX` → dark placeholder text
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-This approach:
-1. Fixes ALL pages and components at once
-2. Requires no changes to individual component files
-3. Is reversible (just remove the CSS file)
-4. Works with both existing and future components
+### 3. Fix Header Too Close to Top Edge
 
-### Targeted Component Fixes
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-A few components need individual attention because they use inline `style={}` with hardcoded colors (CSS overrides can't touch those):
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-| File | Issue |
-|------|-------|
-| `src/components/VirtualizedMessageList.tsx` | `bg-[#000000]` hardcoded — change to `bg-background` |
-| `src/pages/NotificationsPage.tsx` | Cards use `bg-black/40`, `text-white` without theme check — add `isDark` conditional |
-| `src/pages/AITestPage.tsx` | Chat bubbles and input area use `bg-black/60`, `text-white` — add `isDark` conditional |
-| `src/pages/MockOwnersTestPage.tsx` | Entire page is `bg-black text-white` — add theme awareness |
-| `src/components/ChatPreviewSheet.tsx` | All text hardcoded `text-white` — add `isDark` conditional |
+### 4. Fix MarketingSlide Build Error
 
-### File Changes
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-| File | Change |
-|------|--------|
-| `src/styles/theme-overrides.css` | **NEW** — CSS overrides for `.white-matte` theme to remap hardcoded dark colors |
-| `src/index.css` or main CSS entry | Import the new override file |
-| `src/components/VirtualizedMessageList.tsx` | Replace `bg-[#000000]` with `bg-background` |
-| `src/pages/NotificationsPage.tsx` | Add `isDark` conditionals to card backgrounds, text colors, and dialog |
-| `src/pages/AITestPage.tsx` | Add `isDark` conditionals to chat bubbles, input area, empty state |
-| `src/pages/MockOwnersTestPage.tsx` | Add `isDark` conditionals to page background and header |
-| `src/components/ChatPreviewSheet.tsx` | Add `isDark` conditionals to all hardcoded text colors |
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-## What This Achieves
-
-After this change, every page will:
-- Show dark text on white backgrounds in white-matte mode
-- Show white text on dark backgrounds in black-matte mode
-- Buttons, badges, and accent colors (orange/pink gradients) remain vibrant in both modes
-- Glass surfaces adapt (light frosted glass in white mode, dark frosted glass in dark mode)
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
