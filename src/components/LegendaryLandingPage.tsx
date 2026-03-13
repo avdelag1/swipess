@@ -303,10 +303,10 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     >
 
 
-      {/* Ambient glows */}
+      {/* Ambient glows — no blur per GPU policy */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/4 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/[0.03] rounded-full" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/[0.02] rounded-full" />
       </div>
 
       {/* Back button */}
