@@ -544,8 +544,9 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       className="absolute inset-0 z-0"
       style={{
         mixBlendMode: mode === 'cheetah' ? 'normal' : mode === 'sunset' ? 'normal' : 'screen',
-        pointerEvents: 'auto',
+        pointerEvents: 'none',
       }}
+    />
     />
   );
 }
