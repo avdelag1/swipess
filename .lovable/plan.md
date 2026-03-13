@@ -1,46 +1,56 @@
 
+Goal: make white-matte and black-matte truly consistent across all pages (text, buttons, cards, overlays), including the dashboard/filter screens shown in your screenshots.
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+What I found (root causes)
+1) Current override coverage is partial:
+- `theme-overrides.css` handles many `text-white`/`bg-black` cases, but misses a lot of variant and palette patterns (e.g. `data-[state=active]:text-white`, `bg-zinc-*`, `bg-slate-*`, `bg-neutral-*`).
+2) High-traffic screens still use hardcoded dark inline styles:
+- `src/pages/Index.tsx` uses inline `background: '#050505'` in multiple loading/fallback states.
+- `src/components/SwipessSwipeContainer.tsx` empty state still hardcodes `text-white` and dark surface assumptions.
+- `src/components/QuickFilterDropdown.tsx` and some dropdown/backdrop surfaces still lean dark-first.
+3) Many remaining hardcoded classes across app:
+- 259+ `text-white/70` matches, multiple `data-[state=active]:text-white`, plus dark palette classes in shared UI.
 
-### 1. Replace App Icon with Fire S Logo
+Implementation plan
+Phase 1 — Strengthen global theme overrides (fastest broad fix)
+- Expand `src/styles/theme-overrides.css` to include:
+  - Variant-safe text selectors (including state-based classes) for white mode.
+  - Dark neutral palette remaps (`bg-zinc-*`, `bg-slate-*`, `bg-neutral-*`, matching border/text/ring where needed).
+  - Inline dark style patterns not currently covered (`#050505`, dark rgba backgrounds, dark gradients).
+- Keep accent/brand colors untouched (primary, success, warning, destructive, gradient CTAs).
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+Phase 2 — Fix the exact screens still failing
+- `src/pages/Index.tsx`
+  - Replace inline `#050505` fallback backgrounds with theme tokens (`bg-background`/`hsl(var(--background))`), so loading/error/recovery screens switch correctly.
+- `src/components/SwipessSwipeContainer.tsx`
+  - Convert empty state and skeleton text/surface classes from hardcoded white/dark assumptions to semantic theme tokens.
+- `src/components/QuickFilterDropdown.tsx`
+  - Ensure dropdown panel/backdrop/hover states are theme-aware in both modes (not dark-biased).
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+Phase 3 — Patch known state-variant misses
+- `src/components/NotificationsDialog.tsx`
+- `src/pages/NotificationsPage.tsx`
+  - Replace `data-[state=active]:text-white` dependency with theme-safe active text strategy so active tabs remain readable in white mode.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+Phase 4 — Guardrails to stop regressions
+- Add a compact theme utility pattern (`isDark` + semantic class map) for components with complex conditional styling.
+- Update core shared UI surfaces (inputs/cards/popovers) to prefer semantic tokens over hardcoded dark colors.
 
-### 2. Profile Photo Already Shows in Top-Left
+Verification checklist (required before done)
+- Test in both themes on mobile viewport (393x676):
+  1) Client dashboard empty/caught-up states
+  2) Owner dashboard
+  3) Client filters page
+  4) Owner filters page
+  5) Notifications page/dialog tabs
+  6) Index loading/fallback states
+- Pass criteria: no unreadable text, no dark-only cards in white mode, no washed-out controls in black mode, and button labels/icons remain legible in both themes.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
-
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
-
-### 3. Fix Header Too Close to Top Edge
-
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
-
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
-
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
-
+Files to update
+- `src/styles/theme-overrides.css`
+- `src/pages/Index.tsx`
+- `src/components/SwipessSwipeContainer.tsx`
+- `src/components/QuickFilterDropdown.tsx`
+- `src/components/NotificationsDialog.tsx`
+- `src/pages/NotificationsPage.tsx`
+- (if needed after pass) shared primitives in `src/components/ui/*` for any leftover hardcoded surfaces.
