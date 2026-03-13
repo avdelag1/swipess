@@ -230,7 +230,7 @@ export default function NotificationsPage() {
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex w-fit bg-white/5 p-1 rounded-2xl border border-white/5 mb-8">
+          <TabsList className="flex w-fit bg-muted/30 p-1 rounded-2xl border border-border mb-8">
             <TabsTrigger
               value="activity"
               className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-white flex items-center gap-2"
