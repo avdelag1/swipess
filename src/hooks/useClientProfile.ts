@@ -51,6 +51,14 @@ async function resolveAuthenticatedUserId() {
     return session.user.id;
   }
 
+  // First retry after short delay (handles race conditions during page transitions)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const { data: { session: retrySession } } = await supabase.auth.getSession();
+  if (retrySession?.user?.id) {
+    return retrySession.user.id;
+  }
+
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) {
     logger.warn('User lookup failed during profile save:', authError.message);
