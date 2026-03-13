@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { memo, useState, useRef, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -11,11 +11,10 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { Capacitor } from '@capacitor/core';
-import { nuclearReset } from '@/utils/cacheManager';
-import LandingBackgroundEffects from './LandingBackgroundEffects';
+
+// Lazy-load heavy deps that aren't needed for first paint
+const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 
 const swipessLogo = '/icons/fire-s-logo.png';
@@ -142,7 +141,6 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
   const { signIn, signUp, signInWithOAuth } = useAuth();
-  const isNativePlatform = Capacitor.isNativePlatform();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   // Load remembered email on mount
@@ -250,8 +248,9 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               Details
             </button>
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
+                  const { nuclearReset } = await import('@/utils/cacheManager');
                   nuclearReset();
                 }
               }}
@@ -304,10 +303,10 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     >
 
 
-      {/* Ambient glows */}
+      {/* Ambient glows — no blur per GPU policy */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/4 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/[0.03] rounded-full" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/[0.02] rounded-full" />
       </div>
 
       {/* Back button */}
@@ -552,7 +551,9 @@ function LegendaryLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <LandingBackgroundEffects mode={effectMode} />
+      <Suspense fallback={null}>
+        <LandingBackgroundEffects mode={effectMode} />
+      </Suspense>
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
