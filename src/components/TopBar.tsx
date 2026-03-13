@@ -181,9 +181,9 @@ function TopBarComponent({
         />
         {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
         <div
-          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none -z-10"
+          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none z-0"
           style={{
-            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.82)' : 'rgba(255,255,255,0.75)'} 0%, transparent 100%)`,
+            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)'} 0%, transparent 100%)`,
             opacity: 0.8
           }}
         />
@@ -204,7 +204,7 @@ function TopBarComponent({
                 )}
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-4 h-4", isDark ? "text-white" : "text-foreground")} strokeWidth={3} />
+                <ArrowLeft className="w-4 h-4" strokeWidth={3} />
               </motion.button>
             )}
 
@@ -253,7 +253,7 @@ function TopBarComponent({
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
-              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+              navigate('/dashboard');
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
@@ -280,7 +280,7 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-300 ease-out",
+                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-300 ease-out",
                     "hover:scale-105 active:scale-95 group",
                     "touch-manipulation",
                     "-webkit-tap-highlight-color-transparent",
@@ -292,6 +292,9 @@ function TopBarComponent({
                   aria-label="Token Packages"
                 >
                   <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
+                  <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase hidden sm:inline">
+                    Tokens
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -412,7 +415,7 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-9 w-9 rounded-xl transition-all duration-300 ease-out",
+                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
                 "hover:scale-105 active:scale-95 group",
                 "group flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
@@ -446,7 +449,11 @@ function TopBarComponent({
                 >
                   {notificationCount > 99 ? '99+' : notificationCount}
                 </motion.span>
-              ) : null}
+              ) : (
+                <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
+                  Alerts
+                </span>
+              )}
             </Button>
           </div>
         </div>

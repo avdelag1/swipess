@@ -7,11 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, Crown, Flame, Heart, Settings, Radio, Zap, MessageSquare, Sparkles
+  LogOut, Building2, User, Camera, ArrowLeft, Crown, Flame, Heart, Settings, Radio
 } from "lucide-react";
-import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
-import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
-import { ExploreFeatureLinks } from "@/components/ExploreFeatureLinks";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -62,6 +59,8 @@ const OwnerProfileNew = () => {
         variants={stagger}
         className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
+
+
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">
@@ -95,29 +94,6 @@ const OwnerProfileNew = () => {
           </div>
         </motion.div>
 
-        {/* Quick Stats Grid */}
-        <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
-          {[
-            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#E4007C]' },
-            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: Heart, color: 'text-amber-400' },
-            { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-400' },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className={cn(
-                "rounded-2xl p-4 text-center border",
-                isLight
-                  ? "bg-card border-border/40 shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.06]"
-              )}
-            >
-              <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
-              <div className="text-lg font-black text-foreground leading-none mb-1">{stat.value}</div>
-              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</div>
-            </div>
-          ))}
-        </motion.div>
-
         {/* Edit Profile Button */}
         <motion.div variants={childVariant}>
           <motion.button
@@ -129,7 +105,7 @@ const OwnerProfileNew = () => {
             }}
           >
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <User className="w-5 h-5 relative z-10" />
+            <User className="w-6 h-6 relative z-10" />
             <span className="relative z-10 tracking-tight">Edit Business Profile</span>
           </motion.button>
         </motion.div>
@@ -140,14 +116,14 @@ const OwnerProfileNew = () => {
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/owner/liked-clients'); }}
             className={cn(
-              "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
+              "rounded-[2.2rem] p-5 flex flex-col gap-3 text-left transition-all",
               isLight
-                ? "bg-card border border-border/40 hover:border-border shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
+                ? "bg-white border border-border/40 hover:border-border shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06] backdrop-blur-xl"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
-              <Flame className="w-5 h-5 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#E4007C] to-[#F5DEB3]">
+              <Flame className="w-6 h-6 text-white" />
             </div>
             <div>
               <div className="text-sm font-black text-foreground">Your Likes</div>
@@ -161,14 +137,14 @@ const OwnerProfileNew = () => {
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/owner/interested-clients'); }}
             className={cn(
-              "rounded-2xl p-5 flex flex-col gap-3 text-left transition-all",
+              "rounded-[2.2rem] p-5 flex flex-col gap-3 text-left transition-all",
               isLight
-                ? "bg-card border border-border/40 hover:border-border shadow-sm"
-                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
+                ? "bg-white border border-border/40 hover:border-border shadow-sm"
+                : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06] backdrop-blur-xl"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
-              <Heart className="w-5 h-5 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-[1.2rem] flex items-center justify-center shadow-md bg-gradient-to-br from-[#D4006E] to-[#E4007C]">
+              <Heart className="w-6 h-6 text-white" />
             </div>
             <div>
               <div className="text-sm font-black text-foreground">Who Liked You</div>
@@ -177,19 +153,6 @@ const OwnerProfileNew = () => {
               </div>
             </div>
           </motion.button>
-        </motion.div>
-
-        {/* Discover Categories */}
-        <motion.div variants={childVariant}>
-          <MyHubQuickFilters />
-        </motion.div>
-
-        {/* Recent Activity */}
-        <motion.div variants={childVariant}>
-          <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 mb-4 px-1">
-            Recent Activity
-          </h3>
-          <MyHubActivityFeed />
         </motion.div>
 
         {/* Share Profile */}
@@ -201,40 +164,51 @@ const OwnerProfileNew = () => {
           />
         </motion.div>
 
-        {/* Action Buttons - unified compact stack */}
-        <motion.div variants={childVariant} className="space-y-2">
-          {/* Radio Station */}
+
+
+        {/* Radio Player Action */}
+        <motion.div variants={childVariant}>
           <button
             onClick={() => { haptics.tap(); navigate('/radio'); }}
-            className={cn(
-              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight
-                ? "bg-card border-border/40 text-foreground shadow-sm"
-                : "bg-white/[0.04] border-white/[0.06] text-foreground"
-            )}
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] bg-card/40 backdrop-blur-2xl border border-border relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl group"
           >
-            <Radio className="w-5 h-5 text-emerald-400" />
-            Radio Station
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Radio className="w-7 h-7 relative z-10 text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
+            <span className={cn("relative z-10 font-black tracking-tight text-lg", isLight ? "text-gray-900" : "text-white")}>Radio Player</span>
           </button>
+        </motion.div>
 
-          {/* Settings */}
+        {/* Upgrade Button - Flagship Mexican Pink */}
+        <motion.div variants={childVariant}>
+          <button
+            onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] mexican-pink-premium relative overflow-hidden active:scale-[0.98] transition-transform shadow-2xl"
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.4),transparent)] opacity-50" />
+            <Crown className="w-7 h-7 relative z-10 drop-shadow-lg animate-pulse" />
+            <span className="relative z-10 font-black tracking-tight text-lg">Premium Upgrade</span>
+          </button>
+        </motion.div>
+
+        {/* Secondary Actions */}
+        <motion.div variants={childVariant} className="space-y-3">
           <button
             onClick={() => { haptics.tap(); navigate('/owner/settings'); }}
-            className={cn(
-              "w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border",
-              isLight
-                ? "bg-card border-border/40 text-foreground shadow-sm"
-                : "bg-white/[0.04] border-white/[0.06] text-foreground"
-            )}
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] font-black text-sm transition-all active:scale-[0.97] border-2"
+            style={{
+              background: isLight ? '#ffffff' : 'rgba(255,255,255,0.05)',
+              borderColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.1)',
+              color: 'var(--foreground)',
+              boxShadow: isLight ? '0 4px 15px rgba(0,0,0,0.03)' : 'none'
+            }}
           >
             <Settings className="w-5 h-5 opacity-70" />
             Settings
           </button>
 
-          {/* Sign Out */}
           <button
             onClick={() => { haptics.warning(); signOut(); }}
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] border border-red-500/20 bg-red-500/5 text-red-500"
+            className="w-full h-16 flex items-center justify-center gap-3 rounded-[2.5rem] font-black text-sm transition-all active:scale-[0.97] border-2 border-red-500/20 bg-red-500/5 text-red-500"
           >
             <LogOut className="w-5 h-5" />
             Sign Out

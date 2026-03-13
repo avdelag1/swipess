@@ -68,8 +68,43 @@ export interface ClientFilters {
     categories?: string[];
 }
 
-// Re-export ListingFilters from the single source of truth
-export type { ListingFilters } from '@/types/filters';
+export interface ListingFilters {
+    category?: 'property' | 'motorcycle' | 'bicycle' | 'services' | 'worker';
+    categories?: ('property' | 'motorcycle' | 'bicycle' | 'services' | 'worker')[];
+    listingType?: 'rent' | 'sale' | 'both';
+    propertyType?: string[];
+    priceRange?: [number, number];
+    bedrooms?: number[];
+    bathrooms?: number[];
+    amenities?: string[];
+    distance?: number;
+    // Additional filters
+    premiumOnly?: boolean;
+    verified?: boolean;
+    petFriendly?: boolean;
+    furnished?: boolean;
+    lifestyleTags?: string[];
+    dietaryPreferences?: string[];
+    // Services/worker filter
+    showHireServices?: boolean;
+    // Worker-specific filters
+    serviceCategory?: string[];
+    workTypes?: string[];
+    scheduleTypes?: string[];
+    daysAvailable?: string[];
+    timeSlotsAvailable?: string[];
+    locationTypes?: string[];
+    experienceLevel?: string[];
+    skills?: string[];
+    certifications?: string[];
+    // Boolean verification filters
+    offersEmergencyService?: boolean;
+    backgroundCheckVerified?: boolean;
+    insuranceVerified?: boolean;
+    // Owner client filters
+    clientGender?: 'male' | 'female' | 'other' | 'any' | 'all';
+    clientType?: 'individual' | 'family' | 'business' | 'hire' | 'rent' | 'buy' | 'all';
+}
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Helper functions

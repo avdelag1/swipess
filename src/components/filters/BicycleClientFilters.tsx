@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
@@ -174,20 +174,6 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
       location_neighborhoods: locationNeighborhoods
     });
   };
-
-  // Auto-notify parent when filters change
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return; }
-    const budgetValues = getBudgetValues();
-    onApply({
-      category: 'bicycle', interest_type: interestType, bicycle_types: bicycleTypes,
-      selected_budget_range: selectedBudgetRange, price_min: budgetValues.min, price_max: budgetValues.max,
-      frame_size: frameSize, condition, suspension_type: suspensionType, is_electric_only: isElectricOnly,
-      location_countries: locationCountries, location_cities: locationCities, location_neighborhoods: locationNeighborhoods
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interestType, bicycleTypes, selectedBudgetRange, frameSize, condition, suspensionType, isElectricOnly, locationCountries, locationCities, locationNeighborhoods]);
 
   const handleClear = () => {
     setInterestType('both');
@@ -623,6 +609,12 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
           )}
         </CollapsibleContent>
       </Collapsible>
+
+      <div className="pt-4">
+        <Button onClick={handleApply} className="w-full rounded-xl bg-gradient-to-r from-primary to-primary/80 h-12 text-base font-semibold">
+          Apply
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
+import { memo, useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -11,17 +11,18 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-
-// Lazy-load heavy deps that aren't needed for first paint
-const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
+import { Capacitor } from '@capacitor/core';
+import { nuclearReset } from '@/utils/cacheManager';
+import LandingBackgroundEffects from './LandingBackgroundEffects';
 
 
 const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'cheetah' | 'stars' | 'orbs' | 'sunset';
+type EffectMode = 'off' | 'stars' | 'orbs';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -141,6 +142,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
   const { signIn, signUp, signInWithOAuth } = useAuth();
+  const isNativePlatform = Capacitor.isNativePlatform();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   // Load remembered email on mount
@@ -248,9 +250,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               Details
             </button>
             <button
-              onClick={async () => {
+              onClick={() => {
                 if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
-                  const { nuclearReset } = await import('@/utils/cacheManager');
                   nuclearReset();
                 }
               }}
@@ -303,10 +304,10 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     >
 
 
-      {/* Ambient glows — no blur per GPU policy */}
+      {/* Ambient glows */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/[0.03] rounded-full" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/[0.02] rounded-full" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-orange-400/4 rounded-full blur-3xl" />
       </div>
 
       {/* Back button */}
@@ -536,24 +537,17 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: stars → orbs → cheetah → sunset → stars
+  // Cycle: stars → orbs → off → stars
   const cycleEffect = () => setEffectMode((p) => {
     if (p === 'stars') return 'orbs';
-    if (p === 'orbs') return 'cheetah';
-    if (p === 'cheetah') return 'sunset';
+    if (p === 'orbs') return 'off';
     return 'stars';
   });
-  const effectLabel =
-    effectMode === 'stars' ? '✦' :
-    effectMode === 'orbs' ? '◉' :
-    effectMode === 'cheetah' ? '◆' :
-    '☁️';
+  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={effectMode} />
-      </Suspense>
+      <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

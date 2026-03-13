@@ -135,7 +135,7 @@ function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const callbackRef = useRef(callback);
 
   useEffect(() => {
@@ -267,8 +267,62 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  // FILTER CHANGE DETECTION: Handled by the filterSignature-based effect below (lines ~556-578).
-  // A single reset path prevents duplicate state mutations that cause React error #185.
+  // FILTER CHANGE DETECTION: Reset deck when filters change
+  // Track previous filter state to detect changes
+  const prevFiltersRef = useRef(filters);
+  useEffect(() => {
+    // Skip on initial mount
+    if (!prevFiltersRef.current && !filters) return;
+
+    // PERFORMANCE: Use efficient comparison instead of JSON.stringify
+    const arraysEqual = (a?: any[], b?: any[]) => {
+      if (!a && !b) return true;
+      if (!a || !b) return false;
+      if (a.length !== b.length) return false;
+      return a.every((val, i) => val === b[i]);
+    };
+
+    const objectsEqual = (a?: any, b?: any) => {
+      if (!a && !b) return true;
+      if (!a || !b) return false;
+      const keysA = Object.keys(a);
+      const keysB = Object.keys(b);
+      if (keysA.length !== keysB.length) return false;
+      return keysA.every(key => a[key] === b[key]);
+    };
+
+    // Check if filters actually changed (optimized comparison)
+    // FIX: category is a string, not an array - use direct comparison
+    const filtersChanged =
+      !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
+      prevFiltersRef.current?.category !== filters?.category ||
+      prevFiltersRef.current?.listingType !== filters?.listingType ||
+      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange) ||
+      !arraysEqual(prevFiltersRef.current?.serviceCategory, filters?.serviceCategory) ||
+      !arraysEqual(prevFiltersRef.current?.workTypes, filters?.workTypes) ||
+      !arraysEqual(prevFiltersRef.current?.skills, filters?.skills) ||
+      !arraysEqual(prevFiltersRef.current?.daysAvailable, filters?.daysAvailable) ||
+      !arraysEqual(prevFiltersRef.current?.experienceLevel, filters?.experienceLevel) ||
+      !arraysEqual(prevFiltersRef.current?.scheduleTypes, filters?.scheduleTypes);
+
+    if (filtersChanged) {
+      logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');
+
+      // Reset local state and refs
+      currentIndexRef.current = 0;
+      setCurrentIndex(0);
+      setDeckLength(0);
+      deckQueueRef.current = [];
+      swipedIdsRef.current.clear();
+      setPage(0);
+
+      // Reset store
+      resetClientDeck();
+
+      // Update prev filters
+      prevFiltersRef.current = filters;
+    }
+  }, [filters, resetClientDeck]);
 
   // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
   // When true, skip initial animations to prevent "double render" feeling
@@ -350,11 +404,43 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
 
-  // PERF FIX: Removed competing filter hydration from client_filter_preferences.
-  // useFilterPersistence (in PersistentDashboardLayout) is the SINGLE source of truth
-  // for restoring saved filters from the database. Having two hydration paths
-  // caused a race condition where both bumped filterVersion, triggering cascading
-  // re-renders that led to React Error #185 (Maximum update depth exceeded).
+  // HYDRATE FILTER STORE FROM DATABASE on mount
+  // If the Zustand store has no categories selected but the DB has stored preferences,
+  // seed the store so the swipe deck uses the user's saved filters
+  useEffect(() => {
+    if (!user?.id) return;
+    const state = useFilterStore.getState();
+    // Only hydrate if store is empty (user hasn't actively set filters this session)
+    if (state.categories.length > 0 || state.listingType !== 'both') return;
+
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from('client_filter_preferences')
+          .select('preferred_categories, preferred_listing_types')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!data) return;
+        const currentState = useFilterStore.getState();
+        // Double-check store is still empty (race condition guard)
+        if (currentState.categories.length > 0) return;
+
+        const cats = Array.isArray(data.preferred_categories) ? data.preferred_categories as string[] : [];
+        const listingTypes = Array.isArray(data.preferred_listing_types) ? data.preferred_listing_types as string[] : [];
+
+        if (cats.length > 0) {
+          useFilterStore.getState().setCategories(cats as any);
+        }
+        if (listingTypes.length === 1 && listingTypes[0] !== 'both') {
+          useFilterStore.getState().setListingType(listingTypes[0] as any);
+        }
+        logger.info('[SwipessSwipeContainer] Hydrated filter store from DB:', { cats, listingTypes });
+      } catch (err) {
+        logger.error('[SwipessSwipeContainer] Error hydrating filters from DB:', err);
+      }
+    })();
+  }, [user?.id]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -404,39 +490,51 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
   }, [user?.id]);
 
-  // PERF FIX: Build filters from Zustand store directly instead of props.
-  // This eliminates the cascading object recreation chain:
-  // MyHub → ClientDashboard → SwipessSwipeContainer
-  // Each intermediary was creating new filter objects on every filterVersion bump.
-  const storeFilterVersion = useFilterStore((state) => state.filterVersion);
+  // PERF: Memoize filters to prevent unnecessary query re-runs
   const stableFilters = useMemo(() => {
-    const state = useFilterStore.getState();
-    return state.getListingFilters() as ListingFilters;
-    // Only recompute when filterVersion changes (actual filter mutation)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeFilterVersion]);
+    return filters;
+  }, [
+    // Only re-create when actual filter values change
+    filters?.category,
+    filters?.categories?.join(','),
+    filters?.listingType,
+    filters?.priceRange?.[0],
+    filters?.priceRange?.[1],
+    filters?.bedrooms?.join(','),
+    filters?.bathrooms?.join(','),
+    filters?.amenities?.join(','),
+    filters?.propertyType?.join(','),
+    filters?.petFriendly,
+    filters?.furnished,
+    filters?.verified,
+    filters?.premiumOnly,
+    filters?.showHireServices,
+    filters?.clientGender,
+    filters?.clientType,
+  ]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
   const filterSignature = useMemo(() => {
+    if (!filters) return 'default';
     return [
-      stableFilters.category || '',
-      stableFilters.categories?.join(',') || '',
-      stableFilters.listingType || '',
-      stableFilters.priceRange?.join('-') || '',
-      stableFilters.bedrooms?.join(',') || '',
-      stableFilters.bathrooms?.join(',') || '',
-      stableFilters.amenities?.join(',') || '',
-      stableFilters.propertyType?.join(',') || '',
-      stableFilters.petFriendly ? '1' : '0',
-      stableFilters.furnished ? '1' : '0',
-      stableFilters.verified ? '1' : '0',
-      stableFilters.premiumOnly ? '1' : '0',
-      stableFilters.showHireServices ? '1' : '0',
-      stableFilters.clientGender || '',
-      stableFilters.clientType || '',
+      filters.category || '',
+      filters.categories?.join(',') || '',
+      filters.listingType || '',
+      filters.priceRange?.join('-') || '',
+      filters.bedrooms?.join(',') || '',
+      filters.bathrooms?.join(',') || '',
+      filters.amenities?.join(',') || '',
+      filters.propertyType?.join(',') || '',
+      filters.petFriendly ? '1' : '0',
+      filters.furnished ? '1' : '0',
+      filters.verified ? '1' : '0',
+      filters.premiumOnly ? '1' : '0',
+      filters.showHireServices ? '1' : '0',
+      filters.clientGender || '',
+      filters.clientType || '',
     ].join('|');
-  }, [stableFilters]);
+  }, [filters]);
 
   // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);
@@ -728,7 +826,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
         profileId: listing.id,
         viewType: 'listing',
         action: direction === 'right' ? 'like' : 'pass'
-      }).catch(() => { /* fire-and-forget: ignore analytics errors */ });
+      }).catch(() => { });
     });
 
     // Clear direction for next swipe

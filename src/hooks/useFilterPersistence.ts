@@ -4,28 +4,34 @@
  * Connects the Zustand filterStore to the saved_filters database table.
  * Provides automatic sync on filter changes and restoration on mount.
  * 
- * PERF FIX: Uses getState() for ALL reads to avoid subscribing this hook
- * to filter store changes. Only subscribes to filterVersion for the save trigger.
- * Uses didMountRef to skip saving on the initial restore.
- * 
  * DB columns: id, user_id, filter_data (JSONB), is_active, name, user_role, created_at, updated_at
  */
 
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { logger } from '@/utils/prodLogger';
 import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
-const DEBOUNCE_MS = 1500;
+const DEBOUNCE_MS = 1000;
 
 export function useFilterPersistence() {
   const { user } = useAuth();
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isRestoringRef = useRef(false);
-  const didMountRef = useRef(false);
-  const [restoreComplete, setRestoreComplete] = useState(false);
+  
+  const {
+    categories,
+    listingType,
+    clientGender,
+    clientType,
+    setCategories,
+    setListingType,
+    setClientGender,
+    setClientType,
+    filterVersion,
+  } = useFilterStore();
 
   // Restore active filter from database on mount
   useEffect(() => {
@@ -50,28 +56,21 @@ export function useFilterPersistence() {
         if (data) {
           logger.info('[FilterPersistence] Restoring active filter:', data.name);
           
+          // Read from filter_data JSONB column (the correct column name)
           const filters = data.filter_data as Record<string, unknown> | null;
           
           if (filters) {
-            // Batch all filter restorations using setFilters to bump filterVersion only ONCE
-            const store = useFilterStore.getState();
-            const updates: Record<string, unknown> = {};
-            
             if (Array.isArray(filters.categories)) {
-              updates.categories = filters.categories;
+              setCategories(filters.categories as QuickFilterCategory[]);
             }
             if (filters.listingType) {
-              updates.listingType = filters.listingType;
+              setListingType(filters.listingType as QuickFilterListingType);
             }
             if (filters.clientGender) {
-              updates.clientGender = filters.clientGender;
+              setClientGender(filters.clientGender as 'any' | 'male' | 'female' | 'other' | 'all');
             }
             if (filters.clientType) {
-              updates.clientType = filters.clientType;
-            }
-            
-            if (Object.keys(updates).length > 0) {
-              store.setFilters(updates as any);
+              setClientType(filters.clientType as 'individual' | 'family' | 'business' | 'hire' | 'rent' | 'buy' | 'all');
             }
           }
         }
@@ -79,27 +78,27 @@ export function useFilterPersistence() {
         logger.error('[FilterPersistence] Unexpected error:', error);
       } finally {
         isRestoringRef.current = false;
-        setRestoreComplete(true);
       }
     };
 
     restoreActiveFilter();
-  }, [user?.id]);
+  }, [user?.id, setCategories, setListingType, setClientGender, setClientType]);
 
-  // Debounced save function — reads from store at call time (no subscription)
+  // Debounced save function
   const saveFiltersToDb = useCallback(async () => {
     if (!user?.id || isRestoringRef.current) return;
 
-    const state = useFilterStore.getState();
+    // Pack everything into filter_data JSONB
     const filterData = {
-      categories: state.categories,
-      listingType: state.listingType,
-      clientGender: state.clientGender,
-      clientType: state.clientType,
+      categories,
+      listingType,
+      clientGender,
+      clientType,
       savedAt: new Date().toISOString(),
     };
 
     try {
+      // Check if user has an active filter preset
       const { data: existingActive } = await supabase
         .from('saved_filters')
         .select('id')
@@ -108,6 +107,7 @@ export function useFilterPersistence() {
         .maybeSingle();
 
       if (existingActive) {
+        // Update existing active filter — use filter_data column
         await supabase
           .from('saved_filters')
           .update({
@@ -118,12 +118,14 @@ export function useFilterPersistence() {
         
         logger.info('[FilterPersistence] Updated active filter');
       } else {
-        const hasFilters = state.categories.length > 0 || 
-                          state.listingType !== 'both' || 
-                          state.clientGender !== 'any' || 
-                          state.clientType !== 'all';
+        // Create a new "Current Session" filter if none exists
+        const hasFilters = categories.length > 0 || 
+                          listingType !== 'both' || 
+                          clientGender !== 'any' || 
+                          clientType !== 'all';
         
         if (hasFilters) {
+          // Only use columns that exist: user_id, name, filter_data, is_active, user_role
           await supabase
             .from('saved_filters')
             .insert({
@@ -140,42 +142,26 @@ export function useFilterPersistence() {
     } catch (error) {
       logger.error('[FilterPersistence] Error saving filters:', error);
     }
-  }, [user?.id]);
+  }, [user?.id, categories, listingType, clientGender, clientType]);
 
-  // Watch for filter changes via Zustand subscribe (non-reactive)
-  // This avoids re-rendering this hook's parent on every filterVersion bump
+  // Watch for filter changes and save with debounce
   useEffect(() => {
-    if (!user?.id || !restoreComplete) return;
-
-    // Skip the first trigger after restore completes — that IS the restore
-    if (!didMountRef.current) {
-      didMountRef.current = true;
-      return;
+    if (!user?.id || isRestoringRef.current) return;
+    
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
     }
 
-    const unsub = useFilterStore.subscribe(
-      (state) => state.filterVersion,
-      (version, prevVersion) => {
-        if (isRestoringRef.current) return;
-        if (version === prevVersion) return;
-
-        if (saveTimeoutRef.current) {
-          clearTimeout(saveTimeoutRef.current);
-        }
-
-        saveTimeoutRef.current = setTimeout(() => {
-          saveFiltersToDb();
-        }, DEBOUNCE_MS);
-      }
-    );
+    saveTimeoutRef.current = setTimeout(() => {
+      saveFiltersToDb();
+    }, DEBOUNCE_MS);
 
     return () => {
-      unsub();
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [user?.id, restoreComplete, saveFiltersToDb]);
+  }, [filterVersion, saveFiltersToDb, user?.id]);
 
   return {
     isRestoring: isRestoringRef.current,

@@ -4,9 +4,11 @@ import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 const ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
 );
+import { NotificationBar } from '@/components/NotificationBar';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
@@ -57,14 +59,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
-  // PERF FIX: Read filters from store directly using filterVersion as change signal
-  // Avoids cascading object recreation through prop drilling
-  const storeFilterVersion = useFilterStore((s) => s.filterVersion);
-  const mergedFilters = useMemo(() => {
-    const storeFilters = useFilterStore.getState().getListingFilters();
-    return { ...filters, ...storeFilters };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storeFilterVersion, filters]);
+  // Connect filter store to swipe container (fixes missing filters when rendered as a route)
+  const filterVersion = useFilterStore((s) => s.filterVersion);
+  const getListingFilters = useFilterStore((s) => s.getListingFilters);
+  const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
+  const mergedFilters = useMemo(() => ({ ...filters, ...storeFilters }), [filters, storeFilters]);
 
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
@@ -87,6 +86,8 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }
 
+  const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
+
   const handleClientTap = (clientId: string) => {
     onClientInsights?.(clientId);
   };
@@ -95,9 +96,14 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     onClientInsights?.(clientId);
   };
 
-  // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (
     <>
+      <NotificationBar
+        notifications={notifications}
+        onDismiss={dismissNotification}
+        onMarkAllRead={markAllAsRead}
+        onNotificationClick={handleNotificationClick}
+      />
       <ClientSwipeContainer
         onClientTap={handleClientTap}
         onInsights={handleInsights}

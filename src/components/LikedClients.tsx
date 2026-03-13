@@ -6,7 +6,7 @@ import {
   Flame, Users, Search, Heart, ShieldCheck, ShieldAlert,
   Home, Briefcase, DollarSign, GripVertical,
 } from "lucide-react";
-import { motion, Reorder } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
@@ -296,6 +296,7 @@ export function LikedClients() {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
+            <AnimatePresence mode="popLayout">
               {filteredClients.map((client) => (
                 <Reorder.Item
                   key={client.id}
@@ -310,6 +311,7 @@ export function LikedClients() {
                   />
                 </Reorder.Item>
               ))}
+            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div

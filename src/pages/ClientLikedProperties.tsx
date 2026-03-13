@@ -1,4 +1,5 @@
 import { LikedListingInsightsModal } from "@/components/LikedListingInsightsModal";
+import { PropertyImageGallery } from "@/components/PropertyImageGallery";
 
 import { useState } from "react";
 import { useLikedProperties } from "@/hooks/useLikedProperties";
@@ -10,7 +11,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { motion, Reorder } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import {
@@ -34,20 +35,25 @@ const categories = [
 ];
 
 interface ClientLikedPropertiesProps {
+  onPropertyInsights?: (listingId: string) => void;
   onClientInsights?: (clientId: string) => void;
   onMessageClick?: () => void;
 }
 
-const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
+const ClientLikedProperties = ({ onPropertyInsights }: ClientLikedPropertiesProps) => {
   const { theme } = useTheme();
   const isLight = theme === "white-matte";
+  const [galleryState, setGalleryState] = useState<{
+    isOpen: boolean;
+    images: string[];
+    alt: string;
+    initialIndex: number;
+  }>({ isOpen: false, images: [], alt: "", initialIndex: 0 });
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
   const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showInsightsModal, setShowInsightsModal] = useState(false);
-  const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<any>(null);
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();
@@ -104,8 +110,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
       return;
     }
     if (action === "view") {
-      setSelectedPropertyForModal(property);
-      setShowInsightsModal(true);
+      onPropertyInsights?.(property.id);
       return;
     }
     if (action === "message") {
@@ -191,6 +196,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
+            <AnimatePresence mode="popLayout">
               {orderedFilteredProperties.map((property) => (
                 <Reorder.Item
                   key={property.id}
@@ -205,6 +211,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                   />
                 </Reorder.Item>
               ))}
+            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div
@@ -229,10 +236,12 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
         )}
       </div>
 
-      <LikedListingInsightsModal
-        open={showInsightsModal}
-        onOpenChange={setShowInsightsModal}
-        listing={selectedPropertyForModal}
+      <PropertyImageGallery
+        images={galleryState.images}
+        alt={galleryState.alt}
+        isOpen={galleryState.isOpen}
+        onClose={() => setGalleryState((prev) => ({ ...prev, isOpen: false }))}
+        initialIndex={galleryState.initialIndex}
       />
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

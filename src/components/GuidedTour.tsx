@@ -40,16 +40,12 @@ export function GuidedTour() {
   const tooltipStyle: React.CSSProperties = {};
   if (targetRect) {
     const pos = step.position || 'bottom';
-    const tooltipWidth = 280;
-    // Center tooltip on target, clamped to screen with 16px margin
-    const centeredLeft = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
-    const clampedLeft = Math.max(16, Math.min(centeredLeft, window.innerWidth - tooltipWidth - 16));
     if (pos === 'bottom') {
       tooltipStyle.top = targetRect.bottom + padding + 12;
-      tooltipStyle.left = clampedLeft;
+      tooltipStyle.left = Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - 140, window.innerWidth - 296));
     } else if (pos === 'top') {
       tooltipStyle.bottom = window.innerHeight - targetRect.top + padding + 12;
-      tooltipStyle.left = clampedLeft;
+      tooltipStyle.left = Math.max(16, Math.min(targetRect.left + targetRect.width / 2 - 140, window.innerWidth - 296));
     }
   } else {
     tooltipStyle.top = '50%';

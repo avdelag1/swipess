@@ -378,19 +378,15 @@ export const useClientType = () => useFilterStore((state) => state.clientType);
 export const useFilterVersion = () => useFilterStore((state) => state.filterVersion);
 
 // Combined selectors for quick filter UI
-// PERF FIX: Use useShallow to prevent re-renders when values haven't changed
-import { useShallow } from 'zustand/react/shallow';
-
-export const useQuickFilters = () => useFilterStore(useShallow((state) => ({
+export const useQuickFilters = () => useFilterStore((state) => ({
   categories: state.categories,
   listingType: state.listingType,
   clientGender: state.clientGender,
   clientType: state.clientType,
-})));
+}));
 
 // Filter actions hook
-// PERF FIX: Use useShallow — action references are stable but the object wrapper is new each time
-export const useFilterActions = () => useFilterStore(useShallow((state) => ({
+export const useFilterActions = () => useFilterStore((state) => ({
   setActiveCategory: state.setActiveCategory,
   toggleCategory: state.toggleCategory,
   setCategories: state.setCategories,
@@ -401,4 +397,4 @@ export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   resetClientFilters: state.resetClientFilters,
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,
-})));
+}));

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 function readStoredOrder(key: string): string[] {
   if (!key) return [];
@@ -21,38 +21,21 @@ function writeStoredOrder(key: string, ids: string[]) {
   }
 }
 
-function arraysEqual(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
 export function usePersistentReorder<T extends { id: string }>(items: T[], storageKey: string) {
   const [orderedIds, setOrderedIds] = useState<string[]>(() => readStoredOrder(storageKey));
 
-  // Stable signature of item IDs to avoid re-running effect on every render
-  const itemIdsSignature = useMemo(() => items.map((item) => item.id).join(","), [items]);
-
   useEffect(() => {
-    const itemIds = itemIdsSignature.split(",").filter(Boolean);
-    if (itemIds.length === 0) return;
-
+    const itemIds = items.map((item) => item.id);
     setOrderedIds((prev) => {
       const current = prev.length > 0 ? prev : readStoredOrder(storageKey);
       const deduped = current.filter((id, index) => current.indexOf(id) === index);
       const preserved = deduped.filter((id) => itemIds.includes(id));
       const missing = itemIds.filter((id) => !preserved.includes(id));
       const next = [...preserved, ...missing];
-
-      // Only update if order actually changed
-      if (arraysEqual(prev, next)) return prev;
-
       writeStoredOrder(storageKey, next);
       return next;
     });
-  }, [itemIdsSignature, storageKey]);
+  }, [items, storageKey]);
 
   const orderedItems = useMemo(() => {
     if (orderedIds.length === 0) return items;
@@ -64,24 +47,17 @@ export function usePersistentReorder<T extends { id: string }>(items: T[], stora
     });
   }, [items, orderedIds]);
 
-  // Keep a ref to avoid stale closures in handleReorder
-  const orderedIdsRef = useRef(orderedIds);
-  orderedIdsRef.current = orderedIds;
-
   const handleReorder = useCallback(
     (nextOrderedItems: T[]) => {
       const nextVisibleIds = nextOrderedItems.map((item) => item.id);
-      const currentIds = orderedIdsRef.current;
-      const remainingIds = currentIds.filter((id) => !nextVisibleIds.includes(id));
+      const remainingIds = orderedItems
+        .map((item) => item.id)
+        .filter((id) => !nextVisibleIds.includes(id));
       const nextIds = [...nextVisibleIds, ...remainingIds];
-
-      // No-op if unchanged
-      if (arraysEqual(currentIds, nextIds)) return;
-
       setOrderedIds(nextIds);
       writeStoredOrder(storageKey, nextIds);
     },
-    [storageKey],
+    [orderedItems, storageKey]
   );
 
   return { orderedItems, handleReorder };

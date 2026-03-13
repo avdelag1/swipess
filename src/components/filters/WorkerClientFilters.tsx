@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
@@ -147,21 +147,6 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
     
     onApply(filters);
   };
-
-  // Auto-notify parent when filters change
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return; }
-    const rateValues = getRateValues();
-    onApply({
-      service_categories: serviceCategories, work_types: workTypes, schedule_types: scheduleTypes,
-      selected_rate_range: selectedRateRange, price_min: rateValues.min, price_max: rateValues.max,
-      experience_levels: experienceLevels, min_experience_years: minExperienceYears,
-      needs_emergency_service: needsEmergencyService, needs_background_check: needsBackgroundCheck,
-      location_countries: locationCountries, location_cities: locationCities, location_neighborhoods: locationNeighborhoods
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serviceCategories, workTypes, scheduleTypes, selectedRateRange, experienceLevels, minExperienceYears, needsEmergencyService, needsBackgroundCheck, locationCountries, locationCities, locationNeighborhoods]);
 
   const handleSave = async () => {
     try {
@@ -525,6 +510,12 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
         defaultOpen={false}
       />
 
+      {/* Action Button */}
+      <div className="pt-4">
+        <Button onClick={handleApply} className="w-full rounded-xl bg-gradient-to-r from-primary to-primary/80 h-12 text-base font-semibold">
+          Apply
+        </Button>
+      </div>
     </div>
   );
 }

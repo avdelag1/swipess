@@ -136,28 +136,20 @@ export function useAutomaticUpdates() {
 
   const checkUpdates = useCallback(async () => {
     const info = checkForUpdates();
-    
-    // Only update state if info actually changed to prevent unnecessary re-renders
-    setUpdateInfo(prev => {
-      if (prev.available === info.available && prev.version === info.version) {
-        return prev;
-      }
-      return info;
-    });
+    setUpdateInfo(info);
 
-    // CRITICAL: Removed queryClient.clear() from here. 
-    // It should only be called in performUpdate or when we are absolutely certain
-    // we want to wipe everything. Calling it on every periodic check (even if update available)
-    // can trigger global re-render loops in some app configurations.
-  }, []); // Remove queryClient dependency as we use the one from scope or ref if needed
+    if (info.available) {
+      // Invalidate all React Query caches
+      queryClient.clear();
+      // UpdateNotification component handles the visual banner - no toast needed
+    }
+  }, [queryClient]);
 
   const performUpdate = useCallback(async () => {
     if (isUpdating) return;
     
     setIsUpdating(true);
     try {
-      console.info('[AutoUpdate] Performing manual update...');
-      
       // Clear React Query cache
       queryClient.clear();
 
@@ -184,25 +176,22 @@ export function useAutomaticUpdates() {
   }, [isUpdating, queryClient]);
 
   useEffect(() => {
-    // Only run the initial check once on mount
+    // Check for updates on mount
     checkUpdates();
 
     // Also check when app gains focus (user returns to tab)
-    const handleFocus = () => {
-      // Don't check if we're already in the middle of an update
-      if (!isUpdating) checkUpdates();
-    };
+    const handleFocus = () => checkUpdates();
     window.addEventListener('focus', handleFocus);
 
     // Listen for service worker updates
-    let swSubscription: { registration: ServiceWorkerRegistration, handleUpdateFound: () => void } | null = null;
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then((registration) => {
-        const handleUpdateFound = () => {
+        registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New update available - UpdateNotification component handles the UI
                 setUpdateInfo({
                   available: true,
                   version: APP_VERSION,
@@ -211,19 +200,14 @@ export function useAutomaticUpdates() {
               }
             });
           }
-        };
-        registration.addEventListener('updatefound', handleUpdateFound);
-        swSubscription = { registration, handleUpdateFound };
+        });
       });
     }
 
     return () => {
       window.removeEventListener('focus', handleFocus);
-      if (swSubscription) {
-        swSubscription.registration.removeEventListener('updatefound', swSubscription.handleUpdateFound);
-      }
     };
-  }, [checkUpdates, isUpdating]); // performUpdate removed from deps as it's not used in effect
+  }, [checkUpdates, performUpdate]);
 
   return {
     updateInfo,

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Heart, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
-import { motion, Reorder } from "framer-motion";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
@@ -231,6 +231,7 @@ const ClientWhoLikedYou = () => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
+            <AnimatePresence mode="popLayout">
               {filteredOwners.map((owner) => (
                 <Reorder.Item
                   key={owner.id}
@@ -245,6 +246,7 @@ const ClientWhoLikedYou = () => {
                   />
                 </Reorder.Item>
               ))}
+            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">
