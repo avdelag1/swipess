@@ -357,7 +357,7 @@ export default function NotificationsPage() {
                                 <X className="w-3.5 h-3.5" />
                               </Button>
                             </div>
-                            <div className="flex items-center gap-1.5 text-white/40 mt-1">
+                            <div className="flex items-center gap-1.5 text-muted-foreground/60 mt-1">
                               <MapPin className="w-3 h-3 text-brand-accent-2" />
                               <span className="text-[10px] font-black uppercase truncate">{p.neighborhood || p.city}</span>
                             </div>
