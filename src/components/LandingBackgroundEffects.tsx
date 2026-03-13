@@ -3,6 +3,19 @@ import { playRandomZen, playJungleSound } from '@/utils/sounds';
 
 export type EffectMode = 'cheetah' | 'stars' | 'orbs' | 'sunset';
 
+// Audio unlock for mobile browsers
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const buf = ctx.createBuffer(1, 1, 22050);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.start(0);
+  audioUnlocked = true;
+}
+
 interface Star {
   x: number; y: number; baseX: number; baseY: number;
   size: number; opacity: number; twinkleSpeed: number; twinklePhase: number;
@@ -45,6 +58,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
   const ripplesRef = useRef<Ripple[]>([]);
   const cloudsRef = useRef<CloudPuff[]>([]);
   const cheetahImgRef = useRef<HTMLImageElement | null>(null);
+  const beachImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
 
   const pointerRef = useRef({
@@ -83,12 +97,17 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     }));
   }, []);
 
-  // Preload cheetah image
+  // Preload cheetah + beach images
   useEffect(() => {
     if (!cheetahImgRef.current) {
       const img = new Image();
       img.src = '/images/cheetah-1.jpeg';
       img.onload = () => { cheetahImgRef.current = img; };
+    }
+    if (!beachImgRef.current) {
+      const img = new Image();
+      img.src = '/images/beach-sunset.jpg';
+      img.onload = () => { beachImgRef.current = img; };
     }
   }, []);
 
@@ -164,6 +183,9 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       pointerRef.current.isActive = true;
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
+
+      // Unlock audio on first tap (mobile browser restriction)
+      unlockAudio();
 
       // Play exactly ONE sound per tap, based on mode
       if (mode === 'stars' || mode === 'orbs' || mode === 'sunset') {
@@ -368,50 +390,45 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       ctx.fillRect(0, 0, w, h);
     };
 
-    // ── Sunset drawing with cloud puffs ──
+    // ── Sunset drawing with beach image + cloud puffs ──
     const drawSunset = () => {
       const now = performance.now();
+      const img = beachImgRef.current;
 
-      // Animated sunset gradient base
-      const t = now / 20000; // very slow shift
-      const shift1 = Math.sin(t) * 0.5 + 0.5;
-      const shift2 = Math.sin(t * 0.7 + 1) * 0.5 + 0.5;
-      const shift3 = Math.sin(t * 0.5 + 2) * 0.5 + 0.5;
+      if (img) {
+        // Draw beach image as full background (cover)
+        const imgRatio = img.width / img.height;
+        const screenRatio = w / h;
+        let drawW: number, drawH: number;
+        if (imgRatio > screenRatio) {
+          drawH = h; drawW = drawH * imgRatio;
+        } else {
+          drawW = w; drawH = drawW / imgRatio;
+        }
+        const offX = (w - drawW) / 2;
+        const offY = (h - drawH) / 2;
+        ctx.drawImage(img, offX, offY, drawW, drawH);
 
-      // Soft white base
-      ctx.fillStyle = '#faf8f5';
-      ctx.fillRect(0, 0, w, h);
-
-      // Sunset gradient overlay - top to bottom
-      const grad = ctx.createLinearGradient(0, 0, w * 0.3, h);
-      const coralR = Math.round(255);
-      const coralG = Math.round(120 + shift1 * 40);
-      const coralB = Math.round(100 + shift2 * 30);
-      const goldR = 255;
-      const goldG = Math.round(200 + shift3 * 30);
-      const goldB = Math.round(100 + shift1 * 50);
-      const peachR = 255;
-      const peachG = Math.round(180 + shift2 * 40);
-      const peachB = Math.round(150 + shift3 * 30);
-
-      grad.addColorStop(0, `rgba(${coralR},${coralG},${coralB},0.12)`);
-      grad.addColorStop(0.3, `rgba(${goldR},${goldG},${goldB},0.18)`);
-      grad.addColorStop(0.6, `rgba(${peachR},${peachG},${peachB},0.15)`);
-      grad.addColorStop(1, `rgba(255,200,220,0.1)`);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-
-      // Secondary moving gradient (diagonal)
-      const grad2 = ctx.createRadialGradient(
-        w * (0.3 + shift1 * 0.4), h * (0.2 + shift2 * 0.3),
-        0,
-        w * 0.5, h * 0.5, w * 0.6
-      );
-      grad2.addColorStop(0, `rgba(255,180,120,${0.08 + shift3 * 0.06})`);
-      grad2.addColorStop(0.5, `rgba(255,200,180,0.04)`);
-      grad2.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = grad2;
-      ctx.fillRect(0, 0, w, h);
+        // Subtle warm sunset overlay for depth
+        const t = now / 20000;
+        const shift1 = Math.sin(t) * 0.5 + 0.5;
+        const overlayGrad = ctx.createLinearGradient(0, 0, 0, h);
+        overlayGrad.addColorStop(0, `rgba(255,${Math.round(140 + shift1 * 40)},80,0.08)`);
+        overlayGrad.addColorStop(0.5, 'rgba(255,200,150,0.05)');
+        overlayGrad.addColorStop(1, `rgba(255,100,${Math.round(100 + shift1 * 50)},0.1)`);
+        ctx.fillStyle = overlayGrad;
+        ctx.fillRect(0, 0, w, h);
+      } else {
+        // Fallback: warm gradient while image loads
+        ctx.fillStyle = '#1a0a05';
+        ctx.fillRect(0, 0, w, h);
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(255,120,80,0.3)');
+        grad.addColorStop(0.5, 'rgba(255,180,100,0.2)');
+        grad.addColorStop(1, 'rgba(80,20,60,0.4)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+      }
 
       // Draw cloud puffs
       const cloudDuration = 1200; // 1.2 seconds total
