@@ -1,66 +1,46 @@
 
 
-# Full App Health Check: Roommates, Neighborhood Map, and Feature Connectivity
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Current State Assessment
+### 1. Replace App Icon with Fire S Logo
 
-### What's Working
-- **Routes exist** for all explore features (`/explore/zones`, `/explore/roommates`, `/explore/prices`, `/explore/tours`, `/explore/intel`)
-- **Database tables are populated**: 8 neighborhoods in `neighborhood_data`, 14 client profiles for roommate matching
-- **RLS policies** are correct on all relevant tables (`neighborhood_data` has public SELECT, `client_profiles` has public SELECT, `roommate_matches` allows authenticated INSERT/SELECT/UPDATE)
-- **Page components** (`RoommateMatching.tsx`, `NeighborhoodMap.tsx`) are well-structured with proper Supabase queries
-- **Landing page background system** has 4 modes (stars, orbs, cheetah, sunset) with sound and interaction logic
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### Issues Found
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-#### 1. No Navigation Links to Explore Features (Critical)
-There are **zero links** anywhere in the app pointing to `/explore/roommates`, `/explore/zones`, or any other explore route. Users cannot discover or reach these features. The bottom navigation, profile pages, hub, and quick filters all lack links to these pages.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-**Fix**: Add an "Explore" section to the app. Two options:
-- **Option A**: Add explore feature cards to `MyHubQuickFilters.tsx` as a second row below the existing categories (Property, Moto, Bicycle, Services)
-- **Option B**: Create a dedicated Explore section accessible from the bottom nav or profile pages
+### 2. Profile Photo Already Shows in Top-Left
 
-**Recommended**: Add a horizontally scrollable "Explore More" row below the existing category filters in `MyHubQuickFilters.tsx` with cards linking to:
-- Tulum Zones (`/explore/zones`) — MapPin icon
-- Roommate Match (`/explore/roommates`) — Users icon
-- Price Tracker (`/explore/prices`) — TrendingUp icon
-- Local Intel (`/explore/intel`) — Newspaper icon
-- Video Tours (`/explore/tours`) — Video icon
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-Also add these links to `ClientProfileNew.tsx` and `OwnerProfileNew.tsx` profile pages.
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-#### 2. `useMemo` Import Unused in RoommateMatching.tsx (Minor)
-Line 1 imports `useMemo` but never uses it. Harmless but should be cleaned.
+### 3. Fix Header Too Close to Top Edge
 
-#### 3. Roommate Matching Has No Back Navigation
-The page has no back button or way to return to the dashboard.
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**Fix**: Add a back button header consistent with the app's design.
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-#### 4. NeighborhoodMap Has No Back Navigation
-Same issue — no way to navigate back.
+### 4. Fix MarketingSlide Build Error
 
-**Fix**: Add back button.
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-#### 5. Landing Background Effects — Sound Files May Be Invalid
-The jungle purr MP3 files were created as binary placeholders. The `playJungleSound` function was updated to use existing zen sound files as fallback, which should work. The `unlockAudio()` mechanism and window-level `pointerdown` listener should now capture taps correctly.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### No Database Changes Needed
-All tables, RLS policies, and data are properly in place.
-
-## Files to Modify
-
-| File | Change |
-|------|--------|
-| `src/components/MyHubQuickFilters.tsx` | Add "Explore More" row with navigation cards for Zones, Roommates, Prices, Intel, Tours |
-| `src/pages/RoommateMatching.tsx` | Add back button, remove unused `useMemo` import |
-| `src/pages/NeighborhoodMap.tsx` | Add back button |
-| `src/pages/ClientProfileNew.tsx` | Add explore feature links section |
-| `src/pages/OwnerProfileNew.tsx` | Add explore feature links section (same set minus Roommates since it's client-specific) |
-
-## Implementation Approach
-- Use the existing design language (rounded cards, gradients, motion animations)
-- Back buttons use `useNavigate(-1)` with an ArrowLeft icon
-- Explore cards use `useNavigate('/explore/...')` with colored gradient backgrounds matching the app's 4K aesthetic
-- Keep the explore row horizontally scrollable like the existing category filters
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

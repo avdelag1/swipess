@@ -6,13 +6,13 @@ import {
     Bike,
     Briefcase,
     Search,
-    Check
+    Check,
+    Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 import { QuickFilterCategory } from '@/types/filters';
-
-import { Zap } from 'lucide-react';
+import { ExploreFeatureLinks } from '@/components/ExploreFeatureLinks';
 
 const categories: { id: QuickFilterCategory; label: string; icon: any; color: string }[] = [
     { id: 'property', label: 'Property', icon: Home, color: 'from-blue-500 to-cyan-400' },
@@ -97,6 +97,9 @@ export function MyHubQuickFilters() {
                     <span className="text-[10px] font-black uppercase opacity-40">More</span>
                 </button>
             </div>
+
+            {/* Explore Feature Links */}
+            <ExploreFeatureLinks />
         </div>
     );
 }
