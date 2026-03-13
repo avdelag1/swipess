@@ -174,7 +174,7 @@ export default function ClientFilters() {
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-200px)]">
+      <div className="overflow-y-auto">
         <div className="px-4 py-6 space-y-8 pb-36">
           {/* AI Suggestions Banner - M3 Tonal Style */}
           <section>
