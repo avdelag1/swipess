@@ -25,7 +25,7 @@ export function PageHeader({
 }: PageHeaderProps) {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
 
   const handleBack = () => {
     if (onBack) {

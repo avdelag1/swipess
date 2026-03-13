@@ -32,7 +32,7 @@ const OwnerProfileNew = () => {
   const { data: ownerProfile, isLoading: profileLoading } = useOwnerProfile();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
 
   const isLoading = statsLoading || profileLoading;
 

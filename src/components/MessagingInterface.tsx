@@ -122,7 +122,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const [showPreviewSheet, setShowPreviewSheet] = useState(false);
   const [showRatingDialog, setShowRatingDialog] = useState(false);
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
   const { user } = useAuth();
   const navigate = useNavigate();
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);

@@ -40,7 +40,7 @@ interface ClientLikedPropertiesProps {
 
 const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const { theme } = useTheme();
-  const isLight = theme === "white-matte";
+  const isLight = theme === "light";
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);

@@ -11,7 +11,7 @@ interface WelcomeNotificationProps {
 
 export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProps) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const handleClose = useCallback(() => {
     onClose();

@@ -44,7 +44,7 @@ const clientCategories = [
 export function LikedClients() {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === "white-matte";
+  const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSafeOnly, setFilterSafeOnly] = useState(true);

@@ -537,7 +537,7 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
   const { theme } = useTheme();
-  const isLightTheme = theme === 'white-matte';
+  const isLightTheme = theme === 'light';
 
   // Cycle: stars → orbs → cheetah → sunset → stars
   const cycleEffect = () => setEffectMode((p) => {

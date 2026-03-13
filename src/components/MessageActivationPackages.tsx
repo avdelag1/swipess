@@ -420,7 +420,7 @@ export function MessageActivationPackages({
 
 function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   return (
     <div className="flex items-center gap-3 text-xs group">

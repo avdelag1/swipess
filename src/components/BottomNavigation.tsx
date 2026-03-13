@@ -71,7 +71,7 @@ export function BottomNavigation({
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
 
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
