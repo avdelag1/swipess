@@ -74,7 +74,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
       const y = Math.random() * h;
       return {
         x, y, baseX: x, baseY: y, vx: 0, vy: 0,
-        size: Math.random() * 0.7 + 0.3,
+        size: Math.random() * 1.2 + 0.5,
         opacity: Math.random() * 0.7 + 0.3,
         twinkleSpeed: Math.random() * 0.08 + 0.02,
         twinklePhase: Math.random() * Math.PI * 2,
