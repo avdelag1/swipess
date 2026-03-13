@@ -49,7 +49,7 @@ interface CloudParticle {
   radius: number; opacity: number;
 }
 
-function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
+function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: EffectMode; isLightTheme?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const starsRef = useRef<Star[]>([]);
