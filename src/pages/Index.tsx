@@ -337,12 +337,12 @@ const Index = () => {
 
   // Caso final (redirigiendo)
   return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+    <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
       {showEscapeHatch ? (
         <div className="text-center space-y-4 p-4 max-w-sm">
           <div className="text-orange-500 text-3xl">⏳</div>
-          <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
-          <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+          <h2 className="text-foreground text-base font-semibold">Taking longer than expected…</h2>
+          <p className="text-muted-foreground text-sm">Your session may need a refresh to continue.</p>
           <button
             onClick={() => { window.location.href = '/?clear-cache=1'; }}
             className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
@@ -351,7 +351,7 @@ const Index = () => {
           </button>
         </div>
       ) : (
-        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       )}
     </div>
   );

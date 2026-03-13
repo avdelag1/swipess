@@ -35,12 +35,35 @@
   color: hsla(0, 0%, 1%, 0.2) !important;
 }
 
+/* ── Variant / state-based text-white overrides ── */
+.white-matte [data-state="active"].text-white,
+.white-matte [data-state="active"] .text-white,
+.white-matte .data-\[state\=active\]\:text-white[data-state="active"] {
+  color: hsl(var(--foreground)) !important;
+}
+.white-matte .group-hover\:text-white:hover,
+.white-matte .group:hover .group-hover\:text-white {
+  color: hsl(var(--foreground)) !important;
+}
+.white-matte .focus\:text-white:focus {
+  color: hsl(var(--foreground)) !important;
+}
+.white-matte .peer-focus\:text-white:focus {
+  color: hsl(var(--foreground)) !important;
+}
+
 /* ── Background overrides: dark → light ── */
 .white-matte .bg-black {
   background-color: hsl(var(--background)) !important;
 }
+.white-matte .bg-black\/90 {
+  background-color: hsla(0, 0%, 100%, 0.95) !important;
+}
 .white-matte .bg-black\/80 {
   background-color: hsla(0, 0%, 100%, 0.8) !important;
+}
+.white-matte .bg-black\/70 {
+  background-color: hsla(0, 0%, 96%, 0.7) !important;
 }
 .white-matte .bg-black\/60 {
   background-color: hsla(0, 0%, 96%, 0.6) !important;
@@ -59,13 +82,17 @@
 .white-matte .bg-\[\#000000\],
 .white-matte .bg-\[\#000\],
 .white-matte .bg-\[\#0e0e11\],
+.white-matte .bg-\[\#0a0a0e\],
 .white-matte .bg-\[\#0A0A0A\],
+.white-matte .bg-\[\#0a0a0a\],
 .white-matte .bg-\[\#050505\],
 .white-matte .bg-\[\#111111\],
 .white-matte .bg-\[\#121212\],
 .white-matte .bg-\[\#141416\],
 .white-matte .bg-\[\#1A1A1E\],
 .white-matte .bg-\[\#1a1a1e\],
+.white-matte .bg-\[\#1a1a1a\],
+.white-matte .bg-\[\#1A1A1A\],
 .white-matte .bg-\[\#222226\],
 .white-matte .bg-\[\#1C1C1E\] {
   background-color: hsl(var(--background)) !important;
@@ -78,11 +105,70 @@
 .white-matte .bg-\[\#2C2C2E\] {
   background-color: hsl(0, 0%, 95%) !important;
 }
-.white-matte .bg-\[\#1C1C1E\] {
-  background-color: hsl(0, 0%, 97%) !important;
+
+/* ── Zinc / Slate / Neutral / Gray palette remaps ── */
+.white-matte .bg-zinc-900,
+.white-matte .bg-zinc-950,
+.white-matte .bg-neutral-900,
+.white-matte .bg-neutral-950,
+.white-matte .bg-slate-900,
+.white-matte .bg-slate-950,
+.white-matte .bg-gray-900,
+.white-matte .bg-gray-950 {
+  background-color: hsl(var(--background)) !important;
+}
+.white-matte .bg-zinc-800,
+.white-matte .bg-neutral-800,
+.white-matte .bg-slate-800,
+.white-matte .bg-gray-800 {
+  background-color: hsl(0, 0%, 96%) !important;
+}
+.white-matte .bg-zinc-700,
+.white-matte .bg-neutral-700,
+.white-matte .bg-slate-700,
+.white-matte .bg-gray-700 {
+  background-color: hsl(0, 0%, 93%) !important;
+}
+
+.white-matte .text-zinc-100,
+.white-matte .text-zinc-200,
+.white-matte .text-neutral-100,
+.white-matte .text-neutral-200,
+.white-matte .text-slate-100,
+.white-matte .text-slate-200,
+.white-matte .text-gray-100,
+.white-matte .text-gray-200 {
+  color: hsl(var(--foreground)) !important;
+}
+.white-matte .text-zinc-300,
+.white-matte .text-zinc-400,
+.white-matte .text-neutral-300,
+.white-matte .text-neutral-400,
+.white-matte .text-slate-300,
+.white-matte .text-slate-400,
+.white-matte .text-gray-300,
+.white-matte .text-gray-400 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.white-matte .border-zinc-700,
+.white-matte .border-zinc-800,
+.white-matte .border-neutral-700,
+.white-matte .border-neutral-800,
+.white-matte .border-slate-700,
+.white-matte .border-slate-800,
+.white-matte .border-gray-700,
+.white-matte .border-gray-800 {
+  border-color: hsl(var(--border)) !important;
 }
 
 /* Glass surfaces: white/opacity on dark → dark/opacity on light */
+.white-matte .bg-white\/\[0\.02\] {
+  background-color: rgba(0, 0, 0, 0.02) !important;
+}
+.white-matte .bg-white\/\[0\.03\] {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
 .white-matte .bg-white\/5 {
   background-color: rgba(0, 0, 0, 0.03) !important;
 }
@@ -159,6 +245,9 @@
 .white-matte .shadow-black\/30 {
   --tw-shadow-color: rgba(0, 0, 0, 0.1) !important;
 }
+.white-matte .shadow-\[0_0_8px_white\] {
+  box-shadow: 0 0 8px hsl(var(--foreground)) !important;
+}
 
 /* ── From/To gradient overrides ── */
 .white-matte .from-black {
@@ -191,10 +280,18 @@
 }
 
 .white-matte [style*="background: #1A1A1E"],
+.white-matte [style*="background: #1a1a1e"],
+.white-matte [style*="background: #1a1a1a"],
 .white-matte [style*="background: #141416"],
 .white-matte [style*="background: #0A0A0A"],
+.white-matte [style*="background: #0a0a0a"],
+.white-matte [style*="background: #0a0a0e"],
+.white-matte [style*="background: #050505"],
 .white-matte [style*="background: #000"],
 .white-matte [style*="background-color: #1A1A1E"],
+.white-matte [style*="background-color: #1a1a1e"],
+.white-matte [style*="background-color: #1a1a1a"],
+.white-matte [style*="background-color: #050505"],
 .white-matte [style*="background-color: #000"] {
   background-color: hsl(var(--background)) !important;
 }
@@ -217,6 +314,7 @@
 
 /* Override linear gradients in inline styles */
 .white-matte [style*="linear-gradient(180deg, #1A1A1E"],
+.white-matte [style*="linear-gradient(180deg, #1a1a1a"],
 .white-matte [style*="linear-gradient(180deg, #222226"],
 .white-matte [style*="linear-gradient(180deg, #141416"] {
   background: linear-gradient(180deg, hsl(0, 0%, 98%) 0%, hsl(0, 0%, 100%) 100%) !important;
@@ -231,6 +329,8 @@
    - text-[#8B5CF6] (purple badges)
    - bg-gradient-to-br from-[#8B5CF6] (accent gradients)
    - bg-gradient-to-br from-[#007AFF] (accent gradients)
+   - Brand accent colors (text-brand-*, bg-brand-*)
+   - Status colors (text-blue-*, text-orange-*, text-emerald-*, text-purple-*, etc.)
 */
 
 /* ── Scrollbar styling for white mode ── */
@@ -245,6 +345,9 @@
 }
 
 /* ── Focus/hover states ── */
+.white-matte .hover\:bg-white\/5:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
 .white-matte .hover\:bg-white\/10:hover {
   background-color: rgba(0, 0, 0, 0.06) !important;
 }
@@ -257,8 +360,35 @@
 .white-matte .active\:bg-white\/10:active {
   background-color: rgba(0, 0, 0, 0.06) !important;
 }
+.white-matte .hover\:bg-white\/\[0\.03\]:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
 
 /* ── Chat message bubble overrides ── */
 .white-matte .bg-\[\#8E8E93\] {
   background-color: hsl(0, 0%, 60%) !important;
+}
+
+/* ── Backdrop overrides ── */
+.white-matte .bg-black\/70 {
+  background-color: rgba(0, 0, 0, 0.3) !important;
+}
+.white-matte .bg-black\/50 {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ── Alert Dialog / Modal dark backgrounds ── */
+.white-matte .bg-black\/90 {
+  background-color: hsla(0, 0%, 100%, 0.95) !important;
+}
+.white-matte [class*="backdrop-blur"] {
+  /* Keep blur but don't override — just ensure it works on light */
+}
+
+/* ── Spinner / loading border overrides ── */
+.white-matte .border-t-white\/80 {
+  border-top-color: hsla(0, 0%, 1%, 0.8) !important;
+}
+.white-matte .border-t-white\/60 {
+  border-top-color: hsla(0, 0%, 1%, 0.6) !important;
 }
