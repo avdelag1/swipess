@@ -233,16 +233,16 @@ export default function NotificationsPage() {
           <TabsList className="flex w-fit bg-muted/30 p-1 rounded-2xl border border-border mb-8">
             <TabsTrigger
               value="activity"
-              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-white flex items-center gap-2"
+              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-primary-foreground flex items-center gap-2"
             >
               Activity
               {unreadCount > 0 && (
-                <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_white]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground shadow-sm" />
               )}
             </TabsTrigger>
             <TabsTrigger
               value="liked"
-              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-white flex items-center gap-2"
+              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-primary-foreground flex items-center gap-2"
             >
               Liked
               {likedCount > 0 && (
