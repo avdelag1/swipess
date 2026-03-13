@@ -1,46 +1,52 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+## Plan: Fix white background globally, limit photos to 1 for profiles and listings
 
-### 1. Replace App Icon with Fire S Logo
+### Three targeted fixes
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+#### 1. Force white background everywhere
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**`index.html`** (line 31): Change splash screen background from `#050505` to `#ffffff`.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+**`src/index.css`**: Add explicit `body, html` background and foreground using CSS variables so the white theme applies globally without gaps:
+```css
+body, html {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+```
 
-### 2. Profile Photo Already Shows in Top-Left
+**`src/styles/matte-themes.css`**: The `.light` theme already defines `--background: 0 0% 100%` (white) — this is correct. No change needed.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+**`src/hooks/useTheme.tsx`**: Change `DEFAULT_THEME` from `'dark'` to `'light'` so the app starts white by default.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+#### 2. Limit profile photos to 1
 
-### 3. Fix Header Too Close to Top Edge
+**`src/components/ClientProfileDialog.tsx`** (line 398): Change `maxPhotos={5}` → `maxPhotos={1}`
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**`src/components/OnboardingFlow.tsx`** (line 235): Change `maxPhotos={10}` → `maxPhotos={1}`
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+(Owner profile already has `maxPhotos={1}` in `OwnerProfileDialog.tsx`)
 
-### 4. Fix MarketingSlide Build Error
+#### 3. Limit listing photos to 1
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+**`src/components/UnifiedListingForm.tsx`**: Change `getMaxPhotos()` to always return `1` for all categories.
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**`src/components/ConversationalListingCreator.tsx`**: Change `MAX_PHOTOS` values to all `1`.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+**`src/components/PhotoUploadManager.tsx`**: No structural changes needed — it already respects the `maxPhotos` prop.
+
+---
+
+### Files to edit (7 total)
+
+| File | Change |
+|------|--------|
+| `index.html` | Splash background → `#ffffff` |
+| `src/index.css` | Add `body, html { background-color; color }` rules |
+| `src/hooks/useTheme.tsx` | Default theme → `'light'` |
+| `src/components/ClientProfileDialog.tsx` | `maxPhotos={1}` |
+| `src/components/OnboardingFlow.tsx` | `maxPhotos={1}` |
+| `src/components/UnifiedListingForm.tsx` | All categories return `1` photo max |
+| `src/components/ConversationalListingCreator.tsx` | All `MAX_PHOTOS` values → `1` |
 
