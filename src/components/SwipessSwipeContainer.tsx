@@ -1275,8 +1275,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-xl font-black text-white uppercase tracking-tight">{title}</h3>
-            <p className="text-white/70 text-sm max-w-xs mx-auto font-extrabold">
+            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold">
               {description}
             </p>
           </div>

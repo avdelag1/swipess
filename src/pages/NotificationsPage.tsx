@@ -72,7 +72,7 @@ const NotificationIcon = ({ type, role = 'neutral' }: { type: string; role?: 'cl
     case 'super_like':
       return <Star className={cn(baseClass, "text-brand-accent-2 fill-brand-accent-2")} />;
     default:
-      return <Bell className={cn(baseClass, "text-white/40")} />;
+      return <Bell className={cn(baseClass, "text-muted-foreground/40")} />;
   }
 };
 
@@ -220,29 +220,29 @@ export default function NotificationsPage() {
                 Marketplace Inbox
               </span>
             </div>
-            <h1 className="text-3xl font-black tracking-tighter text-white">Your Updates</h1>
+            <h1 className="text-3xl font-black tracking-tighter text-foreground">Your Updates</h1>
           </div>
           {notifications.length > 0 && (
-            <Button variant="ghost" size="icon" className="rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10" onClick={() => setDeleteDialogOpen(true)}>
-              <Trash2 className="w-4 h-4 text-white/60" />
+            <Button variant="ghost" size="icon" className="rounded-2xl bg-muted/30 border border-border hover:bg-muted/50" onClick={() => setDeleteDialogOpen(true)}>
+              <Trash2 className="w-4 h-4 text-muted-foreground" />
             </Button>
           )}
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="flex w-fit bg-white/5 p-1 rounded-2xl border border-white/5 mb-8">
+          <TabsList className="flex w-fit bg-muted/30 p-1 rounded-2xl border border-border mb-8">
             <TabsTrigger
               value="activity"
-              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-white flex items-center gap-2"
+              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-primary-foreground flex items-center gap-2"
             >
               Activity
               {unreadCount > 0 && (
-                <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_white]" />
+                <span className="w-1.5 h-1.5 rounded-full bg-primary-foreground shadow-sm" />
               )}
             </TabsTrigger>
             <TabsTrigger
               value="liked"
-              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-white flex items-center gap-2"
+              className="rounded-xl py-2 px-6 text-[10px] font-black uppercase tracking-widest transition-all data-[state=active]:bg-brand-accent-2 data-[state=active]:text-primary-foreground flex items-center gap-2"
             >
               Liked
               {likedCount > 0 && (
@@ -258,11 +258,11 @@ export default function NotificationsPage() {
                   <div key={i} className="h-24 w-full rounded-3xl bg-white/5 animate-pulse" />
                 ))
               ) : notifications.length === 0 ? (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-white/[0.02] border border-dashed border-white/5 rounded-[3rem]">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                    <Bell className="w-8 h-8 text-white/20" />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-muted/20 border border-dashed border-border rounded-[3rem]">
+                  <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                    <Bell className="w-8 h-8 text-muted-foreground/40" />
                   </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white/40">Inbox Empty</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">Inbox Empty</h3>
                 </motion.div>
               ) : (
                 <AnimatePresence mode="popLayout">
@@ -276,21 +276,21 @@ export default function NotificationsPage() {
                     >
                       <Card
                         className={cn(
-                          "group relative overflow-hidden rounded-3xl border-white/5 transition-all bg-black/40 backdrop-blur-3xl hover:bg-white/[0.03] active:scale-[0.98] cursor-pointer",
+                          "group relative overflow-hidden rounded-3xl border-border transition-all bg-card backdrop-blur-3xl hover:bg-accent/50 active:scale-[0.98] cursor-pointer",
                           !n.is_read && "border-l-4 border-l-brand-accent-2"
                         )}
                         onClick={() => handleNotificationClick(n)}
                       >
                         <CardContent className="p-5 flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-white/10 transition-colors">
+                          <div className="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center shrink-0 group-hover:bg-muted/50 transition-colors">
                             <NotificationIcon type={n.type} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-0.5">
-                              <h4 className="font-black text-xs uppercase tracking-tight text-white group-hover:text-brand-accent-2 transition-colors">
+                              <h4 className="font-black text-xs uppercase tracking-tight text-foreground group-hover:text-brand-accent-2 transition-colors">
                                 {n.title}
                               </h4>
-                              <span className="text-[10px] font-black uppercase text-white/20">
+                              <span className="text-[10px] font-black uppercase text-muted-foreground/50">
                                 {formatDistanceToNow(n.created_at)}
                               </span>
                             </div>
@@ -322,11 +322,11 @@ export default function NotificationsPage() {
                   <div key={i} className="h-32 w-full rounded-3xl bg-white/5 animate-pulse" />
                 ))
               ) : likedProperties?.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center bg-white/[0.02] border border-dashed border-white/5 rounded-[3rem]">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                    <Heart className="w-8 h-8 text-white/20" />
+                <div className="flex flex-col items-center justify-center py-20 text-center bg-muted/20 border border-dashed border-border rounded-[3rem]">
+                  <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                    <Heart className="w-8 h-8 text-muted-foreground/40" />
                   </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white/40">No Likes Yet</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">No Likes Yet</h3>
                 </div>
               ) : (
                 <AnimatePresence>
@@ -338,36 +338,36 @@ export default function NotificationsPage() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <Card className="group relative overflow-hidden rounded-[2.5rem] bg-black/40 backdrop-blur-3xl border-white/5 hover:bg-white/[0.03] transition-all cursor-pointer" onClick={() => navigate(`/listing/${p.id}`)}>
+                      <Card className="group relative overflow-hidden rounded-[2.5rem] bg-card backdrop-blur-3xl border-border hover:bg-accent/50 transition-all cursor-pointer" onClick={() => navigate(`/listing/${p.id}`)}>
                         <div className="flex p-4 gap-5">
-                          <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden shrink-0 border border-white/10">
+                          <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden shrink-0 border border-border">
                             <img src={p.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                           </div>
                           <div className="flex-1 min-w-0 py-1">
                             <div className="flex items-start justify-between">
-                              <h4 className="font-black text-sm text-white tracking-tight line-clamp-1 group-hover:text-brand-accent-2 transition-colors">
+                              <h4 className="font-black text-sm text-foreground tracking-tight line-clamp-1 group-hover:text-brand-accent-2 transition-colors">
                                 {p.title}
                               </h4>
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-rose-500/20 hover:text-rose-500 transition-colors"
+                                className="w-8 h-8 rounded-xl bg-muted/30 hover:bg-rose-500/20 hover:text-rose-500 transition-colors"
                                 onClick={(e) => removeLike(p.id, e)}
                               >
                                 <X className="w-3.5 h-3.5" />
                               </Button>
                             </div>
-                            <div className="flex items-center gap-1.5 text-white/40 mt-1">
+                            <div className="flex items-center gap-1.5 text-muted-foreground/60 mt-1">
                               <MapPin className="w-3 h-3 text-brand-accent-2" />
                               <span className="text-[10px] font-black uppercase truncate">{p.neighborhood || p.city}</span>
                             </div>
                             <div className="flex items-center justify-between mt-4">
-                              <Badge className="bg-white/5 text-[9px] font-black uppercase border-none rounded-lg tracking-widest px-2.5">
+                              <Badge className="bg-muted/30 text-[9px] font-black uppercase border-none rounded-lg tracking-widest px-2.5">
                                 {p.category}
                               </Badge>
                               <div className="flex items-baseline gap-0.5">
-                                <span className="text-[10px] font-black text-white/40">$</span>
-                                <span className="text-base font-black text-white tracking-tighter">
+                                <span className="text-[10px] font-black text-muted-foreground/60">$</span>
+                                <span className="text-base font-black text-foreground tracking-tighter">
                                   {p.price?.toLocaleString()}
                                 </span>
                               </div>
@@ -386,13 +386,13 @@ export default function NotificationsPage() {
       </div>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className="rounded-[2.5rem] bg-black/90 backdrop-blur-2xl border-white/10 p-8">
+        <AlertDialogContent className="rounded-[2.5rem] bg-card backdrop-blur-2xl border-border p-8">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-black text-white">Clear your inbox?</AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60 font-bold">This will permanently remove all activity notifications. Liked items will be preserved.</AlertDialogDescription>
+            <AlertDialogTitle className="text-xl font-black text-foreground">Clear your inbox?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground font-bold">This will permanently remove all activity notifications. Liked items will be preserved.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-3 mt-6">
-            <AlertDialogCancel className="rounded-2xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-black text-xs uppercase tracking-widest">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-2xl border-border bg-muted/30 hover:bg-muted/50 text-foreground font-black text-xs uppercase tracking-widest">Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={deleteAllNotifications} className="bg-brand-accent-2 hover:bg-brand-accent-2/80 text-white rounded-2xl font-black text-xs uppercase tracking-widest px-8">
               {deletingAll ? 'Clearing...' : 'Clear All'}
             </AlertDialogAction>
