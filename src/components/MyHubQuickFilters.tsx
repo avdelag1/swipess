@@ -97,6 +97,9 @@ export function MyHubQuickFilters() {
                     <span className="text-[10px] font-black uppercase opacity-40">More</span>
                 </button>
             </div>
+
+            {/* Explore Feature Links */}
+            <ExploreFeatureLinks />
         </div>
     );
 }

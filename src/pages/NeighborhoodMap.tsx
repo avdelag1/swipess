@@ -55,13 +55,10 @@ export default function NeighborhoodMap() {
 
   return (
     <div className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <MapPin className="w-6 h-6 text-primary" />
-          Tulum Zones
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">Explore neighborhoods, compare prices, find your vibe</p>
-      </div>
+      <PageHeader
+        title="Tulum Zones"
+        subtitle="Explore neighborhoods, compare prices, find your vibe"
+      />
 
       {isLoading ? (
         <div className="grid grid-cols-2 gap-3">

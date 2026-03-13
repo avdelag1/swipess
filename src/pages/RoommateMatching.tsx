@@ -145,13 +145,10 @@ export default function RoommateMatching() {
 
   return (
     <div className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Users className="w-6 h-6 text-primary" />
-          Roommate Match
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">Find compatible roommates based on lifestyle</p>
-      </div>
+      <PageHeader
+        title="Roommate Match"
+        subtitle="Find compatible roommates based on lifestyle"
+      />
 
       {isLoading ? (
         <div className="h-[400px] rounded-3xl bg-card animate-pulse" />
