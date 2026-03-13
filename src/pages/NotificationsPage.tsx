@@ -351,7 +351,7 @@ export default function NotificationsPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-rose-500/20 hover:text-rose-500 transition-colors"
+                                className="w-8 h-8 rounded-xl bg-muted/30 hover:bg-rose-500/20 hover:text-rose-500 transition-colors"
                                 onClick={(e) => removeLike(p.id, e)}
                               >
                                 <X className="w-3.5 h-3.5" />
