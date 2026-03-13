@@ -249,15 +249,21 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
         const tailStartX = ss.x - Math.cos(angle) * ss.length;
         const tailStartY = ss.y - Math.sin(angle) * ss.length;
         const gradient = ctx.createLinearGradient(tailStartX, tailStartY, ss.x, ss.y);
-        gradient.addColorStop(0, `rgba(255,255,255,0)`);
-        gradient.addColorStop(0.5, `rgba(200,220,255,${fadeAlpha * 0.4})`);
-        gradient.addColorStop(1, `rgba(255,255,255,${fadeAlpha})`);
+        if (isLightTheme) {
+          gradient.addColorStop(0, `rgba(100,100,200,0)`);
+          gradient.addColorStop(0.5, `rgba(80,80,180,${fadeAlpha * 0.3})`);
+          gradient.addColorStop(1, `rgba(60,60,160,${fadeAlpha * 0.6})`);
+        } else {
+          gradient.addColorStop(0, `rgba(255,255,255,0)`);
+          gradient.addColorStop(0.5, `rgba(200,220,255,${fadeAlpha * 0.4})`);
+          gradient.addColorStop(1, `rgba(255,255,255,${fadeAlpha})`);
+        }
         ctx.strokeStyle = gradient; ctx.lineWidth = 2; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.moveTo(tailStartX, tailStartY); ctx.lineTo(ss.x, ss.y); ctx.stroke();
         ctx.beginPath(); ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${fadeAlpha})`; ctx.fill();
+        ctx.fillStyle = isLightTheme ? `rgba(60,60,160,${fadeAlpha * 0.6})` : `rgba(255,255,255,${fadeAlpha})`; ctx.fill();
         ctx.beginPath(); ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,220,180,${fadeAlpha * 0.3})`; ctx.fill();
+        ctx.fillStyle = isLightTheme ? `rgba(100,80,200,${fadeAlpha * 0.2})` : `rgba(255,220,180,${fadeAlpha * 0.3})`; ctx.fill();
       }
     };
 
