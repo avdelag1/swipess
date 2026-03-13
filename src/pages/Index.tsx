@@ -273,8 +273,8 @@ const Index = () => {
 
   if (!initialized || loading) {
     return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       </div>
     );
   }
@@ -284,11 +284,11 @@ const Index = () => {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
-            <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
-            <p className="text-white/70 text-sm">
+            <h2 className="text-foreground text-lg font-semibold">Setup Taking Longer Than Expected</h2>
+            <p className="text-muted-foreground text-sm">
               Your account setup is taking longer than usual. Please refresh the page to continue.
             </p>
             <button
@@ -304,11 +304,11 @@ const Index = () => {
 
     if (showEscapeHatch) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
           <div className="text-center space-y-4 p-4 max-w-sm">
             <div className="text-orange-500 text-3xl">⏳</div>
-            <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
-            <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+            <h2 className="text-foreground text-base font-semibold">Taking longer than expected…</h2>
+            <p className="text-muted-foreground text-sm">Your session may need a refresh to continue.</p>
             <button
               onClick={() => { window.location.href = '/?clear-cache=1'; }}
               className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
@@ -321,11 +321,10 @@ const Index = () => {
     }
 
     return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       </div>
     );
-  }
 
   // Solo muestra landing page si NO hay usuario logueado
   if (!user) {
