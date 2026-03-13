@@ -534,7 +534,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', handlePointerUp);
-      canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
+      window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
   }, [mode, initStars, initOrbs]);
 
