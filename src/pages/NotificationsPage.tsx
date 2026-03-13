@@ -345,7 +345,7 @@ export default function NotificationsPage() {
                           </div>
                           <div className="flex-1 min-w-0 py-1">
                             <div className="flex items-start justify-between">
-                              <h4 className="font-black text-sm text-white tracking-tight line-clamp-1 group-hover:text-brand-accent-2 transition-colors">
+                              <h4 className="font-black text-sm text-foreground tracking-tight line-clamp-1 group-hover:text-brand-accent-2 transition-colors">
                                 {p.title}
                               </h4>
                               <Button
