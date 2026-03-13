@@ -539,7 +539,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
       window.removeEventListener('pointercancel', handlePointerUp);
       window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
-  }, [mode, initStars, initOrbs]);
+  }, [mode, initStars, initOrbs, isLightTheme]);
 
   return (
     <canvas

@@ -554,11 +554,9 @@ function LegendaryLandingPage() {
 
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-background">
-      {!isLightTheme && (
-        <Suspense fallback={null}>
-          <LandingBackgroundEffects mode={effectMode} />
-        </Suspense>
-      )}
+      <Suspense fallback={null}>
+        <LandingBackgroundEffects mode={effectMode} isLightTheme={isLightTheme} />
+      </Suspense>
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
