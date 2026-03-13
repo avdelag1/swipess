@@ -234,7 +234,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
         if (alpha < 0.01) continue;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fillStyle = isLightTheme ? `rgba(0,0,0,${alpha * 0.5})` : `rgba(255,255,255,${alpha})`;
+        ctx.fillStyle = isLightTheme ? `rgba(40,40,80,${alpha * 0.9})` : `rgba(255,255,255,${alpha})`;
         ctx.fill();
       }
       // Shooting stars
