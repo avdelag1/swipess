@@ -1,48 +1,46 @@
 
 
-# Health Check: Fire S Logo Deployment and Backend Connectivity
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Logo Status: All Good
-The Fire S logo (`/icons/fire-s-logo.png`) is already consistently deployed across every surface:
-- Favicon (index.html) — 3 link tags
-- Splash screen (index.html `#initial-loader`)
-- PWA manifest (manifest.webmanifest + manifest.json) — all icon entries
-- Apple Touch Icons (index.html) — all 11 sizes reference fire-s-logo.png
-- PWA shortcuts (3 shortcuts, each with fire-s-logo.png)
-- `SwipessLogo.tsx` component (used in-app)
-- `LegendaryLandingPage.tsx` and `AppOutagePage.tsx`
-- `PlaceholderImage.tsx`
+### 1. Replace App Icon with Fire S Logo
 
-No action needed for the logo.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Backend Connectivity: Stale Hardcoded References
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-The app's Lovable Cloud project is `qegyisokrxdsszzswsqk`, but the `index.html` has hardcoded preconnect hints pointing to an old project (`vplgtcguxujxwrgguxqq`). While the auto-generated `client.ts` gets correct env vars at runtime, the stale preconnect wastes a DNS/TCP connection to a server the app doesn't use, and could cause confusion.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### Fix Required
+### 2. Profile Photo Already Shows in Top-Left
 
-**File: `index.html`** (lines 10-11)
-- Remove the hardcoded preconnect to the old Supabase project (`vplgtcguxujxwrgguxqq`)
-- The `vite.config.ts` `buildVersionPlugin` already injects the correct preconnect at build time using `process.env.VITE_SUPABASE_URL`, so the hardcoded one is redundant and wrong
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**File: `vite.config.ts`**
-- No changes needed — already injects correct preconnect dynamically
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**File: `src/integrations/supabase/client.ts`**
-- Cannot and should not be edited (auto-generated). The env vars override the fallback values at runtime.
+### 3. Fix Header Too Close to Top Edge
 
-### Summary
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-| Item | Status | Action |
-|------|--------|--------|
-| Fire S logo in favicon | Correct | None |
-| Fire S logo in PWA manifest | Correct | None |
-| Fire S logo in splash screen | Correct | None |
-| Fire S logo in Apple Touch Icons | Correct | None |
-| Fire S logo in SwipessLogo component | Correct | None |
-| Fire S logo in all pages | Correct | None |
-| Backend client connection | Working (env vars override fallbacks) | None |
-| index.html preconnect hints | Stale — points to old project | Remove hardcoded lines 10-11 |
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-This is a single-file, two-line fix.
+### 4. Fix MarketingSlide Build Error
+
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
