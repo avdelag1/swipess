@@ -248,8 +248,9 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               Details
             </button>
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
+                  const { nuclearReset } = await import('@/utils/cacheManager');
                   nuclearReset();
                 }
               }}
