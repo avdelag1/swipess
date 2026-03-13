@@ -5,7 +5,6 @@ import { ArrowLeft, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap, Shop
 import { AISearchDialog } from '@/components/AISearchDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Button } from '@/components/ui/button';
 
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
