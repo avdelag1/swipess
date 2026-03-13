@@ -841,6 +841,7 @@ export type Database = {
           vehicle_condition: string | null
           vehicle_model: string | null
           vehicle_type: string | null
+          video_url: string | null
           views: number | null
           wheel_size: string | null
           work_type: Json | null
@@ -931,6 +932,7 @@ export type Database = {
           vehicle_condition?: string | null
           vehicle_model?: string | null
           vehicle_type?: string | null
+          video_url?: string | null
           views?: number | null
           wheel_size?: string | null
           work_type?: Json | null
@@ -1021,6 +1023,7 @@ export type Database = {
           vehicle_condition?: string | null
           vehicle_model?: string | null
           vehicle_type?: string | null
+          video_url?: string | null
           views?: number | null
           wheel_size?: string | null
           work_type?: Json | null

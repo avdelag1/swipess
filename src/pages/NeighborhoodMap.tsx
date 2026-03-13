@@ -66,6 +66,12 @@ export default function NeighborhoodMap() {
             <div key={i} className="h-48 rounded-2xl bg-card animate-pulse" />
           ))}
         </div>
+      ) : zones.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <MapPin className="w-12 h-12 text-muted-foreground/30 mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-1">No zones available yet</h3>
+          <p className="text-sm text-muted-foreground max-w-xs">Neighborhood data is being collected. Check back soon for zone insights and pricing.</p>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           {zones.map((zone, index) => {

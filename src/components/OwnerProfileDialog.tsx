@@ -85,6 +85,11 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
       }
     }
 
+    if (profileImages.length < 1) {
+      toast.error('At least one photo is required to save your profile');
+      return;
+    }
+
     const payload = {
       business_name: businessName || null,
       business_location: businessLocation || null,
