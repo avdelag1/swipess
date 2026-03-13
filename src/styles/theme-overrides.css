@@ -268,18 +268,16 @@
 
 /* Override inline rgba backgrounds */
 .white-matte [style*="background: rgba(255,255,255,0.0"],
-.white-matte [style*="background: rgba(255, 255, 255, 0.0"] {
-  background: rgba(0, 0, 0, 0.04) !important;
-}
+.white-matte [style*="background: rgba(255, 255, 255, 0.0"],
 .white-matte [style*="background: rgba(255,255,255,0.1"],
 .white-matte [style*="background: rgba(255, 255, 255, 0.1"] {
-  background: rgba(0, 0, 0, 0.06) !important;
+  background: hsl(var(--card)) !important;
 }
 
 /* Override inline border rgba */
 .white-matte [style*="border: 1px solid rgba(255,255,255,"],
 .white-matte [style*="border: 1px solid rgba(255, 255, 255,"] {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-color: hsl(var(--border)) !important;
 }
 
 /* Override linear gradients in inline styles */
