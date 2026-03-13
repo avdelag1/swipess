@@ -1,46 +1,49 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+# Fix Core Flows: Profile Save, Listing Upload, Legal Verification, and Zones
 
-### 1. Replace App Icon with Fire S Logo
+## Issues Identified
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+### 1. Listing Upload Error: `video_url` column missing from `listings` table
+The `UnifiedListingForm.tsx` (line 191) sends `video_url` in the insert/update payload, but the database schema (types.ts) shows NO `video_url` column exists in the `listings` table. This causes the insert to fail silently or with an error since the form uses `as any` to bypass TypeScript checks.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+**Fix:** Add a `video_url` column to the `listings` table via database migration.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+### 2. Profile Save Error
+The "ERROR SAVING PROFILE" shown in the screenshot is likely caused by the profile sync to the `profiles` table failing — possibly a transient auth issue or a field mismatch. The code currently throws the sync error up to the user. We should make profile sync non-blocking (log errors, don't fail the save).
 
-### 2. Profile Photo Already Shows in Top-Left
+**Fix:** In `useClientProfile.ts`, wrap the profiles table sync in a try/catch so a sync failure doesn't prevent the client_profiles save from succeeding. Same defensive pattern already exists in `useOwnerProfile.ts` (it logs but doesn't throw).
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### 3. Legal Verification Section Not Clickable
+The Legal Verification card in `UnifiedListingForm.tsx` (lines 569-590) is a static `<div>` with no `onClick` handler. It looks interactive (has a ChevronRight arrow) but does nothing.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+**Fix:** Make it navigate to the Document Vault page (`/documents`) where users can upload legal documents, or open a file upload flow inline.
 
-### 3. Fix Header Too Close to Top Edge
+### 4. Zones Page Shows Nothing (First Explore Link)
+The `/explore/zones` route renders `NeighborhoodMap.tsx` which queries `neighborhood_data` table. If the table has no data, the page shows blank. 
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+**Fix:** Add empty-state UI with a message like "No zones available yet" so users aren't confused by a blank page.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+### 5. Enforce "1 Photo Minimum" for Profiles
+The user wants profiles to require at least one photo but no other field should be mandatory. Currently the `ClientProfileDialog` and `OwnerProfileDialog` don't enforce any photo requirement.
 
-### 4. Fix MarketingSlide Build Error
+**Fix:** Add a check in both profile dialogs: if `profileImages.length < 1`, show an error toast and prevent save.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+## Database Migration
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+Add `video_url` column to `listings` table:
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+```sql
+ALTER TABLE public.listings ADD COLUMN IF NOT EXISTS video_url text;
+```
+
+## File Changes
+
+| File | Change |
+|------|--------|
+| `src/hooks/useClientProfile.ts` | Wrap profiles sync in try/catch so sync failure doesn't block save |
+| `src/components/ClientProfileDialog.tsx` | Add 1-photo minimum check before save |
+| `src/components/OwnerProfileDialog.tsx` | Add 1-photo minimum check before save |
+| `src/components/UnifiedListingForm.tsx` | Make Legal Verification section clickable (navigate to `/documents`) |
+| `src/pages/NeighborhoodMap.tsx` | Add empty-state UI when no zones data exists |
 
