@@ -11,9 +11,8 @@ interface ThemeToggleProps {
 
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
-    const isDark = theme !== 'white-matte';
+    const isDark = theme === 'dark';
 
-    // Glass styling for the button
     const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
     const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
     const floatingShadow = isDark
@@ -24,9 +23,7 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         e.preventDefault();
         e.stopPropagation();
         triggerHaptic('light');
-
-        // We only support these two modes for the quick toggle
-        setTheme(isDark ? 'white-matte' : 'black-matte');
+        setTheme(isDark ? 'light' : 'dark');
     };
 
     return (
