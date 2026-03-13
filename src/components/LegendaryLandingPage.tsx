@@ -479,7 +479,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
                   <ArrowLeft className="w-3 h-3" /> Back to Sign In
                 </button>
               ) : (
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-muted-foreground">
                   {isLogin ? "Don't have an account? " : 'Already have an account? '}
                   <button type="button" onClick={switchMode}
                     className="text-orange-400 hover:underline font-semibold">
