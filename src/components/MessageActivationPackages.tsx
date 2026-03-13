@@ -44,7 +44,7 @@ export function MessageActivationPackages({
   const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -420,7 +420,7 @@ export function MessageActivationPackages({
 
 function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   return (
     <div className="flex items-center gap-3 text-xs group">

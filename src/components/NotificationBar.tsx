@@ -53,7 +53,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
   const dismissedRef = useRef(false);
   const prevUnreadCountRef = useRef(0);
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const unreadNotifications = useMemo(() => notifications.filter(n => !n.read), [notifications]);
   const unreadCount = unreadNotifications.length;

@@ -72,7 +72,7 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
 
 export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProps) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();

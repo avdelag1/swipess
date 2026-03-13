@@ -1,18 +1,6 @@
 import { useTheme } from "@/hooks/useTheme";
 import { useEffect, useRef } from "react";
 
-/**
- * VisualEngine - Cinematic Background Layer System
- *
- * Creates depth through layered animated backgrounds:
- * - Base gradient layer
- * - Subtle noise texture
- * - Animated star field (theme-aware)
- * - Adapts to light/dark theme
- *
- * Mounted once in AppLayout for persistent luxury feel
- */
-
 interface Star {
   x: number;
   y: number;
@@ -22,7 +10,7 @@ interface Star {
   twinklePhase: number;
 }
 
-function StarCanvas({ isLightTheme }: { isLightTheme: boolean }) {
+function StarCanvas({ isLight }: { isLight: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const starsRef = useRef<Star[]>([]);
   const animRef = useRef<number>(0);
@@ -30,16 +18,16 @@ function StarCanvas({ isLightTheme }: { isLightTheme: boolean }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     const resize = () => {
-      canvas.width = window.innerWidth * (window.devicePixelRatio || 1);
-      canvas.height = window.innerHeight * (window.devicePixelRatio || 1);
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
       canvas.style.width = `${window.innerWidth}px`;
       canvas.style.height = `${window.innerHeight}px`;
-      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+      ctx.scale(dpr, dpr);
       initStars();
     };
 
@@ -57,41 +45,34 @@ function StarCanvas({ isLightTheme }: { isLightTheme: boolean }) {
 
     const draw = (time: number) => {
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      
       for (const star of starsRef.current) {
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase);
         const alpha = star.opacity * (0.5 + 0.5 * twinkle);
-
-        if (isLightTheme) {
-          ctx.fillStyle = `rgba(30, 30, 60, ${alpha * 0.7})`;
-        } else {
-          ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-        }
-
+        ctx.fillStyle = isLight
+          ? `rgba(30, 30, 60, ${alpha * 0.5})`
+          : `rgba(255, 255, 255, ${alpha})`;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
         ctx.fill();
       }
-
       animRef.current = requestAnimationFrame(draw);
     };
 
     resize();
     animRef.current = requestAnimationFrame(draw);
     window.addEventListener("resize", resize);
-
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", resize);
     };
-  }, [isLightTheme]);
+  }, [isLight]);
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0"
       style={{
-        mixBlendMode: isLightTheme ? "normal" : "screen",
+        mixBlendMode: isLight ? "normal" : "screen",
         pointerEvents: "none",
       }}
     />
@@ -100,21 +81,14 @@ function StarCanvas({ isLightTheme }: { isLightTheme: boolean }) {
 
 export const VisualEngine = () => {
   const { theme } = useTheme();
-  const isDark = theme !== "white-matte";
-  const isLightTheme = !isDark;
+  const isLight = theme === "light";
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      {/* Base gradient - adapts to theme */}
       <div
-        className={`absolute inset-0 transition-colors duration-500 ${isDark
-            ? "bg-[#050505]"
-            : "bg-background"
-          }`}
+        className="absolute inset-0 transition-colors duration-500 bg-background"
       />
-
-      {/* Subtle noise overlay for texture (premium detail) - hidden in light theme */}
-      {isDark && (
+      {!isLight && (
         <div
           className="absolute inset-0 opacity-[0.015]"
           style={{
@@ -122,9 +96,7 @@ export const VisualEngine = () => {
           }}
         />
       )}
-
-      {/* Animated star field - visible on all themes */}
-      <StarCanvas isLightTheme={isLightTheme} />
+      <StarCanvas isLight={isLight} />
     </div>
   );
 };

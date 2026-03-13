@@ -35,7 +35,7 @@ const categoryBase: { id: CategoryType; name: string; icon: React.ElementType }[
 export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, currentFilters }: AdvancedFiltersProps) {
   const safeCurrentFilters = currentFilters ?? {};
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
   const [activeCategory, setActiveCategory] = useState<CategoryType>('property');
   const [filterCounts, setFilterCounts] = useState<Record<CategoryType, number>>({
     property: 0,

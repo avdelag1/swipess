@@ -59,7 +59,7 @@ interface AIListingAssistantProps {
 
 export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAssistantProps) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
   const [step, setStep] = useState<'category' | 'photos' | 'details' | 'generating' | 'review'>('category');
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [images, setImages] = useState<string[]>([]);

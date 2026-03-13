@@ -37,7 +37,7 @@ const ClientProfileNew = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
   const { data: stats } = useClientStats();
 
   const handlePhotoClick = useCallback((index: number) => {

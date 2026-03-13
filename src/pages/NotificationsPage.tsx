@@ -85,7 +85,7 @@ export default function NotificationsPage() {
   const [removingLikeId, setRemovingLikeId] = useState<string | null>(null);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
   const { data: likedProperties, isLoading: likedLoading } = useLikedProperties();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

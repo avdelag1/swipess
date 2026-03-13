@@ -19,7 +19,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
-  const isLightTheme = theme === 'white-matte';
+  const isLightTheme = theme === 'light';
 
   // Initialize app features
   useKeyboardShortcuts();

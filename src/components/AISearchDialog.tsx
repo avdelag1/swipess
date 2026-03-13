@@ -38,7 +38,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: clientProfile } = useClientProfile();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 

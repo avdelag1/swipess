@@ -10,7 +10,6 @@ import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -175,7 +174,7 @@ export default function OwnerFiltersExplore() {
           </Tabs>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-280px)] mt-4">
+        <div className="overflow-y-auto mt-4">
           <div className="max-w-2xl mx-auto px-6 pb-32">
             <AnimatePresence mode="wait">
               <motion.div
@@ -212,7 +211,7 @@ export default function OwnerFiltersExplore() {
               </motion.div>
             </AnimatePresence>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Apply Button - Gradient */}
         <div className="fixed bottom-24 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-10">

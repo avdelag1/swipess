@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap, ShoppingBag, Building2, Users } from 'lucide-react';
 import { AISearchDialog } from '@/components/AISearchDialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -174,7 +173,7 @@ export default function ClientFilters() {
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-200px)]">
+      <div className="overflow-y-auto">
         <div className="px-4 py-6 space-y-8 pb-36">
           {/* AI Suggestions Banner - M3 Tonal Style */}
           <section>
@@ -321,7 +320,7 @@ export default function ClientFilters() {
             </div>
           </section>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Bottom Fixed Apply Button - M3 Pill Style */}
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40">

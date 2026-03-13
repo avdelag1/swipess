@@ -30,7 +30,7 @@ export function SharedProfileSection({
   const [copied, setCopied] = useState(false);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   if (!profileId || !user?.id) return null;
 

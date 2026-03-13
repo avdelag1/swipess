@@ -23,7 +23,7 @@ export function LikeNotificationActions({
   onChat,
 }: LikeNotificationActionsProps) {
   const { theme } = useTheme();
-  const isWhite = theme === 'white-matte';
+  const isWhite = theme === 'light';
   const isLoading = isAccepting || isRejecting;
 
   if (variant === 'stacked') {

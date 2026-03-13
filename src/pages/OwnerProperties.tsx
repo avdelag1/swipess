@@ -9,7 +9,7 @@ import { useTheme } from "@/hooks/useTheme";
 const OwnerProperties = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [initialCategory, setInitialCategory] = useState<string | null>(null);
