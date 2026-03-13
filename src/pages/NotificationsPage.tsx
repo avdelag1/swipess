@@ -362,7 +362,7 @@ export default function NotificationsPage() {
                               <span className="text-[10px] font-black uppercase truncate">{p.neighborhood || p.city}</span>
                             </div>
                             <div className="flex items-center justify-between mt-4">
-                              <Badge className="bg-white/5 text-[9px] font-black uppercase border-none rounded-lg tracking-widest px-2.5">
+                              <Badge className="bg-muted/30 text-[9px] font-black uppercase border-none rounded-lg tracking-widest px-2.5">
                                 {p.category}
                               </Badge>
                               <div className="flex items-baseline gap-0.5">
