@@ -290,7 +290,7 @@ export default function NotificationsPage() {
                               <h4 className="font-black text-xs uppercase tracking-tight text-foreground group-hover:text-brand-accent-2 transition-colors">
                                 {n.title}
                               </h4>
-                              <span className="text-[10px] font-black uppercase text-white/20">
+                              <span className="text-[10px] font-black uppercase text-muted-foreground/50">
                                 {formatDistanceToNow(n.created_at)}
                               </span>
                             </div>
