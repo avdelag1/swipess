@@ -79,6 +79,17 @@ interface Message {
   const handleSend = useCallback(async () => {
     if (!query.trim() || isSearching) return;
 
+    // Auth guard
+    if (!user) {
+      toast.error('Please sign in to use the AI assistant');
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: "You need to sign in first to chat with me. Please log in and try again! 🔐",
+        timestamp: Date.now()
+      }]);
+      return;
+    }
+
     const userMessage = query.trim();
     setQuery('');
     setMessages(prev => [...prev, { role: 'user', content: userMessage, timestamp: Date.now() }]);
@@ -86,6 +97,7 @@ interface Message {
     setIsTyping(true);
 
     try {
+      console.log('[AI Chat] Sending message, user:', user.id);
       const { data, error: fnError } = await supabase.functions.invoke('ai-orchestrator', {
         body: {
           task: 'chat',
@@ -99,9 +111,36 @@ interface Message {
         }
       });
 
-      if (fnError) throw fnError;
+      console.log('[AI Chat] Response:', { data: !!data, error: fnError });
+
+      if (fnError) {
+        const errMsg = fnError.message || '';
+        console.error('[AI Chat] Function error:', errMsg);
+        
+        // Surface specific errors
+        if (errMsg.includes('401') || errMsg.includes('Unauthorized')) {
+          throw new Error('Session expired. Please sign in again.');
+        } else if (errMsg.includes('429') || errMsg.includes('rate limit')) {
+          throw new Error('Too many requests — please wait a moment and try again.');
+        } else if (errMsg.includes('402')) {
+          throw new Error('AI credits exhausted. Please add funds.');
+        } else {
+          throw new Error(errMsg || 'Connection failed');
+        }
+      }
+
+      if (data?.error) {
+        console.error('[AI Chat] API error:', data.error);
+        throw new Error(data.error);
+      }
 
       const responseContent = data?.result?.text || data?.result?.message || String(data?.result || '');
+      
+      if (!responseContent) {
+        console.warn('[AI Chat] Empty response from AI');
+        throw new Error('AI returned an empty response. Please try again.');
+      }
+
       setIsTyping(false);
       setMessages(prev => [...prev, {
         role: 'ai',
@@ -111,16 +150,18 @@ interface Message {
       }]);
     } catch (error) {
       setIsTyping(false);
-      console.error('AI search error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error('[AI Chat] Error:', errorMessage);
+      
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: "I'm having a brief moment of silence while I reconnect with my data sources. 💎✨\n\nPlease try again in a moment.",
+        content: `⚠️ ${errorMessage}\n\nPlease try again.`,
         timestamp: Date.now()
       }]);
     } finally {
       setIsSearching(false);
     }
-  }, [query, isSearching, userRole, messages]);
+  }, [query, isSearching, userRole, messages, user]);
 
   const handleClose = useCallback(() => {
     onClose();
