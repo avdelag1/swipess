@@ -1,84 +1,46 @@
 
 
-# Landing Page Overhaul: New Image, Beach Theme, Sound Fixes, Auth Backgrounds
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Summary of All Changes
+### 1. Replace App Icon with Fire S Logo
 
-This is a large update touching the landing background system, sounds, and auth screens. Here's everything:
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
----
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### 1. Replace Animal Print Image
-- Copy uploaded `images_24-2.jpeg` to `public/images/cheetah-1.jpeg` (overwrite) — clean image without branding/watermark
-- The current `cheetah-1.jpeg` may have artifacts; the user's uploaded image is a clean leopard fur texture
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### 2. Fix Double Sound on Tap
-**Problem**: `handlePointerDown` on `window` fires for ALL taps (including UI buttons, logo drag, etc.), and cheetah mode plays `playRandomZen` which can overlap with other handlers.
+### 2. Profile Photo Already Shows in Top-Left
 
-**Fix in `LandingBackgroundEffects.tsx`**:
-- Instead of `window.addEventListener('pointerdown')`, attach the listener to the **canvas element itself** with `pointer-events: auto` (currently set to `none`)
-- This ensures sounds ONLY trigger when tapping the background canvas, not when tapping buttons/forms
-- Canvas gets `pointer-events: auto` style, but keep `z-0` so it stays behind UI
-- Single sound per tap guaranteed since there's only one listener on the canvas
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### 3. Animal Print Sounds → Jungle/Jaguar Purr
-- No jungle sounds exist in `/public/sounds/`. Need to source/create them.
-- Add 3-4 short jaguar purr/growl sounds (soft, not scary) to `public/sounds/`:
-  - `jaguar-purr-1.mp3`, `jaguar-purr-2.mp3`, `jaguar-purr-3.mp3`
-- Create a `playJungleSound()` function in `sounds.ts` that picks randomly from this pool
-- In `LandingBackgroundEffects.tsx`, cheetah mode calls `playJungleSound(0.3)` instead of `playRandomZen(0.3)`
-- Stars/Orbs keep `playRandomZen` (singing bowls)
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### 4. Replace Cheetah Toggle Icon
-- Current icon: `🐆` emoji
-- Replace with a pattern-like icon. Use `◆` or a small SVG/text that looks like animal print spots
-- Simple change: replace `'🐆'` with something like `'🔶'` or better, render a tiny leopard-spot SVG inline
+### 3. Fix Header Too Close to Top Edge
 
-### 5. New Background Mode: "Cloud Puff Sunset" 🌅
-Add a 4th effect mode to the cycle: `stars → orbs → cheetah → sunset → stars`
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**`EffectMode`** becomes `'cheetah' | 'stars' | 'orbs' | 'sunset'`
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-**Sunset mode rendering** (canvas-based):
-- **Base**: Soft white background with animated gradient overlay using warm sunset tones (coral, golden yellow, peach, light pink) at very low opacity (~0.15-0.25), slowly shifting via sine waves over 20+ seconds
-- **Tap interaction**: Spawn a "cloud puff" particle system at tap location:
-  - Draw a cluster of overlapping soft white circles (fluffy cloud shape)
-  - Cloud expands from small to ~60px over 400ms
-  - Then breaks into 8-12 tiny mist particles that float upward and fade over 800ms
-  - Total lifetime: ~1.2 seconds
-  - Soft glow from sunset gradient behind cloud
-- **Rare effects** (5% chance per tap): subtle mini rainbow arc or sun ray shimmer from tap point
-- **Sound**: Use existing zen/bell sounds (calming fits the beach theme)
-- **Icon**: `☁️` or `🌅`
+### 4. Fix MarketingSlide Build Error
 
-### 6. Auth Screens Show Active Background Effect
-**Current**: Auth view always shows `'cheetah'` mode (line 550: `mode={view === 'auth' ? 'cheetah' : effectMode}`)
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-**Fix**: Pass `effectMode` directly regardless of view:
-```
-<LandingBackgroundEffects mode={effectMode} />
-```
-This way if user selected stars, orbs, cheetah, or sunset on landing, it persists into auth.
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-### 7. Ensure Text Readability on Auth with All Backgrounds
-- The auth card already has `bg-card border border-border` styling which provides solid contrast
-- For sunset mode (lighter background), ensure the auth page base div gets a subtle dark overlay so text remains readable
-- Add a conditional semi-transparent overlay behind auth content when mode is `'sunset'`
-
----
-
-## Files Modified
-
-| File | Change |
-|------|--------|
-| `public/images/cheetah-1.jpeg` | Replace with clean uploaded image |
-| `public/sounds/jaguar-purr-*.mp3` | Add 3 soft jaguar purr sounds |
-| `src/utils/sounds.ts` | Add `jungleSoundPool` + `playJungleSound()` |
-| `src/components/LandingBackgroundEffects.tsx` | Fix pointer events to canvas only, add sunset mode drawing, change cheetah sound to jungle, add cloud puff system |
-| `src/components/LegendaryLandingPage.tsx` | Add `'sunset'` to EffectMode, update cycle, fix auth background to use active mode, update icons |
-
-## Performance Notes
-- Cloud puff uses simple circle particles (no image loading), very lightweight
-- Sunset gradient is just 2-3 `fillRect` calls with low-opacity gradients
-- Canvas pointer events scoped to canvas element prevents bubbling issues
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
