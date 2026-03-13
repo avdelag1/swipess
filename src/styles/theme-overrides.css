@@ -386,12 +386,12 @@
 
 .white-matte [class*="bg-white/[0.0"],
 .white-matte [class*="bg-white/[0.1"] {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  background-color: hsl(var(--card)) !important;
 }
 
 .white-matte [class*="border-white/[0.0"],
 .white-matte [class*="border-white/1"],
 .white-matte [class*="border-white/2"],
 .white-matte [class*="border-white/3"] {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-color: hsl(var(--border)) !important;
 }
