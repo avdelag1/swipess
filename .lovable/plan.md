@@ -1,46 +1,70 @@
 
+Goal: fix two blocking issues reported by you: (1) stars not visible on the main authenticated page, and (2) profile save/create failing with 400 errors (which also blocks listing confidence).
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+What I found (root causes)
+1) Backend mismatch is likely the primary blocker for saves  
+- Runtime network logs show requests going to `vplgtcguxujxwrgguxqq...` (old backend), while this project is configured for a different Cloud backend.  
+- `src/integrations/supabase/client.ts` contains hardcoded fallback URL/key pointing to that old project. If env vars are missing/misnamed at runtime, app silently talks to the wrong backend and schema/policy mismatches cause 400s.
 
-### 1. Replace App Icon with Fire S Logo
+2) Profile update path is brittle for opaque 400s  
+- `useSaveClientProfile` and `useSaveOwnerProfile` are mostly correct, but they throw raw backend objects and don’t normalize payloads/diagnostics enough, making debugging difficult when backend rejects a field.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+3) Stars are only mounted on landing/auth view  
+- `LandingBackgroundEffects` is used in `LegendaryLandingPage` only.  
+- Authenticated pages (`/client/profile`, dashboards) use `VisualEngine`, which currently renders gradient/noise only—no stars layer.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+Implementation plan
+Phase 1 — Fix backend connection first (highest priority)
+- Restore the generated backend client wiring so all requests target this project’s active Cloud backend only (no old-project fallback usage).
+- Ensure the runtime key var names match what the app expects.
+- Verify with network logs that requests are now sent to the correct backend domain before any further debugging.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+Phase 2 — Stabilize profile save/create flow
+Files:
+- `src/hooks/useClientProfile.ts`
+- `src/hooks/useOwnerProfile.ts`
+- `src/components/ClientProfileDialog.tsx` (error UX only)
 
-### 2. Profile Photo Already Shows in Top-Left
+Changes:
+- Normalize mutation payloads before update/insert (drop `undefined`, keep explicit `null` only when intentional).
+- Prefer row targeting by `user_id` for updates (unique and auth-aligned) to avoid id-shape edge cases.
+- Add structured error capture (`message`, `code`, `details`, `hint`) and surface that in toast-friendly form.
+- Keep profile-table sync non-blocking (already mostly done), but make logging deterministic and consistent in both hooks.
+- Add guarded retry (`retryWithBackoff`) around update/insert only for transient failures.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+Phase 3 — Make stars visible on the “main page” too
+Files:
+- `src/visual/VisualEngine.tsx`
+- (optional) new lightweight star layer component in `src/visual/`
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+Changes:
+- Add a global star canvas layer in `VisualEngine` so authenticated pages (dashboard/profile) also show stars.
+- Keep it non-interactive (`pointer-events:none`) and low-cost.
+- Use theme-aware rendering:
+  - white theme: darker stars + `normal/multiply` style rendering
+  - dark theme: bright stars + `screen` rendering
+- Keep existing landing effect modes/toggle untouched.
 
-### 3. Fix Header Too Close to Top Edge
+Phase 4 — Listing confidence check
+Files:
+- `src/components/UnifiedListingForm.tsx` (error mapping only)
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+Changes:
+- Improve error mapping so listing failures clearly show backend cause.
+- Confirm listing create/update works after Phase 1 (same backend client dependency).
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+Technical details (concise)
+- No database schema migration is required for this fix set initially; current table/policy definitions for `client_profiles`, `owner_profiles`, `profiles`, and `listings` are already present.
+- The 400 is most likely from wrong-backend runtime targeting + payload rejection on that backend, not from missing local hook retries alone.
+- Console messages about iframe sandbox/CORS for manifest and some tooltip accessibility warnings are secondary; they are not the primary cause of profile save failure.
 
-### 4. Fix MarketingSlide Build Error
-
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
-
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
-
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+Validation checklist (end-to-end)
+1) Save client profile with at least one uploaded photo → success toast + persisted reload.
+2) Save owner profile → success + sync updates reflected in shared profile fields.
+3) Create a listing from owner flow → success + listing appears in owner listings.
+4) Verify stars are visible on:
+   - landing `/`
+   - authenticated main pages (`/client/profile`, `/client/dashboard`)
+   in both white and dark themes.
+5) Re-check network: all backend calls must hit the active Cloud project endpoint (no old fallback endpoint).
 
