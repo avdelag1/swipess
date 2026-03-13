@@ -120,29 +120,37 @@ export function useSaveClientProfile() {
         throw existingError;
       }
 
+      // Normalize payload: strip undefined values to prevent PostgREST 400s
+      const cleanUpdates: Record<string, any> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) {
+          cleanUpdates[key] = value;
+        }
+      }
+
       let profileData: ClientProfileLite;
 
       if (existing?.id) {
         const { data, error } = await supabase
           .from('client_profiles')
-          .update(updates)
-          .eq('id', existing.id)
+          .update(cleanUpdates)
+          .eq('user_id', uid)
           .select()
           .single();
         if (error) {
-          logger.error('Error updating profile:', error);
-          throw error;
+          logger.error('Error updating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to update profile');
         }
         profileData = data as ClientProfileLite;
       } else {
         const { data, error } = await supabase
           .from('client_profiles')
-          .insert([{ ...updates, user_id: uid }])
+          .insert([{ ...cleanUpdates, user_id: uid }])
           .select()
           .single();
         if (error) {
-          logger.error('Error creating profile:', error);
-          throw error;
+          logger.error('Error creating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to create profile');
         }
         profileData = data as ClientProfileLite;
       }

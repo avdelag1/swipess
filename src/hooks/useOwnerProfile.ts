@@ -91,29 +91,37 @@ export function useSaveOwnerProfile() {
         .eq('user_id', uid)
         .maybeSingle();
 
+      // Normalize payload: strip undefined values to prevent PostgREST 400s
+      const cleanUpdates: Record<string, any> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) {
+          cleanUpdates[key] = value;
+        }
+      }
+
       let profileData: OwnerProfile;
 
       if (existing?.id) {
         const { data, error } = await supabase
           .from('owner_profiles')
-          .update(updates)
-          .eq('id', existing.id)
+          .update(cleanUpdates)
+          .eq('user_id', uid)
           .select()
           .single();
         if (error) {
-          logger.error('Error updating owner profile:', error);
-          throw error;
+          logger.error('Error updating owner profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to update owner profile');
         }
         profileData = data as OwnerProfile;
       } else {
         const { data, error } = await supabase
           .from('owner_profiles')
-          .insert([{ ...updates, user_id: uid }])
+          .insert([{ ...cleanUpdates, user_id: uid }])
           .select()
           .single();
         if (error) {
-          logger.error('Error creating owner profile:', error);
-          throw error;
+          logger.error('Error creating owner profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to create owner profile');
         }
         profileData = data as OwnerProfile;
       }
