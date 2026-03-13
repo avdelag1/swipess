@@ -1,46 +1,78 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+## Plan: Remove white-matte theme, fix filter page scroll behavior, then recreate a clean white theme
 
-### 1. Replace App Icon with Fire S Logo
+### What's wrong
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+1. **White-matte theme is broken across the app** — hundreds of `.white-matte` CSS overrides, inline style conditionals (`theme === 'white-matte'`), and override files (`theme-overrides.css`) create a fragile, inconsistent experience. The user wants it completely removed first.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+2. **Filter pages don't hide TopBar/BottomNav on scroll** — The filter pages (`/client/filters`, `/owner/filters`, `/owner/filters-explore`) are rendered inside `PersistentDashboardLayout`, which wraps them with `TopBar` (hideOnScroll=true) and `BottomNavigation`. The scroll-hide already works via `useScrollDirection` targeting `#dashboard-scroll-container`. However, the filter pages have their own sticky headers that overlap with the TopBar, and the BottomNavigation may not be hiding because the filter pages use their own `ScrollArea` instead of the main scroll container.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+3. **Text/color mismatches** — Various hardcoded color references (e.g., `text-white`, `bg-black`) that were overridden by `.white-matte` CSS rules will need cleanup once the white theme is recreated properly.
 
-### 2. Profile Photo Already Shows in Top-Left
+---
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+### Implementation
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+#### Phase 1: Set dark theme as default, remove white-matte references
 
-### 3. Fix Header Too Close to Top Edge
+**Files to change:**
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+- **`src/hooks/useTheme.tsx`**
+  - Change `Theme` type to just `'dark' | 'light'` (simpler naming)
+  - Set `DEFAULT_THEME` to `'dark'` (was `'white-matte'`)
+  - Update valid themes list and class toggling logic
+  - Keep the `setTheme` save-to-DB flow intact
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+- **`src/styles/theme-overrides.css`** — Delete the entire file (397 lines of `.white-matte` overrides)
 
-### 4. Fix MarketingSlide Build Error
+- **`src/styles/matte-themes.css`** — Remove the `.white-matte` block (lines 96-137). Keep `.black-matte` and other dark themes.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+- **`src/index.css`** — Remove all `.white-matte` specific rules (the forced white backgrounds, text overrides, header transparency overrides)
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+- **~39 component files** — Replace `theme === 'white-matte'` / `theme !== 'white-matte'` checks with the new theme value check (`theme === 'light'` / `theme === 'dark'`). This is a mechanical find-and-replace across all files that reference `white-matte`.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+#### Phase 2: Fix filter page scroll hide/show for TopBar and BottomNav
+
+**Root cause:** Filter pages use their own `<ScrollArea>` component which creates a separate scroll container. The `useScrollDirection` hook listens to `#dashboard-scroll-container` but the filter pages' content scrolls inside their own `ScrollArea`, not the dashboard container. So the TopBar and BottomNav never detect scrolling on filter pages.
+
+**Fix approach:**
+- **`src/pages/ClientFilters.tsx`** — Replace the internal `<ScrollArea>` with a regular `<div>` so content scrolls within the parent `#dashboard-scroll-container`. This allows `useScrollDirection` to detect scroll and hide/show TopBar + BottomNav naturally.
+- **`src/pages/OwnerFiltersExplore.tsx`** — Same fix: remove `<ScrollArea>`, let content flow in the main scroll container.
+- **`src/pages/OwnerFilters.tsx`** — Same fix.
+- Adjust `pb-` (bottom padding) on filter content to account for the BottomNavigation height.
+
+#### Phase 3: Recreate a clean "light" theme
+
+**Files to change:**
+
+- **`src/styles/matte-themes.css`** — Add a new `.light` theme class with clean CSS variables:
+  - `--background: 0 0% 100%` (pure white)
+  - `--foreground: 0 0% 7%` (near-black text)
+  - `--card: 0 0% 99%`
+  - `--border: 0 0% 90%`
+  - Standard shadow values for light mode
+  - Same `--primary` accent color as dark theme for brand consistency
+
+- **`src/hooks/useTheme.tsx`** — Add `'light'` to the `Theme` union type. Apply `'light'` class and remove `'dark'` class when light is selected. Keep dark as default.
+
+- **`src/components/ThemeToggle.tsx`** — Update toggle to switch between `'dark'` and `'light'`.
+
+- **Component files** — The ~39 files with `isLight` / `isDark` checks already use semantic tokens (`bg-background`, `text-foreground`, `text-muted-foreground`). Most will work automatically with the new CSS variables. Only files with inline style overrides (glass effects, shadows) need the `theme === 'light'` check updated.
+
+#### Phase 4: Ensure text colors match backgrounds
+
+- Audit all components that use hardcoded `text-white` or `bg-black` and replace with semantic tokens (`text-foreground`, `bg-background`) where appropriate.
+- The new `.light` theme CSS variables will handle contrast automatically for components already using semantic tokens.
+
+---
+
+### Summary of changes
+
+| Area | Files | What |
+|------|-------|------|
+| Theme system | `useTheme.tsx`, `ThemeToggle.tsx`, `matte-themes.css` | Remove white-matte, add clean light/dark |
+| CSS cleanup | `theme-overrides.css` (delete), `index.css` | Remove all `.white-matte` rules |
+| Filter scroll | `ClientFilters.tsx`, `OwnerFilters.tsx`, `OwnerFiltersExplore.tsx` | Remove internal ScrollArea so TopBar/BottomNav hide on scroll |
+| Component updates | ~39 files | Replace `'white-matte'` string checks with `'light'` |
 
