@@ -258,11 +258,11 @@ export default function NotificationsPage() {
                   <div key={i} className="h-24 w-full rounded-3xl bg-white/5 animate-pulse" />
                 ))
               ) : notifications.length === 0 ? (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-white/[0.02] border border-dashed border-white/5 rounded-[3rem]">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                    <Bell className="w-8 h-8 text-white/20" />
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-20 text-center bg-muted/20 border border-dashed border-border rounded-[3rem]">
+                  <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                    <Bell className="w-8 h-8 text-muted-foreground/40" />
                   </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white/40">Inbox Empty</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">Inbox Empty</h3>
                 </motion.div>
               ) : (
                 <AnimatePresence mode="popLayout">
