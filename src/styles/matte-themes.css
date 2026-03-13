@@ -93,47 +93,43 @@
     --overlay: rgba(0, 0, 0, 0.85);
 }
 
-/* THEME 3: WHITE MATTE — Clean, luxurious light mode */
-.white-matte {
-    /* Background colors - Pure, clean, luxurious white */
+/* THEME: LIGHT — Clean, normal white */
+.light {
     --background: 0 0% 100%;
-    --foreground: 0 0% 1%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 1%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 99%;
+    --card-foreground: 0 0% 7%;
     --primary: 343 99% 62%;
-    /* Tinder Signature Pink-Red */
     --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 5%;
-    --muted: 0 0% 98%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
     --accent: 343 99% 62%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 92%;
-    --input: 0 0% 92%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
     --ring: 343 99% 62%;
 
-    /* Modern theme variables */
-    --bg-primary: 0 0% 96%;
-    --bg-secondary: 0 0% 98%;
-    --bg-tertiary: 0 0% 96%;
-    --text-primary: 0 0% 5%;
+    --bg-primary: 0 0% 100%;
+    --bg-secondary: 0 0% 97%;
+    --bg-tertiary: 0 0% 95%;
+    --text-primary: 0 0% 7%;
     --text-secondary: 0 0% 40%;
     --text-tertiary: 0 0% 55%;
     --border-primary: 0 0% 90%;
     --border-secondary: 0 0% 85%;
-    --accent-primary: 0 100% 60%;
-    --accent-secondary: 0 100% 70%;
+    --accent-primary: 343 99% 62%;
+    --accent-secondary: 343 99% 72%;
 
-    /* Shadows - Clean, elegant shadows for light mode */
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.08);
-    --shadow-glow: 0 0 30px rgba(229, 57, 53, 0.2);
-    --overlay: rgba(255, 255, 255, 0);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+    --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-glow: 0 0 20px rgba(229, 57, 53, 0.15);
+    --overlay: rgba(0, 0, 0, 0.4);
 }
 
 /* THEME 4: RED MATTE (Bold Mexican spirit) */

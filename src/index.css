@@ -1493,26 +1493,6 @@ body {
   border-radius: 3px;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  FINAL OVERRIDE FOR WHITE THEME - Ensures white backgrounds          */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-.white-matte,
-.white-matte body,
-.white-matte #root,
-.white-matte .app-root {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
-  color: hsl(0 0% 1%) !important;
-}
-
-/* Only force text color on actual text utility classes — NOT on bg- classes */
-.white-matte .text-foreground {
-  color: hsl(0 0% 1%) !important;
-}
-
-.white-matte .text-muted-foreground {
-  color: hsl(0 0% 45%) !important;
-}
 
 
 *::-webkit-scrollbar-thumb:hover {
