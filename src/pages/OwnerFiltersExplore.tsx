@@ -174,7 +174,7 @@ export default function OwnerFiltersExplore() {
           </Tabs>
         </div>
 
-        <ScrollArea className="h-[calc(100vh-280px)] mt-4">
+        <div className="overflow-y-auto mt-4">
           <div className="max-w-2xl mx-auto px-6 pb-32">
             <AnimatePresence mode="wait">
               <motion.div
