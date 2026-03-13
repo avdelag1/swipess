@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { startTransition, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -90,7 +90,7 @@ export function BottomNavigation({
 
   // Client nav items
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: 'Explore', path: '/dashboard' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/client/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
@@ -100,7 +100,7 @@ export function BottomNavigation({
 
   // Owner nav items
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
+    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
     { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
     { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
@@ -119,7 +119,7 @@ export function BottomNavigation({
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        navigate(item.path!);
       }
     },
     [navigate],
@@ -133,7 +133,7 @@ export function BottomNavigation({
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        navigate(item.path!);
       }
     },
     [navigate],

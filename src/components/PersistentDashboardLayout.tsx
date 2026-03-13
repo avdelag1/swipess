@@ -29,9 +29,6 @@ import { useMemo, useEffect } from 'react';
  * No async calls, no loading states, no flicker
  */
 function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'client' | 'owner' {
-  if (pathname === '/dashboard') {
-    return activeMode;
-  }
   if (pathname.startsWith('/owner/')) {
     return 'owner';
   }

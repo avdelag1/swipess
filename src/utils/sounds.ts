@@ -1,47 +1,26 @@
 /**
  * Sound management utility for swipe interactions
  * Provides customizable sound themes for left/right swipes
+ * All pools are preloaded at module level for zero-latency playback
  */
 
 export type SwipeTheme = 'none' | 'book' | 'water' | 'funny' | 'calm' | 'randomZen';
 
-/**
- * Sound file mappings for each theme
- * Each theme has left and right swipe sounds
- * RandomZen randomly selects from a pool of zen sounds
- */
 export const soundMap = {
-  none: {
-    left: null as null | string,
-    right: null as null | string
-  },
-
+  none: { left: null as null | string, right: null as null | string },
   book: {
     left: '/sounds/book-closing-466850.mp3',
     right: '/sounds/page-turned-84574.mp3'
   },
-
   water: {
     left: '/sounds/water-splash-46402.mp3',
     right: '/sounds/water-droplet-sfx-417690.mp3'
   },
-
-  /**
-   * Funny theme uses random pools for both directions:
-   * - left (dislike): always a fart — picks randomly from funnyDislikePool
-   * - right (like): picks randomly from funnyLikePool
-   * These are handled in useSwipeSounds via playFunnyDislike / playFunnyLike
-   */
-  funny: {
-    left: null as null | string,   // handled via funnyDislikePool
-    right: null as null | string   // handled via funnyLikePool
-  },
-
+  funny: { left: null as null | string, right: null as null | string },
   calm: {
     left: '/sounds/deep-meditation-bell-hit-third-eye-chakra-6-186972.mp3',
     right: '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3'
   },
-
   randomZen: {
     sounds: [
       '/sounds/bells-2-31725.mp3',
@@ -53,31 +32,26 @@ export const soundMap = {
   }
 };
 
-/**
- * Pool of fart/funny dislike sounds for the funny theme (left swipe = dislike).
- * All entries are fart or funny fail sounds — always a bother when you dislike!
- */
 export const funnyDislikePool: string[] = [
-  '/sounds/funny-short-comedy-fart-sound-effect-318912.mp3', // classic fart
-  '/sounds/whistle-slide-down-dislike.mp3',                  // slide whistle fail
-  '/sounds/funny-cartoon-drum-dislike.mp3',                  // cartoon drum stab
-  '/sounds/down-swipe-left-dislike.mp3',                     // whoosh dislike
+  '/sounds/funny-short-comedy-fart-sound-effect-318912.mp3',
+  '/sounds/whistle-slide-down-dislike.mp3',
+  '/sounds/funny-cartoon-drum-dislike.mp3',
+  '/sounds/down-swipe-left-dislike.mp3',
 ];
 
-/**
- * Pool of funny like sounds for the funny theme (right swipe = like).
- * Upbeat, silly sounds that celebrate the match.
- */
 export const funnyLikePool: string[] = [
-  '/sounds/ding-sfx-472366.mp3',               // classic ding
-  '/sounds/duck-quack-like.mp3',               // duck quack
-  '/sounds/screenshot-iphone-sound-like.mp3',  // iPhone screenshot click
-  '/sounds/achievement-unlocked-463070.mp3',   // achievement unlocked jingle
+  '/sounds/ding-sfx-472366.mp3',
+  '/sounds/duck-quack-like.mp3',
+  '/sounds/screenshot-iphone-sound-like.mp3',
+  '/sounds/achievement-unlocked-463070.mp3',
 ];
 
-/**
- * Theme display names for UI
- */
+export const jungleSoundPool: string[] = [
+  '/sounds/large-gong-2-232438.mp3',
+  '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3',
+  '/sounds/bells-2-31725.mp3',
+];
+
 export const themeDisplayNames: Record<SwipeTheme, string> = {
   none: 'None',
   book: 'Book Pages',
@@ -87,112 +61,87 @@ export const themeDisplayNames: Record<SwipeTheme, string> = {
   randomZen: 'Random Zen'
 };
 
-/**
- * Pick a random item from an array
- */
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+// --- Preloading & Sequential Playback ---
 
-/**
- * Play a random fart/funny dislike sound (for funny theme left swipes)
- * @param volume - Volume level (0.0 to 1.0), default 0.6
- */
-export function playFunnyDislike(volume = 0.6): void {
-  if (!funnyDislikePool.length) return;
-  const audio = new Audio(pickRandom(funnyDislikePool));
-  audio.volume = volume;
-  audio.play().catch((error) => {
-    console.warn('Funny dislike sound playback failed:', error);
+function preloadPool(paths: string[], vol: number): HTMLAudioElement[] {
+  return paths.map(p => {
+    const a = new Audio(p);
+    a.preload = 'auto';
+    a.volume = vol;
+    try { a.load(); } catch (_) { /* ignore */ }
+    return a;
   });
 }
 
-/**
- * Play a random funny like sound (for funny theme right swipes)
- * @param volume - Volume level (0.0 to 1.0), default 0.6
- */
-export function playFunnyLike(volume = 0.6): void {
-  if (!funnyLikePool.length) return;
-  const audio = new Audio(pickRandom(funnyLikePool));
-  audio.volume = volume;
-  audio.play().catch((error) => {
-    console.warn('Funny like sound playback failed:', error);
-  });
+// Preloaded pools (created once at module load)
+const preloadedZen = preloadPool(soundMap.randomZen.sounds, 0.45);
+const preloadedJungle = preloadPool(jungleSoundPool, 0.3);
+const preloadedFunnyDislike = preloadPool(funnyDislikePool, 0.6);
+const preloadedFunnyLike = preloadPool(funnyLikePool, 0.6);
+
+// Sequential round-robin indices
+let zenIndex = 0;
+let jungleIndex = 0;
+let funnyDislikeIndex = 0;
+let funnyLikeIndex = 0;
+
+function playFromPool(pool: HTMLAudioElement[], index: number, volume?: number): void {
+  if (!pool.length) return;
+  const audio = pool[index % pool.length];
+  if (volume !== undefined) audio.volume = volume;
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
 }
 
-/**
- * Play a random zen sound from the pool
- * @param volume - Volume level (0.0 to 1.0), default 0.45
- */
+/** Play next zen sound in sequence */
 export function playRandomZen(volume = 0.45): void {
-  const arr = soundMap.randomZen.sounds;
-  if (!arr || arr.length === 0) return;
-
-  const audio = new Audio(pickRandom(arr));
-  audio.volume = volume;
-  audio.play().catch((error) => {
-    console.warn('Random zen sound playback failed:', error);
-  });
+  playFromPool(preloadedZen, zenIndex, volume);
+  zenIndex++;
 }
 
-/**
- * Create and preload an Audio element
- * @param src - Sound file path (null returns null)
- * @param volume - Volume level (0.0 to 1.0), default 0.5
- * @returns HTMLAudioElement or null if src is null
- */
+/** Play next jungle sound in sequence */
+export function playJungleSound(volume = 0.3): void {
+  playFromPool(preloadedJungle, jungleIndex, volume);
+  jungleIndex++;
+}
+
+/** Play next funny dislike sound in sequence */
+export function playFunnyDislike(volume = 0.6): void {
+  playFromPool(preloadedFunnyDislike, funnyDislikeIndex, volume);
+  funnyDislikeIndex++;
+}
+
+/** Play next funny like sound in sequence */
+export function playFunnyLike(volume = 0.6): void {
+  playFromPool(preloadedFunnyLike, funnyLikeIndex, volume);
+  funnyLikeIndex++;
+}
+
+// --- Utility functions (unchanged) ---
+
 export function createAudio(src: string | null, volume = 0.5): HTMLAudioElement | null {
   if (!src) return null;
-
   const audio = new Audio(src);
   audio.preload = 'auto';
   audio.volume = volume;
-
-  try {
-    audio.load();
-  } catch (error) {
-    console.warn('Failed to preload audio:', src, error);
-  }
-
+  try { audio.load(); } catch (_) { /* ignore */ }
   return audio;
 }
 
-/**
- * Play a sound with error handling
- * Resets audio to start before playing for rapid replay support
- * @param audio - HTMLAudioElement to play
- */
 export function playSound(audio: HTMLAudioElement | null): void {
   if (!audio) return;
-
   try {
     audio.currentTime = 0;
-    audio.play().catch((error) => {
-      console.warn('Sound playback failed:', error);
-    });
-  } catch (error) {
-    console.warn('Sound playback error:', error);
-  }
+    audio.play().catch(() => {});
+  } catch (_) { /* ignore */ }
 }
 
-/**
- * Get sound file path for a specific theme and direction
- * @param theme - The swipe theme
- * @param direction - Swipe direction ('left' or 'right')
- * @returns Sound file path or null
- */
 export function getSoundForTheme(
   theme: SwipeTheme,
   direction: 'left' | 'right'
 ): string | null {
-  if (!theme || theme === 'none' || theme === 'randomZen' || theme === 'funny') {
-    return null;
-  }
-
+  if (!theme || theme === 'none' || theme === 'randomZen' || theme === 'funny') return null;
   const themeMap = soundMap[theme as keyof typeof soundMap];
-  if (!themeMap || !('left' in themeMap)) {
-    return null;
-  }
-
+  if (!themeMap || !('left' in themeMap)) return null;
   return (themeMap as { left: string | null; right: string | null })[direction];
 }

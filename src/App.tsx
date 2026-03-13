@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -210,7 +210,9 @@ const App = () => {
                             <NotificationWrapper>
                               <PushNotificationWrapper>
                                 {/* Guided tour for first-time users */}
-                                <GuidedTourLazy />
+                                <Suspense fallback={null}>
+                                  <GuidedTourLazy />
+                                </Suspense>
 
                                 {/* Update notification banner */}
                                 <UpdateNotification />
@@ -278,7 +280,7 @@ const App = () => {
                                         <Route path="/owner/filters" element={<OwnerFilters />} />
 
                                         {/* Shared routes (both roles) */}
-                                        <Route path="/dashboard" element={<MyHub />} />
+                                        {/* /dashboard removed — redirect handled below */}
                                         <Route path="/messages" element={<MessagingDashboard />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
@@ -308,6 +310,9 @@ const App = () => {
 
                                       {/* AI Test — public, no login required */}
                                       <Route path="/ai-test" element={<AITestPage />} />
+
+                                      {/* Legacy /dashboard redirect — always go to client dashboard */}
+                                      <Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />
 
                                       {/* Info Pages - Public Access */}
                                       <Route path="/about" element={<AboutPage />} />

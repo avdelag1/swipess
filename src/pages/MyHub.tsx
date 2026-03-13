@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { useFilterStore } from '@/state/filterStore';
 import ClientDashboard from './ClientDashboard';
 import EnhancedOwnerDashboard from '@/components/EnhancedOwnerDashboard';
 import { MyHubProfileHeader } from '@/components/MyHubProfileHeader';
@@ -16,15 +15,14 @@ import { cn } from '@/lib/utils';
  * 🚀 THE UNIFIED HUB (My Marketplace Hub)
  * This is now the ONLY dashboard. 
  * It dynamically blends 'Looking' and 'Offering' based on context and filters.
+ * 
+ * PERF FIX: No longer subscribes to filterVersion or calls getListingFilters().
+ * SwipessSwipeContainer reads filters directly from the Zustand store,
+ * eliminating cascading object recreation that caused React Error #185.
  */
 export default function MyHub() {
     const { user } = useAuth();
     const { activeMode } = useActiveMode();
-
-    // Connect to the global filter state
-    const filterVersion = useFilterStore((s) => s.filterVersion);
-    const getListingFilters = useFilterStore((s) => s.getListingFilters);
-    const storeFilters = useMemo(() => getListingFilters(), [filterVersion]);
 
     return (
         <div className="w-full min-h-screen bg-background pb-32 overflow-x-hidden">
@@ -73,9 +71,9 @@ export default function MyHub() {
                     className="relative z-10"
                 >
                     {activeMode === 'client' ? (
-                        <ClientDashboard filters={storeFilters} />
+                        <ClientDashboard />
                     ) : (
-                        <EnhancedOwnerDashboard filters={storeFilters} />
+                        <EnhancedOwnerDashboard />
                     )}
                 </motion.div>
             </div>
