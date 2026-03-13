@@ -58,6 +58,9 @@ export const jungleSoundPool: string[] = [
   '/sounds/large-gong-2-232438.mp3',
   '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3',
   '/sounds/bells-2-31725.mp3',
+  '/sounds/singing-bowl-gong-69238.mp3',
+  '/sounds/gong-bell-singing-bowl-modified-61150.mp3',
+  '/sounds/deep-meditation-bell-hit-root-chakra-8-186974.mp3',
 ];
 
 export const themeDisplayNames: Record<SwipeTheme, string> = {

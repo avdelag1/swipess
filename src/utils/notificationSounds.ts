@@ -11,10 +11,10 @@ export type NotificationSoundType = 'message' | 'match' | 'like' | 'general';
  * Standard (calm) notification sound mappings
  */
 const notificationSounds = {
-  message: '/sounds/bell-a-99888.mp3',
-  match:   '/sounds/bells-2-31725.mp3',
-  like:    '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3',
-  general: '/sounds/deep-meditation-bell-hit-third-eye-chakra-6-186972.mp3',
+  message: '/sounds/bell-meditation-75335.mp3',
+  match:   '/sounds/singing-bowl-gong-69238.mp3',
+  like:    '/sounds/deep-meditation-bell-hit-sacral-chakra-2-186968.mp3',
+  general: '/sounds/tuning-fork-440-hz-resonance-22406.mp3',
 };
 
 /**
