@@ -141,7 +141,7 @@ export const VirtualizedMessageList = memo(({
   return (
     <div
       ref={parentRef}
-      className="flex-1 overflow-y-auto py-3 bg-[#000000]"
+      className="flex-1 overflow-y-auto py-3 bg-background"
       style={{ contain: 'strict' }}
     >
       <div
