@@ -197,17 +197,22 @@ export function useSaveClientProfile() {
       // Only update if we have real fields to sync (not just updated_at)
       const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
       if (realSyncKeys.length > 0) {
-        const { data: syncData, error: syncError } = await supabase
-          .from('profiles')
-          .update(syncPayload)
-          .eq('user_id', uid)
-          .select();
+        try {
+          const { data: syncData, error: syncError } = await supabase
+            .from('profiles')
+            .update(syncPayload)
+            .eq('user_id', uid)
+            .select();
 
-        if (syncError) {
-          logger.error('[PROFILE SYNC] Error:', syncError);
-        } else {
-          // Invalidate profiles_public cache immediately after sync
-          qc.invalidateQueries({ queryKey: ['profiles_public'] });
+          if (syncError) {
+            logger.error('[PROFILE SYNC] Error:', syncError);
+          } else {
+            // Invalidate profiles_public cache immediately after sync
+            qc.invalidateQueries({ queryKey: ['profiles_public'] });
+          }
+        } catch (syncErr) {
+          // Non-blocking: don't let sync failure prevent profile save
+          logger.error('[PROFILE SYNC] Exception:', syncErr);
         }
       }
 
