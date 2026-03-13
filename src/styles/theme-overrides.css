@@ -163,8 +163,8 @@
 }
 
 /* Glass surfaces in white mode should stay bright and crisp */
-.white-matte .bg-white/\[0\.02\],
-.white-matte .bg-white/\[0\.03\],
+.white-matte .bg-white\/\[0\.02\],
+.white-matte .bg-white\/\[0\.03\],
 .white-matte .bg-white\/5,
 .white-matte .bg-white\/8,
 .white-matte .bg-white\/10,
