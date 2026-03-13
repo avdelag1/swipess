@@ -74,7 +74,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
       const y = Math.random() * h;
       return {
         x, y, baseX: x, baseY: y, vx: 0, vy: 0,
-        size: Math.random() * 0.7 + 0.3,
+        size: Math.random() * 1.2 + 0.5,
         opacity: Math.random() * 0.7 + 0.3,
         twinkleSpeed: Math.random() * 0.08 + 0.02,
         twinklePhase: Math.random() * Math.PI * 2,
@@ -234,7 +234,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
         if (alpha < 0.01) continue;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fillStyle = isLightTheme ? `rgba(0,0,0,${alpha * 0.5})` : `rgba(255,255,255,${alpha})`;
+        ctx.fillStyle = isLightTheme ? `rgba(40,40,80,${alpha * 0.9})` : `rgba(255,255,255,${alpha})`;
         ctx.fill();
       }
       // Shooting stars
@@ -543,9 +543,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
 
   // In light theme, 'screen' blend mode makes dark particles invisible on white bg
   // Use 'multiply' instead (dark colors show on white, transparent on black)
-  const getBlendMode = () => {
+   const getBlendMode = () => {
     if (mode === 'cheetah' || mode === 'sunset') return 'normal';
-    return isLightTheme ? 'multiply' : 'screen';
+    if (isLightTheme) return 'normal';
+    return 'screen';
   };
 
   return (
