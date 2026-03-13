@@ -338,9 +338,9 @@ export default function NotificationsPage() {
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ delay: i * 0.05 }}
                     >
-                      <Card className="group relative overflow-hidden rounded-[2.5rem] bg-black/40 backdrop-blur-3xl border-white/5 hover:bg-white/[0.03] transition-all cursor-pointer" onClick={() => navigate(`/listing/${p.id}`)}>
+                      <Card className="group relative overflow-hidden rounded-[2.5rem] bg-card backdrop-blur-3xl border-border hover:bg-accent/50 transition-all cursor-pointer" onClick={() => navigate(`/listing/${p.id}`)}>
                         <div className="flex p-4 gap-5">
-                          <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden shrink-0 border border-white/10">
+                          <div className="w-24 h-24 rounded-[1.5rem] overflow-hidden shrink-0 border border-border">
                             <img src={p.images?.[0]} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                           </div>
                           <div className="flex-1 min-w-0 py-1">
