@@ -21,7 +21,7 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed top-4 left-4 right-4 z-[9999] flex justify-center pointer-events-none"
+          className="fixed top-4 left-4 right-4 z-[9999] flex justify-start pointer-events-none"
           initial={{ opacity: 0, y: -48, scale: 0.94 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -24, scale: 0.96 }}

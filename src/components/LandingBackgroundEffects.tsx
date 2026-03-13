@@ -543,9 +543,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
 
   // In light theme, 'screen' blend mode makes dark particles invisible on white bg
   // Use 'multiply' instead (dark colors show on white, transparent on black)
-  const getBlendMode = () => {
+   const getBlendMode = () => {
     if (mode === 'cheetah' || mode === 'sunset') return 'normal';
-    return isLightTheme ? 'multiply' : 'screen';
+    if (isLightTheme) return 'normal';
+    return 'screen';
   };
 
   return (
