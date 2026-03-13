@@ -215,13 +215,11 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       pointerRef.current.isActive = false;
     };
 
-    // Attach pointer move/up to window (non-sound interactions)
+    // Attach ALL listeners to window so taps work even through UI layers
     window.addEventListener('pointermove', handlePointerMove);
     window.addEventListener('pointerup', handlePointerUp);
     window.addEventListener('pointercancel', handlePointerUp);
-
-    // Attach pointer down to CANVAS ONLY (sound + visual effects)
-    canvas.addEventListener('pointerdown', handleCanvasPointerDown);
+    window.addEventListener('pointerdown', handleCanvasPointerDown);
 
     // ── Stars drawing ──
     const drawStars = () => {
@@ -536,7 +534,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       window.removeEventListener('pointermove', handlePointerMove);
       window.removeEventListener('pointerup', handlePointerUp);
       window.removeEventListener('pointercancel', handlePointerUp);
-      canvas.removeEventListener('pointerdown', handleCanvasPointerDown);
+      window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
   }, [mode, initStars, initOrbs]);
 
@@ -546,7 +544,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       className="absolute inset-0 z-0"
       style={{
         mixBlendMode: mode === 'cheetah' ? 'normal' : mode === 'sunset' ? 'normal' : 'screen',
-        pointerEvents: 'auto',
+        pointerEvents: 'none',
       }}
     />
   );
