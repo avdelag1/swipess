@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Users, Heart, X, Sparkles, Briefcase, Moon, Volume2, SprayCan } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PageHeader } from '@/components/PageHeader';
 import { toast } from 'sonner';
 
 interface RoommateCandidate {
