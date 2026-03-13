@@ -546,6 +546,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
         mixBlendMode: mode === 'cheetah' ? 'normal' : mode === 'sunset' ? 'normal' : 'screen',
         pointerEvents: 'none',
       }}
+    />
   );
 }
 
