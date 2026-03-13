@@ -97,12 +97,17 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
     }));
   }, []);
 
-  // Preload cheetah image
+  // Preload cheetah + beach images
   useEffect(() => {
     if (!cheetahImgRef.current) {
       const img = new Image();
       img.src = '/images/cheetah-1.jpeg';
       img.onload = () => { cheetahImgRef.current = img; };
+    }
+    if (!beachImgRef.current) {
+      const img = new Image();
+      img.src = '/images/beach-sunset.jpg';
+      img.onload = () => { beachImgRef.current = img; };
     }
   }, []);
 
