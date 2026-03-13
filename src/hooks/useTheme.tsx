@@ -13,7 +13,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('black-matte');
+  const DEFAULT_THEME: Theme = 'white-matte';
+  const [theme, setThemeState] = useState<Theme>(DEFAULT_THEME);
   const { user } = useAuth();
 
   // Load theme from database when user logs in
@@ -32,15 +33,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           const validThemes = ['black-matte', 'white-matte'];
           if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
             setThemeState(data.theme_preference as Theme);
+          } else {
+            setThemeState(DEFAULT_THEME);
           }
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
-          setThemeState('black-matte');
+          setThemeState(DEFAULT_THEME);
         }
       };
       loadUserTheme();
     } else {
-      setThemeState('black-matte');
+      setThemeState(DEFAULT_THEME);
     }
   }, [user?.id]);
 
