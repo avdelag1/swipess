@@ -392,3 +392,38 @@
 .white-matte .border-t-white\/60 {
   border-top-color: hsla(0, 0%, 1%, 0.6) !important;
 }
+
+/* ── Broad hardcoded-dark safety net for white mode ── */
+.white-matte [class*="bg-[#0"],
+.white-matte [class*="bg-[#1"],
+.white-matte [class*="bg-[#2"],
+.white-matte [class*="bg-[#3"] {
+  background-color: hsl(var(--background)) !important;
+}
+
+.white-matte [class*="bg-zinc-9"],
+.white-matte [class*="bg-zinc-8"],
+.white-matte [class*="bg-zinc-7"],
+.white-matte [class*="bg-neutral-9"],
+.white-matte [class*="bg-neutral-8"],
+.white-matte [class*="bg-neutral-7"],
+.white-matte [class*="bg-slate-9"],
+.white-matte [class*="bg-slate-8"],
+.white-matte [class*="bg-slate-7"],
+.white-matte [class*="bg-gray-9"],
+.white-matte [class*="bg-gray-8"],
+.white-matte [class*="bg-gray-7"] {
+  background-color: hsl(var(--background)) !important;
+}
+
+.white-matte [class*="bg-white/[0.0"],
+.white-matte [class*="bg-white/[0.1"] {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.white-matte [class*="border-white/[0.0"],
+.white-matte [class*="border-white/1"],
+.white-matte [class*="border-white/2"],
+.white-matte [class*="border-white/3"] {
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}

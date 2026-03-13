@@ -39,10 +39,14 @@ export function AppLayout({ children }: AppLayoutProps) {
         <VisualEngine />
       </Suspense>
 
-      {/* Cinematic depth layers - subtle and balanced for each theme */}
-      <GlobalVignette light={isLightTheme} intensity={0.8} />
-      <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
-      <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
+      {/* Cinematic depth layers only for dark themes */}
+      {!isLightTheme && (
+        <>
+          <GlobalVignette intensity={0.8} light={false} />
+          <GradientMaskTop intensity={0.75} heightPercent={22} zIndex={15} light={false} />
+          <GradientMaskBottom intensity={0.75} heightPercent={38} zIndex={20} light={false} />
+        </>
+      )}
 
       <main
         id="main-content"
