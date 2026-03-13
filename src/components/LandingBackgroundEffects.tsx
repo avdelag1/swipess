@@ -184,6 +184,9 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       pointerRef.current.x = e.clientX;
       pointerRef.current.y = e.clientY;
 
+      // Unlock audio on first tap (mobile browser restriction)
+      unlockAudio();
+
       // Play exactly ONE sound per tap, based on mode
       if (mode === 'stars' || mode === 'orbs' || mode === 'sunset') {
         playRandomZen(0.3);
