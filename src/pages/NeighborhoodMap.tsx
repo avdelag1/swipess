@@ -4,6 +4,7 @@ import { MapPin, TrendingUp, Home, ArrowRight, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader } from '@/components/PageHeader';
 
 interface NeighborhoodItem {
   id: string;
