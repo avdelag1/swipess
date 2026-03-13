@@ -10,7 +10,6 @@ import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
 import { WorkerClientFilters } from '@/components/filters/WorkerClientFilters';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
