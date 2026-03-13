@@ -35,7 +35,10 @@ export const soundMap = {
       '/sounds/gong-bell-singing-bowl-modified-61150.mp3',
       '/sounds/deep-meditation-bell-hit-solar-plexus-chakra-3-186969.mp3',
       '/sounds/deep-meditation-bell-hit-sacral-chakra-2-186968.mp3',
-      '/sounds/deep-meditation-bell-hit-root-chakra-8-186974.mp3'
+      '/sounds/deep-meditation-bell-hit-root-chakra-8-186974.mp3',
+      '/sounds/deep-meditation-bell-hit-crown-chakra-7-186973.mp3',
+      '/sounds/deep-meditation-bell-hit-throat-chakra-5-186971.mp3',
+      '/sounds/deep-meditation-bell-hit-root-chakra-1-174455.mp3'
     ]
   }
 };
