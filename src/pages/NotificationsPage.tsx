@@ -223,8 +223,8 @@ export default function NotificationsPage() {
             <h1 className="text-3xl font-black tracking-tighter text-foreground">Your Updates</h1>
           </div>
           {notifications.length > 0 && (
-            <Button variant="ghost" size="icon" className="rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10" onClick={() => setDeleteDialogOpen(true)}>
-              <Trash2 className="w-4 h-4 text-white/60" />
+            <Button variant="ghost" size="icon" className="rounded-2xl bg-muted/30 border border-border hover:bg-muted/50" onClick={() => setDeleteDialogOpen(true)}>
+              <Trash2 className="w-4 h-4 text-muted-foreground" />
             </Button>
           )}
         </header>
