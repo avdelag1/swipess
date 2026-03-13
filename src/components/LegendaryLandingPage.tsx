@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 
@@ -116,7 +117,7 @@ const LandingView = memo(({
       <motion.button
         onClick={cycleEffect}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-black/50 border border-white/20 shadow-[0_4px_12px_rgba(0,0,0,0.4)] text-white/80 text-xl font-bold active:bg-white/20 transition-colors"
+        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-card border border-border shadow-sm text-foreground/80 text-xl font-bold active:bg-muted transition-colors"
         aria-label="Toggle background effect"
       >
         {effectLabel}
@@ -474,11 +475,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
             <motion.div variants={itemVariants} className="text-center mt-4">
               {isForgotPassword ? (
                 <button type="button" onClick={() => { setIsForgotPassword(false); setEmail(''); }}
-                  className="text-xs text-white/50 hover:text-white transition-colors flex items-center gap-1 mx-auto">
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 mx-auto">
                   <ArrowLeft className="w-3 h-3" /> Back to Sign In
                 </button>
               ) : (
-                <p className="text-xs text-white/50">
+                <p className="text-xs text-muted-foreground">
                   {isLogin ? "Don't have an account? " : 'Already have an account? '}
                   <button type="button" onClick={switchMode}
                     className="text-orange-400 hover:underline font-semibold">
@@ -535,6 +536,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
+  const { theme } = useTheme();
+  const isLightTheme = theme === 'white-matte';
 
   // Cycle: stars → orbs → cheetah → sunset → stars
   const cycleEffect = () => setEffectMode((p) => {
@@ -550,10 +553,12 @@ function LegendaryLandingPage() {
     '☁️';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={effectMode} />
-      </Suspense>
+    <div className="h-screen h-dvh relative overflow-hidden bg-background">
+      {!isLightTheme && (
+        <Suspense fallback={null}>
+          <LandingBackgroundEffects mode={effectMode} />
+        </Suspense>
+      )}
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (

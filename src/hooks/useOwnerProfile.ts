@@ -17,8 +17,29 @@ export type OwnerProfile = {
 
 type OwnerProfileUpdate = Omit<OwnerProfile, 'id' | 'user_id'>;
 
+async function resolveAuthenticatedUserId() {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    logger.warn('Session lookup failed during owner profile save:', sessionError.message);
+  }
+
+  if (session?.user?.id) {
+    return session.user.id;
+  }
+
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    logger.warn('User lookup failed during owner profile save:', authError.message);
+  }
+
+  if (auth.user?.id) {
+    return auth.user.id;
+  }
+
+  throw new Error('Auth session missing. Please sign in again.');
+}
+
 async function fetchOwnProfile() {
-  // Use getSession for faster auth check (cached locally)
   const { data: { session } } = await supabase.auth.getSession();
   const uid = session?.user?.id;
   if (!uid) return null;
@@ -54,9 +75,7 @@ export function useSaveOwnerProfile() {
 
   return useMutation({
     mutationFn: async (updates: OwnerProfileUpdate) => {
-      const { data: auth } = await supabase.auth.getUser();
-      const uid = auth.user?.id;
-      if (!uid) throw new Error('Not authenticated');
+      const uid = await resolveAuthenticatedUserId();
 
       const { data: existing } = await supabase
         .from('owner_profiles')

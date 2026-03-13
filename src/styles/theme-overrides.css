@@ -8,31 +8,31 @@
   color: hsl(var(--foreground)) !important;
 }
 .white-matte .text-white\/90 {
-  color: hsla(0, 0%, 1%, 0.9) !important;
+  color: hsl(var(--foreground) / 0.9) !important;
 }
 .white-matte .text-white\/85 {
-  color: hsla(0, 0%, 1%, 0.85) !important;
+  color: hsl(var(--foreground) / 0.85) !important;
 }
 .white-matte .text-white\/80 {
-  color: hsla(0, 0%, 1%, 0.8) !important;
+  color: hsl(var(--foreground) / 0.8) !important;
 }
 .white-matte .text-white\/70 {
-  color: hsla(0, 0%, 1%, 0.7) !important;
+  color: hsl(var(--foreground) / 0.7) !important;
 }
 .white-matte .text-white\/60 {
-  color: hsla(0, 0%, 1%, 0.6) !important;
+  color: hsl(var(--foreground) / 0.6) !important;
 }
 .white-matte .text-white\/50 {
-  color: hsla(0, 0%, 1%, 0.5) !important;
+  color: hsl(var(--foreground) / 0.5) !important;
 }
 .white-matte .text-white\/40 {
-  color: hsla(0, 0%, 1%, 0.4) !important;
+  color: hsl(var(--foreground) / 0.4) !important;
 }
 .white-matte .text-white\/30 {
-  color: hsla(0, 0%, 1%, 0.3) !important;
+  color: hsl(var(--foreground) / 0.3) !important;
 }
 .white-matte .text-white\/20 {
-  color: hsla(0, 0%, 1%, 0.2) !important;
+  color: hsl(var(--foreground) / 0.2) !important;
 }
 
 /* ── Variant / state-based text-white overrides ── */
@@ -162,80 +162,50 @@
   border-color: hsl(var(--border)) !important;
 }
 
-/* Glass surfaces: white/opacity on dark → dark/opacity on light */
-.white-matte .bg-white\/\[0\.02\] {
-  background-color: rgba(0, 0, 0, 0.02) !important;
-}
-.white-matte .bg-white\/\[0\.03\] {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-}
-.white-matte .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.03) !important;
-}
-.white-matte .bg-white\/8 {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-}
-.white-matte .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.05) !important;
-}
-.white-matte .bg-white\/15 {
-  background-color: rgba(0, 0, 0, 0.07) !important;
-}
-.white-matte .bg-white\/20 {
-  background-color: rgba(0, 0, 0, 0.08) !important;
-}
+/* Glass surfaces in white mode should stay bright and crisp */
+.white-matte .bg-white\/\[0\.02\],
+.white-matte .bg-white\/\[0\.03\],
+.white-matte .bg-white\/5,
+.white-matte .bg-white\/8,
+.white-matte .bg-white\/10,
+.white-matte .bg-white\/15,
+.white-matte .bg-white\/20,
 .white-matte .bg-white\/30 {
-  background-color: rgba(0, 0, 0, 0.1) !important;
+  background-color: hsl(var(--card)) !important;
 }
 
 /* ── Border overrides ── */
-.white-matte .border-white\/5 {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
-.white-matte .border-white\/8 {
-  border-color: rgba(0, 0, 0, 0.06) !important;
-}
-.white-matte .border-white\/10 {
-  border-color: rgba(0, 0, 0, 0.08) !important;
-}
-.white-matte .border-white\/15 {
-  border-color: rgba(0, 0, 0, 0.1) !important;
-}
-.white-matte .border-white\/20 {
-  border-color: rgba(0, 0, 0, 0.12) !important;
-}
-.white-matte .border-white\/30 {
-  border-color: rgba(0, 0, 0, 0.15) !important;
-}
+.white-matte .border-white\/5,
+.white-matte .border-white\/8,
+.white-matte .border-white\/10,
+.white-matte .border-white\/15,
+.white-matte .border-white\/20,
+.white-matte .border-white\/30,
 .white-matte .border-white {
   border-color: hsl(var(--border)) !important;
 }
 
 /* ── Divide overrides ── */
-.white-matte .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(0, 0, 0, 0.05) !important;
-}
+.white-matte .divide-white\/5 > :not([hidden]) ~ :not([hidden]),
 .white-matte .divide-white\/10 > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgba(0, 0, 0, 0.08) !important;
+  border-color: hsl(var(--border)) !important;
 }
 
 /* ── Ring overrides ── */
-.white-matte .ring-white\/10 {
-  --tw-ring-color: rgba(0, 0, 0, 0.08) !important;
-}
+.white-matte .ring-white\/10,
 .white-matte .ring-white\/20 {
-  --tw-ring-color: rgba(0, 0, 0, 0.12) !important;
+  --tw-ring-color: hsl(var(--ring) / 0.3) !important;
 }
 
 /* ── Placeholder text ── */
 .white-matte .placeholder\:text-white\/40::placeholder {
-  color: rgba(0, 0, 0, 0.4) !important;
+  color: hsl(var(--muted-foreground) / 0.7) !important;
 }
 .white-matte .placeholder\:text-white\/50::placeholder {
-  color: rgba(0, 0, 0, 0.45) !important;
+  color: hsl(var(--muted-foreground) / 0.8) !important;
 }
 .white-matte .placeholder\:text-white\/60::placeholder {
-  color: rgba(0, 0, 0, 0.5) !important;
+  color: hsl(var(--muted-foreground) / 0.9) !important;
 }
 
 /* ── Shadow overrides ── */
@@ -298,18 +268,16 @@
 
 /* Override inline rgba backgrounds */
 .white-matte [style*="background: rgba(255,255,255,0.0"],
-.white-matte [style*="background: rgba(255, 255, 255, 0.0"] {
-  background: rgba(0, 0, 0, 0.04) !important;
-}
+.white-matte [style*="background: rgba(255, 255, 255, 0.0"],
 .white-matte [style*="background: rgba(255,255,255,0.1"],
 .white-matte [style*="background: rgba(255, 255, 255, 0.1"] {
-  background: rgba(0, 0, 0, 0.06) !important;
+  background: hsl(var(--card)) !important;
 }
 
 /* Override inline border rgba */
 .white-matte [style*="border: 1px solid rgba(255,255,255,"],
 .white-matte [style*="border: 1px solid rgba(255, 255, 255,"] {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-color: hsl(var(--border)) !important;
 }
 
 /* Override linear gradients in inline styles */
@@ -418,12 +386,12 @@
 
 .white-matte [class*="bg-white/[0.0"],
 .white-matte [class*="bg-white/[0.1"] {
-  background-color: rgba(0, 0, 0, 0.05) !important;
+  background-color: hsl(var(--card)) !important;
 }
 
 .white-matte [class*="border-white/[0.0"],
 .white-matte [class*="border-white/1"],
 .white-matte [class*="border-white/2"],
 .white-matte [class*="border-white/3"] {
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-color: hsl(var(--border)) !important;
 }
