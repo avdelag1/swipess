@@ -27,7 +27,15 @@ export const soundMap = {
       '/sounds/bell-a-99888.mp3',
       '/sounds/deep-meditation-bell-hit-heart-chakra-4-186970.mp3',
       '/sounds/deep-meditation-bell-hit-third-eye-chakra-6-186972.mp3',
-      '/sounds/large-gong-2-232438.mp3'
+      '/sounds/large-gong-2-232438.mp3',
+      '/sounds/tuning-fork-440-hz-resonance-22406.mp3',
+      '/sounds/singing-bowl-gong-69238.mp3',
+      '/sounds/bells-1-72261.mp3',
+      '/sounds/bell-meditation-75335.mp3',
+      '/sounds/gong-bell-singing-bowl-modified-61150.mp3',
+      '/sounds/deep-meditation-bell-hit-solar-plexus-chakra-3-186969.mp3',
+      '/sounds/deep-meditation-bell-hit-sacral-chakra-2-186968.mp3',
+      '/sounds/deep-meditation-bell-hit-root-chakra-8-186974.mp3'
     ]
   }
 };
