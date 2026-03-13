@@ -569,7 +569,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {/* Legal / Verification Section */}
             <motion.div variants={itemFadeScale}>
               <div
-                onClick={() => navigate('/documents')}
+                onClick={() => window.location.href = '/documents'}
                 className="rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-400/20 shadow-2xl shadow-blue-500/5 cursor-pointer hover:border-blue-400/40 transition-colors active:scale-[0.98]"
               >
                 <div className="flex items-start gap-4">
