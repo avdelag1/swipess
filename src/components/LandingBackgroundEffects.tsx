@@ -541,12 +541,19 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
     };
   }, [mode, initStars, initOrbs, isLightTheme]);
 
+  // In light theme, 'screen' blend mode makes dark particles invisible on white bg
+  // Use 'multiply' instead (dark colors show on white, transparent on black)
+  const getBlendMode = () => {
+    if (mode === 'cheetah' || mode === 'sunset') return 'normal';
+    return isLightTheme ? 'multiply' : 'screen';
+  };
+
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 z-0"
       style={{
-        mixBlendMode: mode === 'cheetah' ? 'normal' : mode === 'sunset' ? 'normal' : 'screen',
+        mixBlendMode: getBlendMode(),
         pointerEvents: 'none',
       }}
     />
