@@ -44,7 +44,7 @@ export function MessageActivationPackages({
   const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
