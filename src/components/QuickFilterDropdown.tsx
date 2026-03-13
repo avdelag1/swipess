@@ -226,7 +226,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientGender === option.id
                       ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : 'text-muted-foreground hover:bg-white/10 bg-white/5 border border-white/5'
+                      : `text-muted-foreground ${isDark ? 'hover:bg-white/10 bg-white/5 border border-white/5' : 'hover:bg-black/5 bg-black/3 border border-black/5'}`
                   )}
                 >
                   {option.icon}
