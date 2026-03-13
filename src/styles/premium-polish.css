@@ -509,14 +509,14 @@
   background-size: 220% 220%, 100% 100%;
 }
 
-/* Light-mode version: much brighter highlights since the bg is white */
-.white-matte .liquid-glass-highlight {
+/* Light-mode version */
+.light .liquid-glass-highlight {
   background:
     radial-gradient(ellipse 140% 60% at 22% 0%,
-      rgba(255, 255, 255, 0.72) 0%,
+      rgba(0, 0, 0, 0.04) 0%,
       transparent 62%),
     radial-gradient(ellipse 80% 45% at 88% 108%,
-      rgba(255, 255, 255, 0.30) 0%,
+      rgba(0, 0, 0, 0.02) 0%,
       transparent 58%);
   background-size: 220% 220%, 100% 100%;
 }
