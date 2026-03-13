@@ -22,7 +22,7 @@ const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'cheetah' | 'stars' | 'orbs';
+type EffectMode = 'cheetah' | 'stars' | 'orbs' | 'sunset';
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
