@@ -325,8 +325,8 @@ const Index = () => {
         <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       </div>
     );
+  }
 
-  // Solo muestra landing page si NO hay usuario logueado
   if (!user) {
     return (
       <div className="min-h-screen">
