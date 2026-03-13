@@ -309,7 +309,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
       const img = cheetahImgRef.current;
       if (!img) {
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#050505';
+        ctx.fillStyle = isLightTheme ? '#f8f8f8' : '#050505';
         ctx.fillRect(0, 0, w, h);
         return;
       }
