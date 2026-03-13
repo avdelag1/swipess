@@ -322,11 +322,11 @@ export default function NotificationsPage() {
                   <div key={i} className="h-32 w-full rounded-3xl bg-white/5 animate-pulse" />
                 ))
               ) : likedProperties?.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center bg-white/[0.02] border border-dashed border-white/5 rounded-[3rem]">
-                  <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6">
-                    <Heart className="w-8 h-8 text-white/20" />
+                <div className="flex flex-col items-center justify-center py-20 text-center bg-muted/20 border border-dashed border-border rounded-[3rem]">
+                  <div className="w-20 h-20 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                    <Heart className="w-8 h-8 text-muted-foreground/40" />
                   </div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-white/40">No Likes Yet</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60">No Likes Yet</h3>
                 </div>
               ) : (
                 <AnimatePresence>
