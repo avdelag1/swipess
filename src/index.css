@@ -1,7 +1,7 @@
 @import './styles/tokens.css';
 @import './styles/premium-polish.css';
 @import './styles/matte-themes.css';
-@import './styles/theme-overrides.css';
+
 @import './styles/pwa-performance.css';
 
 @tailwind base;
