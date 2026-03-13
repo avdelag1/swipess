@@ -282,7 +282,7 @@ export default function NotificationsPage() {
                         onClick={() => handleNotificationClick(n)}
                       >
                         <CardContent className="p-5 flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-white/10 transition-colors">
+                          <div className="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center shrink-0 group-hover:bg-muted/50 transition-colors">
                             <NotificationIcon type={n.type} />
                           </div>
                           <div className="flex-1 min-w-0">
