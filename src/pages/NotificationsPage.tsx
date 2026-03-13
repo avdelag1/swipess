@@ -220,7 +220,7 @@ export default function NotificationsPage() {
                 Marketplace Inbox
               </span>
             </div>
-            <h1 className="text-3xl font-black tracking-tighter text-white">Your Updates</h1>
+            <h1 className="text-3xl font-black tracking-tighter text-foreground">Your Updates</h1>
           </div>
           {notifications.length > 0 && (
             <Button variant="ghost" size="icon" className="rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10" onClick={() => setDeleteDialogOpen(true)}>
