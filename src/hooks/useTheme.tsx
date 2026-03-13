@@ -62,7 +62,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add('dark');
     }
 
-    // Update status bar base color according to theme
+    // Keep PWA/status bar dark for better contrast with device chrome
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (!metaThemeColor) {
       metaThemeColor = document.createElement('meta');
@@ -70,11 +70,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       document.head.appendChild(metaThemeColor);
     }
 
-    if (theme === 'white-matte') {
-      metaThemeColor.setAttribute('content', '#ffffff');
-    } else {
-      metaThemeColor.setAttribute('content', '#000000');
-    }
+    metaThemeColor.setAttribute('content', '#000000');
   }, [theme]);
 
   // Save theme to database and update state
