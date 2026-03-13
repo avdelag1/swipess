@@ -1,42 +1,46 @@
 
 
-# Fix: Background Effects, Profile Save, and App Stability
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Issues Found
+### 1. Replace App Icon with Fire S Logo
 
-1. **Background effects missing on landing page**: Line 557 of `LegendaryLandingPage.tsx` has `{!isLightTheme && (` which completely hides the background effects (stars, orbs, cheetah, sunset) in white-matte mode. Since white-matte is now the default, users see a blank white page with no effects.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-2. **Profile save errors**: The save logic itself looks correct (auth resolution, upsert, sync). The error is likely coming from the **sync to profiles table** step. When syncing `profile_images` (which is a `string[]` array) to `profiles.images` (which is `jsonb`), the array is passed directly. However, the real issue is that when the user hasn't confirmed their email yet or the session is stale, `resolveAuthenticatedUserId()` throws. The current code is sound but there's a race: `getSession()` can return null during page transitions while `getUser()` also fails. Need to add retry logic.
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-3. **Effect toggle button invisible in white mode**: The effects toggle button at bottom-left uses `bg-card border border-border` which is correct, but the effects themselves need to render in white mode too (with appropriate color adaptation).
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-## Plan
+### 2. Profile Photo Already Shows in Top-Left
 
-### 1. Show background effects in both themes
-**File**: `src/components/LegendaryLandingPage.tsx`
-- Remove the `{!isLightTheme && (` conditional around `LandingBackgroundEffects` — show effects in both themes
-- Pass the theme to the effects component so it can adapt colors if needed (darker particles on white bg)
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-### 2. Make background effects theme-aware  
-**File**: `src/components/LandingBackgroundEffects.tsx`
-- Accept an optional `isLightTheme` prop
-- When light theme: use dark-colored particles, stars, and orbs instead of white/bright ones so they're visible on a white background
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### 3. Harden profile save with better error handling
-**File**: `src/hooks/useClientProfile.ts` and `src/hooks/useOwnerProfile.ts`
-- Add a small retry (1 retry after 500ms) in `resolveAuthenticatedUserId()` if both `getSession` and `getUser` fail
-- Wrap the entire profiles sync block in try/catch that doesn't throw (it's already non-blocking for client but not for owner)
-- In the owner profile hook, make the sync block non-blocking (match client profile pattern)
+### 3. Fix Header Too Close to Top Edge
 
-### 4. Fix cinematic depth layers for white mode
-**File**: `src/components/AppLayout.tsx`
-- Add light-mode vignette/gradient masks (subtle, using dark colors at low opacity) so the app doesn't look flat, or keep them disabled — user originally asked for "completely white" so keep current behavior (no dark overlays in white mode)
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-## Files to Change
-| File | Change |
-|------|--------|
-| `src/components/LegendaryLandingPage.tsx` | Remove light-theme conditional hiding background effects |
-| `src/components/LandingBackgroundEffects.tsx` | Add `isLightTheme` prop, use dark colors for particles/stars/orbs when light theme |
-| `src/hooks/useClientProfile.ts` | Add retry in auth resolution, ensure sync is fully non-blocking |
-| `src/hooks/useOwnerProfile.ts` | Add retry in auth resolution, make sync fully non-blocking |
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+
+### 4. Fix MarketingSlide Build Error
+
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

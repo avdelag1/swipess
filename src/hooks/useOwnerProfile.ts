@@ -27,6 +27,14 @@ async function resolveAuthenticatedUserId() {
     return session.user.id;
   }
 
+  // First retry after short delay (handles race conditions during page transitions)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const { data: { session: retrySession } } = await supabase.auth.getSession();
+  if (retrySession?.user?.id) {
+    return retrySession.user.id;
+  }
+
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError) {
     logger.warn('User lookup failed during owner profile save:', authError.message);
@@ -139,13 +147,18 @@ export function useSaveOwnerProfile() {
       // Only update if we have real fields to sync (not just updated_at)
       const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
       if (realSyncKeys.length > 0) {
-        const { error: syncError } = await supabase
-          .from('profiles')
-          .update(syncPayload)
-          .eq('user_id', uid);
+        try {
+          const { error: syncError } = await supabase
+            .from('profiles')
+            .update(syncPayload)
+            .eq('user_id', uid);
 
-        if (syncError) {
-          logger.error('[OWNER PROFILE SYNC] Error syncing to profiles:', syncError);
+          if (syncError) {
+            logger.error('[OWNER PROFILE SYNC] Error syncing to profiles:', syncError);
+          }
+        } catch (syncErr) {
+          // Non-blocking: don't let sync failure prevent profile save
+          logger.error('[OWNER PROFILE SYNC] Exception:', syncErr);
         }
       }
 

@@ -49,7 +49,7 @@ interface CloudParticle {
   radius: number; opacity: number;
 }
 
-function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
+function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: EffectMode; isLightTheme?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const starsRef = useRef<Star[]>([]);
@@ -234,7 +234,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
         if (alpha < 0.01) continue;
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.fillStyle = isLightTheme ? `rgba(0,0,0,${alpha * 0.5})` : `rgba(255,255,255,${alpha})`;
         ctx.fill();
       }
       // Shooting stars
@@ -249,15 +249,21 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
         const tailStartX = ss.x - Math.cos(angle) * ss.length;
         const tailStartY = ss.y - Math.sin(angle) * ss.length;
         const gradient = ctx.createLinearGradient(tailStartX, tailStartY, ss.x, ss.y);
-        gradient.addColorStop(0, `rgba(255,255,255,0)`);
-        gradient.addColorStop(0.5, `rgba(200,220,255,${fadeAlpha * 0.4})`);
-        gradient.addColorStop(1, `rgba(255,255,255,${fadeAlpha})`);
+        if (isLightTheme) {
+          gradient.addColorStop(0, `rgba(100,100,200,0)`);
+          gradient.addColorStop(0.5, `rgba(80,80,180,${fadeAlpha * 0.3})`);
+          gradient.addColorStop(1, `rgba(60,60,160,${fadeAlpha * 0.6})`);
+        } else {
+          gradient.addColorStop(0, `rgba(255,255,255,0)`);
+          gradient.addColorStop(0.5, `rgba(200,220,255,${fadeAlpha * 0.4})`);
+          gradient.addColorStop(1, `rgba(255,255,255,${fadeAlpha})`);
+        }
         ctx.strokeStyle = gradient; ctx.lineWidth = 2; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.moveTo(tailStartX, tailStartY); ctx.lineTo(ss.x, ss.y); ctx.stroke();
         ctx.beginPath(); ctx.arc(ss.x, ss.y, 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${fadeAlpha})`; ctx.fill();
+        ctx.fillStyle = isLightTheme ? `rgba(60,60,160,${fadeAlpha * 0.6})` : `rgba(255,255,255,${fadeAlpha})`; ctx.fill();
         ctx.beginPath(); ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,220,180,${fadeAlpha * 0.3})`; ctx.fill();
+        ctx.fillStyle = isLightTheme ? `rgba(100,80,200,${fadeAlpha * 0.2})` : `rgba(255,220,180,${fadeAlpha * 0.3})`; ctx.fill();
       }
     };
 
@@ -303,7 +309,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       const img = cheetahImgRef.current;
       if (!img) {
         ctx.clearRect(0, 0, w, h);
-        ctx.fillStyle = '#050505';
+        ctx.fillStyle = isLightTheme ? '#f8f8f8' : '#050505';
         ctx.fillRect(0, 0, w, h);
         return;
       }
@@ -533,7 +539,7 @@ function LandingBackgroundEffects({ mode }: { mode: EffectMode }) {
       window.removeEventListener('pointercancel', handlePointerUp);
       window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
-  }, [mode, initStars, initOrbs]);
+  }, [mode, initStars, initOrbs, isLightTheme]);
 
   return (
     <canvas
