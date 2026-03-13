@@ -1,46 +1,46 @@
 
 
-# Fix Tap Sound Delay and Add Sequential Sound Playback
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-## Problems
+### 1. Replace App Icon with Fire S Logo
 
-1. **Sound delay on tap**: Every tap creates a `new Audio(src)` which must fetch/decode the file before playing. This causes a noticeable lag between the tap and the sound.
-2. **Random repetition**: `pickRandom()` can pick the same sound consecutively, making it feel like nothing changes.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-## Solution
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### 1. Preload all sound pools as `HTMLAudioElement` arrays on mount
-Instead of creating `new Audio()` on each tap (which fetches the file), preload all zen and jungle sound files into reusable `Audio` elements at module load time. On tap, just reset `currentTime = 0` and call `.play()` — this is near-instant.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-### 2. Sequential round-robin instead of random
-Replace `pickRandom()` with a module-level index counter per pool. Each tap advances to the next sound in order, wrapping around. This guarantees every sound plays before any repeats.
+### 2. Profile Photo Already Shows in Top-Left
 
-## Files to Modify
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-| File | Change |
-|------|--------|
-| `src/utils/sounds.ts` | Preload all sound pools into `Audio` elements at module level. Replace `pickRandom` with round-robin index for `playRandomZen`, `playJungleSound`, `playFunnyDislike`, `playFunnyLike`. Add `preloadPool()` helper and per-pool index counters. |
-| `src/components/LandingBackgroundEffects.tsx` | Remove `unlockAudio()` from pointerdown (no longer needed since preloaded Audio elements handle this). Optionally keep it as a safety net but call sounds directly from preloaded refs. |
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### Key code pattern (sounds.ts):
-```typescript
-// Preload pool into reusable Audio elements
-function preloadPool(paths: string[], vol: number): HTMLAudioElement[] {
-  return paths.map(p => { const a = new Audio(p); a.preload = 'auto'; a.volume = vol; a.load(); return a; });
-}
+### 3. Fix Header Too Close to Top Edge
 
-const zenPool = preloadPool(soundMap.randomZen.sounds, 0.45);
-let zenIndex = 0;
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-export function playRandomZen(volume = 0.45): void {
-  if (!zenPool.length) return;
-  const audio = zenPool[zenIndex % zenPool.length];
-  audio.volume = volume;
-  audio.currentTime = 0;
-  audio.play().catch(() => {});
-  zenIndex++;
-}
-```
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-Same pattern for `jungleSoundPool`, `funnyDislikePool`, `funnyLikePool` — each gets its own preloaded array and sequential index.
+### 4. Fix MarketingSlide Build Error
+
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 
