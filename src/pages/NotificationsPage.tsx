@@ -72,7 +72,7 @@ const NotificationIcon = ({ type, role = 'neutral' }: { type: string; role?: 'cl
     case 'super_like':
       return <Star className={cn(baseClass, "text-brand-accent-2 fill-brand-accent-2")} />;
     default:
-      return <Bell className={cn(baseClass, "text-white/40")} />;
+      return <Bell className={cn(baseClass, "text-muted-foreground/40")} />;
   }
 };
 
