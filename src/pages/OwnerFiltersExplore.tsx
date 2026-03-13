@@ -211,7 +211,7 @@ export default function OwnerFiltersExplore() {
               </motion.div>
             </AnimatePresence>
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Apply Button - Gradient */}
         <div className="fixed bottom-24 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-background via-background/95 to-transparent z-10">
