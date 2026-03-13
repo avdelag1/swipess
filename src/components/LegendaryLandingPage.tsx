@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useMemo, useEffect, useCallback } from 'react';
+import { memo, useState, useRef, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
@@ -11,11 +11,10 @@ import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { Capacitor } from '@capacitor/core';
-import { nuclearReset } from '@/utils/cacheManager';
-import LandingBackgroundEffects from './LandingBackgroundEffects';
+
+// Lazy-load heavy deps that aren't needed for first paint
+const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
 
 
 const swipessLogo = '/icons/fire-s-logo.png';
