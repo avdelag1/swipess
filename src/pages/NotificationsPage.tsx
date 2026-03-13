@@ -366,8 +366,8 @@ export default function NotificationsPage() {
                                 {p.category}
                               </Badge>
                               <div className="flex items-baseline gap-0.5">
-                                <span className="text-[10px] font-black text-white/40">$</span>
-                                <span className="text-base font-black text-white tracking-tighter">
+                                <span className="text-[10px] font-black text-muted-foreground/60">$</span>
+                                <span className="text-base font-black text-foreground tracking-tighter">
                                   {p.price?.toLocaleString()}
                                 </span>
                               </div>
