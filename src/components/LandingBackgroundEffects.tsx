@@ -3,6 +3,19 @@ import { playRandomZen, playJungleSound } from '@/utils/sounds';
 
 export type EffectMode = 'cheetah' | 'stars' | 'orbs' | 'sunset';
 
+// Audio unlock for mobile browsers
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const buf = ctx.createBuffer(1, 1, 22050);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.connect(ctx.destination);
+  src.start(0);
+  audioUnlocked = true;
+}
+
 interface Star {
   x: number; y: number; baseX: number; baseY: number;
   size: number; opacity: number; twinkleSpeed: number; twinklePhase: number;
