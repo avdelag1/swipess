@@ -83,10 +83,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (newTheme !== 'white-matte') {
       root.classList.add('dark');
     }
-    // Update status bar meta immediately too
+    // Keep app chrome/status bar dark in both themes
     let metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', newTheme === 'white-matte' ? '#ffffff' : '#000000');
+      metaThemeColor.setAttribute('content', '#000000');
     }
 
     setThemeState(newTheme);

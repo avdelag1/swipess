@@ -99,13 +99,7 @@ export function useSaveClientProfile() {
 
   return useMutation({
     mutationFn: async (updates: ClientProfileUpdate) => {
-      const { data: auth, error: authError } = await supabase.auth.getUser();
-      if (authError) {
-        logger.error('Error fetching authenticated user:', authError);
-        throw authError;
-      }
-      const uid = auth.user?.id;
-      if (!uid) throw new Error('Not authenticated');
+      const uid = await resolveAuthenticatedUserId();
 
       const { data: existing, error: existingError } = await supabase
         .from('client_profiles')

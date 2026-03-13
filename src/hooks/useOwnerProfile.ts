@@ -75,9 +75,7 @@ export function useSaveOwnerProfile() {
 
   return useMutation({
     mutationFn: async (updates: OwnerProfileUpdate) => {
-      const { data: auth } = await supabase.auth.getUser();
-      const uid = auth.user?.id;
-      if (!uid) throw new Error('Not authenticated');
+      const uid = await resolveAuthenticatedUserId();
 
       const { data: existing } = await supabase
         .from('owner_profiles')
