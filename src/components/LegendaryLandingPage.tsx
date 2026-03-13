@@ -536,6 +536,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
+  const { theme } = useTheme();
+  const isLightTheme = theme === 'white-matte';
 
   // Cycle: stars → orbs → cheetah → sunset → stars
   const cycleEffect = () => setEffectMode((p) => {
@@ -551,10 +553,12 @@ function LegendaryLandingPage() {
     '☁️';
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
-      <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={effectMode} />
-      </Suspense>
+    <div className="h-screen h-dvh relative overflow-hidden bg-background">
+      {!isLightTheme && (
+        <Suspense fallback={null}>
+          <LandingBackgroundEffects mode={effectMode} />
+        </Suspense>
+      )}
 
       <AnimatePresence mode="wait">
         {view === 'landing' ? (
