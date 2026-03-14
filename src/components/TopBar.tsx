@@ -18,7 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
-import { ThemeToggle } from './ThemeToggle';
+
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
