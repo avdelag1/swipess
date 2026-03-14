@@ -18,7 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
-import { ThemeToggle } from './ThemeToggle';
+
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
@@ -235,7 +235,7 @@ function TopBarComponent({
 
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
-              <ThemeToggle />
+              
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
               <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
             </div>
