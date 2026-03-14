@@ -317,7 +317,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.multiple = true;
+    input.multiple = false;
 
     input.onchange = (e) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);
