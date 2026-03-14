@@ -29,9 +29,9 @@ export default function PaymentSuccess() {
     processedRef.current = true;
 
     const processPayment = async () => {
-      const pendingPurchase = localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-                               localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
-      const returnPath = localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+      const pendingPurchase = sessionStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
+                               sessionStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
+      const returnPath = sessionStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
       if (!pendingPurchase) {
         // No pending purchase - might be a refresh, just redirect
