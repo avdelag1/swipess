@@ -1,5 +1,0 @@
-Fixed AI chat and notification dialogs:
-- AI dialog: solid background (removed translucency)
-- AI dialog: removed auto-navigation to filters (stays in chat)
-- Notification dialog: solid background
-- Text contrast improved for visibility

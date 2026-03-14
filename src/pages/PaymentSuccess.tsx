@@ -73,10 +73,10 @@ export default function PaymentSuccess() {
           await processPayPerUseActivation(user.id, pkg);
         }
 
-        // Clear all payment-related localStorage
-        localStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
-        localStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
-        localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+        // Clear all payment-related sessionStorage
+        sessionStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
+        sessionStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
+        sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
         // Invalidate relevant queries for immediate UI update
         queryClient.invalidateQueries({ queryKey: ['tokens'] });

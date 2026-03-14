@@ -79,16 +79,16 @@ export function useSwipe() {
 
       // Invalidate each key
       keysToInvalidate.forEach(key => {
-        queryClient.invalidateQueries({ queryKey: key }).catch(() => {});
+        queryClient.invalidateQueries({ queryKey: key }).catch(err => logger.error('[useSwipe] Query invalidation failed:', err));
       });
       
       // CRITICAL: Also invalidate listings deck so swiped cards disappear immediately
-      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['listings'] }).catch(err => logger.error('[useSwipe] Listings invalidation failed:', err));
       
       // Also invalidate any queries that start with these prefixes
-      queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['match'] }).catch(() => {});
-      queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['liked'] }).catch(err => logger.error('[useSwipe] Liked invalidation failed:', err));
+      queryClient.invalidateQueries({ queryKey: ['match'] }).catch(err => logger.error('[useSwipe] Match invalidation failed:', err));
+      queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(err => logger.error('[useSwipe] Owner invalidation failed:', err));
     },
     onError: (error: any) => {
       logger.error('[useSwipe] Error:', error);

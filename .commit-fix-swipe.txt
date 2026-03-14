@@ -1,1 +1,0 @@
-Fixed swipe card: removed scale/opacity that was causing stuck swipes

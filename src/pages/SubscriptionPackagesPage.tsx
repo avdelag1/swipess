@@ -111,8 +111,8 @@ export default function SubscriptionPackagesPage() {
       toast.error('Payment link unavailable', { description: 'Please contact support.' });
       return;
     }
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
-    localStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${userRole}/dashboard`);
+    sessionStorage.setItem(STORAGE.SELECTED_PLAN_KEY, JSON.stringify({
       role: userRole,
       planId: plan.id,
       name: plan.name,
