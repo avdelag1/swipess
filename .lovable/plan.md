@@ -1,100 +1,46 @@
 
 
-## Plan: Comprehensive Audit Fix Pass
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-This addresses the audit findings in priority order across 5 phases. Given the scope, I'll focus on actionable fixes that don't require major refactoring.
+### 1. Replace App Icon with Fire S Logo
 
----
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
-### Phase 1 — Security Fixes
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-**1a. Remove hardcoded credentials from `vite.config.ts`**
-- The `define` block at line 127-129 only sets `VITE_BUILD_TIME` — the audit's claim about hardcoded Supabase creds in vite.config is actually already fixed (the old `define` block with project ID/key was removed in a prior pass). The preconnect plugin at line 15 uses `process.env.VITE_SUPABASE_URL` which is correct. No change needed here.
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-**1b. Switch payment data from localStorage to sessionStorage**
-Files: `src/pages/SubscriptionPackagesPage.tsx`, `src/pages/PaymentSuccess.tsx`, `src/components/MessageActivationPackages.tsx`
-- Replace all `localStorage.getItem/setItem/removeItem` for payment keys (`SELECTED_PLAN_KEY`, `PENDING_ACTIVATION_KEY`, `PAYMENT_RETURN_PATH_KEY`) with `sessionStorage`
-- This prevents payment data from persisting after browser close and reduces XSS exposure
+### 2. Profile Photo Already Shows in Top-Left
 
-**1c. Fix silent `.catch(() => {})` blocks (15+ instances)**
-Files: `src/hooks/useSwipeUndo.tsx`, `src/hooks/useSwipeWithMatch.tsx`, `src/hooks/useSwipe.tsx`, `src/hooks/useNotificationSystem.tsx`, `src/components/ImageCarousel.tsx`
-- Replace empty catches with `logger.error()` calls so errors are at least logged
-- Exception: `audio.play().catch(() => {})` in `src/utils/sounds.ts` is acceptable (browser autoplay policy)
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
----
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-### Phase 2 — Logger Consolidation
+### 3. Fix Header Too Close to Top Edge
 
-**Delete `src/utils/clientDiscoveryDebug.ts`** — unused (0 imports)
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**Delete `src/utils/logger.ts`** — merge into `prodLogger.ts`
-- `logger.ts` is imported by 10 files; `prodLogger.ts` by 95 files
-- Update the 10 files importing from `@/utils/logger` to import from `@/utils/prodLogger` instead
-- Both have identical API (`log`, `warn`, `error`, `info`, `debug`)
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-Files to update imports: `swipeDeckStore.ts`, `useMessaging.tsx`, `DirectMessageDialog.tsx`, `MessageConfirmationDialog.tsx`, `PhotoCrop.tsx`, `cacheManager.ts`, `useMessagingQuota.tsx`, `main.tsx`, `PhotoCamera.tsx`, `performanceMonitor.ts` (if it uses logger)
+### 4. Fix MarketingSlide Build Error
 
----
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
 
-### Phase 3 — Repo Hygiene
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
 
-**Delete temp/log files from root** (15 files):
-- `build_failed_log.txt` through `build_failed_log_7.txt`
-- `build_final.txt`, `build_fresh.txt`
-- `dev_output.log`, `lint-errors.txt`, `lint_final.txt`, `lint_fresh.txt`
-- `temp_build_log.txt`, `tsc_output.txt`
-- `.commit-fix-swipe.txt`, `.commit-new-backend.txt`, `.commit-old-buttons.txt`, `.commit-ui.txt`
-- `diagnose_missing_users.sql`, `test_migration_verification.sql`, `test_schema_diff.sql`
-
-**Delete extra lockfiles**: `bun.lock`, `deno.lock` (keep only `package-lock.json`)
-
-**Update `.gitignore`** to add:
-```
-# Build/debug logs
-build_failed_log*.txt
-build_final.txt
-build_fresh.txt
-dev_output.log
-lint-errors.txt
-lint_final.txt
-lint_fresh.txt
-temp_build_log.txt
-tsc_output.txt
-.commit-*.txt
-*.sql.tmp
-```
-
----
-
-### Phase 4 — ESLint Tightening
-
-**File: `eslint.config.js`**
-- Change `'no-console': 'off'` → `'no-console': ['warn', { allow: ['warn', 'error'] }]`
-- Change `'@typescript-eslint/no-unused-vars'` from `'warn'` → `'error'`
-- Keep `no-explicit-any` as `'off'` for now (834 instances is too many for one pass)
-
----
-
-### Phase 5 — Wrap Payment Flows with Error Boundary
-
-**File: `src/pages/SubscriptionPackagesPage.tsx`**
-- Wrap the page content with the existing `<PaymentErrorBoundary>` component
-
-**File: `src/components/MessageActivationPackages.tsx`**
-- Same wrapper
-
----
-
-### Summary
-
-| Phase | Files Changed | Impact |
-|-------|--------------|--------|
-| Security (payments) | 3 files | sessionStorage for payment data |
-| Security (silent catches) | 5 files | Error visibility |
-| Logger consolidation | 12 files (10 import updates + 2 deletions) | Single logger source |
-| Repo cleanup | ~20 file deletions + .gitignore | Clean root directory |
-| ESLint | 1 file | Stricter rules |
-| Error boundaries | 2 files | Payment flow resilience |
-
-Total: ~43 file operations. No database changes needed.
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

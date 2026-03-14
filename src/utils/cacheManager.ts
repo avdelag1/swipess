@@ -7,7 +7,7 @@
  * Kept here for backward compatibility - imports from there
  */
 import { clearAllCaches } from '@/hooks/useAutomaticUpdates';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 export { clearAllCaches };
 
 /**

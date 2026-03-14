@@ -14,7 +14,7 @@ import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
 
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
-import { logger } from "@/utils/logger";
+import { logger } from "@/utils/prodLogger";
 
 // Arranca la app normalmente
 // NOTE: StrictMode REMOVED intentionally for production-like performance

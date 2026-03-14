@@ -242,7 +242,7 @@ export function useNotificationSystem() {
           .update({ is_read: true })
           .eq('user_id', user.id)
           .eq('is_read', false)
-      ).catch(() => { });
+      ).catch(err => logger.error('[Notifications] Failed to mark all as read:', err));
     }
   };
 
