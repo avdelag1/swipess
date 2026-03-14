@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from './logger';
+import { logger } from './prodLogger';
 
 export interface UploadProgressCallback {
   (progress: number): void;
