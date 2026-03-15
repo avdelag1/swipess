@@ -523,13 +523,13 @@ export function OwnerClientFilterDialog({ open, onOpenChange }: OwnerClientFilte
                     <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Occupation</Label>
                     <div className="flex flex-wrap gap-2">
                       {OCCUPATION_OPTIONS.map((occupation) => {
-                        const isSelected = localFilters.preferred_occupations.includes(occupation);
+                        const isSelected = localFilters.preferred_occupations.includes(occupation.value);
                         return (
                           <PillToggle
-                            key={occupation}
-                            label={occupation}
+                            key={occupation.value}
+                            label={occupation.label}
                             isActive={isSelected}
-                            onClick={() => toggleOccupation(occupation)}
+                            onClick={() => toggleOccupation(occupation.value)}
                           />
                         );
                       })}

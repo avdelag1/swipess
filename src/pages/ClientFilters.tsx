@@ -146,12 +146,11 @@ export default function ClientFilters() {
             >
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </motion.button>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-foreground">Discovery Filters</h1>
-              <p className="text-xs font-medium text-muted-foreground">
-                {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'What are you looking for?'}
-              </p>
-            </div>
+            {activeFilterCount > 0 && (
+              <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary font-bold text-xs">
+                {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
+              </Badge>
+            )}
           </div>
 
           <AnimatePresence>

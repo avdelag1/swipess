@@ -15,12 +15,11 @@ import { SERVICE_CATEGORIES, SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedC
 export { SERVICE_CATEGORIES } from '@/data/serviceCategories';
 
 export const PRICING_UNITS = [
-  { value: 'per_hour', label: 'Per Hour' },
-  { value: 'per_session', label: 'Per Session' },
-  { value: 'per_day', label: 'Per Day' },
-  { value: 'per_week', label: 'Per Week' },
-  { value: 'per_month', label: 'Per Month' },
-  { value: 'quote', label: 'Quote-Based' },
+  { value: 'hourly', label: 'Per Hour' },
+  { value: 'daily', label: 'Per Day' },
+  { value: 'weekly', label: 'Per Week' },
+  { value: 'monthly', label: 'Per Month' },
+  { value: 'project', label: 'Project-Based' },
 ] as const;
 
 export type PricingUnit = typeof PRICING_UNITS[number]['value'];
@@ -71,10 +70,10 @@ export const LOCATION_TYPES = [
 ] as const;
 
 export const EXPERIENCE_LEVELS = [
-  { value: 'entry', label: 'Entry Level (0-2 years)' },
-  { value: 'mid', label: 'Mid Level (2-5 years)' },
-  { value: 'senior', label: 'Senior Level (5-10 years)' },
-  { value: 'expert', label: 'Expert (10+ years)' },
+  { value: 'beginner', label: 'Entry Level (0-2 years)' },
+  { value: 'intermediate', label: 'Mid Level (2-5 years)' },
+  { value: 'expert', label: 'Senior Level (5-10 years)' },
+  { value: 'master', label: 'Expert (10+ years)' },
 ] as const;
 
 export type ServiceCategory = string;

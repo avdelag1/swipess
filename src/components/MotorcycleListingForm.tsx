@@ -42,9 +42,22 @@ interface MotorcycleListingFormProps {
 }
 
 const MOTORCYCLE_TYPES = ['Sport Bike', 'Cruiser', 'Touring', 'Adventure', 'Dual-Sport', 'Dirt Bike', 'Standard', 'Cafe Racer', 'Chopper', 'Scooter', 'Electric', 'Other'];
-const TRANSMISSIONS = ['Manual', 'Automatic', 'Semi-Auto'];
-const FUEL_TYPES = ['Gasoline', 'Electric', 'Hybrid'];
-const CONDITIONS = ['Excellent', 'Good', 'Fair', 'Needs Work'];
+const TRANSMISSIONS = [
+  { value: 'manual', label: 'Manual' },
+  { value: 'automatic', label: 'Automatic' },
+  { value: 'semi-automatic', label: 'Semi-Auto' },
+];
+const FUEL_TYPES = [
+  { value: 'gasoline', label: 'Gasoline' },
+  { value: 'electric', label: 'Electric' },
+  { value: 'hybrid', label: 'Hybrid' },
+];
+const CONDITIONS = [
+  { value: 'excellent', label: 'Excellent' },
+  { value: 'good', label: 'Good' },
+  { value: 'fair', label: 'Fair' },
+  { value: 'poor', label: 'Needs Work' },
+];
 
 // Premium section wrapper
 const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
@@ -142,7 +155,7 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
                 <Select onValueChange={field.onChange} value={field.value || ''}>
                   <SelectTrigger><SelectValue placeholder="Select transmission" /></SelectTrigger>
                   <SelectContent>
-                    {TRANSMISSIONS.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                    {TRANSMISSIONS.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               )}
@@ -157,7 +170,7 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
                 <Select onValueChange={field.onChange} value={field.value || ''}>
                   <SelectTrigger><SelectValue placeholder="Select fuel type" /></SelectTrigger>
                   <SelectContent>
-                    {FUEL_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                    {FUEL_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               )}
@@ -172,7 +185,7 @@ export function MotorcycleListingForm({ onDataChange, initialData }: MotorcycleL
                 <Select onValueChange={field.onChange} value={field.value || ''}>
                   <SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger>
                   <SelectContent>
-                    {CONDITIONS.map(cond => <SelectItem key={cond} value={cond}>{cond}</SelectItem>)}
+                    {CONDITIONS.map(cond => <SelectItem key={cond.value} value={cond.value}>{cond.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               )}
