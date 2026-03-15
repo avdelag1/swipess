@@ -61,6 +61,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   const beachImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
   const disableSoundsRef = useRef(disableSounds);
+  disableSoundsRef.current = disableSounds;
 
   const pointerRef = useRef({
     x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
