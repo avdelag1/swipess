@@ -29,7 +29,7 @@ import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  ArrowLeft, ListMusic, Play, Pause, Heart,
+  ArrowLeft, ListMusic, Play, Pause, ThumbsUp,
   SkipBack, SkipForward, Square, Circle, Shuffle
 } from 'lucide-react';
 
