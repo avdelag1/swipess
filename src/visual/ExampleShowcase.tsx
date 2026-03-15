@@ -13,7 +13,7 @@ import {
   FloatEffect,
   ShimmerEffect,
 } from "@/visual";
-import { Sparkles, Zap, Heart, Plus, Star, Rocket } from "lucide-react";
+import { Sparkles, Zap, ThumbsUp, Plus, Star, Rocket } from "lucide-react";
 
 /**
  * Visual System Showcase

@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, Heart, Settings, Radio, Zap, MessageSquare
+  Flame, ThumbsUp, Settings, Radio, Zap, MessageSquare
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";

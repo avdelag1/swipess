@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   User, MapPin, Briefcase, Calendar, Lock, LogIn, UserPlus, ArrowLeft,
-  Sparkles, Star, Heart
+  Sparkles, Star, ThumbsUp
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { STORAGE } from '@/constants/app';

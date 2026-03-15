@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
 import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
-  LogOut, Building2, User, Camera, Crown, Flame, Heart, Settings, Radio, Zap, MessageSquare, Sparkles
+  LogOut, Building2, User, Camera, Crown, Flame, ThumbsUp, Settings, Radio, Zap, MessageSquare, Sparkles
 } from "lucide-react";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
 import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";

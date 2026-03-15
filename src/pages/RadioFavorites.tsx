@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRadio } from '@/contexts/RadioContext';
 import { getStationById, cityThemes } from '@/data/radioStations';
-import { ArrowLeft, Heart, Shuffle, Play, Pause, X, Radio } from 'lucide-react';
+import { ArrowLeft, ThumbsUp, Shuffle, Play, Pause, X, Radio } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
