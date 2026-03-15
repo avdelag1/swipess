@@ -100,15 +100,15 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
           <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer group"
+            className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer group backdrop-blur-xl"
             style={{
               background: isDark
-                ? 'rgba(14,14,17,0.92)'
-                : 'rgba(255,255,255,0.95)',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'}`,
+                ? 'rgba(24,24,28,0.95)'
+                : 'rgba(255,255,255,0.98)',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
               boxShadow: isDark
-                ? `0 12px 40px rgba(0,0,0,0.6), 0 0 20px ${config.glowColor}`
-                : `0 8px 30px rgba(0,0,0,0.15), 0 0 16px ${config.glowColor}`,
+                ? '0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
+                : '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)',
             }}
             onClick={() => {
               onNotificationClick(currentNotification);
@@ -125,31 +125,24 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
             <div className="flex items-center gap-3 px-4 py-3 flex-1 min-w-0">
               {/* Icon circle */}
               <div
-                className="relative flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
+                className="relative flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
                 style={{
                   background: isDark
-                    ? `${config.accentColor}18`
-                    : `${config.accentColor}12`,
-                  boxShadow: `inset 0 1px 0 rgba(255,255,255,${isDark ? 0.08 : 0.4})`,
+                    ? `${config.accentColor}15`
+                    : `${config.accentColor}10`,
                 }}
               >
                 <Icon
                   className="w-4.5 h-4.5"
-                  style={{ color: config.accentColor, width: 18, height: 18 }}
+                  style={{ color: config.accentColor, width: 17, height: 17 }}
                 />
               </div>
 
               <div className="flex-1 min-w-0 pr-2">
-                <h4 className={cn(
-                  "text-xs font-black uppercase tracking-wide leading-none mb-1 truncate",
-                  isDark ? "text-foreground" : "text-foreground"
-                )}>
-                  {unreadCount > 1 ? `${unreadCount} New Alerts` : currentNotification.title}
+                <h4 className="text-[13px] font-semibold leading-tight mb-0.5 truncate text-foreground">
+                  {unreadCount > 1 ? `${unreadCount} New Notifications` : currentNotification.title}
                 </h4>
-                <p className={cn(
-                  "text-[11px] font-semibold truncate leading-tight",
-                  isDark ? "text-muted-foreground" : "text-muted-foreground"
-                )}>
+                <p className="text-[12px] font-normal truncate leading-snug text-muted-foreground">
                   {unreadCount > 1 ? 'Tap to view your notifications' : currentNotification.message}
                 </p>
               </div>
@@ -157,12 +150,12 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
               <button
                 onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
                 className={cn(
-                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-colors",
-                  isDark ? "bg-white/10 hover:bg-white/20" : "bg-black/8 hover:bg-black/15"
+                  "flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center transition-colors",
+                  isDark ? "hover:bg-white/10" : "hover:bg-black/5"
                 )}
                 aria-label="Dismiss"
               >
-                <X className={cn("w-3.5 h-3.5", isDark ? "text-muted-foreground group-hover:text-foreground" : "text-muted-foreground group-hover:text-foreground")} />
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
           </motion.div>
