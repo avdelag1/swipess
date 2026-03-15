@@ -365,6 +365,25 @@
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  MEXICAN PINK PREMIUM — Accent CTA Button                             */
+/*  Vibrant pink gradient used for premium/conversion CTAs.              */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.mexican-pink-premium {
+  background: linear-gradient(135deg, #E4007C 0%, #C4006C 100%);
+  color: #fff;
+  border: none;
+}
+
+.mexican-pink-premium:hover {
+  background: linear-gradient(135deg, #FF1493 0%, #E4007C 100%);
+}
+
+.mexican-pink-premium:active {
+  background: linear-gradient(135deg, #C4006C 0%, #A3005A 100%);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  9. RADIO PLAYER CUSTOM UI                                              */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 

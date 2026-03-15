@@ -132,7 +132,7 @@ const ClientSettingsNew = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
 
 
@@ -159,7 +159,7 @@ const ClientSettingsNew = () => {
 
   if (activeSection === 'verification') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
           <PageHeader title="Identity Verification" subtitle="Verify your identity for trusted access" showBack={false} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
@@ -172,7 +172,7 @@ const ClientSettingsNew = () => {
 
   if (activeSection === 'language') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
           <PageHeader title="Language" subtitle="Choose your preferred language" showBack={false} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
@@ -185,7 +185,7 @@ const ClientSettingsNew = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
 
 
@@ -200,7 +200,7 @@ const ClientSettingsNew = () => {
   }
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide">
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-10">
 
 

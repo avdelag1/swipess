@@ -776,7 +776,7 @@ const ClientSwipeContainerComponent = ({
           <div className="relative group mb-2">
             <RadarSearchEffect
               size={120}
-              color="#E4007C"
+              color="var(--color-brand-accent-2)"
               isActive={isRefreshing}
               icon={labels.icon}
             />
@@ -852,7 +852,7 @@ const ClientSwipeContainerComponent = ({
           <div className="relative group mb-2">
             <RadarSearchEffect
               size={120}
-              color="#E4007C"
+              color="var(--color-brand-accent-2)"
               isActive={isRefreshing}
               icon={labels.icon}
             />
