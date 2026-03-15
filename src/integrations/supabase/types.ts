@@ -153,6 +153,7 @@ export type Database = {
           preferred_activities: Json | null
           profile_images: Json | null
           relationship_status: string | null
+          roommate_available: boolean | null
           smoking_habit: string | null
           updated_at: string
           user_id: string
@@ -186,6 +187,7 @@ export type Database = {
           preferred_activities?: Json | null
           profile_images?: Json | null
           relationship_status?: string | null
+          roommate_available?: boolean | null
           smoking_habit?: string | null
           updated_at?: string
           user_id: string
@@ -219,6 +221,7 @@ export type Database = {
           preferred_activities?: Json | null
           profile_images?: Json | null
           relationship_status?: string | null
+          roommate_available?: boolean | null
           smoking_habit?: string | null
           updated_at?: string
           user_id?: string
