@@ -426,7 +426,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
               <motion.div
                 variants={itemFadeScale}
-                className="flex items-center gap-4 p-5 rounded-3xl bg-zinc-900/40 backdrop-blur-xl border border-white/5 shadow-xl"
+                className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl"
               >
                 <div className={cn(
                   "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
