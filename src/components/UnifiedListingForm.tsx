@@ -252,6 +252,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         includes_pump: selectedCategory === 'bicycle' ? (formData.includes_pump || false) : null,
       };
 
+      // Strip undefined values to prevent PostgREST schema cache issues
+      const listingData = Object.fromEntries(
+        Object.entries(rawListingData).filter(([_, v]) => v !== undefined)
+      );
+
       let listingResult;
 
       if (editingId) {
