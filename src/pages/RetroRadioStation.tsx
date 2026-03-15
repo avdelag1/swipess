@@ -365,7 +365,7 @@ export default function RetroRadioStation() {
         label={isFav ? 'Remove from favorites' : 'Save station (Record)'}
       >
         {/* Neon Pink for Record/Favorite */}
-        <Heart
+        <ThumbsUp
           className={`w-6 h-6 transition-colors duration-300 drop-shadow-[0_0_12px_#ff00ff] ${isFav ? 'text-[#ff00ff]' : 'text-white/80 drop-shadow-none'}`}
           fill={isFav ? '#ff00ff' : 'transparent'}
         />
