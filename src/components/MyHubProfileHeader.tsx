@@ -131,8 +131,8 @@ export function MyHubProfileHeader() {
                         ].map((stat, i) => (
                             <div key={i} className="bg-muted border border-border rounded-2xl p-3 text-center">
                                 <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
-                                <div className="text-sm font-black text-foreground leading-none mb-1">{stat.value}</div>
-                                <div className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground leading-none">
+                                <div className="text-sm font-bold text-foreground leading-none mb-1">{stat.value}</div>
+                                <div className="text-[9px] font-semibold uppercase tracking-tight text-muted-foreground leading-none">
                                     {stat.label}
                                 </div>
                             </div>
