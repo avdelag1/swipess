@@ -454,7 +454,7 @@ export default function RetroRadioStation() {
           border: '1px solid rgba(255,0,255,0.3)',
         }}
       >
-        <Heart className="w-4 h-4 text-[#ff00ff] drop-shadow-[0_0_6px_#ff00ff]" fill="#ff00ff" />
+        <ThumbsUp className="w-4 h-4 text-[#ff00ff] drop-shadow-[0_0_6px_#ff00ff]" fill="#ff00ff" />
       </motion.button>
 
       {/* Station list — top-right */}
