@@ -82,7 +82,7 @@ export function MyHubQuickFilters() {
                             </div>
 
                             <span className={cn(
-                                "text-[10px] font-black uppercase tracking-tight",
+                                "text-[10px] font-semibold uppercase tracking-tight",
                                 isActive ? "text-foreground" : "text-muted-foreground"
                             )}>
                                 {cat.label}
