@@ -588,7 +588,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.06] bg-background/80 backdrop-blur-2xl">
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-border bg-background/80 backdrop-blur-2xl">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
