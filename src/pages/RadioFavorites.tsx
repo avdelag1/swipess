@@ -93,11 +93,11 @@ export default function RadioFavoritesPage() {
               className="flex flex-col items-center justify-center py-24 text-white/40"
             >
               <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                <Heart className="w-9 h-9" />
+                <ThumbsUp className="w-9 h-9" />
               </div>
               <p className="text-xl font-bold text-white/60 mb-2">No liked stations yet</p>
               <p className="text-sm text-center max-w-xs leading-relaxed">
-                Heart your favorite stations while listening to save them here
+                Like your favorite stations while listening to save them here
               </p>
               <motion.button
                 whileTap={{ scale: 0.95 }}

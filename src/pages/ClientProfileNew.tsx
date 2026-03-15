@@ -215,7 +215,7 @@ const ClientProfileNew = () => {
             )}
           >
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
-              <Heart className="w-5 h-5 text-[#E4007C]" />
+              <ThumbsUp className="w-5 h-5 text-[#E4007C]" />
             </div>
             <div>
               <div className="text-sm font-black tracking-tight text-foreground">Who Liked You</div>

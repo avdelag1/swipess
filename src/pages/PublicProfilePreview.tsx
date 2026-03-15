@@ -295,7 +295,7 @@ export default function PublicProfilePreview() {
             <CardContent className="p-6 text-center space-y-4">
               <div className="flex justify-center gap-2">
                 <Star className="w-5 h-5 text-primary fill-primary" />
-                <Heart className="w-5 h-5 text-pink-500 fill-pink-500" />
+                <ThumbsUp className="w-5 h-5 text-pink-500 fill-pink-500" />
                 <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" />
               </div>
               <h3 className="text-xl font-bold text-foreground">
