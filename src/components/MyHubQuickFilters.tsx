@@ -29,12 +29,12 @@ export function MyHubQuickFilters() {
         <div className="relative mb-8">
             {/* Label */}
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Discover Categories
                 </h3>
                 <button
                     onClick={() => { haptics.tap(); setActiveCategory(null); }}
-                    className="text-[10px] font-black uppercase text-brand-accent-2/80 hover:text-brand-accent-2 transition-colors"
+                    className="text-[10px] font-semibold uppercase text-brand-accent-2/80 hover:text-brand-accent-2 transition-colors"
                 >
                     Clear All
                 </button>
