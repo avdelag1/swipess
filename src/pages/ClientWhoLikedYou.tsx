@@ -161,7 +161,7 @@ const ClientWhoLikedYou = () => {
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">
           <div className="px-4 py-2 rounded-2xl bg-[#E4007C]/10 border border-[#E4007C]/20 text-[#E4007C] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
-            <Heart className="w-4 h-4" />
+            <ThumbsUp className="w-4 h-4" />
             Fan Base
           </div>
         </div>
