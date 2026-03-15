@@ -465,7 +465,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {/* Photo Section with premium cards */}
             <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-base">
                     <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
