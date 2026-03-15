@@ -198,7 +198,7 @@ function TopBarComponent({
                 whileTap={{ scale: 0.92 }}
                 onPointerDown={handleBack}
                 className={cn(
-                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg",
+                  "flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl z-50 pointer-events-auto shadow-lg",
                   isDark
                     ? "bg-white/10 border border-white/20 text-white"
                     : "bg-black/5 border border-black/10 text-foreground"

@@ -592,7 +592,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/50 px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
           </motion.button>
