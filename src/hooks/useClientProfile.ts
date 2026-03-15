@@ -162,9 +162,11 @@ export function useSaveClientProfile() {
 
       // Sync images
       if (updates.profile_images !== undefined) {
-        syncPayload.images = updates.profile_images;
+        syncPayload.images = updates.profile_images || [];
         if (updates.profile_images && updates.profile_images.length > 0) {
           syncPayload.avatar_url = updates.profile_images[0];
+        } else {
+          syncPayload.avatar_url = null;
         }
       }
 

@@ -243,10 +243,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   };
 
   const handleSave = async () => {
-    if (profileImages.length < 1) {
-      toast.error('At least one photo is required to save your profile');
-      return;
-    }
     const payload = {
       name: name || null,
       age: age === '' ? null : Number(age),
