@@ -195,7 +195,7 @@ export function ChatPreviewSheet({
                   </div>
                   <div className="h-4 w-px bg-white/10" />
                   <div className="flex items-center gap-1.5 text-[11px] text-white/50">
-                    <Heart className="w-3 h-3 text-[#FF453A]" />
+                    <ThumbsUp className="w-3 h-3 text-[#FF453A]" />
                     <span>98% Response</span>
                   </div>
                   <div className="h-4 w-px bg-white/10" />
