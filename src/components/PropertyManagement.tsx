@@ -11,7 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, Heart } from 'lucide-react';
+import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp } from 'lucide-react';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
 import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
@@ -224,7 +224,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     { id: 'motorcycle', label: 'Motorcycles', icon: CircleDot, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Bicycles', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
     { id: 'worker', label: 'Services', icon: Briefcase, count: listings.filter(l => l.category === 'worker' || l.category === 'services').length },
-    { id: 'liked', label: 'Likes', icon: Heart, count: listingsWithLikes.filter(l => l.likeCount > 0).length },
+    { id: 'liked', label: 'Likes', icon: ThumbsUp, count: listingsWithLikes.filter(l => l.likeCount > 0).length },
     { id: 'active', label: 'Active', icon: CheckCircle, count: listings.filter(l => l.status === 'active').length },
     { id: 'rented', label: 'Rented', icon: Home, count: listings.filter(l => l.status === 'rented').length },
   ];
@@ -401,7 +401,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           return (
                             <div className="absolute top-2 right-2">
                               <Badge className="bg-pink-500/90 text-white text-[10px] gap-1">
-                                <Heart className="w-3 h-3 fill-current" />
+                                <ThumbsUp className="w-3 h-3 fill-current" />
                                 {likedListing.likeCount}
                               </Badge>
                             </div>

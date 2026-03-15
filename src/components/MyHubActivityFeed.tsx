@@ -4,7 +4,7 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageSquare, Heart, Sparkles, ChevronRight, Clock } from 'lucide-react';
+import { MessageSquare, ThumbsUp, Sparkles, ChevronRight, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -70,7 +70,7 @@ export function MyHubActivityFeed() {
                                 )}>
                                     {notif.type === 'match' ? <Sparkles className="w-2.5 h-2.5 text-white" /> :
                                         notif.type === 'message' ? <MessageSquare className="w-2.5 h-2.5 text-white" /> :
-                                            <Heart className="w-2.5 h-2.5 text-white fill-white" />}
+                                            <ThumbsUp className="w-2.5 h-2.5 text-white fill-white" />}
                                 </div>
                             </div>
 

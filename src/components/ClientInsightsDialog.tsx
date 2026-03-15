@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, Calendar, Flame, Star, MessageCircle, Eye, Award, TrendingUp, ThumbsUp, Shield, CheckCircle, Clock, Sparkles, Home, Zap, Heart, DollarSign, Users, AlertCircle, Target, Briefcase, Coffee, Bike, Car, Anchor, PawPrint } from 'lucide-react';
+import { MapPin, User, Calendar, Flame, Star, MessageCircle, Eye, Award, TrendingUp, ThumbsUp, Shield, CheckCircle, Clock, Sparkles, Home, Zap, DollarSign, Users, AlertCircle, Target, Briefcase, Coffee, Bike, Car, Anchor, PawPrint } from 'lucide-react';
 import { ClientProfile } from '@/hooks/useClientProfiles';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
@@ -585,7 +585,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 )}
                 {renterInsights.isFitnessOriented && (
                   <div className="flex items-center gap-2 p-2.5 bg-red-500/10 rounded-lg border border-red-500/20">
-                    <Heart className="w-4 h-4 text-red-600" />
+                    <ThumbsUp className="w-4 h-4 text-red-600" />
                     <span className="text-sm font-medium">Fitness/Wellness</span>
                   </div>
                 )}

@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, Heart, Settings, Radio, Zap, MessageSquare
+  Flame, ThumbsUp, Settings, Radio, Zap, MessageSquare
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
@@ -121,7 +121,7 @@ const ClientProfileNew = () => {
         {/* Quick Stats Grid */}
         <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: Heart, color: 'text-[#E4007C]' },
+            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#E4007C]' },
             { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-400' },
             { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400' },
           ].map((stat, i) => (
@@ -215,7 +215,7 @@ const ClientProfileNew = () => {
             )}
           >
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
-              <Heart className="w-5 h-5 text-[#E4007C]" />
+              <ThumbsUp className="w-5 h-5 text-[#E4007C]" />
             </div>
             <div>
               <div className="text-sm font-black tracking-tight text-foreground">Who Liked You</div>

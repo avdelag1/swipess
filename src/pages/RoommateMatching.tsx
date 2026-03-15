@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Heart, X, Sparkles, Briefcase, Moon, Volume2, SprayCan } from 'lucide-react';
+import { Users, ThumbsUp, X, Sparkles, Briefcase, Moon, Volume2, SprayCan } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageHeader } from '@/components/PageHeader';
@@ -228,7 +228,7 @@ export default function RoommateMatching() {
               onClick={() => handleSwipe('right')}
               className="w-16 h-16 rounded-full bg-card border-2 border-green-500/30 flex items-center justify-center active:scale-95 transition-transform shadow-lg"
             >
-              <Heart className="w-7 h-7 text-green-500" />
+              <ThumbsUp className="w-7 h-7 text-green-500" />
             </button>
           </div>
 

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
-import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, MessageCircle, TrendingUp, Heart, Sparkles, Users, Gauge, Ruler, ThumbsUp, Flame } from 'lucide-react';
+import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, MessageCircle, TrendingUp, ThumbsUp, Sparkles, Users, Gauge, Ruler, Flame } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
@@ -624,7 +624,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       transition={{ delay: 0.25 }}
                       className="text-center p-2 sm:p-3 bg-gradient-to-br from-yellow-500/15 to-amber-500/10 rounded-xl border border-yellow-500/30 shadow-md hover:shadow-lg transition-all backdrop-blur-sm hover:scale-105"
                     >
-                      <Heart className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-yellow-600 mb-1 drop-shadow-md" />
+                      <ThumbsUp className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-yellow-600 mb-1 drop-shadow-md" />
                       <div className="text-xs sm:text-sm font-bold text-yellow-600 dark:text-yellow-400">{insights.saves}</div>
                       <div className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">Interested</div>
                     </motion.div>

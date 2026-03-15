@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Heart, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
+import { ThumbsUp, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -161,7 +161,7 @@ const ClientWhoLikedYou = () => {
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">
           <div className="px-4 py-2 rounded-2xl bg-[#E4007C]/10 border border-[#E4007C]/20 text-[#E4007C] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
-            <Heart className="w-4 h-4" />
+            <ThumbsUp className="w-4 h-4" />
             Fan Base
           </div>
         </div>
@@ -248,7 +248,7 @@ const ClientWhoLikedYou = () => {
           </Reorder.Group>
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">
-            <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
+            <ThumbsUp className="w-12 h-12 text-[#E4007C]/40 mb-6" />
             <h3 className="text-foreground font-black text-2xl tracking-tighter">Stay Noticed.</h3>
             <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
               When an owner likes your profile, they will appear here instantly.

@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Flame, Users, Search, Heart, ShieldCheck, ShieldAlert,
+  Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
   Home, Briefcase, DollarSign, GripVertical,
 } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
@@ -219,7 +219,7 @@ export function LikedClients() {
                 onClick={() => navigate("/owner/interested-clients")}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground shadow-md transition-all active:scale-95"
               >
-                <Heart className="w-4 h-4" />
+                <ThumbsUp className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">
                   Liked Me
                 </span>

@@ -29,7 +29,7 @@ import { CityLocation } from '@/types/radio';
 import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
-  ArrowLeft, ListMusic, Play, Pause, Heart,
+  ArrowLeft, ListMusic, Play, Pause, ThumbsUp,
   SkipBack, SkipForward, Square, Circle, Shuffle
 } from 'lucide-react';
 
@@ -365,7 +365,7 @@ export default function RetroRadioStation() {
         label={isFav ? 'Remove from favorites' : 'Save station (Record)'}
       >
         {/* Neon Pink for Record/Favorite */}
-        <Heart
+        <ThumbsUp
           className={`w-6 h-6 transition-colors duration-300 drop-shadow-[0_0_12px_#ff00ff] ${isFav ? 'text-[#ff00ff]' : 'text-white/80 drop-shadow-none'}`}
           fill={isFav ? '#ff00ff' : 'transparent'}
         />
@@ -454,7 +454,7 @@ export default function RetroRadioStation() {
           border: '1px solid rgba(255,0,255,0.3)',
         }}
       >
-        <Heart className="w-4 h-4 text-[#ff00ff] drop-shadow-[0_0_6px_#ff00ff]" fill="#ff00ff" />
+        <ThumbsUp className="w-4 h-4 text-[#ff00ff] drop-shadow-[0_0_6px_#ff00ff]" fill="#ff00ff" />
       </motion.button>
 
       {/* Station list — top-right */}

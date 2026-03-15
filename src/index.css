@@ -58,14 +58,14 @@ body, html {
 }
 
 .liquid-glass-card {
-  @apply bg-zinc-900/40 backdrop-blur-3xl border border-white/10 shadow-2xl transition-all duration-500 overflow-hidden relative;
+  @apply bg-card backdrop-blur-3xl border border-border shadow-2xl transition-all duration-500 overflow-hidden relative;
 }
 
 .liquid-glass-card::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.06) 0%, transparent 60%);
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(var(--primary) / 0.04) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.5s;
   pointer-events: none;
@@ -76,9 +76,9 @@ body, html {
 }
 
 .liquid-glass-card:hover {
-  @apply bg-zinc-900/60 border-white/20;
+  @apply bg-card border-border;
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-soft-lg);
 }
 
 
