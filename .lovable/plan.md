@@ -1,51 +1,46 @@
 
 
-## Plan: Fix mini player movement + fix Hub colors for light theme
+## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
 
-### Issues Found
+### 1. Replace App Icon with Fire S Logo
 
-1. **Mini player bobbing** — Line 130 has `animate={{ y: [0, -8, 0] }}` causing constant floating animation. Also fully draggable.
-2. **Hub components use hardcoded dark-theme colors** — All 4 Hub components (`MyHub.tsx`, `MyHubProfileHeader.tsx`, `MyHubActivityFeed.tsx`, `MyHubQuickFilters.tsx`) use `text-white`, `bg-black/40`, `bg-white/5`, `border-white/5` etc. which are invisible on a white background.
-3. **No runtime errors** — only a minor accessibility warning about a missing `aria-describedby`.
+The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
 
----
+**Changes:**
+- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
+- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
+- Update `public/manifest.json`: point all icon entries to the fire S logo
+- Update `public/manifest.webmanifest` (if it exists) similarly
+- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
 
-### Fix 1: Stop mini player from moving
+Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
 
-**`src/components/RadioMiniPlayer.tsx`**
-- Remove the bobbing animation (`animate={{ y: [0, -8, 0] }}`) on the inner `motion.div` — make it a regular `div`
-- Remove `drag` and all drag-related props/handlers from the outer `motion.div` — fix it in place
-- Remove the `GripVertical` drag handle icon
-- Remove `position` state and `constraintsRef` (no longer needed)
+### 2. Profile Photo Already Shows in Top-Left
 
-### Fix 2: Convert Hub components to theme-aware tokens
+The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
+- The user hasn't uploaded a photo yet (shows fallback initial)
+- Or the `avatar_url` column is empty in the database
 
-**`src/components/MyHubProfileHeader.tsx`**
-- `bg-black/40` → `bg-muted/60`
-- `border-white/5` → `border-border`
-- `text-white` → `text-foreground`
-- `bg-white/5` → `bg-muted`
+No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
 
-**`src/components/MyHubActivityFeed.tsx`**
-- Same pattern: replace all `text-white`, `bg-black/40`, `border-white/5` with semantic tokens
+### 3. Fix Header Too Close to Top Edge
 
-**`src/components/MyHubQuickFilters.tsx`**
-- `bg-white/[0.03]` → `bg-muted/30`
-- `border-white/5` → `border-border`
-- `text-white` → `text-foreground`
-- `bg-white/5` → `bg-muted`
+The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
 
-**`src/pages/MyHub.tsx`**
-- `bg-white/5` → `bg-muted`
-- `text-white/50` → `text-muted-foreground`
+**Fix in `src/index.css`:**
+- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
 
-### Files to edit (5 total)
+### 4. Fix MarketingSlide Build Error
 
-| File | Change |
-|------|--------|
-| `RadioMiniPlayer.tsx` | Remove drag + bobbing animation |
-| `MyHubProfileHeader.tsx` | Dark→semantic color tokens |
-| `MyHubActivityFeed.tsx` | Dark→semantic color tokens |
-| `MyHubQuickFilters.tsx` | Dark→semantic color tokens |
-| `MyHub.tsx` | Dark→semantic color tokens |
+The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+
+**Fix in `src/components/MarketingSlide.tsx`:**
+- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+
+### Files to Change
+1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
+2. **`index.html`** -- update splash logo src + favicon references
+3. **`public/manifest.json`** -- update icon paths
+4. **`src/index.css`** -- add base padding-top to `.app-header`
+5. **`src/components/MarketingSlide.tsx`** -- fix type error
 

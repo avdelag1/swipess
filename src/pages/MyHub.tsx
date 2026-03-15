@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import ClientDashboard from './ClientDashboard';
@@ -7,59 +5,37 @@ import EnhancedOwnerDashboard from '@/components/EnhancedOwnerDashboard';
 import { MyHubProfileHeader } from '@/components/MyHubProfileHeader';
 import { MyHubQuickFilters } from '@/components/MyHubQuickFilters';
 import { MyHubActivityFeed } from '@/components/MyHubActivityFeed';
-import { Card, CardContent } from '@/components/ui/card';
-import { Sparkles, LayoutGrid, Zap, Heart, MessageSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-/**
- * 🚀 THE UNIFIED HUB (My Marketplace Hub)
- * This is now the ONLY dashboard. 
- * It dynamically blends 'Looking' and 'Offering' based on context and filters.
- * 
- * PERF FIX: No longer subscribes to filterVersion or calls getListingFilters().
- * SwipessSwipeContainer reads filters directly from the Zustand store,
- * eliminating cascading object recreation that caused React Error #185.
- */
 export default function MyHub() {
     const { user } = useAuth();
     const { activeMode } = useActiveMode();
 
     return (
         <div className="w-full min-h-screen bg-background pb-32 overflow-x-hidden">
-            {/* Background Visual Depth Layers */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-accent-2/5 blur-[120px] rounded-full animate-float-slow" />
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-primary/5 blur-[100px] rounded-full animate-float-delayed" />
-            </div>
-
             <div className="relative w-full max-w-lg mx-auto px-4 pt-[calc(56px+var(--safe-top)+1.5rem)] sm:px-6">
 
-                {/* Step 2.1: The Unified Presence (Profile as Listing) */}
                 <MyHubProfileHeader />
-
-                {/* Step 2.2: The Quick Filter Access */}
                 <MyHubQuickFilters />
 
-                {/* Step 2.3: Activity Feed (Real-Time Liveness) */}
+                {/* Activity Feed */}
                 <div className="flex items-center justify-between mb-4 px-1">
-                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">
                         Marketplace Feed
                     </h3>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/5">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted border border-border">
                         <div className="w-1.5 h-1.5 rounded-full bg-brand-accent-2 animate-pulse" />
-                        <span className="text-[9px] font-black uppercase text-white/50 tracking-tighter">Live Updates</span>
+                        <span className="text-[9px] font-black uppercase text-muted-foreground tracking-tighter">Live Updates</span>
                     </div>
                 </div>
 
                 <MyHubActivityFeed />
 
-                {/* 
-          STEP 2.4: Discovery Feed
-          Rapidity: Directly integrated swipe context
-        */}
+                {/* Discovery Feed */}
                 <div className="mt-12 flex items-center gap-2 mb-4 px-1">
                     <Sparkles className="w-3.5 h-3.5 text-brand-accent-2" />
-                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+                    <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">
                         Smart Discoveries
                     </h3>
                 </div>

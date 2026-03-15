@@ -29,7 +29,7 @@ export function MyHubQuickFilters() {
         <div className="relative mb-8">
             {/* Label */}
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+                <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">
                     Discover Categories
                 </h3>
                 <button
@@ -57,8 +57,8 @@ export function MyHubQuickFilters() {
                                 "relative flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl transition-all duration-300",
                                 "border-[1.5px]",
                                 isActive
-                                    ? "bg-white/10 border-brand-accent-2 shadow-[0_0_20px_rgba(228,0,124,0.2)]"
-                                    : "bg-white/[0.03] border-white/5 hover:bg-white/5"
+                                    ? "bg-brand-accent-2/10 border-brand-accent-2 shadow-[0_0_20px_rgba(228,0,124,0.2)]"
+                                    : "bg-muted/30 border-border hover:bg-muted/60"
                             )}
                         >
                             {/* Active Indicator */}
@@ -76,14 +76,14 @@ export function MyHubQuickFilters() {
                                 "w-10 h-10 rounded-2xl flex items-center justify-center mb-2 shadow-inner",
                                 isActive
                                     ? `bg-gradient-to-br ${cat.color} text-white`
-                                    : "bg-white/5 text-muted-foreground/60"
+                                    : "bg-muted text-muted-foreground"
                             )}>
                                 <cat.icon className="w-5 h-5" strokeWidth={2.5} />
                             </div>
 
                             <span className={cn(
                                 "text-[10px] font-black uppercase tracking-tight",
-                                isActive ? "text-white" : "text-muted-foreground/60"
+                                isActive ? "text-foreground" : "text-muted-foreground"
                             )}>
                                 {cat.label}
                             </span>
@@ -92,9 +92,9 @@ export function MyHubQuickFilters() {
                 })}
 
                 {/* All / Search Placeholder */}
-                <button className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-white/[0.02] border-[1.5px] border-dashed border-white/10 text-muted-foreground/40 hover:bg-white/[0.04] transition-all">
-                    <Search className="w-6 h-6 mb-2 opacity-30" />
-                    <span className="text-[10px] font-black uppercase opacity-40">More</span>
+                <button className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-muted/20 border-[1.5px] border-dashed border-border text-muted-foreground hover:bg-muted/40 transition-all">
+                    <Search className="w-6 h-6 mb-2 opacity-50" />
+                    <span className="text-[10px] font-black uppercase opacity-60">More</span>
                 </button>
             </div>
 
