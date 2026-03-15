@@ -1425,9 +1425,7 @@ a {
 
 /* ===== FOCUS STATES - Accessibility ===== */
 :focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: none;
 }
 
 button:focus-visible,
@@ -1435,9 +1433,8 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
+  outline: none;
+  box-shadow: none;
 }
 
 /* ===== ENHANCED TYPOGRAPHY ===== */
@@ -1544,8 +1541,8 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: hsl(var(--ring));
-  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+  border-color: inherit;
+  box-shadow: none;
 }
 
 /* ===== TOAST/NOTIFICATION ANIMATIONS ===== */
