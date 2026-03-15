@@ -35,7 +35,7 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                 'active:scale-[0.9]',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent',
-                'h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0',
+                'h-9 w-9 flex-shrink-0 rounded-xl',
                 className
             )}
             style={{

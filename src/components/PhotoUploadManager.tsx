@@ -10,7 +10,7 @@ import { logger } from '@/utils/prodLogger';
 import { motion, Reorder } from 'framer-motion';
 
 interface PhotoUploadManagerProps {
-  maxPhotos: number; // minimum 1 photo required for all listing types and profiles
+  maxPhotos: number; // 30 for properties, 10 for clients
   currentPhotos: string[];
   onPhotosChange: (photos: string[]) => void;
   uploadType: 'property' | 'profile';

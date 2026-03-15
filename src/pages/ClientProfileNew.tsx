@@ -83,12 +83,12 @@ const ClientProfileNew = () => {
         initial="hidden"
         animate="visible"
         variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6 bg-background min-h-full"
+        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
       >
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">
-            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}>
+            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
@@ -105,7 +105,7 @@ const ClientProfileNew = () => {
               aria-label="Edit Profile"
               title="Edit Profile"
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
-              style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}
+              style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}
             >
               <Camera className="w-3.5 h-3.5 text-white" />
             </button>
@@ -121,7 +121,7 @@ const ClientProfileNew = () => {
         {/* Quick Stats Grid */}
         <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[var(--color-brand-accent-2)]' },
+            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[#E4007C]' },
             { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-400' },
             { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400' },
           ].map((stat, i) => (
@@ -143,16 +143,18 @@ const ClientProfileNew = () => {
 
         {/* Edit Profile Button */}
         <motion.div variants={childVariant}>
-          <Button
-            variant="gradient"
-            size="lg"
-            elastic
+          <motion.button
+            whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.select(); setShowEditDialog(true); }}
-            className="w-full h-14 font-black text-base mexican-pink-premium"
+            className="w-full h-14 flex items-center justify-center gap-2 rounded-2xl font-black text-base text-white relative overflow-hidden group shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #E4007C, #D4006E)',
+            }}
           >
-            <User className="w-5 h-5" />
-            Edit Profile
-          </Button>
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <User className="w-5 h-5 relative z-10" />
+            <span className="relative z-10 tracking-tight">Edit Profile</span>
+          </motion.button>
         </motion.div>
 
         {/* Profile Completion */}
@@ -168,10 +170,10 @@ const ClientProfileNew = () => {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+                  <Sparkles className="w-5 h-5 text-[#E4007C]" />
                   <span className="text-sm font-black uppercase tracking-widest text-foreground">Completion</span>
                 </div>
-                <span className="text-sm font-black" style={{ color: 'var(--color-brand-accent-2)' }}>{completionPercent}%</span>
+                <span className="text-sm font-black" style={{ color: '#E4007C' }}>{completionPercent}%</span>
               </div>
               <Progress value={completionPercent} className="h-2 rounded-full" />
               <p className="text-xs font-bold text-muted-foreground mt-3 leading-relaxed">
@@ -193,8 +195,8 @@ const ClientProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
-              <Flame className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
+              <Flame className="w-5 h-5 text-[#E4007C]" />
             </div>
             <div>
               <div className="text-sm font-black tracking-tight text-foreground">Your Likes</div>
@@ -212,8 +214,8 @@ const ClientProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
-              <ThumbsUp className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
+              <ThumbsUp className="w-5 h-5 text-[#E4007C]" />
             </div>
             <div>
               <div className="text-sm font-black tracking-tight text-foreground">Who Liked You</div>
@@ -247,7 +249,7 @@ const ClientProfileNew = () => {
                   className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
                   style={{
                     background: isLight ? 'rgba(228,0,124,0.08)' : 'rgba(228,0,124,0.15)',
-                    color: isLight ? 'var(--color-brand-accent-2)' : 'white',
+                    color: isLight ? '#E4007C' : 'white',
                     border: '1px solid rgba(228,0,124,0.2)'
                   }}
                 >

@@ -96,7 +96,7 @@ export const VisualEngine = () => {
           }}
         />
       )}
-      <StarCanvas isLight={isLight} />
+      {!isLight && <StarCanvas isLight={isLight} />}
     </div>
   );
 };

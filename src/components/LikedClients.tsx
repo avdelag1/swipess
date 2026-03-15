@@ -318,7 +318,7 @@ export function LikedClients() {
             className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
           >
             <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
-              <Users className="w-12 h-12 text-[var(--color-brand-accent-2)]/40" />
+              <Users className="w-12 h-12 text-[#E4007C]/40" />
             </div>
             <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">
               Discovery Awaits.
@@ -366,7 +366,7 @@ export function LikedClients() {
               onClick={() =>
                 clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)
               }
-              className="bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white rounded-xl font-black"
+              className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
             >
               DISMISS
             </AlertDialogAction>

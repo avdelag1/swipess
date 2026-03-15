@@ -226,10 +226,18 @@ function SwipeActionButtonBarComponent({
         zIndex: 100,
       }}
     >
-      {/* No glass tray — clean frameless layout */}
+      {/* Frosted glass pill container */}
       <div
-        className="relative flex items-center justify-center"
-        style={{ gap: GAP_CSS }}
+        className="relative flex items-center justify-center rounded-full"
+        style={{
+          gap: GAP_CSS,
+          backgroundColor: 'rgba(0,0,0,0.25)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.25)',
+          padding: '8px 16px',
+        }}
       >
         <ActionButton
           onClick={onUndo || (() => {})}

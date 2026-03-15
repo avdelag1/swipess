@@ -114,7 +114,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
 
 
@@ -141,7 +141,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32">
         <div className="max-w-3xl mx-auto">
 
 
@@ -156,7 +156,7 @@ const OwnerSettingsNew = () => {
   }
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide bg-background">
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide">
       <div className="max-w-3xl mx-auto space-y-10">
 
 
@@ -170,8 +170,8 @@ const OwnerSettingsNew = () => {
             <motion.div key={group.label} variants={itemVariant} className="space-y-3">
               {/* Section pill label */}
               <div className="px-1 flex items-center gap-3">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">{group.label}</span>
-                <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500/80">{group.label}</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-zinc-500/20 to-transparent" />
               </div>
 
               {/* Group card - Moscow style matte container */}
@@ -197,19 +197,19 @@ const OwnerSettingsNew = () => {
 
                       <div className="flex-1">
                         <div className="text-[15px] font-bold text-foreground/95 tracking-tight">{item.label}</div>
-                        <div className="text-[12px] text-muted-foreground font-medium mt-0.5 leading-relaxed">{item.description}</div>
+                        <div className="text-[12px] text-muted-foreground/70 font-medium mt-0.5 leading-relaxed">{item.description}</div>
                       </div>
 
                       <div className="flex items-center gap-2">
                         {item.section && (
                           <div className="w-1.5 h-1.5 rounded-full bg-primary/40 animate-pulse" />
                         )}
-                        <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                        <ChevronRight className="w-4 h-4 text-zinc-600 flex-shrink-0" />
                       </div>
                     </motion.button>
 
                     {idx < group.items.length - 1 && (
-                      <div className="mx-6 h-px bg-border/50" />
+                      <div className="mx-6 h-px bg-white/5" />
                     )}
                   </div>
                 ))}
@@ -228,9 +228,9 @@ const OwnerSettingsNew = () => {
           >
             <div className="flex items-center gap-2">
               <span className="swipess-text text-lg tracking-tighter text-foreground/40">Swipess</span>
-              <Badge variant="outline" className="text-[9px] font-black tracking-widest uppercase py-0 px-1.5 bg-muted border-border text-muted-foreground">v1.2.0</Badge>
+              <Badge variant="outline" className="text-[9px] font-black tracking-widest uppercase py-0 px-1.5 bg-white/5 border-white/10 text-zinc-500">v1.2.0</Badge>
             </div>
-            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Moscow Experience Engine</p>
+            <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Moscow Experience Engine</p>
           </motion.div>
         </div>
       </div>

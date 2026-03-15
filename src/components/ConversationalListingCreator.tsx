@@ -391,7 +391,7 @@ export function ConversationalListingCreator() {
                         className={cn(
                           "max-w-[85%] px-6 py-4 rounded-[2.2rem] text-sm font-bold leading-relaxed shadow-sm",
                           message.role === 'user'
-                            ? "bg-gradient-to-br from-[var(--color-brand-accent-2)] to-[#C4006C] text-white rounded-tr-sm"
+                            ? "bg-gradient-to-br from-[#E4007C] to-[#C4006C] text-white rounded-tr-sm"
                             : "bg-white/10 text-foreground rounded-tl-sm border border-white/5 backdrop-blur-xl"
                         )}
                       >
