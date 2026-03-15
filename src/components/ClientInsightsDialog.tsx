@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, Calendar, Flame, Star, MessageCircle, Eye, Award, TrendingUp, ThumbsUp, Shield, CheckCircle, Clock, Sparkles, Home, Zap, Heart, DollarSign, Users, AlertCircle, Target, Briefcase, Coffee, Bike, Car, Anchor, PawPrint } from 'lucide-react';
+import { MapPin, User, Calendar, Flame, Star, MessageCircle, Eye, Award, TrendingUp, ThumbsUp, Shield, CheckCircle, Clock, Sparkles, Home, Zap, DollarSign, Users, AlertCircle, Target, Briefcase, Coffee, Bike, Car, Anchor, PawPrint } from 'lucide-react';
 import { ClientProfile } from '@/hooks/useClientProfiles';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
