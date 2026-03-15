@@ -16,8 +16,9 @@ const VALID_THEMES: Theme[] = ['dark', 'light'];
 const DEFAULT_THEME: Theme = 'light';
 
 /** Map legacy DB values to new theme names */
-function normalizeTheme(_raw: string | null | undefined): Theme {
-  return 'light'; // Force light theme — dark mode disabled
+function normalizeTheme(raw: string | null | undefined): Theme {
+  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
+  return 'light';
 }
 
 const ALL_THEME_CLASSES = [
