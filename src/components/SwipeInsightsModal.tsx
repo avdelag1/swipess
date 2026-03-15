@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
-import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, MessageCircle, TrendingUp, Heart, Sparkles, Users, Gauge, Ruler, ThumbsUp, Flame } from 'lucide-react';
+import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, MessageCircle, TrendingUp, ThumbsUp, Sparkles, Users, Gauge, Ruler, Flame } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
