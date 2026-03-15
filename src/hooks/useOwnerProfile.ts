@@ -131,9 +131,13 @@ export function useSaveOwnerProfile() {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 
-      if (updates.profile_images !== undefined && (updates.profile_images?.length ?? 0) > 0) {
-        syncPayload.images = updates.profile_images;
-        syncPayload.avatar_url = (updates.profile_images as string[])[0];
+      if (updates.profile_images !== undefined) {
+        syncPayload.images = updates.profile_images || [];
+        if (updates.profile_images && updates.profile_images.length > 0) {
+          syncPayload.avatar_url = updates.profile_images[0];
+        } else {
+          syncPayload.avatar_url = null;
+        }
       }
 
       if (updates.business_name !== undefined) {
