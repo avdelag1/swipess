@@ -187,7 +187,7 @@ export function VideoCropper({
                             <div className="relative h-2 bg-white/20 rounded-full w-full">
                                 {/* Active track */}
                                 <div
-                                    className="absolute h-full bg-[#E4007C] rounded-full"
+                                    className="absolute h-full bg-[var(--color-brand-accent-2)] rounded-full"
                                     style={{
                                         left: `${(startTime / duration) * 100}%`,
                                         width: `${((endTime - startTime) / duration) * 100}%`

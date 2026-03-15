@@ -159,8 +159,8 @@ export function SharedProfileSection({
       <Card className={cn("backdrop-blur-md rounded-3xl shadow-xl border", isDark ? "bg-zinc-900/50 border-white/5" : "bg-white/80 border-gray-200")}>
         <CardContent className="p-5">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
-              <Gift className="w-6 h-6 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20 flex items-center justify-center flex-shrink-0 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
+              <Gift className="w-6 h-6 text-[var(--color-brand-accent-2)]" />
             </div>
             <div className="min-w-0">
               <h3 className={cn("font-black tracking-tight text-base", isDark ? "text-white" : "text-gray-900")}>Share & Earn</h3>

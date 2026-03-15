@@ -2,6 +2,7 @@
 import { OwnerProfileDialog } from "@/components/OwnerProfileDialog";
 import { SharedProfileSection } from "@/components/SharedProfileSection";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useOwnerStats } from "@/hooks/useOwnerStats";
@@ -60,12 +61,12 @@ const OwnerProfileNew = () => {
         initial="hidden"
         animate="visible"
         variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6"
+        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6 bg-background min-h-full"
       >
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">
-            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}>
+            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}>
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => { haptics.tap(); setShowEditDialog(true); }}
@@ -82,7 +83,7 @@ const OwnerProfileNew = () => {
               aria-label="Edit Profile"
               title="Edit Profile"
               className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
-              style={{ background: 'linear-gradient(135deg, #E4007C, #F5DEB3)' }}
+              style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}
             >
               <Camera className="w-3.5 h-3.5 text-white" />
             </button>
@@ -98,7 +99,7 @@ const OwnerProfileNew = () => {
         {/* Quick Stats Grid */}
         <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#E4007C]' },
+            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[var(--color-brand-accent-2)]' },
             { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-400' },
             { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-400' },
           ].map((stat, i) => (
@@ -120,18 +121,16 @@ const OwnerProfileNew = () => {
 
         {/* Edit Profile Button */}
         <motion.div variants={childVariant}>
-          <motion.button
-            whileTap={{ scale: 0.96 }}
+          <Button
+            variant="gradient"
+            size="lg"
+            elastic
             onClick={() => { haptics.select(); setShowEditDialog(true); }}
-            className="w-full h-14 flex items-center justify-center gap-2 rounded-2xl font-black text-base text-white relative overflow-hidden group shadow-lg"
-            style={{
-              background: 'linear-gradient(135deg, #E4007C, #D4006E)',
-            }}
+            className="w-full h-14 font-black text-base mexican-pink-premium"
           >
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <User className="w-5 h-5 relative z-10" />
-            <span className="relative z-10 tracking-tight">Edit Business Profile</span>
-          </motion.button>
+            <User className="w-5 h-5" />
+            Edit Business Profile
+          </Button>
         </motion.div>
 
         {/* Action Grid */}
@@ -146,8 +145,8 @@ const OwnerProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
-              <Flame className="w-5 h-5 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
+              <Flame className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
             </div>
             <div>
               <div className="text-sm font-black text-foreground">Your Likes</div>
@@ -167,8 +166,8 @@ const OwnerProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[#E4007C]/20 to-[#E4007C]/5 border border-[#E4007C]/20">
-              <ThumbsUp className="w-5 h-5 text-[#E4007C]" />
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
+              <ThumbsUp className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
             </div>
             <div>
               <div className="text-sm font-black text-foreground">Who Liked You</div>

@@ -58,7 +58,7 @@ const MaintenanceRequests = () => {
   const filtered = requests?.filter(r => activeFilter === 'all' || r.status === activeFilter) || [];
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 scrollbar-hide">
+    <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <PageHeader title="Maintenance" subtitle="Report and track issues" showBack />

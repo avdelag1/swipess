@@ -291,7 +291,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                     size="sm"
                     onClick={() => handleAction(message.actionRoute)}
                     className="flex items-center gap-2 px-6 h-10 rounded-full text-white shadow-lg ml-12 uppercase tracking-widest text-[10px]"
-                    style={{ background: 'linear-gradient(135deg, #E4007C, #C4006C)' }}
+                    style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #C4006C)' }}
                   >
                     {message.actionLabel || 'View'}
                     <ArrowRight className="w-4 h-4" />
