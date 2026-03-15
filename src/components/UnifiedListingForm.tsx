@@ -526,7 +526,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                         whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleImageAdd}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
+                        className="aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
                       >
                         <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
                         <span className="text-xs font-semibold">Add Photo</span>
