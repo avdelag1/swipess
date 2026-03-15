@@ -1,46 +1,66 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+## Plan: Professional Polish — Header Consistency, Profile/Listing Fixes, AI Chat Redesign
 
-### 1. Replace App Icon with Fire S Logo
+### Issues Identified
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+1. **TopBar buttons inconsistent sizes** — ThemeToggle is `h-7 w-7` while Token and Notification buttons are `h-9 w-9`. Avatar is `h-8 w-8`. Back button is `w-8 h-8`. They should all match.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+2. **Profile creation works** — The save flow looks correct (photo required, upsert to `client_profiles`). Need to verify `useSaveClientProfile` handles missing rows gracefully (upsert vs insert). Will check for common errors.
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+3. **Listing creation has hardcoded dark styles** — `UnifiedListingForm` uses `bg-zinc-900/30`, `border-white/5`, `bg-zinc-900/40` extensively. These look broken in light mode.
 
-### 2. Profile Photo Already Shows in Top-Left
+4. **AI Chat dialog opens awkwardly** — Currently uses a standard Dialog with `[&]:top-[55%]` positioning. No entrance animation beyond default. The input area and overall feel are plain.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+5. **Sign-up/Sign-in flow** — Already exists; need to verify it works. No changes needed unless there are actual errors.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+---
 
-### 3. Fix Header Too Close to Top Edge
+### Changes
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+#### 1. Standardize all TopBar button sizes (3 files)
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+**`src/components/ThemeToggle.tsx`**
+- Change `h-7 w-7 sm:h-8 sm:w-8` → `h-9 w-9` to match Token and Notification buttons
+- Add `rounded-xl` and glass styling consistent with other TopBar buttons
 
-### 4. Fix MarketingSlide Build Error
+**`src/components/TopBar.tsx`**
+- Avatar: change `h-8 w-8 sm:h-10 sm:w-10` → `h-9 w-9` for consistency
+- Back button: change `w-8 h-8` → `w-9 h-9`
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+#### 2. Fix UnifiedListingForm light-mode styling
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+**`src/components/UnifiedListingForm.tsx`**
+- Replace hardcoded `bg-zinc-900/30 border-white/5` on Card components with semantic `bg-card border-border`
+- Replace `border-white/10` dashed upload border with `border-border`
+- Replace `border-white/[0.06]` footer border with `border-border`
+- Replace `bg-white/[0.04]` hover with theme-aware alternative
+- The vehicle info box `bg-zinc-900/40 border-white/5` → `bg-muted/50 border-border`
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+#### 3. Redesign AI Chat Dialog with premium feel
+
+**`src/components/AISearchDialog.tsx`**
+- Add a smooth slide-up + scale entrance animation using framer-motion on the DialogContent
+- Redesign the input area: add a frosted glass pill with inner glow effect, subtle gradient border
+- Add a subtle ambient glow behind the AI avatar icon
+- Make the message bubbles have softer corners and subtle shadows
+- Add a cool "frost shimmer" effect on the chat container background using CSS
+- The dialog currently has `[&]:top-[55%]` — change to proper centered positioning with a slide-up animation
+
+#### 4. Verify profile save works (investigate + fix if needed)
+
+**`src/hooks/useClientProfile.ts`**  
+- Check the save mutation for proper upsert logic — ensure it handles both new profiles (no row yet) and updates
+- The `resolveAuthenticatedUserId` function already has retry logic, which is good
+
+---
+
+### Files to Edit (4 files)
+
+| File | Change |
+|------|--------|
+| `ThemeToggle.tsx` | Match h-9 w-9 + rounded-xl styling |
+| `TopBar.tsx` | Standardize avatar and back button to h-9 w-9 |
+| `UnifiedListingForm.tsx` | Replace hardcoded dark styles with semantic tokens |
+| `AISearchDialog.tsx` | Add slide-up animation, redesign input with frost effect, polish bubbles |
 
