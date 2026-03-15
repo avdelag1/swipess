@@ -47,10 +47,7 @@
 /* Input focus states */
 .input-enhanced:focus {
   outline: none;
-  border-color: rgba(255, 77, 0, 0.5);
-  box-shadow:
-    0 0 0 4px rgba(255, 77, 0, 0.1),
-    var(--shadow-soft-sm);
+  box-shadow: var(--shadow-soft-sm);
 }
 
 /* Interactive hover with subtle lift */
@@ -70,12 +67,10 @@
   transition: transform 100ms ease-out;
 }
 
-/* Enhanced focus ring — uses brand token */
+/* Enhanced focus ring — no visual ring */
 .focus-enhanced:focus-visible {
   outline: none;
-  box-shadow:
-    0 0 0 4px var(--focus-ring-color),
-    0 0 0 2px var(--color-brand-primary);
+  box-shadow: none;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
