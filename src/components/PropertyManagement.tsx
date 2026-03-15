@@ -11,7 +11,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, Heart } from 'lucide-react';
+import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp } from 'lucide-react';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
 import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
