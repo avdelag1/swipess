@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Home, Users, Shield, Zap, Heart, MessageCircle } from "lucide-react";
+import { Home, Users, Shield, Zap, ThumbsUp, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/PageHeader";
