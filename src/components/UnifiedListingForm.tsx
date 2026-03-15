@@ -159,8 +159,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const schedule_type = formData.schedule_type ? JSON.parse(JSON.stringify(formData.schedule_type)) : [];
       const location_type = formData.location_type ? JSON.parse(JSON.stringify(formData.location_type)) : [];
 
+      // Build a robust location string based on category
+      const locationStr = formData.city || formData.address || formData.neighborhood || formData.location || 'Not specified';
+
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
-      const listingData = {
+      const rawListingData = {
         user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
@@ -174,7 +177,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         rental_rates: formData.rental_rates,
         rental_duration_type: formData.rental_duration_type,
         description: formData.description || '',
-        location: formData.city || formData.address || 'Unknown',
+        location: locationStr,
         country: formData.country || 'Mexico',
         state: formData.state || formData.city || 'Unknown',
         city: formData.city || 'Unknown',
