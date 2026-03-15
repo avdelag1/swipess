@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Heart, Sparkles, Home, Briefcase, DollarSign, Flame, GripVertical } from "lucide-react";
+import { ThumbsUp, Sparkles, Home, Briefcase, DollarSign, Flame, GripVertical } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
