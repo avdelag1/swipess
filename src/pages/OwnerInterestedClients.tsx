@@ -249,7 +249,7 @@ const OwnerInterestedClients = () => {
           </Reorder.Group>
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">
-            <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
+            <ThumbsUp className="w-12 h-12 text-[#E4007C]/40 mb-6" />
             <h3 className="text-foreground font-black text-2xl tracking-tighter">
               Attraction Imminent.
             </h3>

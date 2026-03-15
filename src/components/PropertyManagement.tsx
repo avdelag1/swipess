@@ -401,7 +401,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           return (
                             <div className="absolute top-2 right-2">
                               <Badge className="bg-pink-500/90 text-white text-[10px] gap-1">
-                                <Heart className="w-3 h-3 fill-current" />
+                                <ThumbsUp className="w-3 h-3 fill-current" />
                                 {likedListing.likeCount}
                               </Badge>
                             </div>

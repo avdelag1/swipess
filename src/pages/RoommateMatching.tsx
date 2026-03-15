@@ -228,7 +228,7 @@ export default function RoommateMatching() {
               onClick={() => handleSwipe('right')}
               className="w-16 h-16 rounded-full bg-card border-2 border-green-500/30 flex items-center justify-center active:scale-95 transition-transform shadow-lg"
             >
-              <Heart className="w-7 h-7 text-green-500" />
+              <ThumbsUp className="w-7 h-7 text-green-500" />
             </button>
           </div>
 

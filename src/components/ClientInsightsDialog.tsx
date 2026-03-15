@@ -585,7 +585,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 )}
                 {renterInsights.isFitnessOriented && (
                   <div className="flex items-center gap-2 p-2.5 bg-red-500/10 rounded-lg border border-red-500/20">
-                    <Heart className="w-4 h-4 text-red-600" />
+                    <ThumbsUp className="w-4 h-4 text-red-600" />
                     <span className="text-sm font-medium">Fitness/Wellness</span>
                   </div>
                 )}
