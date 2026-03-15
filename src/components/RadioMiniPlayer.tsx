@@ -69,8 +69,8 @@ export function RadioMiniPlayer() {
           dragElastic={0.1}
           dragMomentum={false}
           onDragEnd={handleDragEnd}
-          initial={{ y: 100, opacity: 0, scale: 0.8 }}
-          animate={{ y: 0, opacity: 1, scale: 1, x: position.x, ...{ y: position.y } }}
+          initial={{ x: 0, y: 100, opacity: 0, scale: 0.8 }}
+          animate={{ x: position.x, y: position.y, opacity: 1, scale: 1 }}
           exit={{ y: 100, opacity: 0, scale: 0.8 }}
           className="fixed bottom-24 right-4 z-50 group cursor-grab active:cursor-grabbing touch-none"
         >
