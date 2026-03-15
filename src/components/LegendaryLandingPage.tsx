@@ -555,7 +555,7 @@ function LegendaryLandingPage() {
   return (
     <div className="h-screen h-dvh relative overflow-hidden bg-background">
       <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={effectMode} isLightTheme={isLightTheme} />
+        <LandingBackgroundEffects mode={effectMode} isLightTheme={isLightTheme} disableSounds={view === 'auth'} />
       </Suspense>
 
       <AnimatePresence mode="wait">

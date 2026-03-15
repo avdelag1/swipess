@@ -49,7 +49,7 @@ interface CloudParticle {
   radius: number; opacity: number;
 }
 
-function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: EffectMode; isLightTheme?: boolean }) {
+function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = false }: { mode: EffectMode; isLightTheme?: boolean; disableSounds?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef<number>(0);
   const starsRef = useRef<Star[]>([]);
@@ -60,6 +60,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
   const cheetahImgRef = useRef<HTMLImageElement | null>(null);
   const beachImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
+  const disableSoundsRef = useRef(disableSounds);
+  disableSoundsRef.current = disableSounds;
 
   const pointerRef = useRef({
     x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
@@ -185,10 +187,12 @@ function LandingBackgroundEffects({ mode, isLightTheme = false }: { mode: Effect
       pointerRef.current.y = e.clientY;
 
       // Play exactly ONE sound per tap, based on mode (preloaded for zero latency)
-      if (mode === 'stars' || mode === 'orbs' || mode === 'sunset') {
-        playRandomZen(0.3);
-      } else if (mode === 'cheetah') {
-        playJungleSound(0.3);
+      if (!disableSoundsRef.current) {
+        if (mode === 'stars' || mode === 'orbs' || mode === 'sunset') {
+          playRandomZen(0.3);
+        } else if (mode === 'cheetah') {
+          playJungleSound(0.3);
+        }
       }
 
       // Mode-specific visual effects
