@@ -14,18 +14,18 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-card group-[.toaster]:backdrop-blur-2xl group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-[0_8px_32px_rgba(0,0,0,0.12)] group-[.toaster]:rounded-3xl group-[.toaster]:px-5 group-[.toaster]:py-4 group-[.toaster]:border-l-4 group-[.toaster]:border-l-primary",
-          description: "group-[.toast]:text-muted-foreground group-[.toast]:font-bold group-[.toast]:text-xs",
+            "group toast group-[.toaster]:bg-zinc-900/95 group-[.toaster]:backdrop-blur-xl group-[.toaster]:text-white group-[.toaster]:border-white/10 group-[.toaster]:shadow-[0_4px_20px_rgba(0,0,0,0.35)] group-[.toaster]:rounded-2xl group-[.toaster]:px-4 group-[.toaster]:py-3.5 group-[.toaster]:border-l-[3px] group-[.toaster]:border-l-white/20",
+          description: "group-[.toast]:text-white/55 group-[.toast]:text-xs group-[.toast]:mt-0.5",
           actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 group-[.toast]:font-black group-[.toast]:text-[10px] group-[.toast]:uppercase group-[.toast]:tracking-wider hover:group-[.toast]:scale-105 active:group-[.toast]:scale-95 transition-all",
+            "group-[.toast]:bg-white/15 group-[.toast]:text-white group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 group-[.toast]:text-xs group-[.toast]:font-medium hover:group-[.toast]:bg-white/20 transition-colors",
           cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-foreground group-[.toast]:rounded-xl group-[.toast]:px-4 group-[.toast]:py-2 hover:group-[.toast]:bg-muted/80",
-          title: "group-[.toast]:text-foreground group-[.toast]:font-black group-[.toast]:text-sm group-[.toast]:uppercase group-[.toast]:tracking-tight",
-          icon: "group-[.toast]:w-5 group-[.toast]:h-5 group-[.toast]:text-primary",
-          success: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-green-600 group-[.toaster]:via-emerald-600 group-[.toaster]:to-teal-600 group-[.toaster]:text-white group-[.toaster]:shadow-green-500/50",
-          error: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-red-600 group-[.toaster]:via-rose-600 group-[.toaster]:to-pink-600 group-[.toaster]:text-white group-[.toaster]:shadow-red-500/50",
-          warning: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-amber-600 group-[.toaster]:via-orange-600 group-[.toaster]:to-yellow-600 group-[.toaster]:text-white group-[.toaster]:shadow-amber-500/50",
-          info: "group-[.toaster]:bg-gradient-to-br group-[.toaster]:from-pink-500 group-[.toaster]:via-rose-500 group-[.toaster]:to-orange-500 group-[.toaster]:text-white group-[.toaster]:shadow-pink-500/50",
+            "group-[.toast]:bg-white/8 group-[.toast]:text-white/70 group-[.toast]:rounded-lg group-[.toast]:px-3 group-[.toast]:py-1.5 hover:group-[.toast]:bg-white/12",
+          title: "group-[.toast]:text-white group-[.toast]:font-semibold group-[.toast]:text-sm group-[.toast]:tracking-normal",
+          icon: "group-[.toast]:w-4 group-[.toast]:h-4 group-[.toast]:opacity-80",
+          success: "group-[.toaster]:border-l-emerald-500",
+          error: "group-[.toaster]:border-l-red-500",
+          warning: "group-[.toaster]:border-l-amber-400",
+          info: "group-[.toaster]:border-l-sky-400",
         },
       }}
       {...props}
