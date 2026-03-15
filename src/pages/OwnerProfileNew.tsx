@@ -99,7 +99,7 @@ const OwnerProfileNew = () => {
         <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
           {[
             { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[#E4007C]' },
-            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: Heart, color: 'text-amber-400' },
+            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-400' },
             { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-400' },
           ].map((stat, i) => (
             <div
