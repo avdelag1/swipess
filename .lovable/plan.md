@@ -1,86 +1,84 @@
 
 
-## Plan: Professional Polish Pass — Make the App Look "Wow"
+## Plan: Fix Listing Creation, Category-Specific Mode Icons, Add Scuba Diving
 
-After a deep audit of the codebase, here are the areas that will have the highest visual impact when improved. This is broken into focused, high-ROI changes.
+### 1. Fix Listing Creation Error — `location` column
 
----
+The error "Could not find the 'location' column of 'listings' in the schema cache" occurs when submitting the form. The column exists in the database, so this is a PostgREST schema cache issue. The fix:
 
-### Problem Areas Identified
+**`src/components/UnifiedListingForm.tsx`** (line 177):
+- The `location` field is set to `formData.city || formData.address || 'Unknown'`. For motorcycle/bicycle/worker categories, the user may not fill city/address fields, resulting in `'Unknown'` which should still work. 
+- However, the real issue is likely that the Supabase client has **stale hardcoded fallback credentials** in `client.ts` pointing to project `vplgtcguxujxwrgguxqq` while the Cloud project is `qegyisokrxdsszzswsqk`. If env vars fail to load, the app connects to the wrong project.
+- **Fix**: Make the listing payload more defensive — ensure `location` always has a valid string, and strip any `undefined` values from the payload before insert. Also add better error messaging.
 
-1. **Inconsistent typography** — Font weights and sizes vary randomly across components. No unified type scale is enforced. Some labels use `text-[10px] font-black uppercase`, others use `text-xs font-bold`, creating a chaotic feel.
+Changes in `UnifiedListingForm.tsx`:
+- Ensure `location` defaults to a non-empty string based on category context
+- Clean the payload object to remove any `undefined` values before sending to the database
+- This prevents PostgREST from choking on schema mismatches
 
-2. **ThemeToggle too small and hidden** — The toggle is `h-7 w-7` (28px), smaller than the other header buttons (`h-9 w-9`). Easy to miss. No visual distinction.
+### 2. Redesign Mode Selection Icons — Category-Specific
 
-3. **Bottom nav has too many items (6-7)** — Client nav has 6 items, owner has 7. This crams the bar and makes icons tiny. Premium apps like Tinder/Bumble use 4-5 max.
+**`src/components/CategorySelectionDialog.tsx`**:
 
-4. **Swipe action buttons are "phantom" (invisible backgrounds)** — The like/dislike/share buttons float with no container, making them feel disconnected and amateur on light backgrounds.
+Currently the mode step always shows: 🏠 For Rent, 💰 For Sale, ✨ Both Options — regardless of category.
 
-5. **Gradient masks create haze on light theme** — The `GradientMaskTop`, `GradientMaskBottom`, and `GlobalVignette` layers add unnecessary white fog over the light theme, making it look washed out.
+Change to dynamic icons based on selected category:
+- **Property**: 🏠 Rent, 💰 Sale, ✨ Both
+- **Motorcycle**: 🏍️ Rent, 💰 Sale, ✨ Both  
+- **Bicycle**: 🚲 Rent, 💰 Sale, ✨ Both
 
-6. **Star canvas still renders on light theme** — The `VisualEngine` draws semi-transparent dots on light mode, which looks odd on a clean white background.
+Also replace the category selection icons with cleaner Lucide icons:
+- Property: `Building2` (cleaner than `Home`)
+- Motorcycle: `Bike` icon or keep `CircleDot` but use a motorcycle-relevant one
+- Bicycle: Keep `Bike`
+- Jobs: Keep `Briefcase`
 
-7. **500+ instances of `bg-black` hardcoded** — Many overlays, modals, and badges use `bg-black/XX` which doesn't adapt. Some are contextually fine (image overlays), but many dialogs and containers should use semantic tokens.
+Make mode descriptions category-aware too:
+- "Monthly or short-term motorcycle rental" vs "Monthly or short-term property rental"
 
----
+### 3. Add Scuba Diving Profession to Service Categories
 
-### Changes (Priority Order)
+**`src/data/serviceCategories.ts`**:
 
-#### 1. Make ThemeToggle prominent and properly sized
-**`src/components/ThemeToggle.tsx`**
-- Increase size from `h-7 w-7` to `h-9 w-9` (matching other TopBar buttons)
-- Add matching `rounded-xl` to be consistent with TopBar icon style
-- Use `liquid-glass-card` styling like other TopBar buttons
+Add new entry under a new group "Water & Adventure" (or under "Personal Care & Wellness"):
 
-#### 2. Reduce bottom nav to 5 items max
-**`src/components/BottomNavigation.tsx`**
-- **Client**: Remove "AI Search" (keep it accessible via TopBar or elsewhere) → 5 items: Explore, Profile, Likes, Messages, Filters
-- **Owner**: Remove "AI Search" and merge "Listings" into Dashboard → 5 items: Dashboard, Profile, Liked Clients, Messages, Filters
-- Increase icon size slightly and add more breathing room
+```
+{ value: 'scuba_instructor', label: 'Scuba Diving Instructor / Divemaster', icon: '🤿', group: 'Water & Adventure' }
+```
 
-#### 3. Give swipe action buttons subtle glass containers
-**`src/components/SwipeActionButtonBar.tsx`**
-- Add a subtle frosted pill container behind the 5 action buttons (matching the bottom nav glass treatment)
-- This grounds the buttons visually and makes them feel intentional
+Add the new group `'Water & Adventure'` to `SERVICE_GROUPS`.
 
-#### 4. Disable VisualEngine effects on light theme
-**`src/visual/VisualEngine.tsx`**
-- Skip rendering the star canvas entirely when `isLight` is true
-- Clean white background = professional. Twinkling dots on white = odd.
+Add subspecialties with all certification/skill levels:
+```typescript
+scuba_instructor: [
+  'Discover Scuba (Intro)',
+  'Open Water Diver (OWD)',
+  'Advanced Open Water (AOWD)',
+  'Rescue Diver',
+  'Master Scuba Diver',
+  'Divemaster (DM)',
+  'Assistant Instructor (AI)',
+  'Open Water Scuba Instructor (OWSI)',
+  'Deep Diving Specialty',
+  'Night Diving',
+  'Nitrox / Enriched Air',
+  'Wreck Diving',
+  'Cave Diving',
+  'Cavern Diving',
+  'Technical Diving (Tec)',
+  'Underwater Photography',
+  'Search & Recovery',
+  'Drift Diving',
+  'Boat Diving',
+  'Emergency First Response (EFR)',
+]
+```
 
-#### 5. Reduce gradient mask intensity on light theme
-**`src/components/AppLayout.tsx`**
-- Lower light-mode vignette intensity from `0.4` → `0.15`
-- Lower light-mode gradient mask intensities from `0.5` → `0.2`
-- This removes the washed-out haze effect
-
-#### 6. Standardize typography scale
-**`src/index.css`** — Add a utility layer for consistent type classes:
-- Section labels: `text-xs font-semibold uppercase tracking-wider text-muted-foreground`
-- Card titles: `text-lg font-bold text-foreground`  
-- Body text: `text-sm text-muted-foreground`
-- Reduce the overuse of `font-black` (too heavy for most contexts — reserve for headlines only)
-
-Key files to update typography: `MyHubQuickFilters.tsx`, `MyHubProfileHeader.tsx`, `MyHubActivityFeed.tsx`
-
-#### 7. Fix key dark-hardcoded containers
-**Priority files** (dialogs/sheets that look broken in light mode):
-- `QuickFilterDropdown.tsx` — already has `isDark` ternaries, mostly fine
-- `PropertyManagement.tsx` — `bg-black/70` price badges on cards (contextually OK, skip)
-- `MessageActivationPackages.tsx` — verify `isDark` ternaries work correctly
-- `ModeSwitcher.tsx` — already theme-aware, OK
-
----
-
-### Files to Edit (7 files)
+### Files to Edit (3 files)
 
 | File | Change |
 |------|--------|
-| `ThemeToggle.tsx` | Increase size to h-9 w-9, match TopBar style |
-| `BottomNavigation.tsx` | Reduce to 5 nav items per role |
-| `SwipeActionButtonBar.tsx` | Add subtle glass container behind buttons |
-| `VisualEngine.tsx` | Skip star canvas on light theme |
-| `AppLayout.tsx` | Reduce gradient mask intensity for light |
-| `MyHubQuickFilters.tsx` | Standardize typography (reduce font-black) |
-| `MyHubProfileHeader.tsx` | Standardize typography |
+| `UnifiedListingForm.tsx` | Defensive `location` handling, strip undefined values from payload |
+| `CategorySelectionDialog.tsx` | Dynamic category-specific mode icons/emojis and descriptions |
+| `serviceCategories.ts` | Add scuba diving profession with full certification subspecialties |
 
