@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Flame, Users, Search, Heart, ShieldCheck, ShieldAlert,
+  Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
   Home, Briefcase, DollarSign, GripVertical,
 } from "lucide-react";
 import { motion, Reorder } from "framer-motion";
