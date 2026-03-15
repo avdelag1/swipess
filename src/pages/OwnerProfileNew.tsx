@@ -66,7 +66,7 @@ const OwnerProfileNew = () => {
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">
-            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}>
+            <div className="w-[84px] h-[84px] rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-2))' }}>
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => { haptics.tap(); setShowEditDialog(true); }}
@@ -74,7 +74,7 @@ const OwnerProfileNew = () => {
                 {ownerProfile?.profile_images?.[0] ? (
                   <img src={ownerProfile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <Building2 className="w-10 h-10 text-muted-foreground" />
+                  <Building2 className="w-9 h-9 text-muted-foreground/40" />
                 )}
               </div>
             </div>
@@ -82,39 +82,38 @@ const OwnerProfileNew = () => {
               onClick={() => { haptics.tap(); setShowEditDialog(true); }}
               aria-label="Edit Profile"
               title="Edit Profile"
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
-              style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}
+              className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-transform active:scale-90 bg-primary"
             >
-              <Camera className="w-3.5 h-3.5 text-white" />
+              <Camera className="w-3.5 h-3.5 text-primary-foreground" />
             </button>
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-black text-foreground leading-tight tracking-tight">
+            <h1 className="text-xl font-semibold text-foreground leading-tight tracking-tight">
               {ownerProfile?.business_name || 'Set up your business'}
             </h1>
-            <p className="text-sm font-medium text-muted-foreground mt-0.5">{user?.email}</p>
+            <p className="text-sm font-normal text-muted-foreground mt-0.5">{user?.email}</p>
           </div>
         </motion.div>
 
         {/* Quick Stats Grid */}
         <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-[var(--color-brand-accent-2)]' },
-            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-400' },
-            { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-400' },
+            { label: 'Liked', value: stats?.likedClientsCount ?? 0, icon: Flame, color: 'text-primary/70' },
+            { label: 'Interested', value: stats?.interestedClientsCount ?? 0, icon: ThumbsUp, color: 'text-amber-500/70' },
+            { label: 'Listings', value: stats?.activeProperties ?? 0, icon: Building2, color: 'text-blue-500/70' },
           ].map((stat, i) => (
             <div
               key={i}
               className={cn(
-                "rounded-2xl p-4 text-center border",
+                "rounded-xl p-4 text-center border",
                 isLight
-                  ? "bg-card border-border/40 shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.06]"
+                  ? "bg-card border-border/30 shadow-sm"
+                  : "bg-white/[0.03] border-white/[0.06]"
               )}
             >
-              <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
-              <div className="text-lg font-black text-foreground leading-none mb-1">{stat.value}</div>
-              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+              <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
+              <div className="text-lg font-semibold text-foreground leading-none mb-1">{stat.value}</div>
+              <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </motion.div>
@@ -145,12 +144,12 @@ const OwnerProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
-              <Flame className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
+              <Flame className="w-5 h-5 text-primary/70" />
             </div>
             <div>
-              <div className="text-sm font-black text-foreground">Your Likes</div>
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+              <div className="text-sm font-medium text-foreground">Your Likes</div>
+              <div className="text-[11px] font-normal text-muted-foreground mt-0.5">
                 {stats?.likedClientsCount ?? 0} Clients
               </div>
             </div>
@@ -166,12 +165,12 @@ const OwnerProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
-              <ThumbsUp className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10">
+              <ThumbsUp className="w-5 h-5 text-amber-500/70" />
             </div>
             <div>
-              <div className="text-sm font-black text-foreground">Who Liked You</div>
-              <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+              <div className="text-sm font-medium text-foreground">Who Liked You</div>
+              <div className="text-[11px] font-normal text-muted-foreground mt-0.5">
                 {stats?.interestedClientsCount ?? 0} Interested
               </div>
             </div>
@@ -185,7 +184,7 @@ const OwnerProfileNew = () => {
 
         {/* Recent Activity */}
         <motion.div variants={childVariant}>
-          <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 mb-4 px-1">
+          <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
             Recent Activity
           </h3>
           <MyHubActivityFeed />

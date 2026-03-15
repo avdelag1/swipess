@@ -88,7 +88,7 @@ const ClientProfileNew = () => {
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>
           <div className="relative">
-            <div className="w-[88px] h-[88px] rounded-full p-[3px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}>
+            <div className="w-[84px] h-[84px] rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-2))' }}>
               <div
                 className="w-full h-full rounded-full bg-background overflow-hidden cursor-pointer flex items-center justify-center"
                 onClick={() => { haptics.tap(); if (profile?.profile_images?.length) { handlePhotoClick(0); } else { setShowEditDialog(true); } }}
@@ -96,7 +96,7 @@ const ClientProfileNew = () => {
                 {profile?.profile_images?.[0] ? (
                   <img src={profile.profile_images[0]} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-10 h-10 text-muted-foreground" />
+                  <User className="w-9 h-9 text-muted-foreground/40" />
                 )}
               </div>
             </div>
@@ -104,39 +104,38 @@ const ClientProfileNew = () => {
               onClick={() => { haptics.tap(); setShowEditDialog(true); }}
               aria-label="Edit Profile"
               title="Edit Profile"
-              className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-90"
-              style={{ background: 'linear-gradient(135deg, var(--color-brand-accent-2), #F5DEB3)' }}
+              className="absolute -bottom-0.5 -right-0.5 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-transform active:scale-90 bg-primary"
             >
-              <Camera className="w-3.5 h-3.5 text-white" />
+              <Camera className="w-3.5 h-3.5 text-primary-foreground" />
             </button>
           </div>
           <div className="flex-1">
-            <h1 className="text-2xl font-black text-foreground leading-tight tracking-tight">
+            <h1 className="text-xl font-semibold text-foreground leading-tight tracking-tight">
               {profile?.name || 'Set up your profile'}
             </h1>
-            <p className="text-sm font-medium text-muted-foreground mt-0.5">{user?.email}</p>
+            <p className="text-sm font-normal text-muted-foreground mt-0.5">{user?.email}</p>
           </div>
         </motion.div>
 
         {/* Quick Stats Grid */}
         <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-[var(--color-brand-accent-2)]' },
-            { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-400' },
-            { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-400' },
+            { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-primary/70' },
+            { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-500/70' },
+            { label: 'Chats', value: stats?.activeChats ?? 0, icon: MessageSquare, color: 'text-blue-500/70' },
           ].map((stat, i) => (
             <div
               key={i}
               className={cn(
-                "rounded-2xl p-4 text-center border",
+                "rounded-xl p-4 text-center border",
                 isLight
-                  ? "bg-card border-border/40 shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.06]"
+                  ? "bg-card border-border/30 shadow-sm"
+                  : "bg-white/[0.03] border-white/[0.06]"
               )}
             >
-              <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
-              <div className="text-lg font-black text-foreground leading-none mb-1">{stat.value}</div>
-              <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{stat.label}</div>
+              <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
+              <div className="text-lg font-semibold text-foreground leading-none mb-1">{stat.value}</div>
+              <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
         </motion.div>
@@ -168,14 +167,14 @@ const ClientProfileNew = () => {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
-                  <span className="text-sm font-black uppercase tracking-widest text-foreground">Completion</span>
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">Profile completion</span>
                 </div>
-                <span className="text-sm font-black" style={{ color: 'var(--color-brand-accent-2)' }}>{completionPercent}%</span>
+                <span className="text-sm font-semibold text-primary">{completionPercent}%</span>
               </div>
               <Progress value={completionPercent} className="h-2 rounded-full" />
-              <p className="text-xs font-bold text-muted-foreground mt-3 leading-relaxed">
-                Complete profiles get 3x more interest! Tap to finish.
+              <p className="text-xs font-normal text-muted-foreground mt-3 leading-relaxed">
+                Complete profiles get 3x more interest. Tap to finish.
               </p>
             </div>
           </motion.div>
@@ -193,12 +192,12 @@ const ClientProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
-              <Flame className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10">
+              <Flame className="w-5 h-5 text-primary/70" />
             </div>
             <div>
-              <div className="text-sm font-black tracking-tight text-foreground">Your Likes</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest mt-0.5 text-muted-foreground">Properties</div>
+              <div className="text-sm font-medium text-foreground">Your Likes</div>
+              <div className="text-[11px] font-normal mt-0.5 text-muted-foreground">Properties</div>
             </div>
           </motion.button>
 
@@ -212,12 +211,12 @@ const ClientProfileNew = () => {
                 : "bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.06]"
             )}
           >
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br from-[var(--color-brand-accent-2)]/20 to-[var(--color-brand-accent-2)]/5 border border-[var(--color-brand-accent-2)]/20">
-              <ThumbsUp className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10">
+              <ThumbsUp className="w-5 h-5 text-amber-500/70" />
             </div>
             <div>
-              <div className="text-sm font-black tracking-tight text-foreground">Who Liked You</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest mt-0.5 text-muted-foreground">Interested</div>
+              <div className="text-sm font-medium text-foreground">Who Liked You</div>
+              <div className="text-[11px] font-normal mt-0.5 text-muted-foreground">Interested</div>
             </div>
           </motion.button>
         </motion.div>
@@ -228,8 +227,8 @@ const ClientProfileNew = () => {
             "rounded-2xl p-6 border",
             isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
           )}>
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">About You</h3>
-            <p className="text-sm font-bold text-foreground leading-relaxed italic opacity-90">"{profile.bio}"</p>
+            <h3 className="text-xs font-medium text-muted-foreground mb-3">About you</h3>
+            <p className="text-sm font-normal text-foreground leading-relaxed">"{profile.bio}"</p>
           </motion.div>
         )}
 
@@ -239,17 +238,17 @@ const ClientProfileNew = () => {
             "rounded-2xl p-6 border",
             isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
           )}>
-            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-4">Interests</h3>
+            <h3 className="text-xs font-medium text-muted-foreground mb-3">Interests</h3>
             <div className="flex flex-wrap gap-2">
               {profile.interests.map((interest) => (
                 <span
                   key={interest}
-                  className="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
-                  style={{
-                    background: isLight ? 'rgba(228,0,124,0.08)' : 'rgba(228,0,124,0.15)',
-                    color: isLight ? 'var(--color-brand-accent-2)' : 'white',
-                    border: '1px solid rgba(228,0,124,0.2)'
-                  }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all",
+                    isLight
+                      ? "bg-muted/60 text-foreground/80 border border-border/30"
+                      : "bg-white/[0.06] text-foreground/80 border border-white/[0.08]"
+                  )}
                 >
                   {interest}
                 </span>
@@ -265,7 +264,7 @@ const ClientProfileNew = () => {
 
         {/* Recent Activity */}
         <motion.div variants={childVariant}>
-          <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground/80 mb-4 px-1">
+          <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
             Recent Activity
           </h3>
           <MyHubActivityFeed />

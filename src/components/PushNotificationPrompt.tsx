@@ -55,21 +55,21 @@ export function PushNotificationPrompt() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="max-w-md p-0 overflow-hidden">
-        {/* Header with gradient */}
-        <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-background p-6 pb-4">
+        {/* Header */}
+        <div className="bg-background p-6 pb-4">
           <DialogHeader className="space-y-3">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-              className="mx-auto p-4 rounded-full bg-primary/10 border border-primary/20"
+              className="mx-auto p-3.5 rounded-2xl bg-primary/8"
             >
-              <BellRing className="w-8 h-8 text-primary" />
+              <BellRing className="w-7 h-7 text-primary" />
             </motion.div>
-            <DialogTitle className="text-center text-xl font-bold">
-              Stay in the Loop!
+            <DialogTitle className="text-center text-lg font-semibold">
+              Stay in the Loop
             </DialogTitle>
-            <DialogDescription className="text-center text-muted-foreground">
+            <DialogDescription className="text-center text-muted-foreground font-normal text-sm">
               Enable notifications to never miss important updates
             </DialogDescription>
           </DialogHeader>
