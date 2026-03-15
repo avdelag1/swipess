@@ -60,7 +60,7 @@ export function MyHubProfileHeader() {
                             <div className="absolute inset-0 bg-gradient-to-tr from-brand-accent-2 to-brand-primary rounded-full animate-spin-slow opacity-20" />
                             <Avatar className="h-20 w-20 border-2 border-border ring-4 ring-background">
                                 <AvatarImage src={profile.avatar} className="object-cover" />
-                                <AvatarFallback className="bg-primary/10 text-primary font-black text-xl">
+                                <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
                                     {profile.name[0]?.toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>

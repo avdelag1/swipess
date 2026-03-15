@@ -94,7 +94,6 @@ export function BottomNavigation({
     { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
     { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
     { id: 'filter', icon: Search, label: 'Filters', path: '/client/filters' },
   ];
 
@@ -102,10 +101,8 @@ export function BottomNavigation({
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/owner/dashboard' },
     { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
-    { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
-    { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
+    { id: 'liked', icon: Users, label: 'Liked', path: '/owner/liked-clients' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
     { id: 'filter', icon: Filter, label: 'Filters', path: '/owner/filters' },
   ];
 

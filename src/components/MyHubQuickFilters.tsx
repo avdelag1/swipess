@@ -94,7 +94,7 @@ export function MyHubQuickFilters() {
                 {/* All / Search Placeholder */}
                 <button className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-muted/20 border-[1.5px] border-dashed border-border text-muted-foreground hover:bg-muted/40 transition-all">
                     <Search className="w-6 h-6 mb-2 opacity-50" />
-                    <span className="text-[10px] font-black uppercase opacity-60">More</span>
+                    <span className="text-[10px] font-semibold uppercase opacity-60">More</span>
                 </button>
             </div>
 
