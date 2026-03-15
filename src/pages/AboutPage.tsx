@@ -39,7 +39,7 @@ export default function AboutPage() {
       description: "Browse through curated listings that match your preferences, budget, and location needs."
     },
     {
-      icon: Heart,
+      icon: ThumbsUp,
       title: "Simple & Fun",
       description: "Swipe through properties like you're choosing your next favorite place. Finding a home should be enjoyable!"
     },
