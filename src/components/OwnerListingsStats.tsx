@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Home, Eye, DollarSign, Activity, TrendingUp, Bike, CircleDot, Car } from 'lucide-react';
+import { Home, Eye, DollarSign, Activity, TrendingUp, Bike, Car } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -75,7 +76,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
   // Category breakdown for mini-chart
   const categoryBreakdown = [
     { name: 'Properties', count: propertiesCount, icon: Home, color: 'bg-emerald-500' },
-    { name: 'Motorcycles', count: motorcyclesCount, icon: CircleDot, color: 'bg-orange-500' },
+    { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: 'bg-orange-500' },
     { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: 'bg-purple-500' },
     { name: 'Services', count: workersCount, icon: Activity, color: 'bg-blue-500' },
     { name: 'Vehicles', count: vehiclesCount, icon: Car, color: 'bg-yellow-500' },

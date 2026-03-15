@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
-import { Upload, X, Bike, CircleDot, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { Upload, X, Bike, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CategorySelector, Category, Mode } from './CategorySelector';
@@ -443,7 +444,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                     : 'text-purple-500 bg-purple-500/10'
                 )}>
                   {selectedCategory === 'motorcycle' ? (
-                    <CircleDot className="w-8 h-8" />
+                    <MotorcycleIcon className="w-8 h-8" />
                   ) : (
                     <Bike className="w-8 h-8" />
                   )}

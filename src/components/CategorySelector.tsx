@@ -1,4 +1,5 @@
-import { Bike, Home, CircleDot, Briefcase } from 'lucide-react';
+import { Bike, Home, Briefcase, Key, Tag } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -43,14 +44,14 @@ export function CategorySelector({
 }: CategorySelectorProps) {
   const categories = [
     { value: 'property' as Category, label: 'Properties', icon: Home },
-    { value: 'motorcycle' as Category, label: 'Motorcycles', icon: CircleDot },
+    { value: 'motorcycle' as Category, label: 'Motorcycles', icon: MotorcycleIcon },
     { value: 'bicycle' as Category, label: 'Bicycles', icon: Bike },
     { value: 'worker' as Category, label: 'Workers', icon: Briefcase },
   ];
 
   const modes = [
-    { value: 'rent' as Mode, label: 'For Rent', emoji: '🏠' },
-    { value: 'sale' as Mode, label: 'For Sale', emoji: '💰' },
+    { value: 'rent' as Mode, label: 'For Rent', icon: Key },
+    { value: 'sale' as Mode, label: 'For Sale', icon: Tag },
   ];
 
   const handleModeToggle = (clicked: 'rent' | 'sale') => {
@@ -97,24 +98,24 @@ export function CategorySelector({
 
       {/* Mode Toggle */}
       <div className="flex gap-2">
-        {modes.map(({ value, label, emoji }) => {
+        {modes.map(({ value, label, icon: ModeIcon }) => {
           const active = isModeActive(value as 'rent' | 'sale');
           return (
             <motion.button
               key={value}
               type="button"
               onClick={() => handleModeToggle(value as 'rent' | 'sale')}
-              whileTap={{ scale: 0.94 }}
-              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               transition={springTap}
               className={cn(
-                "px-4 py-2.5 rounded-full text-sm font-semibold transition-all border cursor-pointer",
+                "flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border cursor-pointer",
                 active
-                  ? 'bg-primary text-primary-foreground border-primary/50 shadow-lg shadow-primary/20'
-                  : 'bg-white/[0.04] text-muted-foreground border-white/[0.08] hover:border-primary/40 hover:text-foreground hover:bg-white/[0.07]'
+                  ? 'bg-primary text-primary-foreground border-primary/50'
+                  : 'bg-card text-muted-foreground border-border/60 hover:border-border hover:text-foreground'
               )}
             >
-              {emoji} {label}
+              <ModeIcon className="w-4 h-4" />
+              {label}
             </motion.button>
           );
         })}
