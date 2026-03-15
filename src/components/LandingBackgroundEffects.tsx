@@ -187,7 +187,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.y = e.clientY;
 
       // Play exactly ONE sound per tap, based on mode (preloaded for zero latency)
-      if (!disableSounds) {
+      if (!disableSoundsRef.current) {
         if (mode === 'stars' || mode === 'orbs' || mode === 'sunset') {
           playRandomZen(0.3);
         } else if (mode === 'cheetah') {
