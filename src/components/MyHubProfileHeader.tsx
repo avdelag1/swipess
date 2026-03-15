@@ -76,7 +76,7 @@ export function MyHubProfileHeader() {
                                 <h2 className="text-xl font-bold text-foreground truncate">
                                     {profile.name}
                                 </h2>
-                                <Badge className="bg-brand-accent-2/20 text-brand-accent-2 border-none hover:bg-brand-accent-2/30 px-2 py-0 h-5 text-[10px] font-black uppercase">
+                                <Badge className="bg-brand-accent-2/20 text-brand-accent-2 border-none hover:bg-brand-accent-2/30 px-2 py-0 h-5 text-[10px] font-semibold uppercase">
                                     Verified
                                 </Badge>
                             </div>
