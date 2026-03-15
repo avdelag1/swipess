@@ -29,7 +29,7 @@ interface Message {
 const dialogMotion = {
   hidden: { opacity: 0, y: 60, scale: 0.92 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 380, damping: 30, mass: 0.8 } },
-  exit: { opacity: 0, y: 40, scale: 0.95, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] as number[] } },
+  exit: { opacity: 0, y: 40, scale: 0.95, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] as [number, number, number, number] } },
 };
 
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
