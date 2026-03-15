@@ -76,22 +76,21 @@ html.pwa-mode .animate-out {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* FIX #2: GPU Acceleration - Force hardware acceleration on key elements */
-.filter-button,
-.quick-filter-button,
-.bottom-nav-button,
-[data-radix-dialog-content],
+/* FIX #2: GPU Acceleration - Force hardware acceleration on key elements
+   PERF: Removed permanent will-change (wastes VRAM on low-end devices).
+   Use transform: translateZ(0) only where needed for compositing. */
 .swipe-card,
 .modal-overlay {
-    /* Force GPU layer promotion */
     transform: translateZ(0);
-    will-change: transform;
-    /* Prevent subpixel rendering artifacts */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    /* Smooth font rendering on retina */
     -webkit-font-smoothing: antialiased;
-    -webkit-font-smoothing: grayscale;
+}
+
+/* Dialogs only need GPU promotion while open */
+[data-radix-dialog-content] {
+    transform: translateZ(0);
+    contain: layout style paint;
 }
 
 /* FIX #3: Reduce Layout Thrashing - Prevent unnecessary reflows */
@@ -180,16 +179,21 @@ button:disabled,
 /* FIX #9: Optimize Animations for Mobile */
 @media (max-width: 767px) {
 
-    /* Faster animations on mobile for snappier feel */
-    * {
-        animation-duration: 0.2s !important;
-        transition-duration: 0.15s !important;
+    /* PERF: Only speed up CSS-driven animations on mobile, not framer-motion.
+       The old `*` selector broke spring physics and made transitions feel janky.
+       Target specific CSS animation classes instead. */
+    .view-enter-premium,
+    .stagger-enter > *,
+    .prism-transition-in,
+    .prism-transition-out,
+    .modal-enter-premium {
+        animation-duration: 0.25s !important;
     }
 
-    /* Disable complex animations during scroll */
-    .scrolling * {
-        animation: none !important;
-        transition: none !important;
+    /* Disable complex animations during active scroll for jank-free scrolling */
+    .scrolling .liquid-glass-highlight--animated,
+    .scrolling .gradient-animated {
+        animation-play-state: paused !important;
     }
 }
 
@@ -224,19 +228,14 @@ button:active,
 .advanced-filters {
     /* Isolate rendering context */
     isolation: isolate;
-    /* Force compositing layer */
-    will-change: transform, opacity;
-    /* Optimize paint */
+    /* Optimize paint — will-change removed (only useful during active animation) */
     contain: layout style paint;
 }
 
-/* FIX #14: Optimize List Rendering (for future virtualization) */
+/* FIX #14: Optimize List Rendering */
 .filter-list,
 .category-list {
-    /* Prepare for virtualization */
     contain: layout style;
-    /* Hint browser about changes */
-    will-change: contents;
 }
 
 /* FIX #15: Critical Touch Interaction Rules */
@@ -253,10 +252,8 @@ button:active,
 /* FIX #16: Optimize Filter Badge Rendering */
 .filter-badge,
 .active-filter-count {
-    /* Prevent badge from triggering repaints */
     position: absolute;
     contain: layout paint;
-    will-change: transform, opacity;
 }
 
 /* ===== PREMIUM MICRO-INTERACTIONS ===== */

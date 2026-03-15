@@ -197,6 +197,7 @@
 .gradient-animated {
   background-size: 200% 200%;
   animation: gradient-shift 8s ease-in-out infinite;
+  will-change: auto;
 }
 
 
@@ -551,7 +552,13 @@
       transparent 58%);
   background-size: 220% 220%, 100% 100%;
   animation: liquid-flow 11s ease-in-out infinite;
-  will-change: background-position, opacity;
+  /* PERF: Only promote to GPU layer when actively animating */
+  will-change: auto;
+}
+
+/* Pause animation when nav is hidden (off-screen = no GPU cost) */
+.nav-hidden .liquid-glass-highlight--animated {
+  animation-play-state: paused;
 }
 
 .light .liquid-glass-highlight--animated {

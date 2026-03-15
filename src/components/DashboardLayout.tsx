@@ -138,14 +138,22 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
-  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects
+  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   useEffect(() => {
+    let rafId = 0;
     const handleMouseMove = (e: MouseEvent) => {
-      document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
-      document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+      if (rafId) return; // skip if a frame is already queued
+      rafId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+        document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+        rafId = 0;
+      });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
