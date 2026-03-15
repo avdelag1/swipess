@@ -1,46 +1,86 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+## Plan: Professional Polish Pass — Make the App Look "Wow"
 
-### 1. Replace App Icon with Fire S Logo
+After a deep audit of the codebase, here are the areas that will have the highest visual impact when improved. This is broken into focused, high-ROI changes.
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+---
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+### Problem Areas Identified
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+1. **Inconsistent typography** — Font weights and sizes vary randomly across components. No unified type scale is enforced. Some labels use `text-[10px] font-black uppercase`, others use `text-xs font-bold`, creating a chaotic feel.
 
-### 2. Profile Photo Already Shows in Top-Left
+2. **ThemeToggle too small and hidden** — The toggle is `h-7 w-7` (28px), smaller than the other header buttons (`h-9 w-9`). Easy to miss. No visual distinction.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+3. **Bottom nav has too many items (6-7)** — Client nav has 6 items, owner has 7. This crams the bar and makes icons tiny. Premium apps like Tinder/Bumble use 4-5 max.
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+4. **Swipe action buttons are "phantom" (invisible backgrounds)** — The like/dislike/share buttons float with no container, making them feel disconnected and amateur on light backgrounds.
 
-### 3. Fix Header Too Close to Top Edge
+5. **Gradient masks create haze on light theme** — The `GradientMaskTop`, `GradientMaskBottom`, and `GlobalVignette` layers add unnecessary white fog over the light theme, making it look washed out.
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+6. **Star canvas still renders on light theme** — The `VisualEngine` draws semi-transparent dots on light mode, which looks odd on a clean white background.
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+7. **500+ instances of `bg-black` hardcoded** — Many overlays, modals, and badges use `bg-black/XX` which doesn't adapt. Some are contextually fine (image overlays), but many dialogs and containers should use semantic tokens.
 
-### 4. Fix MarketingSlide Build Error
+---
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+### Changes (Priority Order)
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+#### 1. Make ThemeToggle prominent and properly sized
+**`src/components/ThemeToggle.tsx`**
+- Increase size from `h-7 w-7` to `h-9 w-9` (matching other TopBar buttons)
+- Add matching `rounded-xl` to be consistent with TopBar icon style
+- Use `liquid-glass-card` styling like other TopBar buttons
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+#### 2. Reduce bottom nav to 5 items max
+**`src/components/BottomNavigation.tsx`**
+- **Client**: Remove "AI Search" (keep it accessible via TopBar or elsewhere) → 5 items: Explore, Profile, Likes, Messages, Filters
+- **Owner**: Remove "AI Search" and merge "Listings" into Dashboard → 5 items: Dashboard, Profile, Liked Clients, Messages, Filters
+- Increase icon size slightly and add more breathing room
+
+#### 3. Give swipe action buttons subtle glass containers
+**`src/components/SwipeActionButtonBar.tsx`**
+- Add a subtle frosted pill container behind the 5 action buttons (matching the bottom nav glass treatment)
+- This grounds the buttons visually and makes them feel intentional
+
+#### 4. Disable VisualEngine effects on light theme
+**`src/visual/VisualEngine.tsx`**
+- Skip rendering the star canvas entirely when `isLight` is true
+- Clean white background = professional. Twinkling dots on white = odd.
+
+#### 5. Reduce gradient mask intensity on light theme
+**`src/components/AppLayout.tsx`**
+- Lower light-mode vignette intensity from `0.4` → `0.15`
+- Lower light-mode gradient mask intensities from `0.5` → `0.2`
+- This removes the washed-out haze effect
+
+#### 6. Standardize typography scale
+**`src/index.css`** — Add a utility layer for consistent type classes:
+- Section labels: `text-xs font-semibold uppercase tracking-wider text-muted-foreground`
+- Card titles: `text-lg font-bold text-foreground`  
+- Body text: `text-sm text-muted-foreground`
+- Reduce the overuse of `font-black` (too heavy for most contexts — reserve for headlines only)
+
+Key files to update typography: `MyHubQuickFilters.tsx`, `MyHubProfileHeader.tsx`, `MyHubActivityFeed.tsx`
+
+#### 7. Fix key dark-hardcoded containers
+**Priority files** (dialogs/sheets that look broken in light mode):
+- `QuickFilterDropdown.tsx` — already has `isDark` ternaries, mostly fine
+- `PropertyManagement.tsx` — `bg-black/70` price badges on cards (contextually OK, skip)
+- `MessageActivationPackages.tsx` — verify `isDark` ternaries work correctly
+- `ModeSwitcher.tsx` — already theme-aware, OK
+
+---
+
+### Files to Edit (7 files)
+
+| File | Change |
+|------|--------|
+| `ThemeToggle.tsx` | Increase size to h-9 w-9, match TopBar style |
+| `BottomNavigation.tsx` | Reduce to 5 nav items per role |
+| `SwipeActionButtonBar.tsx` | Add subtle glass container behind buttons |
+| `VisualEngine.tsx` | Skip star canvas on light theme |
+| `AppLayout.tsx` | Reduce gradient mask intensity for light |
+| `MyHubQuickFilters.tsx` | Standardize typography (reduce font-black) |
+| `MyHubProfileHeader.tsx` | Standardize typography |
 
