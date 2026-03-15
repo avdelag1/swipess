@@ -94,8 +94,8 @@ export function MyHubProfileHeader() {
 
                             {/* Progress Bar */}
                             <div className="space-y-1.5">
-                                <div className="flex justify-between text-[10px] uppercase font-black tracking-wider">
-                                    <span className="text-muted-foreground">Listing Completion</span>
+                                <div className="flex justify-between text-[10px] uppercase font-semibold tracking-wider">
+                                    <span className="text-muted-foreground">Profile Completion</span>
                                     <span className="text-brand-accent-2">{profile.completion}%</span>
                                 </div>
                                 <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
