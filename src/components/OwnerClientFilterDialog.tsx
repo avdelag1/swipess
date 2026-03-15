@@ -19,15 +19,15 @@ interface OwnerClientFilterDialogProps {
 }
 
 const LISTING_TYPE_OPTIONS = [
-  { value: 'property', label: 'Properties', emoji: '🏠' },
-  { value: 'motorcycle', label: 'Motorcycles', emoji: '🏍️' },
-  { value: 'bicycle', label: 'Bicycles', emoji: '🚴' },
-  { value: 'services', label: 'Services', emoji: '🛠️' },
+  { value: 'property', label: 'Properties', emoji: '' },
+  { value: 'motorcycle', label: 'Motorcycles', emoji: '' },
+  { value: 'bicycle', label: 'Bicycles', emoji: '' },
+  { value: 'services', label: 'Services', emoji: '' },
 ];
 
 const CLIENT_TYPE_OPTIONS = [
-  { value: 'tenant', label: 'Tenants', emoji: '🏠' },
-  { value: 'buyer', label: 'Buyers', emoji: '💰' },
+  { value: 'tenant', label: 'Tenants', emoji: '' },
+  { value: 'buyer', label: 'Buyers', emoji: '' },
 ];
 
 import {

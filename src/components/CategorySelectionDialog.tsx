@@ -2,7 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Zap } from "lucide-react";
+import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Zap, Key, Tag, Repeat } from "lucide-react";
+import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
@@ -34,58 +35,58 @@ const categories: Category[] = [
     id: 'property',
     name: 'Property',
     description: 'Apartments, houses, condos, villas',
-    icon: <Building2 className="w-7 h-7" />,
-    gradient: 'from-emerald-500/25 via-emerald-500/8 to-transparent',
-    iconColor: 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/20',
-    glowColor: 'hover:shadow-emerald-500/15',
+    icon: <Building2 className="w-6 h-6" />,
+    gradient: 'from-emerald-500/10 to-transparent',
+    iconColor: 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/15',
+    glowColor: 'hover:border-emerald-300 dark:hover:border-emerald-500/30',
     popular: true,
   },
   {
     id: 'motorcycle',
     name: 'Motorcycle',
     description: 'Motorcycles, scooters, ATVs',
-    icon: <span className="text-2xl">🏍️</span>,
-    gradient: 'from-orange-500/25 via-orange-500/8 to-transparent',
-    iconColor: 'text-orange-400 bg-orange-500/15 border border-orange-500/20',
-    glowColor: 'hover:shadow-orange-500/15',
+    icon: <MotorcycleIcon className="w-6 h-6" />,
+    gradient: 'from-orange-500/10 to-transparent',
+    iconColor: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-500/15',
+    glowColor: 'hover:border-orange-300 dark:hover:border-orange-500/30',
   },
   {
     id: 'bicycle',
     name: 'Bicycle',
     description: 'Bikes, e-bikes, mountain bikes',
-    icon: <Bike className="w-7 h-7" />,
-    gradient: 'from-purple-500/25 via-purple-500/8 to-transparent',
-    iconColor: 'text-purple-400 bg-purple-500/15 border border-purple-500/20',
-    glowColor: 'hover:shadow-purple-500/15',
+    icon: <Bike className="w-6 h-6" />,
+    gradient: 'from-violet-500/10 to-transparent',
+    iconColor: 'text-violet-600 bg-violet-50 dark:text-violet-400 dark:bg-violet-500/15',
+    glowColor: 'hover:border-violet-300 dark:hover:border-violet-500/30',
   },
   {
     id: 'worker',
     name: 'Jobs & Services',
     description: 'Chef, cleaner, nanny, handyman, and more',
-    icon: <Briefcase className="w-7 h-7" />,
-    gradient: 'from-amber-500/25 via-amber-500/8 to-transparent',
-    iconColor: 'text-amber-400 bg-amber-500/15 border border-amber-500/20',
-    glowColor: 'hover:shadow-amber-500/15',
+    icon: <Briefcase className="w-6 h-6" />,
+    gradient: 'from-amber-500/10 to-transparent',
+    iconColor: 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/15',
+    glowColor: 'hover:border-amber-300 dark:hover:border-amber-500/30',
   },
 ];
 
 // Category-specific mode configurations
 const getModes = (categoryId: string) => {
-  const modeMap: Record<string, { id: 'rent' | 'sale' | 'both'; label: string; emoji: string; description: string }[]> = {
+  const modeMap: Record<string, { id: 'rent' | 'sale' | 'both'; label: string; icon: React.ReactNode; description: string }[]> = {
     property: [
-      { id: 'rent', label: 'For Rent', emoji: '🏠', description: 'Monthly or short-term rental' },
-      { id: 'sale', label: 'For Sale', emoji: '💰', description: 'Property for purchase' },
-      { id: 'both', label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
+      { id: 'rent', label: 'For Rent', icon: <Key className="w-5 h-5" />, description: 'Monthly or short-term rental' },
+      { id: 'sale', label: 'For Sale', icon: <Tag className="w-5 h-5" />, description: 'Property for purchase' },
+      { id: 'both', label: 'Both Options', icon: <Repeat className="w-5 h-5" />, description: 'Rent & sale available' },
     ],
     motorcycle: [
-      { id: 'rent', label: 'For Rent', emoji: '🏍️', description: 'Daily, weekly, or monthly rental' },
-      { id: 'sale', label: 'For Sale', emoji: '💰', description: 'Motorcycle for purchase' },
-      { id: 'both', label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
+      { id: 'rent', label: 'For Rent', icon: <Key className="w-5 h-5" />, description: 'Daily, weekly, or monthly rental' },
+      { id: 'sale', label: 'For Sale', icon: <Tag className="w-5 h-5" />, description: 'Motorcycle for purchase' },
+      { id: 'both', label: 'Both Options', icon: <Repeat className="w-5 h-5" />, description: 'Rent & sale available' },
     ],
     bicycle: [
-      { id: 'rent', label: 'For Rent', emoji: '🚲', description: 'Hourly, daily, or weekly rental' },
-      { id: 'sale', label: 'For Sale', emoji: '💰', description: 'Bicycle for purchase' },
-      { id: 'both', label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
+      { id: 'rent', label: 'For Rent', icon: <Key className="w-5 h-5" />, description: 'Hourly, daily, or weekly rental' },
+      { id: 'sale', label: 'For Sale', icon: <Tag className="w-5 h-5" />, description: 'Bicycle for purchase' },
+      { id: 'both', label: 'Both Options', icon: <Repeat className="w-5 h-5" />, description: 'Rent & sale available' },
     ],
   };
   return modeMap[categoryId] || modeMap.property;
@@ -185,34 +186,28 @@ export function CategorySelectionDialog({
         "sm:!top-[50%] sm:!left-[50%] sm:!-translate-x-1/2 sm:!-translate-y-1/2 sm:!w-[calc(100%-24px)] sm:!max-w-2xl sm:!h-[85vh] sm:!max-h-[85vh] sm:!rounded-[var(--radius-xl)]",
         "flex flex-col p-0 gap-0 overflow-hidden"
       )}>
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b border-white/5 bg-gradient-to-b from-white/[0.03] to-transparent">
-          
-          {/* AI BUTTON — Shimmer gradient */}
+        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-[calc(env(safe-area-inset-top)+1rem)] sm:pt-6 pb-3 sm:pb-4 border-b border-border/40">
+
+          {/* AI BUTTON */}
           <motion.button
             onClick={handleOpenAI}
-            whileTap={{ scale: 0.96 }}
-            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.97 }}
             transition={springTap}
-            className="relative w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 text-white border-0 shadow-2xl shadow-purple-500/30 px-5 py-3.5 font-bold text-base flex items-center justify-center gap-2.5"
+            className="relative w-full mb-4 overflow-hidden rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-3.5 font-semibold text-sm flex items-center justify-center gap-2.5 shadow-lg"
           >
-            <Zap className="w-5 h-5" />
-            ✨ Generate Listing with AI
+            <Sparkles className="w-4 h-4" />
+            Generate Listing with AI
           </motion.button>
-          
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-            </div>
-            <div>
-              <DialogTitle className="text-lg sm:text-xl font-bold">
-                {step === 'category' ? 'Create New Listing' : `${selectedCategory?.name} Listing`}
-              </DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm text-muted-foreground/80">
-                {step === 'category'
-                  ? 'Select the type of listing you want to create'
-                  : 'Choose how you want to list this item'}
-              </DialogDescription>
-            </div>
+
+          <div>
+            <DialogTitle className="text-lg sm:text-xl font-semibold text-foreground">
+              {step === 'category' ? 'Create New Listing' : `${selectedCategory?.name} Listing`}
+            </DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              {step === 'category'
+                ? 'Select the type of listing you want to create'
+                : 'Choose how you want to list this item'}
+            </DialogDescription>
           </div>
         </DialogHeader>
 
@@ -230,46 +225,41 @@ export function CategorySelectionDialog({
                   {categories.map((category, index) => (
                     <motion.button
                       key={category.id}
-                      initial={{ opacity: 0, y: 20 }}
+                      initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      whileTap={{ scale: 0.96 }}
-                      whileHover={{ scale: 1.02, y: -2 }}
+                      transition={{ delay: index * 0.04 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => handleCategorySelect(category)}
                       className={cn(
-                        "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl text-left transition-all duration-300",
-                        "bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]",
-                        "hover:border-white/20 hover:bg-white/[0.07]",
-                        "shadow-lg hover:shadow-2xl",
+                        "group relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl text-left transition-all duration-200",
+                        "bg-card border border-border/60",
+                        "hover:shadow-md",
                         category.glowColor
                       )}
                     >
-                      {/* Category gradient overlay */}
-                      <div className={cn("absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br opacity-60", category.gradient)} />
-                      
                       {category.popular && (
-                        <Badge className="absolute -top-2 right-3 bg-primary text-primary-foreground text-[10px] sm:text-xs px-2.5 py-0.5 shadow-lg shadow-primary/30 z-10">
+                        <Badge className="absolute -top-2 right-3 bg-emerald-500 text-white text-[10px] px-2 py-0.5 z-10 font-medium">
                           Popular
                         </Badge>
                       )}
 
                       <div className={cn(
-                        "relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg",
+                        "relative z-10 w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
                         category.iconColor
                       )}>
                         {category.icon}
                       </div>
 
                       <div className="relative z-10 flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground text-base sm:text-lg group-hover:text-white transition-colors">
+                        <h3 className="font-semibold text-foreground text-base">
                           {category.name}
                         </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80 mt-0.5 line-clamp-1">
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                           {category.description}
                         </p>
                       </div>
 
-                      <ArrowRight className="relative z-10 w-5 h-5 text-muted-foreground/40 group-hover:text-white group-hover:translate-x-1 transition-all self-center shrink-0" />
+                      <ArrowRight className="relative z-10 w-4 h-4 text-muted-foreground/40 group-hover:translate-x-0.5 transition-transform self-center shrink-0" />
                     </motion.button>
                   ))}
                 </motion.div>
@@ -292,47 +282,46 @@ export function CategorySelectionDialog({
 
                   {selectedCategory && (
                     <div className={cn(
-                      "relative flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl mb-4 sm:mb-6 overflow-hidden",
-                      "bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]"
+                      "flex items-center gap-3 p-4 rounded-2xl mb-4 border border-border/60 bg-card"
                     )}>
-                      <div className={cn("absolute inset-0 bg-gradient-to-r opacity-60", selectedCategory.gradient)} />
-                      <div className={cn("relative z-10 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg", selectedCategory.iconColor)}>
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", selectedCategory.iconColor)}>
                         {selectedCategory.icon}
                       </div>
-                      <div className="relative z-10">
-                        <h3 className="font-bold text-foreground text-sm sm:text-base">{selectedCategory.name}</h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80">{selectedCategory.description}</p>
+                      <div>
+                        <h3 className="font-semibold text-foreground text-sm">{selectedCategory.name}</h3>
+                        <p className="text-xs text-muted-foreground">{selectedCategory.description}</p>
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-2.5 sm:space-y-3">
-                    <h4 className="text-xs sm:text-sm font-semibold text-muted-foreground/80 uppercase tracking-wider">Listing Type</h4>
+                  <div className="space-y-2.5">
+                    <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Listing Type</h4>
                     {modes.map((mode, index) => (
                       <motion.button
                         key={mode.id}
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.08 }}
-                        whileTap={{ scale: 0.96 }}
-                        whileHover={{ scale: 1.02, y: -1 }}
+                        transition={{ delay: index * 0.06 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => handleModeSelect(mode.id)}
                         className={cn(
-                          "group w-full flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl text-left transition-all duration-300",
-                          "bg-white/[0.04] backdrop-blur-xl border border-white/[0.08]",
-                          "hover:border-white/20 hover:bg-white/[0.07] hover:shadow-xl"
+                          "group w-full flex items-center gap-3 p-4 rounded-2xl text-left transition-all duration-200",
+                          "bg-card border border-border/60",
+                          "hover:border-border hover:shadow-md"
                         )}
                       >
-                        <span className="text-3xl sm:text-4xl">{mode.emoji}</span>
+                        <div className="w-10 h-10 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
+                          {mode.icon}
+                        </div>
                         <div className="flex-1">
-                          <h3 className="font-bold text-foreground text-sm sm:text-base group-hover:text-white transition-colors">
+                          <h3 className="font-semibold text-foreground text-sm">
                             {mode.label}
                           </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground/80">
+                          <p className="text-xs text-muted-foreground">
                             {mode.description}
                           </p>
                         </div>
-                        <ArrowRight className="w-5 h-5 text-muted-foreground/40 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
+                        <ArrowRight className="w-4 h-4 text-muted-foreground/40 group-hover:translate-x-0.5 transition-transform shrink-0" />
                       </motion.button>
                     ))}
                   </div>

@@ -11,10 +11,11 @@ import { ImageCarousel } from '@/components/ImageCarousel';
 import { DirectMessageDialog } from '@/components/DirectMessageDialog';
 import {
   Home, MapPin, Bed, Bath, Square, DollarSign, Lock, LogIn, UserPlus,
-  Sparkles, Anchor, Bike, Car, CircleDot, Eye, Flame, MessageSquare,
+  Sparkles, Anchor, Bike, Car, Eye, Flame, MessageSquare,
   Calendar, CheckCircle, Users, MessageCircle, Send, ArrowLeft
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { STORAGE } from '@/constants/app';
 
 // Categories that support free direct messaging
@@ -84,7 +85,7 @@ export default function PublicListingPreview() {
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'yacht': return <Anchor className="w-4 h-4" />;
-      case 'motorcycle': return <CircleDot className="w-4 h-4" />;
+      case 'motorcycle': return <MotorcycleIcon className="w-4 h-4" />;
       case 'bicycle': return <Bike className="w-4 h-4" />;
       case 'vehicle': return <Car className="w-4 h-4" />;
       default: return <Home className="w-4 h-4" />;
@@ -101,15 +102,6 @@ export default function PublicListingPreview() {
     }
   };
 
-  const getCategoryEmoji = (category: string) => {
-    switch (category) {
-      case 'yacht': return '⛵';
-      case 'motorcycle': return '🏍️';
-      case 'bicycle': return '🚴';
-      case 'vehicle': return '🚗';
-      default: return '🏠';
-    }
-  };
 
   if (isLoading) {
     return (
@@ -202,7 +194,7 @@ export default function PublicListingPreview() {
                 <ImageCarousel images={listing.images as string[]} alt={listing.title || 'Listing'} />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-muted to-secondary flex flex-col items-center justify-center gap-2">
-                  <span className="text-6xl">{getCategoryEmoji(category)}</span>
+                  <span className="text-muted-foreground">{getCategoryIcon(category)}</span>
                   <span className="text-muted-foreground">No images available</span>
                 </div>
               )}
@@ -334,7 +326,7 @@ export default function PublicListingPreview() {
                 <div className="grid grid-cols-3 gap-3">
                   {(listing as any).engine_cc && (
                     <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                      <CircleDot className="w-5 h-5 text-primary" />
+                      <MotorcycleIcon className="w-5 h-5 text-primary" />
                       <div>
                         <div className="font-semibold text-foreground">{(listing as any).engine_cc}cc</div>
                         <div className="text-xs text-muted-foreground">Engine</div>
@@ -479,7 +471,7 @@ export default function PublicListingPreview() {
           <Card className="bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30">
             <CardContent className="p-6 text-center space-y-4">
               <div className="flex justify-center gap-2">
-                <span className="text-2xl">{getCategoryEmoji(category)}</span>
+                <span className="text-primary">{getCategoryIcon(category)}</span>
                 <Sparkles className="w-6 h-6 text-primary" />
                 <CheckCircle className="w-6 h-6 text-green-500" />
               </div>

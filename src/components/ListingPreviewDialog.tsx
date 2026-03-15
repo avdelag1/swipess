@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, DollarSign, Home, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, X } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, Home, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, X, Building2, Briefcase } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ImageCarousel } from '@/components/ImageCarousel';
 import { cn } from '@/lib/utils';
 
@@ -27,13 +28,14 @@ export function ListingPreviewDialog({
   const category = listing.category || 'property';
   const mode = listing.mode || 'rent';
 
-  const getCategoryEmoji = () => {
+  const getCategoryIcon = (size = "w-4 h-4") => {
     switch (category) {
-      case 'yacht': return '⛵';
-      case 'motorcycle': return '🏍️';
-      case 'bicycle': return '🚴';
-      case 'vehicle': return '🚗';
-      default: return '🏠';
+      case 'yacht': return <Anchor className={size} />;
+      case 'motorcycle': return <MotorcycleIcon className={size} />;
+      case 'bicycle': return <Bike className={size} />;
+      case 'vehicle': return <Car className={size} />;
+      case 'worker': return <Briefcase className={size} />;
+      default: return <Building2 className={size} />;
     }
   };
 
@@ -53,8 +55,8 @@ export function ListingPreviewDialog({
         <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-2 sm:pb-3 border-b">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <DialogTitle className="text-lg sm:text-xl lg:text-2xl font-bold truncate">
-                {getCategoryEmoji()} {getCategoryLabel()} Preview
+              <DialogTitle className="text-lg sm:text-xl lg:text-2xl font-bold truncate flex items-center gap-2">
+                {getCategoryIcon()} {getCategoryLabel()} Preview
               </DialogTitle>
               <Badge variant="secondary" className="shrink-0 text-[10px] sm:text-xs">
                 {mode === 'both' ? 'Sale & Rent' :
@@ -83,8 +85,8 @@ export function ListingPreviewDialog({
             ) : (
               <div className="relative h-48 sm:h-64 lg:h-80 rounded-lg overflow-hidden bg-muted/30 flex items-center justify-center">
                 <div className="text-center space-y-2">
-                  <div className="text-4xl sm:text-5xl lg:text-6xl text-muted-foreground">
-                    {getCategoryEmoji()}
+                  <div className="text-muted-foreground">
+                    {getCategoryIcon("w-12 h-12 sm:w-16 sm:h-16")}
                   </div>
                   <p className="text-xs sm:text-sm text-muted-foreground">No images uploaded</p>
                 </div>

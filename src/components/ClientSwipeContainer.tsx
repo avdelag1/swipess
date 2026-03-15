@@ -31,7 +31,8 @@ import { cn } from '@/lib/utils';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, CircleDot, Wrench, User, Sparkles } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, Wrench, User, Sparkles } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
@@ -74,7 +75,7 @@ const ClientSwipeContainerComponent = ({
     switch (category) {
       case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', icon: <MapPin className="w-10 h-10 opacity-80" strokeWidth={3} /> };
       case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', icon: <Bike className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', icon: <CircleDot className="w-10 h-10 opacity-80" strokeWidth={3} /> };
+      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', icon: <MotorcycleIcon className="w-10 h-10 opacity-80" /> };
       case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', icon: <Wrench className="w-10 h-10 opacity-80" strokeWidth={3} /> };
       default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings', icon: <User className="w-10 h-10 opacity-80" strokeWidth={3} /> };
     }
