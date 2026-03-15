@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Home, Bike, CircleDot, ArrowRight, Sparkles, Briefcase, Zap } from "lucide-react";
+import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
@@ -34,7 +34,7 @@ const categories: Category[] = [
     id: 'property',
     name: 'Property',
     description: 'Apartments, houses, condos, villas',
-    icon: <Home className="w-7 h-7" />,
+    icon: <Building2 className="w-7 h-7" />,
     gradient: 'from-emerald-500/25 via-emerald-500/8 to-transparent',
     iconColor: 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/20',
     glowColor: 'hover:shadow-emerald-500/15',
@@ -44,7 +44,7 @@ const categories: Category[] = [
     id: 'motorcycle',
     name: 'Motorcycle',
     description: 'Motorcycles, scooters, ATVs',
-    icon: <CircleDot className="w-7 h-7" />,
+    icon: <span className="text-2xl">🏍️</span>,
     gradient: 'from-orange-500/25 via-orange-500/8 to-transparent',
     iconColor: 'text-orange-400 bg-orange-500/15 border border-orange-500/20',
     glowColor: 'hover:shadow-orange-500/15',
@@ -69,11 +69,27 @@ const categories: Category[] = [
   },
 ];
 
-const modes = [
-  { id: 'rent' as const, label: 'For Rent', emoji: '🏠', description: 'Monthly or short-term rental' },
-  { id: 'sale' as const, label: 'For Sale', emoji: '💰', description: 'One-time purchase' },
-  { id: 'both' as const, label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
-];
+// Category-specific mode configurations
+const getModes = (categoryId: string) => {
+  const modeMap: Record<string, { id: 'rent' | 'sale' | 'both'; label: string; emoji: string; description: string }[]> = {
+    property: [
+      { id: 'rent', label: 'For Rent', emoji: '🏠', description: 'Monthly or short-term rental' },
+      { id: 'sale', label: 'For Sale', emoji: '💰', description: 'Property for purchase' },
+      { id: 'both', label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
+    ],
+    motorcycle: [
+      { id: 'rent', label: 'For Rent', emoji: '🏍️', description: 'Daily, weekly, or monthly rental' },
+      { id: 'sale', label: 'For Sale', emoji: '💰', description: 'Motorcycle for purchase' },
+      { id: 'both', label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
+    ],
+    bicycle: [
+      { id: 'rent', label: 'For Rent', emoji: '🚲', description: 'Hourly, daily, or weekly rental' },
+      { id: 'sale', label: 'For Sale', emoji: '💰', description: 'Bicycle for purchase' },
+      { id: 'both', label: 'Both Options', emoji: '✨', description: 'Rent & sale available' },
+    ],
+  };
+  return modeMap[categoryId] || modeMap.property;
+};
 
 export function CategorySelectionDialog({ 
   open, 
@@ -159,6 +175,8 @@ export function CategorySelectionDialog({
       onAIOpen();
     }
   };
+
+  const modes = selectedCategory ? getModes(selectedCategory.id) : [];
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
