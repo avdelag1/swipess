@@ -58,7 +58,7 @@ export const VisualShowcase = () => {
 
           <div className="mt-6 flex gap-4 items-center">
             <IconButton>
-              <Heart className="w-5 h-5" />
+              <ThumbsUp className="w-5 h-5" />
             </IconButton>
             <IconButton size="lg">
               <Star className="w-6 h-6" />
