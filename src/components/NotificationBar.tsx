@@ -30,7 +30,7 @@ interface NotificationBarProps {
 }
 
 const typeConfigs: Record<NotificationType, { icon: any; accentColor: string; glowColor: string }> = {
-  like:                { icon: Heart,        accentColor: '#ec4899', glowColor: 'rgba(236,72,153,0.35)' },
+  like:                { icon: ThumbsUp,    accentColor: '#ec4899', glowColor: 'rgba(236,72,153,0.35)' },
   match:               { icon: SparklesIcon, accentColor: '#E4007C', glowColor: 'rgba(228,0,124,0.35)' },
   super_like:          { icon: Star,         accentColor: '#fbbf24', glowColor: 'rgba(251,191,36,0.35)' },
   message:             { icon: MessageCircle,accentColor: '#60a5fa', glowColor: 'rgba(96,165,250,0.35)' },

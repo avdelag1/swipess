@@ -70,7 +70,7 @@ export function MyHubActivityFeed() {
                                 )}>
                                     {notif.type === 'match' ? <Sparkles className="w-2.5 h-2.5 text-white" /> :
                                         notif.type === 'message' ? <MessageSquare className="w-2.5 h-2.5 text-white" /> :
-                                            <Heart className="w-2.5 h-2.5 text-white fill-white" />}
+                                            <ThumbsUp className="w-2.5 h-2.5 text-white fill-white" />}
                                 </div>
                             </div>
 

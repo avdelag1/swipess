@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   User, MapPin, DollarSign, Home, Bike, Ship, Car,
-  ExternalLink, MessageCircle, Star, Heart, TrendingUp, X
+  ExternalLink, MessageCircle, Star, ThumbsUp, TrendingUp, X
 } from 'lucide-react';
 import { ImageCarousel } from '@/components/ImageCarousel';
 
