@@ -10,6 +10,7 @@ import {
   Clock, Utensils, Smile, Star
 } from 'lucide-react';
 import { ImageCarousel } from '@/components/ImageCarousel';
+import { getSmokingLabel, getDrinkingLabel, getCleanlinessLabel, getNoiseToleranceLabel, getWorkScheduleLabel } from '@/constants/profileConstants';
 
 interface ClientProfilePreviewProps {
   mode: 'self' | 'owner-view';
@@ -236,7 +237,7 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
                   <Cigarette className="h-4 w-4 text-muted-foreground" />
                   Smoking
                 </h4>
-                <p className="text-muted-foreground">{profileData.smoking_habit}</p>
+                <p className="text-muted-foreground">{getSmokingLabel(profileData.smoking_habit)}</p>
               </div>
             )}
             {profileData.drinking_habit && (
@@ -245,7 +246,7 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
                   <Wine className="h-4 w-4 text-muted-foreground" />
                   Drinking
                 </h4>
-                <p className="text-muted-foreground">{profileData.drinking_habit}</p>
+                <p className="text-muted-foreground">{getDrinkingLabel(profileData.drinking_habit)}</p>
               </div>
             )}
             {profileData.cleanliness_level && (
@@ -254,7 +255,7 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
                   <Sparkles className="h-4 w-4 text-muted-foreground" />
                   Cleanliness
                 </h4>
-                <p className="text-muted-foreground">{profileData.cleanliness_level}</p>
+                <p className="text-muted-foreground">{getCleanlinessLabel(profileData.cleanliness_level)}</p>
               </div>
             )}
             {profileData.noise_tolerance && (
@@ -263,7 +264,7 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
                   <Volume2 className="h-4 w-4 text-muted-foreground" />
                   Noise Tolerance
                 </h4>
-                <p className="text-muted-foreground">{profileData.noise_tolerance}</p>
+                <p className="text-muted-foreground">{getNoiseToleranceLabel(profileData.noise_tolerance)}</p>
               </div>
             )}
             {profileData.work_schedule && (
@@ -272,7 +273,7 @@ export function ClientProfilePreview({ mode, clientId }: ClientProfilePreviewPro
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   Work Schedule
                 </h4>
-                <p className="text-muted-foreground">{profileData.work_schedule}</p>
+                <p className="text-muted-foreground">{getWorkScheduleLabel(profileData.work_schedule)}</p>
               </div>
             )}
           </CardContent>

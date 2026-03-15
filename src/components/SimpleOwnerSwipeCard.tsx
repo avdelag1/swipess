@@ -19,6 +19,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
+import { getWorkScheduleLabel } from '@/constants/profileConstants';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -705,7 +706,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
                 }}>
                   <Briefcase className="w-4 h-4 text-white" />
-                  <span className="text-base font-medium text-white">{profile.work_schedule}</span>
+                  <span className="text-base font-medium text-white">{getWorkScheduleLabel(profile.work_schedule)}</span>
                 </div>
               )}
             </>
@@ -729,7 +730,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
                 }}>
                   <Briefcase className="w-4 h-4 text-white" />
-                  <span className="text-base font-medium text-white">{profile.work_schedule}</span>
+                  <span className="text-base font-medium text-white">{getWorkScheduleLabel(profile.work_schedule)}</span>
                 </div>
               )}
             </>

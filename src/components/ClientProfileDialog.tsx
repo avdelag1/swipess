@@ -65,10 +65,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [hasChildren, setHasChildren] = useState<boolean>(false);
 
   // Lifestyle habit fields
-  const [smokingHabit, setSmokingHabit] = useState<string>('Non-Smoker');
-  const [drinkingHabit, setDrinkingHabit] = useState<string>('Non-Drinker');
-  const [cleanlinessLevel, setCleanlinessLevel] = useState<string>('Clean');
-  const [noiseTolerance, setNoiseTolerance] = useState<string>('Moderate');
+  const [smokingHabit, setSmokingHabit] = useState<string>('never');
+  const [drinkingHabit, setDrinkingHabit] = useState<string>('never');
+  const [cleanlinessLevel, setCleanlinessLevel] = useState<string>('medium');
+  const [noiseTolerance, setNoiseTolerance] = useState<string>('medium');
   const [workSchedule, setWorkSchedule] = useState<string>('');
 
   // Cultural and personality fields
@@ -178,10 +178,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setHasChildren((data as any).has_children ?? false);
 
     // Load lifestyle habit fields
-    setSmokingHabit((data as any).smoking_habit ?? 'Non-Smoker');
-    setDrinkingHabit((data as any).drinking_habit ?? 'Non-Drinker');
-    setCleanlinessLevel((data as any).cleanliness_level ?? 'Clean');
-    setNoiseTolerance((data as any).noise_tolerance ?? 'Moderate');
+    setSmokingHabit((data as any).smoking_habit ?? 'never');
+    setDrinkingHabit((data as any).drinking_habit ?? 'never');
+    setCleanlinessLevel((data as any).cleanliness_level ?? 'medium');
+    setNoiseTolerance((data as any).noise_tolerance ?? 'medium');
     setWorkSchedule((data as any).work_schedule ?? '');
 
     // Load cultural and personality fields
@@ -714,7 +714,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {SMOKING_HABIT_OPTIONS.map(habit => (
-                        <SelectItem key={habit} value={habit}>{habit}</SelectItem>
+                        <SelectItem key={habit.value} value={habit.value}>{habit.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -728,7 +728,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {DRINKING_HABIT_OPTIONS.map(habit => (
-                        <SelectItem key={habit} value={habit}>{habit}</SelectItem>
+                        <SelectItem key={habit.value} value={habit.value}>{habit.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -742,7 +742,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {CLEANLINESS_OPTIONS.map(level => (
-                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                        <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -756,7 +756,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {NOISE_TOLERANCE_OPTIONS.map(level => (
-                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                        <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -771,7 +771,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-white/20 text-white">
                     {WORK_SCHEDULE_OPTIONS.map(schedule => (
-                      <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
+                      <SelectItem key={schedule.value} value={schedule.value}>{schedule.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
