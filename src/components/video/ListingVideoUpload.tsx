@@ -74,7 +74,7 @@ export function ListingVideoUpload({
                         </button>
                     </div>
                     <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1.5 text-xs font-semibold text-white/90">
-                        <span className="w-2 h-2 rounded-full bg-[#E4007C] animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] animate-pulse" />
                         10s Loop
                     </div>
                 </div>
@@ -82,10 +82,10 @@ export function ListingVideoUpload({
                 <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full aspect-video sm:aspect-[4/1] rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#E4007C]/50 transition-all flex flex-col items-center justify-center gap-3 group text-white/60 hover:text-white"
+                    className="w-full aspect-video sm:aspect-[4/1] rounded-xl border border-dashed border-white/20 bg-white/5 hover:bg-white/10 hover:border-[var(--color-brand-accent-2)]/50 transition-all flex flex-col items-center justify-center gap-3 group text-white/60 hover:text-white"
                 >
                     <div className="w-12 h-12 rounded-full bg-black/40 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                        <Video className="w-5 h-5 text-[#E4007C]" />
+                        <Video className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
                     </div>
                     <div className="text-center px-4">
                         <p className="font-semibold text-sm">Upload Looping Video</p>

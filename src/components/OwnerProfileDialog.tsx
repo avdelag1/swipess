@@ -152,7 +152,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   <Label className="text-foreground text-lg sm:text-xl font-bold">📸 Business Photo</Label>
                   <p className="text-muted-foreground text-xs sm:text-sm mt-1">Add 1 photo of your business</p>
                 </div>
-                <Badge variant="secondary" className="bg-[#E4007C]/20 text-[#E4007C] border-[#E4007C]">
+                <Badge variant="secondary" className="bg-[var(--color-brand-accent-2)]/20 text-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)]">
                   {profileImages.length}/1
                 </Badge>
               </div>
@@ -177,7 +177,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="Your business name"
-                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)]"
                 />
               </div>
 
@@ -188,7 +188,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={businessLocation}
                   onChange={(e) => setBusinessLocation(e.target.value)}
                   placeholder="City, Country"
-                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)]"
                 />
               </div>
             </div>
@@ -215,13 +215,13 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                       className={cn(
                         "flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
                         isSelected
-                          ? "bg-[#E4007C]/10 border-[#E4007C]/50 shadow-lg shadow-[#E4007C]/10"
+                          ? "bg-[var(--color-brand-accent-2)]/10 border-[var(--color-brand-accent-2)]/50 shadow-lg shadow-[var(--color-brand-accent-2)]/10"
                           : "bg-muted/50 border-border hover:bg-muted hover:border-muted-foreground/20"
                       )}
                     >
                       <div className={cn(
                         "p-2 rounded-lg shrink-0",
-                        isSelected ? "bg-[#E4007C]/20 text-[#E4007C]" : "bg-muted text-muted-foreground"
+                        isSelected ? "bg-[var(--color-brand-accent-2)]/20 text-[var(--color-brand-accent-2)]" : "bg-muted text-muted-foreground"
                       )}>
                         <Icon className="w-5 h-5" />
                       </div>
@@ -230,7 +230,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                         <div className="flex items-center gap-2">
                           <span className="font-bold tracking-tight text-foreground">{option.label}</span>
                           {isSelected && (
-                            <Badge className="bg-[#E4007C] text-white text-[10px] uppercase font-black tracking-widest px-2">
+                            <Badge className="bg-[var(--color-brand-accent-2)] text-white text-[10px] uppercase font-black tracking-widest px-2">
                               <Check className="w-3 h-3 mr-1" /> Selected
                             </Badge>
                           )}
@@ -241,7 +241,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                       <div className={cn(
                         "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
                         isSelected
-                          ? "border-[#E4007C] bg-[#E4007C] text-white"
+                          ? "border-[var(--color-brand-accent-2)] bg-[var(--color-brand-accent-2)] text-white"
                           : "border-muted-foreground/30"
                       )}>
                         {isSelected && <Check className="w-3 h-3" />}
@@ -252,7 +252,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
               </div>
 
               {serviceOfferings.length === 0 && (
-                <p className="text-[#E4007C] text-sm font-bold">Select at least one service to continue</p>
+                <p className="text-[var(--color-brand-accent-2)] text-sm font-bold">Select at least one service to continue</p>
               )}
             </div>
 
@@ -268,7 +268,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="business@example.com"
-                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)]"
                 />
               </div>
 
@@ -280,7 +280,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
                   placeholder="+1 (555) 000-0000"
-                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[#E4007C]"
+                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)]"
                 />
               </div>
             </div>
@@ -299,7 +299,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             <Button
               onClick={handleSave}
               disabled={saveMutation.isPending}
-              className="flex-1 h-14 rounded-2xl bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95 disabled:opacity-50"
+              className="flex-1 h-14 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white font-black tracking-wide shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all active:scale-95 disabled:opacity-50"
             >
               {saveMutation.isPending ? 'Saving...' : 'Save Profile'}
             </Button>

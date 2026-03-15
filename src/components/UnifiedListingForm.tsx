@@ -426,7 +426,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
               <motion.div
                 variants={itemFadeScale}
-                className="flex items-center gap-4 p-5 rounded-3xl bg-zinc-900/40 backdrop-blur-xl border border-white/5 shadow-xl"
+                className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl"
               >
                 <div className={cn(
                   "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
@@ -465,7 +465,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {/* Photo Section with premium cards */}
             <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-base">
                     <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
@@ -526,7 +526,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                         whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleImageAdd}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
+                        className="aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
                       >
                         <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
                         <span className="text-xs font-semibold">Add Photo</span>
@@ -543,7 +543,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {/* Video Looper Section */}
             <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-base">
                     <span>10-Second Loop Video <span className="text-xs font-normal text-muted-foreground ml-2">(Optional)</span></span>
@@ -588,11 +588,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.06] bg-background/80 backdrop-blur-2xl">
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-border bg-background/80 backdrop-blur-2xl">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/50 px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
           </motion.button>

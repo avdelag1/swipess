@@ -137,7 +137,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
           >
             <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
-            <span className="text-xs font-black uppercase tracking-widest text-[#E4007C]">Sync</span>
+            <span className="text-xs font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>
           </button>
         </div>
 
@@ -151,7 +151,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
-                  ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
+                  ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
                   : isLight
                   ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
                   : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
@@ -165,7 +165,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
         {/* Count + drag hint */}
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_10px_#E4007C]" />
+          <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {orderedFilteredProperties.length} Saved Essentials
           </span>
@@ -213,7 +213,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
           >
             <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
-              <Flame className="w-12 h-12 text-[#E4007C]/40" />
+              <Flame className="w-12 h-12 text-[var(--color-brand-accent-2)]/40" />
             </div>
             <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">Pure Potential.</h3>
             <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
@@ -221,7 +221,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             </p>
             <button
               onClick={() => navigate("/client/dashboard")}
-              className="mt-10 px-8 py-4 rounded-2xl bg-[#E4007C] text-white text-sm font-black tracking-widest hover:bg-[#FF1493] transition-all active:scale-95 shadow-[0_10px_30px_rgba(228,0,124,0.3)]"
+              className="mt-10 px-8 py-4 rounded-2xl bg-[var(--color-brand-accent-2)] text-white text-sm font-black tracking-widest hover:bg-[#FF1493] transition-all active:scale-95 shadow-[0_10px_30px_rgba(228,0,124,0.3)]"
             >
               EXPLORE WORLD
             </button>
@@ -263,7 +263,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => propertyToDelete?.id && removeLikeMutation.mutate(propertyToDelete.id)}
-              className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
+              className="bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white rounded-xl font-black"
             >
               REMOVE
             </AlertDialogAction>

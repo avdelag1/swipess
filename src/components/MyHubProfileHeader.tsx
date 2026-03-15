@@ -60,7 +60,7 @@ export function MyHubProfileHeader() {
                             <div className="absolute inset-0 bg-gradient-to-tr from-brand-accent-2 to-brand-primary rounded-full animate-spin-slow opacity-20" />
                             <Avatar className="h-20 w-20 border-2 border-border ring-4 ring-background">
                                 <AvatarImage src={profile.avatar} className="object-cover" />
-                                <AvatarFallback className="bg-primary/10 text-primary font-bold text-xl">
+                                <AvatarFallback className="bg-primary/10 text-primary font-black text-xl">
                                     {profile.name[0]?.toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
@@ -73,10 +73,10 @@ export function MyHubProfileHeader() {
                         {/* Profile Info */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                                <h2 className="text-xl font-bold text-foreground truncate">
+                                <h2 className="text-xl font-black text-foreground truncate">
                                     {profile.name}
                                 </h2>
-                                <Badge className="bg-brand-accent-2/20 text-brand-accent-2 border-none hover:bg-brand-accent-2/30 px-2 py-0 h-5 text-[10px] font-semibold uppercase">
+                                <Badge className="bg-brand-accent-2/20 text-brand-accent-2 border-none hover:bg-brand-accent-2/30 px-2 py-0 h-5 text-[10px] font-black uppercase">
                                     Verified
                                 </Badge>
                             </div>
@@ -94,8 +94,8 @@ export function MyHubProfileHeader() {
 
                             {/* Progress Bar */}
                             <div className="space-y-1.5">
-                                <div className="flex justify-between text-[10px] uppercase font-semibold tracking-wider">
-                                    <span className="text-muted-foreground">Profile Completion</span>
+                                <div className="flex justify-between text-[10px] uppercase font-black tracking-wider">
+                                    <span className="text-muted-foreground">Listing Completion</span>
                                     <span className="text-brand-accent-2">{profile.completion}%</span>
                                 </div>
                                 <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
@@ -131,8 +131,8 @@ export function MyHubProfileHeader() {
                         ].map((stat, i) => (
                             <div key={i} className="bg-muted border border-border rounded-2xl p-3 text-center">
                                 <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
-                                <div className="text-sm font-bold text-foreground leading-none mb-1">{stat.value}</div>
-                                <div className="text-[9px] font-semibold uppercase tracking-tight text-muted-foreground leading-none">
+                                <div className="text-sm font-black text-foreground leading-none mb-1">{stat.value}</div>
+                                <div className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground leading-none">
                                     {stat.label}
                                 </div>
                             </div>

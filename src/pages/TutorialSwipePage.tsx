@@ -826,7 +826,7 @@ export default function TutorialSwipePage() {
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <Sparkles className="w-3 h-3 text-amber-400" />
-                  <p className="text-[11px] uppercase font-black tracking-widest text-[#E4007C]">Premium Network</p>
+                  <p className="text-[11px] uppercase font-black tracking-widest text-[var(--color-brand-accent-2)]">Premium Network</p>
                 </div>
               </div>
             </div>

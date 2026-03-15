@@ -29,12 +29,12 @@ export function MyHubQuickFilters() {
         <div className="relative mb-8">
             {/* Label */}
             <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">
                     Discover Categories
                 </h3>
                 <button
                     onClick={() => { haptics.tap(); setActiveCategory(null); }}
-                    className="text-[10px] font-semibold uppercase text-brand-accent-2/80 hover:text-brand-accent-2 transition-colors"
+                    className="text-[10px] font-black uppercase text-brand-accent-2/80 hover:text-brand-accent-2 transition-colors"
                 >
                     Clear All
                 </button>
@@ -82,7 +82,7 @@ export function MyHubQuickFilters() {
                             </div>
 
                             <span className={cn(
-                                "text-[10px] font-semibold uppercase tracking-tight",
+                                "text-[10px] font-black uppercase tracking-tight",
                                 isActive ? "text-foreground" : "text-muted-foreground"
                             )}>
                                 {cat.label}
@@ -94,7 +94,7 @@ export function MyHubQuickFilters() {
                 {/* All / Search Placeholder */}
                 <button className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-muted/20 border-[1.5px] border-dashed border-border text-muted-foreground hover:bg-muted/40 transition-all">
                     <Search className="w-6 h-6 mb-2 opacity-50" />
-                    <span className="text-[10px] font-semibold uppercase opacity-60">More</span>
+                    <span className="text-[10px] font-black uppercase opacity-60">More</span>
                 </button>
             </div>
 
