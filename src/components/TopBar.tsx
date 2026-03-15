@@ -189,23 +189,18 @@ function TopBarComponent({
           }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pr-2">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
           {/* Left section: Avatar + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
             {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
             {showBack && (
               <motion.button
-                whileTap={{ scale: 0.92 }}
+                whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className={cn(
-                  "flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl z-50 pointer-events-auto shadow-lg",
-                  isDark
-                    ? "bg-white/10 border border-white/20 text-white"
-                    : "bg-black/5 border border-black/10 text-foreground"
-                )}
+                className="flex-shrink-0 w-8 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-4 h-4", isDark ? "text-white" : "text-foreground")} strokeWidth={3} />
+                <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white/90" : "text-foreground/80")} strokeWidth={2.5} />
               </motion.button>
             )}
 
@@ -223,7 +218,7 @@ function TopBarComponent({
                 className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
                 aria-label="Go to profile"
               >
-                <Avatar className="h-9 w-9 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer rounded-xl">
+                <Avatar className="h-9 w-9 rounded-xl overflow-hidden cursor-pointer" style={{ border: glassBorder, boxShadow: floatingShadow }}>
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
                   <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
@@ -281,18 +276,20 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-300 ease-out",
+                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
                     "hover:scale-105 active:scale-95 group",
-                    "touch-manipulation",
-                    "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1",
-                    "liquid-glass-card refraction-edge glass-nano-texture"
+                    "touch-manipulation flex items-center gap-1 flex-shrink-0",
                   )}
+                  style={{
+                    backgroundColor: glassBg,
+                    border: glassBorder,
+                    boxShadow: floatingShadow,
+                  }}
                   onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
+                  <Zap strokeWidth={3} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-500")} />
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -416,13 +413,16 @@ function TopBarComponent({
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-9 w-9 rounded-xl transition-all duration-300 ease-out",
+                "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
                 "hover:scale-105 active:scale-95 group",
-                "group flex-shrink-0 flex items-center gap-1",
+                "flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent",
-                "liquid-glass-card refraction-edge glass-nano-texture"
               )}
+              style={{
+                backgroundColor: glassBg,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
               onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
