@@ -12,7 +12,7 @@
 import { memo, ReactNode } from 'react';
 import { 
   WifiOff, 
-  Heart, 
+  ThumbsUp, 
   CreditCard, 
   ShieldX, 
   Upload,
