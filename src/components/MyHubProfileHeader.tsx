@@ -26,7 +26,6 @@ export function MyHubProfileHeader() {
     const { data: clientProfile } = useClientProfile();
     const { data: ownerProfile } = useOwnerProfile();
 
-    // Combine data for a unified "Presentable" Profile
     const profile = {
         name: clientProfile?.name || ownerProfile?.business_name || user?.email?.split('@')[0] || 'Explorer',
         avatar: clientProfile?.profile_images?.[0] || ownerProfile?.profile_images?.[0],
@@ -53,15 +52,15 @@ export function MyHubProfileHeader() {
             {/* Dynamic Background Glow */}
             <div className="absolute -inset-1 bg-gradient-to-r from-brand-accent-2/20 to-brand-primary/20 rounded-[2rem] blur-2xl group-hover:opacity-100 transition-opacity opacity-50" />
 
-            <Card className="relative overflow-hidden border-white/5 bg-black/40 backdrop-blur-3xl rounded-[1.8rem]">
+            <Card className="relative overflow-hidden border-border bg-card/80 backdrop-blur-xl rounded-[1.8rem]">
                 <CardContent className="p-6">
                     <div className="flex items-center gap-5">
                         {/* Avatar with Status Ring */}
                         <div className="relative shrink-0">
                             <div className="absolute inset-0 bg-gradient-to-tr from-brand-accent-2 to-brand-primary rounded-full animate-spin-slow opacity-20" />
-                            <Avatar className="h-20 w-20 border-2 border-white/10 ring-4 ring-black/20">
+                            <Avatar className="h-20 w-20 border-2 border-border ring-4 ring-background">
                                 <AvatarImage src={profile.avatar} className="object-cover" />
-                                <AvatarFallback className="bg-brand-primary/10 text-brand-primary font-black text-xl">
+                                <AvatarFallback className="bg-primary/10 text-primary font-black text-xl">
                                     {profile.name[0]?.toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
@@ -74,7 +73,7 @@ export function MyHubProfileHeader() {
                         {/* Profile Info */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                                <h2 className="text-xl font-black text-white truncate">
+                                <h2 className="text-xl font-black text-foreground truncate">
                                     {profile.name}
                                 </h2>
                                 <Badge className="bg-brand-accent-2/20 text-brand-accent-2 border-none hover:bg-brand-accent-2/30 px-2 py-0 h-5 text-[10px] font-black uppercase">
@@ -96,10 +95,10 @@ export function MyHubProfileHeader() {
                             {/* Progress Bar */}
                             <div className="space-y-1.5">
                                 <div className="flex justify-between text-[10px] uppercase font-black tracking-wider">
-                                    <span className="text-muted-foreground/80">Listing Completion</span>
+                                    <span className="text-muted-foreground">Listing Completion</span>
                                     <span className="text-brand-accent-2">{profile.completion}%</span>
                                 </div>
-                                <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
                                     <motion.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${profile.completion}%` }}
@@ -113,13 +112,13 @@ export function MyHubProfileHeader() {
                         <Button
                             size="icon"
                             variant="ghost"
-                            className="h-10 w-10 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 active:scale-90 transition-all"
+                            className="h-10 w-10 rounded-2xl bg-muted border border-border hover:bg-accent active:scale-90 transition-all"
                             onClick={() => {
                                 haptics.tap();
-                                navigate('/client/profile'); // Or unified profile
+                                navigate('/client/profile');
                             }}
                         >
-                            <ChevronRight className="w-5 h-5 text-white/50" />
+                            <ChevronRight className="w-5 h-5 text-muted-foreground" />
                         </Button>
                     </div>
 
@@ -130,10 +129,10 @@ export function MyHubProfileHeader() {
                             { label: 'Activity', value: 'High', icon: Zap, color: 'text-amber-400' },
                             { label: 'Matches', value: '12', icon: Sparkles, color: 'text-brand-accent-2' },
                         ].map((stat, i) => (
-                            <div key={i} className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center">
+                            <div key={i} className="bg-muted border border-border rounded-2xl p-3 text-center">
                                 <stat.icon className={cn("w-4 h-4 mx-auto mb-1.5", stat.color)} />
-                                <div className="text-sm font-black text-white leading-none mb-1">{stat.value}</div>
-                                <div className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground/60 leading-none">
+                                <div className="text-sm font-black text-foreground leading-none mb-1">{stat.value}</div>
+                                <div className="text-[9px] font-black uppercase tracking-tighter text-muted-foreground leading-none">
                                     {stat.label}
                                 </div>
                             </div>

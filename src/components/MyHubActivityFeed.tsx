@@ -4,7 +4,6 @@ import { useNotificationSystem } from '@/hooks/useNotificationSystem';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Heart, Sparkles, ChevronRight, Clock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -15,20 +14,19 @@ export function MyHubActivityFeed() {
     const { notifications, handleNotificationClick } = useNotificationSystem();
     const navigate = useNavigate();
 
-    // Filter for most relevant 'Marketplace' notifications
     const relevantNotifs = notifications
         .filter(n => ['match', 'message', 'like'].includes(n.type))
         .slice(0, 5);
 
     if (relevantNotifs.length === 0) {
         return (
-            <Card className="border-dashed border-white/5 bg-white/[0.02] rounded-[2rem]">
+            <Card className="border-dashed border-border bg-muted/30 rounded-[2rem]">
                 <CardContent className="p-12 text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
-                        <Sparkles className="w-8 h-8 text-white/20" />
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                        <Sparkles className="w-8 h-8 text-muted-foreground/40" />
                     </div>
-                    <h4 className="text-sm font-black text-white/40 uppercase tracking-widest mb-1">No Activity Yet</h4>
-                    <p className="text-xs text-muted-foreground/60 max-w-[200px] mx-auto">
+                    <h4 className="text-sm font-black text-muted-foreground uppercase tracking-widest mb-1">No Activity Yet</h4>
+                    <p className="text-xs text-muted-foreground max-w-[200px] mx-auto">
                         Swipe to find matches and start seeing updates here.
                     </p>
                 </CardContent>
@@ -47,7 +45,7 @@ export function MyHubActivityFeed() {
                 >
                     <Card
                         className={cn(
-                            "group relative overflow-hidden border-white/5 bg-black/40 backdrop-blur-3xl rounded-[1.5rem] transition-all hover:bg-white/[0.03] active:scale-[0.98] cursor-pointer",
+                            "group relative overflow-hidden border-border bg-card/80 backdrop-blur-xl rounded-[1.5rem] transition-all hover:bg-accent active:scale-[0.98] cursor-pointer",
                             !notif.read && "border-l-4 border-l-brand-accent-2"
                         )}
                         onClick={() => {
@@ -58,16 +56,16 @@ export function MyHubActivityFeed() {
                         <CardContent className="p-4 flex items-center gap-4">
                             {/* Profile/Icon */}
                             <div className="relative shrink-0">
-                                <Avatar className="h-12 w-12 border border-white/10 ring-2 ring-black/20">
+                                <Avatar className="h-12 w-12 border border-border ring-2 ring-background">
                                     <AvatarImage src={notif.avatar} className="object-cover" />
-                                    <AvatarFallback className="bg-brand-primary/10 text-brand-primary font-black">
+                                    <AvatarFallback className="bg-primary/10 text-primary font-black">
                                         {notif.type === 'match' ? '🔥' : notif.type === 'message' ? '💬' : '❤️'}
                                     </AvatarFallback>
                                 </Avatar>
 
                                 {/* Type Badge Overlay */}
                                 <div className={cn(
-                                    "absolute -bottom-1 -right-1 p-1 rounded-full shadow-lg border border-black/50",
+                                    "absolute -bottom-1 -right-1 p-1 rounded-full shadow-lg border border-background",
                                     notif.type === 'match' ? "bg-brand-accent-2" : notif.type === 'message' ? "bg-brand-primary" : "bg-brand-accent-2"
                                 )}>
                                     {notif.type === 'match' ? <Sparkles className="w-2.5 h-2.5 text-white" /> :
@@ -79,10 +77,10 @@ export function MyHubActivityFeed() {
                             {/* Text Info */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-0.5">
-                                    <span className="text-xs font-black text-white truncate group-hover:text-brand-accent-2 transition-colors">
+                                    <span className="text-xs font-black text-foreground truncate group-hover:text-brand-accent-2 transition-colors">
                                         {notif.title}
                                     </span>
-                                    <div className="flex items-center gap-1 text-[9px] font-black uppercase text-muted-foreground/40 shrink-0">
+                                    <div className="flex items-center gap-1 text-[9px] font-black uppercase text-muted-foreground shrink-0">
                                         <Clock className="w-2.5 h-2.5" />
                                         {formatDistanceToNow(notif.timestamp, { addSuffix: true }).replace('about ', '')}
                                     </div>
@@ -93,7 +91,7 @@ export function MyHubActivityFeed() {
                             </div>
 
                             {/* Chevron */}
-                            <ChevronRight className="w-4 h-4 text-white/20 group-hover:text-white/40 transition-colors" />
+                            <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                         </CardContent>
                     </Card>
                 </motion.div>
@@ -102,7 +100,7 @@ export function MyHubActivityFeed() {
             {/* View All Button */}
             <Button
                 variant="ghost"
-                className="w-full h-12 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 transition-all hover:text-white mt-4"
+                className="w-full h-12 rounded-2xl bg-muted/30 border border-border hover:bg-accent text-[10px] font-black uppercase tracking-widest text-muted-foreground transition-all hover:text-foreground mt-4"
                 onClick={() => {
                     haptics.tap();
                     navigate('/notifications');
