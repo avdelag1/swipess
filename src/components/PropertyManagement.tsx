@@ -224,7 +224,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
     { id: 'motorcycle', label: 'Motorcycles', icon: CircleDot, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Bicycles', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
     { id: 'worker', label: 'Services', icon: Briefcase, count: listings.filter(l => l.category === 'worker' || l.category === 'services').length },
-    { id: 'liked', label: 'Likes', icon: Heart, count: listingsWithLikes.filter(l => l.likeCount > 0).length },
+    { id: 'liked', label: 'Likes', icon: ThumbsUp, count: listingsWithLikes.filter(l => l.likeCount > 0).length },
     { id: 'active', label: 'Active', icon: CheckCircle, count: listings.filter(l => l.status === 'active').length },
     { id: 'rented', label: 'Rented', icon: Home, count: listings.filter(l => l.status === 'rented').length },
   ];
