@@ -13,7 +13,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const VALID_THEMES: Theme[] = ['dark', 'light'];
-const DEFAULT_THEME: Theme = 'light';
+const DEFAULT_THEME: Theme = 'dark';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
