@@ -60,6 +60,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   const cheetahImgRef = useRef<HTMLImageElement | null>(null);
   const beachImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
+  const disableSoundsRef = useRef(disableSounds);
 
   const pointerRef = useRef({
     x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
