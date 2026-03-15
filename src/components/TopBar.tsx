@@ -408,6 +408,9 @@ function TopBarComponent({
               </PopoverContent>
             </Popover>
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Notifications Button */}
             <Button
               variant="ghost"
