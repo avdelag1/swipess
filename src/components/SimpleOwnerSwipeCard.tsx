@@ -642,6 +642,16 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </motion.div>
 
+        {/* Bottom gradient overlay for text readability against light images */}
+        <div
+          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
+          style={{
+            height: '55%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%)',
+          }}
+          aria-hidden="true"
+        />
+
         {/* Content overlay - INSIDE motion.div so it moves with the card on swipe
              Dynamic bottom positioning: scales with viewport height */}
         <div
