@@ -4,7 +4,9 @@
     "explore": "Explore",
     "messages": "Messages",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "liked": "Liked",
+    "listings": "Listings"
   },
   "actions": {
     "save": "Save",
@@ -32,6 +34,46 @@
     "close": "Close",
     "confirm": "Confirm",
     "retry": "Retry"
+  },
+  "filters": {
+    "quickFilter": "Quick Filter",
+    "categories": "categories",
+    "allCategories": "all categories",
+    "properties": "properties",
+    "motos": "motos",
+    "bikes": "bikes",
+    "services": "services",
+    "lookingTo": "looking to",
+    "all": "all",
+    "rent": "rent",
+    "buy": "buy",
+    "gender": "gender",
+    "allGenders": "all genders",
+    "women": "women",
+    "men": "men",
+    "lookingFor": "looking for",
+    "allClients": "all clients",
+    "hiring": "hiring",
+    "renting": "renting",
+    "buying": "buying",
+    "applyFilters": "apply filters",
+    "reset": "reset"
+  },
+  "topbar": {
+    "tokenPackages": "Token Packages",
+    "provider": "Provider",
+    "explorer": "Explorer",
+    "connectExplorers": "Connect with potential explorers",
+    "startConversations": "Start conversations with providers",
+    "tokens": "tokens",
+    "buy": "Buy",
+    "bestValue": "BEST VALUE",
+    "loadingPackages": "Loading packages...",
+    "viewAllPackages": "View all packages & details",
+    "redirectingPaypal": "Redirecting to PayPal",
+    "processingPackage": "Processing {{tier}} package ({{price}})",
+    "paymentUnavailable": "Payment link unavailable",
+    "contactSupport": "Please contact support to complete this purchase."
   },
   "settings": {
     "title": "Settings",
