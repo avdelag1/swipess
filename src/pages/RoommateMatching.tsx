@@ -182,7 +182,7 @@ export default function RoommateMatching() {
   return (
     <div
       className={cn(
-        "relative w-full h-[100dvh] flex flex-col overflow-hidden transition-colors duration-500",
+        "relative w-full h-full flex flex-col overflow-hidden transition-colors duration-500",
         isLight ? "bg-slate-50" : "bg-black"
       )}
     >
@@ -256,7 +256,7 @@ export default function RoommateMatching() {
       </div>
 
       {/* ── DECK AREA ── */}
-      <div className="flex-1 relative mt-[calc(var(--safe-top)+7rem)] px-3 py-4 z-40">
+      <div className="flex-1 relative mt-28 px-3 py-4 z-40">
         <div className="relative w-full h-full max-w-md mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (

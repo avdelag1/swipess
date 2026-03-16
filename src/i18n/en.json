@@ -266,7 +266,16 @@
     "clearFilters": "Clear Filters",
     "sortBy": "Sort by",
     "price": "Price",
-    "apply": "Apply"
+    "apply": "Apply",
+    "ticketInfo": "Tickets",
+    "today": "Today",
+    "searchPlaceholder": "Search events...",
+    "likedEvents": "Liked Events",
+    "noLikedEvents": "No liked events yet",
+    "freeOnly": "Free Events Only",
+    "upcomingFirst": "Upcoming First",
+    "newestAdded": "Newest Added",
+    "done": "Done"
   },
   "roommates": {
     "findYour": "Find your perfect Tulum roommate",
