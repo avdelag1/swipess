@@ -18,7 +18,7 @@ const languages = [
 ];
 
 export function LanguageToggle() {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { user } = useAuth();
   const [current, setCurrent] = useState(i18n.language);
 
@@ -42,8 +42,8 @@ export function LanguageToggle() {
           <Globe className="w-4.5 h-4.5 text-primary" />
         </div>
         <div>
-          <h4 className="text-sm font-bold text-foreground">Language</h4>
-          <p className="text-[11px] text-muted-foreground">Choose your preferred language</p>
+          <h4 className="text-sm font-bold text-foreground">{t('settings.language')}</h4>
+          <p className="text-[11px] text-muted-foreground">{t('settings.languageDesc')}</p>
         </div>
       </div>
       <div className="grid grid-cols-4 gap-2">

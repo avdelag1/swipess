@@ -4,14 +4,16 @@ import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Shield, FileText, HelpCircle, Info, ChevronRight,
-  Scale, Volume2, Radio, Building2
+  Scale, Volume2, Radio, Building2, Globe, ShieldCheck, Wrench
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AccountSecurity } from "@/components/AccountSecurity";
 import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { SwipeSoundSettings } from "@/components/SwipeSoundSettings";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 const stagger = { staggerChildren: 0.05, delayChildren: 0.02 };
@@ -34,83 +36,93 @@ type SettingsGroup = {
   items: SettingsItem[];
 };
 
-const settingsGroups: SettingsGroup[] = [
-  {
-    label: 'Account',
-    items: [
-      {
-        icon: Shield,
-        label: 'Security',
-        description: 'Password, 2FA, and account security',
-        bg: 'linear-gradient(135deg, #064e3b, #10b981)',
-        section: 'security',
-      },
-      {
-        icon: Volume2,
-        label: 'Preferences',
-        description: 'Customize sounds and app behavior',
-        bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
-        section: 'preferences',
-      },
-    ],
-  },
-  {
-    label: 'Tools',
-    items: [
-      {
-        icon: Building2,
-        label: 'Manage Listings',
-        description: 'View, edit, and create your listings',
-        bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
-        route: '/owner/properties',
-      },
-      {
-        icon: FileText,
-        label: 'Contract Management',
-        description: 'View and manage your contracts',
-        bg: 'linear-gradient(135deg, #7c2d12, #f97316)',
-        route: '/owner/contracts',
-      },
-      {
-        icon: Scale,
-        label: 'Legal Services',
-        description: 'Get legal help for property matters',
-        bg: 'linear-gradient(135deg, #312e81, #6366f1)',
-        route: '/owner/legal-services',
-      },
-    ],
-  },
-  {
-    label: 'Support',
-    items: [
-      {
-        icon: HelpCircle,
-        label: 'FAQ & Help',
-        description: 'Common questions and support',
-        bg: 'linear-gradient(135deg, #164e63, #06b6d4)',
-        route: '/faq/owner',
-      },
-      {
-        icon: Info,
-        label: 'About Swipess',
-        description: 'Learn about our platform',
-        bg: 'linear-gradient(135deg, #4c1d95, #a855f7)',
-        route: '/about',
-      },
-      {
-        icon: FileText,
-        label: 'Legal',
-        description: 'Terms of service and privacy policy',
-        bg: 'linear-gradient(135deg, #78350f, #d97706)',
-        route: '/legal',
-      },
-    ],
-  },
-];
+// settingsGroups is now built inside the component to support translations
 
 const OwnerSettingsNew = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  const settingsGroups: SettingsGroup[] = [
+    {
+      label: t('settings.security'),
+      items: [
+        {
+          icon: Shield,
+          label: t('settings.security'),
+          description: t('settings.securityDesc'),
+          bg: 'linear-gradient(135deg, #064e3b, #10b981)',
+          section: 'security',
+        },
+        {
+          icon: Globe,
+          label: t('settings.language'),
+          description: t('settings.languageDesc'),
+          bg: 'linear-gradient(135deg, #3730a3, #818cf8)',
+          section: 'language',
+        },
+        {
+          icon: Volume2,
+          label: t('settings.preferences'),
+          description: t('settings.preferencesDesc'),
+          bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+          section: 'preferences',
+        },
+      ],
+    },
+    {
+      label: t('settings.contracts'),
+      items: [
+        {
+          icon: Building2,
+          label: t('settings.about'),
+          description: 'View, edit, and create your listings',
+          bg: 'linear-gradient(135deg, #1e3a8a, #3b82f6)',
+          route: '/owner/properties',
+        },
+        {
+          icon: FileText,
+          label: t('settings.contracts'),
+          description: t('settings.contractsDesc'),
+          bg: 'linear-gradient(135deg, #7c2d12, #f97316)',
+          route: '/owner/contracts',
+        },
+        {
+          icon: Scale,
+          label: t('settings.legal'),
+          description: t('settings.legalDesc'),
+          bg: 'linear-gradient(135deg, #312e81, #6366f1)',
+          route: '/owner/legal-services',
+        },
+      ],
+    },
+    {
+      label: t('settings.faq'),
+      items: [
+        {
+          icon: HelpCircle,
+          label: t('settings.faq'),
+          description: t('settings.faqDesc'),
+          bg: 'linear-gradient(135deg, #164e63, #06b6d4)',
+          route: '/faq/owner',
+        },
+        {
+          icon: Info,
+          label: t('settings.about'),
+          description: t('settings.aboutDesc'),
+          bg: 'linear-gradient(135deg, #4c1d95, #a855f7)',
+          route: '/about',
+        },
+        {
+          icon: FileText,
+          label: t('settings.legalPage'),
+          description: t('settings.legalPageDesc'),
+          bg: 'linear-gradient(135deg, #78350f, #d97706)',
+          route: '/legal',
+        },
+      ],
+    },
+  ];
 
   if (activeSection === 'security') {
     return (
@@ -118,7 +130,7 @@ const OwnerSettingsNew = () => {
         <div className="max-w-3xl mx-auto">
 
 
-          <PageHeader title="Account Security" subtitle="Manage your password and security settings" showBack={false} />
+          <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={false} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <div className="rounded-2xl overflow-hidden bg-card border border-border">
@@ -128,11 +140,24 @@ const OwnerSettingsNew = () => {
             </div>
             <div className="space-y-3">
               <div className="space-y-1">
-                <h3 className="text-sm font-medium text-destructive">Danger Zone</h3>
-                <p className="text-xs text-muted-foreground">Irreversible actions that affect your account</p>
+                <h3 className="text-sm font-medium text-destructive">{t('settings.security')}</h3>
+                <p className="text-xs text-muted-foreground">{t('settings.securityDesc')}</p>
               </div>
               <DeleteAccountSection />
             </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (activeSection === 'language') {
+    return (
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
+        <div className="max-w-3xl mx-auto">
+          <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={false} />
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
+            <LanguageToggle />
           </motion.div>
         </div>
       </div>
@@ -145,7 +170,7 @@ const OwnerSettingsNew = () => {
         <div className="max-w-3xl mx-auto">
 
 
-          <PageHeader title="Preferences" subtitle="Customize your app experience" showBack={false} />
+          <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={false} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />
