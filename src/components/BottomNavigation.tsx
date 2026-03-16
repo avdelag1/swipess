@@ -90,12 +90,13 @@ export function BottomNavigation({
     targetSelector: '#dashboard-scroll-container',
   });
 
-  // Client nav items — 5 max for single-line labels
+  // Client nav items
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
+    { id: 'likes', icon: Heart, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 

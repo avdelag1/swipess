@@ -43,6 +43,8 @@ interface RoommateCandidate {
   compatibility: number;
 }
 
+const LOGO = '/icons/fire-s-logo.png';
+
 const MOCK_CANDIDATES: RoommateCandidate[] = [
   {
     user_id: 'mock-1',
@@ -61,7 +63,7 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     drinking_habit: 'social',
     interests: ['Yoga', 'Cooking', 'Travel', 'Photography'],
     languages: ['Spanish', 'English'],
-    profile_images: [],
+    profile_images: [LOGO],
     personality_traits: ['Creative', 'Organized', 'Quiet'],
     preferred_activities: ['Morning yoga', 'Cooking together'],
     compatibility: 94,
@@ -83,7 +85,7 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     drinking_habit: 'social',
     interests: ['Hiking', 'Coding', 'Music', 'Coffee'],
     languages: ['Italian', 'English', 'Spanish'],
-    profile_images: [],
+    profile_images: [LOGO],
     personality_traits: ['Introverted', 'Reliable', 'Active'],
     preferred_activities: ['Weekend hikes', 'Movie nights'],
     compatibility: 88,
@@ -105,7 +107,7 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     drinking_habit: 'rarely',
     interests: ['Art', 'Architecture', 'Reading', 'Cycling'],
     languages: ['French', 'English'],
-    profile_images: [],
+    profile_images: [LOGO],
     personality_traits: ['Creative', 'Focused', 'Thoughtful'],
     preferred_activities: ['Museum visits', 'Café work sessions'],
     compatibility: 85,
@@ -127,7 +129,7 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     drinking_habit: 'social',
     interests: ['Music', 'Coffee', 'Art', 'Festivals'],
     languages: ['German', 'English'],
-    profile_images: [],
+    profile_images: [LOGO],
     personality_traits: ['Creative', 'Extroverted', 'Spontaneous'],
     preferred_activities: ['Live music', 'House parties', 'Record shopping'],
     compatibility: 79,
@@ -149,7 +151,7 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     drinking_habit: 'social',
     interests: ['Design', 'Cooking', 'Plants', 'Meditation'],
     languages: ['Japanese', 'English', 'Portuguese'],
-    profile_images: [],
+    profile_images: [LOGO],
     personality_traits: ['Introverted', 'Thoughtful', 'Tidy'],
     preferred_activities: ['Dinner parties', 'Plant care', 'Morning meditation'],
     compatibility: 91,
@@ -323,7 +325,7 @@ export default function RoommateMatching() {
   return (
     <div
       className="relative w-full flex flex-col overflow-hidden"
-      style={{ minHeight: '100dvh', background: '#0a0a0b' }}
+      style={{ height: '100dvh', minHeight: '100dvh', background: '#0a0a0b' }}
     >
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
       <div
@@ -368,101 +370,10 @@ export default function RoommateMatching() {
           Me
         </div>
 
-        {/* ── Pill-shaped action button frame ──────────────────────────────── */}
-        {/* Same liquid glass treatment as the bottom navigation bar.          */}
-        {/* All 5 buttons fit together inside the pill — swipe-left / right     */}
-        {/* interaction is provided by the scrollable row when needed.          */}
-        <div
-          className="flex-1 overflow-hidden"
-          style={{
-            backgroundColor: barBg,
-            border: `1px solid ${barBorder}`,
-            borderRadius: 26,
-            boxShadow: barShadow,
-            position: 'relative',
-          }}
-        >
-          {/* Animated liquid glass highlight — same as BottomNavigation */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{
-              borderRadius: 'inherit',
-              background: `radial-gradient(ellipse 160% 50% at 15% 0%,
-                rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
-                radial-gradient(ellipse 100% 60% at 85% 100%,
-                rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)`,
-              zIndex: 1,
-            }}
-          />
-
-          {/* Scrollable buttons row — supports horizontal swipe if needed */}
-          <div
-            data-no-swipe-nav
-            className="relative flex items-center justify-around px-2"
-            style={{
-              paddingTop: 7,
-              paddingBottom: 7,
-              overflowX: 'auto',
-              scrollbarWidth: 'none',
-              WebkitOverflowScrolling: 'touch',
-              zIndex: 2,
-              gap: 4,
-            }}
-          >
-            {/* Return / Undo */}
-            <PillButton
-              onClick={handleUndo}
-              disabled={!canUndo}
-              colorKey="amber"
-              ariaLabel="Undo last swipe"
-              index={0}
-            >
-              <RotateCcw className="w-full h-full" strokeWidth={2.8} />
-            </PillButton>
-
-            {/* Dislike */}
-            <PillButton
-              onClick={handleDislike}
-              colorKey="red"
-              large
-              ariaLabel="Pass on this roommate"
-              index={1}
-            >
-              <ThumbsDown className="w-full h-full" fill="currentColor" strokeWidth={0} />
-            </PillButton>
-
-            {/* Share */}
-            <PillButton
-              onClick={() => triggerHaptic('light')}
-              colorKey="purple"
-              ariaLabel="Share profile"
-              index={2}
-            >
-              <Share2 className="w-full h-full" strokeWidth={2.8} />
-            </PillButton>
-
-            {/* Like */}
-            <PillButton
-              onClick={handleLike}
-              colorKey="orange"
-              large
-              ariaLabel="Like this roommate"
-              index={3}
-            >
-              <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
-            </PillButton>
-
-            {/* Message */}
-            <PillButton
-              onClick={() => triggerHaptic('light')}
-              colorKey="cyan"
-              ariaLabel="Send a message"
-              index={4}
-            >
-              <MessageCircle className="w-full h-full" strokeWidth={2.8} />
-            </PillButton>
-          </div>
+        {/* Page title */}
+        <div className="flex-1 flex flex-col">
+          <span className="text-sm font-black text-white tracking-tight">Roommates</span>
+          <span className="text-[10px] text-white/50 font-medium">Find your match</span>
         </div>
       </div>
 
@@ -477,7 +388,7 @@ export default function RoommateMatching() {
           </p>
         </div>
       ) : (
-        <div className="relative flex-1 w-full" style={{ minHeight: '100dvh' }}>
+        <div className="relative flex-1 w-full" style={{ minHeight: 0 }}>
           {/* Next card (behind) */}
           {nextCard && (
             <div
@@ -523,7 +434,113 @@ export default function RoommateMatching() {
         </div>
       )}
 
-      {/* SVG gradient defs (re-used by active icon gradient if needed) */}
+      {/* ── BOTTOM ACTION BUTTONS ─────────────────────────────────────────── */}
+      {topCard && (
+        <div
+          className="flex-shrink-0 flex justify-center px-3 z-40"
+          style={{
+            paddingTop: 12,
+            paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+          }}
+        >
+          <div
+            className="overflow-hidden"
+            style={{
+              backgroundColor: barBg,
+              border: `1px solid ${barBorder}`,
+              borderRadius: 26,
+              boxShadow: barShadow,
+              position: 'relative',
+              width: '100%',
+              maxWidth: 360,
+            }}
+          >
+            {/* Animated liquid glass highlight */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                borderRadius: 'inherit',
+                background: `radial-gradient(ellipse 160% 50% at 15% 0%,
+                  rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
+                  radial-gradient(ellipse 100% 60% at 85% 100%,
+                  rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)`,
+                zIndex: 1,
+              }}
+            />
+
+            {/* Buttons row */}
+            <div
+              data-no-swipe-nav
+              className="relative flex items-center justify-around px-2"
+              style={{
+                paddingTop: 8,
+                paddingBottom: 8,
+                overflowX: 'auto',
+                scrollbarWidth: 'none',
+                WebkitOverflowScrolling: 'touch',
+                zIndex: 2,
+                gap: 4,
+              }}
+            >
+              {/* Return / Undo */}
+              <PillButton
+                onClick={handleUndo}
+                disabled={!canUndo}
+                colorKey="amber"
+                ariaLabel="Undo last swipe"
+                index={0}
+              >
+                <RotateCcw className="w-full h-full" strokeWidth={2.8} />
+              </PillButton>
+
+              {/* Dislike */}
+              <PillButton
+                onClick={handleDislike}
+                colorKey="red"
+                large
+                ariaLabel="Pass on this roommate"
+                index={1}
+              >
+                <ThumbsDown className="w-full h-full" fill="currentColor" strokeWidth={0} />
+              </PillButton>
+
+              {/* Share */}
+              <PillButton
+                onClick={() => triggerHaptic('light')}
+                colorKey="purple"
+                ariaLabel="Share profile"
+                index={2}
+              >
+                <Share2 className="w-full h-full" strokeWidth={2.8} />
+              </PillButton>
+
+              {/* Like */}
+              <PillButton
+                onClick={handleLike}
+                colorKey="orange"
+                large
+                ariaLabel="Like this roommate"
+                index={3}
+              >
+                <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
+              </PillButton>
+
+              {/* Message */}
+              <PillButton
+                onClick={() => triggerHaptic('light')}
+                colorKey="cyan"
+                ariaLabel="Send a message"
+                index={4}
+              >
+                <MessageCircle className="w-full h-full" strokeWidth={2.8} />
+              </PillButton>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SVG gradient defs */}
       <svg width="0" height="0" className="absolute" aria-hidden="true">
         <defs>
           <linearGradient id="rmatch-gradient" x1="0%" y1="0%" x2="100%" y2="100%">

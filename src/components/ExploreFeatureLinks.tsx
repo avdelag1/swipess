@@ -1,15 +1,13 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PartyPopper, Users, TrendingUp, Newspaper, Video } from 'lucide-react';
+import { PartyPopper, Users, Newspaper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
 const exploreFeatures = [
-  { path: '/explore/eventos', label: 'Eventos', icon: PartyPopper, gradient: 'from-rose-500 to-orange-400', clientOnly: false },
+  { path: '/explore/eventos', label: 'Events', icon: PartyPopper, gradient: 'from-rose-500 to-orange-400', clientOnly: false },
   { path: '/explore/roommates', label: 'Roommates', icon: Users, gradient: 'from-violet-500 to-fuchsia-400', clientOnly: true },
-  { path: '/explore/prices', label: 'Prices', icon: TrendingUp, gradient: 'from-amber-500 to-yellow-400', clientOnly: false },
   { path: '/explore/intel', label: 'Intel', icon: Newspaper, gradient: 'from-sky-500 to-blue-400', clientOnly: false },
-  { path: '/explore/tours', label: 'Tours', icon: Video, gradient: 'from-rose-500 to-pink-400', clientOnly: false },
 ];
 
 interface ExploreFeatureLinksProps {
