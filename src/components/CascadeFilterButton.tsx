@@ -286,7 +286,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                                 : 'bg-muted/30 text-muted-foreground border-border/50'
                             )}
                           >
-                            {type.label}
+                            {t(`filters.${type.label === 'all' ? 'all' : type.label === 'rent' ? 'rent' : 'buy'}`)}
                           </button>
                         );
                       })}
