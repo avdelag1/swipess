@@ -17,6 +17,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
 import { haptics } from "@/utils/microPolish";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { cn } from "@/lib/utils";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
@@ -197,6 +198,11 @@ const OwnerProfileNew = () => {
             profileName={ownerProfile?.business_name || 'Your Business'}
             isClient={false}
           />
+        </motion.div>
+
+        {/* Language Selection */}
+        <motion.div variants={childVariant}>
+          <LanguageToggle />
         </motion.div>
 
         {/* Action Buttons - unified compact stack */}

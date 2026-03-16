@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/microPolish";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
 const stagger = { visible: { transition: { staggerChildren: 0.08, delayChildren: 0.15 } } };
@@ -277,6 +278,11 @@ const ClientProfileNew = () => {
             profileName={profile?.name || 'Your Profile'}
             isClient={true}
           />
+        </motion.div>
+
+        {/* Language Selection */}
+        <motion.div variants={childVariant}>
+          <LanguageToggle />
         </motion.div>
 
         {/* Action Buttons - unified compact stack */}
