@@ -261,27 +261,49 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
       let listingResult;
 
-      if (editingId) {
-        // Update existing listing
-        const { data, error } = await supabase
-          .from('listings')
-          .update(listingData as any)
-          .eq('id', editingId)
-          .select()
-          .single();
+      try {
+        if (editingId) {
+          // Update existing listing
+          const { data, error } = await supabase
+            .from('listings')
+            .update(listingData as any)
+            .eq('id', editingId)
+            .select()
+            .single();
 
-        if (error) throw error;
-        listingResult = data;
-      } else {
-        // Insert new listing
-        const { data, error } = await supabase
-          .from('listings')
-          .insert(listingData as any)
-          .select()
-          .single();
+          if (error) throw error;
+          listingResult = data;
+        } else {
+          // Insert new listing
+          const { data, error } = await supabase
+            .from('listings')
+            .insert(listingData as any)
+            .select()
+            .single();
 
-        if (error) throw error;
-        listingResult = data;
+          if (error) {
+            // SELF-HEALING: If 'location' column is missing in schema cache, retry without it
+            if (error.message?.includes('location') || error.message?.includes('schema cache')) {
+              console.warn('PostgREST schema cache error detected. Retrying without "location" column...');
+              const { location, ...safeData } = listingData;
+              const { data: fallbackData, error: fallbackError } = await supabase
+                .from('listings')
+                .insert(safeData as any)
+                .select()
+                .single();
+
+              if (fallbackError) throw fallbackError;
+              listingResult = fallbackData;
+            } else {
+              throw error;
+            }
+          } else {
+            listingResult = data;
+          }
+        }
+      } catch (err: any) {
+        console.error('Listing mutation failed:', err);
+        throw err;
       }
 
       return listingResult;
