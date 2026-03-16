@@ -23,6 +23,22 @@ import type {
 } from '@/types/filters';
 import { logger } from '@/utils/prodLogger';
 
+// Read localStorage to set initial categories on store creation
+function getInitialCategories(): QuickFilterCategory[] {
+  try {
+    const saved = localStorage.getItem('quickFilter');
+    const map: Record<string, QuickFilterCategory[]> = {
+      properties: ['property'],
+      motorcycles: ['motorcycle'],
+      bicycles: ['bicycle'],
+      workers: ['services'],
+    };
+    return map[saved ?? ''] ?? [];
+  } catch {
+    return [];
+  }
+}
+
 interface FilterState {
   // ========== CLIENT FILTERS ==========
   // Active category for client swipe deck
@@ -101,7 +117,7 @@ export const useFilterStore = create<FilterState>()(
   subscribeWithSelector((set, get) => ({
     // ========== INITIAL STATE ==========
     activeCategory: null,
-    categories: [],
+    categories: getInitialCategories(),
     listingType: 'both',
     clientGender: 'any',
     clientType: 'all',

@@ -27,11 +27,23 @@ interface QuickFilterBarProps {
 const allCategories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
-  { id: 'property', label: 'Property', icon: <Home className="w-4 h-4" /> },
-  { id: 'motorcycle', label: 'Motos', icon: <MotorcycleIcon /> },
-  { id: 'bicycle', label: 'Bikes', icon: <Bike className="w-4 h-4" /> },
-  { id: 'services', label: 'Services', icon: <Wrench className="w-4 h-4" /> },
+  { id: 'property', label: 'Properties', icon: <Home className="w-4 h-4" /> },
+  { id: 'motorcycle', label: 'Motorcycles', icon: <MotorcycleIcon /> },
+  { id: 'bicycle', label: 'Bicycles', icon: <Bike className="w-4 h-4" /> },
+  { id: 'services', label: 'Workers', icon: <Wrench className="w-4 h-4" /> },
 ];
+
+// Map category array to localStorage key
+function saveQuickFilter(cats: QuickFilterCategory[]): void {
+  const map: Record<string, string> = {
+    property: 'properties',
+    motorcycle: 'motorcycles',
+    bicycle: 'bicycles',
+    services: 'workers',
+  };
+  const value = cats.length === 1 ? (map[cats[0]] ?? 'all') : 'all';
+  try { localStorage.setItem('quickFilter', value); } catch { /* ignore */ }
+}
 
 const listingTypes: { id: QuickFilterListingType; label: string }[] = [
   { id: 'both', label: 'All Types' },
@@ -184,6 +196,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     });
   }, [filters, onChange]);
 
+  // Single-select for client quick filter bar
+  const handleCategorySelect = useCallback((categoryId: QuickFilterCategory) => {
+    const newCategories: QuickFilterCategory[] = [categoryId];
+    saveQuickFilter(newCategories);
+    onChange({ ...filters, categories: newCategories, listingType: 'both' });
+  }, [filters, onChange]);
+
   const handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
     onChange({
       ...filters,
@@ -327,97 +346,73 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   // Client Quick Filters (default)
   // "All" = no category filter active (categories.length === 0)
-  const clientIsAllSelected = filters.categories.length === 0 && filters.listingType === 'both';
+  const clientIsAllSelected = filters.categories.length === 0;
+  const activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
 
   return (
     <div
       className={cn(
         isDark ? 'bg-background/50' : 'bg-white/80',
-        'backdrop-blur-xl border-b border-border px-3 py-2',
+        'backdrop-blur-xl border-b border-border px-3 pt-2 pb-1',
         className
       )}
     >
       <div className="max-w-screen-xl mx-auto">
-        {/* Main filter row */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          {/* "All" button — first, auto-selected by default */}
-          {userRole === 'client' && (
-            <button
-              onClick={() => {
-                // Reset to "All" state: clear categories and listing type
-                onChange({ ...filters, categories: [], listingType: 'both' });
-              }}
-              className={cn(
-                smoothButtonClass,
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
-                'border',
-                clientIsAllSelected
-                  ? isDark
-                    ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 text-white border-transparent'
-                    : 'bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 text-white border-transparent'
-                  : 'bg-muted text-foreground border-border hover:bg-muted/80'
-              )}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>All</span>
-              {clientIsAllSelected && <Check className="w-3 h-3" />}
-            </button>
-          )}
+        {/* Main filter row — 5 pill buttons, single-select, scrollable on mobile */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {/* ALL button — first, default selected, brighter orange glow */}
+          <button
+            onClick={() => {
+              saveQuickFilter([]);
+              onChange({ ...filters, categories: [], listingType: 'both' });
+            }}
+            className={cn(
+              smoothButtonClass,
+              'flex items-center gap-1.5 px-5 rounded-full text-xs font-bold flex-shrink-0 min-h-[48px]',
+              'border transition-all duration-200',
+              clientIsAllSelected
+                ? 'bg-[#FF9500] text-white border-transparent shadow-[0_4px_14px_rgba(255,149,0,0.5)]'
+                : 'bg-[#f1f1f1] text-[#333] border-gray-200 hover:bg-gray-200'
+            )}
+          >
+            <Globe className="w-3.5 h-3.5" />
+            <span>ALL</span>
+            {clientIsAllSelected && <Check className="w-3 h-3" />}
+          </button>
 
-          {/* Divider */}
-          <div className="w-px h-6 bg-border flex-shrink-0" />
+          {/* Category chips — single-select, all use orange when active */}
+          {categories.map((category) => {
+            const isActive = filters.categories.includes(category.id);
+            return (
+              <button
+                key={category.id}
+                onClick={() => handleCategorySelect(category.id)}
+                className={cn(
+                  smoothButtonClass,
+                  'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[48px]',
+                  'border transition-all duration-200',
+                  isActive
+                    ? 'bg-[#FF9500] text-white border-transparent shadow-[0_4px_12px_rgba(255,149,0,0.4)]'
+                    : 'bg-[#f1f1f1] text-[#333] border-gray-200 hover:bg-gray-200'
+                )}
+              >
+                {category.icon}
+                <span>{category.label}</span>
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Category chips - all listing types including services */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            {categories.map((category) => {
-              const isActive = filters.categories.includes(category.id);
-              const colorClass = getCategoryColorClass(category.id, isDark);
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => handleCategoryToggle(category.id)}
-                  className={cn(
-                    smoothButtonClass,
-                    'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
-                    'border',
-                    isActive
-                      ? cn(colorClass, 'text-white border-current')
-                      : 'bg-muted text-foreground border-border hover:bg-muted/80'
-                  )}
-                >
-                  {category.icon}
-                  <span className="hidden sm:inline">{category.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Divider */}
-          <div className="w-px h-6 bg-border flex-shrink-0" />
-
-          {/* Listing type dropdown - compact */}
-          <FilterDropdown
-            label="Type"
-            options={listingTypes}
-            value={filters.listingType}
-            onChange={(id) => handleListingTypeChange(id as QuickFilterListingType)}
-            isActive={filters.listingType !== 'both'}
-          />
-
-          {/* Reset button - only show when filters are active */}
-          {hasActiveFilters && (
-            <button
-              onClick={handleReset}
-              className={cn(
-                smoothButtonClass,
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold',
-                'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
-              )}
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Clear</span>
-            </button>
-          )}
+        {/* Dynamic section title */}
+        <div className="px-1 pb-1 pt-0.5">
+          <p className={cn(
+            'font-semibold text-[#FF9500] transition-all duration-200',
+            clientIsAllSelected ? 'text-sm' : 'text-xs'
+          )}>
+            {clientIsAllSelected
+              ? 'Showing ALL Listings Near You'
+              : `Showing ${activeCategoryLabel} Near You`}
+          </p>
         </div>
       </div>
     </div>
