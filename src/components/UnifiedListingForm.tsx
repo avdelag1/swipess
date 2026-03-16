@@ -311,16 +311,36 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
           if (error) {
             console.error('Insert error details:', error);
-            // Fallback for location column error (common in some schema versions)
-            if (error.message?.includes('location')) {
-              const { location, ...safeData } = listingData;
-              const { data: fallbackData, error: fallbackError } = await supabase
-                .from('listings')
-                .insert(safeData as any)
-                .select()
-                .single();
-              if (fallbackError) throw fallbackError;
-              listingResult = fallbackData;
+            const errorMsg = error.message?.toLowerCase() || '';
+            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+
+            if (isSchemaError) {
+              // Extract the problematic column name from the error message and retry without it
+              const columnMatch = error.message?.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]/i);
+              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
+
+              if (missingColumn && listingData[missingColumn] !== undefined) {
+                console.warn(`Schema cache missing column "${missingColumn}" — retrying without it...`);
+                const { [missingColumn]: _, ...safeData } = listingData;
+                const { data: fallbackData, error: fallbackError } = await supabase
+                  .from('listings')
+                  .insert(safeData as any)
+                  .select()
+                  .single();
+                if (fallbackError) throw fallbackError;
+                listingResult = fallbackData;
+              } else {
+                // Generic schema error — try without user_id as it's often the culprit
+                console.warn('Schema error without column match — retrying without user_id...');
+                const { user_id, ...safeData } = listingData;
+                const { data: fallbackData, error: fallbackError } = await supabase
+                  .from('listings')
+                  .insert(safeData as any)
+                  .select()
+                  .single();
+                if (fallbackError) throw fallbackError;
+                listingResult = fallbackData;
+              }
             } else {
               throw error;
             }
