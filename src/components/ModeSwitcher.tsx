@@ -18,11 +18,11 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const isDark = theme === 'dark';
   const lastClickTime = useRef(0);
 
-  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
   const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
   const floatingShadow = isDark
     ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-    : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+    : '0 4px 12px rgba(0,0,0,0.05)';
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
     const now = Date.now();

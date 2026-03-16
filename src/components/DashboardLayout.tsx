@@ -557,9 +557,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
   // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back
+  // IMMERSIVE FULLSCREEN: Routes that take over the entire screen (e.g. Camera, Radio, Stories-style feeds)
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
-  const isRoommateRoute = location.pathname === '/explore/roommates';
+  const isImmersiveFeed = location.pathname.startsWith('/explore/eventos') || location.pathname.startsWith('/explore/roommates');
 
   // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   // On these routes, TopBar becomes transparent and content extends behind it
@@ -600,9 +601,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
 
-      {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and roommate routes for fullscreen UX */}
+      {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {!isCameraRoute && !isRadioRoute && !isRoommateRoute && (
+      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
@@ -628,10 +629,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
         style={{
-          paddingTop: (isCameraRoute || isRadioRoute || isRoommateRoute)
+          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isRoommateRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveFeed) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
@@ -650,8 +651,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and roommate routes for fullscreen UX */}
-      {!isCameraRoute && !isRadioRoute && !isRoommateRoute && (
+      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and immersive feeds for fullscreen UX */}
+      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}

@@ -94,11 +94,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const glassBg = isDark ? 'rgba(255, 255, 255, 0.1)' : '#ffffff';
-  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.12)';
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
   const floatingShadow = isDark
-    ? '0 4px 12px rgba(0,0,0,0.4)'
-    : 'none';
+    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
+    : '0 4px 12px rgba(0,0,0,0.05)';
 
   // ========== READ FROM ZUSTAND STORE ==========
   const categories = useFilterStore((state) => state.categories);
@@ -218,8 +218,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   className={cn(
                     'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientGender === option.id
-                      ? "bg-slate-700 text-white shadow-sm"
-                      : "text-gray-500 hover:bg-black/[0.04] bg-white border border-black/[0.1]"
+                      ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md"
+                      : "text-gray-500 hover:bg-black/[0.02] bg-white border border-black/[0.08]"
                   )}
                 >
                   {option.icon}
@@ -240,8 +240,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   className={cn(
                     'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientType === option.id
-                      ? "bg-slate-700 text-white shadow-sm" // Changed to solid color
-                      : "text-gray-500 hover:bg-black/[0.04] bg-white border border-black/[0.1]" // Changed to solid color
+                      ? "bg-white text-purple-600 border-2 border-purple-600 shadow-md"
+                      : "text-gray-500 hover:bg-black/[0.02] bg-white border border-black/[0.08]"
                   )}
                 >
                   {option.icon}
@@ -321,8 +321,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 className={cn(
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                   isActive
-                    ? 'bg-slate-700 text-white'
-                    : 'text-gray-700 hover:bg-black/[0.04]'
+                    ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md"
+                    : "text-gray-700 hover:bg-black/[0.02]"
                 )}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
