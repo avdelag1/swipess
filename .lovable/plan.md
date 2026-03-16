@@ -1,65 +1,56 @@
 
 
-## Honest Assessment: Full App Translation
+## Plan: Fix Owner Nav, Clean Owner Profile, Restore AI Button
 
-### Current State
+### Issues Found
 
-Only **6 files** out of 130+ components and 60+ pages use `useTranslation()`. The translation JSON files cover ~190 keys. The vast majority of the app uses **hardcoded English strings** -- labels like "properties", "motos", "bikes", "all genders", "hiring", "renting", button text, page titles, dialog content, toast messages, placeholder text, error messages, etc.
+1. **Owner bottom nav** — exists with 5 items (Dashboard, Profile, Liked, Messages, Filters) and should be working. The nav bar may be hiding due to scroll direction detection. Need to verify it renders on owner routes.
 
-### What It Takes
+2. **Owner profile page** (`OwnerProfileNew.tsx`) — contains client-side sections that don't belong:
+   - `MyHubQuickFilters` (line 183) — "Discovery Categories" — **remove**
+   - `MyHubActivityFeed` (line 191) — "Recent Activity" — **remove**
+   - `ExploreFeatureLinks` is not imported but could be confused with Quick Filters
 
-To fully translate the app, every hardcoded string in every component and page needs to be:
-1. Replaced with a `t('key')` call
-2. Added as a new key to `en.json`
-3. Translated and added to all 7 other language files (es, fr, de, it, zh, ja, ru)
+3. **AI Search button** — was removed from both TopBar and BottomNavigation. Currently the TopBar has an empty comment where it used to be (line 271). Need to restore it.
 
-### Scale
+4. **Owner nav icons** — should match client icons more closely, with "Listings" as the only unique button.
 
-- ~130 component files + ~60 page files with hardcoded strings
-- Estimated **500-800 new translation keys** needed
-- **8 language files** to update with every new key
+---
 
-### What I Can Do
+### Changes
 
-I can absolutely do this, but it's too large for a single pass. I recommend tackling it in **priority batches**:
+#### 1. `src/components/BottomNavigation.tsx` — Match client icons, add Listings
 
-**Batch 1 -- High-visibility screens (what users see first):**
-- `CascadeFilterButton.tsx` (quick filter labels: properties, motos, bikes, services, all, rent, buy, genders, client types)
-- `TopBar.tsx` (any visible text/tooltips)
-- `ClientDashboard.tsx` / swipe card labels
-- `BottomNavigation.tsx` hardcoded items ("Listings", "AI")
-- Page headers and titles
+Update owner nav to mirror client nav but swap Filters for Listings:
 
-**Batch 2 -- Settings and profile pages**
+| Position | Client | Owner (new) |
+|----------|--------|-------------|
+| 1 | Compass → Explore | Compass → Explore |
+| 2 | User → Profile | User → Profile |
+| 3 | Flame → Likes | Flame → Likes |
+| 4 | MessageCircle → Messages | MessageCircle → Messages |
+| 5 | Search → Filters | Building2 → Listings |
 
-**Batch 3 -- Dialogs, modals, toasts, error messages**
+Owner nav uses `Compass` (same as client) for dashboard, and `Building2` for Listings pointing to `/owner/properties`.
 
-**Batch 4 -- Remaining pages (legal, FAQ, about, contracts, etc.)**
+#### 2. `src/components/TopBar.tsx` — Restore AI Search button
 
-### Plan for Batch 1
+Add back the AI search button (Sparkles icon) in the right section of the TopBar, before the Zap button. Same glass styling as other buttons. Calls `onAISearchClick` prop.
 
-1. Add ~60 new translation keys to `en.json` covering filters, dashboard, card labels, and nav
-2. Add matching translations to all 7 other language JSON files
-3. Update `CascadeFilterButton.tsx` to use `useTranslation()` and `t()` for all labels
-4. Update `BottomNavigation.tsx` to translate "Listings" and "AI"
-5. Update `TopBar.tsx` for any hardcoded visible text
-6. Update dashboard page headers
+#### 3. `src/pages/OwnerProfileNew.tsx` — Remove client-only sections
 
-### Files Changed (Batch 1)
+Remove these sections (keep everything else):
+- **Line 181-184**: `MyHubQuickFilters` ("Discover Categories") — delete
+- **Line 186-192**: `MyHubActivityFeed` ("Recent Activity") — delete
+- Remove unused imports: `MyHubQuickFilters`, `MyHubActivityFeed`
+
+**Sections that stay**: Profile header, stats grid, edit profile button, Your Likes / Who Liked You grid, Share & Earn, Language, Radio, Settings, Sign Out.
+
+### Files (3)
 
 | File | Change |
 |------|--------|
-| `src/i18n/en.json` | Add ~60 new keys for filters, categories, dashboard |
-| `src/i18n/es.json` | Add Spanish translations |
-| `src/i18n/fr.json` | Add French translations |
-| `src/i18n/de.json` | Add German translations |
-| `src/i18n/it.json` | Add Italian translations |
-| `src/i18n/zh.json` | Add Chinese translations |
-| `src/i18n/ja.json` | Add Japanese translations |
-| `src/i18n/ru.json` | Add Russian translations |
-| `src/components/CascadeFilterButton.tsx` | Use `t()` for all labels |
-| `src/components/BottomNavigation.tsx` | Translate "Listings", "AI" |
-| `src/components/TopBar.tsx` | Translate any hardcoded text |
-
-Want me to start with Batch 1 and then continue with the remaining batches?
+| `src/components/BottomNavigation.tsx` | Update owner nav: Compass icon for dashboard, Building2 for Listings, match client order |
+| `src/components/TopBar.tsx` | Restore AI Search button (Sparkles icon) in right section |
+| `src/pages/OwnerProfileNew.tsx` | Remove MyHubQuickFilters and MyHubActivityFeed sections + imports |
 

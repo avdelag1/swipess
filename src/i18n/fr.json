@@ -4,7 +4,9 @@
     "explore": "Explorer",
     "messages": "Messages",
     "profile": "Profil",
-    "settings": "Paramètres"
+    "settings": "Paramètres",
+    "liked": "Favoris",
+    "listings": "Annonces"
   },
   "actions": {
     "save": "Enregistrer",
@@ -32,6 +34,46 @@
     "close": "Fermer",
     "confirm": "Confirmer",
     "retry": "Réessayer"
+  },
+  "filters": {
+    "quickFilter": "Filtre Rapide",
+    "categories": "catégories",
+    "allCategories": "toutes les catégories",
+    "properties": "propriétés",
+    "motos": "motos",
+    "bikes": "vélos",
+    "services": "services",
+    "lookingTo": "je cherche à",
+    "all": "tout",
+    "rent": "louer",
+    "buy": "acheter",
+    "gender": "genre",
+    "allGenders": "tous les genres",
+    "women": "femmes",
+    "men": "hommes",
+    "lookingFor": "recherche",
+    "allClients": "tous les clients",
+    "hiring": "embauche",
+    "renting": "location",
+    "buying": "achat",
+    "applyFilters": "appliquer les filtres",
+    "reset": "réinitialiser"
+  },
+  "topbar": {
+    "tokenPackages": "Paquets de Jetons",
+    "provider": "Fournisseur",
+    "explorer": "Explorateur",
+    "connectExplorers": "Connectez-vous avec des explorateurs potentiels",
+    "startConversations": "Démarrez des conversations avec des fournisseurs",
+    "tokens": "jetons",
+    "buy": "Acheter",
+    "bestValue": "MEILLEURE VALEUR",
+    "loadingPackages": "Chargement des paquets...",
+    "viewAllPackages": "Voir tous les paquets et détails",
+    "redirectingPaypal": "Redirection vers PayPal",
+    "processingPackage": "Traitement du paquet {{tier}} ({{price}})",
+    "paymentUnavailable": "Lien de paiement indisponible",
+    "contactSupport": "Veuillez contacter le support pour finaliser cet achat."
   },
   "settings": {
     "title": "Paramètres",
@@ -110,78 +152,30 @@
     "dismiss": "Compris",
     "dontShow": "Ne plus afficher",
     "onboarding": {
-      "screen1": {
-        "title": "Bienvenue sur Swipess 🎉",
-        "body": "Logements, motos et jobs — tout en un.\nSwipe pour trouver ton match."
-      },
-      "screen2": {
-        "title": "Tu es protégé ici 🛡️",
-        "body": "Chaque annonce vient d'une vraie personne.\nOn détecte les arnaques vite — tu es en sécurité."
-      },
-      "screen3": {
-        "title": "Presque prêt ! 🚀",
-        "body": "Complète ton profil — tu obtiens de meilleurs matchs.\nÇa prend 60 secondes."
-      }
+      "screen1": { "title": "Bienvenue sur Swipess 🎉", "body": "Logements, motos et jobs — tout en un.\nSwipe pour trouver ton match." },
+      "screen2": { "title": "Tu es protégé ici 🛡️", "body": "Chaque annonce vient d'une vraie personne.\nOn détecte les arnaques vite — tu es en sécurité." },
+      "screen3": { "title": "Presque prêt ! 🚀", "body": "Complète ton profil — tu obtiens de meilleurs matchs.\nÇa prend 60 secondes." }
     },
     "contextual": {
-      "profile": {
-        "title": "Ton profil = ton score de confiance 👤",
-        "body": "Ajoute une photo, une bio et vérifie ton ID.\nPlus complet = plus de matchs."
-      },
-      "createListing": {
-        "title": "Les bonnes annonces matchent vite 📋",
-        "body": "Mets de vraies photos, prix honnête et lieu.\nInfos fausses = bannissement immédiat."
-      },
-      "rideSection": {
-        "title": "Tu loues un véhicule ? Lis ça d'abord 🏍️",
-        "body": "Vérifie toujours la moto en personne avant de payer.\nPas de rencontre = pas de deal."
-      },
-      "miniContract": {
-        "title": "C'est ta protection 📝",
-        "body": "Un mini-contrat enregistre ce que vous avez convenu.\nSigné = les deux parties sont protégées."
-      },
-      "newMatch": {
-        "title": "Nouveau match — reste vigilant 💬",
-        "body": "N'envoie jamais d'argent avant de rencontrer en personne.\nGarde toutes les discussions dans l'app."
-      }
+      "profile": { "title": "Ton profil = ton score de confiance 👤", "body": "Ajoute une photo, une bio et vérifie ton ID.\nPlus complet = plus de matchs." },
+      "createListing": { "title": "Les bonnes annonces matchent vite 📋", "body": "Mets de vraies photos, prix honnête et lieu.\nInfos fausses = bannissement immédiat." },
+      "rideSection": { "title": "Tu loues un véhicule ? Lis ça d'abord 🏍️", "body": "Vérifie toujours la moto en personne avant de payer.\nPas de rencontre = pas de deal." },
+      "miniContract": { "title": "C'est ta protection 📝", "body": "Un mini-contrat enregistre ce que vous avez convenu.\nSigné = les deux parties sont protégées." },
+      "newMatch": { "title": "Nouveau match — reste vigilant 💬", "body": "N'envoie jamais d'argent avant de rencontrer en personne.\nGarde toutes les discussions dans l'app." }
     },
     "ownerWarnings": {
-      "property": {
-        "title": "Protège ton bien 🏠",
-        "body": "Rencontre les locataires en personne — jamais de clés sans vérifier l'ID.\nUtilise le mini-contrat. Toujours."
-      },
-      "bikeRental": {
-        "title": "Tu loues ton véhicule ? ⚠️",
-        "body": "Prends un dépôt + photo de la pièce d'identité avant remise.\nDocumente d'abord l'état du véhicule."
-      }
+      "property": { "title": "Protège ton bien 🏠", "body": "Rencontre les locataires en personne — jamais de clés sans vérifier l'ID.\nUtilise le mini-contrat. Toujours." },
+      "bikeRental": { "title": "Tu loues ton véhicule ? ⚠️", "body": "Prends un dépôt + photo de la pièce d'identité avant remise.\nDocumente d'abord l'état du véhicule." }
     },
     "jobWarnings": {
-      "serviceProvider": {
-        "title": "Tu commences un job ? Protège-toi 🔧",
-        "body": "Conviens du prix et de la portée avant de commencer.\nMets ça par écrit — utilise le mini-contrat."
-      },
-      "paymentWarning": {
-        "title": "Ne travaille jamais gratuitement d'abord 💸",
-        "body": "Les clients paient un acompte ou acceptent par écrit avant de commencer.\nPas d'arnaques au prépaiement — signale-les immédiatement."
-      }
+      "serviceProvider": { "title": "Tu commences un job ? Protège-toi 🔧", "body": "Conviens du prix et de la portée avant de commencer.\nMets ça par écrit — utilise le mini-contrat." },
+      "paymentWarning": { "title": "Ne travaille jamais gratuitement d'abord 💸", "body": "Les clients paient un acompte ou acceptent par écrit avant de commencer.\nPas d'arnaques au prépaiement — signale-les immédiatement." }
     },
     "clientWarnings": {
-      "antiScam": {
-        "title": "Repère l'arnaque avant qu'elle te touche 🚨",
-        "body": "Prix trop bas ? Pas de rencontre en personne ? Signal d'alarme.\nSignale-le — on agit vite."
-      },
-      "beforePaying": {
-        "title": "Avant de payer — vérifie 3 choses 👀",
-        "body": "① Profil vérifié  ② Vraies photos  ③ Rencontre d'abord\nPas de vérifications = risque élevé."
-      },
-      "renterProtection": {
-        "title": "Tu loues un logement ? Tes droits comptent 🏠",
-        "body": "Signe toujours un mini-contrat avant d'emménager.\nProblèmes ? Signale directement dans l'app."
-      },
-      "reportBadActor": {
-        "title": "Quelque chose cloche ? Agis maintenant 🚩",
-        "body": "Tape \"Signaler\" sur n'importe quel profil ou chat.\nOn examine en 24h — aucune représaille autorisée."
-      }
+      "antiScam": { "title": "Repère l'arnaque avant qu'elle te touche 🚨", "body": "Prix trop bas ? Pas de rencontre en personne ? Signal d'alarme.\nSignale-le — on agit vite." },
+      "beforePaying": { "title": "Avant de payer — vérifie 3 choses 👀", "body": "① Profil vérifié  ② Vraies photos  ③ Rencontre d'abord\nPas de vérifications = risque élevé." },
+      "renterProtection": { "title": "Tu loues un logement ? Tes droits comptent 🏠", "body": "Signe toujours un mini-contrat avant d'emménager.\nProblèmes ? Signale directement dans l'app." },
+      "reportBadActor": { "title": "Quelque chose cloche ? Agis maintenant 🚩", "body": "Tape \"Signaler\" sur n'importe quel profil ou chat.\nOn examine en 24h — aucune représaille autorisée." }
     }
   },
   "common": {

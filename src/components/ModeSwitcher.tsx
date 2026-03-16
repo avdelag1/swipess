@@ -79,7 +79,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
             </motion.div>
           ) : (
             <motion.div
@@ -91,9 +91,9 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             >
               {/* HIGH CONTRAST: Clear icon colors */}
               {activeMode === 'client' ? (
-                <User strokeWidth={4} className="h-5 w-5 text-teal-400" />
+                <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
               ) : (
-                <UserCog strokeWidth={4} className="h-5 w-5 text-orange-400" />
+                <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
               )}
             </motion.div>
           )}

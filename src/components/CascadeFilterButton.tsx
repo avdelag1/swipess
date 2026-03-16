@@ -1,6 +1,7 @@
 import { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Home, Car, Bike, Ship, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
@@ -79,6 +80,7 @@ const buttonClass = cn(
 function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }: CascadeFilterButtonProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -168,7 +170,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
         )}
       >
         <Filter className="w-4 h-4" />
-        <span>Quick Filter</span>
+        <span>{t('filters.quickFilter')}</span>
         {activeCount > 0 && (
           <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-white/20 text-xs font-bold">
             {activeCount}
@@ -190,7 +192,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
-              <span className="text-sm font-semibold text-foreground">Quick Filter</span>
+              <span className="text-sm font-semibold text-foreground">{t('filters.quickFilter')}</span>
               <div className="flex items-center gap-2">
                 {hasActiveFilters && (
                   <button
@@ -201,7 +203,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                     )}
                   >
                     <RotateCcw className="w-3 h-3" />
-                    reset
+                    {t('filters.reset')}
                   </button>
                 )}
                 <button
@@ -222,7 +224,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                 <>
                   {/* Categories Section */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">categories</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.categories')}</span>
                     <div className="grid grid-cols-2 gap-2">
                       {/* All categories button */}
                       <button
@@ -237,7 +239,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                         )}
                       >
                         <Filter className="w-4 h-4" />
-                        <span>all categories</span>
+                        <span>{t('filters.allCategories')}</span>
                         {allSelected && <Check className="w-3 h-3 ml-auto" />}
                       </button>
                       {categories.map((category) => {
@@ -257,7 +259,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                             )}
                           >
                             {category.icon}
-                            <span>{category.label}</span>
+                            <span>{t(`filters.${category.label === 'properties' ? 'properties' : category.label === 'motos' ? 'motos' : category.label === 'bikes' ? 'bikes' : 'services'}`)}</span>
                             {isActive && <Check className="w-3 h-3 ml-auto" />}
                           </button>
                         );
@@ -267,7 +269,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
 
                   {/* Listing Type Section */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">looking to</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.lookingTo')}</span>
                     <div className="flex gap-2">
                       {listingTypes.map((type) => {
                         const isActive = filters.listingType === type.id;
@@ -284,7 +286,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                                 : 'bg-muted/30 text-muted-foreground border-border/50'
                             )}
                           >
-                            {type.label}
+                            {t(`filters.${type.label === 'all' ? 'all' : type.label === 'rent' ? 'rent' : 'buy'}`)}
                           </button>
                         );
                       })}
@@ -295,7 +297,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                 <>
                   {/* Gender Section (Owner) */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">gender</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.gender')}</span>
                     <div className="flex gap-2">
                       {genderOptions.map((option) => {
                         const isActive = filters.clientGender === option.id;
@@ -313,7 +315,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                             )}
                           >
                             {option.icon}
-                            <span>{option.label}</span>
+                            <span>{t(`filters.${option.label === 'all genders' ? 'allGenders' : option.label === 'women' ? 'women' : 'men'}`)}</span>
                           </button>
                         );
                       })}
@@ -322,7 +324,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
 
                   {/* Client Type Section (Owner) */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">looking for</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.lookingFor')}</span>
                     <div className="grid grid-cols-2 gap-2">
                       {clientTypeOptions.map((option) => {
                         const isActive = filters.clientType === option.id;
@@ -339,7 +341,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                                 : 'bg-muted/30 text-muted-foreground border-border/50'
                             )}
                           >
-                            {option.label}
+                            {t(`filters.${option.label === 'all clients' ? 'allClients' : option.label === 'hiring' ? 'hiring' : option.label === 'renting' ? 'renting' : 'buying'}`)}
                           </button>
                         );
                       })}
@@ -358,7 +360,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                   'w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm'
                 )}
               >
-                apply filters
+                {t('filters.applyFilters')}
               </button>
             </div>
           </motion.div>
