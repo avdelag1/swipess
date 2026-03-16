@@ -1,15 +1,24 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+/**
+ * ROOMMATE MATCHING PAGE
+ *
+ * Full-screen swipe card experience for finding compatible roommates.
+ * Header: circle profile photo (static) + pill-shaped action button bar
+ * No bottom navigation — card fills the entire screen.
+ * Uses 5 demo candidates to showcase the experience.
+ */
+
+import { useState, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { Users, Sparkles, SlidersHorizontal } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { PageHeader } from '@/components/PageHeader';
-import { toast } from 'sonner';
-import { Switch } from '@/components/ui/switch';
+import {
+  ChevronLeft, RotateCcw, Share2, MessageCircle, Flame, ThumbsDown,
+  Sparkles, Users,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
-import { RoommateFiltersSheet, RoommateFilterState } from '@/components/filters/RoommateFiltersSheet';
+import { useTheme } from '@/hooks/useTheme';
+import { triggerHaptic } from '@/utils/haptics';
+
+// ── MOCK DATA ──────────────────────────────────────────────────────────────────
 
 interface RoommateCandidate {
   user_id: string;
@@ -34,234 +43,260 @@ interface RoommateCandidate {
   compatibility: number;
 }
 
-function calculateCompatibility(me: any, other: any, prefs: RoommateFilterState | null): number {
-  let score = 50;
+const MOCK_CANDIDATES: RoommateCandidate[] = [
+  {
+    user_id: 'mock-1',
+    name: 'Sofia',
+    age: 26,
+    bio: 'Digital nomad who loves cooking and yoga. Very clean and organized.',
+    gender: 'Female',
+    nationality: 'Spanish',
+    city: 'Barcelona',
+    country: 'Spain',
+    neighborhood: 'Eixample',
+    work_schedule: 'remote',
+    cleanliness_level: 'high',
+    noise_tolerance: 'low',
+    smoking_habit: 'never',
+    drinking_habit: 'social',
+    interests: ['Yoga', 'Cooking', 'Travel', 'Photography'],
+    languages: ['Spanish', 'English'],
+    profile_images: [],
+    personality_traits: ['Creative', 'Organized', 'Quiet'],
+    preferred_activities: ['Morning yoga', 'Cooking together'],
+    compatibility: 94,
+  },
+  {
+    user_id: 'mock-2',
+    name: 'Marco',
+    age: 29,
+    bio: 'Software engineer and weekend hiker. Quiet during the week, social on weekends.',
+    gender: 'Male',
+    nationality: 'Italian',
+    city: 'Milan',
+    country: 'Italy',
+    neighborhood: 'Navigli',
+    work_schedule: 'hybrid',
+    cleanliness_level: 'medium',
+    noise_tolerance: 'medium',
+    smoking_habit: 'never',
+    drinking_habit: 'social',
+    interests: ['Hiking', 'Coding', 'Music', 'Coffee'],
+    languages: ['Italian', 'English', 'Spanish'],
+    profile_images: [],
+    personality_traits: ['Introverted', 'Reliable', 'Active'],
+    preferred_activities: ['Weekend hikes', 'Movie nights'],
+    compatibility: 88,
+  },
+  {
+    user_id: 'mock-3',
+    name: 'Amara',
+    age: 24,
+    bio: 'Grad student studying architecture. Love art, museums, and café work sessions.',
+    gender: 'Female',
+    nationality: 'French',
+    city: 'Paris',
+    country: 'France',
+    neighborhood: 'Le Marais',
+    work_schedule: 'student',
+    cleanliness_level: 'high',
+    noise_tolerance: 'low',
+    smoking_habit: 'never',
+    drinking_habit: 'rarely',
+    interests: ['Art', 'Architecture', 'Reading', 'Cycling'],
+    languages: ['French', 'English'],
+    profile_images: [],
+    personality_traits: ['Creative', 'Focused', 'Thoughtful'],
+    preferred_activities: ['Museum visits', 'Café work sessions'],
+    compatibility: 85,
+  },
+  {
+    user_id: 'mock-4',
+    name: 'Kai',
+    age: 28,
+    bio: 'Freelance musician and part-time barista. Easy going, loves good vibes and live music.',
+    gender: 'Non-binary',
+    nationality: 'German',
+    city: 'Berlin',
+    country: 'Germany',
+    neighborhood: 'Mitte',
+    work_schedule: 'flexible',
+    cleanliness_level: 'medium',
+    noise_tolerance: 'high',
+    smoking_habit: 'occasionally',
+    drinking_habit: 'social',
+    interests: ['Music', 'Coffee', 'Art', 'Festivals'],
+    languages: ['German', 'English'],
+    profile_images: [],
+    personality_traits: ['Creative', 'Extroverted', 'Spontaneous'],
+    preferred_activities: ['Live music', 'House parties', 'Record shopping'],
+    compatibility: 79,
+  },
+  {
+    user_id: 'mock-5',
+    name: 'Yuki',
+    age: 31,
+    bio: 'UX designer working remotely. Quiet, tidy, loves hosting small dinner parties.',
+    gender: 'Female',
+    nationality: 'Japanese',
+    city: 'Lisbon',
+    country: 'Portugal',
+    neighborhood: 'Alfama',
+    work_schedule: 'remote',
+    cleanliness_level: 'high',
+    noise_tolerance: 'low',
+    smoking_habit: 'never',
+    drinking_habit: 'social',
+    interests: ['Design', 'Cooking', 'Plants', 'Meditation'],
+    languages: ['Japanese', 'English', 'Portuguese'],
+    profile_images: [],
+    personality_traits: ['Introverted', 'Thoughtful', 'Tidy'],
+    preferred_activities: ['Dinner parties', 'Plant care', 'Morning meditation'],
+    compatibility: 91,
+  },
+];
 
-  // Base matching
-  if (me.work_schedule && other.work_schedule && me.work_schedule === other.work_schedule) score += 10;
-  if (me.cleanliness_level && other.cleanliness_level && me.cleanliness_level === other.cleanliness_level) score += 10;
-  if (me.noise_tolerance && other.noise_tolerance && me.noise_tolerance === other.noise_tolerance) score += 8;
-  if (me.smoking_habit === other.smoking_habit) score += 8;
+// ── SPRING CONFIG ─────────────────────────────────────────────────────────────
+const BTN_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 };
+const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 };
 
-  const myInterests = Array.isArray(me.interests) ? me.interests : [];
-  const theirInterests = Array.isArray(other.interests) ? other.interests : [];
-  const shared = myInterests.filter((i: string) => theirInterests.includes(i)).length;
-  score += Math.min(shared * 5, 15);
+// ── PILL ACTION BUTTON ────────────────────────────────────────────────────────
+type BtnColor = { icon: string; glow: string };
 
-  if (me.neighborhood && other.neighborhood && me.neighborhood === other.neighborhood) score += 8;
+const BTN_COLORS: Record<string, BtnColor> = {
+  amber:  { icon: '#f59e0b', glow: 'rgba(245,158,11,0.5)' },
+  red:    { icon: '#ef4444', glow: 'rgba(239,68,68,0.5)' },
+  purple: { icon: '#a855f7', glow: 'rgba(168,85,247,0.5)' },
+  orange: { icon: '#ff6b35', glow: 'rgba(255,107,53,0.5)' },
+  cyan:   { icon: '#06b6d4', glow: 'rgba(6,182,212,0.5)' },
+};
 
-  // Preference-weighted boosts
-  if (prefs) {
-    if (prefs.preferred_cleanliness && other.cleanliness_level === prefs.preferred_cleanliness) score += 10;
-    if (prefs.preferred_noise_tolerance && other.noise_tolerance === prefs.preferred_noise_tolerance) score += 8;
-    if (prefs.preferred_smoking && other.smoking_habit === prefs.preferred_smoking) score += 8;
-    if (prefs.preferred_drinking && other.drinking_habit === prefs.preferred_drinking) score += 6;
-    if (prefs.preferred_work_schedule && other.work_schedule === prefs.preferred_work_schedule) score += 8;
-  }
+const PillButton = memo(({
+  onClick,
+  disabled = false,
+  colorKey,
+  large = false,
+  ariaLabel,
+  children,
+  index = 0,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  colorKey: string;
+  large?: boolean;
+  ariaLabel: string;
+  children: React.ReactNode;
+  index?: number;
+}) => {
+  const [burst, setBurst] = useState(false);
+  const cfg = BTN_COLORS[colorKey] ?? BTN_COLORS.amber;
+  const size = large ? 52 : 42;
 
-  return Math.min(score, 99);
-}
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (disabled) return;
+    e.stopPropagation();
+    triggerHaptic(colorKey === 'orange' ? 'success' : colorKey === 'red' ? 'warning' : 'light');
+    setBurst(true);
+    setTimeout(() => setBurst(false), 400);
+    onClick();
+  }, [disabled, colorKey, onClick]);
 
-function applyPreferenceFilters(candidates: any[], prefs: RoommateFilterState | null): any[] {
-  if (!prefs) return candidates;
-  return candidates.filter(c => {
-    // Gender filter
-    if (prefs.preferred_gender.length > 0 && !prefs.preferred_gender.includes('Any Gender')) {
-      if (c.gender && !prefs.preferred_gender.includes(c.gender)) return false;
-    }
-    // Age filter
-    if (prefs.preferred_age_min && c.age && c.age < prefs.preferred_age_min) return false;
-    if (prefs.preferred_age_max && c.age && c.age > prefs.preferred_age_max) return false;
-    // Deal breakers
-    if (prefs.deal_breakers.includes('Smoking indoors') && c.smoking_habit === 'regularly') return false;
-    if (prefs.deal_breakers.includes('Pets') && c.has_children) return false; // rough proxy
-    if (prefs.deal_breakers.includes('Loud music at night') && c.noise_tolerance === 'high') return false;
-    return true;
-  });
-}
+  return (
+    <motion.button
+      onClick={handleClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ ...ENTRY_SPRING, delay: index * 0.04 }}
+      whileTap={{ scale: 0.84, transition: BTN_SPRING }}
+      className="relative flex items-center justify-center flex-shrink-0 touch-manipulation select-none"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.3 : 1,
+      }}
+    >
+      {/* Glow burst */}
+      <AnimatePresence>
+        {burst && (
+          <motion.span
+            key="burst"
+            aria-hidden="true"
+            initial={{ scale: 0.3, opacity: 0.7 }}
+            animate={{ scale: 2.2, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0, 0.55, 0.45, 1] }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${cfg.glow} 0%, transparent 70%)`,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+      </AnimatePresence>
 
+      {/* Icon */}
+      <span
+        style={{
+          width: large ? 28 : 22,
+          height: large ? 28 : 22,
+          color: cfg.icon,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          filter: `drop-shadow(0 2px 8px ${cfg.glow})`,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        {children}
+      </span>
+    </motion.button>
+  );
+});
+PillButton.displayName = 'PillButton';
+
+// ── MAIN PAGE ─────────────────────────────────────────────────────────────────
 export default function RoommateMatching() {
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const [candidates, setCandidates] = useState<RoommateCandidate[]>([]);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [myProfile, setMyProfile] = useState<any>(null);
-  const [roommateAvailable, setRoommateAvailable] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [roommatePrefs, setRoommatePrefs] = useState<RoommateFilterState | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [lastIndex, setLastIndex] = useState<number | null>(null);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    loadPreferences();
-  }, [user]);
+  const topCard = MOCK_CANDIDATES[currentIndex] ?? null;
+  const nextCard = MOCK_CANDIDATES[currentIndex + 1] ?? null;
 
-  // Re-fetch candidates when prefs change
-  useEffect(() => {
-    if (!user) return;
-    fetchCandidates();
-  }, [user, roommatePrefs]);
-
-  const loadPreferences = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('roommate_preferences')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    if (data) {
-      setRoommatePrefs({
-        preferred_gender: Array.isArray(data.preferred_gender) ? data.preferred_gender as string[] : [],
-        preferred_budget_min: data.preferred_budget_min ?? null,
-        preferred_budget_max: data.preferred_budget_max ?? null,
-        preferred_age_min: (data as any).preferred_age_min ?? null,
-        preferred_age_max: (data as any).preferred_age_max ?? null,
-        preferred_cleanliness: (data as any).preferred_cleanliness ?? null,
-        preferred_noise_tolerance: (data as any).preferred_noise_tolerance ?? null,
-        preferred_smoking: (data as any).preferred_smoking ?? null,
-        preferred_drinking: (data as any).preferred_drinking ?? null,
-        preferred_work_schedule: (data as any).preferred_work_schedule ?? null,
-        deal_breakers: Array.isArray(data.deal_breakers) ? data.deal_breakers as string[] : [],
-      });
-    }
-  };
-
-  const fetchCandidates = async () => {
-    if (!user) return;
-    const { data: myData } = await supabase.from('client_profiles').select('*').eq('user_id', user.id).maybeSingle();
-    setMyProfile(myData);
-    setRoommateAvailable(myData?.roommate_available ?? false);
-
-    const { data: others } = await supabase
-      .from('client_profiles')
-      .select('*')
-      .neq('user_id', user.id)
-      .eq('roommate_available', true)
-      .limit(50);
-
-    const { data: swiped } = await supabase
-      .from('roommate_matches')
-      .select('target_user_id')
-      .eq('user_id', user.id);
-    const swipedIds = new Set((swiped || []).map((s: any) => s.target_user_id));
-
-    let pool = (others || []).filter(o => !swipedIds.has(o.user_id));
-
-    // Apply preference filters
-    pool = applyPreferenceFilters(pool, roommatePrefs);
-
-    const scored = pool
-      .map(o => ({
-        user_id: o.user_id,
-        name: o.name,
-        age: o.age,
-        bio: o.bio,
-        gender: o.gender,
-        nationality: o.nationality,
-        city: o.city,
-        country: o.country,
-        neighborhood: o.neighborhood,
-        work_schedule: o.work_schedule,
-        cleanliness_level: o.cleanliness_level,
-        noise_tolerance: o.noise_tolerance,
-        smoking_habit: o.smoking_habit,
-        drinking_habit: o.drinking_habit,
-        interests: Array.isArray(o.interests) ? o.interests as string[] : [],
-        languages: Array.isArray(o.languages) ? o.languages as string[] : [],
-        profile_images: Array.isArray(o.profile_images) ? o.profile_images as string[] : [],
-        personality_traits: Array.isArray(o.personality_traits) ? o.personality_traits as string[] : [],
-        preferred_activities: Array.isArray(o.preferred_activities) ? o.preferred_activities as string[] : [],
-        compatibility: calculateCompatibility(myData || {}, o, roommatePrefs),
-      }))
-      .sort((a, b) => b.compatibility - a.compatibility);
-
-    setCandidates(scored);
-    setCurrentIndex(0);
-    setIsLoading(false);
-  };
-
-  const handleToggleRoommate = async (checked: boolean) => {
-    if (!user) return;
-    setRoommateAvailable(checked);
-    await supabase
-      .from('client_profiles')
-      .update({ roommate_available: checked } as any)
-      .eq('user_id', user.id);
-    toast.success(checked ? 'You are now visible as a roommate!' : 'You are hidden from roommate search.');
-  };
-
-  const handleSwipe = useCallback(async (direction: 'left' | 'right') => {
-    if (!user || currentIndex >= candidates.length) return;
-    const target = candidates[currentIndex];
-
-    await supabase.from('roommate_matches').insert({
-      user_id: user.id,
-      target_user_id: target.user_id,
-      direction,
-      compatibility_score: target.compatibility,
-    });
-
-    if (direction === 'right') {
-      const { data: mutual } = await supabase
-        .from('roommate_matches')
-        .select('id')
-        .eq('user_id', target.user_id)
-        .eq('target_user_id', user.id)
-        .eq('direction', 'right')
-        .maybeSingle();
-      if (mutual) {
-        // Create a conversation for matched roommates so they can chat
-        const { data: existingConv } = await supabase
-          .from('conversations')
-          .select('id')
-          .or(`and(client_id.eq.${user.id},owner_id.eq.${target.user_id}),and(client_id.eq.${target.user_id},owner_id.eq.${user.id})`)
-          .maybeSingle();
-
-        let convId = existingConv?.id;
-        if (!convId) {
-          const { data: newConv } = await supabase
-            .from('conversations')
-            .insert({
-              client_id: user.id,
-              owner_id: target.user_id,
-              status: 'active',
-            })
-            .select('id')
-            .single();
-          convId = newConv?.id;
-        }
-
-        toast.success(`🎉 You matched with ${target.name || 'a roommate'}!`, {
-          description: 'A chat has been opened — start the conversation.',
-          action: {
-            label: 'Chat now',
-            onClick: () => navigate('/messages'),
-          },
-          duration: 6000,
-        });
-      }
-    }
-
+  const handleSwipe = useCallback((_direction: 'left' | 'right') => {
+    setLastIndex(currentIndex);
+    setCanUndo(true);
     setCurrentIndex(prev => prev + 1);
-  }, [user, currentIndex, candidates]);
+  }, [currentIndex]);
 
-  const handleButtonLike = useCallback(() => {
-    cardRef.current?.triggerSwipe('right');
-  }, []);
+  const handleUndo = useCallback(() => {
+    if (lastIndex !== null) {
+      setCurrentIndex(lastIndex);
+      setCanUndo(false);
+      setLastIndex(null);
+    }
+  }, [lastIndex]);
 
-  const handleButtonDislike = useCallback(() => {
-    cardRef.current?.triggerSwipe('left');
-  }, []);
+  const handleLike    = useCallback(() => cardRef.current?.triggerSwipe('right'), []);
+  const handleDislike = useCallback(() => cardRef.current?.triggerSwipe('left'), []);
 
-  const handleApplyFilters = (newFilters: RoommateFilterState) => {
-    setRoommatePrefs(newFilters);
-  };
-
-  const topCard = candidates[currentIndex];
-  const nextCard = candidates[currentIndex + 1];
-
-  const mapToCardProfile = (c: RoommateCandidate) => ({
+  // Map candidate to SimpleOwnerSwipeCard profile shape
+  const toCardProfile = (c: RoommateCandidate) => ({
     user_id: c.user_id,
     name: c.name,
     age: c.age,
@@ -278,74 +313,225 @@ export default function RoommateMatching() {
     preferred_activities: c.preferred_activities,
   });
 
-  const filterCount = roommatePrefs ? Object.values(roommatePrefs).filter(v =>
-    Array.isArray(v) ? v.length > 0 : v !== null
-  ).length : 0;
+  // Glass bar styles — matches BottomNavigation liquid glass design
+  const barBg     = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)';
+  const barBorder = isLight ? 'rgba(0,0,0,0.08)'       : 'rgba(255,255,255,0.10)';
+  const barShadow = isLight
+    ? 'inset 0 1px 0 rgba(255,255,255,0.92), 0 2px 12px rgba(0,0,0,0.06)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 20px rgba(0,0,0,0.35)';
 
   return (
-    <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-40 p-4 flex items-center justify-between">
-        <PageHeader title="Roommate Match" subtitle="Find compatible roommates" />
-        <div className="flex items-center gap-2">
-          {/* Filter button */}
-          <button
-            onClick={() => setFiltersOpen(true)}
-            className="relative flex items-center justify-center h-9 w-9 rounded-full bg-card/80 backdrop-blur-sm border border-border/30 transition-colors hover:bg-card"
+    <div
+      className="relative w-full flex flex-col overflow-hidden"
+      style={{ minHeight: '100dvh', background: '#0a0a0b' }}
+    >
+      {/* ── HEADER ──────────────────────────────────────────────────────────── */}
+      <div
+        className="absolute top-0 left-0 right-0 z-40 px-3 flex items-center gap-2"
+        style={{
+          paddingTop: 'max(14px, env(safe-area-inset-top, 14px))',
+          paddingBottom: 10,
+        }}
+      >
+        {/* Back button */}
+        <motion.button
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.88, transition: BTN_SPRING }}
+          aria-label="Go back"
+          className="flex items-center justify-center flex-shrink-0 touch-manipulation"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.10)',
+            border: `1px solid ${isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.15)'}`,
+          }}
+        >
+          <ChevronLeft
+            className="w-5 h-5"
+            style={{ color: isLight ? '#1a1a1a' : 'rgba(255,255,255,0.9)' }}
+          />
+        </motion.button>
+
+        {/* Current user circle avatar (static — does not move with card) */}
+        <div
+          className="flex-shrink-0 flex items-center justify-center font-bold text-sm text-white select-none"
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #667eea 0%, #f97316 100%)',
+            border: '2px solid rgba(255,255,255,0.25)',
+            boxShadow: '0 2px 12px rgba(102,126,234,0.45)',
+          }}
+        >
+          Me
+        </div>
+
+        {/* ── Pill-shaped action button frame ──────────────────────────────── */}
+        {/* Same liquid glass treatment as the bottom navigation bar.          */}
+        {/* All 5 buttons fit together inside the pill — swipe-left / right     */}
+        {/* interaction is provided by the scrollable row when needed.          */}
+        <div
+          className="flex-1 overflow-hidden"
+          style={{
+            backgroundColor: barBg,
+            border: `1px solid ${barBorder}`,
+            borderRadius: 26,
+            boxShadow: barShadow,
+            position: 'relative',
+          }}
+        >
+          {/* Animated liquid glass highlight — same as BottomNavigation */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              borderRadius: 'inherit',
+              background: `radial-gradient(ellipse 160% 50% at 15% 0%,
+                rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
+                radial-gradient(ellipse 100% 60% at 85% 100%,
+                rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)`,
+              zIndex: 1,
+            }}
+          />
+
+          {/* Scrollable buttons row — supports horizontal swipe if needed */}
+          <div
+            data-no-swipe-nav
+            className="relative flex items-center justify-around px-2"
+            style={{
+              paddingTop: 7,
+              paddingBottom: 7,
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              WebkitOverflowScrolling: 'touch',
+              zIndex: 2,
+              gap: 4,
+            }}
           >
-            <SlidersHorizontal className="h-4 w-4 text-foreground" />
-            {filterCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[9px] font-bold text-primary-foreground flex items-center justify-center">
-                {filterCount}
-              </span>
-            )}
-          </button>
-          {/* Visible toggle */}
-          <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/30">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Visible</span>
-            <Switch checked={roommateAvailable} onCheckedChange={handleToggleRoommate} />
+            {/* Return / Undo */}
+            <PillButton
+              onClick={handleUndo}
+              disabled={!canUndo}
+              colorKey="amber"
+              ariaLabel="Undo last swipe"
+              index={0}
+            >
+              <RotateCcw className="w-full h-full" strokeWidth={2.8} />
+            </PillButton>
+
+            {/* Dislike */}
+            <PillButton
+              onClick={handleDislike}
+              colorKey="red"
+              large
+              ariaLabel="Pass on this roommate"
+              index={1}
+            >
+              <ThumbsDown className="w-full h-full" fill="currentColor" strokeWidth={0} />
+            </PillButton>
+
+            {/* Share */}
+            <PillButton
+              onClick={() => triggerHaptic('light')}
+              colorKey="purple"
+              ariaLabel="Share profile"
+              index={2}
+            >
+              <Share2 className="w-full h-full" strokeWidth={2.8} />
+            </PillButton>
+
+            {/* Like */}
+            <PillButton
+              onClick={handleLike}
+              colorKey="orange"
+              large
+              ariaLabel="Like this roommate"
+              index={3}
+            >
+              <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
+            </PillButton>
+
+            {/* Message */}
+            <PillButton
+              onClick={() => triggerHaptic('light')}
+              colorKey="cyan"
+              ariaLabel="Send a message"
+              index={4}
+            >
+              <MessageCircle className="w-full h-full" strokeWidth={2.8} />
+            </PillButton>
           </div>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="h-[400px] w-full max-w-md rounded-3xl bg-card animate-pulse" />
-        </div>
-      ) : !topCard ? (
+      {/* ── CARD AREA ─────────────────────────────────────────────────────── */}
+      {!topCard ? (
+        /* Empty state */
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6">
           <Users className="w-16 h-16 text-muted-foreground/30" />
           <h2 className="text-lg font-bold text-foreground">No more candidates</h2>
-          <p className="text-sm text-muted-foreground text-center">Check back later for new potential roommates</p>
+          <p className="text-sm text-muted-foreground text-center">
+            Check back later for new potential roommates
+          </p>
         </div>
       ) : (
-        <div className="relative flex-1 w-full">
+        <div className="relative flex-1 w-full" style={{ minHeight: '100dvh' }}>
+          {/* Next card (behind) */}
           {nextCard && (
-            <div key={`next-${nextCard.user_id}`} className="w-full h-full absolute inset-0" style={{ zIndex: 5, transform: 'scale(0.95)', opacity: 0.7, pointerEvents: 'none' }}>
-              <SimpleOwnerSwipeCard profile={mapToCardProfile(nextCard)} onSwipe={() => {}} isTop={false} />
+            <div
+              key={`next-${nextCard.user_id}`}
+              className="absolute inset-0"
+              style={{ zIndex: 5, transform: 'scale(0.95)', opacity: 0.7, pointerEvents: 'none' }}
+            >
+              <SimpleOwnerSwipeCard
+                profile={toCardProfile(nextCard)}
+                onSwipe={() => {}}
+                isTop={false}
+              />
             </div>
           )}
 
-          <div key={topCard.user_id} className="w-full h-full absolute inset-0" style={{ zIndex: 10 }}>
-            <SimpleOwnerSwipeCard ref={cardRef} profile={mapToCardProfile(topCard)} onSwipe={handleSwipe} isTop={true} />
-            <div className="absolute top-20 right-4 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm">
+          {/* Top card (interactive) */}
+          <div
+            key={topCard.user_id}
+            className="absolute inset-0"
+            style={{ zIndex: 10 }}
+          >
+            <SimpleOwnerSwipeCard
+              ref={cardRef}
+              profile={toCardProfile(topCard)}
+              onSwipe={handleSwipe}
+              isTop
+            />
+
+            {/* Compatibility badge */}
+            <div
+              className="absolute z-20 flex items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{
+                top: 'max(80px, calc(env(safe-area-inset-top, 0px) + 80px))',
+                right: 16,
+                backgroundColor: 'rgba(0,0,0,0.45)',
+                backdropFilter: 'blur(4px)',
+              }}
+            >
               <Sparkles className="w-3 h-3 text-amber-400" />
               <span className="text-xs font-bold text-white">{topCard.compatibility}%</span>
             </div>
           </div>
-
-          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
-            <SwipeActionButtonBar onLike={handleButtonLike} onDislike={handleButtonDislike} />
-          </div>
         </div>
       )}
 
-      <RoommateFiltersSheet
-        open={filtersOpen}
-        onClose={() => setFiltersOpen(false)}
-        onApply={handleApplyFilters}
-        currentFilters={roommatePrefs ?? undefined}
-      />
+      {/* SVG gradient defs (re-used by active icon gradient if needed) */}
+      <svg width="0" height="0" className="absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="rmatch-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop stopColor="#667eea" offset="0%" />
+            <stop stopColor="#f97316" offset="100%" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   );
 }
