@@ -197,6 +197,14 @@ const Index = () => {
         return;
       }
 
+      // ADMIN GUARD: Check admin FIRST — admin users must never enter client/owner flow
+      if (userRole === 'admin') {
+        hasNavigated.current = true;
+        logger.log("[Index] Admin detected (early guard), navigating to admin panel");
+        navigate('/admin/eventos', { replace: true });
+        return;
+      }
+
       const activeMode = await fetchActiveMode();
 
       // If we have an active mode preference, use it
@@ -208,11 +216,11 @@ const Index = () => {
         return;
       }
 
-      // Fallback 1: Admin always goes to client (or sticky if they have one)
+      // Fallback 1: Admin always goes to admin panel — never mixed with client/owner
       if (userRole === 'admin') {
         hasNavigated.current = true;
-        logger.log("[Index] Admin detected, navigating to unified hub");
-        navigate('/client/dashboard', { replace: true }); // Admin defaults to client
+        logger.log("[Index] Admin detected, navigating to admin panel");
+        navigate('/admin/eventos', { replace: true });
         return;
       }
 
