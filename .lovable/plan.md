@@ -1,56 +1,69 @@
 
 
-## Plan: Fix Owner Nav, Clean Owner Profile, Restore AI Button
+## Plan: Professional DJ Turntable Radio Skin
 
-### Issues Found
+### What We're Building
+A new full-screen DJ turntable radio page rendered entirely with CSS/SVG (no external images needed). It will replace the cassette player as the default skin shown when navigating to `/radio`.
 
-1. **Owner bottom nav** — exists with 5 items (Dashboard, Profile, Liked, Messages, Filters) and should be working. The nav bar may be hiding due to scroll direction detection. Need to verify it renders on owner routes.
+### Visual Design
+```text
+┌─────────────────────────────────────┐
+│  [←]          CITY NAME    [♡][☰]  │  ← floating chrome buttons
+│                                     │
+│         ┌─────────────────┐         │
+│         │   ╭───────────╮ │         │  ← platter (metallic ring)
+│         │   │  VINYL    │ │         │
+│         │   │  record   │ │         │  ← spinning vinyl with grooves
+│         │   │  (label)  │ │         │     + center label (station name)
+│         │   ╰───────────╯ │         │
+│         └─────────────────┘         │
+│              ╲  tonearm             │  ← SVG tonearm, rotates onto vinyl
+│                                     │
+│  ┌──┐  [⏮] [▶/⏸] [⏭]  ┌────────┐ │
+│  │  │                     │ PITCH  │ │  ← vertical pitch fader = volume
+│  │  │   Station · Genre   │ FADER  │ │
+│  └──┘                     └────────┘ │
+└─────────────────────────────────────┘
+```
 
-2. **Owner profile page** (`OwnerProfileNew.tsx`) — contains client-side sections that don't belong:
-   - `MyHubQuickFilters` (line 183) — "Discovery Categories" — **remove**
-   - `MyHubActivityFeed` (line 191) — "Recent Activity" — **remove**
-   - `ExploreFeatureLinks` is not imported but could be confused with Quick Filters
+### Key Features
+1. **Spinning vinyl record** — CSS animation (`rotate 360deg`, 1.8s per revolution). Spins when playing, stops when paused. Grooves rendered as concentric semi-transparent rings. Center label shows station name + city in retro typography.
+2. **Metallic platter** — radial gradient simulating brushed aluminum.
+3. **Tonearm** — SVG arm that rotates from rest position onto the record when playing (framer-motion `rotate` animation).
+4. **Pitch fader** — vertical slider mapped to `setVolume(0-1)`. Styled as a professional DJ pitch slider with center detent marking.
+5. **Transport controls** — Play/Pause, Prev, Next buttons styled as tactile DJ deck buttons with neon glow feedback.
+6. **Station info** — current station name, genre, frequency displayed below the platter.
+7. **Floating chrome** — Back, Favorites, Browse Stations, Shuffle buttons (same pattern as cassette page).
+8. **Station Drawer** — reuses existing `StationDrawer` component.
+9. **City theme colors** — vinyl label and glow effects adapt to city theme.
 
-3. **AI Search button** — was removed from both TopBar and BottomNavigation. Currently the TopBar has an empty comment where it used to be (line 271). Need to restore it.
+### Implementation
 
-4. **Owner nav icons** — should match client icons more closely, with "Listings" as the only unique button.
+**New file: `src/pages/DJTurntableRadio.tsx`**
+- Full-screen page (~400 lines), same structure as `RetroRadioStation.tsx`
+- Uses `useRadio()` for all state/controls
+- CSS-only vinyl with `@keyframes spin` (paused/running based on `isPlaying`)
+- SVG tonearm with framer-motion rotation
+- Custom vertical pitch fader (styled `<input type="range">` rotated 270deg or custom div)
+- Reuses `StationDrawer` for station browsing
+- Keyboard shortcuts (space, arrows) same as cassette page
 
----
+**Modified: `src/App.tsx`**
+- Change `/radio` route to render `DJTurntableRadio` instead of `RetroRadioStation`
+- Keep cassette available at `/radio/cassette` for users who want to switch
 
-### Changes
+**Modified: `src/types/radio.ts`**
+- Add `'turntable'` to `RadioSkin` type
 
-#### 1. `src/components/BottomNavigation.tsx` — Match client icons, add Listings
+**Modified: `src/contexts/RadioContext.tsx`**
+- Change default skin from `'retro'` to `'turntable'`
 
-Update owner nav to mirror client nav but swap Filters for Listings:
-
-| Position | Client | Owner (new) |
-|----------|--------|-------------|
-| 1 | Compass → Explore | Compass → Explore |
-| 2 | User → Profile | User → Profile |
-| 3 | Flame → Likes | Flame → Likes |
-| 4 | MessageCircle → Messages | MessageCircle → Messages |
-| 5 | Search → Filters | Building2 → Listings |
-
-Owner nav uses `Compass` (same as client) for dashboard, and `Building2` for Listings pointing to `/owner/properties`.
-
-#### 2. `src/components/TopBar.tsx` — Restore AI Search button
-
-Add back the AI search button (Sparkles icon) in the right section of the TopBar, before the Zap button. Same glass styling as other buttons. Calls `onAISearchClick` prop.
-
-#### 3. `src/pages/OwnerProfileNew.tsx` — Remove client-only sections
-
-Remove these sections (keep everything else):
-- **Line 181-184**: `MyHubQuickFilters` ("Discover Categories") — delete
-- **Line 186-192**: `MyHubActivityFeed` ("Recent Activity") — delete
-- Remove unused imports: `MyHubQuickFilters`, `MyHubActivityFeed`
-
-**Sections that stay**: Profile header, stats grid, edit profile button, Your Likes / Who Liked You grid, Share & Earn, Language, Radio, Settings, Sign Out.
-
-### Files (3)
+### Files
 
 | File | Change |
 |------|--------|
-| `src/components/BottomNavigation.tsx` | Update owner nav: Compass icon for dashboard, Building2 for Listings, match client order |
-| `src/components/TopBar.tsx` | Restore AI Search button (Sparkles icon) in right section |
-| `src/pages/OwnerProfileNew.tsx` | Remove MyHubQuickFilters and MyHubActivityFeed sections + imports |
+| `src/pages/DJTurntableRadio.tsx` | **New** — full turntable UI page |
+| `src/App.tsx` | Route `/radio` → `DJTurntableRadio`, add `/radio/cassette` |
+| `src/types/radio.ts` | Add `'turntable'` to `RadioSkin` |
+| `src/contexts/RadioContext.tsx` | Default skin → `'turntable'` |
 
