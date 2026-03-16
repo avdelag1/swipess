@@ -27,7 +27,7 @@ export function ExploreFeatureLinks({ isClient = true }: ExploreFeatureLinksProp
         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 shadow-inner">
           <PartyPopper className="w-5 h-5 text-white" strokeWidth={2.5} />
         </div>
-        <span className="text-sm font-black uppercase tracking-widest">Events</span>
+        <span className="text-sm font-black uppercase tracking-widest">What's Up Tulum</span>
       </motion.button>
     </div>
   );
