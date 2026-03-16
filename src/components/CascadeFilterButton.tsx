@@ -269,7 +269,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
 
                   {/* Listing Type Section */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">looking to</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.lookingTo')}</span>
                     <div className="flex gap-2">
                       {listingTypes.map((type) => {
                         const isActive = filters.listingType === type.id;
