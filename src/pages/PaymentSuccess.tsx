@@ -140,7 +140,7 @@ export default function PaymentSuccess() {
       .from('tokens')
       .insert({
         user_id: userId,
-        activation_type: 'monthly_subscription',
+        activation_type: 'subscription',
         total_activations: pkg.tokens || 30,
         remaining_activations: pkg.tokens || 30,
         used_activations: 0,
@@ -185,9 +185,14 @@ export default function PaymentSuccess() {
     if (activError) throw activError;
   };
 
-  // Map legacy plan IDs to new package names
+  // Map plan IDs to package names
   const mapMonthlyPlanToPackage = async (planId: string) => {
     const planMap: Record<string, string> = {
+      // New subscription plans (SubscriptionPackagesPage)
+      'client-unlimited-1-month': '1 Month Access',
+      'client-unlimited-6-months': '6 Months Access',
+      'client-unlimited-1-year': '1 Year Access',
+      // Legacy plan IDs (backwards compatibility)
       'client-unlimited': 'Ultimate Seeker',
       'client-premium-plus-plus': 'Multi-Matcher',
       'client-premium': 'Basic Explorer',
