@@ -154,59 +154,67 @@ export default function EventosFeed() {
 
   const fetchEvents = useCallback(async (reset = false) => {
     const currentPage = reset ? 0 : page;
-    let query = supabase
-      .from('events')
-      .select('id, title, description, category, image_url, event_date, event_end_date, location, location_detail, organizer_name, promo_text, discount_tag, is_free, price_text')
-      .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
+    try {
+      let query = supabase
+        .from('events')
+        .select('id, title, description, category, image_url, event_date, event_end_date, location, location_detail, organizer_name, promo_text, discount_tag, is_free, price_text')
+        .range(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE - 1);
 
-    if (sortOrder === 'upcoming') {
-      query = query.order('event_date', { ascending: true, nullsFirst: false });
-    } else {
-      query = query.order('created_at', { ascending: false });
-    }
-
-    if (activeCategory !== 'all') {
-      query = query.eq('category', activeCategory);
-    }
-    if (filterFree === 'free') {
-      query = query.eq('is_free', true);
-    } else if (filterFree === 'paid') {
-      query = query.eq('is_free', false);
-    }
-    if (searchQuery.trim()) {
-      query = query.or(`title.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
-    }
-
-    const { data } = await query;
-    const items = (data as EventItem[]) || [];
-
-    if (items.length === 0 && currentPage === 0) {
-      // Use mock data for testing when DB is empty
-      setUseMockData(true);
-      const filtered = MOCK_EVENTS.filter(e => {
-        if (activeCategory !== 'all' && e.category !== activeCategory) return false;
-        if (filterFree === 'free' && !e.is_free) return false;
-        if (filterFree === 'paid' && e.is_free) return false;
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          return e.title.toLowerCase().includes(q) || (e.location?.toLowerCase().includes(q) ?? false);
-        }
-        return true;
-      });
-      setEvents(filtered);
-      setHasMore(false);
-    } else {
-      setUseMockData(false);
-      if (reset) {
-        setEvents(items);
-        setPage(1);
+      if (sortOrder === 'upcoming') {
+        query = query.order('event_date', { ascending: true, nullsFirst: false });
       } else {
-        setEvents(prev => [...prev, ...items]);
-        setPage(currentPage + 1);
+        query = query.order('created_at', { ascending: false });
       }
-      setHasMore(items.length === PAGE_SIZE);
+
+      if (activeCategory !== 'all') {
+        query = query.eq('category', activeCategory);
+      }
+      if (filterFree === 'free') {
+        query = query.eq('is_free', true);
+      } else if (filterFree === 'paid') {
+        query = query.eq('is_free', false);
+      }
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`);
+      }
+
+      const { data } = await query;
+      const items = (data as EventItem[]) || [];
+
+      if (items.length === 0 && currentPage === 0) {
+        // Use mock data for testing when DB is empty
+        setUseMockData(true);
+        const filtered = MOCK_EVENTS.filter(e => {
+          if (activeCategory !== 'all' && e.category !== activeCategory) return false;
+          if (filterFree === 'free' && !e.is_free) return false;
+          if (filterFree === 'paid' && e.is_free) return false;
+          if (searchQuery.trim()) {
+            const q = searchQuery.toLowerCase();
+            return e.title.toLowerCase().includes(q) || (e.location?.toLowerCase().includes(q) ?? false);
+          }
+          return true;
+        });
+        setEvents(filtered);
+        setHasMore(false);
+      } else {
+        setUseMockData(false);
+        if (reset) {
+          setEvents(items);
+          setPage(1);
+        } else {
+          setEvents(prev => [...prev, ...items]);
+          setPage(currentPage + 1);
+        }
+        setHasMore(items.length === PAGE_SIZE);
+      }
+    } catch {
+      // On any error, fall back to mock data so the page still renders
+      setUseMockData(true);
+      setEvents(MOCK_EVENTS);
+      setHasMore(false);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [activeCategory, searchQuery, page, filterFree, sortOrder]);
 
   useEffect(() => {
