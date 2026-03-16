@@ -325,6 +325,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/client/profile',
     '/client/liked-properties',
     '/messages',
+    '/explore/roommates',
     '/client/filters',
   ];
   const ownerSwipePaths = [
