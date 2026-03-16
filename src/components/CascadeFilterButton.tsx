@@ -203,7 +203,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                     )}
                   >
                     <RotateCcw className="w-3 h-3" />
-                    reset
+                    {t('filters.reset')}
                   </button>
                 )}
                 <button
