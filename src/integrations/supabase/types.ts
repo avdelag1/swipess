@@ -1723,11 +1723,18 @@ export type Database = {
           deal_breakers: Json | null
           id: string
           is_seeking_roommate: boolean | null
+          preferred_age_max: number | null
+          preferred_age_min: number | null
           preferred_budget_max: number | null
           preferred_budget_min: number | null
+          preferred_cleanliness: string | null
+          preferred_drinking: string | null
           preferred_gender: Json | null
           preferred_move_in: string | null
           preferred_neighborhoods: Json | null
+          preferred_noise_tolerance: string | null
+          preferred_smoking: string | null
+          preferred_work_schedule: string | null
           updated_at: string
           user_id: string
         }
@@ -1736,11 +1743,18 @@ export type Database = {
           deal_breakers?: Json | null
           id?: string
           is_seeking_roommate?: boolean | null
+          preferred_age_max?: number | null
+          preferred_age_min?: number | null
           preferred_budget_max?: number | null
           preferred_budget_min?: number | null
+          preferred_cleanliness?: string | null
+          preferred_drinking?: string | null
           preferred_gender?: Json | null
           preferred_move_in?: string | null
           preferred_neighborhoods?: Json | null
+          preferred_noise_tolerance?: string | null
+          preferred_smoking?: string | null
+          preferred_work_schedule?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1749,11 +1763,18 @@ export type Database = {
           deal_breakers?: Json | null
           id?: string
           is_seeking_roommate?: boolean | null
+          preferred_age_max?: number | null
+          preferred_age_min?: number | null
           preferred_budget_max?: number | null
           preferred_budget_min?: number | null
+          preferred_cleanliness?: string | null
+          preferred_drinking?: string | null
           preferred_gender?: Json | null
           preferred_move_in?: string | null
           preferred_neighborhoods?: Json | null
+          preferred_noise_tolerance?: string | null
+          preferred_smoking?: string | null
+          preferred_work_schedule?: string | null
           updated_at?: string
           user_id?: string
         }

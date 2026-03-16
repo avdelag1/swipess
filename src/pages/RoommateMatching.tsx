@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Users, Sparkles } from 'lucide-react';
+import { Users, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageHeader } from '@/components/PageHeader';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+import { RoommateFiltersSheet, RoommateFilterState } from '@/components/filters/RoommateFiltersSheet';
 
 interface RoommateCandidate {
   user_id: string;
@@ -23,6 +24,7 @@ interface RoommateCandidate {
   cleanliness_level: string | null;
   noise_tolerance: string | null;
   smoking_habit: string | null;
+  drinking_habit: string | null;
   interests: string[];
   languages: string[];
   profile_images: string[];
@@ -31,18 +33,50 @@ interface RoommateCandidate {
   compatibility: number;
 }
 
-function calculateCompatibility(me: any, other: any): number {
+function calculateCompatibility(me: any, other: any, prefs: RoommateFilterState | null): number {
   let score = 50;
-  if (me.work_schedule && other.work_schedule && me.work_schedule === other.work_schedule) score += 15;
-  if (me.cleanliness_level && other.cleanliness_level && me.cleanliness_level === other.cleanliness_level) score += 15;
-  if (me.noise_tolerance && other.noise_tolerance && me.noise_tolerance === other.noise_tolerance) score += 10;
-  if (me.smoking_habit === other.smoking_habit) score += 10;
+
+  // Base matching
+  if (me.work_schedule && other.work_schedule && me.work_schedule === other.work_schedule) score += 10;
+  if (me.cleanliness_level && other.cleanliness_level && me.cleanliness_level === other.cleanliness_level) score += 10;
+  if (me.noise_tolerance && other.noise_tolerance && me.noise_tolerance === other.noise_tolerance) score += 8;
+  if (me.smoking_habit === other.smoking_habit) score += 8;
+
   const myInterests = Array.isArray(me.interests) ? me.interests : [];
   const theirInterests = Array.isArray(other.interests) ? other.interests : [];
   const shared = myInterests.filter((i: string) => theirInterests.includes(i)).length;
-  score += Math.min(shared * 5, 20);
-  if (me.neighborhood && other.neighborhood && me.neighborhood === other.neighborhood) score += 10;
+  score += Math.min(shared * 5, 15);
+
+  if (me.neighborhood && other.neighborhood && me.neighborhood === other.neighborhood) score += 8;
+
+  // Preference-weighted boosts
+  if (prefs) {
+    if (prefs.preferred_cleanliness && other.cleanliness_level === prefs.preferred_cleanliness) score += 10;
+    if (prefs.preferred_noise_tolerance && other.noise_tolerance === prefs.preferred_noise_tolerance) score += 8;
+    if (prefs.preferred_smoking && other.smoking_habit === prefs.preferred_smoking) score += 8;
+    if (prefs.preferred_drinking && other.drinking_habit === prefs.preferred_drinking) score += 6;
+    if (prefs.preferred_work_schedule && other.work_schedule === prefs.preferred_work_schedule) score += 8;
+  }
+
   return Math.min(score, 99);
+}
+
+function applyPreferenceFilters(candidates: any[], prefs: RoommateFilterState | null): any[] {
+  if (!prefs) return candidates;
+  return candidates.filter(c => {
+    // Gender filter
+    if (prefs.preferred_gender.length > 0 && !prefs.preferred_gender.includes('Any Gender')) {
+      if (c.gender && !prefs.preferred_gender.includes(c.gender)) return false;
+    }
+    // Age filter
+    if (prefs.preferred_age_min && c.age && c.age < prefs.preferred_age_min) return false;
+    if (prefs.preferred_age_max && c.age && c.age > prefs.preferred_age_max) return false;
+    // Deal breakers
+    if (prefs.deal_breakers.includes('Smoking indoors') && c.smoking_habit === 'regularly') return false;
+    if (prefs.deal_breakers.includes('Pets') && c.has_children) return false; // rough proxy
+    if (prefs.deal_breakers.includes('Loud music at night') && c.noise_tolerance === 'high') return false;
+    return true;
+  });
 }
 
 export default function RoommateMatching() {
@@ -52,12 +86,44 @@ export default function RoommateMatching() {
   const [isLoading, setIsLoading] = useState(true);
   const [myProfile, setMyProfile] = useState<any>(null);
   const [roommateAvailable, setRoommateAvailable] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [roommatePrefs, setRoommatePrefs] = useState<RoommateFilterState | null>(null);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   useEffect(() => {
     if (!user) return;
-    fetchCandidates();
+    loadPreferences();
   }, [user]);
+
+  // Re-fetch candidates when prefs change
+  useEffect(() => {
+    if (!user) return;
+    fetchCandidates();
+  }, [user, roommatePrefs]);
+
+  const loadPreferences = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('roommate_preferences')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    if (data) {
+      setRoommatePrefs({
+        preferred_gender: Array.isArray(data.preferred_gender) ? data.preferred_gender as string[] : [],
+        preferred_budget_min: data.preferred_budget_min ?? null,
+        preferred_budget_max: data.preferred_budget_max ?? null,
+        preferred_age_min: (data as any).preferred_age_min ?? null,
+        preferred_age_max: (data as any).preferred_age_max ?? null,
+        preferred_cleanliness: (data as any).preferred_cleanliness ?? null,
+        preferred_noise_tolerance: (data as any).preferred_noise_tolerance ?? null,
+        preferred_smoking: (data as any).preferred_smoking ?? null,
+        preferred_drinking: (data as any).preferred_drinking ?? null,
+        preferred_work_schedule: (data as any).preferred_work_schedule ?? null,
+        deal_breakers: Array.isArray(data.deal_breakers) ? data.deal_breakers as string[] : [],
+      });
+    }
+  };
 
   const fetchCandidates = async () => {
     if (!user) return;
@@ -78,8 +144,12 @@ export default function RoommateMatching() {
       .eq('user_id', user.id);
     const swipedIds = new Set((swiped || []).map((s: any) => s.target_user_id));
 
-    const scored = (others || [])
-      .filter(o => !swipedIds.has(o.user_id))
+    let pool = (others || []).filter(o => !swipedIds.has(o.user_id));
+
+    // Apply preference filters
+    pool = applyPreferenceFilters(pool, roommatePrefs);
+
+    const scored = pool
       .map(o => ({
         user_id: o.user_id,
         name: o.name,
@@ -94,16 +164,18 @@ export default function RoommateMatching() {
         cleanliness_level: o.cleanliness_level,
         noise_tolerance: o.noise_tolerance,
         smoking_habit: o.smoking_habit,
+        drinking_habit: o.drinking_habit,
         interests: Array.isArray(o.interests) ? o.interests as string[] : [],
         languages: Array.isArray(o.languages) ? o.languages as string[] : [],
         profile_images: Array.isArray(o.profile_images) ? o.profile_images as string[] : [],
         personality_traits: Array.isArray(o.personality_traits) ? o.personality_traits as string[] : [],
         preferred_activities: Array.isArray(o.preferred_activities) ? o.preferred_activities as string[] : [],
-        compatibility: calculateCompatibility(myData || {}, o),
+        compatibility: calculateCompatibility(myData || {}, o, roommatePrefs),
       }))
       .sort((a, b) => b.compatibility - a.compatibility);
 
     setCandidates(scored);
+    setCurrentIndex(0);
     setIsLoading(false);
   };
 
@@ -152,10 +224,13 @@ export default function RoommateMatching() {
     cardRef.current?.triggerSwipe('left');
   }, []);
 
+  const handleApplyFilters = (newFilters: RoommateFilterState) => {
+    setRoommatePrefs(newFilters);
+  };
+
   const topCard = candidates[currentIndex];
   const nextCard = candidates[currentIndex + 1];
 
-  // Map RoommateCandidate → ClientProfile shape for SimpleOwnerSwipeCard
   const mapToCardProfile = (c: RoommateCandidate) => ({
     user_id: c.user_id,
     name: c.name,
@@ -173,22 +248,33 @@ export default function RoommateMatching() {
     preferred_activities: c.preferred_activities,
   });
 
+  const filterCount = roommatePrefs ? Object.values(roommatePrefs).filter(v =>
+    Array.isArray(v) ? v.length > 0 : v !== null
+  ).length : 0;
+
   return (
     <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
-      {/* Header with roommate toggle */}
+      {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-40 p-4 flex items-center justify-between">
-        <PageHeader
-          title="Roommate Match"
-          subtitle="Find compatible roommates"
-        />
-        <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/30">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Visible
-          </span>
-          <Switch
-            checked={roommateAvailable}
-            onCheckedChange={handleToggleRoommate}
-          />
+        <PageHeader title="Roommate Match" subtitle="Find compatible roommates" />
+        <div className="flex items-center gap-2">
+          {/* Filter button */}
+          <button
+            onClick={() => setFiltersOpen(true)}
+            className="relative flex items-center justify-center h-9 w-9 rounded-full bg-card/80 backdrop-blur-sm border border-border/30 transition-colors hover:bg-card"
+          >
+            <SlidersHorizontal className="h-4 w-4 text-foreground" />
+            {filterCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[9px] font-bold text-primary-foreground flex items-center justify-center">
+                {filterCount}
+              </span>
+            )}
+          </button>
+          {/* Visible toggle */}
+          <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5 border border-border/30">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Visible</span>
+            <Switch checked={roommateAvailable} onCheckedChange={handleToggleRoommate} />
+          </div>
         </div>
       </div>
 
@@ -204,54 +290,32 @@ export default function RoommateMatching() {
         </div>
       ) : (
         <div className="relative flex-1 w-full">
-          {/* Next card behind */}
           {nextCard && (
-            <div
-              key={`next-${nextCard.user_id}`}
-              className="w-full h-full absolute inset-0"
-              style={{
-                zIndex: 5,
-                transform: 'scale(0.95)',
-                opacity: 0.7,
-                pointerEvents: 'none',
-              }}
-            >
-              <SimpleOwnerSwipeCard
-                profile={mapToCardProfile(nextCard)}
-                onSwipe={() => {}}
-                isTop={false}
-              />
+            <div key={`next-${nextCard.user_id}`} className="w-full h-full absolute inset-0" style={{ zIndex: 5, transform: 'scale(0.95)', opacity: 0.7, pointerEvents: 'none' }}>
+              <SimpleOwnerSwipeCard profile={mapToCardProfile(nextCard)} onSwipe={() => {}} isTop={false} />
             </div>
           )}
 
-          {/* Top card */}
-          <div
-            key={topCard.user_id}
-            className="w-full h-full absolute inset-0"
-            style={{ zIndex: 10 }}
-          >
-            <SimpleOwnerSwipeCard
-              ref={cardRef}
-              profile={mapToCardProfile(topCard)}
-              onSwipe={handleSwipe}
-              isTop={true}
-            />
-            {/* Compatibility badge overlay */}
+          <div key={topCard.user_id} className="w-full h-full absolute inset-0" style={{ zIndex: 10 }}>
+            <SimpleOwnerSwipeCard ref={cardRef} profile={mapToCardProfile(topCard)} onSwipe={handleSwipe} isTop={true} />
             <div className="absolute top-20 right-4 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm">
               <Sparkles className="w-3 h-3 text-amber-400" />
               <span className="text-xs font-bold text-white">{topCard.compatibility}%</span>
             </div>
           </div>
 
-          {/* Action buttons — same as main dashboard */}
           <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
-            <SwipeActionButtonBar
-              onLike={handleButtonLike}
-              onDislike={handleButtonDislike}
-            />
+            <SwipeActionButtonBar onLike={handleButtonLike} onDislike={handleButtonDislike} />
           </div>
         </div>
       )}
+
+      <RoommateFiltersSheet
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={handleApplyFilters}
+        currentFilters={roommatePrefs ?? undefined}
+      />
     </div>
   );
 }
