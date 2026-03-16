@@ -106,6 +106,84 @@
     "settings": "您的设置",
     "settingsDesc": "管理您的个人资料、安全和偏好设置。"
   },
+  "popups": {
+    "dismiss": "知道了",
+    "dontShow": "不再显示",
+    "onboarding": {
+      "screen1": {
+        "title": "欢迎来到 Swipess 🎉",
+        "body": "房源、摩托车和工作——一站搞定。\n滑动找到你的匹配。"
+      },
+      "screen2": {
+        "title": "你在这里受到保护 🛡️",
+        "body": "每条房源来自真实用户。\n我们快速识别诈骗——你很安全。"
+      },
+      "screen3": {
+        "title": "快好了！🚀",
+        "body": "完善你的资料——获得更好的匹配。\n只需60秒。"
+      }
+    },
+    "contextual": {
+      "profile": {
+        "title": "你的资料 = 你的信任分数 👤",
+        "body": "添加照片、简介并验证身份。\n越完整 = 越多匹配。"
+      },
+      "createListing": {
+        "title": "优质房源快速获得匹配 📋",
+        "body": "上传真实照片、真实价格和位置。\n虚假信息 = 立即封号。"
+      },
+      "rideSection": {
+        "title": "租车前请先看这里 🏍️",
+        "body": "付款前务必亲自检查车辆。\n不见面 = 不成交。"
+      },
+      "miniContract": {
+        "title": "这是你的保障 📝",
+        "body": "迷你合同记录双方的约定。\n签署 = 双方都受到保护。"
+      },
+      "newMatch": {
+        "title": "新匹配——保持警惕 💬",
+        "body": "见面前绝不汇款。\n所有聊天请在App内进行。"
+      }
+    },
+    "ownerWarnings": {
+      "property": {
+        "title": "保护你的房产 🏠",
+        "body": "亲自见租客——没有查验身份证绝不交钥匙。\n始终使用迷你合同。"
+      },
+      "bikeRental": {
+        "title": "出租你的摩托车？⚠️",
+        "body": "交车前收取押金并拍摄租客证件照片。\n先记录车辆状况。"
+      }
+    },
+    "jobWarnings": {
+      "serviceProvider": {
+        "title": "开始工作前？先保护自己 🔧",
+        "body": "开始前商定好价格和范围。\n白纸黑字——使用迷你合同。"
+      },
+      "paymentWarning": {
+        "title": "绝不先免费工作 💸",
+        "body": "客户在工作开始前支付定金或书面确认。\n拒绝预付款诈骗——立即举报。"
+      }
+    },
+    "clientWarnings": {
+      "antiScam": {
+        "title": "在被骗之前识别诈骗 🚨",
+        "body": "价格太低？不愿见面？红旗警告。\n举报它——我们快速处理。"
+      },
+      "beforePaying": {
+        "title": "付款前——检查3件事 👀",
+        "body": "① 已验证资料  ② 真实照片  ③ 先见面\n不检查 = 高风险。"
+      },
+      "renterProtection": {
+        "title": "租房？你的权益很重要 🏠",
+        "body": "入住前务必签署迷你合同。\n有问题？直接在App内举报。"
+      },
+      "reportBadActor": {
+        "title": "感觉有问题？立即行动 🚩",
+        "body": "点击任何资料或聊天中的\"举报\"。\n我们24小时内审核——不允许打击报复。"
+      }
+    }
+  },
   "common": {
     "loading": "加载中...",
     "error": "出现了错误",
