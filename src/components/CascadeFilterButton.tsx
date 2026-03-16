@@ -239,7 +239,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                         )}
                       >
                         <Filter className="w-4 h-4" />
-                        <span>all categories</span>
+                        <span>{t('filters.allCategories')}</span>
                         {allSelected && <Check className="w-3 h-3 ml-auto" />}
                       </button>
                       {categories.map((category) => {
