@@ -98,8 +98,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Swipess';
   const options = {
     body: data.body || '',
-    icon: data.icon || '/icons/icon-192.png',
-    badge: data.badge || '/icons/icon-96.png',
+    icon: data.icon || '/icons/fire-s-logo.png',
+    badge: data.badge || '/icons/fire-s-logo.png',
     vibrate: [100, 50, 100, 50, 100],
     tag: `swipess-${(data.data && data.data.type) || 'general'}-${Date.now()}`,
     requireInteraction: false,
