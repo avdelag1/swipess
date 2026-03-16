@@ -106,6 +106,84 @@
     "settings": "Tus Ajustes",
     "settingsDesc": "Gestiona tu perfil, seguridad y preferencias."
   },
+  "popups": {
+    "dismiss": "Entendido",
+    "dontShow": "No mostrar de nuevo",
+    "onboarding": {
+      "screen1": {
+        "title": "¡Bienvenido a Swipess! 🎉",
+        "body": "Casas, motos y chamba — todo en un lugar.\nDesliza y encuentra lo tuyo."
+      },
+      "screen2": {
+        "title": "Aquí estás protegido 🛡️",
+        "body": "Cada anuncio es de una persona real.\nDetectamos fraudes rápido — tú estás seguro."
+      },
+      "screen3": {
+        "title": "¡Ya casi! 🚀",
+        "body": "Completa tu perfil — consigues mejores matches.\nSolo tarda 60 segundos."
+      }
+    },
+    "contextual": {
+      "profile": {
+        "title": "Tu perfil = tu nivel de confianza 👤",
+        "body": "Agrega foto, bio y verifica tu ID.\nMás completo = más matches."
+      },
+      "createListing": {
+        "title": "Los buenos anuncios consiguen matches rápido 📋",
+        "body": "Pon fotos reales, precio honesto y ubicación.\nInfo falsa = ban inmediato."
+      },
+      "rideSection": {
+        "title": "¿Vas a rentar una moto? Lee esto primero 🏍️",
+        "body": "Siempre revisa la moto en persona antes de pagar.\nSin verla = sin trato."
+      },
+      "miniContract": {
+        "title": "Esto es tu protección 📝",
+        "body": "Un mini-contrato registra lo que acordaron.\nFirmado = ambos están protegidos."
+      },
+      "newMatch": {
+        "title": "Nuevo match — sé listo 💬",
+        "body": "Nunca mandes dinero antes de conocerlos en persona.\nMantén todas las conversaciones dentro de la app."
+      }
+    },
+    "ownerWarnings": {
+      "property": {
+        "title": "Protege tu propiedad 🏠",
+        "body": "Conoce a los inquilinos en persona — nunca entregues llaves sin ver ID.\nUsa el mini-contrato. Siempre."
+      },
+      "bikeRental": {
+        "title": "¿Rentas tu moto? ⚠️",
+        "body": "Toma un depósito + foto del ID del arrendatario antes de entregarlo.\nDocumenta el estado de la moto primero."
+      }
+    },
+    "jobWarnings": {
+      "serviceProvider": {
+        "title": "¿Vas a trabajar? Protégete 🔧",
+        "body": "Acuerda precio y alcance antes de empezar.\nPonlo por escrito — usa el mini-contrato."
+      },
+      "paymentWarning": {
+        "title": "Nunca trabajes gratis primero 💸",
+        "body": "Los clientes pagan anticipo o firman antes de empezar.\nSin estafas de prepago — repórtalas al instante."
+      }
+    },
+    "clientWarnings": {
+      "antiScam": {
+        "title": "Detecta la estafa antes de que te afecte 🚨",
+        "body": "¿Precio muy barato? ¿Sin reunión en persona? Señal de alerta.\nRepórtalo — actuamos rápido."
+      },
+      "beforePaying": {
+        "title": "Antes de pagar — revisa 3 cosas 👀",
+        "body": "① Perfil verificado  ② Fotos reales  ③ Reúnete primero\nSin verificar = alto riesgo."
+      },
+      "renterProtection": {
+        "title": "¿Vas a rentar? Tus derechos importan 🏠",
+        "body": "Siempre firma un mini-contrato antes de entrar.\n¿Problemas? Repórtalos directo en la app."
+      },
+      "reportBadActor": {
+        "title": "¿Algo se siente mal? Actúa ahora 🚩",
+        "body": "Toca \"Reportar\" en cualquier perfil o chat.\nRevisamos en 24h — sin represalias permitidas."
+      }
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Algo salió mal",

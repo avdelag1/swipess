@@ -106,6 +106,84 @@
     "settings": "Deine Einstellungen",
     "settingsDesc": "Verwalte dein Profil, Sicherheit und Einstellungen."
   },
+  "popups": {
+    "dismiss": "Alles klar",
+    "dontShow": "Nicht mehr anzeigen",
+    "onboarding": {
+      "screen1": {
+        "title": "Willkommen bei Swipess 🎉",
+        "body": "Wohnungen, Bikes & Jobs — alles an einem Ort.\nSwipe und finde deinen Match."
+      },
+      "screen2": {
+        "title": "Du bist hier geschützt 🛡️",
+        "body": "Jedes Inserat kommt von einer echten Person.\nWir erkennen Betrug schnell — du bleibst sicher."
+      },
+      "screen3": {
+        "title": "Fast fertig! 🚀",
+        "body": "Vervollständige dein Profil — bessere Matches warten.\nDauert nur 60 Sekunden."
+      }
+    },
+    "contextual": {
+      "profile": {
+        "title": "Dein Profil = dein Vertrauens-Score 👤",
+        "body": "Foto, Bio & ID-Verifizierung hinzufügen.\nVollständiger = mehr Matches."
+      },
+      "createListing": {
+        "title": "Gute Inserate finden schnell Matches 📋",
+        "body": "Echte Fotos, fairer Preis & Standort angeben.\nFalsche Infos = sofortiger Bann."
+      },
+      "rideSection": {
+        "title": "Du leihst ein Fahrzeug? Lies das zuerst 🏍️",
+        "body": "Prüfe das Motorrad immer persönlich vor der Zahlung.\nKein Treffen = kein Deal."
+      },
+      "miniContract": {
+        "title": "Das ist dein Schutz 📝",
+        "body": "Ein Mini-Vertrag hält fest, was ihr vereinbart habt.\nUnterschrieben = beide Seiten sind geschützt."
+      },
+      "newMatch": {
+        "title": "Neues Match — bleib clever 💬",
+        "body": "Schicke niemals Geld, bevor ihr euch getroffen habt.\nHalte alle Chats in der App."
+      }
+    },
+    "ownerWarnings": {
+      "property": {
+        "title": "Schütze dein Eigentum 🏠",
+        "body": "Triff Mieter persönlich — niemals Schlüssel ohne ID-Prüfung.\nNutze immer den Mini-Vertrag."
+      },
+      "bikeRental": {
+        "title": "Du verleiht dein Motorrad? ⚠️",
+        "body": "Kaution + Foto des Ausweises vor Übergabe nehmen.\nZuerst den Fahrzeugzustand dokumentieren."
+      }
+    },
+    "jobWarnings": {
+      "serviceProvider": {
+        "title": "Du startest einen Job? Schütze dich 🔧",
+        "body": "Preis & Umfang vor Beginn vereinbaren.\nSchriftlich festhalten — Mini-Vertrag nutzen."
+      },
+      "paymentWarning": {
+        "title": "Arbeite niemals zuerst umsonst 💸",
+        "body": "Kunden zahlen eine Anzahlung oder stimmen schriftlich zu, bevor es losgeht.\nKeine Vorauszahlungsbetrug — sofort melden."
+      }
+    },
+    "clientWarnings": {
+      "antiScam": {
+        "title": "Erkenne Betrug bevor er dich trifft 🚨",
+        "body": "Preis zu gut? Kein persönliches Treffen? Warnsignal.\nMeld es — wir handeln schnell."
+      },
+      "beforePaying": {
+        "title": "Vor der Zahlung — prüfe 3 Dinge 👀",
+        "body": "① Verifiziertes Profil  ② Echte Fotos  ③ Erst treffen\nKeine Prüfung = hohes Risiko."
+      },
+      "renterProtection": {
+        "title": "Du mietest eine Wohnung? Deine Rechte zählen 🏠",
+        "body": "Immer einen Mini-Vertrag vor dem Einzug unterschreiben.\nProbleme? Direkt in der App melden."
+      },
+      "reportBadActor": {
+        "title": "Irgendetwas fühlt sich falsch an? Jetzt handeln 🚩",
+        "body": "Tippe auf „Melden\" bei jedem Profil oder Chat.\nWir prüfen innerhalb 24h — keine Vergeltung erlaubt."
+      }
+    }
+  },
   "common": {
     "loading": "Laden...",
     "error": "Etwas ist schief gelaufen",
