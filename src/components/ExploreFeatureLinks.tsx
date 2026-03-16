@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
 const exploreFeatures = [
-  { path: '/explore/zones', label: 'Zones', icon: MapPin, gradient: 'from-teal-500 to-emerald-400', clientOnly: false },
+  { path: '/explore/eventos', label: 'Eventos', icon: PartyPopper, gradient: 'from-rose-500 to-orange-400', clientOnly: false },
   { path: '/explore/roommates', label: 'Roommates', icon: Users, gradient: 'from-violet-500 to-fuchsia-400', clientOnly: true },
   { path: '/explore/prices', label: 'Prices', icon: TrendingUp, gradient: 'from-amber-500 to-yellow-400', clientOnly: false },
   { path: '/explore/intel', label: 'Intel', icon: Newspaper, gradient: 'from-sky-500 to-blue-400', clientOnly: false },

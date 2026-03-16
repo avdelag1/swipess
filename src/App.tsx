@@ -291,7 +291,9 @@ const App = () => {
                                         <Route path="/radio/favorites" element={<RadioFavorites />} />
 
                                         {/* New feature routes */}
-                                        <Route path="/explore/zones" element={<NeighborhoodMap />} />
+                                        <Route path="/explore/eventos" element={<EventosFeed />} />
+                                        <Route path="/explore/eventos/:id" element={<EventoDetail />} />
+                                        <Route path="/admin/eventos" element={<AdminEventos />} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
