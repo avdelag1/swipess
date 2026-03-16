@@ -68,22 +68,18 @@ const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.React
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
   <>
     <span className={cn(
-      "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
+      "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap uppercase",
       hasActiveFilters
-        ? "bg-gradient-to-r from-pink-400 to-rose-400"
-        : isDark
-          ? "bg-gradient-to-r from-white to-gray-300"
-          : "bg-gradient-to-r from-gray-700 to-gray-500"
+        ? "text-pink-600"
+        : isDark ? "text-white" : "text-slate-700"
     )}>
       Quick Filter
     </span>
     <span className={cn(
-      "sm:hidden font-black text-xs tracking-tight whitespace-nowrap bg-clip-text text-transparent uppercase",
+      "sm:hidden font-black text-xs tracking-tight whitespace-nowrap uppercase",
       hasActiveFilters
-        ? "bg-gradient-to-r from-pink-400 to-rose-400"
-        : isDark
-          ? "bg-gradient-to-r from-white to-gray-300"
-          : "bg-gradient-to-r from-gray-700 to-gray-500"
+        ? "text-pink-600"
+        : isDark ? "text-white" : "text-slate-700"
     )}>
       Filter
     </span>
@@ -98,11 +94,11 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1.5px solid rgba(0, 0, 0, 0.1)';
+  const glassBg = isDark ? 'rgba(255, 255, 255, 0.1)' : '#ffffff';
+  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.12)';
   const floatingShadow = isDark
-    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-    : '0 2px 4px rgba(0,0,0,0.05)';
+    ? '0 4px 12px rgba(0,0,0,0.4)'
+    : 'none';
 
   // ========== READ FROM ZUSTAND STORE ==========
   const categories = useFilterStore((state) => state.categories);
@@ -195,12 +191,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   // Render owner filters dropdown - clean horizontal pills
   const renderOwnerFilters = () => {
     return (
-      <div className={cn(
-        "border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]",
-        isDark ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"
-      )}>
+      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
         {/* Header */}
-        <div className={cn("flex items-center justify-between px-4 py-3 border-b", isDark ? "border-white/5" : "border-black/5")}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-black/5">
           <span className="text-sm font-semibold text-foreground">Filter Clients</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -225,8 +218,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   className={cn(
                     'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientGender === option.id
-                      ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : isDark ? 'text-muted-foreground hover:bg-white/10 bg-white/5 border border-white/5' : 'text-muted-foreground hover:bg-black/[0.06] bg-black/[0.04] border border-black/[0.08]'
+                      ? "bg-slate-700 text-white shadow-sm"
+                      : "text-gray-500 hover:bg-black/[0.04] bg-white border border-black/[0.1]"
                   )}
                 >
                   {option.icon}
@@ -247,8 +240,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                   className={cn(
                     'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientType === option.id
-                      ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : isDark ? 'text-muted-foreground hover:bg-white/10 bg-white/5 border border-white/5' : 'text-gray-600 hover:bg-black/[0.08] bg-black/[0.1] border border-black/[0.12]'
+                      ? "bg-slate-700 text-white shadow-sm" // Changed to solid color
+                      : "text-gray-500 hover:bg-black/[0.04] bg-white border border-black/[0.1]" // Changed to solid color
                   )}
                 >
                   {option.icon}
@@ -267,12 +260,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const renderClientFilters = () => {
     const isAllActive = categories.length === 0;
     return (
-      <div className={cn(
-        "border rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]",
-        isDark ? "bg-[#1a1a1a] border-white/10" : "bg-white border-black/10"
-      )}>
+      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
         {/* Header */}
-        <div className={cn("flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b", isDark ? "border-white/5" : "border-black/5")}>
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-black/5">
           <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
           {activeFilterCount > 0 && (
             <motion.button
@@ -300,20 +290,18 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               className={cn(
                 'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                 isAllActive
-                  ? 'bg-gradient-to-r from-gray-600 to-slate-500 text-white'
-                  : isDark ? 'text-foreground hover:bg-white/10' : 'text-foreground hover:bg-black/5'
+                  ? 'bg-slate-700 text-white'
+                  : 'text-gray-700 hover:bg-black/[0.04]'
               )}
             >
               <div className="flex items-center gap-2 sm:gap-3">
                 <span className={cn(
                   'p-1.5 sm:p-2 rounded-lg',
-                  isAllActive
-                    ? 'bg-white/20 text-white'
-                    : isDark ? 'bg-white/5 text-gray-400' : 'bg-black/5 text-gray-500'
+                  isAllActive ? 'bg-white/20 text-white' : 'bg-black/5 text-gray-500'
                 )}>
                   <Search strokeWidth={4} className="w-4 h-4" />
                 </span>
-                <span className={cn("font-medium text-sm sm:text-base", !isAllActive && (isDark ? 'text-gray-400' : 'text-gray-500'))}>All</span>
+                <span className="font-medium text-sm sm:text-base">All</span>
               </div>
             </button>
           </motion.div>
@@ -333,25 +321,23 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 className={cn(
                   'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
                   isActive
-                    ? cn('bg-gradient-to-r', category.color, 'text-white')
-                    : isDark ? 'text-foreground hover:bg-white/10' : 'text-foreground hover:bg-black/5'
+                    ? 'bg-slate-700 text-white'
+                    : 'text-gray-700 hover:bg-black/[0.04]'
                 )}
               >
                 <div className="flex items-center gap-2 sm:gap-3">
                   <span className={cn(
                     'p-1.5 sm:p-2 rounded-lg',
-                    isActive
-                      ? 'bg-white/20 text-white'
-                      : isDark ? cn('bg-white/5', category.inactiveColor) : cn('bg-black/5', category.inactiveColor)
+                    isActive ? 'bg-white/20 text-white' : 'bg-black/5 text-gray-400'
                   )}>
                     {category.icon}
                   </span>
-                  <span className={cn("font-medium text-sm sm:text-base", !isActive && category.inactiveColor)}>{category.label}</span>
+                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
                 </div>
                 {category.hasSubOptions && (
                   <ChevronRight strokeWidth={3} className={cn(
                     "w-5 h-5 transition-transform",
-                    isActive ? "text-white/70" : "text-muted-foreground",
+                    isActive ? "text-white/70" : "text-gray-400",
                     clickedCategory === category.id && "rotate-90"
                   )} />
                 )}
@@ -415,10 +401,10 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         )}
         style={{
           backgroundColor: hasActiveFilters
-            ? (isDark ? 'rgba(236, 72, 153, 0.15)' : 'rgba(236, 72, 153, 0.08)')
+            ? (isDark ? 'rgba(236, 72, 153, 0.15)' : '#ffffff')
             : glassBg,
           border: hasActiveFilters
-            ? (isDark ? '1px solid rgba(236, 72, 153, 0.3)' : '1px solid rgba(236, 72, 153, 0.2)')
+            ? (isDark ? '1px solid rgba(236, 72, 153, 0.3)' : '1.5px solid #ec4899')
             : glassBorder,
           boxShadow: floatingShadow,
         }}
@@ -443,29 +429,20 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[10001] bg-black/40 backdrop-blur-[2px]"
+            <div
+              className="fixed inset-0 z-[10001] bg-transparent"
               onClick={() => {
                 setIsOpen(false);
                 setClickedCategory(null);
               }}
             />
 
-            {/* Main dropdown - left-aligned on mobile, centered on larger screens */}
-            <motion.div
+            <div
               ref={dropdownRef}
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ type: 'spring', stiffness: 600, damping: 25 }}
               className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
-            </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>

@@ -606,10 +606,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
-          onAISearchClick={() => setIsAISearchOpen(true)}
+          onAISearchClick={() => {
+            if (userRole === 'owner') {
+              navigate('/owner/listings/new-ai');
+            } else {
+              setIsAISearchOpen(true);
+            }
+          }}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
-          transparent={isImmersiveDashboard}
+          transparent={false}
           hideOnScroll={true}
           title={pageTitle}
           showBack={!isOnDiscoveryPage}
@@ -622,12 +628,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
         style={{
-          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard || isRoommateRoute)
+          paddingTop: (isCameraRoute || isRadioRoute || isRoommateRoute)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard || isRoommateRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
-          paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
-          paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
+          paddingBottom: (isCameraRoute || isRadioRoute || isRoommateRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingLeft: 'max(var(--safe-left), 0px)',
+          paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
           maxWidth: '100vw',
           boxSizing: 'border-box',
@@ -651,7 +657,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           onFilterClick={handleFilterClick}
           onAddListingClick={handleAddListingClick}
           onListingsClick={handleListingsClick}
-          onAISearchClick={() => setIsAISearchOpen(true)}
+          onAISearchClick={() => {
+            if (userRole === 'owner') {
+              navigate('/owner/listings/new-ai');
+            } else {
+              setIsAISearchOpen(true);
+            }
+          }}
         />
       )}
 
@@ -807,7 +819,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <AISearchDialog
         isOpen={isAISearchOpen}
         onClose={() => setIsAISearchOpen(false)}
-        userRole={userRole}
+        userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'}
       />
 
       {/* Push Notification Permission Prompt */}

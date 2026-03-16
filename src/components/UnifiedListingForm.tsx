@@ -166,7 +166,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
       // Main listing data - ALL fields in listings table
       const rawListingData: Record<string, any> = {
-        user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : selectedMode,
@@ -276,8 +275,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
             
             if (isSchemaError) {
-              const columnMatch = error.message?.match(/column ['"]?([^'" ]+)['"]?/i);
-              const missingColumn = columnMatch ? columnMatch[1] : null;
+              const columnMatch = error.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
+              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
               
               if (missingColumn && listingData[missingColumn] !== undefined) {
                 console.warn(`Removing problematic column "${missingColumn}" from update and retrying...`);
@@ -311,9 +310,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             if (isSchemaError) {
               console.warn('PostgREST schema cache error detected. Attempting smart retry...');
               
-              // Extract the column name from the error message (e.g., "Could not find the 'user_id' column")
-              const columnMatch = error.message?.match(/column ['"]?([^'" ]+)['"]?/i);
-              const missingColumn = columnMatch ? columnMatch[1] : null;
+              const columnMatch = error.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
+              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
               
               if (missingColumn && listingData[missingColumn] !== undefined) {
                 console.warn(`Removing problematic column "${missingColumn}" and retrying...`);
@@ -327,8 +325,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
                 if (fallbackError) {
                   // If it fails again with another column, try one more time stripping both (common for location + user_id)
-                  const secondColumnMatch = fallbackError.message?.match(/column ['"]?([^'" ]+)['"]?/i);
-                  const secondMissingColumn = secondColumnMatch ? secondColumnMatch[1] : null;
+                  const secondColumnMatch = fallbackError.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
+                  const secondMissingColumn = secondColumnMatch ? (secondColumnMatch[1] || secondColumnMatch[2]) : null;
                   
                   if (secondMissingColumn && safeData[secondMissingColumn] !== undefined) {
                     console.warn(`Removing second problematic column "${secondMissingColumn}" and retrying final time...`);

@@ -201,9 +201,8 @@ export function ConversationalListingCreator() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      // Prepare listing data
+      // Prepare listing data - removed user_id to prevent schema cache errors
       const listingData = {
-        user_id: user.id,
         owner_id: user.id,
         category: selectedCategory,
         images,
@@ -221,7 +220,28 @@ export function ConversationalListingCreator() {
         .from('listings')
         .insert([listingData]);
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        // SMART RETRY: If user_id column error happens, we already removed it,
+        // but if there are other schema cache errors, handle them
+        const errorMsg = insertError.message?.toLowerCase() || '';
+        const isSchemaError = errorMsg.includes('could not find') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+        
+        if (isSchemaError) {
+          const columnMatch = insertError.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
+          const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
+          
+          if (missingColumn && (listingData as any)[missingColumn] !== undefined) {
+            console.warn(`Conversational AI: Removing problematic column "${missingColumn}" and retrying...`);
+            const { [missingColumn]: _, ...safeData } = listingData as any;
+            const { error: retryError } = await supabase.from('listings').insert([safeData]);
+            if (retryError) throw retryError;
+          } else {
+            throw insertError;
+          }
+        } else {
+          throw insertError;
+        }
+      }
 
       toast.success('Listing created successfully!');
       navigate('/owner-dashboard');

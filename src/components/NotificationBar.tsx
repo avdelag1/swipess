@@ -104,11 +104,11 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
             style={{
               background: isDark
                 ? 'rgba(24,24,28,0.95)'
-                : 'rgba(255,255,255,0.98)',
+                : '#ffffff',
               border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
               boxShadow: isDark
                 ? '0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
-                : '0 4px 24px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06)',
+                : '0 4px 12px rgba(0,0,0,0.05)',
             }}
             onClick={() => {
               onNotificationClick(currentNotification);

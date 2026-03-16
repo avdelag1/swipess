@@ -89,13 +89,13 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'var(--glass-bg)'
-    : 'rgba(255, 255, 255, 0.98)';
+    : '#ffffff';
   const glassBorder = isDark
     ? '1px solid var(--glass-border)'
-    : '1px solid rgba(0, 0, 0, 0.10)';
+    : '1px solid #e5e7eb';
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-    : '0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1)';
+    : '0 2px 4px rgba(0,0,0,0.05)';
   // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -172,24 +172,8 @@ function TopBarComponent({
           className
         )}
       >
-        {/* Premium multi-stop gradient overlay for flagship header readability */}
-        <div
-          className="pointer-events-none absolute left-0 right-0 top-0 h-[100px] -z-10"
-          style={{
-            background: isDark
-              ? 'linear-gradient(to bottom, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.25) 35%, rgba(0, 0, 0, 0.1) 65%, rgba(0, 0, 0, 0) 100%)'
-              : 'linear-gradient(to bottom, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.35) 35%, rgba(255, 255, 255, 0.1) 65%, rgba(255, 255, 255, 0) 100%)'
-          }}
-          aria-hidden="true"
-        />
-        {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
-        <div
-          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none -z-10"
-          style={{
-            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)'} 0%, transparent 100%)`,
-            opacity: 0.6
-          }}
-        />
+        {/* Normal header background */}
+        <div className="absolute inset-x-0 inset-y-0 bg-white dark:bg-black -z-10" />
 
         <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
           {/* Left section: Avatar + Mode switcher + filters */}
@@ -221,10 +205,10 @@ function TopBarComponent({
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-11 w-11 rounded-xl overflow-hidden cursor-pointer" style={{ border: glassBorder, boxShadow: floatingShadow }}>
+                <Avatar className="h-11 w-11 rounded-full overflow-hidden cursor-pointer border-none shadow-sm">
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
                   <AvatarFallback className={cn(
-                    "text-xs font-black uppercase",
+                    "text-xs font-black uppercase rounded-full",
                     isDark
                       ? "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
                       : "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
@@ -246,7 +230,7 @@ function TopBarComponent({
 
             {showFilters && userRole && (
               <div className="flex-shrink-0">
-                <QuickFilterDropdown userRole={userRole} />
+                <QuickFilterDropdown userRole={(userRole === 'admin' ? 'client' : userRole) as 'client' | 'owner'} />
               </div>
             )}
           </div>
@@ -304,7 +288,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl liquid-glass-card refraction-edge glass-nano-texture"
+                className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-white border border-black/10 shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
