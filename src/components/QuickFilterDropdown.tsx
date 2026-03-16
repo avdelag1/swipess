@@ -58,10 +58,10 @@ const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNo
 ];
 
 const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'all', label: 'All Types', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
+  { id: 'all', label: 'All Types', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
   { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
-  { id: 'rent', label: 'Renting', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
-  { id: 'buy', label: 'Buying', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
+  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
+  { id: 'buy', label: 'Buying', icon: <Search strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
 ];
 
 // UPGRADED BRIGHTNESS: Text is a bright, glowing gradient
@@ -248,7 +248,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
                     clientType === option.id
                       ? `bg-gradient-to-r ${option.color} text-white shadow-sm`
-                      : 'text-muted-foreground hover:bg-muted/50 bg-muted/30 border border-border'
+                      : isDark ? 'text-muted-foreground hover:bg-white/10 bg-white/5 border border-white/5' : 'text-gray-600 hover:bg-black/[0.08] bg-black/[0.1] border border-black/[0.12]'
                   )}
                 >
                   {option.icon}
@@ -448,7 +448,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[10001] bg-black/70"
+              className="fixed inset-0 z-[10001] bg-black/40 backdrop-blur-[2px]"
               onClick={() => {
                 setIsOpen(false);
                 setClickedCategory(null);
