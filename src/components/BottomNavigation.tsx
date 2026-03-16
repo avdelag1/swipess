@@ -99,16 +99,29 @@ export function BottomNavigation({
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — 5 max for single-line labels
+  // Owner nav items — 7 items, horizontally scrollable
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
+    { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
+  const isScrollable = navItems.length > 5;
+
+  // Auto-scroll active item into view
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isScrollable || !scrollRef.current) return;
+    const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    }
+  }, [location.pathname, isScrollable]);
 
   const handleNavPress = useCallback(
     (event: React.PointerEvent, item: NavItem) => {
