@@ -28,7 +28,10 @@ import { useMemo, useEffect } from 'react';
  * INSTANT role derivation from path
  * No async calls, no loading states, no flicker
  */
-function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'client' | 'owner' {
+function getRoleFromPath(pathname: string, activeMode: 'client' | 'owner'): 'client' | 'owner' | 'admin' {
+  if (pathname.startsWith('/admin/')) {
+    return 'admin';
+  }
   if (pathname.startsWith('/owner/')) {
     return 'owner';
   }
@@ -50,6 +53,11 @@ export function PersistentDashboardLayout() {
   // No async calls, no loading states, no skeleton
   const userRole = useMemo(() => {
     const pathRole = getRoleFromPath(location.pathname, activeMode);
+
+    // Admin routes always return 'admin' — no mixing with client/owner
+    if (location.pathname.startsWith('/admin/')) {
+      return 'admin' as const;
+    }
 
     // For explicit client/owner routes, use the path
     if (location.pathname.startsWith('/client/') || location.pathname.startsWith('/owner/')) {
