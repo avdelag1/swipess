@@ -220,8 +220,11 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   // Owner Quick Filters - gender, client type, categories, and listing type
   if (userRole === 'owner') {
-    const ownerHasActiveFilters = filters.categories.length > 0 || filters.listingType !== 'both' ||
-      (filters.clientGender && filters.clientGender !== 'any') || (filters.clientType && filters.clientType !== 'all');
+    const ownerIsAllSelected = filters.categories.length === 0 &&
+      (!filters.clientGender || filters.clientGender === 'any') &&
+      (!filters.clientType || filters.clientType === 'all') &&
+      filters.listingType === 'both';
+    const ownerHasActiveFilters = !ownerIsAllSelected;
     return (
       <div
         className={cn(
@@ -232,6 +235,28 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       >
         <div className="max-w-screen-xl mx-auto">
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            {/* "All" button — first, auto-active when no filters */}
+            <button
+              onClick={handleReset}
+              className={cn(
+                smoothButtonClass,
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
+                'border',
+                ownerIsAllSelected
+                  ? isDark
+                    ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 text-white border-transparent'
+                    : 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white border-transparent'
+                  : 'bg-muted text-foreground border-border hover:bg-muted/80'
+              )}
+            >
+              <Globe className="w-3.5 h-3.5" />
+              <span>All</span>
+              {ownerIsAllSelected && <Check className="w-3 h-3" />}
+            </button>
+
+            {/* Divider */}
+            <div className="w-px h-6 bg-border flex-shrink-0" />
+
             {/* Gender dropdown */}
             <FilterDropdown
               label="Gender"
@@ -280,13 +305,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               })}
             </div>
 
-            {/* Reset button */}
+            {/* Clear button — only show when filters are active */}
             {ownerHasActiveFilters && (
               <button
                 onClick={handleReset}
                 className={cn(
                   smoothButtonClass,
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold',
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
                   'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
                 )}
               >
@@ -301,6 +326,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   }
 
   // Client Quick Filters (default)
+  // "All" = no category filter active (categories.length === 0)
+  const clientIsAllSelected = filters.categories.length === 0 && filters.listingType === 'both';
+
   return (
     <div
       className={cn(
@@ -312,35 +340,27 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
       <div className="max-w-screen-xl mx-auto">
         {/* Main filter row */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-          {/* "All" category button - shows everything */}
+          {/* "All" button — first, auto-selected by default */}
           {userRole === 'client' && (
             <button
               onClick={() => {
-                const isAllSelected = filters.categories.length === allCategories.length;
-                if (isAllSelected) {
-                  // Deselect all if already all selected
-                  onChange({ ...filters, categories: [] });
-                } else {
-                  // Select all categories
-                  onChange({ ...filters, categories: [...allCategories] });
-                }
+                // Reset to "All" state: clear categories and listing type
+                onChange({ ...filters, categories: [], listingType: 'both' });
               }}
               className={cn(
                 smoothButtonClass,
-                'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
                 'border',
-                filters.categories.length === allCategories.length
+                clientIsAllSelected
                   ? isDark
                     ? 'bg-gradient-to-r from-blue-600 via-purple-600 to-emerald-600 text-white border-transparent'
                     : 'bg-gradient-to-r from-blue-500 via-purple-500 to-emerald-500 text-white border-transparent'
                   : 'bg-muted text-foreground border-border hover:bg-muted/80'
               )}
             >
-              <Globe className="w-4 h-4" />
-              <span className="hidden sm:inline">All</span>
-              {filters.categories.length === allCategories.length && (
-                <Check className="w-3 h-3" />
-              )}
+              <Globe className="w-3.5 h-3.5" />
+              <span>All</span>
+              {clientIsAllSelected && <Check className="w-3 h-3" />}
             </button>
           )}
 
