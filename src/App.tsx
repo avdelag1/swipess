@@ -98,6 +98,7 @@ const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
 const MyHub = lazy(() => import("./pages/MyHub"));
 const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
+const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
