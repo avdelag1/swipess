@@ -102,14 +102,12 @@ export function BottomNavigation({
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — 6 items, horizontally scrollable
+  // Owner nav items — horizontally scrollable
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
-    { id: 'whatsup', icon: Zap, label: "What's Up Tulum", path: '/explore/eventos' },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
