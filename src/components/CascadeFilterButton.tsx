@@ -192,7 +192,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30">
-              <span className="text-sm font-semibold text-foreground">Quick Filter</span>
+              <span className="text-sm font-semibold text-foreground">{t('filters.quickFilter')}</span>
               <div className="flex items-center gap-2">
                 {hasActiveFilters && (
                   <button
