@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, Users, TrendingUp, Newspaper, Video } from 'lucide-react';
+import { PartyPopper, Users, TrendingUp, Newspaper, Video } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
