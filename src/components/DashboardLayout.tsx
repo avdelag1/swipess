@@ -104,7 +104,7 @@ function clearOnboardingCache(): void {
 
 interface DashboardLayoutProps {
   children: ReactNode
-  userRole: 'client' | 'owner'
+  userRole: 'client' | 'owner' | 'admin'
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
@@ -336,9 +336,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/owner/filters',
   ];
   useSwipeNavigation({
-    paths: userRole === 'client' ? clientSwipePaths : ownerSwipePaths,
+    paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: true,
+    enabled: userRole !== 'admin',
   });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook

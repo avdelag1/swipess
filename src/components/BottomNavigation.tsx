@@ -19,7 +19,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Flame, MessageCircle, User, Building2, Heart, Filter,
-  Search, Compass, LayoutGrid, Briefcase, Users, List, Sparkles
+  Search, Compass, LayoutGrid, Briefcase, Users, List, Sparkles, ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -105,14 +105,21 @@ export function BottomNavigation({
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
-  const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
+  // Admin nav items — admin panel only
+  const adminNavItems: NavItem[] = [
+    { id: 'admin', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+  ];
+
+  const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
   const isScrollable = true; // Always scrollable for both roles
 
   // Auto-scroll active item into view

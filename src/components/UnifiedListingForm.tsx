@@ -75,7 +75,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const { saveListingDraft } = useAnonymousDrafts();
 
   const getMaxPhotos = () => {
-    return 1;
+    return 10;
   };
 
   const maxPhotos = getMaxPhotos();
@@ -168,8 +168,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
-        listing_type: selectedCategory === 'worker' ? 'service' : (selectedMode === 'both' ? 'rent' : selectedMode),
-        mode: selectedMode === 'both' ? 'rent' : selectedMode,
+        listing_type: selectedCategory === 'worker' ? 'service' : selectedMode,
+        mode: selectedMode,
         status: 'active',
         is_active: true,
         title: formData.title || 'Untitled',
@@ -326,7 +326,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.multiple = false;
+    input.multiple = true;
 
     input.onchange = (e) => {
       const files = Array.from((e.target as HTMLInputElement).files || []);

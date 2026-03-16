@@ -55,7 +55,7 @@ interface TopBarProps {
   onMessageActivationsClick?: () => void;
   className?: string;
   showFilters?: boolean;
-  userRole?: 'client' | 'owner';
+  userRole?: 'client' | 'owner' | 'admin';
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
