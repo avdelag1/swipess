@@ -164,7 +164,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const locationStr = formData.city || formData.address || formData.neighborhood || formData.location || 'Not specified';
 
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
-      const rawListingData = {
+      // Main listing data - ALL fields in listings table
+      const rawListingData: Record<string, any> = {
         user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
@@ -172,20 +173,20 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         mode: selectedMode,
         status: 'active',
         is_active: true,
-        title: formData.title || 'Untitled',
-        price: formData.price || 0,
+        title: (formData.title as string) || `New ${selectedCategory}`,
+        price: Number(formData.price) || 0,
         currency: 'USD',
         rental_rates: formData.rental_rates,
         rental_duration_type: formData.rental_duration_type,
-        description: formData.description || '',
+        description: (formData.description as string) || '',
         location: locationStr,
-        country: formData.country || 'Mexico',
-        state: formData.state || formData.city || 'Unknown',
-        city: formData.city || 'Unknown',
-        neighborhood: formData.neighborhood,
-        address: formData.address,
-        latitude: selectedCategory === 'property' ? null : (location.lat || null),
-        longitude: selectedCategory === 'property' ? null : (location.lng || null),
+        country: (formData.country as string) || 'Mexico',
+        state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
+        city: (formData.city as string) || 'Unknown',
+        neighborhood: (formData.neighborhood as string) || null,
+        address: (formData.address as string) || null,
+        latitude: location.lat || null,
+        longitude: location.lng || null,
         video_url: videoUrl,
         // JSONB arrays
         images: allImages,
@@ -204,9 +205,9 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         beds: formData.beds || null,
         baths: formData.baths || null,
         square_footage: formData.square_footage || null,
-        furnished: formData.furnished || false,
-        pet_friendly: formData.pet_friendly || false,
-        house_rules: formData.house_rules || null,
+        furnished: !!formData.furnished,
+        pet_friendly: !!formData.pet_friendly,
+        house_rules: (formData.house_rules as string) || null,
         // Worker fields
         service_category: selectedCategory === 'worker' ? formData.service_category : null,
         custom_service_name: selectedCategory === 'worker' ? formData.custom_service_name : null,
@@ -215,28 +216,28 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         experience_years: selectedCategory === 'worker' ? formData.experience_years : null,
         service_radius_km: selectedCategory === 'worker' ? formData.service_radius_km : null,
         minimum_booking_hours: selectedCategory === 'worker' ? formData.minimum_booking_hours : null,
-        offers_emergency_service: selectedCategory === 'worker' ? formData.offers_emergency_service : false,
-        background_check_verified: selectedCategory === 'worker' ? formData.background_check_verified : false,
-        insurance_verified: selectedCategory === 'worker' ? formData.insurance_verified : false,
+        offers_emergency_service: !!formData.offers_emergency_service,
+        background_check_verified: !!formData.background_check_verified,
+        insurance_verified: !!formData.insurance_verified,
         // Vehicle fields (motorcycle/bicycle) - ALL in listings table now
         vehicle_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? selectedCategory : null,
-        vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.brand : null,
-        vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.model : null,
+        vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.brand || formData.vehicle_brand) : null,
+        vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.model || formData.vehicle_model) : null,
         vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.condition ? String(formData.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
-        year: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.year : null,
-        mileage: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.mileage : null,
-        engine_cc: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.engine_cc : null,
+        year: formData.year ? Number(formData.year) : null,
+        mileage: formData.mileage ? Number(formData.mileage) : null,
+        engine_cc: formData.engine_cc ? Number(formData.engine_cc) : null,
         fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.fuel_type ? String(formData.fuel_type).toLowerCase() : null) : null,
         transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.transmission ? String(formData.transmission).toLowerCase().replace('semi-auto', 'semi-automatic') : null) : null,
         // Motorcycle specific
         motorcycle_type: selectedCategory === 'motorcycle' ? formData.motorcycle_type : null,
-        has_abs: selectedCategory === 'motorcycle' ? (formData.has_abs || false) : null,
-        has_esc: selectedCategory === 'motorcycle' ? (formData.has_esc || false) : null,
-        has_traction_control: selectedCategory === 'motorcycle' ? (formData.has_traction_control || false) : null,
-        has_heated_grips: selectedCategory === 'motorcycle' ? (formData.has_heated_grips || false) : null,
-        has_luggage_rack: selectedCategory === 'motorcycle' ? (formData.has_luggage_rack || false) : null,
-        includes_helmet: selectedCategory === 'motorcycle' ? (formData.includes_helmet || false) : null,
-        includes_gear: selectedCategory === 'motorcycle' ? (formData.includes_gear || false) : null,
+        has_abs: selectedCategory === 'motorcycle' ? !!formData.has_abs : null,
+        has_esc: selectedCategory === 'motorcycle' ? !!formData.has_esc : null,
+        has_traction_control: selectedCategory === 'motorcycle' ? !!formData.has_traction_control : null,
+        has_heated_grips: selectedCategory === 'motorcycle' ? !!formData.has_heated_grips : null,
+        has_luggage_rack: selectedCategory === 'motorcycle' ? !!formData.has_luggage_rack : null,
+        includes_helmet: selectedCategory === 'motorcycle' ? !!formData.includes_helmet : null,
+        includes_gear: selectedCategory === 'motorcycle' ? !!formData.includes_gear : null,
         // Bicycle specific
         bicycle_type: selectedCategory === 'bicycle' ? formData.bicycle_type : null,
         frame_size: selectedCategory === 'bicycle' ? formData.frame_size : null,
@@ -245,12 +246,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         suspension_type: selectedCategory === 'bicycle' ? formData.suspension_type : null,
         brake_type: selectedCategory === 'bicycle' ? formData.brake_type : null,
         wheel_size: selectedCategory === 'bicycle' ? formData.wheel_size : null,
-        electric_assist: selectedCategory === 'bicycle' ? (formData.electric_assist || false) : null,
+        electric_assist: selectedCategory === 'bicycle' ? !!formData.electric_assist : null,
         battery_range: selectedCategory === 'bicycle' ? formData.battery_range : null,
-        includes_lock: selectedCategory === 'bicycle' ? (formData.includes_lock || false) : null,
-        includes_lights: selectedCategory === 'bicycle' ? (formData.includes_lights || false) : null,
-        includes_basket: selectedCategory === 'bicycle' ? (formData.includes_basket || false) : null,
-        includes_pump: selectedCategory === 'bicycle' ? (formData.includes_pump || false) : null,
+        includes_lock: selectedCategory === 'bicycle' ? !!formData.includes_lock : null,
+        includes_lights: selectedCategory === 'bicycle' ? !!formData.includes_lights : null,
+        includes_basket: selectedCategory === 'bicycle' ? !!formData.includes_basket : null,
+        includes_pump: selectedCategory === 'bicycle' ? !!formData.includes_pump : null,
       };
 
       // Strip undefined values to prevent PostgREST schema cache issues
@@ -422,57 +423,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             variants={stagger}
             className="px-6 py-6 space-y-8 pb-32"
           >
-            {/* Category selection with cascade */}
-            <motion.div variants={itemFadeScale}>
-              <CategorySelector
-                selectedCategory={selectedCategory}
-                selectedMode={selectedMode}
-                onCategoryChange={setSelectedCategory}
-                onModeChange={setSelectedMode}
-              />
-            </motion.div>
-
-            {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
-              <motion.div
-                variants={itemFadeScale}
-                className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl"
-              >
-                <div className={cn(
-                  "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
-                  selectedCategory === 'motorcycle'
-                    ? 'text-orange-500 bg-orange-500/10'
-                    : 'text-purple-500 bg-purple-500/10'
-                )}>
-                  {selectedCategory === 'motorcycle' ? (
-                    <MotorcycleIcon className="w-8 h-8" />
-                  ) : (
-                    <Bike className="w-8 h-8" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-foreground">
-                    {selectedCategory === 'motorcycle' ? 'Motorcycle' : 'Bicycle'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground opacity-80">
-                    {selectedCategory === 'motorcycle'
-                      ? 'Motorcycles, scooters, ATVs'
-                      : 'Bikes, e-bikes, mountain bikes'}
-                  </p>
-                </div>
-                <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary px-3 py-1 rounded-full">
-                  Verified
-                </Badge>
-              </motion.div>
-            )}
-
-            <motion.div variants={itemFadeScale} className="space-y-8">
-              {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
-              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
-              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
-              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
-            </motion.div>
-
-            {/* Photo Section with premium cards */}
+            {/* Photo Section with premium cards - RELOCATED TO FRONT */}
             <motion.div variants={itemFadeScale}>
               <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
@@ -549,6 +500,58 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 </CardContent>
               </Card>
             </motion.div>
+
+            {/* Category selection with cascade */}
+            <motion.div variants={itemFadeScale}>
+              <CategorySelector
+                selectedCategory={selectedCategory}
+                selectedMode={selectedMode}
+                onCategoryChange={setSelectedCategory}
+                onModeChange={setSelectedMode}
+              />
+            </motion.div>
+
+            {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
+              <motion.div
+                variants={itemFadeScale}
+                className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl"
+              >
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
+                  selectedCategory === 'motorcycle'
+                    ? 'text-orange-500 bg-orange-500/10'
+                    : 'text-purple-500 bg-purple-500/10'
+                )}>
+                  {selectedCategory === 'motorcycle' ? (
+                    <MotorcycleIcon className="w-8 h-8" />
+                  ) : (
+                    <Bike className="w-8 h-8" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-foreground">
+                    {selectedCategory === 'motorcycle' ? 'Motorcycle' : 'Bicycle'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground opacity-80">
+                    {selectedCategory === 'motorcycle'
+                      ? 'Motorcycles, scooters, ATVs'
+                      : 'Bikes, e-bikes, mountain bikes'}
+                  </p>
+                </div>
+                <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary px-3 py-1 rounded-full">
+                  Verified
+                </Badge>
+              </motion.div>
+            )}
+
+            <motion.div variants={itemFadeScale} className="space-y-8">
+              {selectedCategory === 'property' && <PropertyListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData} />}
+              {selectedCategory === 'motorcycle' && <MotorcycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as MotorcycleFormData} />}
+              {selectedCategory === 'bicycle' && <BicycleListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as BicycleFormData} />}
+              {selectedCategory === 'worker' && <WorkerListingForm onDataChange={(data) => setFormData({ ...formData, ...data })} initialData={formData as unknown as WorkerFormData} />}
+            </motion.div>
+
+
 
             {/* Video Looper Section */}
             <motion.div variants={itemFadeScale}>
