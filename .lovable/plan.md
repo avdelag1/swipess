@@ -1,131 +1,86 @@
 
 
-## Plan: Replace Tulum Zones with "Eventos" — Full Events Discovery Hub
+## Plan: Professional Polish Pass — Make the App Look "Wow"
 
-### What We're Building
+After a deep audit of the codebase, here are the areas that will have the highest visual impact when improved. This is broken into focused, high-ROI changes.
 
-Replace `/explore/zones` (NeighborhoodMap) with a full-screen, Instagram/TikTok-style events discovery feed. Users swipe vertically through portrait event cards. Each card shows a big hero image with overlaid title, date, location, and promo badges. Tapping opens a detail view with WhatsApp contact button. An admin panel allows publishing events.
+---
 
-### Database
+### Problem Areas Identified
 
-**New table: `events`**
+1. **Inconsistent typography** — Font weights and sizes vary randomly across components. No unified type scale is enforced. Some labels use `text-[10px] font-black uppercase`, others use `text-xs font-bold`, creating a chaotic feel.
 
-```sql
-CREATE TABLE public.events (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  title text NOT NULL,
-  description text,
-  category text NOT NULL DEFAULT 'event',
-  image_url text,
-  image_urls jsonb DEFAULT '[]',
-  event_date timestamptz,
-  event_end_date timestamptz,
-  location text,
-  location_detail text,
-  latitude double precision,
-  longitude double precision,
-  organizer_name text,
-  organizer_photo_url text,
-  organizer_whatsapp text,
-  promo_text text,
-  discount_tag text,
-  is_free boolean DEFAULT false,
-  price_text text,
-  is_published boolean DEFAULT true,
-  is_approved boolean DEFAULT true,
-  created_by uuid,
-  created_at timestamptz DEFAULT now(),
-  updated_at timestamptz DEFAULT now()
-);
+2. **ThemeToggle too small and hidden** — The toggle is `h-7 w-7` (28px), smaller than the other header buttons (`h-9 w-9`). Easy to miss. No visual distinction.
 
-ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+3. **Bottom nav has too many items (6-7)** — Client nav has 6 items, owner has 7. This crams the bar and makes icons tiny. Premium apps like Tinder/Bumble use 4-5 max.
 
--- Everyone can read published & approved events
-CREATE POLICY "Anyone can view published events"
-  ON public.events FOR SELECT USING (is_published = true AND is_approved = true);
+4. **Swipe action buttons are "phantom" (invisible backgrounds)** — The like/dislike/share buttons float with no container, making them feel disconnected and amateur on light backgrounds.
 
--- Admins (via has_role) can insert/update/delete
-CREATE POLICY "Admins can insert events"
-  ON public.events FOR INSERT TO authenticated
-  WITH CHECK (public.has_role(auth.uid(), 'admin'));
+5. **Gradient masks create haze on light theme** — The `GradientMaskTop`, `GradientMaskBottom`, and `GlobalVignette` layers add unnecessary white fog over the light theme, making it look washed out.
 
-CREATE POLICY "Admins can update events"
-  ON public.events FOR UPDATE TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'));
+6. **Star canvas still renders on light theme** — The `VisualEngine` draws semi-transparent dots on light mode, which looks odd on a clean white background.
 
-CREATE POLICY "Admins can delete events"
-  ON public.events FOR DELETE TO authenticated
-  USING (public.has_role(auth.uid(), 'admin'));
-```
+7. **500+ instances of `bg-black` hardcoded** — Many overlays, modals, and badges use `bg-black/XX` which doesn't adapt. Some are contextually fine (image overlays), but many dialogs and containers should use semantic tokens.
 
-**New table: `event_favorites`**
+---
 
-```sql
-CREATE TABLE public.event_favorites (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL,
-  event_id uuid NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
-  created_at timestamptz DEFAULT now(),
-  UNIQUE(user_id, event_id)
-);
+### Changes (Priority Order)
 
-ALTER TABLE public.event_favorites ENABLE ROW LEVEL SECURITY;
+#### 1. Make ThemeToggle prominent and properly sized
+**`src/components/ThemeToggle.tsx`**
+- Increase size from `h-7 w-7` to `h-9 w-9` (matching other TopBar buttons)
+- Add matching `rounded-xl` to be consistent with TopBar icon style
+- Use `liquid-glass-card` styling like other TopBar buttons
 
-CREATE POLICY "Users can manage own favorites"
-  ON public.event_favorites FOR ALL TO authenticated
-  USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
-```
+#### 2. Reduce bottom nav to 5 items max
+**`src/components/BottomNavigation.tsx`**
+- **Client**: Remove "AI Search" (keep it accessible via TopBar or elsewhere) → 5 items: Explore, Profile, Likes, Messages, Filters
+- **Owner**: Remove "AI Search" and merge "Listings" into Dashboard → 5 items: Dashboard, Profile, Liked Clients, Messages, Filters
+- Increase icon size slightly and add more breathing room
 
-### New Pages (3 files)
+#### 3. Give swipe action buttons subtle glass containers
+**`src/components/SwipeActionButtonBar.tsx`**
+- Add a subtle frosted pill container behind the 5 action buttons (matching the bottom nav glass treatment)
+- This grounds the buttons visually and makes them feel intentional
 
-#### 1. `src/pages/EventosFeed.tsx` — Main vertical feed
+#### 4. Disable VisualEngine effects on light theme
+**`src/visual/VisualEngine.tsx`**
+- Skip rendering the star canvas entirely when `isLight` is true
+- Clean white background = professional. Twinkling dots on white = odd.
 
-- **Header**: "Eventos & Experiencias" + search icon
-- **Category tabs**: horizontal scroll pills — All | Beach Clubs | Jungle & Nature | Music & Fiestas | Food & Restaurants | Promos & Discounts
-- **Vertical scroll feed**: Each card is ~75vh tall portrait image with gradient overlay at bottom containing:
-  - Bold title, date/time badge, location tag
-  - Promo/discount badge (bright color)
-  - "Free entry" or "App discount" small tag
-- Infinite scroll via pagination (load 10 at a time)
-- Tapping a card navigates to detail view
-- Swipe-up gesture scrolls to next card (snap scrolling via CSS `scroll-snap-type: y mandatory`)
+#### 5. Reduce gradient mask intensity on light theme
+**`src/components/AppLayout.tsx`**
+- Lower light-mode vignette intensity from `0.4` → `0.15`
+- Lower light-mode gradient mask intensities from `0.5` → `0.2`
+- This removes the washed-out haze effect
 
-#### 2. `src/pages/EventoDetail.tsx` — Full-screen event detail
+#### 6. Standardize typography scale
+**`src/index.css`** — Add a utility layer for consistent type classes:
+- Section labels: `text-xs font-semibold uppercase tracking-wider text-muted-foreground`
+- Card titles: `text-lg font-bold text-foreground`  
+- Body text: `text-sm text-muted-foreground`
+- Reduce the overuse of `font-black` (too heavy for most contexts — reserve for headlines only)
 
-- Hero image (full-width, 50vh)
-- Title + date/time + location
-- Short description (2-3 lines)
-- Promo highlights as bullet badges
-- Organizer section (photo + name)
-- Big green **"Chatea por WhatsApp"** button → `https://wa.me/{number}?text=Hola, vi tu evento en Swipess`
-- Heart icon (save to favorites via `event_favorites`)
-- Share button (native share API)
-- Back button
+Key files to update typography: `MyHubQuickFilters.tsx`, `MyHubProfileHeader.tsx`, `MyHubActivityFeed.tsx`
 
-#### 3. `src/pages/AdminEventos.tsx` — Admin panel (protected by role check)
+#### 7. Fix key dark-hardcoded containers
+**Priority files** (dialogs/sheets that look broken in light mode):
+- `QuickFilterDropdown.tsx` — already has `isDark` ternaries, mostly fine
+- `PropertyManagement.tsx` — `bg-black/70` price badges on cards (contextually OK, skip)
+- `MessageActivationPackages.tsx` — verify `isDark` ternaries work correctly
+- `ModeSwitcher.tsx` — already theme-aware, OK
 
-- List of all events with edit/delete
-- "+ Nuevo Evento" button opens form:
-  - Image upload (portrait), title, date/time, location, description, promo text, category dropdown, organizer WhatsApp number, price/free toggle
-- Publish toggle + approval toggle
-- Only accessible to admin role users
+---
 
-### Route & Navigation Updates
+### Files to Edit (7 files)
 
 | File | Change |
 |------|--------|
-| `src/App.tsx` | Replace `NeighborhoodMap` import with `EventosFeed`, add `EventoDetail` route at `/explore/eventos/:id`, add `AdminEventos` route at `/admin/eventos` |
-| `src/components/ExploreFeatureLinks.tsx` | Change zones entry: icon `PartyPopper`, label `Eventos`, path `/explore/eventos` |
-
-### Files Summary (5 new/edited)
-
-| File | Action |
-|------|--------|
-| Database migration | Create `events` + `event_favorites` tables with RLS |
-| `src/pages/EventosFeed.tsx` | Create — vertical scroll feed with category tabs |
-| `src/pages/EventoDetail.tsx` | Create — full detail view with WhatsApp button |
-| `src/pages/AdminEventos.tsx` | Create — admin CRUD panel for events |
-| `src/App.tsx` | Edit — swap route, add new routes |
-| `src/components/ExploreFeatureLinks.tsx` | Edit — update zones → eventos entry |
+| `ThemeToggle.tsx` | Increase size to h-9 w-9, match TopBar style |
+| `BottomNavigation.tsx` | Reduce to 5 nav items per role |
+| `SwipeActionButtonBar.tsx` | Add subtle glass container behind buttons |
+| `VisualEngine.tsx` | Skip star canvas on light theme |
+| `AppLayout.tsx` | Reduce gradient mask intensity for light |
+| `MyHubQuickFilters.tsx` | Standardize typography (reduce font-black) |
+| `MyHubProfileHeader.tsx` | Standardize typography |
 

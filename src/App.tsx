@@ -102,7 +102,9 @@ const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
 // New feature pages - lazy loaded
-const NeighborhoodMap = lazy(() => import("./pages/NeighborhoodMap"));
+const EventosFeed = lazy(() => import("./pages/EventosFeed"));
+const EventoDetail = lazy(() => import("./pages/EventoDetail"));
+const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
 const LocalIntel = lazy(() => import("./pages/LocalIntel"));
@@ -289,7 +291,9 @@ const App = () => {
                                         <Route path="/radio/favorites" element={<RadioFavorites />} />
 
                                         {/* New feature routes */}
-                                        <Route path="/explore/zones" element={<NeighborhoodMap />} />
+                                        <Route path="/explore/eventos" element={<EventosFeed />} />
+                                        <Route path="/explore/eventos/:id" element={<EventoDetail />} />
+                                        <Route path="/admin/eventos" element={<AdminEventos />} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
