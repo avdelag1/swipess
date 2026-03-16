@@ -104,12 +104,23 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
     };
   }, []);
 
+  const allCategoryIds = categories.map(c => c.id);
+  const allSelected = allCategoryIds.every(id => filters.categories.includes(id));
+
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
       : [...filters.categories, categoryId];
     onChange({ ...filters, categories: newCategories });
   }, [filters, onChange]);
+
+  const handleSelectAll = useCallback(() => {
+    if (allSelected) {
+      onChange({ ...filters, categories: [] });
+    } else {
+      onChange({ ...filters, categories: [...allCategoryIds] });
+    }
+  }, [filters, onChange, allSelected]);
 
   const handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
     onChange({ ...filters, listingType: type });
