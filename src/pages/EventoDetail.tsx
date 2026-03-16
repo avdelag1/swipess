@@ -2,11 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Heart, Share2, MapPin, Calendar, Clock, MessageCircle, Sparkles, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from 'react-i18next';
 
 interface EventDetail {
   id: string;
@@ -33,11 +32,9 @@ export default function EventoDetail() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { t } = useTranslation();
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     if (!id) return;
@@ -68,17 +65,17 @@ export default function EventoDetail() {
 
   const toggleFavorite = async () => {
     if (!user) {
-      toast({ title: t('eventos.signInToSave'), variant: 'destructive' });
+      toast({ title: 'Sign in to save events', variant: 'destructive' });
       return;
     }
     if (isFavorited) {
       await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', id!);
       setIsFavorited(false);
-      toast({ title: t('eventos.removedFavorite') });
+      toast({ title: 'Removed from favorites' });
     } else {
       await supabase.from('event_favorites').insert({ user_id: user.id, event_id: id! });
       setIsFavorited(true);
-      toast({ title: t('eventos.savedFavorite') });
+      toast({ title: 'Saved to favorites ❤️' });
     }
   };
 
@@ -91,7 +88,7 @@ export default function EventoDetail() {
       }).catch(() => {});
     } else {
       await navigator.clipboard.writeText(window.location.href);
-      toast({ title: t('eventos.linkCopied') });
+      toast({ title: 'Link copied!' });
     }
   };
 
@@ -104,12 +101,12 @@ export default function EventoDetail() {
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   };
 
   const formatTime = (dateStr: string | null) => {
     if (!dateStr) return '';
-    return new Date(dateStr).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+    return new Date(dateStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
   };
 
   if (isLoading) {
@@ -127,75 +124,23 @@ export default function EventoDetail() {
   if (!event) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">{t('common.noResults')}</p>
+        <p className="text-muted-foreground">Event not found</p>
       </div>
     );
   }
 
-  // Build image gallery — primary image + any extra from image_urls
-  const imageGallery: string[] = [];
-  if (event.image_url) imageGallery.push(event.image_url);
-  if (Array.isArray(event.image_urls)) {
-    event.image_urls.forEach((u: any) => {
-      const url = typeof u === 'string' ? u : u?.url;
-      if (url && url !== event.image_url) imageGallery.push(url);
-    });
-  }
-
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Hero image with gallery */}
+      {/* Hero image */}
       <div className="relative h-[50vh]">
-        <AnimatePresence mode="wait">
-          {imageGallery.length > 0 ? (
-            <motion.img
-              key={activeImageIndex}
-              src={imageGallery[activeImageIndex]}
-              alt={event.title}
-              className="w-full h-full object-cover"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
-              <Sparkles className="w-16 h-16 text-muted-foreground/20" />
-            </div>
-          )}
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-
-        {/* Gallery navigation arrows */}
-        {imageGallery.length > 1 && (
-          <>
-            <button
-              onClick={() => setActiveImageIndex(i => (i - 1 + imageGallery.length) % imageGallery.length)}
-              className="absolute left-16 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 z-10"
-            >
-              <ChevronLeft className="w-4 h-4 text-white" />
-            </button>
-            <button
-              onClick={() => setActiveImageIndex(i => (i + 1) % imageGallery.length)}
-              className="absolute right-16 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 z-10"
-            >
-              <ChevronRight className="w-4 h-4 text-white" />
-            </button>
-            {/* Dots */}
-            <div className="absolute bottom-24 left-0 right-0 flex justify-center gap-1.5 z-10">
-              {imageGallery.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImageIndex(i)}
-                  className={cn(
-                    "rounded-full transition-all",
-                    i === activeImageIndex ? "w-4 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/50"
-                  )}
-                />
-              ))}
-            </div>
-          </>
+        {event.image_url ? (
+          <img src={event.image_url} alt={event.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center">
+            <Sparkles className="w-16 h-16 text-muted-foreground/20" />
+          </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
 
         {/* Top bar */}
         <div className="absolute top-4 left-4 right-4 flex justify-between z-10">
@@ -233,7 +178,7 @@ export default function EventoDetail() {
           )}
           {event.is_free && (
             <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold">
-              {t('eventos.freeEntry')}
+              Free Entry
             </span>
           )}
         </div>
@@ -277,7 +222,7 @@ export default function EventoDetail() {
         {/* Description */}
         {event.description && (
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-1.5">{t('eventos.about')}</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-1.5">About</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
           </div>
         )}
@@ -300,7 +245,7 @@ export default function EventoDetail() {
               )}
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">{t('eventos.organizedBy')}</p>
+              <p className="text-sm font-semibold text-foreground">Organized by</p>
               <p className="text-xs text-muted-foreground">{event.organizer_name}</p>
             </div>
           </div>
@@ -315,7 +260,7 @@ export default function EventoDetail() {
             style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
           >
             <MessageCircle className="w-5 h-5" />
-            {t('eventos.chatWhatsApp')}
+            Chatea por WhatsApp
           </motion.button>
         )}
       </div>

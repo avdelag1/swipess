@@ -27,7 +27,6 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
-import { useTranslation } from 'react-i18next';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -73,7 +72,6 @@ export function BottomNavigation({
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
   const isLight = theme === 'light';
-  const { t } = useTranslation();
 
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
@@ -92,20 +90,20 @@ export function BottomNavigation({
 
   // Client nav items — 5 max for single-line labels
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: t('actions.like'), path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
-    { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/client/dashboard' },
+    { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
+    { id: 'filter', icon: Search, label: 'Filters', path: '/client/filters' },
   ];
 
-  // Owner nav items — 5 max for single-line labels
+  // Owner nav items — 5 max, matching client icons except Listings
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Home, label: t('nav.home'), path: '/owner/dashboard' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'liked', icon: Flame, label: t('actions.like'), path: '/owner/liked-clients' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
-    { id: 'filter', icon: Filter, label: t('actions.filter'), path: '/owner/filters' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/owner/dashboard' },
+    { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
