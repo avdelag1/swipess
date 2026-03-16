@@ -302,7 +302,7 @@ function TopBarComponent({
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-foreground text-base">Token Packages</h3>
+                    <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
                     <span className="text-xs text-muted-foreground">
                       {userRole === 'owner' ? 'Provider' : 'Explorer'}
                     </span>
