@@ -315,7 +315,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                             )}
                           >
                             {option.icon}
-                            <span>{option.label}</span>
+                            <span>{t(`filters.${option.label === 'all genders' ? 'allGenders' : option.label === 'women' ? 'women' : 'men'}`)}</span>
                           </button>
                         );
                       })}
