@@ -409,7 +409,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
         className={cn(
-          "sm:max-w-[420px] w-[calc(100%-16px)] max-h-[82vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none !flex !flex-col !gap-0",
+          "sm:max-w-[520px] w-[calc(100%-16px)] max-h-[92vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none !flex !flex-col !gap-0",
           isDark ? "bg-background border-blue-500/20" : "bg-white border-blue-200/70"
         )}
         style={{
@@ -426,7 +426,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="flex flex-col h-full max-h-[82vh] relative"
+              className="flex flex-col h-full max-h-[92vh] relative"
             >
               {/* Electric burst on open */}
               <ElectricBurst active={showElectric} />
@@ -496,7 +496,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               </div>
 
               {/* ── MESSAGES ────────────────────────────────────────────── */}
-              <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-5 scroll-smooth scrollbar-none relative">
+              <div className="flex-1 min-h-[280px] overflow-y-auto px-5 py-4 space-y-5 scroll-smooth scrollbar-none relative">
 
                 {/* Empty / loading state */}
                 {messages.length === 0 && !isTyping && (
