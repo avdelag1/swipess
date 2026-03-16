@@ -340,7 +340,7 @@ function TopBarComponent({
                         >
                           {isPopular && (
                             <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
-                              BEST VALUE
+                              {t('topbar.bestValue')}
                             </span>
                           )}
                           <div className="flex items-center gap-3">
