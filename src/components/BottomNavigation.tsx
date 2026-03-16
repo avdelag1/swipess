@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -99,16 +99,29 @@ export function BottomNavigation({
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — 5 max for single-line labels
+  // Owner nav items — 7 items, horizontally scrollable
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
+    { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
+  const isScrollable = navItems.length > 5;
+
+  // Auto-scroll active item into view
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isScrollable || !scrollRef.current) return;
+    const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    }
+  }, [location.pathname, isScrollable]);
 
   const handleNavPress = useCallback(
     (event: React.PointerEvent, item: NavItem) => {
@@ -197,8 +210,21 @@ export function BottomNavigation({
 
         {/* Nav items row */}
         <div
-          className="relative flex items-center justify-between w-full px-1 py-2.5"
-          style={{ zIndex: 2, transform: 'translateZ(0)' }}
+          ref={scrollRef}
+          data-no-swipe-nav
+          className={cn(
+            'relative flex items-center w-full px-1 py-2.5 nav-scroll-hide',
+            !isScrollable && 'justify-between',
+          )}
+          style={{
+            zIndex: 2,
+            transform: 'translateZ(0)',
+            ...(isScrollable ? {
+              overflowX: 'auto',
+              scrollbarWidth: 'none' as const,
+              WebkitOverflowScrolling: 'touch',
+            } : {}),
+          }}
         >
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -227,12 +253,13 @@ export function BottomNavigation({
                     : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
-                  minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  minWidth: isScrollable ? 64 : (isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET),
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   padding: isNarrow ? '4px 2px' : '6px 4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
+                  ...(isScrollable ? { flexShrink: 0 } : {}),
                 }}
               >
 
