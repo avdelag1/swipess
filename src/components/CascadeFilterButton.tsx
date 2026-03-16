@@ -224,7 +224,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                 <>
                   {/* Categories Section */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">categories</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.categories')}</span>
                     <div className="grid grid-cols-2 gap-2">
                       {/* All categories button */}
                       <button
