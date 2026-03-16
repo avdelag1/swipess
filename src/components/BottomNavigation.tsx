@@ -210,8 +210,21 @@ export function BottomNavigation({
 
         {/* Nav items row */}
         <div
-          className="relative flex items-center justify-between w-full px-1 py-2.5"
-          style={{ zIndex: 2, transform: 'translateZ(0)' }}
+          ref={scrollRef}
+          data-no-swipe-nav
+          className={cn(
+            'relative flex items-center w-full px-1 py-2.5 nav-scroll-hide',
+            !isScrollable && 'justify-between',
+          )}
+          style={{
+            zIndex: 2,
+            transform: 'translateZ(0)',
+            ...(isScrollable ? {
+              overflowX: 'auto',
+              scrollbarWidth: 'none' as const,
+              WebkitOverflowScrolling: 'touch',
+            } : {}),
+          }}
         >
           {navItems.map((item) => {
             const Icon = item.icon;
