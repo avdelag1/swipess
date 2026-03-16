@@ -3,10 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Flame, Users, Search, Heart, ShieldCheck, ShieldAlert,
+  Flame, Users, Search, ThumbsUp, ShieldCheck, ShieldAlert,
   Home, Briefcase, DollarSign, GripVertical,
 } from "lucide-react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
@@ -44,7 +44,7 @@ const clientCategories = [
 export function LikedClients() {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === "white-matte";
+  const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterSafeOnly, setFilterSafeOnly] = useState(true);
@@ -219,7 +219,7 @@ export function LikedClients() {
                 onClick={() => navigate("/owner/interested-clients")}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-primary text-primary-foreground shadow-md transition-all active:scale-95"
               >
-                <Heart className="w-4 h-4" />
+                <ThumbsUp className="w-4 h-4" />
                 <span className="text-[10px] font-black uppercase tracking-widest">
                   Liked Me
                 </span>
@@ -296,7 +296,6 @@ export function LikedClients() {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence mode="popLayout">
               {filteredClients.map((client) => (
                 <Reorder.Item
                   key={client.id}
@@ -311,7 +310,6 @@ export function LikedClients() {
                   />
                 </Reorder.Item>
               ))}
-            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div
@@ -320,7 +318,7 @@ export function LikedClients() {
             className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
           >
             <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
-              <Users className="w-12 h-12 text-[#E4007C]/40" />
+              <Users className="w-12 h-12 text-[var(--color-brand-accent-2)]/40" />
             </div>
             <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">
               Discovery Awaits.
@@ -368,7 +366,7 @@ export function LikedClients() {
               onClick={() =>
                 clientToDelete?.user_id && removeLikeMutation.mutate(clientToDelete.user_id)
               }
-              className="bg-[#E4007C] hover:bg-[#FF1493] text-white rounded-xl font-black"
+              className="bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white rounded-xl font-black"
             >
               DISMISS
             </AlertDialogAction>

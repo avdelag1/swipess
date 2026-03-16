@@ -12,7 +12,7 @@
 import { memo, ReactNode } from 'react';
 import { 
   WifiOff, 
-  Heart, 
+  ThumbsUp, 
   CreditCard, 
   ShieldX, 
   Upload,
@@ -52,7 +52,7 @@ const errorConfigs: Record<ErrorType, ErrorConfig> = {
     actionVariant: 'default',
   },
   'like-limit': {
-    icon: <Heart className="w-10 h-10 text-pink-400" />,
+    icon: <ThumbsUp className="w-10 h-10 text-pink-400" />,
     title: "Daily likes reached",
     description: "You've used all your free likes today. Come back tomorrow or upgrade for unlimited likes.",
     action: "See upgrade options",

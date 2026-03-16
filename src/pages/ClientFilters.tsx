@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap, ShoppingBag, Building2, Users } from 'lucide-react';
 import { AISearchDialog } from '@/components/AISearchDialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -136,7 +135,7 @@ export default function ClientFilters() {
   return (
     <div className="min-h-full bg-background transition-colors duration-500">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
             <motion.button
@@ -147,12 +146,11 @@ export default function ClientFilters() {
             >
               <ArrowLeft className="w-5 h-5 text-foreground" />
             </motion.button>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight text-foreground">Discovery Filters</h1>
-              <p className="text-xs font-medium text-muted-foreground">
-                {activeFilterCount > 0 ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active` : 'What are you looking for?'}
-              </p>
-            </div>
+            {activeFilterCount > 0 && (
+              <Badge variant="outline" className="bg-primary/10 border-primary/20 text-primary font-bold text-xs">
+                {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''} active
+              </Badge>
+            )}
           </div>
 
           <AnimatePresence>
@@ -174,7 +172,7 @@ export default function ClientFilters() {
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-200px)]">
+      <div className="overflow-y-auto">
         <div className="px-4 py-6 space-y-8 pb-36">
           {/* AI Suggestions Banner - M3 Tonal Style */}
           <section>
@@ -321,7 +319,7 @@ export default function ClientFilters() {
             </div>
           </section>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Bottom Fixed Apply Button - M3 Pill Style */}
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40">

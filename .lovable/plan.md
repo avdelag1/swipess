@@ -1,46 +1,56 @@
 
 
-## Plan: App Icon Replacement + Profile Photo in Header + Header Spacing Fix + Build Error Fix
+## Plan: Fix Owner Nav, Clean Owner Profile, Restore AI Button
 
-### 1. Replace App Icon with Fire S Logo
+### Issues Found
 
-The uploaded `image-55.jpg` (red fire S on black background) will become the main app icon used everywhere: favicon, PWA manifest icons, splash screen, and web search results.
+1. **Owner bottom nav** — exists with 5 items (Dashboard, Profile, Liked, Messages, Filters) and should be working. The nav bar may be hiding due to scroll direction detection. Need to verify it renders on owner routes.
 
-**Changes:**
-- Copy `image-55.jpg` to `public/icons/fire-s-logo.png` (the main source asset)
-- Update `index.html`: change favicon link and splash screen image from `swipess-logo-script.png` to the fire S logo
-- Update `public/manifest.json`: point all icon entries to the fire S logo
-- Update `public/manifest.webmanifest` (if it exists) similarly
-- The existing pink/colorful S icon in the home screen screenshot will be replaced by this fire S logo going forward
+2. **Owner profile page** (`OwnerProfileNew.tsx`) — contains client-side sections that don't belong:
+   - `MyHubQuickFilters` (line 183) — "Discovery Categories" — **remove**
+   - `MyHubActivityFeed` (line 191) — "Recent Activity" — **remove**
+   - `ExploreFeatureLinks` is not imported but could be confused with Quick Filters
 
-Note: For best results across all devices, the user should ideally provide the logo in multiple sizes (192x192, 512x512, 1024x1024). Since we only have one image, we will use it at all sizes -- it will work but may not be pixel-perfect at small sizes.
+3. **AI Search button** — was removed from both TopBar and BottomNavigation. Currently the TopBar has an empty comment where it used to be (line 271). Need to restore it.
 
-### 2. Profile Photo Already Shows in Top-Left
+4. **Owner nav icons** — should match client icons more closely, with "Listings" as the only unique button.
 
-The `TopBar.tsx` already fetches the user's `avatar_url` from the profiles table and displays it as an `Avatar` in the top-left corner (lines 172-191). If the profile photo is not showing, the issue is likely that:
-- The user hasn't uploaded a photo yet (shows fallback initial)
-- Or the `avatar_url` column is empty in the database
+---
 
-No code change needed here -- the feature already exists. I will verify it works correctly during implementation.
+### Changes
 
-### 3. Fix Header Too Close to Top Edge
+#### 1. `src/components/BottomNavigation.tsx` — Match client icons, add Listings
 
-The `.app-header` CSS has no `padding-top` for mobile viewports (only added at `min-width: 640px`). On mobile devices (especially with notches/status bars), the header buttons sit flush against the top edge.
+Update owner nav to mirror client nav but swap Filters for Listings:
 
-**Fix in `src/index.css`:**
-- Add `padding-top: calc(var(--safe-top, 0px) + 8px)` to the base `.app-header` rule so all screen sizes get safe-area padding plus a small buffer
+| Position | Client | Owner (new) |
+|----------|--------|-------------|
+| 1 | Compass → Explore | Compass → Explore |
+| 2 | User → Profile | User → Profile |
+| 3 | Flame → Likes | Flame → Likes |
+| 4 | MessageCircle → Messages | MessageCircle → Messages |
+| 5 | Search → Filters | Building2 → Listings |
 
-### 4. Fix MarketingSlide Build Error
+Owner nav uses `Compass` (same as client) for dashboard, and `Building2` for Listings pointing to `/owner/properties`.
 
-The `strokeWidth` prop type is `number` in the component interface but Lucide's `LucideProps` allows `string | number`. 
+#### 2. `src/components/TopBar.tsx` — Restore AI Search button
 
-**Fix in `src/components/MarketingSlide.tsx`:**
-- Change the icon type from `React.ComponentType<{ className?: string, strokeWidth?: number }>` to `React.ComponentType<any>` or use `LucideIcon` type from lucide-react
+Add back the AI search button (Sparkles icon) in the right section of the TopBar, before the Zap button. Same glass styling as other buttons. Calls `onAISearchClick` prop.
 
-### Files to Change
-1. **`public/icons/fire-s-logo.png`** -- copy uploaded image
-2. **`index.html`** -- update splash logo src + favicon references
-3. **`public/manifest.json`** -- update icon paths
-4. **`src/index.css`** -- add base padding-top to `.app-header`
-5. **`src/components/MarketingSlide.tsx`** -- fix type error
+#### 3. `src/pages/OwnerProfileNew.tsx` — Remove client-only sections
+
+Remove these sections (keep everything else):
+- **Line 181-184**: `MyHubQuickFilters` ("Discover Categories") — delete
+- **Line 186-192**: `MyHubActivityFeed` ("Recent Activity") — delete
+- Remove unused imports: `MyHubQuickFilters`, `MyHubActivityFeed`
+
+**Sections that stay**: Profile header, stats grid, edit profile button, Your Likes / Who Liked You grid, Share & Earn, Language, Radio, Settings, Sign Out.
+
+### Files (3)
+
+| File | Change |
+|------|--------|
+| `src/components/BottomNavigation.tsx` | Update owner nav: Compass icon for dashboard, Building2 for Listings, match client order |
+| `src/components/TopBar.tsx` | Restore AI Search button (Sparkles icon) in right section |
+| `src/pages/OwnerProfileNew.tsx` | Remove MyHubQuickFilters and MyHubActivityFeed sections + imports |
 

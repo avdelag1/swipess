@@ -17,8 +17,37 @@ export type OwnerProfile = {
 
 type OwnerProfileUpdate = Omit<OwnerProfile, 'id' | 'user_id'>;
 
+async function resolveAuthenticatedUserId() {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    logger.warn('Session lookup failed during owner profile save:', sessionError.message);
+  }
+
+  if (session?.user?.id) {
+    return session.user.id;
+  }
+
+  // First retry after short delay (handles race conditions during page transitions)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const { data: { session: retrySession } } = await supabase.auth.getSession();
+  if (retrySession?.user?.id) {
+    return retrySession.user.id;
+  }
+
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    logger.warn('User lookup failed during owner profile save:', authError.message);
+  }
+
+  if (auth.user?.id) {
+    return auth.user.id;
+  }
+
+  throw new Error('Auth session missing. Please sign in again.');
+}
+
 async function fetchOwnProfile() {
-  // Use getSession for faster auth check (cached locally)
   const { data: { session } } = await supabase.auth.getSession();
   const uid = session?.user?.id;
   if (!uid) return null;
@@ -54,9 +83,7 @@ export function useSaveOwnerProfile() {
 
   return useMutation({
     mutationFn: async (updates: OwnerProfileUpdate) => {
-      const { data: auth } = await supabase.auth.getUser();
-      const uid = auth.user?.id;
-      if (!uid) throw new Error('Not authenticated');
+      const uid = await resolveAuthenticatedUserId();
 
       const { data: existing } = await supabase
         .from('owner_profiles')
@@ -64,29 +91,37 @@ export function useSaveOwnerProfile() {
         .eq('user_id', uid)
         .maybeSingle();
 
+      // Normalize payload: strip undefined values to prevent PostgREST 400s
+      const cleanUpdates: Record<string, any> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) {
+          cleanUpdates[key] = value;
+        }
+      }
+
       let profileData: OwnerProfile;
 
       if (existing?.id) {
         const { data, error } = await supabase
           .from('owner_profiles')
-          .update(updates)
-          .eq('id', existing.id)
+          .update(cleanUpdates)
+          .eq('user_id', uid)
           .select()
           .single();
         if (error) {
-          logger.error('Error updating owner profile:', error);
-          throw error;
+          logger.error('Error updating owner profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to update owner profile');
         }
         profileData = data as OwnerProfile;
       } else {
         const { data, error } = await supabase
           .from('owner_profiles')
-          .insert([{ ...updates, user_id: uid }])
+          .insert([{ ...cleanUpdates, user_id: uid }])
           .select()
           .single();
         if (error) {
-          logger.error('Error creating owner profile:', error);
-          throw error;
+          logger.error('Error creating owner profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to create owner profile');
         }
         profileData = data as OwnerProfile;
       }
@@ -96,9 +131,13 @@ export function useSaveOwnerProfile() {
         updated_at: new Date().toISOString(), // Always mark as updated for sync tracking
       };
 
-      if (updates.profile_images !== undefined && (updates.profile_images?.length ?? 0) > 0) {
-        syncPayload.images = updates.profile_images;
-        syncPayload.avatar_url = (updates.profile_images as string[])[0];
+      if (updates.profile_images !== undefined) {
+        syncPayload.images = updates.profile_images || [];
+        if (updates.profile_images && updates.profile_images.length > 0) {
+          syncPayload.avatar_url = updates.profile_images[0];
+        } else {
+          syncPayload.avatar_url = null;
+        }
       }
 
       if (updates.business_name !== undefined) {
@@ -120,13 +159,18 @@ export function useSaveOwnerProfile() {
       // Only update if we have real fields to sync (not just updated_at)
       const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
       if (realSyncKeys.length > 0) {
-        const { error: syncError } = await supabase
-          .from('profiles')
-          .update(syncPayload)
-          .eq('user_id', uid);
+        try {
+          const { error: syncError } = await supabase
+            .from('profiles')
+            .update(syncPayload)
+            .eq('user_id', uid);
 
-        if (syncError) {
-          logger.error('[OWNER PROFILE SYNC] Error syncing to profiles:', syncError);
+          if (syncError) {
+            logger.error('[OWNER PROFILE SYNC] Error syncing to profiles:', syncError);
+          }
+        } catch (syncErr) {
+          // Non-blocking: don't let sync failure prevent profile save
+          logger.error('[OWNER PROFILE SYNC] Exception:', syncErr);
         }
       }
 

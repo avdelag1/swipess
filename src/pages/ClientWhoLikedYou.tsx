@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Heart, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
-import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { ThumbsUp, GripVertical, Flame, Home, Briefcase, DollarSign } from "lucide-react";
+import { motion, Reorder } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useStartConversation } from "@/hooks/useConversations";
@@ -48,7 +48,7 @@ const ownerCategories = [
 const ClientWhoLikedYou = () => {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === "white-matte";
+  const isLight = theme === "light";
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -160,8 +160,8 @@ const ClientWhoLikedYou = () => {
       <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
         {/* Badge */}
         <div className="flex items-center justify-end mb-8 relative z-10">
-          <div className="px-4 py-2 rounded-2xl bg-[#E4007C]/10 border border-[#E4007C]/20 text-[#E4007C] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
-            <Heart className="w-4 h-4" />
+          <div className="px-4 py-2 rounded-2xl bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 text-[var(--color-brand-accent-2)] text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-[0_0_15px_rgba(228,0,124,0.1)]">
+            <ThumbsUp className="w-4 h-4" />
             Fan Base
           </div>
         </div>
@@ -176,7 +176,7 @@ const ClientWhoLikedYou = () => {
               className={cn(
                 "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
                 selectedCategory === id
-                  ? "bg-[#E4007C] border-[#E4007C] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
+                  ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
                   : isLight
                   ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
                   : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
@@ -195,7 +195,7 @@ const ClientWhoLikedYou = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={cn(
-              "w-full h-16 rounded-3xl pl-6 font-bold focus:border-[#E4007C] transition-all outline-none border",
+              "w-full h-16 rounded-3xl pl-6 font-bold focus:border-[var(--color-brand-accent-2)] transition-all outline-none border",
               isLight
                 ? "bg-background border-border/40 text-foreground placeholder-muted-foreground shadow-sm"
                 : "bg-muted border-border text-foreground placeholder-muted-foreground"
@@ -205,7 +205,7 @@ const ClientWhoLikedYou = () => {
 
         {/* Count + drag hint */}
         <div className="flex items-center gap-3 mb-8 px-2">
-          <div className="w-2 h-2 rounded-full bg-[#E4007C] shadow-[0_0_10px_#E4007C]" />
+          <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_10px_var(--color-brand-accent-2)]" />
           <span className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em]">
             {filteredOwners.length} Connections
           </span>
@@ -231,7 +231,6 @@ const ClientWhoLikedYou = () => {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <AnimatePresence mode="popLayout">
               {filteredOwners.map((owner) => (
                 <Reorder.Item
                   key={owner.id}
@@ -246,11 +245,10 @@ const ClientWhoLikedYou = () => {
                   />
                 </Reorder.Item>
               ))}
-            </AnimatePresence>
           </Reorder.Group>
         ) : (
           <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">
-            <Heart className="w-12 h-12 text-[#E4007C]/40 mb-6" />
+            <ThumbsUp className="w-12 h-12 text-[var(--color-brand-accent-2)]/40 mb-6" />
             <h3 className="text-foreground font-black text-2xl tracking-tighter">Stay Noticed.</h3>
             <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
               When an owner likes your profile, they will appear here instantly.
@@ -275,7 +273,7 @@ const ClientWhoLikedYou = () => {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => ownerToDelete && removeLikeMutation.mutate(ownerToDelete.id)}
-              className="bg-[#E4007C] text-white rounded-xl font-black"
+              className="bg-[var(--color-brand-accent-2)] text-white rounded-xl font-black"
             >
               DISMISS
             </AlertDialogAction>

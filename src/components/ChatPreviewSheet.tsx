@@ -7,7 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   User, MapPin, DollarSign, Home, Bike, Ship, Car,
-  ExternalLink, MessageCircle, Star, Heart, TrendingUp, X
+  ExternalLink, MessageCircle, Star, ThumbsUp, TrendingUp, X
 } from 'lucide-react';
 import { ImageCarousel } from '@/components/ImageCarousel';
 
@@ -195,7 +195,7 @@ export function ChatPreviewSheet({
                   </div>
                   <div className="h-4 w-px bg-white/10" />
                   <div className="flex items-center gap-1.5 text-[11px] text-white/50">
-                    <Heart className="w-3 h-3 text-[#FF453A]" />
+                    <ThumbsUp className="w-3 h-3 text-[#FF453A]" />
                     <span>98% Response</span>
                   </div>
                   <div className="h-4 w-px bg-white/10" />
@@ -212,7 +212,7 @@ export function ChatPreviewSheet({
                 style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}
               >
                 <div className="flex items-center gap-2 mb-1.5">
-                  <Heart className="w-3 h-3 text-[#FF453A]" />
+                  <ThumbsUp className="w-3 h-3 text-[#FF453A]" />
                   <span className="text-[10px] font-medium text-white/40 uppercase tracking-wide">How You Connected</span>
                 </div>
                 <p className="text-xs text-white/70">

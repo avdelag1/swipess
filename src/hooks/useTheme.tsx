@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-type Theme = 'black-matte' | 'white-matte';
+type Theme = 'dark' | 'light';
 
 interface ThemeContextType {
   theme: Theme;
@@ -12,8 +12,45 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const VALID_THEMES: Theme[] = ['dark', 'light'];
+const DEFAULT_THEME: Theme = 'dark';
+
+/** Map legacy DB values to new theme names */
+function normalizeTheme(raw: string | null | undefined): Theme {
+  if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
+  return 'light';
+}
+
+const ALL_THEME_CLASSES = [
+  'grey-matte', 'black-matte', 'white-matte', 'red-matte',
+  'amber-matte', 'pure-black', 'cheers', 'dark', 'light',
+  'amber', 'red',
+];
+
+function applyThemeToDOM(theme: Theme) {
+  const root = window.document.documentElement;
+  root.classList.remove(...ALL_THEME_CLASSES);
+
+  // Add the theme class — .dark or .light
+  root.classList.add(theme);
+
+  // For dark theme, also add .black-matte so CSS variables are applied
+  if (theme === 'dark') {
+    root.classList.add('black-matte');
+  }
+
+  // Update status bar color
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute('name', 'theme-color');
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('black-matte');
+  const [theme, setThemeState] = useState<Theme>(DEFAULT_THEME);
   const { user } = useAuth();
 
   // Load theme from database when user logs in
@@ -28,68 +65,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle();
 
           if (error) throw error;
-
-          const validThemes = ['black-matte', 'white-matte'];
-          if (data?.theme_preference && validThemes.includes(data.theme_preference)) {
-            setThemeState(data.theme_preference as Theme);
-          }
+          setThemeState(normalizeTheme(data?.theme_preference));
         } catch (error) {
           logger.error('Failed to load theme preference:', error);
-          setThemeState('black-matte');
+          setThemeState(DEFAULT_THEME);
         }
       };
       loadUserTheme();
     } else {
-      setThemeState('black-matte');
+      setThemeState(DEFAULT_THEME);
     }
   }, [user?.id]);
 
-  // Apply theme class to document and update status bar
+  // Apply theme class to document
   useEffect(() => {
-    const root = window.document.documentElement;
-
-    // Remove all theme classes safely
-    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
-
-    // Add current theme class
-    root.classList.add(theme);
-    
-    // Only add 'dark' class for dark themes
-    if (theme !== 'white-matte') {
-      root.classList.add('dark');
-    }
-
-    // Update status bar base color according to theme
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (!metaThemeColor) {
-      metaThemeColor = document.createElement('meta');
-      metaThemeColor.setAttribute('name', 'theme-color');
-      document.head.appendChild(metaThemeColor);
-    }
-
-    if (theme === 'white-matte') {
-      metaThemeColor.setAttribute('content', '#ffffff');
-    } else {
-      metaThemeColor.setAttribute('content', '#000000');
-    }
+    applyThemeToDOM(theme);
   }, [theme]);
 
   // Save theme to database and update state
   const setTheme = async (newTheme: Theme) => {
-    // Apply CSS class immediately so CSS variables update before React re-renders
-    // This prevents the "black flash" where CSS vars are stale during the re-render
-    const root = window.document.documentElement;
-    root.classList.remove('grey-matte', 'black-matte', 'white-matte', 'red-matte', 'amber-matte', 'pure-black', 'cheers', 'dark', 'amber', 'red');
-    root.classList.add(newTheme);
-    if (newTheme !== 'white-matte') {
-      root.classList.add('dark');
-    }
-    // Update status bar meta immediately too
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', newTheme === 'white-matte' ? '#ffffff' : '#000000');
-    }
-
+    // Apply CSS immediately to prevent flash
+    applyThemeToDOM(newTheme);
     setThemeState(newTheme);
 
     if (user?.id) {

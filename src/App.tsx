@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/hooks/useTheme";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -92,17 +92,23 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
+// Mini-game (disabled — re-enable when ready)
+// const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
+
 // Shared routes - lazy loaded
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
 const MyHub = lazy(() => import("./pages/MyHub"));
 const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
+const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
 // New feature pages - lazy loaded
-const NeighborhoodMap = lazy(() => import("./pages/NeighborhoodMap"));
+const EventosFeed = lazy(() => import("./pages/EventosFeed"));
+const EventoDetail = lazy(() => import("./pages/EventoDetail"));
+const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
 const LocalIntel = lazy(() => import("./pages/LocalIntel"));
@@ -210,7 +216,9 @@ const App = () => {
                             <NotificationWrapper>
                               <PushNotificationWrapper>
                                 {/* Guided tour for first-time users */}
-                                <GuidedTourLazy />
+                                <Suspense fallback={null}>
+                                  <GuidedTourLazy />
+                                </Suspense>
 
                                 {/* Update notification banner */}
                                 <UpdateNotification />
@@ -278,22 +286,28 @@ const App = () => {
                                         <Route path="/owner/filters" element={<OwnerFilters />} />
 
                                         {/* Shared routes (both roles) */}
-                                        <Route path="/dashboard" element={<MyHub />} />
+                                        {/* /dashboard removed — redirect handled below */}
                                         <Route path="/messages" element={<MessagingDashboard />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
-                                        <Route path="/radio" element={<RetroRadioStation />} />
+                                        <Route path="/radio" element={<DJTurntableRadio />} />
+                                        <Route path="/radio/cassette" element={<RetroRadioStation />} />
                                         <Route path="/radio/playlists" element={<RadioPlaylists />} />
                                         <Route path="/radio/favorites" element={<RadioFavorites />} />
 
                                         {/* New feature routes */}
-                                        <Route path="/explore/zones" element={<NeighborhoodMap />} />
+                                        <Route path="/explore/eventos" element={<EventosFeed />} />
+                                        <Route path="/explore/eventos/:id" element={<EventoDetail />} />
+                                        <Route path="/admin/eventos" element={<AdminEventos />} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
                                         <Route path="/explore/roommates" element={<RoommateMatching />} />
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
+
+                                        {/* Mini-game disabled — re-enable when ready */}
+                                        {/* <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} /> */}
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
@@ -308,6 +322,9 @@ const App = () => {
 
                                       {/* AI Test — public, no login required */}
                                       <Route path="/ai-test" element={<AITestPage />} />
+
+                                      {/* Legacy /dashboard redirect — always go to client dashboard */}
+                                      <Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />
 
                                       {/* Info Pages - Public Access */}
                                       <Route path="/about" element={<AboutPage />} />

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * SwipeDeckStore - Persists swipe deck state across navigation

@@ -148,7 +148,8 @@ const Index = () => {
       if (metadataRole) {
         hasNavigated.current = true;
         logger.log("[Index] New user - navigating to unified hub");
-        navigate("/dashboard", { replace: true });
+        const target = metadataRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
+        navigate(target, { replace: true });
         return;
       }
     }
@@ -196,21 +197,30 @@ const Index = () => {
         return;
       }
 
+      // ADMIN GUARD: Check admin FIRST — admin users must never enter client/owner flow
+      if (userRole === 'admin') {
+        hasNavigated.current = true;
+        logger.log("[Index] Admin detected (early guard), navigating to admin panel");
+        navigate('/admin/eventos', { replace: true });
+        return;
+      }
+
       const activeMode = await fetchActiveMode();
 
       // If we have an active mode preference, use it
       if (activeMode) {
         hasNavigated.current = true;
         logger.log("[Index] Navigating to unified hub with sticky mode:", activeMode);
-        navigate("/dashboard", { replace: true });
+        const target = activeMode === 'owner' ? "/owner/dashboard" : "/client/dashboard";
+        navigate(target, { replace: true });
         return;
       }
 
-      // Fallback 1: Admin always goes to client (or sticky if they have one)
+      // Fallback 1: Admin always goes to admin panel — never mixed with client/owner
       if (userRole === 'admin') {
         hasNavigated.current = true;
-        logger.log("[Index] Admin detected, navigating to unified hub");
-        navigate('/dashboard', { replace: true });
+        logger.log("[Index] Admin detected, navigating to admin panel");
+        navigate('/admin/eventos', { replace: true });
         return;
       }
 
@@ -218,7 +228,8 @@ const Index = () => {
       if (userRole) {
         hasNavigated.current = true;
         logger.log("[Index] Navigating to unified hub with role:", userRole);
-        navigate("/dashboard", { replace: true });
+        const target = userRole === 'owner' ? "/owner/dashboard" : "/client/dashboard";
+        navigate(target, { replace: true });
         return;
       }
 
@@ -226,7 +237,7 @@ const Index = () => {
       if (!isNewUser && !isLoadingRole) {
         hasNavigated.current = true;
         logger.log("[Index] Last resort navigation to unified hub");
-        navigate("/dashboard", { replace: true });
+        navigate("/client/dashboard", { replace: true });
         return;
       }
 
@@ -234,10 +245,8 @@ const Index = () => {
       // Fires when role query is in-flight AND user is new with no metadata role
       if (!hasNavigated.current) {
         hasNavigated.current = true;
-        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.warn("[Index] Unconditional fallback navigation to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.warn("[Index] Unconditional fallback navigation to unified hub");
+        navigate("/client/dashboard", { replace: true });
       }
     };
 
@@ -246,10 +255,8 @@ const Index = () => {
     const safetyTimeout = setTimeout(() => {
       if (!hasNavigated.current && user) {
         hasNavigated.current = true;
-        const metadataRole = user.user_metadata?.role as 'client' | 'owner' | undefined;
-        const targetPath = metadataRole === "owner" ? "/owner/dashboard" : "/client/dashboard";
-        logger.warn("[Index] Safety timeout triggered — forcing navigation to:", targetPath);
-        navigate(targetPath, { replace: true });
+        logger.warn("[Index] Safety timeout triggered — forcing navigation to unified hub");
+        navigate("/client/dashboard", { replace: true });
       }
     }, 2000);
 
@@ -274,8 +281,8 @@ const Index = () => {
 
   if (!initialized || loading) {
     return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       </div>
     );
   }
@@ -285,11 +292,11 @@ const Index = () => {
     // If user is too old and still no role, something went wrong
     if (userAgeMs > 30000 && !userRole && !isLoadingRole) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
           <div className="text-center space-y-4 p-4 max-w-md">
             <div className="text-orange-500 text-4xl">⚠️</div>
-            <h2 className="text-white text-lg font-semibold">Setup Taking Longer Than Expected</h2>
-            <p className="text-white/70 text-sm">
+            <h2 className="text-foreground text-lg font-semibold">Setup Taking Longer Than Expected</h2>
+            <p className="text-muted-foreground text-sm">
               Your account setup is taking longer than usual. Please refresh the page to continue.
             </p>
             <button
@@ -305,11 +312,11 @@ const Index = () => {
 
     if (showEscapeHatch) {
       return (
-        <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+        <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
           <div className="text-center space-y-4 p-4 max-w-sm">
             <div className="text-orange-500 text-3xl">⏳</div>
-            <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
-            <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+            <h2 className="text-foreground text-base font-semibold">Taking longer than expected…</h2>
+            <p className="text-muted-foreground text-sm">Your session may need a refresh to continue.</p>
             <button
               onClick={() => { window.location.href = '/?clear-cache=1'; }}
               className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
@@ -322,13 +329,12 @@ const Index = () => {
     }
 
     return (
-      <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
-        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+      <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
+        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       </div>
     );
   }
 
-  // Solo muestra landing page si NO hay usuario logueado
   if (!user) {
     return (
       <div className="min-h-screen">
@@ -339,12 +345,12 @@ const Index = () => {
 
   // Caso final (redirigiendo)
   return (
-    <div className="min-h-screen min-h-dvh flex items-center justify-center" style={{ background: '#050505' }}>
+    <div className="min-h-screen min-h-dvh flex items-center justify-center bg-background">
       {showEscapeHatch ? (
         <div className="text-center space-y-4 p-4 max-w-sm">
           <div className="text-orange-500 text-3xl">⏳</div>
-          <h2 className="text-white text-base font-semibold">Taking longer than expected…</h2>
-          <p className="text-white/60 text-sm">Your session may need a refresh to continue.</p>
+          <h2 className="text-foreground text-base font-semibold">Taking longer than expected…</h2>
+          <p className="text-muted-foreground text-sm">Your session may need a refresh to continue.</p>
           <button
             onClick={() => { window.location.href = '/?clear-cache=1'; }}
             className="mt-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm transition-colors"
@@ -353,7 +359,7 @@ const Index = () => {
           </button>
         </div>
       ) : (
-        <div className="w-12 h-12 rounded-full border-2 border-white/20 border-t-white/80 animate-spin" />
+        <div className="w-12 h-12 rounded-full border-2 border-foreground/20 border-t-foreground/80 animate-spin" />
       )}
     </div>
   );

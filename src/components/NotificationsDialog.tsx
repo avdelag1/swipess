@@ -72,7 +72,7 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
 
 export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProps) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
   const { notifications, dismissNotification, markAllAsRead, handleNotificationClick } = useNotificationSystem();
   const [activeFilter, setActiveFilter] = useState('all');
   const navigate = useNavigate();
@@ -100,16 +100,16 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md sm:max-w-lg h-[90vh] sm:h-[80vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl border-border/50">
-        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b bg-gradient-to-r from-primary/5 via-background to-background">
+        <DialogHeader className="shrink-0 px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border/40 bg-background">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="p-2 sm:p-2.5 rounded-xl bg-primary/10 shrink-0">
-                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              <div className="p-2 sm:p-2.5 rounded-xl bg-muted/50 shrink-0">
+                <Bell className="w-5 h-5 sm:w-5 sm:h-5 text-foreground/70" />
               </div>
               <div className="min-w-0">
-                <DialogTitle className="text-lg sm:text-xl font-bold">Notifications</DialogTitle>
-                <p className="text-xs sm:text-sm truncate text-muted-foreground">
-                  {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'}
+                <DialogTitle className="text-base sm:text-lg font-semibold tracking-tight">Notifications</DialogTitle>
+                <p className="text-xs truncate text-muted-foreground font-normal">
+                  {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
                 </p>
               </div>
             </div>
@@ -118,9 +118,9 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                 variant="ghost"
                 size="sm"
                 onClick={markAllAsRead}
-                className="gap-1.5 text-[10px] sm:text-xs h-8 px-2 sm:px-3 shrink-0"
+                className="gap-1.5 text-xs h-8 px-3 shrink-0 text-muted-foreground hover:text-foreground"
               >
-                <CheckCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <CheckCheck className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Mark all read</span>
                 <span className="sm:hidden">Read</span>
               </Button>
@@ -129,35 +129,35 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
         </DialogHeader>
 
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1 flex flex-col min-h-0">
-          <div className="shrink-0 px-3 sm:px-6 py-2 sm:py-3 border-b bg-muted/20">
-            <TabsList className="flex w-full bg-card/80 border border-border/40 rounded-lg p-1 h-auto gap-1">
+          <div className="shrink-0 px-4 sm:px-6 py-2 sm:py-3 border-b border-border/30">
+            <TabsList className="flex w-full bg-muted/30 rounded-xl p-1 h-auto gap-0.5">
               <TabsTrigger
                 value="all"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all"
+                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-1.5 px-2 text-xs font-medium transition-all text-muted-foreground"
               >
                 All
               </TabsTrigger>
               <TabsTrigger
                 value="unread"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/90 data-[state=active]:to-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-1.5 px-2 text-xs font-medium transition-all text-muted-foreground gap-1"
               >
                 <span>Unread</span>
                 {unreadCount > 0 && (
-                  <Badge variant="secondary" className="h-4 px-1 text-[9px] bg-background/50">{unreadCount}</Badge>
+                  <Badge variant="secondary" className="h-4 px-1.5 text-[10px] font-medium">{unreadCount}</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger
                 value="message"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/90 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-1.5 px-2 text-xs font-medium transition-all text-muted-foreground flex items-center gap-1"
               >
-                <MessageSquare className="w-3.5 h-3.5 text-blue-400 data-[state=active]:text-white" />
+                <MessageSquare className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Msgs</span>
               </TabsTrigger>
               <TabsTrigger
                 value="like"
-                className="flex-1 min-w-0 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500/90 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-md py-2 px-2 text-xs font-bold transition-all flex items-center gap-1"
+                className="flex-1 min-w-0 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm rounded-lg py-1.5 px-2 text-xs font-medium transition-all text-muted-foreground flex items-center gap-1"
               >
-                <Flame className="w-3.5 h-3.5 text-orange-400 data-[state=active]:text-white" />
+                <Flame className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Likes</span>
               </TabsTrigger>
             </TabsList>
@@ -173,19 +173,15 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                     transition={{ duration: 0.3 }}
                     className="flex flex-col items-center justify-center py-10 sm:py-14 text-center"
                   >
-                    <div className="relative mb-4">
-                      <div className="absolute inset-0 bg-orange-500/10 rounded-full blur-xl scale-150" />
-                      <div className={cn(
-                        "relative p-4 sm:p-5 rounded-full border shadow-lg",
-                        "bg-gradient-to-br from-card to-secondary border-border"
-                      )}>
-                        <Bell className="w-8 h-8 sm:w-9 sm:h-9 text-muted-foreground" />
+                    <div className="mb-4">
+                      <div className="p-4 sm:p-5 rounded-2xl bg-muted/30">
+                        <Bell className="w-7 h-7 sm:w-8 sm:h-8 text-muted-foreground/40" />
                       </div>
                     </div>
-                    <h3 className="text-sm sm:text-base font-bold mb-1 text-foreground">
+                    <h3 className="text-sm font-medium mb-1 text-foreground">
                       {activeFilter === 'all' ? 'No notifications yet' : `No ${activeFilter} notifications`}
                     </h3>
-                    <p className="text-xs max-w-[200px] text-muted-foreground">
+                    <p className="text-xs font-normal max-w-[200px] text-muted-foreground/70">
                       New activity will appear here
                     </p>
                   </motion.div>
@@ -204,10 +200,10 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                           >
                             <Card
                               className={cn(
-                                "group cursor-pointer transition-all duration-200 border overflow-hidden hover:shadow-md hover:-translate-y-0.5",
+                                "group cursor-pointer transition-all duration-200 border overflow-hidden hover:bg-accent/5",
                                 !notification.read
-                                  ? 'bg-gradient-to-r from-primary/5 via-card to-card border-primary/20'
-                                  : 'hover:bg-accent/10 border-border/50 bg-card'
+                                  ? 'bg-card border-border/40'
+                                  : 'bg-card border-border/20'
                               )}
                               onClick={() => {
                                 handleNotificationClick(notification);
@@ -236,38 +232,36 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-start justify-between gap-2 mb-0.5">
                                       <div className="flex items-center gap-2">
-                                        <h4 className="font-semibold text-foreground text-sm">
+                                        <h4 className="font-medium text-foreground text-[13px] leading-tight">
                                           {notification.title}
                                         </h4>
                                         {!notification.read && (
-                                          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                          <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                                         )}
                                       </div>
                                       <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
                                         onClick={(e) => {
                                           e.stopPropagation();
                                           dismissNotification(notification.id);
                                         }}
                                       >
-                                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground hover:text-destructive" />
+                                        <Trash2 className="w-3 h-3 text-muted-foreground hover:text-destructive" />
                                       </Button>
                                     </div>
 
-                                    <p className="text-xs line-clamp-2 mb-1.5 text-muted-foreground">
+                                    <p className="text-xs font-normal line-clamp-2 mb-1.5 text-muted-foreground leading-relaxed">
                                       {notification.message}
                                     </p>
 
                                     <div className="flex items-center gap-2">
-                                      <span className="text-[10px] text-muted-foreground">
+                                      <span className="text-[11px] font-normal text-muted-foreground/70">
                                         {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
                                       </span>
                                       {!notification.read && (
-                                        <Badge className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border-0">
-                                          New
-                                        </Badge>
+                                        <span className="text-[10px] font-medium text-primary/80">New</span>
                                       )}
                                     </div>
                                   </div>
@@ -286,14 +280,14 @@ export function NotificationsDialog({ isOpen, onClose }: NotificationsDialogProp
         </Tabs>
 
         {notifications.length > 0 && (
-          <div className="shrink-0 px-3 sm:px-6 py-3 sm:py-4 border-t bg-muted/30">
+          <div className="shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-t border-border/30">
             <Button
               variant="outline"
-              className="w-full gap-2 h-10 sm:h-11 text-sm font-bold border-2"
+              className="w-full gap-2 h-10 text-sm font-medium border-border/40"
               onClick={handleViewAll}
             >
-              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-              View All Notifications
+              <Eye className="w-4 h-4" />
+              View All
             </Button>
           </div>
         )}

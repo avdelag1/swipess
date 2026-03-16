@@ -31,7 +31,7 @@ import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles } from 'lucide-react';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigation } from 'lucide-react';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -135,7 +135,7 @@ function useDebounce<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const callbackRef = useRef(callback);
 
   useEffect(() => {
@@ -179,6 +179,77 @@ function useNavigationGuard() {
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
+// ── Distance Slider Component ─────────────────────────────────────────────────
+interface DistanceSliderProps {
+  radiusKm: number;
+  onRadiusChange: (km: number) => void;
+  onDetectLocation: () => void;
+  detecting: boolean;
+  detected: boolean;
+}
+
+const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+  const maxKm = 100;
+  return (
+    <div className="w-full max-w-xs mx-auto mt-2 px-2">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-black text-primary">{radiusKm} km</span>
+          <button
+            onClick={onDetectLocation}
+            disabled={detecting}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
+            style={{
+              background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
+              borderColor: detected ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.15)',
+              color: detected ? '#f97316' : 'rgba(255,255,255,0.6)',
+            }}
+          >
+            <Navigation className="w-2.5 h-2.5" />
+            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
+          </button>
+        </div>
+      </div>
+      <div className="relative h-6 flex items-center">
+        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${(radiusKm / maxKm) * 100}%`,
+              background: 'linear-gradient(90deg, #ec4899, #f97316)',
+            }}
+          />
+        </div>
+        <input
+          type="range"
+          min={1}
+          max={maxKm}
+          step={1}
+          value={radiusKm}
+          onChange={(e) => onRadiusChange(Number(e.target.value))}
+          className="absolute w-full opacity-0 h-6 cursor-pointer"
+          style={{ touchAction: 'none' }}
+        />
+        <div
+          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg pointer-events-none"
+          style={{
+            left: `calc(${(radiusKm / maxKm) * 100}% - 10px)`,
+            background: 'linear-gradient(135deg, #ec4899, #f97316)',
+          }}
+        />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-[10px] text-muted-foreground font-bold">1 km</span>
+        <span className="text-[10px] text-muted-foreground font-bold">100 km</span>
+      </div>
+    </div>
+  );
+};
+
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
   onInsights?: (listingId: string) => void;
@@ -203,6 +274,29 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [directMessageDialogOpen, setDirectMessageDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any | null>(null);
+
+  // ── Distance filter state ─────────────────────────────────────────────────
+  const radiusKm = useFilterStore((s) => s.radiusKm);
+  const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
+  const setUserLocation = useFilterStore((s) => s.setUserLocation);
+  const [locationDetecting, setLocationDetecting] = useState(false);
+  const [locationDetected, setLocationDetected] = useState(false);
+
+  const detectLocation = useCallback(() => {
+    if (!navigator.geolocation) return;
+    setLocationDetecting(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation(pos.coords.latitude, pos.coords.longitude);
+        setLocationDetected(true);
+        setLocationDetecting(false);
+      },
+      () => {
+        setLocationDetecting(false);
+      },
+      { timeout: 8000, maximumAge: 60000 }
+    );
+  }, [setUserLocation]);
 
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
@@ -267,62 +361,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     setCurrentIndex(currentIndexRef.current);
   }, []);
 
-  // FILTER CHANGE DETECTION: Reset deck when filters change
-  // Track previous filter state to detect changes
-  const prevFiltersRef = useRef(filters);
-  useEffect(() => {
-    // Skip on initial mount
-    if (!prevFiltersRef.current && !filters) return;
-
-    // PERFORMANCE: Use efficient comparison instead of JSON.stringify
-    const arraysEqual = (a?: any[], b?: any[]) => {
-      if (!a && !b) return true;
-      if (!a || !b) return false;
-      if (a.length !== b.length) return false;
-      return a.every((val, i) => val === b[i]);
-    };
-
-    const objectsEqual = (a?: any, b?: any) => {
-      if (!a && !b) return true;
-      if (!a || !b) return false;
-      const keysA = Object.keys(a);
-      const keysB = Object.keys(b);
-      if (keysA.length !== keysB.length) return false;
-      return keysA.every(key => a[key] === b[key]);
-    };
-
-    // Check if filters actually changed (optimized comparison)
-    // FIX: category is a string, not an array - use direct comparison
-    const filtersChanged =
-      !arraysEqual(prevFiltersRef.current?.categories, filters?.categories) ||
-      prevFiltersRef.current?.category !== filters?.category ||
-      prevFiltersRef.current?.listingType !== filters?.listingType ||
-      !objectsEqual(prevFiltersRef.current?.priceRange, filters?.priceRange) ||
-      !arraysEqual(prevFiltersRef.current?.serviceCategory, filters?.serviceCategory) ||
-      !arraysEqual(prevFiltersRef.current?.workTypes, filters?.workTypes) ||
-      !arraysEqual(prevFiltersRef.current?.skills, filters?.skills) ||
-      !arraysEqual(prevFiltersRef.current?.daysAvailable, filters?.daysAvailable) ||
-      !arraysEqual(prevFiltersRef.current?.experienceLevel, filters?.experienceLevel) ||
-      !arraysEqual(prevFiltersRef.current?.scheduleTypes, filters?.scheduleTypes);
-
-    if (filtersChanged) {
-      logger.info('[SwipessSwipeContainer] Filters changed, resetting deck');
-
-      // Reset local state and refs
-      currentIndexRef.current = 0;
-      setCurrentIndex(0);
-      setDeckLength(0);
-      deckQueueRef.current = [];
-      swipedIdsRef.current.clear();
-      setPage(0);
-
-      // Reset store
-      resetClientDeck();
-
-      // Update prev filters
-      prevFiltersRef.current = filters;
-    }
-  }, [filters, resetClientDeck]);
+  // FILTER CHANGE DETECTION: Handled by the filterSignature-based effect below (lines ~556-578).
+  // A single reset path prevents duplicate state mutations that cause React error #185.
 
   // PERF FIX: Track if we're returning to dashboard (has hydrated data AND is ready)
   // When true, skip initial animations to prevent "double render" feeling
@@ -404,43 +444,11 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
   }, []);
 
-  // HYDRATE FILTER STORE FROM DATABASE on mount
-  // If the Zustand store has no categories selected but the DB has stored preferences,
-  // seed the store so the swipe deck uses the user's saved filters
-  useEffect(() => {
-    if (!user?.id) return;
-    const state = useFilterStore.getState();
-    // Only hydrate if store is empty (user hasn't actively set filters this session)
-    if (state.categories.length > 0 || state.listingType !== 'both') return;
-
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from('client_filter_preferences')
-          .select('preferred_categories, preferred_listing_types')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (!data) return;
-        const currentState = useFilterStore.getState();
-        // Double-check store is still empty (race condition guard)
-        if (currentState.categories.length > 0) return;
-
-        const cats = Array.isArray(data.preferred_categories) ? data.preferred_categories as string[] : [];
-        const listingTypes = Array.isArray(data.preferred_listing_types) ? data.preferred_listing_types as string[] : [];
-
-        if (cats.length > 0) {
-          useFilterStore.getState().setCategories(cats as any);
-        }
-        if (listingTypes.length === 1 && listingTypes[0] !== 'both') {
-          useFilterStore.getState().setListingType(listingTypes[0] as any);
-        }
-        logger.info('[SwipessSwipeContainer] Hydrated filter store from DB:', { cats, listingTypes });
-      } catch (err) {
-        logger.error('[SwipessSwipeContainer] Error hydrating filters from DB:', err);
-      }
-    })();
-  }, [user?.id]);
+  // PERF FIX: Removed competing filter hydration from client_filter_preferences.
+  // useFilterPersistence (in PersistentDashboardLayout) is the SINGLE source of truth
+  // for restoring saved filters from the database. Having two hydration paths
+  // caused a race condition where both bumped filterVersion, triggering cascading
+  // re-renders that led to React Error #185 (Maximum update depth exceeded).
 
   // Cleanup on unmount
   useEffect(() => {
@@ -490,51 +498,39 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
   }, [user?.id]);
 
-  // PERF: Memoize filters to prevent unnecessary query re-runs
+  // PERF FIX: Build filters from Zustand store directly instead of props.
+  // This eliminates the cascading object recreation chain:
+  // MyHub → ClientDashboard → SwipessSwipeContainer
+  // Each intermediary was creating new filter objects on every filterVersion bump.
+  const storeFilterVersion = useFilterStore((state) => state.filterVersion);
   const stableFilters = useMemo(() => {
-    return filters;
-  }, [
-    // Only re-create when actual filter values change
-    filters?.category,
-    filters?.categories?.join(','),
-    filters?.listingType,
-    filters?.priceRange?.[0],
-    filters?.priceRange?.[1],
-    filters?.bedrooms?.join(','),
-    filters?.bathrooms?.join(','),
-    filters?.amenities?.join(','),
-    filters?.propertyType?.join(','),
-    filters?.petFriendly,
-    filters?.furnished,
-    filters?.verified,
-    filters?.premiumOnly,
-    filters?.showHireServices,
-    filters?.clientGender,
-    filters?.clientType,
-  ]);
+    const state = useFilterStore.getState();
+    return state.getListingFilters() as ListingFilters;
+    // Only recompute when filterVersion changes (actual filter mutation)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeFilterVersion]);
 
   // PERF FIX: Create stable filter signature for deck versioning
   // This detects when filters actually changed vs just navigation return
   const filterSignature = useMemo(() => {
-    if (!filters) return 'default';
     return [
-      filters.category || '',
-      filters.categories?.join(',') || '',
-      filters.listingType || '',
-      filters.priceRange?.join('-') || '',
-      filters.bedrooms?.join(',') || '',
-      filters.bathrooms?.join(',') || '',
-      filters.amenities?.join(',') || '',
-      filters.propertyType?.join(',') || '',
-      filters.petFriendly ? '1' : '0',
-      filters.furnished ? '1' : '0',
-      filters.verified ? '1' : '0',
-      filters.premiumOnly ? '1' : '0',
-      filters.showHireServices ? '1' : '0',
-      filters.clientGender || '',
-      filters.clientType || '',
+      stableFilters.category || '',
+      stableFilters.categories?.join(',') || '',
+      stableFilters.listingType || '',
+      stableFilters.priceRange?.join('-') || '',
+      stableFilters.bedrooms?.join(',') || '',
+      stableFilters.bathrooms?.join(',') || '',
+      stableFilters.amenities?.join(',') || '',
+      stableFilters.propertyType?.join(',') || '',
+      stableFilters.petFriendly ? '1' : '0',
+      stableFilters.furnished ? '1' : '0',
+      stableFilters.verified ? '1' : '0',
+      stableFilters.premiumOnly ? '1' : '0',
+      stableFilters.showHireServices ? '1' : '0',
+      stableFilters.clientGender || '',
+      stableFilters.clientType || '',
     ].join('|');
-  }, [filters]);
+  }, [stableFilters]);
 
   // Track previous filter signature to detect filter changes
   const prevFilterSignatureRef = useRef<string>(filterSignature);
@@ -826,7 +822,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
         profileId: listing.id,
         viewType: 'listing',
         action: direction === 'right' ? 'like' : 'pass'
-      }).catch(() => { });
+      }).catch(() => { /* fire-and-forget: ignore analytics errors */ });
     });
 
     // Clear direction for next swipe
@@ -1240,41 +1236,58 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
+        {/* Subtle ambient glow behind the card */}
+        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="text-center space-y-6 p-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center space-y-8 p-8 max-w-xs w-full"
         >
-          {/* Category-specific icon with heartbeat pulse animation */}
+          {/* Icon with slow, graceful float animation */}
           <div className="flex justify-center">
-            <motion.div
-              animate={isRefreshing ? { rotate: 360 } : { scale: [1, 1.15, 1, 1.1, 1] }}
-              transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
-            >
-              <CategoryIcon className="w-10 h-10" />
-            </motion.div>
+            <div className="relative">
+              {/* Outer glow ring */}
+              <motion.div
+                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
+              />
+              {/* Icon container */}
+              <motion.div
+                animate={isRefreshing
+                  ? { rotate: 360 }
+                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
+                }
+                transition={isRefreshing
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
+              >
+                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
               {description}
             </p>
           </div>
           <div className="flex flex-col gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="w-full gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
+                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
               >
                 {isRefreshing ? (
                   <RadarSearchIcon size={20} isActive={true} />
                 ) : (
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-4 h-4" />
                 )}
                 {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
               </Button>
@@ -1282,6 +1295,15 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
 
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">New {categoryLower} are added daily</p>
+
+            {/* Distance filter slider */}
+            <DistanceSlider
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+            />
           </div>
         </motion.div>
       </div>
@@ -1354,44 +1376,64 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
+        {/* Subtle ambient glow */}
+        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="text-center space-y-6 p-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center space-y-8 p-8 max-w-xs w-full"
         >
-          {/* Category-specific icon with heartbeat pulse animation */}
+          {/* Icon with slow, graceful float animation */}
           <div className="flex justify-center">
-            <motion.div
-              animate={{ scale: [1, 1.15, 1, 1.1, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-[3px] border-current flex items-center justify-center ${iconColor}`}
-            >
-              <CategoryIcon className="w-10 h-10" strokeWidth={4} />
-            </motion.div>
+            <div className="relative">
+              {/* Outer glow ring */}
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.25, 0.12] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
+              />
+              {/* Icon container */}
+              <motion.div
+                animate={{ scale: [1, 1.06, 1], y: [0, -4, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
+              >
+                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-white uppercase tracking-tight">{title}</h3>
-            <p className="text-white/70 text-sm max-w-xs mx-auto font-extrabold">
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
               {description}
             </p>
           </div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="gap-2 rounded-full px-6 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
+              className="gap-2.5 rounded-full px-8 py-5 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
             >
               {isRefreshing ? (
                 <RadarSearchIcon size={18} isActive={true} />
               ) : (
-                <RefreshCw className="w-4 h-4" strokeWidth={4} />
+                <RefreshCw className="w-4 h-4" />
               )}
               {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
             </Button>
           </motion.div>
+
+          {/* Distance filter slider */}
+          <DistanceSlider
+            radiusKm={radiusKm}
+            onRadiusChange={setRadiusKm}
+            onDetectLocation={detectLocation}
+            detecting={locationDetecting}
+            detected={locationDetected}
+          />
 
         </motion.div>
       </div>

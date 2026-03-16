@@ -45,13 +45,35 @@ interface BicycleListingFormProps {
   initialData?: Partial<BicycleFormData>;
 }
 
-const BICYCLE_TYPES = ['Road Bike', 'Mountain Bike', 'Hybrid', 'City/Commuter', 'Electric (E-Bike)', 'Cruiser', 'BMX', 'Folding', 'Cargo', 'Gravel', 'Other'];
+const BICYCLE_TYPES = [
+  { value: 'road', label: 'Road Bike' },
+  { value: 'mountain', label: 'Mountain Bike' },
+  { value: 'hybrid', label: 'Hybrid' },
+  { value: 'electric', label: 'Electric (E-Bike)' },
+  { value: 'cruiser', label: 'Cruiser' },
+  { value: 'bmx', label: 'BMX' },
+];
 const FRAME_SIZES = ['XS (< 5\'2")', 'S (5\'2" - 5\'6")', 'M (5\'6" - 5\'10")', 'L (5\'10" - 6\'2")', 'XL (> 6\'2")'];
 const FRAME_MATERIALS = ['Aluminum', 'Carbon Fiber', 'Steel', 'Titanium', 'Chromoly'];
 const WHEEL_SIZES = ['20"', '24"', '26"', '27.5"', '29"', '700c'];
-const BRAKE_TYPES = ['Disc (Hydraulic)', 'Disc (Mechanical)', 'Rim Brakes', 'Coaster Brake'];
-const CONDITIONS = ['Excellent', 'Good', 'Fair', 'Needs Work'];
-const SUSPENSION_TYPES = ['None (Rigid)', 'Front Only (Hardtail)', 'Full Suspension'];
+const BRAKE_TYPES = [
+  { value: 'hydraulic', label: 'Disc (Hydraulic)' },
+  { value: 'disc', label: 'Disc (Mechanical)' },
+  { value: 'rim', label: 'Rim Brakes' },
+  { value: 'v-brake', label: 'V-Brake' },
+];
+const CONDITIONS = [
+  { value: 'excellent', label: 'Excellent' },
+  { value: 'good', label: 'Good' },
+  { value: 'fair', label: 'Fair' },
+  { value: 'poor', label: 'Needs Work' },
+];
+const SUSPENSION_TYPES = [
+  { value: 'none', label: 'None (Rigid)' },
+  { value: 'front', label: 'Front Only (Hardtail)' },
+  { value: 'full', label: 'Full Suspension' },
+  { value: 'rear', label: 'Rear Suspension' },
+];
 
 const Section = ({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) => (
   <div className={cn("rounded-3xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] shadow-xl overflow-hidden", className)}>
@@ -106,7 +128,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                 <SelectContent>
-                  {BICYCLE_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                  {BICYCLE_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             )}
@@ -137,7 +159,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
             <Controller name="condition" control={control} render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <SelectTrigger><SelectValue placeholder="Select condition" /></SelectTrigger>
-                <SelectContent>{CONDITIONS.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+                <SelectContent>{CONDITIONS.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}</SelectContent>
               </Select>
             )} />
           </div>
@@ -173,7 +195,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
             <Controller name="brake_type" control={control} render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <SelectTrigger><SelectValue placeholder="Select brake type" /></SelectTrigger>
-                <SelectContent>{BRAKE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                <SelectContent>{BRAKE_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
               </Select>
             )} />
           </div>
@@ -186,7 +208,7 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
             <Controller name="suspension_type" control={control} render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <SelectTrigger><SelectValue placeholder="Select suspension" /></SelectTrigger>
-                <SelectContent>{SUSPENSION_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                <SelectContent>{SUSPENSION_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
               </Select>
             )} />
           </div>

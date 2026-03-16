@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, SlidersHorizontal, DollarSign, Calendar, Heart, Users, User, Check,
   ChevronDown, Shield, Activity, Briefcase, UserCircle, Sparkles, Home,
-  Bike, CircleDot, Wrench, Target, Clock, Filter
+  Bike, Wrench, Target, Clock, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';

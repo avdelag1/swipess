@@ -11,34 +11,31 @@ interface ThemeToggleProps {
 
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
-    const isDark = theme !== 'white-matte';
+    const isDark = theme === 'dark';
 
-    // Glass styling for the button
-    const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-    const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+    const glassBg = isDark ? 'var(--glass-bg)' : 'rgba(255, 255, 255, 0.95)';
+    const glassBorder = isDark ? '1px solid var(--glass-border)' : '1px solid rgba(0, 0, 0, 0.05)';
     const floatingShadow = isDark
-        ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-        : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+        ? '0 10px 30px -10px rgba(0,0,0,0.5)'
+        : '0 10px 30px -10px rgba(0,0,0,0.1)';
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         triggerHaptic('light');
-
-        // We only support these two modes for the quick toggle
-        setTheme(isDark ? 'white-matte' : 'black-matte');
+        setTheme(isDark ? 'light' : 'dark');
     };
 
     return (
         <button
             onClick={handleToggle}
             className={cn(
-                'relative flex items-center justify-center rounded-lg',
+                'relative flex items-center justify-center rounded-xl',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent',
-                'h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0',
+                'h-9 w-9 flex-shrink-0',
                 className
             )}
             style={{

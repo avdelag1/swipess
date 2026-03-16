@@ -23,6 +23,22 @@ import type {
 } from '@/types/filters';
 import { logger } from '@/utils/prodLogger';
 
+// Read localStorage to set initial categories on store creation
+function getInitialCategories(): QuickFilterCategory[] {
+  try {
+    const saved = localStorage.getItem('quickFilter');
+    const map: Record<string, QuickFilterCategory[]> = {
+      properties: ['property'],
+      motorcycles: ['motorcycle'],
+      bicycles: ['bicycle'],
+      workers: ['services'],
+    };
+    return map[saved ?? ''] ?? [];
+  } catch {
+    return [];
+  }
+}
+
 interface FilterState {
   // ========== CLIENT FILTERS ==========
   // Active category for client swipe deck
@@ -38,6 +54,11 @@ interface FilterState {
   clientBudgetRange: [number, number] | null;
   clientNationalities: string[];
   
+  // ========== DISTANCE FILTER ==========
+  radiusKm: number;
+  userLatitude: number | null;
+  userLongitude: number | null;
+
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
   bedrooms: number[];
@@ -69,6 +90,11 @@ interface FilterState {
   setClientBudgetRange: (range: [number, number] | null) => void;
   setClientNationalities: (nationalities: string[]) => void;
   
+  // Distance filter actions
+  setRadiusKm: (radius: number) => void;
+  setUserLocation: (lat: number, lon: number) => void;
+  clearUserLocation: () => void;
+
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
@@ -101,13 +127,16 @@ export const useFilterStore = create<FilterState>()(
   subscribeWithSelector((set, get) => ({
     // ========== INITIAL STATE ==========
     activeCategory: null,
-    categories: [],
+    categories: getInitialCategories(),
     listingType: 'both',
     clientGender: 'any',
     clientType: 'all',
     clientAgeRange: null,
     clientBudgetRange: null,
     clientNationalities: [],
+    radiusKm: 50,
+    userLatitude: null,
+    userLongitude: null,
     priceRange: null,
     bedrooms: [],
     bathrooms: [],
@@ -115,7 +144,22 @@ export const useFilterStore = create<FilterState>()(
     propertyTypes: [],
     filterVersion: 0,
     lastChangedAt: Date.now(),
-    
+
+    // ========== DISTANCE FILTER ACTIONS ==========
+    setRadiusKm: (radius) => {
+      set((state) => ({
+        radiusKm: radius,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    setUserLocation: (lat, lon) => {
+      set({ userLatitude: lat, userLongitude: lon });
+    },
+    clearUserLocation: () => {
+      set({ userLatitude: null, userLongitude: null });
+    },
+
     // ========== CATEGORY ACTIONS ==========
     setActiveCategory: (category) => {
       logger.info('[FilterStore] setActiveCategory:', category);
@@ -378,15 +422,19 @@ export const useClientType = () => useFilterStore((state) => state.clientType);
 export const useFilterVersion = () => useFilterStore((state) => state.filterVersion);
 
 // Combined selectors for quick filter UI
-export const useQuickFilters = () => useFilterStore((state) => ({
+// PERF FIX: Use useShallow to prevent re-renders when values haven't changed
+import { useShallow } from 'zustand/react/shallow';
+
+export const useQuickFilters = () => useFilterStore(useShallow((state) => ({
   categories: state.categories,
   listingType: state.listingType,
   clientGender: state.clientGender,
   clientType: state.clientType,
-}));
+})));
 
 // Filter actions hook
-export const useFilterActions = () => useFilterStore((state) => ({
+// PERF FIX: Use useShallow — action references are stable but the object wrapper is new each time
+export const useFilterActions = () => useFilterStore(useShallow((state) => ({
   setActiveCategory: state.setActiveCategory,
   toggleCategory: state.toggleCategory,
   setCategories: state.setCategories,
@@ -397,4 +445,4 @@ export const useFilterActions = () => useFilterStore((state) => ({
   resetClientFilters: state.resetClientFilters,
   resetOwnerFilters: state.resetOwnerFilters,
   resetAllFilters: state.resetAllFilters,
-}));
+})));

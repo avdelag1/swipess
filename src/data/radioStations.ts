@@ -1155,6 +1155,53 @@ export const radioStations: RadioStation[] = [
     city: 'jazz',
     genre: 'Jazz',
     description: 'Santa Monica jazz'
+  },
+
+  // Tulum/Beach Special — 5 Swipess Featured Stations
+  {
+    id: 'tulum-beach-1',
+    name: 'Tulum Sunset Beats',
+    frequency: '96.3',
+    streamUrl: 'https://ice1.somafm.com/groovesalad-128-mp3',
+    city: 'tulum',
+    genre: 'Downtempo',
+    description: 'Jungle meets ocean — the Tulum vibe'
+  },
+  {
+    id: 'tulum-beach-2',
+    name: 'Playa del Carmen FM',
+    frequency: '98.7',
+    streamUrl: 'https://ice1.somafm.com/lush-128-mp3',
+    city: 'tulum',
+    genre: 'Chillout',
+    description: 'Beachfront lounge vibes from the Riviera Maya'
+  },
+  {
+    id: 'tulum-beach-3',
+    name: 'Cenote Sounds',
+    frequency: '103.5',
+    streamUrl: 'https://streaming.tmcrental.com/radio/8000/radio.mp3',
+    city: 'tulum',
+    genre: 'Organic House',
+    description: 'Deep jungle electronic from the Yucatan'
+  },
+  {
+    id: 'tulum-beach-4',
+    name: 'Caribbean Reggae Waves',
+    frequency: '91.1',
+    streamUrl: 'https://ice1.somafm.com/indiepop-128-mp3',
+    city: 'reggae',
+    genre: 'Reggae',
+    description: 'Island roots from the Caribbean coast'
+  },
+  {
+    id: 'tulum-beach-5',
+    name: 'Swipess Beach Radio',
+    frequency: '105.9',
+    streamUrl: 'https://ice1.somafm.com/cliqhop-128-mp3',
+    city: 'tulum',
+    genre: 'Electronic',
+    description: 'The official Swipess beach frequency'
   }
 ];
 

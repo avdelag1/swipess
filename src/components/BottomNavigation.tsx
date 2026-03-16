@@ -14,12 +14,12 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { startTransition, useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, Flame, MessageCircle, User, Building2, Heart, Filter, Sparkles,
-  Search, Compass, LayoutGrid, Briefcase, Users, List
+  Home, Flame, MessageCircle, User, Building2, Heart, Filter,
+  Search, Compass, LayoutGrid, Briefcase, Users, List, Sparkles, ShieldCheck, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -27,6 +27,7 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
+import { useTranslation } from 'react-i18next';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -71,7 +72,8 @@ export function BottomNavigation({
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
+  const { t } = useTranslation();
 
   // Detect narrow screens for icon-only compact mode
   const [isNarrow, setIsNarrow] = useState(false);
@@ -88,39 +90,106 @@ export function BottomNavigation({
     targetSelector: '#dashboard-scroll-container',
   });
 
-  // Client nav items
+  // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Roommates, Filters
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: 'Explore', path: '/dashboard' },
-    { id: 'profile', icon: User, label: 'Profile', path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: 'Likes', path: '/client/liked-properties' },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
-    { id: 'filter', icon: Search, label: 'Filters', path: '/client/filters' },
+    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
+    { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items
+  // Owner nav items — order: Dashboard, Profile, Likes, Messages, Listings, Filters
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: LayoutGrid, label: 'Dashboard', path: '/dashboard' },
-    { id: 'profile', icon: Briefcase, label: 'Profile', path: '/owner/profile' },
-    { id: 'liked', icon: Users, label: 'Liked Clients', path: '/owner/liked-clients' },
-    { id: 'listings', icon: List, label: 'Listings', path: '/owner/properties', isCenter: true },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
-    { id: 'ai-search', icon: Sparkles, label: 'AI Search', onClick: onAISearchClick },
-    { id: 'filter', icon: Filter, label: 'Filters', path: '/owner/filters' },
+    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
+    { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
+    { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
-  const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
+  // Admin nav items — admin panel only
+  const adminNavItems: NavItem[] = [
+    { id: 'admin', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+  ];
 
-  const handleNavPress = useCallback(
-    (event: React.PointerEvent, item: NavItem) => {
-      event.stopPropagation();
-      event.preventDefault();
-      haptics.select();
-      if (item.onClick) {
-        item.onClick();
-      } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+  const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
+  const isScrollable = true; // Always scrollable for both roles
+
+  // Auto-scroll active item into view
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
+    if (activeBtn) {
+      activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+    }
+  }, [location.pathname]);
+
+  // ── Edge fade indicators ──────────────────────────────────────────────
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollFades = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollFades();
+    // Re-check on resize
+    window.addEventListener('resize', updateScrollFades);
+    return () => window.removeEventListener('resize', updateScrollFades);
+  }, [updateScrollFades, navItems.length]);
+
+  // ── Tap vs drag detection ─────────────────────────────────────────────
+  const touchState = useRef<{
+    x: number; y: number; time: number; item: NavItem; isDragging: boolean;
+  } | null>(null);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, item: NavItem) => {
+      e.stopPropagation();
+      touchState.current = {
+        x: e.clientX, y: e.clientY, time: Date.now(), item, isDragging: false,
+      };
+      if (item.path) prefetchRoute(item.path);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!touchState.current) return;
+    const dx = Math.abs(e.clientX - touchState.current.x);
+    if (dx > 8) {
+      touchState.current.isDragging = true;
+    }
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!touchState.current) return;
+      const { item, isDragging, time } = touchState.current;
+      const elapsed = Date.now() - time;
+      const dx = Math.abs(e.clientX - touchState.current.x);
+
+      // Quick tap with minimal movement → navigate
+      if (!isDragging && elapsed < 300 && dx < 8) {
+        haptics.select();
+        if (item.onClick) {
+          item.onClick();
+        } else if (item.path) {
+          navigate(item.path);
+        }
       }
+
+      touchState.current = null;
     },
     [navigate],
   );
@@ -133,7 +202,7 @@ export function BottomNavigation({
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
-        startTransition(() => navigate(item.path!));
+        navigate(item.path!);
       }
     },
     [navigate],
@@ -198,8 +267,20 @@ export function BottomNavigation({
 
         {/* Nav items row */}
         <div
-          className="relative flex items-center justify-between w-full px-1 py-1.5"
-          style={{ zIndex: 2, transform: 'translateZ(0)' }}
+          ref={scrollRef}
+          data-no-swipe-nav
+          onScroll={updateScrollFades}
+          onPointerMove={handlePointerMove}
+          className={cn(
+            'relative flex items-center w-full px-1 py-2.5 nav-scroll-hide',
+          )}
+          style={{
+            zIndex: 2,
+            transform: 'translateZ(0)',
+            overflowX: 'auto',
+            scrollbarWidth: 'none' as const,
+            WebkitOverflowScrolling: 'touch',
+          }}
         >
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -209,10 +290,8 @@ export function BottomNavigation({
               <motion.button
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
-                onPointerDown={(e) => {
-                  handleNavPress(e, item);
-                  if (item.path) prefetchRoute(item.path);
-                }}
+                onPointerDown={(e) => handlePointerDown(e, item)}
+                onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
                 onClick={(e) => e.preventDefault()}
@@ -228,12 +307,13 @@ export function BottomNavigation({
                     : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
-                  minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  minWidth: 64,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   padding: isNarrow ? '4px 2px' : '6px 4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
+                  flexShrink: 0,
                 }}
               >
 
@@ -291,6 +371,30 @@ export function BottomNavigation({
             );
           })}
         </div>
+
+        {/* ── Edge fade indicators ──────────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 left-0 bottom-0 transition-opacity duration-200"
+          style={{
+            width: 24,
+            zIndex: 10,
+            borderRadius: 'inherit',
+            opacity: canScrollLeft ? 1 : 0,
+            background: `linear-gradient(to right, ${isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 right-0 bottom-0 transition-opacity duration-200"
+          style={{
+            width: 24,
+            zIndex: 10,
+            borderRadius: 'inherit',
+            opacity: canScrollRight ? 1 : 0,
+            background: `linear-gradient(to left, ${isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
+          }}
+        />
       </div>
 
       {/* SVG gradient defs for active icon */}

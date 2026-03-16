@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 
@@ -193,7 +192,7 @@ export default function OwnerFilters() {
   return (
     <div className="min-h-full bg-background transition-colors duration-500">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-4 pt-12">
           <div className="flex items-center gap-3">
             <motion.button
@@ -231,7 +230,7 @@ export default function OwnerFilters() {
         </div>
       </header>
 
-      <ScrollArea className="h-[calc(100vh-200px)]">
+      <div className="overflow-y-auto">
         <div className="px-4 py-6 space-y-8 pb-36">
           {/* Gender Section */}
           <section className="space-y-4">
@@ -448,7 +447,7 @@ export default function OwnerFilters() {
             </div>
           </section>
         </div>
-      </ScrollArea>
+      </div>
 
       {/* Bottom Fixed Apply Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40">

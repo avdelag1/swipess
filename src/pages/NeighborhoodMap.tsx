@@ -4,6 +4,7 @@ import { MapPin, TrendingUp, Home, ArrowRight, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { PageHeader } from '@/components/PageHeader';
 
 interface NeighborhoodItem {
   id: string;
@@ -54,19 +55,22 @@ export default function NeighborhoodMap() {
 
   return (
     <div className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <MapPin className="w-6 h-6 text-primary" />
-          Tulum Zones
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">Explore neighborhoods, compare prices, find your vibe</p>
-      </div>
+      <PageHeader
+        title="Tulum Zones"
+        subtitle="Explore neighborhoods, compare prices, find your vibe"
+      />
 
       {isLoading ? (
         <div className="grid grid-cols-2 gap-3">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-48 rounded-2xl bg-card animate-pulse" />
           ))}
+        </div>
+      ) : zones.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <MapPin className="w-12 h-12 text-muted-foreground/30 mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-1">No zones available yet</h3>
+          <p className="text-sm text-muted-foreground max-w-xs">Neighborhood data is being collected. Check back soon for zone insights and pricing.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">

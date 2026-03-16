@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
-import { Upload, X, Bike, CircleDot, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { Upload, X, Bike, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CategorySelector, Category, Mode } from './CategorySelector';
@@ -74,13 +75,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const { saveListingDraft } = useAnonymousDrafts();
 
   const getMaxPhotos = () => {
-    switch (selectedCategory) {
-      case 'property': return 15;
-      case 'motorcycle': return 5;
-      case 'bicycle': return 5;
-      case 'worker': return 10;
-      default: return 15;
-    }
+    return 10;
   };
 
   const maxPhotos = getMaxPhotos();
@@ -165,12 +160,15 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       const schedule_type = formData.schedule_type ? JSON.parse(JSON.stringify(formData.schedule_type)) : [];
       const location_type = formData.location_type ? JSON.parse(JSON.stringify(formData.location_type)) : [];
 
+      // Build a robust location string based on category
+      const locationStr = formData.city || formData.address || formData.neighborhood || formData.location || 'Not specified';
+
       // Main listing data - ALL fields in listings table (vehicle_listings table was dropped)
-      const listingData = {
+      const rawListingData = {
         user_id: user.user.id,
         owner_id: user.user.id,
         category: selectedCategory,
-        listing_type: selectedCategory === 'worker' ? 'service' : (selectedMode === 'rent' ? 'rent' : 'buy'),
+        listing_type: selectedCategory === 'worker' ? 'service' : selectedMode,
         mode: selectedMode,
         status: 'active',
         is_active: true,
@@ -180,7 +178,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         rental_rates: formData.rental_rates,
         rental_duration_type: formData.rental_duration_type,
         description: formData.description || '',
-        location: formData.city || formData.address || 'Unknown',
+        location: locationStr,
         country: formData.country || 'Mexico',
         state: formData.state || formData.city || 'Unknown',
         city: formData.city || 'Unknown',
@@ -224,12 +222,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         vehicle_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? selectedCategory : null,
         vehicle_brand: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.brand : null,
         vehicle_model: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.model : null,
-        vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.condition ? String(formData.condition).toLowerCase() : null) : null,
+        vehicle_condition: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.condition ? String(formData.condition).toLowerCase().replace('needs work', 'poor') : null) : null,
         year: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.year : null,
         mileage: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.mileage : null,
         engine_cc: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.engine_cc : null,
-        fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.fuel_type : null,
-        transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? formData.transmission : null,
+        fuel_type: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.fuel_type ? String(formData.fuel_type).toLowerCase() : null) : null,
+        transmission: (selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') ? (formData.transmission ? String(formData.transmission).toLowerCase().replace('semi-auto', 'semi-automatic') : null) : null,
         // Motorcycle specific
         motorcycle_type: selectedCategory === 'motorcycle' ? formData.motorcycle_type : null,
         has_abs: selectedCategory === 'motorcycle' ? (formData.has_abs || false) : null,
@@ -254,6 +252,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         includes_basket: selectedCategory === 'bicycle' ? (formData.includes_basket || false) : null,
         includes_pump: selectedCategory === 'bicycle' ? (formData.includes_pump || false) : null,
       };
+
+      // Strip undefined values to prevent PostgREST schema cache issues
+      const listingData = Object.fromEntries(
+        Object.entries(rawListingData).filter(([_, v]) => v !== undefined)
+      );
 
       let listingResult;
 
@@ -432,7 +435,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             {(selectedCategory === 'motorcycle' || selectedCategory === 'bicycle') && (
               <motion.div
                 variants={itemFadeScale}
-                className="flex items-center gap-4 p-5 rounded-3xl bg-zinc-900/40 backdrop-blur-xl border border-white/5 shadow-xl"
+                className="flex items-center gap-4 p-5 rounded-3xl bg-muted/50 backdrop-blur-xl border border-border shadow-xl"
               >
                 <div className={cn(
                   "w-14 h-14 rounded-2xl flex items-center justify-center shadow-inner",
@@ -441,7 +444,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                     : 'text-purple-500 bg-purple-500/10'
                 )}>
                   {selectedCategory === 'motorcycle' ? (
-                    <CircleDot className="w-8 h-8" />
+                    <MotorcycleIcon className="w-8 h-8" />
                   ) : (
                     <Bike className="w-8 h-8" />
                   )}
@@ -471,7 +474,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {/* Photo Section with premium cards */}
             <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-base">
                     <span>Photos <span className="text-xs font-normal text-muted-foreground ml-2">({images.length + imageFiles.length}/{maxPhotos})</span></span>
@@ -532,7 +535,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                         whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
                         whileTap={{ scale: 0.98 }}
                         onClick={handleImageAdd}
-                        className="aspect-square rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
+                        className="aspect-square rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground transition-all group shadow-inner"
                       >
                         <Upload className="w-6 h-6 group-hover:text-primary transition-colors" />
                         <span className="text-xs font-semibold">Add Photo</span>
@@ -549,7 +552,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {/* Video Looper Section */}
             <motion.div variants={itemFadeScale}>
-              <Card className="rounded-3xl border-white/5 bg-zinc-900/30 overflow-hidden shadow-2xl backdrop-blur-sm">
+              <Card className="rounded-3xl border-border bg-card overflow-hidden shadow-2xl backdrop-blur-sm">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center justify-between text-base">
                     <span>10-Second Loop Video <span className="text-xs font-normal text-muted-foreground ml-2">(Optional)</span></span>
@@ -568,7 +571,10 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
             {/* Legal / Verification Section */}
             <motion.div variants={itemFadeScale}>
-              <div className="rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-400/20 shadow-2xl shadow-blue-500/5">
+              <div
+                onClick={() => window.location.href = '/documents'}
+                className="rounded-3xl p-6 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-transparent border border-blue-400/20 shadow-2xl shadow-blue-500/5 cursor-pointer hover:border-blue-400/40 transition-colors active:scale-[0.98]"
+              >
                 <div className="flex items-start gap-4">
                   <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center text-blue-400 border border-blue-400/30 shadow-lg">
                     <Shield className="w-6 h-6" />
@@ -591,11 +597,11 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.div>
         </ScrollArea>
 
-        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-white/[0.06] bg-background/80 backdrop-blur-2xl">
+        <div className="shrink-0 flex items-center justify-between px-6 sm:px-8 py-5 border-t border-border bg-background/80 backdrop-blur-2xl">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-6 rounded-2xl h-12 font-semibold transition-all"
+            className="text-muted-foreground hover:text-foreground hover:bg-muted/50 px-6 rounded-2xl h-12 font-semibold transition-all"
           >
             Cancel
           </motion.button>

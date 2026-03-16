@@ -29,9 +29,9 @@ export default function PaymentSuccess() {
     processedRef.current = true;
 
     const processPayment = async () => {
-      const pendingPurchase = localStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
-                               localStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
-      const returnPath = localStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+      const pendingPurchase = sessionStorage.getItem(STORAGE.SELECTED_PLAN_KEY) ||
+                               sessionStorage.getItem(STORAGE.PENDING_ACTIVATION_KEY);
+      const returnPath = sessionStorage.getItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
       if (!pendingPurchase) {
         // No pending purchase - might be a refresh, just redirect
@@ -73,10 +73,10 @@ export default function PaymentSuccess() {
           await processPayPerUseActivation(user.id, pkg);
         }
 
-        // Clear all payment-related localStorage
-        localStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
-        localStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
-        localStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
+        // Clear all payment-related sessionStorage
+        sessionStorage.removeItem(STORAGE.SELECTED_PLAN_KEY);
+        sessionStorage.removeItem(STORAGE.PENDING_ACTIVATION_KEY);
+        sessionStorage.removeItem(STORAGE.PAYMENT_RETURN_PATH_KEY);
 
         // Invalidate relevant queries for immediate UI update
         queryClient.invalidateQueries({ queryKey: ['tokens'] });
@@ -140,7 +140,7 @@ export default function PaymentSuccess() {
       .from('tokens')
       .insert({
         user_id: userId,
-        activation_type: 'monthly_subscription',
+        activation_type: 'subscription',
         total_activations: pkg.tokens || 30,
         remaining_activations: pkg.tokens || 30,
         used_activations: 0,
@@ -185,9 +185,14 @@ export default function PaymentSuccess() {
     if (activError) throw activError;
   };
 
-  // Map legacy plan IDs to new package names
+  // Map plan IDs to package names
   const mapMonthlyPlanToPackage = async (planId: string) => {
     const planMap: Record<string, string> = {
+      // New subscription plans (SubscriptionPackagesPage)
+      'client-unlimited-1-month': '1 Month Access',
+      'client-unlimited-6-months': '6 Months Access',
+      'client-unlimited-1-year': '1 Year Access',
+      // Legacy plan IDs (backwards compatibility)
       'client-unlimited': 'Ultimate Seeker',
       'client-premium-plus-plus': 'Multi-Matcher',
       'client-premium': 'Basic Explorer',

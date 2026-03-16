@@ -15,6 +15,7 @@ export const SERVICE_GROUPS = [
   'Transportation',
   'Culinary & Events',
   'Education & Languages',
+  'Water & Adventure',
   'Creative & Tech',
   'Professional',
   'Other',
@@ -61,6 +62,13 @@ export const SERVICE_CATEGORIES: ServiceCategoryItem[] = [
   { value: 'music_teacher', label: 'Music Teacher', icon: '🎵', group: 'Education & Languages' },
   { value: 'dance_instructor', label: 'Dance Instructor', icon: '💃', group: 'Education & Languages' },
 
+  // ── Water & Adventure ──
+  { value: 'scuba_instructor', label: 'Scuba Diving Instructor / Divemaster', icon: '🤿', group: 'Water & Adventure' },
+  { value: 'surf_instructor', label: 'Surf Instructor', icon: '🏄', group: 'Water & Adventure' },
+  { value: 'snorkeling_guide', label: 'Snorkeling Guide', icon: '🐠', group: 'Water & Adventure' },
+  { value: 'sailing_instructor', label: 'Sailing / Boat Captain', icon: '⛵', group: 'Water & Adventure' },
+  { value: 'fishing_guide', label: 'Fishing Guide', icon: '🎣', group: 'Water & Adventure' },
+
   // ── Creative & Tech ──
   { value: 'photographer', label: 'Photographer', icon: '📷', group: 'Creative & Tech' },
   { value: 'videographer', label: 'Videographer / Drone Operator', icon: '🎬', group: 'Creative & Tech' },
@@ -96,6 +104,35 @@ export const SERVICE_SUBSPECIALTIES: Record<string, string[]> = {
   graphic_designer: ['Flyers & Posters', 'Menus', 'Social Media', 'Logos & Branding', 'Web Design'],
   it_support: ['Computer Repair', 'Phone Repair', 'Network Setup', 'Software Installation', 'Data Recovery'],
   yoga: ['Hatha', 'Vinyasa', 'Ashtanga', 'Yin', 'Kundalini', 'Prenatal'],
+  scuba_instructor: [
+    'Discover Scuba (Intro)',
+    'Open Water Diver (OWD)',
+    'Advanced Open Water (AOWD)',
+    'Rescue Diver',
+    'Master Scuba Diver',
+    'Divemaster (DM)',
+    'Assistant Instructor (AI)',
+    'Open Water Scuba Instructor (OWSI)',
+    'IDC Staff Instructor',
+    'Course Director',
+    'Deep Diving Specialty',
+    'Night Diving',
+    'Nitrox / Enriched Air',
+    'Wreck Diving',
+    'Cave Diving',
+    'Cavern Diving',
+    'Technical Diving (Tec)',
+    'Sidemount Diving',
+    'Underwater Photography',
+    'Search & Recovery',
+    'Drift Diving',
+    'Boat Diving',
+    'Emergency First Response (EFR)',
+  ],
+  surf_instructor: ['Beginner', 'Intermediate', 'Advanced', 'Longboard', 'Shortboard', 'Stand-Up Paddle'],
+  snorkeling_guide: ['Reef Tours', 'Night Snorkeling', 'Free Diving Intro', 'Marine Biology Education'],
+  sailing_instructor: ['Day Sailing', 'Overnight Charters', 'ASA Certification', 'Racing'],
+  fishing_guide: ['Deep Sea', 'Fly Fishing', 'Shore Fishing', 'Catch & Release', 'Spearfishing'],
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────

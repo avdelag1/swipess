@@ -98,8 +98,8 @@ self.addEventListener('push', (event) => {
   const title = data.title || 'Swipess';
   const options = {
     body: data.body || '',
-    icon: data.icon || '/icons/icon-192x192.png',
-    badge: data.badge || '/icons/badge-72x72.png',
+    icon: data.icon || '/icons/icon-192.png',
+    badge: data.badge || '/icons/icon-96.png',
     vibrate: [100, 50, 100, 50, 100],
     tag: `swipess-${(data.data && data.data.type) || 'general'}-${Date.now()}`,
     requireInteraction: false,
@@ -245,8 +245,9 @@ self.addEventListener('fetch', (event) => {
         if (response) return response;
         return fetch(request).then(networkResponse => {
           if (networkResponse.ok) {
+            const cloned = networkResponse.clone();
             caches.open(STATIC_CACHE).then(cache => {
-              cache.put(request, networkResponse.clone());
+              cache.put(request, cloned);
             });
           }
           return networkResponse;

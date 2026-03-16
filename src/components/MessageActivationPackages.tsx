@@ -44,7 +44,7 @@ export function MessageActivationPackages({
   const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const { data: userProfile } = useQuery({
     queryKey: ['user-profile', user?.id],
@@ -131,13 +131,13 @@ export function MessageActivationPackages({
   };
 
   const handlePurchase = async (pkg: TokenPackage) => {
-    localStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
+    sessionStorage.setItem(STORAGE.PENDING_ACTIVATION_KEY, JSON.stringify({
       packageId: pkg.id,
       tokens: pkg.tokens,
       price: pkg.price,
       package_category: pkg.package_category,
     }));
-    localStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
+    sessionStorage.setItem(STORAGE.PAYMENT_RETURN_PATH_KEY, `/${currentUserRole}/dashboard`);
 
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');
@@ -420,7 +420,7 @@ export function MessageActivationPackages({
 
 function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   return (
     <div className="flex items-center gap-3 text-xs group">

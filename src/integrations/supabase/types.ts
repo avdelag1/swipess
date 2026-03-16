@@ -153,6 +153,7 @@ export type Database = {
           preferred_activities: Json | null
           profile_images: Json | null
           relationship_status: string | null
+          roommate_available: boolean | null
           smoking_habit: string | null
           updated_at: string
           user_id: string
@@ -186,6 +187,7 @@ export type Database = {
           preferred_activities?: Json | null
           profile_images?: Json | null
           relationship_status?: string | null
+          roommate_available?: boolean | null
           smoking_habit?: string | null
           updated_at?: string
           user_id: string
@@ -219,6 +221,7 @@ export type Database = {
           preferred_activities?: Json | null
           profile_images?: Json | null
           relationship_status?: string | null
+          roommate_available?: boolean | null
           smoking_habit?: string | null
           updated_at?: string
           user_id?: string
@@ -656,6 +659,116 @@ export type Database = {
           },
         ]
       }
+      event_favorites: {
+        Row: {
+          created_at: string | null
+          event_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_favorites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          category: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          discount_tag: string | null
+          event_date: string | null
+          event_end_date: string | null
+          id: string
+          image_url: string | null
+          image_urls: Json | null
+          is_approved: boolean | null
+          is_free: boolean | null
+          is_published: boolean | null
+          latitude: number | null
+          location: string | null
+          location_detail: string | null
+          longitude: number | null
+          organizer_name: string | null
+          organizer_photo_url: string | null
+          organizer_whatsapp: string | null
+          price_text: string | null
+          promo_text: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          discount_tag?: string | null
+          event_date?: string | null
+          event_end_date?: string | null
+          id?: string
+          image_url?: string | null
+          image_urls?: Json | null
+          is_approved?: boolean | null
+          is_free?: boolean | null
+          is_published?: boolean | null
+          latitude?: number | null
+          location?: string | null
+          location_detail?: string | null
+          longitude?: number | null
+          organizer_name?: string | null
+          organizer_photo_url?: string | null
+          organizer_whatsapp?: string | null
+          price_text?: string | null
+          promo_text?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          discount_tag?: string | null
+          event_date?: string | null
+          event_end_date?: string | null
+          id?: string
+          image_url?: string | null
+          image_urls?: Json | null
+          is_approved?: boolean | null
+          is_free?: boolean | null
+          is_published?: boolean | null
+          latitude?: number | null
+          location?: string | null
+          location_detail?: string | null
+          longitude?: number | null
+          organizer_name?: string | null
+          organizer_photo_url?: string | null
+          organizer_whatsapp?: string | null
+          price_text?: string | null
+          promo_text?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       legal_document_quota: {
         Row: {
           created_at: string
@@ -841,6 +954,7 @@ export type Database = {
           vehicle_condition: string | null
           vehicle_model: string | null
           vehicle_type: string | null
+          video_url: string | null
           views: number | null
           wheel_size: string | null
           work_type: Json | null
@@ -931,6 +1045,7 @@ export type Database = {
           vehicle_condition?: string | null
           vehicle_model?: string | null
           vehicle_type?: string | null
+          video_url?: string | null
           views?: number | null
           wheel_size?: string | null
           work_type?: Json | null
@@ -1021,6 +1136,7 @@ export type Database = {
           vehicle_condition?: string | null
           vehicle_model?: string | null
           vehicle_type?: string | null
+          video_url?: string | null
           views?: number | null
           wheel_size?: string | null
           work_type?: Json | null
@@ -1717,11 +1833,18 @@ export type Database = {
           deal_breakers: Json | null
           id: string
           is_seeking_roommate: boolean | null
+          preferred_age_max: number | null
+          preferred_age_min: number | null
           preferred_budget_max: number | null
           preferred_budget_min: number | null
+          preferred_cleanliness: string | null
+          preferred_drinking: string | null
           preferred_gender: Json | null
           preferred_move_in: string | null
           preferred_neighborhoods: Json | null
+          preferred_noise_tolerance: string | null
+          preferred_smoking: string | null
+          preferred_work_schedule: string | null
           updated_at: string
           user_id: string
         }
@@ -1730,11 +1853,18 @@ export type Database = {
           deal_breakers?: Json | null
           id?: string
           is_seeking_roommate?: boolean | null
+          preferred_age_max?: number | null
+          preferred_age_min?: number | null
           preferred_budget_max?: number | null
           preferred_budget_min?: number | null
+          preferred_cleanliness?: string | null
+          preferred_drinking?: string | null
           preferred_gender?: Json | null
           preferred_move_in?: string | null
           preferred_neighborhoods?: Json | null
+          preferred_noise_tolerance?: string | null
+          preferred_smoking?: string | null
+          preferred_work_schedule?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1743,11 +1873,18 @@ export type Database = {
           deal_breakers?: Json | null
           id?: string
           is_seeking_roommate?: boolean | null
+          preferred_age_max?: number | null
+          preferred_age_min?: number | null
           preferred_budget_max?: number | null
           preferred_budget_min?: number | null
+          preferred_cleanliness?: string | null
+          preferred_drinking?: string | null
           preferred_gender?: Json | null
           preferred_move_in?: string | null
           preferred_neighborhoods?: Json | null
+          preferred_noise_tolerance?: string | null
+          preferred_smoking?: string | null
+          preferred_work_schedule?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -2260,7 +2397,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "client" | "owner"
+      app_role: "client" | "owner" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2388,7 +2525,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["client", "owner"],
+      app_role: ["client", "owner", "admin"],
     },
   },
 } as const

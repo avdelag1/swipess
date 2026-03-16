@@ -1,10 +1,24 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
-import { Users, Heart, X, Sparkles, Briefcase, Moon, Volume2, SprayCan } from 'lucide-react';
-import { cn } from '@/lib/utils';
+/**
+ * ROOMMATE MATCHING PAGE
+ *
+ * Full-screen swipe card experience for finding compatible roommates.
+ * Header: circle profile photo (static) + pill-shaped action button bar
+ * No bottom navigation — card fills the entire screen.
+ * Uses 5 demo candidates to showcase the experience.
+ */
+
+import { useState, useRef, useCallback, memo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  ChevronLeft, RotateCcw, Share2, MessageCircle, Flame, ThumbsDown,
+  Sparkles, Users, SlidersHorizontal,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
+import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
+import { useTheme } from '@/hooks/useTheme';
+import { triggerHaptic } from '@/utils/haptics';
+
+// ── MOCK DATA ──────────────────────────────────────────────────────────────────
 
 interface RoommateCandidate {
   user_id: string;
@@ -14,231 +28,705 @@ interface RoommateCandidate {
   gender: string | null;
   nationality: string | null;
   city: string | null;
+  country: string | null;
   neighborhood: string | null;
   work_schedule: string | null;
   cleanliness_level: string | null;
   noise_tolerance: string | null;
   smoking_habit: string | null;
-  interests: any[];
-  languages: any[];
-  profile_images: any[];
+  drinking_habit: string | null;
+  interests: string[];
+  languages: string[];
+  profile_images: string[];
+  personality_traits: string[];
+  preferred_activities: string[];
   compatibility: number;
 }
 
-function calculateCompatibility(me: any, other: any): number {
-  let score = 50; // Base
-  // Schedule match
-  if (me.work_schedule && other.work_schedule && me.work_schedule === other.work_schedule) score += 15;
-  // Cleanliness match
-  if (me.cleanliness_level && other.cleanliness_level && me.cleanliness_level === other.cleanliness_level) score += 15;
-  // Noise tolerance match
-  if (me.noise_tolerance && other.noise_tolerance && me.noise_tolerance === other.noise_tolerance) score += 10;
-  // Smoking match
-  if (me.smoking_habit === other.smoking_habit) score += 10;
-  // Shared interests
-  const myInterests = Array.isArray(me.interests) ? me.interests : [];
-  const theirInterests = Array.isArray(other.interests) ? other.interests : [];
-  const shared = myInterests.filter((i: string) => theirInterests.includes(i)).length;
-  score += Math.min(shared * 5, 20);
-  // Neighborhood match
-  if (me.neighborhood && other.neighborhood && me.neighborhood === other.neighborhood) score += 10;
-  return Math.min(score, 99);
-}
+const LOGO = '/icons/fire-s-logo.png';
 
-export default function RoommateMatching() {
-  const { user } = useAuth();
-  const [candidates, setCandidates] = useState<RoommateCandidate[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [myProfile, setMyProfile] = useState<any>(null);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+const MOCK_CANDIDATES: RoommateCandidate[] = [
+  {
+    user_id: 'mock-1',
+    name: 'Sofia',
+    age: 26,
+    bio: 'Digital nomad who loves cooking and yoga. Very clean and organized.',
+    gender: 'Female',
+    nationality: 'Spanish',
+    city: 'Barcelona',
+    country: 'Spain',
+    neighborhood: 'Eixample',
+    work_schedule: 'remote',
+    cleanliness_level: 'high',
+    noise_tolerance: 'low',
+    smoking_habit: 'never',
+    drinking_habit: 'social',
+    interests: ['Yoga', 'Cooking', 'Travel', 'Photography'],
+    languages: ['Spanish', 'English'],
+    profile_images: [LOGO],
+    personality_traits: ['Creative', 'Organized', 'Quiet'],
+    preferred_activities: ['Morning yoga', 'Cooking together'],
+    compatibility: 94,
+  },
+  {
+    user_id: 'mock-2',
+    name: 'Marco',
+    age: 29,
+    bio: 'Software engineer and weekend hiker. Quiet during the week, social on weekends.',
+    gender: 'Male',
+    nationality: 'Italian',
+    city: 'Milan',
+    country: 'Italy',
+    neighborhood: 'Navigli',
+    work_schedule: 'hybrid',
+    cleanliness_level: 'medium',
+    noise_tolerance: 'medium',
+    smoking_habit: 'never',
+    drinking_habit: 'social',
+    interests: ['Hiking', 'Coding', 'Music', 'Coffee'],
+    languages: ['Italian', 'English', 'Spanish'],
+    profile_images: [LOGO],
+    personality_traits: ['Introverted', 'Reliable', 'Active'],
+    preferred_activities: ['Weekend hikes', 'Movie nights'],
+    compatibility: 88,
+  },
+  {
+    user_id: 'mock-3',
+    name: 'Amara',
+    age: 24,
+    bio: 'Grad student studying architecture. Love art, museums, and café work sessions.',
+    gender: 'Female',
+    nationality: 'French',
+    city: 'Paris',
+    country: 'France',
+    neighborhood: 'Le Marais',
+    work_schedule: 'student',
+    cleanliness_level: 'high',
+    noise_tolerance: 'low',
+    smoking_habit: 'never',
+    drinking_habit: 'rarely',
+    interests: ['Art', 'Architecture', 'Reading', 'Cycling'],
+    languages: ['French', 'English'],
+    profile_images: [LOGO],
+    personality_traits: ['Creative', 'Focused', 'Thoughtful'],
+    preferred_activities: ['Museum visits', 'Café work sessions'],
+    compatibility: 85,
+  },
+  {
+    user_id: 'mock-4',
+    name: 'Kai',
+    age: 28,
+    bio: 'Freelance musician and part-time barista. Easy going, loves good vibes and live music.',
+    gender: 'Non-binary',
+    nationality: 'German',
+    city: 'Berlin',
+    country: 'Germany',
+    neighborhood: 'Mitte',
+    work_schedule: 'flexible',
+    cleanliness_level: 'medium',
+    noise_tolerance: 'high',
+    smoking_habit: 'occasionally',
+    drinking_habit: 'social',
+    interests: ['Music', 'Coffee', 'Art', 'Festivals'],
+    languages: ['German', 'English'],
+    profile_images: [LOGO],
+    personality_traits: ['Creative', 'Extroverted', 'Spontaneous'],
+    preferred_activities: ['Live music', 'House parties', 'Record shopping'],
+    compatibility: 79,
+  },
+  {
+    user_id: 'mock-5',
+    name: 'Yuki',
+    age: 31,
+    bio: 'UX designer working remotely. Quiet, tidy, loves hosting small dinner parties.',
+    gender: 'Female',
+    nationality: 'Japanese',
+    city: 'Lisbon',
+    country: 'Portugal',
+    neighborhood: 'Alfama',
+    work_schedule: 'remote',
+    cleanliness_level: 'high',
+    noise_tolerance: 'low',
+    smoking_habit: 'never',
+    drinking_habit: 'social',
+    interests: ['Design', 'Cooking', 'Plants', 'Meditation'],
+    languages: ['Japanese', 'English', 'Portuguese'],
+    profile_images: [LOGO],
+    personality_traits: ['Introverted', 'Thoughtful', 'Tidy'],
+    preferred_activities: ['Dinner parties', 'Plant care', 'Morning meditation'],
+    compatibility: 91,
+  },
+];
 
-  useEffect(() => {
-    if (!user) return;
-    fetchCandidates();
-  }, [user]);
+// ── SPRING CONFIG ─────────────────────────────────────────────────────────────
+const BTN_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 };
+const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 };
 
-  const fetchCandidates = async () => {
-    if (!user) return;
-    // Fetch my profile
-    const { data: myData } = await supabase.from('client_profiles').select('*').eq('user_id', user.id).maybeSingle();
-    setMyProfile(myData);
+// ── PILL ACTION BUTTON ────────────────────────────────────────────────────────
+type BtnColor = { icon: string; glow: string };
 
-    // Fetch other profiles (excluding self)
-    const { data: others } = await supabase
-      .from('client_profiles')
-      .select('*')
-      .neq('user_id', user.id)
-      .limit(50);
+const BTN_COLORS: Record<string, BtnColor> = {
+  amber:  { icon: '#f59e0b', glow: 'rgba(245,158,11,0.5)' },
+  red:    { icon: '#ef4444', glow: 'rgba(239,68,68,0.5)' },
+  purple: { icon: '#a855f7', glow: 'rgba(168,85,247,0.5)' },
+  orange: { icon: '#ff6b35', glow: 'rgba(255,107,53,0.5)' },
+  cyan:   { icon: '#06b6d4', glow: 'rgba(6,182,212,0.5)' },
+};
 
-    // Already swiped
-    const { data: swiped } = await supabase
-      .from('roommate_matches')
-      .select('target_user_id')
-      .eq('user_id', user.id);
-    const swipedIds = new Set((swiped || []).map((s: any) => s.target_user_id));
+const PillButton = memo(({
+  onClick,
+  disabled = false,
+  colorKey,
+  large = false,
+  ariaLabel,
+  children,
+  index = 0,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  colorKey: string;
+  large?: boolean;
+  ariaLabel: string;
+  children: React.ReactNode;
+  index?: number;
+}) => {
+  const [burst, setBurst] = useState(false);
+  const cfg = BTN_COLORS[colorKey] ?? BTN_COLORS.amber;
+  const size = large ? 52 : 42;
 
-    const scored = (others || [])
-      .filter(o => !swipedIds.has(o.user_id))
-      .map(o => ({
-        ...o,
-        interests: Array.isArray(o.interests) ? o.interests : [],
-        languages: Array.isArray(o.languages) ? o.languages : [],
-        profile_images: Array.isArray(o.profile_images) ? o.profile_images : [],
-        compatibility: calculateCompatibility(myData || {}, o),
-      }))
-      .sort((a, b) => b.compatibility - a.compatibility);
-
-    setCandidates(scored as RoommateCandidate[]);
-    setIsLoading(false);
-  };
-
-  const handleSwipe = async (direction: 'left' | 'right') => {
-    if (!user || currentIndex >= candidates.length) return;
-    const target = candidates[currentIndex];
-    setSwipeDirection(direction);
-
-    await supabase.from('roommate_matches').insert({
-      user_id: user.id,
-      target_user_id: target.user_id,
-      direction,
-      compatibility_score: target.compatibility,
-    });
-
-    // Check for mutual match
-    if (direction === 'right') {
-      const { data: mutual } = await supabase
-        .from('roommate_matches')
-        .select('id')
-        .eq('user_id', target.user_id)
-        .eq('target_user_id', user.id)
-        .eq('direction', 'right')
-        .maybeSingle();
-      if (mutual) {
-        toast.success(`🎉 You matched with ${target.name || 'a roommate'}! Start chatting.`);
-      }
-    }
-
-    setTimeout(() => {
-      setSwipeDirection(null);
-      setCurrentIndex(prev => prev + 1);
-    }, 300);
-  };
-
-  const current = candidates[currentIndex];
-
-  const getImageUrl = (candidate: RoommateCandidate) => {
-    if (candidate.profile_images.length > 0) return candidate.profile_images[0];
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${candidate.name || 'U'}`;
-  };
-
-  const TraitPill = ({ icon: Icon, label, value }: { icon: any; label: string; value: string | null }) => {
-    if (!value) return null;
-    return (
-      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/50 text-xs">
-        <Icon className="w-3 h-3 text-muted-foreground" />
-        <span className="text-foreground/80">{value}</span>
-      </div>
-    );
-  };
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    if (disabled) return;
+    e.stopPropagation();
+    triggerHaptic(colorKey === 'orange' ? 'success' : colorKey === 'red' ? 'warning' : 'light');
+    setBurst(true);
+    setTimeout(() => setBurst(false), 400);
+    onClick();
+  }, [disabled, colorKey, onClick]);
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-24 max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-          <Users className="w-6 h-6 text-primary" />
-          Roommate Match
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">Find compatible roommates based on lifestyle</p>
+    <motion.button
+      onClick={handleClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ ...ENTRY_SPRING, delay: index * 0.04 }}
+      whileTap={{ scale: 0.84, transition: BTN_SPRING }}
+      className="relative flex items-center justify-center flex-shrink-0 touch-manipulation select-none"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: 'transparent',
+        border: 'none',
+        padding: 0,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.3 : 1,
+      }}
+    >
+      {/* Glow burst */}
+      <AnimatePresence>
+        {burst && (
+          <motion.span
+            key="burst"
+            aria-hidden="true"
+            initial={{ scale: 0.3, opacity: 0.7 }}
+            animate={{ scale: 2.2, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: [0, 0.55, 0.45, 1] }}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${cfg.glow} 0%, transparent 70%)`,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Icon */}
+      <span
+        style={{
+          width: large ? 28 : 22,
+          height: large ? 28 : 22,
+          color: cfg.icon,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          filter: `drop-shadow(0 2px 8px ${cfg.glow})`,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        {children}
+      </span>
+    </motion.button>
+  );
+});
+PillButton.displayName = 'PillButton';
+
+// ── MAIN PAGE ─────────────────────────────────────────────────────────────────
+export default function RoommateMatching() {
+  const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [canUndo, setCanUndo] = useState(false);
+  const [lastIndex, setLastIndex] = useState<number | null>(null);
+  const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
+
+  // Visibility toggle — whether the user is discoverable by others in roommate search
+  const [isVisible, setIsVisible] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Roommate filter state
+  const [filterGender, setFilterGender] = useState<string>('Any');
+  const [filterSchedule, setFilterSchedule] = useState<string>('Any');
+
+  const topCard = MOCK_CANDIDATES[currentIndex] ?? null;
+  const nextCard = MOCK_CANDIDATES[currentIndex + 1] ?? null;
+
+  const handleSwipe = useCallback((_direction: 'left' | 'right') => {
+    setLastIndex(currentIndex);
+    setCanUndo(true);
+    setCurrentIndex(prev => prev + 1);
+  }, [currentIndex]);
+
+  const handleUndo = useCallback(() => {
+    if (lastIndex !== null) {
+      setCurrentIndex(lastIndex);
+      setCanUndo(false);
+      setLastIndex(null);
+    }
+  }, [lastIndex]);
+
+  const handleLike    = useCallback(() => cardRef.current?.triggerSwipe('right'), []);
+  const handleDislike = useCallback(() => cardRef.current?.triggerSwipe('left'), []);
+
+  // Map candidate to SimpleOwnerSwipeCard profile shape
+  const toCardProfile = (c: RoommateCandidate) => ({
+    user_id: c.user_id,
+    name: c.name,
+    age: c.age,
+    city: c.city,
+    country: c.country,
+    bio: c.bio,
+    profile_images: c.profile_images,
+    interests: c.interests,
+    languages: c.languages,
+    work_schedule: c.work_schedule,
+    cleanliness_level: c.cleanliness_level,
+    noise_tolerance: c.noise_tolerance,
+    personality_traits: c.personality_traits,
+    preferred_activities: c.preferred_activities,
+  });
+
+  // Glass bar styles — matches BottomNavigation liquid glass design
+  const barBg     = isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)';
+  const barBorder = isLight ? 'rgba(0,0,0,0.08)'       : 'rgba(255,255,255,0.10)';
+  const barShadow = isLight
+    ? 'inset 0 1px 0 rgba(255,255,255,0.92), 0 2px 12px rgba(0,0,0,0.06)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 20px rgba(0,0,0,0.35)';
+
+  return (
+    <div
+      className="relative w-full flex flex-col overflow-hidden"
+      style={{ height: '100dvh', minHeight: '100dvh', background: '#0a0a0b' }}
+    >
+      {/* ── HEADER ──────────────────────────────────────────────────────────── */}
+      <div
+        className="absolute top-0 left-0 right-0 z-40 px-3 flex items-center gap-2"
+        style={{
+          paddingTop: 'max(14px, env(safe-area-inset-top, 14px))',
+          paddingBottom: 10,
+        }}
+      >
+        {/* Back button */}
+        <motion.button
+          onClick={() => navigate(-1)}
+          whileTap={{ scale: 0.88, transition: BTN_SPRING }}
+          aria-label="Go back"
+          className="flex items-center justify-center flex-shrink-0 touch-manipulation"
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.10)',
+            border: `1px solid ${isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.15)'}`,
+          }}
+        >
+          <ChevronLeft
+            className="w-5 h-5"
+            style={{ color: isLight ? '#1a1a1a' : 'rgba(255,255,255,0.9)' }}
+          />
+        </motion.button>
+
+        {/* Current user circle avatar (static — does not move with card) */}
+        <div className="relative flex-shrink-0">
+          <div
+            className="flex items-center justify-center font-bold text-sm text-white select-none"
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #667eea 0%, #f97316 100%)',
+              border: '2px solid rgba(255,255,255,0.25)',
+              boxShadow: '0 2px 12px rgba(102,126,234,0.45)',
+            }}
+          >
+            Me
+          </div>
+          {/* Online/offline status dot */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 1,
+              right: 1,
+              width: 11,
+              height: 11,
+              borderRadius: '50%',
+              background: isVisible ? '#22c55e' : '#6b7280',
+              border: '2px solid rgba(10,10,11,0.9)',
+              transition: 'background 0.2s ease',
+            }}
+          />
+        </div>
+
+        {/* Page title */}
+        <div className="flex-1 flex flex-col">
+          <span className="text-sm font-black text-white tracking-tight">Roommates</span>
+          <span className="text-[10px] font-medium" style={{ color: isVisible ? '#86efac' : 'rgba(255,255,255,0.45)' }}>
+            {isVisible ? 'Visible to others' : 'Hidden from search'}
+          </span>
+        </div>
+
+        {/* Visibility toggle pill */}
+        <motion.button
+          onClick={() => { triggerHaptic('light'); setIsVisible(v => !v); }}
+          whileTap={{ scale: 0.88, transition: BTN_SPRING }}
+          aria-label={isVisible ? 'Hide from roommate search' : 'Show in roommate search'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '5px 10px 5px 7px',
+            borderRadius: 20,
+            border: `1px solid ${isVisible ? 'rgba(34,197,94,0.35)' : 'rgba(255,255,255,0.15)'}`,
+            background: isVisible ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.08)',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background 0.2s, border-color 0.2s',
+          }}
+        >
+          <div style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: isVisible ? '#22c55e' : '#6b7280',
+            flexShrink: 0,
+            boxShadow: isVisible ? '0 0 6px rgba(34,197,94,0.7)' : 'none',
+            transition: 'background 0.2s, box-shadow 0.2s',
+          }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: isVisible ? '#86efac' : 'rgba(255,255,255,0.5)', letterSpacing: 0.3 }}>
+            {isVisible ? 'Online' : 'Hidden'}
+          </span>
+        </motion.button>
+
+        {/* Filter button */}
+        <motion.button
+          onClick={() => { triggerHaptic('light'); setShowFilters(v => !v); }}
+          whileTap={{ scale: 0.88, transition: BTN_SPRING }}
+          aria-label="Filter roommates"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            border: showFilters ? '1px solid rgba(249,115,22,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            background: showFilters ? 'rgba(249,115,22,0.18)' : 'rgba(255,255,255,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background 0.2s, border-color 0.2s',
+          }}
+        >
+          <SlidersHorizontal
+            style={{
+              width: 16,
+              height: 16,
+              color: showFilters ? '#f97316' : 'rgba(255,255,255,0.8)',
+              transition: 'color 0.2s',
+            }}
+            strokeWidth={2.5}
+          />
+        </motion.button>
       </div>
 
-      {isLoading ? (
-        <div className="h-[400px] rounded-3xl bg-card animate-pulse" />
-      ) : !current ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
+      {/* ── FILTER PANEL ─────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.6 }}
+            className="absolute left-3 right-3 z-50 overflow-hidden"
+            style={{
+              top: 'max(70px, calc(env(safe-area-inset-top, 0px) + 70px))',
+              borderRadius: 18,
+              background: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(18,18,20,0.97)',
+              border: `1px solid ${isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)'}`,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+            }}
+          >
+            <div style={{ padding: '14px 16px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#1a1a1a' : '#fff' }}>Filter Roommates</span>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  style={{ fontSize: 11, fontWeight: 600, color: '#f97316', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}
+                >
+                  Done
+                </button>
+              </div>
+
+              {/* Gender filter */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isLight ? '#6b7280' : 'rgba(255,255,255,0.5)', letterSpacing: 0.5, textTransform: 'uppercase' as const }}>Gender</span>
+                <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' as const }}>
+                  {['Any', 'Female', 'Male', 'Non-binary'].map(g => (
+                    <button
+                      key={g}
+                      onClick={() => setFilterGender(g)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: 16,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: filterGender === g
+                          ? '1px solid #f97316'
+                          : `1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)'}`,
+                        background: filterGender === g
+                          ? 'rgba(249,115,22,0.15)'
+                          : isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                        color: filterGender === g ? '#f97316' : isLight ? '#374151' : 'rgba(255,255,255,0.75)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Work schedule filter */}
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isLight ? '#6b7280' : 'rgba(255,255,255,0.5)', letterSpacing: 0.5, textTransform: 'uppercase' as const }}>Work Schedule</span>
+                <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' as const }}>
+                  {['Any', 'Remote', 'Hybrid', 'Office', 'Flexible', 'Student'].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFilterSchedule(s)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: 16,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: filterSchedule === s
+                          ? '1px solid #f97316'
+                          : `1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)'}`,
+                        background: filterSchedule === s
+                          ? 'rgba(249,115,22,0.15)'
+                          : isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                        color: filterSchedule === s ? '#f97316' : isLight ? '#374151' : 'rgba(255,255,255,0.75)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── CARD AREA ─────────────────────────────────────────────────────── */}
+      {!topCard ? (
+        /* Empty state */
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6">
           <Users className="w-16 h-16 text-muted-foreground/30" />
           <h2 className="text-lg font-bold text-foreground">No more candidates</h2>
-          <p className="text-sm text-muted-foreground text-center">Check back later for new potential roommates</p>
+          <p className="text-sm text-muted-foreground text-center">
+            Check back later for new potential roommates
+          </p>
         </div>
       ) : (
-        <>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current.user_id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ 
-                opacity: 0, 
-                x: swipeDirection === 'right' ? 200 : swipeDirection === 'left' ? -200 : 0,
-                rotate: swipeDirection === 'right' ? 10 : swipeDirection === 'left' ? -10 : 0
+        <div className="relative flex-1 w-full" style={{ minHeight: 0 }}>
+          {/* Next card (behind) */}
+          {nextCard && (
+            <div
+              key={`next-${nextCard.user_id}`}
+              className="absolute inset-0"
+              style={{ zIndex: 5, transform: 'scale(0.95)', opacity: 0.7, pointerEvents: 'none' }}
+            >
+              <SimpleOwnerSwipeCard
+                profile={toCardProfile(nextCard)}
+                onSwipe={() => {}}
+                isTop={false}
+              />
+            </div>
+          )}
+
+          {/* Top card (interactive) */}
+          <div
+            key={topCard.user_id}
+            className="absolute inset-0"
+            style={{ zIndex: 10 }}
+          >
+            <SimpleOwnerSwipeCard
+              ref={cardRef}
+              profile={toCardProfile(topCard)}
+              onSwipe={handleSwipe}
+              isTop
+            />
+
+            {/* Compatibility badge */}
+            <div
+              className="absolute z-20 flex items-center gap-1 px-2.5 py-1 rounded-full"
+              style={{
+                top: 'max(80px, calc(env(safe-area-inset-top, 0px) + 80px))',
+                right: 16,
+                backgroundColor: 'rgba(0,0,0,0.45)',
+                backdropFilter: 'blur(4px)',
               }}
-              className="relative rounded-3xl overflow-hidden bg-card border border-border/30"
             >
-              {/* Photo */}
-              <div className="h-56 relative">
-                <img src={getImageUrl(current)} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent" />
-                {/* Compatibility badge */}
-                <div className="absolute top-4 right-4 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-sm">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
-                  <span className="text-xs font-bold text-white">{current.compatibility}%</span>
-                </div>
-              </div>
-
-              {/* Info */}
-              <div className="p-5 space-y-4">
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">
-                    {current.name || 'Anonymous'}{current.age ? `, ${current.age}` : ''}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {[current.nationality, current.neighborhood || current.city].filter(Boolean).join(' · ')}
-                  </p>
-                </div>
-
-                {current.bio && <p className="text-xs text-muted-foreground line-clamp-2">{current.bio}</p>}
-
-                <div className="flex flex-wrap gap-1.5">
-                  <TraitPill icon={Briefcase} label="Schedule" value={current.work_schedule} />
-                  <TraitPill icon={SprayCan} label="Clean" value={current.cleanliness_level} />
-                  <TraitPill icon={Volume2} label="Noise" value={current.noise_tolerance} />
-                  <TraitPill icon={Moon} label="Smoking" value={current.smoking_habit} />
-                </div>
-
-                {current.interests.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {current.interests.slice(0, 6).map((interest: string, i: number) => (
-                      <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
-                        {interest}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Action buttons */}
-          <div className="flex items-center justify-center gap-6 mt-6">
-            <button
-              onClick={() => handleSwipe('left')}
-              className="w-16 h-16 rounded-full bg-card border-2 border-red-500/30 flex items-center justify-center active:scale-95 transition-transform shadow-lg"
-            >
-              <X className="w-7 h-7 text-red-500" />
-            </button>
-            <button
-              onClick={() => handleSwipe('right')}
-              className="w-16 h-16 rounded-full bg-card border-2 border-green-500/30 flex items-center justify-center active:scale-95 transition-transform shadow-lg"
-            >
-              <Heart className="w-7 h-7 text-green-500" />
-            </button>
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span className="text-xs font-bold text-white">{topCard.compatibility}%</span>
+            </div>
           </div>
-
-          <p className="text-center text-xs text-muted-foreground mt-3">
-            {candidates.length - currentIndex - 1} more candidates
-          </p>
-        </>
+        </div>
       )}
+
+      {/* ── BOTTOM ACTION BUTTONS ─────────────────────────────────────────── */}
+      {topCard && (
+        <div
+          className="flex-shrink-0 flex justify-center px-3 z-40"
+          style={{
+            paddingTop: 12,
+            paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
+          }}
+        >
+          <div
+            className="overflow-hidden"
+            style={{
+              backgroundColor: barBg,
+              border: `1px solid ${barBorder}`,
+              borderRadius: 26,
+              boxShadow: barShadow,
+              position: 'relative',
+              width: '100%',
+              maxWidth: 360,
+            }}
+          >
+            {/* Animated liquid glass highlight */}
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                borderRadius: 'inherit',
+                background: `radial-gradient(ellipse 160% 50% at 15% 0%,
+                  rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
+                  radial-gradient(ellipse 100% 60% at 85% 100%,
+                  rgba(255,255,255,${isLight ? 0.22 : 0.06}) 0%, transparent 55%)`,
+                zIndex: 1,
+              }}
+            />
+
+            {/* Buttons row */}
+            <div
+              data-no-swipe-nav
+              className="relative flex items-center justify-around px-2"
+              style={{
+                paddingTop: 8,
+                paddingBottom: 8,
+                overflowX: 'auto',
+                scrollbarWidth: 'none',
+                WebkitOverflowScrolling: 'touch',
+                zIndex: 2,
+                gap: 4,
+              }}
+            >
+              {/* Return / Undo */}
+              <PillButton
+                onClick={handleUndo}
+                disabled={!canUndo}
+                colorKey="amber"
+                ariaLabel="Undo last swipe"
+                index={0}
+              >
+                <RotateCcw className="w-full h-full" strokeWidth={2.8} />
+              </PillButton>
+
+              {/* Dislike */}
+              <PillButton
+                onClick={handleDislike}
+                colorKey="red"
+                large
+                ariaLabel="Pass on this roommate"
+                index={1}
+              >
+                <ThumbsDown className="w-full h-full" fill="currentColor" strokeWidth={0} />
+              </PillButton>
+
+              {/* Share */}
+              <PillButton
+                onClick={() => triggerHaptic('light')}
+                colorKey="purple"
+                ariaLabel="Share profile"
+                index={2}
+              >
+                <Share2 className="w-full h-full" strokeWidth={2.8} />
+              </PillButton>
+
+              {/* Like */}
+              <PillButton
+                onClick={handleLike}
+                colorKey="orange"
+                large
+                ariaLabel="Like this roommate"
+                index={3}
+              >
+                <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
+              </PillButton>
+
+              {/* Message */}
+              <PillButton
+                onClick={() => triggerHaptic('light')}
+                colorKey="cyan"
+                ariaLabel="Send a message"
+                index={4}
+              >
+                <MessageCircle className="w-full h-full" strokeWidth={2.8} />
+              </PillButton>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SVG gradient defs */}
+      <svg width="0" height="0" className="absolute" aria-hidden="true">
+        <defs>
+          <linearGradient id="rmatch-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop stopColor="#667eea" offset="0%" />
+            <stop stopColor="#f97316" offset="100%" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   );
 }

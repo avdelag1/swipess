@@ -4,7 +4,9 @@
     "explore": "Explore",
     "messages": "Messages",
     "profile": "Profile",
-    "settings": "Settings"
+    "settings": "Settings",
+    "liked": "Liked",
+    "listings": "Listings"
   },
   "actions": {
     "save": "Save",
@@ -32,6 +34,46 @@
     "close": "Close",
     "confirm": "Confirm",
     "retry": "Retry"
+  },
+  "filters": {
+    "quickFilter": "Quick Filter",
+    "categories": "categories",
+    "allCategories": "all categories",
+    "properties": "properties",
+    "motos": "motos",
+    "bikes": "bikes",
+    "services": "services",
+    "lookingTo": "looking to",
+    "all": "all",
+    "rent": "rent",
+    "buy": "buy",
+    "gender": "gender",
+    "allGenders": "all genders",
+    "women": "women",
+    "men": "men",
+    "lookingFor": "looking for",
+    "allClients": "all clients",
+    "hiring": "hiring",
+    "renting": "renting",
+    "buying": "buying",
+    "applyFilters": "apply filters",
+    "reset": "reset"
+  },
+  "topbar": {
+    "tokenPackages": "Token Packages",
+    "provider": "Provider",
+    "explorer": "Explorer",
+    "connectExplorers": "Connect with potential explorers",
+    "startConversations": "Start conversations with providers",
+    "tokens": "tokens",
+    "buy": "Buy",
+    "bestValue": "BEST VALUE",
+    "loadingPackages": "Loading packages...",
+    "viewAllPackages": "View all packages & details",
+    "redirectingPaypal": "Redirecting to PayPal",
+    "processingPackage": "Processing {{tier}} package ({{price}})",
+    "paymentUnavailable": "Payment link unavailable",
+    "contactSupport": "Please contact support to complete this purchase."
   },
   "settings": {
     "title": "Settings",
@@ -112,5 +154,114 @@
     "noResults": "No results found",
     "all": "All",
     "version": "Version"
+  },
+  "popups": {
+    "dismiss": "Got it",
+    "dontShow": "Don't show again",
+    "onboarding": {
+      "screen1": {
+        "title": "Welcome to Swipess 🎉",
+        "body": "Real homes, bikes & jobs — all in one place.\nSwipe to find your match."
+      },
+      "screen2": {
+        "title": "You're protected here 🛡️",
+        "body": "Every listing is from a real person.\nWe flag scams fast — you stay safe."
+      },
+      "screen3": {
+        "title": "Almost ready! 🚀",
+        "body": "Complete your profile — it gets you better matches.\nTakes 60 seconds."
+      }
+    },
+    "contextual": {
+      "profile": {
+        "title": "Your profile = your trust score 👤",
+        "body": "Add a photo, bio & ID verify.\nMore complete = more matches."
+      },
+      "createListing": {
+        "title": "Great listings get matches fast 📋",
+        "body": "Add real photos, honest price & location.\nFake info = instant ban."
+      },
+      "rideSection": {
+        "title": "Renting a ride? Read this first 🏍️",
+        "body": "Always check the bike in person before paying.\nNo meet = no deal."
+      },
+      "miniContract": {
+        "title": "This is your protection 📝",
+        "body": "A mini-contract records what you both agreed.\nSigned = both sides are safe."
+      },
+      "newMatch": {
+        "title": "New match — stay smart 💬",
+        "body": "Never send money before meeting in person.\nKeep all chats inside the app."
+      }
+    },
+    "ownerWarnings": {
+      "property": {
+        "title": "Protect your property 🏠",
+        "body": "Meet renters in person — never hand keys without ID.\nUse the mini-contract. Always."
+      },
+      "bikeRental": {
+        "title": "Renting out your bike? ⚠️",
+        "body": "Take a deposit + photo of renter's ID before handover.\nDocument the bike condition first."
+      }
+    },
+    "jobWarnings": {
+      "serviceProvider": {
+        "title": "Starting a job? Protect yourself 🔧",
+        "body": "Agree on price & scope before you start.\nGet it in writing — use the mini-contract."
+      },
+      "paymentWarning": {
+        "title": "Never work for free first 💸",
+        "body": "Clients pay a deposit or agree in writing before work starts.\nNo prepayment scams — report them instantly."
+      }
+    },
+    "clientWarnings": {
+      "antiScam": {
+        "title": "Spot a scam before it hits you 🚨",
+        "body": "Price too good? No in-person meet? Red flag.\nReport it — we act fast."
+      },
+      "beforePaying": {
+        "title": "Before you pay — check 3 things 👀",
+        "body": "① Verified profile  ② Real photos  ③ Meet first\nNo checks = high risk."
+      },
+      "renterProtection": {
+        "title": "Renting a place? Your rights matter 🏠",
+        "body": "Always sign a mini-contract before moving in.\nProblems? Report directly in the app."
+      },
+      "reportBadActor": {
+        "title": "Something feels wrong? Act now 🚩",
+        "body": "Tap \"Report\" on any profile or chat.\nWe review within 24h — no retaliation allowed."
+      }
+    }
+  },
+  "eventos": {
+    "title": "Events & Experiences",
+    "subtitle": "Discover the best in Quintana Roo",
+    "searchPlaceholder": "Search events, locations...",
+    "noEvents": "No events yet",
+    "noEventsDesc": "Events will appear here once published. Check back soon!",
+    "freeEntry": "Free Entry",
+    "organizedBy": "Organized by",
+    "about": "About",
+    "chatWhatsApp": "Chat on WhatsApp",
+    "signInToSave": "Sign in to save events",
+    "removedFavorite": "Removed from favorites",
+    "savedFavorite": "Saved to favorites ❤️",
+    "linkCopied": "Link copied!",
+    "featured": "Featured",
+    "allEvents": "All Events",
+    "beachClubs": "Beach Clubs",
+    "jungleNature": "Jungle & Nature",
+    "musicFiestas": "Music & Parties",
+    "foodRestaurants": "Food & Restaurants",
+    "promosDiscounts": "Promos & Discounts",
+    "filters": "Filters",
+    "free": "Free",
+    "paid": "Paid",
+    "sortUpcoming": "Upcoming",
+    "sortNewest": "Newest",
+    "clearFilters": "Clear Filters",
+    "sortBy": "Sort by",
+    "price": "Price",
+    "apply": "Apply"
   }
 }

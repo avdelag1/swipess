@@ -54,11 +54,18 @@ interface PropertyListingFormProps {
   initialData?: Partial<PropertyFormData>;
 }
 
-const PROPERTY_TYPES = ['Apartment', 'House', 'Villa', 'Condo', 'Studio', 'Loft', 'Penthouse', 'Townhouse', 'Other'];
+const PROPERTY_TYPES = [
+  { value: 'apartment', label: 'Apartment' },
+  { value: 'house', label: 'House' },
+  { value: 'room', label: 'Room' },
+  { value: 'studio', label: 'Studio' },
+  { value: 'commercial', label: 'Commercial' },
+];
 const RENTAL_DURATIONS = [
-  { value: '3-months', label: '3 Months' },
-  { value: '6-months', label: '6 Months' },
-  { value: '1-year', label: '1 Year' },
+  { value: 'daily', label: 'Daily' },
+  { value: 'weekly', label: 'Weekly' },
+  { value: 'monthly', label: 'Monthly' },
+  { value: 'yearly', label: 'Yearly' },
 ];
 const AMENITIES = ['Pool', 'Gym', 'Parking', 'AC', 'WiFi', 'Security', 'Garden', 'Balcony', 'Elevator', 'Storage'];
 const SERVICES = ['Water', 'Electricity', 'Gas', 'Internet', 'Cleaning', 'Maintenance', 'Trash', 'Cable TV'];
@@ -190,7 +197,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
               <Select onValueChange={field.onChange} value={field.value || ''}>
                 <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
                 <SelectContent>
-                  {PROPERTY_TYPES.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+                  {PROPERTY_TYPES.map(type => <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             )}

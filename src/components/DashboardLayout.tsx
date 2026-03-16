@@ -104,7 +104,7 @@ function clearOnboardingCache(): void {
 
 interface DashboardLayoutProps {
   children: ReactNode
-  userRole: 'client' | 'owner'
+  userRole: 'client' | 'owner' | 'admin'
 }
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
@@ -138,14 +138,22 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
-  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects
+  // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   useEffect(() => {
+    let rafId = 0;
     const handleMouseMove = (e: MouseEvent) => {
-      document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
-      document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+      if (rafId) return; // skip if a frame is already queued
+      rafId = requestAnimationFrame(() => {
+        document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
+        document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
+        rafId = 0;
+      });
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
   }, []);
 
   // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
@@ -317,6 +325,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/client/profile',
     '/client/liked-properties',
     '/messages',
+    '/explore/roommates',
     '/client/filters',
   ];
   const ownerSwipePaths = [
@@ -328,9 +337,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/owner/filters',
   ];
   useSwipeNavigation({
-    paths: userRole === 'client' ? clientSwipePaths : ownerSwipePaths,
+    paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: true,
+    enabled: userRole !== 'admin',
   });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
@@ -539,25 +548,18 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isOnDiscoveryPage = (userRole === 'client' && location.pathname === '/client/dashboard') ||
     (userRole === 'owner' && location.pathname === '/owner/dashboard');
 
-  // FIX: Memoize cloned children to prevent infinite re-renders
-  const enhancedChildren = useMemo(() => {
-    return React.Children.map(children, (child) => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child as React.ReactElement, {
-          onPropertyInsights: handlePropertyInsights,
-          onClientInsights: handleClientInsights,
-          onMessageClick: handleMessageClick,
-          filters: combinedFilters,
-        } as any);
-      }
-      return child;
-    });
-  }, [children, handlePropertyInsights, handleClientInsights, handleMessageClick, combinedFilters]);
+  // PERF FIX: Do NOT clone children with props — route elements (MyHub, ClientProfile, etc.)
+  // get their data from hooks/stores directly, not from cloneElement props.
+  // The old cloneElement pattern caused cascading re-renders (React #185) because
+  // combinedFilters changed identity on every filter store update, triggering
+  // AnimatedOutlet to re-clone the outlet element with new props on every render.
+  const enhancedChildren = children;
 
   // PERF FIX: Detect camera and radio routes to hide TopBar/BottomNav (fullscreen UX)
   // Camera and radio routes are now INSIDE layout to prevent dashboard remount on navigate back
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
+  const isRoommateRoute = location.pathname === '/explore/roommates';
 
   // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   // On these routes, TopBar becomes transparent and content extends behind it
@@ -580,7 +582,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/settings'
     ];
 
-    return immersiveRoutes.some(route => path === route || path.startsWith(route + '/')) ||
+    return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') ||
       path.includes('view-client');
   }, [location.pathname]);
@@ -598,9 +600,9 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   return (
     <div className="app-root min-h-screen min-h-dvh overflow-hidden relative" style={{ width: '100%', maxWidth: '100vw' }}>
 
-      {/* Top Bar - Fixed with safe-area-top. Hidden on camera and radio routes for fullscreen UX */}
+      {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and roommate routes for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {!isCameraRoute && !isRadioRoute && (
+      {!isCameraRoute && !isRadioRoute && !isRoommateRoute && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
@@ -620,10 +622,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         id="dashboard-scroll-container"
         className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
         style={{
-          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard)
+          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveDashboard || isRoommateRoute)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveDashboard || isRoommateRoute) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: isImmersiveDashboard ? '0px' : 'max(var(--safe-left), 0px)',
           paddingRight: isImmersiveDashboard ? '0px' : 'max(var(--safe-right), 0px)',
           width: '100%',
@@ -634,19 +636,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0, y: isImmersiveDashboard ? 0 : 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
-        >
+        {/* PERF FIX: Removed motion.div key={location.pathname} wrapper.
+            AnimatedOutlet already handles page transitions with key={location.key}.
+            The double wrapper was causing unnecessary unmount/remount cycles. */}
+        <div style={{ minHeight: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}>
           {enhancedChildren}
-        </motion.div>
+        </div>
       </main>
 
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera and radio routes for fullscreen UX */}
-      {!isCameraRoute && !isRadioRoute && (
+      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and roommate routes for fullscreen UX */}
+      {!isCameraRoute && !isRadioRoute && !isRoommateRoute && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}

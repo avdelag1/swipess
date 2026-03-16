@@ -14,7 +14,7 @@ import "./styles/responsive.css";
 import "./styles/PremiumShine.css";
 
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
-import { logger } from "@/utils/logger";
+import { logger } from "@/utils/prodLogger";
 
 // Arranca la app normalmente
 // NOTE: StrictMode REMOVED intentionally for production-like performance
@@ -78,7 +78,7 @@ deferredInit(async () => {
       const { StatusBar, Style } = await import("@capacitor/status-bar");
       await StatusBar.setOverlaysWebView({ overlay: false });
       await StatusBar.setStyle({ style: Style.Light });
-      await StatusBar.setBackgroundColor({ color: "#FF0000" });
+      await StatusBar.setBackgroundColor({ color: "#000000" });
     }
   } catch {
     // Silently ignore - only applies to native mobile platforms

@@ -9,7 +9,7 @@ import { useTheme } from "@/hooks/useTheme";
 const OwnerProperties = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [initialCategory, setInitialCategory] = useState<string | null>(null);
@@ -34,7 +34,7 @@ const OwnerProperties = () => {
 
   return (
     <>
-      <div className="w-full overflow-x-hidden pt-[calc(56px+var(--safe-top)+1rem)] px-4 sm:px-6 pb-24">
+      <div className="w-full overflow-x-hidden pt-[calc(56px+var(--safe-top)+1rem)] px-4 sm:px-6 pb-24 bg-background min-h-full">
         <motion.button
           onClick={() => navigate('/owner/settings')}
           whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}

@@ -20,7 +20,7 @@ export function SuspenseFallback({ className, minimal = false }: SuspenseFallbac
       aria-hidden="true"
     >
       {!minimal && (
-        <div className="w-8 h-8 rounded-full border-2 border-white/20 border-t-white/60 animate-spin" />
+        <div className="w-8 h-8 rounded-full border-2 border-foreground/20 border-t-foreground/60 animate-spin" />
       )}
     </div>
   );

@@ -11,7 +11,8 @@ import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, CircleDot, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, Heart } from 'lucide-react';
+import { Home, Plus, Edit, Trash2, Eye, MapPin, Search, Bike, LayoutGrid, Sparkles, ImageIcon, Share2, Briefcase, CheckCircle, ThumbsUp } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ListingPreviewDialog } from '@/components/ListingPreviewDialog';
 import { UnifiedListingForm } from '@/components/UnifiedListingForm';
 import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
@@ -39,7 +40,7 @@ const getCategoryColor = (category: string) => {
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isLight = theme === 'white-matte';
+  const isLight = theme === 'light';
   const { data: listings = [], isLoading, error } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');
@@ -221,10 +222,10 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const tabItems = [
     { id: 'all', label: 'All', icon: LayoutGrid, count: listings.length },
     { id: 'property', label: 'Properties', icon: Home, count: listings.filter(l => !l.category || l.category === 'property').length },
-    { id: 'motorcycle', label: 'Motorcycles', icon: CircleDot, count: listings.filter(l => l.category === 'motorcycle').length },
+    { id: 'motorcycle', label: 'Motorcycles', icon: MotorcycleIcon, count: listings.filter(l => l.category === 'motorcycle').length },
     { id: 'bicycle', label: 'Bicycles', icon: Bike, count: listings.filter(l => l.category === 'bicycle').length },
     { id: 'worker', label: 'Services', icon: Briefcase, count: listings.filter(l => l.category === 'worker' || l.category === 'services').length },
-    { id: 'liked', label: 'Likes', icon: Heart, count: listingsWithLikes.filter(l => l.likeCount > 0).length },
+    { id: 'liked', label: 'Likes', icon: ThumbsUp, count: listingsWithLikes.filter(l => l.likeCount > 0).length },
     { id: 'active', label: 'Active', icon: CheckCircle, count: listings.filter(l => l.status === 'active').length },
     { id: 'rented', label: 'Rented', icon: Home, count: listings.filter(l => l.status === 'rented').length },
   ];
@@ -269,8 +270,8 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
           )}
         >
           <div className="flex items-center gap-4">
-            <div className="p-4 rounded-full bg-[#E4007C]/10 border border-[#E4007C]/20 shadow-[0_0_15px_rgba(228,0,124,0.15)]">
-              <LayoutGrid className="w-7 h-7 text-[#E4007C]" />
+            <div className="p-4 rounded-full bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 shadow-[0_0_15px_rgba(228,0,124,0.15)]">
+              <LayoutGrid className="w-7 h-7 text-[var(--color-brand-accent-2)]" />
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tighter text-foreground">My Listings</h1>
@@ -282,7 +283,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               whileTap={{ scale: 0.96 }}
               className={cn(
                 "flex items-center gap-2 flex-1 sm:flex-initial rounded-2xl h-12 px-6 font-black tracking-wide transition-all",
-                "border border-[#E4007C]/30 text-[#E4007C] hover:bg-[#E4007C]/10",
+                "border border-[var(--color-brand-accent-2)]/30 text-[var(--color-brand-accent-2)] hover:bg-[var(--color-brand-accent-2)]/10",
                 isLight ? "bg-white" : "bg-white/[0.04]"
               )}
               onClick={() => setShowAIAssistant(true)}
@@ -292,7 +293,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.96 }}
-              className="flex items-center gap-2 bg-[#E4007C] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all"
+              className="flex items-center gap-2 bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white font-black tracking-wide flex-1 sm:flex-initial rounded-2xl h-12 px-6 shadow-[0_8px_24px_rgba(228,0,124,0.3)] transition-all"
               onClick={handleAddProperty}
             >
               <Plus className="w-5 h-5" />
@@ -401,7 +402,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           return (
                             <div className="absolute top-2 right-2">
                               <Badge className="bg-pink-500/90 text-white text-[10px] gap-1">
-                                <Heart className="w-3 h-3 fill-current" />
+                                <ThumbsUp className="w-3 h-3 fill-current" />
                                 {likedListing.likeCount}
                               </Badge>
                             </div>

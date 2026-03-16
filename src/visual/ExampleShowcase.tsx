@@ -13,7 +13,7 @@ import {
   FloatEffect,
   ShimmerEffect,
 } from "@/visual";
-import { Sparkles, Zap, Heart, Plus, Star, Rocket } from "lucide-react";
+import { Sparkles, Zap, ThumbsUp, Plus, Star, Rocket } from "lucide-react";
 
 /**
  * Visual System Showcase
@@ -58,7 +58,7 @@ export const VisualShowcase = () => {
 
           <div className="mt-6 flex gap-4 items-center">
             <IconButton>
-              <Heart className="w-5 h-5" />
+              <ThumbsUp className="w-5 h-5" />
             </IconButton>
             <IconButton size="lg">
               <Star className="w-6 h-6" />
@@ -180,7 +180,7 @@ export const VisualShowcase = () => {
               <div className="flex gap-4">
                 <PulseGlow glowColor="primary" intensity="low">
                   <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
-                    <Heart className="w-6 h-6 text-primary-foreground" />
+                    <ThumbsUp className="w-6 h-6 text-primary-foreground" />
                   </div>
                 </PulseGlow>
 

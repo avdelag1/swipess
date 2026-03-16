@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Send, Loader2, CheckCircle2, Circle, Upload, MessageSquare, ArrowLeft, ArrowRight, Sparkles, X } from 'lucide-react';
+import { Camera, Send, Loader2, CheckCircle2, Circle, Upload, MessageSquare, ArrowLeft, ArrowRight, Sparkles, X, Building2, Bike, Briefcase } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -18,18 +19,32 @@ type Step = 'category' | 'photos' | 'conversation' | 'review';
 
 type Category = 'property' | 'motorcycle' | 'bicycle' | 'worker';
 
-const CATEGORY_OPTIONS: { value: Category; label: string; icon: string; description: string }[] = [
-  { value: 'property', label: 'Property', icon: '🏠', description: 'Apartments, houses, rooms for rent or sale' },
-  { value: 'motorcycle', label: 'Motorcycle', icon: '🏍️', description: 'Motorcycles and scooters' },
-  { value: 'bicycle', label: 'Bicycle', icon: '🚴', description: 'Bikes and e-bikes' },
-  { value: 'worker', label: 'Service', icon: '🔧', description: 'Professional services and workers' },
+const CATEGORY_ICONS: Record<Category, React.ElementType> = {
+  property: Building2,
+  motorcycle: MotorcycleIcon,
+  bicycle: Bike,
+  worker: Briefcase,
+};
+
+const CATEGORY_COLORS: Record<Category, string> = {
+  property: 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10',
+  motorcycle: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-500/10',
+  bicycle: 'text-violet-600 bg-violet-50 dark:text-violet-400 dark:bg-violet-500/10',
+  worker: 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10',
+};
+
+const CATEGORY_OPTIONS: { value: Category; label: string; description: string }[] = [
+  { value: 'property', label: 'Property', description: 'Apartments, houses, rooms for rent or sale' },
+  { value: 'motorcycle', label: 'Motorcycle', description: 'Motorcycles and scooters' },
+  { value: 'bicycle', label: 'Bicycle', description: 'Bikes and e-bikes' },
+  { value: 'worker', label: 'Service', description: 'Professional services and workers' },
 ];
 
 const MAX_PHOTOS: Record<Category, number> = {
-  property: 15,
-  motorcycle: 5,
-  bicycle: 5,
-  worker: 10,
+  property: 1,
+  motorcycle: 1,
+  bicycle: 1,
+  worker: 1,
 };
 
 export function ConversationalListingCreator() {
@@ -235,12 +250,19 @@ export function ConversationalListingCreator() {
             {CATEGORY_OPTIONS.map((option) => (
               <Card
                 key={option.value}
-                className="cursor-pointer hover:border-primary transition-all hover:shadow-lg"
+                className="cursor-pointer hover:border-primary transition-all hover:shadow-md"
                 onClick={() => handleCategorySelect(option.value)}
               >
                 <CardHeader>
                   <div className="flex items-center gap-3">
-                    <div className="text-4xl">{option.icon}</div>
+                    {(() => {
+                      const IconComp = CATEGORY_ICONS[option.value];
+                      return (
+                        <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center", CATEGORY_COLORS[option.value])}>
+                          <IconComp className="w-6 h-6" />
+                        </div>
+                      );
+                    })()}
                     <div>
                       <CardTitle>{option.label}</CardTitle>
                       <CardDescription>{option.description}</CardDescription>
@@ -391,7 +413,7 @@ export function ConversationalListingCreator() {
                         className={cn(
                           "max-w-[85%] px-6 py-4 rounded-[2.2rem] text-sm font-bold leading-relaxed shadow-sm",
                           message.role === 'user'
-                            ? "bg-gradient-to-br from-[#E4007C] to-[#C4006C] text-white rounded-tr-sm"
+                            ? "bg-gradient-to-br from-[var(--color-brand-accent-2)] to-[#C4006C] text-white rounded-tr-sm"
                             : "bg-white/10 text-foreground rounded-tl-sm border border-white/5 backdrop-blur-xl"
                         )}
                       >

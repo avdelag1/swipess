@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, MapPin, Trash2, Eye, Bed, Bath, Square, User, Home, Bike, Briefcase, Zap } from "lucide-react";
+import { ThumbsUp, MessageCircle, MapPin, Trash2, Eye, Bed, Bath, Square, User, Home, Bike, Briefcase, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -71,7 +71,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                         {title}
                     </h3>
                     <div className="flex items-center gap-1.5 text-white/70 text-xs font-bold mt-1">
-                        <MapPin className="w-3 h-3 text-[#E4007C] flex-shrink-0" />
+                        <MapPin className="w-3 h-3 text-[var(--color-brand-accent-2)] flex-shrink-0" />
                         <span className="truncate">{subtitle}</span>
                     </div>
                 </div>
@@ -90,7 +90,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                                 </div>
                             )}
                             {data.price && (
-                                <div className="px-3 py-1.5 rounded-xl bg-[#E4007C]/10 border border-[#E4007C]/20 text-[#E4007C] text-[10px] font-black">
+                                <div className="px-3 py-1.5 rounded-xl bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 text-[var(--color-brand-accent-2)] text-[10px] font-black">
                                     ${data.price.toLocaleString()}{data.pricing_unit ? `/${data.pricing_unit}` : '/mo'}
                                 </div>
                             )}
@@ -116,7 +116,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                     <motion.button
                         whileTap={{ scale: 0.96 }}
                         onClick={() => onAction('message', data)}
-                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#E4007C] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[var(--color-brand-accent-2)] hover:bg-[#FF1493] text-white text-xs font-black shadow-[0_4px_16px_rgba(228,0,124,0.3)] transition-all"
                     >
                         <MessageCircle className="w-4 h-4" />
                         MESSAGE

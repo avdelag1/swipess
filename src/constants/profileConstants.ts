@@ -44,25 +44,47 @@ export const RELATIONSHIP_STATUS_OPTIONS = [
 ];
 
 export const SMOKING_HABIT_OPTIONS = [
-    'Non-Smoker', 'Occasional Smoker', 'Regular Smoker', 'Vaper Only',
+    { value: 'never', label: 'Non-Smoker' },
+    { value: 'occasionally', label: 'Occasional Smoker' },
+    { value: 'regularly', label: 'Regular Smoker' },
 ];
 
 export const DRINKING_HABIT_OPTIONS = [
-    'Non-Drinker', 'Social Drinker', 'Regular Drinker',
+    { value: 'never', label: 'Non-Drinker' },
+    { value: 'socially', label: 'Social Drinker' },
+    { value: 'regularly', label: 'Regular Drinker' },
 ];
 
 export const CLEANLINESS_OPTIONS = [
-    'Very Clean', 'Clean', 'Average', 'Relaxed',
+    { value: 'high', label: 'Very Clean' },
+    { value: 'medium', label: 'Average' },
+    { value: 'low', label: 'Relaxed' },
 ];
 
 export const NOISE_TOLERANCE_OPTIONS = [
-    'Very Quiet', 'Moderate', 'Flexible', 'Lively OK',
+    { value: 'low', label: 'Very Quiet' },
+    { value: 'medium', label: 'Moderate' },
+    { value: 'high', label: 'Flexible' },
 ];
 
 export const WORK_SCHEDULE_OPTIONS = [
-    '9-5 Traditional', 'Night Shift', 'Remote Worker', 'Flexible Hours', 'Retired', 'Student', 'Teacher',
-    'Healthcare', 'Tech', 'Creative', 'Hospitality', 'Finance', 'Entrepreneur'
+    { value: 'regular', label: '9-5 Traditional' },
+    { value: 'shift', label: 'Night Shift' },
+    { value: 'remote', label: 'Remote Worker' },
+    { value: 'flexible', label: 'Flexible Hours' },
 ];
+
+/** Look up a human-readable label for a DB value in any value/label option list */
+function labelFor(options: { value: string; label: string }[], dbValue: string | null | undefined): string {
+    if (!dbValue) return '';
+    return options.find(o => o.value === dbValue)?.label ?? dbValue;
+}
+
+export const getSmokingLabel = (v: string | null | undefined) => labelFor(SMOKING_HABIT_OPTIONS, v);
+export const getDrinkingLabel = (v: string | null | undefined) => labelFor(DRINKING_HABIT_OPTIONS, v);
+export const getCleanlinessLabel = (v: string | null | undefined) => labelFor(CLEANLINESS_OPTIONS, v);
+export const getNoiseToleranceLabel = (v: string | null | undefined) => labelFor(NOISE_TOLERANCE_OPTIONS, v);
+export const getWorkScheduleLabel = (v: string | null | undefined) => labelFor(WORK_SCHEDULE_OPTIONS, v);
 
 export const DIETARY_OPTIONS = [
     'Omnivore', 'Vegetarian', 'Vegan', 'Pescatarian', 'Gluten-Free', 'Halal', 'Kosher',

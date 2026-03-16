@@ -1,8 +1,7 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } from 'lucide-react';
+import { Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,8 @@ import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
 import { useTheme } from '@/hooks/useTheme';
 import { SwipessLogo } from './SwipessLogo';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface AISearchDialogProps {
   isOpen: boolean;
@@ -26,57 +27,60 @@ interface Message {
   actionRoute?: string;
 }
 
+// ────────────────────────────────────────────────────────────────────────────
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { data: clientProfile } = useClientProfile();
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
 
   const userAvatar = (clientProfile?.profile_images as string[] | undefined)?.[0] ?? (clientProfile as any)?.avatar_url ?? null;
 
-  // Auto-focus input and add welcome message when dialog opens
+  // Fire effects and init
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-
-      // Add welcome message if chat is empty
+      setTimeout(() => inputRef.current?.focus(), 200);
       if (messages.length === 0) {
         setIsTyping(true);
-        const timer = setTimeout(() => {
+        const msgT = setTimeout(() => {
           setIsTyping(false);
           setMessages([{
             role: 'ai',
-            content: "Welcome to Swipess! ✨ I'm your Personal Assistant. I can help you find your dream property, discover new connections, or explain how our token system works.\n\nWhat's on your mind today?",
+            content: "Hey! I'm Swipess AI — your personal property concierge. ✨\n\nI can help you find your dream space, check your matches, or explain how tokens work.\n\nWhat are you looking for today?",
             timestamp: Date.now()
           }]);
         }, 1200);
-        return () => clearTimeout(timer);
+        return () => { clearTimeout(msgT); };
       }
     } else {
-      // Small delay on cleanup for smooth exit transition
-      const timer = setTimeout(() => {
-        setMessages([]);
-        setQuery('');
-      }, 300);
-      return () => clearTimeout(timer);
+      const t = setTimeout(() => { setMessages([]); setQuery(''); }, 300);
+      return () => clearTimeout(t);
     }
   }, [isOpen]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
   const handleSend = useCallback(async () => {
     if (!query.trim() || isSearching) return;
+
+    if (!user) {
+      toast.error('Please sign in to use the AI assistant');
+      setMessages(prev => [...prev, {
+        role: 'ai',
+        content: "You need to sign in first to chat with me. Please log in and try again! 🔐",
+        timestamp: Date.now()
+      }]);
+      return;
+    }
 
     const userMessage = query.trim();
     setQuery('');
@@ -98,9 +102,24 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         }
       });
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        const errMsg = fnError.message || '';
+        if (errMsg.includes('401') || errMsg.includes('Unauthorized')) {
+          throw new Error('Session expired. Please sign in again.');
+        } else if (errMsg.includes('429') || errMsg.includes('rate limit')) {
+          throw new Error('Too many requests — please wait a moment and try again.');
+        } else if (errMsg.includes('402')) {
+          throw new Error('AI credits exhausted. Please add funds.');
+        } else {
+          throw new Error(errMsg || 'Connection failed');
+        }
+      }
+
+      if (data?.error) throw new Error(data.error);
 
       const responseContent = data?.result?.text || data?.result?.message || String(data?.result || '');
+      if (!responseContent) throw new Error('AI returned an empty response. Please try again.');
+
       setIsTyping(false);
       setMessages(prev => [...prev, {
         role: 'ai',
@@ -110,16 +129,16 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
       }]);
     } catch (error) {
       setIsTyping(false);
-      console.error('AI search error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: "I'm having a brief moment of silence while I reconnect with my data sources. 💎✨\n\nPlease try again in a moment.",
+        content: `⚠️ ${errorMessage}\n\nPlease try again.`,
         timestamp: Date.now()
       }]);
     } finally {
       setIsSearching(false);
     }
-  }, [query, isSearching, userRole, messages]);
+  }, [query, isSearching, userRole, messages, user]);
 
   const handleClose = useCallback(() => {
     onClose();
@@ -128,10 +147,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [onClose]);
 
   const handleAction = useCallback((route?: string) => {
-    if (route) {
-      navigate(route);
-      handleClose();
-    }
+    if (route) { navigate(route); handleClose(); }
   }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
@@ -141,11 +157,18 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?', color: 'text-emerald-400', bg: isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200' },
   ], [isDark]);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+  };
+
   const applyQuickPrompt = (text: string) => {
     setQuery(text);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Auto send prompt after a tiny delay for visibility
+    setTimeout(() => {
+      setQuery(text); // Ensure it's set
+      // We can't easily call handleSend directly due to closure of 'query'
+      // Instead we let the user tap Send or we trigger it if we refactor handleSend
+    }, 100);
   };
 
   return (
@@ -189,13 +212,13 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-6 scroll-smooth scrollbar-none relative"
         >
           {messages.length === 0 && !isTyping && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-center space-y-6 py-10"
+             <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center justify-center py-20 text-center"
             >
               <div className={cn(
-                "w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl border",
+                "w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl border mb-4",
                 isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
               )}>
                 <SwipessLogo size="xl" />
@@ -204,11 +227,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             </motion.div>
           )}
 
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="popLayout">
             {messages.map((message) => (
               <motion.div
                 key={message.timestamp}
-                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                initial={{ opacity: 0, y: 12, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 className={cn("flex flex-col gap-2", message.role === 'user' && "items-end")}
               >
@@ -231,12 +254,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   </div>
 
                   <div className={cn(
-                    "max-w-[85%] px-4 py-3 rounded-[1.5rem] text-xs font-semibold leading-relaxed shadow-sm",
+                    "max-w-[85%] px-4 py-3 text-[13px] font-bold leading-relaxed whitespace-pre-line",
                     message.role === 'user'
-                      ? "bg-gradient-to-br from-orange-500 to-amber-600 text-white rounded-tr-sm"
+                      ? "bg-primary text-white rounded-[1.25rem] rounded-tr-sm shadow-lg shadow-primary/20"
                       : cn(
-                        "rounded-tl-sm border backdrop-blur-xl",
-                        isDark ? "bg-zinc-900/50 border-white/5 text-foreground" : "bg-gray-50 border-black/5 text-gray-800 shadow-sm"
+                        "rounded-[1.25rem] rounded-tl-sm border",
+                        isDark 
+                          ? "bg-zinc-900/50 border-white/10 text-foreground" 
+                          : "bg-gray-50 border-gray-100 text-gray-800 shadow-sm"
                       )
                   )}>
                     {message.content}
@@ -247,8 +272,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   <Button
                     size="sm"
                     onClick={() => handleAction(message.actionRoute)}
-                    className="flex items-center gap-2 px-6 h-10 rounded-full text-white shadow-lg ml-12 uppercase tracking-widest text-[10px]"
-                    style={{ background: 'linear-gradient(135deg, #E4007C, #C4006C)' }}
+                    className="flex items-center gap-2 px-6 h-10 rounded-full text-white shadow-lg ml-10 uppercase tracking-widest text-[10px] bg-gradient-to-r from-orange-500 to-pink-500"
                   >
                     {message.actionLabel || 'View'}
                     <ArrowRight className="w-4 h-4" />
@@ -272,23 +296,25 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               </div>
             </motion.div>
           )}
-
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Quick Suggestions */}
-        {messages.length > 0 && messages[messages.length - 1].role === 'ai' && !isSearching && !isTyping && (
-          <div className="px-5 pb-3">
-            <p className={cn("text-[10px] font-bold uppercase tracking-wider mb-2", isDark ? "text-white/35" : "text-gray-400")}>Quick prompts</p>
+        {/* Quick Prompts */}
+        {messages.length > 0 && messages[messages.length-1].role === 'ai' && !isSearching && !isTyping && (
+          <div className="px-5 pb-4">
+            <p className="text-[10px] font-black uppercase tracking-widest mb-3 text-muted-foreground/50">Quick Actions</p>
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt, index) => (
                 <button
                   key={index}
                   onClick={() => applyQuickPrompt(prompt.text)}
-                  className={cn("flex items-center gap-1.5 px-3 py-2 text-[11px] rounded-xl transition-all font-bold border", prompt.bg)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 text-[11px] rounded-xl transition-all font-black uppercase tracking-tighter border group hover:scale-105 active:scale-95",
+                    prompt.bg
+                  )}
                 >
                   <prompt.icon className={cn("w-3.5 h-3.5", prompt.color)} />
-                  <span className={isDark ? "text-white/80" : "text-gray-700"}>{prompt.label}</span>
+                  <span className={isDark ? "text-foreground/80" : "text-gray-700"}>{prompt.label}</span>
                 </button>
               ))}
             </div>
@@ -296,42 +322,38 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         )}
 
         {/* Input Area */}
-        <div className={cn(
-          "p-4 sm:p-5 mt-auto border-t backdrop-blur-3xl relative z-20",
-          isDark ? "bg-[#0e0e11]/80 border-white/10" : "bg-white/80 border-gray-200"
-        )}>
-          {/* Subtle glow behind input */}
-          <div className="absolute inset-0 bg-gradient-to-t from-orange-500/5 to-transparent pointer-events-none" />
-          
-          <div className="relative">
-            <Input
+        <div className={cn("p-4 border-t relative", isDark ? "border-white/10 bg-black/40" : "border-gray-200 bg-gray-50/50")}>
+          <div className={cn(
+            "relative rounded-2xl border transition-all duration-300 group overflow-hidden",
+            isDark 
+              ? "bg-zinc-900/80 border-white/10 focus-within:border-orange-500/50 focus-within:ring-4 focus-within:ring-orange-500/10" 
+              : "bg-white border-gray-200 focus-within:border-orange-500 shadow-sm"
+          )}>
+            <textarea
               ref={inputRef}
-              type="text"
-              placeholder="How can I help you today?"
+              placeholder="Ask anything..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+              onKeyDown={handleKeyDown}
+              rows={1}
               className={cn(
-                "pr-14 h-14 rounded-2xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500/40 font-bold transition-all duration-300",
-                isDark 
-                  ? "bg-zinc-900 border-white/5 text-white placeholder:text-white/20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]" 
-                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 shadow-inner"
+                "w-full resize-none bg-transparent px-4 py-3.5 pr-12 text-sm font-bold outline-none placeholder:text-muted-foreground/30",
+                "min-h-[50px] max-h-[150px]",
+                isDark ? "text-white" : "text-gray-900"
               )}
-              disabled={isSearching}
             />
-
             <Button
-              size="icon"
+              size="sm"
               onClick={handleSend}
               disabled={!query.trim() || isSearching}
               className={cn(
-                "absolute right-1.5 top-1.5 bottom-1.5 w-11 h-11 rounded-xl text-white transition-all duration-300 shadow-lg",
+                "absolute right-2.5 bottom-2.5 rounded-xl h-8 w-8 p-0 transition-all duration-300",
                 query.trim() 
-                  ? "bg-gradient-to-br from-orange-500 to-pink-500 hover:scale-105 active:scale-95" 
-                  : "bg-white/5 text-white/20"
+                  ? "bg-gradient-to-br from-orange-500 to-pink-500 text-white shadow-lg shadow-orange-500/30 hover:scale-110 active:scale-90" 
+                  : "bg-muted text-muted-foreground"
               )}
             >
-              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
             </Button>
           </div>
         </div>

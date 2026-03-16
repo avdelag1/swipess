@@ -20,10 +20,10 @@ import { cn } from '@/lib/utils';
 // Hire duration quick filter options
 const HIRE_DURATION_FILTERS = [
   { value: 'all', label: 'All', description: 'Show all services' },
-  { value: 'per_month', label: 'Monthly', description: 'Monthly hire' },
-  { value: 'per_hour', label: 'Hourly', description: 'Pay per hour' },
-  { value: 'per_day', label: 'Daily', description: 'Pay per day' },
-  { value: 'per_session', label: 'Session', description: 'Per session' },
+  { value: 'monthly', label: 'Monthly', description: 'Monthly hire' },
+  { value: 'hourly', label: 'Hourly', description: 'Pay per hour' },
+  { value: 'daily', label: 'Daily', description: 'Pay per day' },
+  { value: 'project', label: 'Project', description: 'Project-based' },
 ] as const;
 
 interface WorkerListing {
@@ -312,8 +312,8 @@ export default function ClientWorkerDiscovery() {
                     : "bg-muted/80 text-muted-foreground hover:bg-muted"
                 )}
               >
-                {filter.value === 'per_month' && <CalendarDays className="w-3 h-3" />}
-                {filter.value === 'per_hour' && <Clock className="w-3 h-3" />}
+                {filter.value === 'monthly' && <CalendarDays className="w-3 h-3" />}
+                {filter.value === 'hourly' && <Clock className="w-3 h-3" />}
                 {filter.label}
               </button>
             ))}

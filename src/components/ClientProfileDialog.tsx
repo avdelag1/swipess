@@ -65,10 +65,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
   const [hasChildren, setHasChildren] = useState<boolean>(false);
 
   // Lifestyle habit fields
-  const [smokingHabit, setSmokingHabit] = useState<string>('Non-Smoker');
-  const [drinkingHabit, setDrinkingHabit] = useState<string>('Non-Drinker');
-  const [cleanlinessLevel, setCleanlinessLevel] = useState<string>('Clean');
-  const [noiseTolerance, setNoiseTolerance] = useState<string>('Moderate');
+  const [smokingHabit, setSmokingHabit] = useState<string>('never');
+  const [drinkingHabit, setDrinkingHabit] = useState<string>('never');
+  const [cleanlinessLevel, setCleanlinessLevel] = useState<string>('medium');
+  const [noiseTolerance, setNoiseTolerance] = useState<string>('medium');
   const [workSchedule, setWorkSchedule] = useState<string>('');
 
   // Cultural and personality fields
@@ -178,10 +178,10 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
     setHasChildren((data as any).has_children ?? false);
 
     // Load lifestyle habit fields
-    setSmokingHabit((data as any).smoking_habit ?? 'Non-Smoker');
-    setDrinkingHabit((data as any).drinking_habit ?? 'Non-Drinker');
-    setCleanlinessLevel((data as any).cleanliness_level ?? 'Clean');
-    setNoiseTolerance((data as any).noise_tolerance ?? 'Moderate');
+    setSmokingHabit((data as any).smoking_habit ?? 'never');
+    setDrinkingHabit((data as any).drinking_habit ?? 'never');
+    setCleanlinessLevel((data as any).cleanliness_level ?? 'medium');
+    setNoiseTolerance((data as any).noise_tolerance ?? 'medium');
     setWorkSchedule((data as any).work_schedule ?? '');
 
     // Load cultural and personality fields
@@ -384,14 +384,14 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-white text-lg sm:text-xl font-bold">📸 Profile Photos</Label>
-                  <p className="text-white/60 text-xs sm:text-sm mt-1">Add up to 5 photos • First photo is your main photo</p>
+                  <p className="text-white/60 text-xs sm:text-sm mt-1">Upload your profile photo</p>
                 </div>
                 <Badge variant="secondary" className="bg-red-500/20 text-red-400 border-red-400">
-                  {profileImages.length}/5
+                  {profileImages.length}/1
                 </Badge>
               </div>
               <PhotoUploadManager
-                maxPhotos={5}
+                maxPhotos={1}
                 currentPhotos={profileImages}
                 onPhotosChange={setProfileImages}
                 uploadType="profile"
@@ -411,7 +411,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your full name"
-                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
+                  className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/20"
                   required
                 />
               </div>
@@ -425,7 +425,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     value={age}
                     onChange={(e) => setAge(e.target.value ? Number(e.target.value) : '')}
                     placeholder="25"
-                    className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-red-400"
+                    className="h-12 text-base bg-white/5 border-white/20 text-white placeholder:text-white/50 focus:border-white/20"
                     min="18"
                     max="99"
                   />
@@ -433,7 +433,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Gender</Label>
                   <Select value={gender ?? ''} onValueChange={setGender}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
@@ -510,7 +510,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Country *</Label>
                   <Select value={country} onValueChange={handleCountryChange}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue placeholder="Select a country" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white max-h-72">
@@ -546,7 +546,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">City *</Label>
                   <Select value={city} onValueChange={handleCityChange} disabled={!country}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400 disabled:opacity-50">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20 disabled:opacity-50">
                       <SelectValue placeholder={country ? 'Select a city' : 'Select country first'} />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white max-h-72">
@@ -592,7 +592,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                     onValueChange={setNeighborhood}
                     disabled={!city || availableNeighborhoods.length === 0}
                   >
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400 disabled:opacity-50">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20 disabled:opacity-50">
                       <SelectValue placeholder={
                         !city ? 'Select city first' :
                           availableNeighborhoods.length === 0 ? 'No neighborhoods' :
@@ -638,7 +638,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               <div className="space-y-2">
                 <Label className="text-white/90 text-sm sm:text-base">Nationality</Label>
                 <Select value={nationality} onValueChange={setNationality}>
-                  <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                  <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                     <SelectValue placeholder="Select nationality" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-white/20 text-white">
@@ -672,7 +672,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Relationship Status</Label>
                   <Select value={relationshipStatus} onValueChange={setRelationshipStatus}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
@@ -705,12 +705,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Smoking Habit</Label>
                   <Select value={smokingHabit} onValueChange={setSmokingHabit}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {SMOKING_HABIT_OPTIONS.map(habit => (
-                        <SelectItem key={habit} value={habit}>{habit}</SelectItem>
+                        <SelectItem key={habit.value} value={habit.value}>{habit.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -719,12 +719,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Drinking Habit</Label>
                   <Select value={drinkingHabit} onValueChange={setDrinkingHabit}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {DRINKING_HABIT_OPTIONS.map(habit => (
-                        <SelectItem key={habit} value={habit}>{habit}</SelectItem>
+                        <SelectItem key={habit.value} value={habit.value}>{habit.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -733,12 +733,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Cleanliness Level</Label>
                   <Select value={cleanlinessLevel} onValueChange={setCleanlinessLevel}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {CLEANLINESS_OPTIONS.map(level => (
-                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                        <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -747,12 +747,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 <div className="space-y-2">
                   <Label className="text-white/90 text-sm sm:text-base">Noise Tolerance</Label>
                   <Select value={noiseTolerance} onValueChange={setNoiseTolerance}>
-                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                    <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-white/20 text-white">
                       {NOISE_TOLERANCE_OPTIONS.map(level => (
-                        <SelectItem key={level} value={level}>{level}</SelectItem>
+                        <SelectItem key={level.value} value={level.value}>{level.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -762,12 +762,12 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
               <div className="space-y-2">
                 <Label className="text-white/90 text-sm sm:text-base">Work Schedule</Label>
                 <Select value={workSchedule} onValueChange={setWorkSchedule}>
-                  <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-red-400">
+                  <SelectTrigger className="h-12 text-base bg-white/5 border-white/20 text-white focus:border-white/20">
                     <SelectValue placeholder="Select work schedule" />
                   </SelectTrigger>
                   <SelectContent className="bg-slate-800 border-white/20 text-white">
                     {WORK_SCHEDULE_OPTIONS.map(schedule => (
-                      <SelectItem key={schedule} value={schedule}>{schedule}</SelectItem>
+                      <SelectItem key={schedule.value} value={schedule.value}>{schedule.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

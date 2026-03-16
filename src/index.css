@@ -1,11 +1,17 @@
 @import './styles/tokens.css';
 @import './styles/premium-polish.css';
 @import './styles/matte-themes.css';
+
 @import './styles/pwa-performance.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body, html {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  NEXT-GEN DESIGN PRIMITIVES (BEYOND 2025 STANDARD)               */
@@ -52,14 +58,15 @@
 }
 
 .liquid-glass-card {
-  @apply bg-zinc-900/40 backdrop-blur-3xl border border-white/10 shadow-2xl transition-all duration-500 overflow-hidden relative;
+  @apply bg-card backdrop-blur-xl border border-border shadow-2xl transition-all duration-300 overflow-hidden relative;
+  contain: layout style paint;
 }
 
 .liquid-glass-card::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.06) 0%, transparent 60%);
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), hsl(var(--primary) / 0.04) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.5s;
   pointer-events: none;
@@ -70,9 +77,9 @@
 }
 
 .liquid-glass-card:hover {
-  @apply bg-zinc-900/60 border-white/20;
+  @apply bg-card border-border;
   transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-soft-lg);
 }
 
 
@@ -163,10 +170,6 @@ body {
   /* Prevent layout shifts */
   position: relative;
   box-sizing: border-box;
-  /* Force GPU acceleration for stability */
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
 }
 
 /* App Header - Fully transparent, buttons float over gradient masks */
@@ -181,17 +184,14 @@ body {
   -webkit-backdrop-filter: none !important;
   border-bottom: none !important;
   padding-top: calc(env(safe-area-inset-top, 0px) + 8px);
-  /* GPU acceleration */
-  transform: translateZ(0) translateY(0) scale(1);
-  will-change: transform, opacity;
+  /* GPU acceleration — will-change only during transition */
+  transform: translateZ(0) translateY(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   opacity: 1;
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
-/* No ::after pseudo - gradient masks handle the fade */
 
 /* Hidden state for scroll behavior */
 .app-header.header-hidden {
@@ -244,30 +244,27 @@ body {
   /* Refined subtle dark fade behind bottom nav for a "vanishing" look */
   background: linear-gradient(to top, hsla(var(--background) / 0.45) 0%, hsla(var(--background) / 0.1) 25%, transparent 100%) !important;
   border-top: none;
-  transform: translateZ(0) translateY(0) scale(1);
+  transform: translateZ(0) translateY(0);
   opacity: 1;
-  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform, opacity;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 
-/* In white-matte, header stays transparent (content floats behind it) */
-.white-matte .app-header {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
 /* NOTE: .app-bottom-bar is NOT overridden — the BottomNavigation component
    handles its own light-mode glass styling with proper rgba backgrounds */
 
-/* Hidden state for scroll behavior - cinematic dissolve vanish */
+/* Hidden state for scroll behavior — fast slide-down + fade */
 .app-bottom-bar.nav-hidden {
-  transform: translateZ(0) translateY(20%) scale(0.95);
+  transform: translateZ(0) translateY(100%);
   opacity: 0;
-  filter: blur(8px);
   pointer-events: none;
+}
+
+/* Hide scrollbar for horizontally scrollable nav */
+.nav-scroll-hide::-webkit-scrollbar {
+  display: none;
 }
 
 
@@ -376,24 +373,24 @@ body {
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.6);
     --overlay: rgba(0, 0, 0, 0.8);
 
-    /* Shadcn compatibility colors - HSL Format (dark-first) */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
-    --card: 0 0% 3%;
-    --card-foreground: 0 0% 100%;
-    --primary: 0 100% 60%;
+    /* Shadcn compatibility colors - HSL Format (light-first defaults) */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
+    --card: 0 0% 99%;
+    --card-foreground: 0 0% 7%;
+    --primary: 343 99% 62%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 5%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 5%;
-    --muted-foreground: 0 0% 70%;
-    --accent: 0 100% 60%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 343 99% 62%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 8%;
-    --input: 0 0% 8%;
-    --ring: 0 100% 60%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 343 99% 62%;
     --radius: 1.25rem;
 
     /* Ultra-Dynamic Gradients with More Color */
@@ -1433,9 +1430,7 @@ a {
 
 /* ===== FOCUS STATES - Accessibility ===== */
 :focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: none;
 }
 
 button:focus-visible,
@@ -1443,9 +1438,8 @@ a:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px hsl(var(--ring) / 0.2);
+  outline: none;
+  box-shadow: none;
 }
 
 /* ===== ENHANCED TYPOGRAPHY ===== */
@@ -1498,26 +1492,6 @@ body {
   border-radius: 3px;
 }
 
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-/*  FINAL OVERRIDE FOR WHITE THEME - Ensures white backgrounds          */
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-.white-matte,
-.white-matte body,
-.white-matte #root,
-.white-matte .app-root {
-  background-color: #ffffff !important;
-  background: #ffffff !important;
-  color: hsl(0 0% 1%) !important;
-}
-
-/* Only force text color on actual text utility classes — NOT on bg- classes */
-.white-matte .text-foreground {
-  color: hsl(0 0% 1%) !important;
-}
-
-.white-matte .text-muted-foreground {
-  color: hsl(0 0% 45%) !important;
-}
 
 
 *::-webkit-scrollbar-thumb:hover {
@@ -1572,8 +1546,8 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  border-color: hsl(var(--ring));
-  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+  border-color: inherit;
+  box-shadow: none;
 }
 
 /* ===== TOAST/NOTIFICATION ANIMATIONS ===== */

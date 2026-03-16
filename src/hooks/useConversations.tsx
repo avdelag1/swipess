@@ -22,9 +22,11 @@ interface Conversation {
     role: string;
   };
   last_message?: {
+    content: string;
     message_text: string;
     created_at: string;
     sender_id: string;
+    is_read: boolean;
   };
   listing?: {
     id: string;
@@ -108,7 +110,7 @@ export function useConversations() {
         // OPTIMIZED: Single query for all last messages instead of N queries
         const { data: messagesData, error: messagesError } = await supabase
           .from('conversation_messages')
-          .select('conversation_id, message_text, created_at, sender_id, is_read')
+          .select('conversation_id, content, message_text, created_at, sender_id, is_read')
           .in('conversation_id', conversationIds)
           .order('created_at', { ascending: false });
 
@@ -177,15 +179,12 @@ export function useConversations() {
   });
 
   // Helper to ensure a conversation is loaded in cache after creation
-  // Reduced polling to prevent flickering - rely more on realtime subscriptions
   const ensureConversationInCache = async (conversationId: string, maxAttempts = 3): Promise<Conversation | null> => {
     for (let i = 0; i < maxAttempts; i++) {
-      // Check cache first without refetching
       const conversations = query.data || [];
       const conv = conversations.find((c: Conversation) => c.id === conversationId);
       if (conv) return conv;
 
-      // Only refetch if not found and not last attempt
       if (i < maxAttempts - 1) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         await query.refetch();
@@ -212,14 +211,13 @@ export function useConversations() {
         return null;
       }
 
-      // Fetch profile, listing, and last message in parallel
       const otherUserId = data.client_id === user.id ? data.owner_id : data.client_id;
       const isClient = data.client_id === user.id;
 
       const [profileResult, listingResult, messagesResult] = await Promise.all([
         otherUserId ? supabase.from('profiles').select('user_id, full_name, avatar_url').eq('user_id', otherUserId).maybeSingle() : Promise.resolve({ data: null }),
         data.listing_id ? supabase.from('listings').select('id, title, price, images, category, mode, address, city').eq('id', data.listing_id).maybeSingle() : Promise.resolve({ data: null }),
-        supabase.from('conversation_messages').select('conversation_id, message_text, created_at, sender_id').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
+        supabase.from('conversation_messages').select('conversation_id, content, message_text, created_at, sender_id, is_read').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(1)
       ]);
 
       const otherUserProfile = (profileResult as any).data;
@@ -262,7 +260,6 @@ export function useConversationMessages(conversationId: string) {
   return useQuery({
     queryKey: ['conversation-messages', conversationId],
     queryFn: async () => {
-      // Fetch messages without FK join (no FK exists between conversation_messages and profiles)
       const { data: messages, error } = await supabase
         .from('conversation_messages')
         .select('*')
@@ -272,7 +269,6 @@ export function useConversationMessages(conversationId: string) {
       if (error) throw error;
       if (!messages || messages.length === 0) return [];
 
-      // Batch fetch sender profiles
       const senderIds = [...new Set(messages.map((m: any) => m.sender_id))];
       const { data: profiles } = await supabase
         .from('profiles')
@@ -316,112 +312,53 @@ export function useStartConversation() {
     }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
-      // Check if conversation already exists (check both directions)
       const { data: existingConversations, error: existingError } = await supabase
         .from('conversations')
         .select('id')
         .or(`and(client_id.eq.${user.id},owner_id.eq.${otherUserId}),and(client_id.eq.${otherUserId},owner_id.eq.${user.id})`);
 
       if (existingError) {
-        if (import.meta.env.DEV) {
-          logger.error('Error checking existing conversations:', existingError);
-        }
         throw new Error('Failed to check existing conversations');
       }
 
       const existingConversation = existingConversations?.[0];
-
       let conversationId = existingConversation?.id;
 
-      // If conversation doesn't exist, check quota
       if (!conversationId && !canStartNewConversation) {
         throw new Error('QUOTA_EXCEEDED');
       }
 
       if (!conversationId) {
-        // IMPROVED: Determine roles using user_roles table (more reliable than checking listings)
         let myRole = 'client';
         let otherRole = 'client';
 
         try {
-          // Check both users' roles from user_roles table
-          const { data: myRoleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', user.id)
-            .maybeSingle();
-
-          const { data: otherRoleData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', otherUserId)
-            .maybeSingle();
-
+          const { data: myRoleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
+          const { data: otherRoleData } = await supabase.from('user_roles').select('role').eq('user_id', otherUserId).maybeSingle();
           myRole = myRoleData?.role || 'client';
           otherRole = otherRoleData?.role || 'client';
-
-          // FALLBACK: If roles not found in user_roles, check listings as backup
-          if (!myRoleData) {
-            const { data: myListingsData } = await supabase
-              .from('listings')
-              .select('id')
-              .eq('owner_id', user.id)
-              .limit(1);
-            myRole = (myListingsData && myListingsData.length > 0) ? 'owner' : 'client';
-          }
-
-          if (!otherRoleData) {
-            const { data: otherListingsData } = await supabase
-              .from('listings')
-              .select('id')
-              .eq('owner_id', otherUserId)
-              .limit(1);
-            otherRole = (otherListingsData && otherListingsData.length > 0) ? 'owner' : 'client';
-          }
-        } catch (roleCheckError) {
-          logger.error('Error checking user roles:', roleCheckError);
-          // If we can't determine roles, assume the initiator is client and other is owner
-          myRole = 'client';
-          otherRole = 'owner';
+        } catch (e) {
+          myRole = 'client'; otherRole = 'owner';
         }
 
-        // Determine client and owner IDs based on roles
         const clientId = myRole === 'client' ? user.id : otherUserId;
         const ownerId = myRole === 'owner' ? user.id : otherUserId;
 
-        // Create conversation without requiring a match first (match_id is now nullable)
         const { data: newConversation, error: conversationError } = await supabase
           .from('conversations')
           .insert({
             client_id: clientId,
             owner_id: ownerId,
             listing_id: listingId,
-            match_id: null, // We'll create the match after if needed
             status: 'active'
           })
           .select()
           .single();
 
-        if (conversationError) {
-          throw new Error(`Failed to create conversation: ${conversationError.message}`);
-        }
+        if (conversationError) throw new Error(`Failed to create conversation: ${conversationError.message}`);
         conversationId = newConversation.id;
-
-        // Optionally create a match record for tracking purposes (but don't block conversation if it fails)
-        try {
-          await supabase
-            .from('matches')
-            .insert({
-              user_id: clientId,
-              owner_id: ownerId,
-              listing_id: listingId || '00000000-0000-0000-0000-000000000000'
-            });
-        } catch (matchError) {
-          // Match creation failed, but conversation was created successfully
-        }
       }
 
-      // Send initial message
       const { data: message, error: messageError } = await supabase
         .from('conversation_messages')
         .insert({
@@ -434,43 +371,16 @@ export function useStartConversation() {
         .select()
         .single();
 
-      if (messageError) {
-        throw new Error(`Failed to send message: ${messageError.message}`);
-      }
+      if (messageError) throw new Error(`Failed to send message: ${messageError.message}`);
 
-      // Update conversation last_message_at
-      const { error: updateError } = await supabase
-        .from('conversations')
-        .update({ last_message_at: new Date().toISOString() })
-        .eq('id', conversationId);
-
-      if (updateError) {
-        logger.error('Error updating conversation timestamp:', updateError);
-      }
+      await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
 
       return { conversationId, message };
     },
-    onSuccess: async (data) => {
-      // Immediately refetch conversations
+    onSuccess: async () => {
       await queryClient.refetchQueries({ queryKey: ['conversations'] });
       await queryClient.invalidateQueries({ queryKey: ['conversations-started-count'] });
-
-      toast({
-        title: '💬 Conversation Started',
-        description: 'Redirecting to chat...',
-      });
-    },
-    onError: (error: Error) => {
-      if (error.message === 'QUOTA_EXCEEDED') {
-        // Don't show error toast - let the component handle upgrade dialog
-        throw error;
-      } else {
-        toast({
-          title: 'Failed to Send Message',
-          description: error.message,
-          variant: 'destructive'
-        });
-      }
+      toast({ title: '💬 Conversation Started', description: 'Redirecting to chat...' });
     }
   });
 }
@@ -480,36 +390,8 @@ export function useSendMessage() {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async ({
-      conversationId,
-      message
-    }: {
-      conversationId: string;
-      message: string;
-    }) => {
+    mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
       if (!user?.id) throw new Error('Not authenticated');
-
-      // Create optimistic message for immediate UI update
-      const optimisticMessage = {
-        id: `temp-${Date.now()}`,
-        conversation_id: conversationId,
-        sender_id: user.id,
-        message_text: message,
-        message_type: 'text',
-        created_at: new Date().toISOString(),
-        is_read: false,
-        sender: {
-          id: user.id,
-          full_name: user.user_metadata?.full_name || 'You',
-          avatar_url: user.user_metadata?.avatar_url
-        }
-      };
-
-      // Immediately add optimistic message to UI
-      queryClient.setQueryData(['conversation-messages', conversationId], (oldData: unknown[] | undefined) => {
-        if (!oldData) return [optimisticMessage];
-        return [...oldData, optimisticMessage];
-      });
 
       const { data, error } = await supabase
         .from('conversation_messages')
@@ -523,61 +405,13 @@ export function useSendMessage() {
         .select('*')
         .single();
 
-      if (error) {
-        // Add more context to the error for debugging
-        logger.error('Message insert error:', {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        throw error;
-      }
-
-      // Update conversation last_message_at
-      const { error: updateTimestampError } = await supabase
-        .from('conversations')
-        .update({ last_message_at: new Date().toISOString() })
-        .eq('id', conversationId);
-
-      if (updateTimestampError) {
-        logger.error('Error updating conversation timestamp:', updateTimestampError);
-      }
-
+      if (error) throw error;
+      await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
       return data;
     },
-    onSuccess: (data, variables) => {
-      // Replace optimistic message with real message
-      queryClient.setQueryData(['conversation-messages', variables.conversationId], (oldData: unknown[] | undefined) => {
-        if (!oldData) return [data];
-
-        return oldData.map((item: unknown) => {
-          const msg = item as { id: string; message_text: string };
-          return msg.id.toString().startsWith('temp-') && msg.message_text === data.message_text
-            ? data
-            : msg;
-        });
-      });
-
-      // Invalidate conversations to update last message
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
-    },
-    onError: (error: Error, variables) => {
-      // Remove optimistic message on error
-      queryClient.setQueryData(['conversation-messages', variables.conversationId], (oldData: unknown[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.filter((item: unknown) => {
-          const msg = item as { id: string };
-          return !msg.id.toString().startsWith('temp-');
-        });
-      });
-
-      toast({
-        title: 'Failed to Send Message',
-        description: error.message,
-        variant: 'destructive'
-      });
     }
   });
 }
@@ -589,12 +423,7 @@ export function useDeleteConversation() {
   return useMutation({
     mutationFn: async (conversationId: string) => {
       if (!user?.id) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId);
-
+      const { error } = await supabase.from('conversations').delete().eq('id', conversationId);
       if (error) throw error;
       return conversationId;
     },
@@ -603,18 +432,7 @@ export function useDeleteConversation() {
         if (!oldData) return [];
         return oldData.filter(c => c.id !== conversationId);
       });
-      toast({
-        title: '🗑️ Conversation deleted',
-        description: 'The chat has been removed from your dashboard.',
-      });
-    },
-    onError: (error: Error) => {
-      logger.error('Error deleting conversation:', error);
-      toast({
-        title: 'Failed to delete conversation',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast({ title: '🗑️ Conversation deleted', description: 'The chat has been removed.' });
     }
   });
 }
@@ -626,14 +444,7 @@ export function useUpdateConversationStatus() {
   return useMutation({
     mutationFn: async ({ conversationId, status }: { conversationId: string; status: string }) => {
       if (!user?.id) throw new Error('Not authenticated');
-
-      const { data, error } = await supabase
-        .from('conversations')
-        .update({ status })
-        .eq('id', conversationId)
-        .select()
-        .single();
-
+      const { data, error } = await supabase.from('conversations').update({ status }).eq('id', conversationId).select().single();
       if (error) throw error;
       return data;
     },
@@ -642,20 +453,7 @@ export function useUpdateConversationStatus() {
         if (!oldData) return [];
         return oldData.map(c => c.id === data.id ? { ...c, status: data.status } : c);
       });
-      
-      const title = data.status === 'archived' ? '📁 Chat archived' : '🔓 Chat unarchived';
-      toast({
-        title,
-        description: `The conversation has been ${data.status === 'archived' ? 'moved to archive' : 'moved back to inbox'}.`,
-      });
-    },
-    onError: (error: Error) => {
-      logger.error('Error updating conversation status:', error);
-      toast({
-        title: 'Action failed',
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast({ title: data.status === 'archived' ? '📁 Chat archived' : '🔓 Chat unarchived' });
     }
   });
 }
@@ -667,55 +465,30 @@ export function useMarkConversationAsRead() {
   return useMutation({
     mutationFn: async (conversationId: string) => {
       if (!user?.id) throw new Error('Not authenticated');
-
-      const { error } = await supabase
-        .from('conversation_messages')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('conversation_id', conversationId)
-        .neq('sender_id', user.id)
-        .eq('is_read', false);
-
+      const { error } = await supabase.from('conversation_messages').update({ is_read: true, read_at: new Date().toISOString() }).eq('conversation_id', conversationId).neq('sender_id', user.id).eq('is_read', false);
       if (error) throw error;
       return conversationId;
     },
     onSuccess: (conversationId) => {
-      // Update the local conversations count/state
       queryClient.setQueryData(['conversations', user?.id], (oldData: Conversation[] | undefined) => {
         if (!oldData) return [];
         return oldData.map(c => {
           if (c.id === conversationId && c.last_message) {
-            return {
-              ...c,
-              last_message: { ...c.last_message, is_read: true }
-            };
+            return { ...c, last_message: { ...c.last_message, is_read: true } };
           }
           return c;
         });
       });
-      // Also update global unread count
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
-    },
-    onError: (error: Error) => {
-      logger.error('Error marking conversation as read:', error);
     }
   });
 }
 
 export function useConversationStats() {
   const { user } = useAuth();
-
   return useQuery({
     queryKey: ['conversation-stats', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return { conversationsUsed: 0, conversationsLeft: 999, isPremium: true };
-
-      // Allow unlimited conversations for all users
-      return {
-        conversationsUsed: 0,
-        conversationsLeft: 999,
-        isPremium: true
-      };
-    },
+    queryFn: async () => ({ conversationsUsed: 0, conversationsLeft: 999, isPremium: true }),
     enabled: !!user?.id
   });
 }

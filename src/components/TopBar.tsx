@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { QuickFilterDropdown } from './QuickFilterDropdown';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
+
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
@@ -53,7 +55,7 @@ interface TopBarProps {
   onMessageActivationsClick?: () => void;
   className?: string;
   showFilters?: boolean;
-  userRole?: 'client' | 'owner';
+  userRole?: 'client' | 'owner' | 'admin';
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
@@ -82,17 +84,18 @@ function TopBarComponent({
   const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
+  const { t } = useTranslation();
 
   const glassBg = isDark
     ? 'var(--glass-bg)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(255, 255, 255, 0.98)';
   const glassBorder = isDark
     ? '1px solid var(--glass-border)'
-    : '1px solid rgba(0, 0, 0, 0.05)';
+    : '1px solid rgba(0, 0, 0, 0.10)';
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-    : '0 10px 30px -10px rgba(0,0,0,0.1)';
+    : '0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1)';
   // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -140,14 +143,14 @@ function TopBarComponent({
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');
       toast({
-        title: "Redirecting to PayPal",
-        description: `Processing ${tier} package (${formatPriceMXN(pkg.price)})`,
+        title: t('topbar.redirectingPaypal'),
+        description: t('topbar.processingPackage', { tier, price: formatPriceMXN(pkg.price) }),
       });
       setTokensOpen(false);
     } else {
       toast({
-        title: "Payment link unavailable",
-        description: "Please contact support to complete this purchase.",
+        title: t('topbar.paymentUnavailable'),
+        description: t('topbar.contactSupport'),
         variant: "destructive",
       });
     }
@@ -181,30 +184,25 @@ function TopBarComponent({
         />
         {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
         <div
-          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none z-0"
+          className="absolute inset-x-0 top-0 h-[200px] pointer-events-none -z-10"
           style={{
-            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.7)'} 0%, transparent 100%)`,
+            background: `linear-gradient(to bottom, ${isDark ? 'rgba(0,0,0,0.82)' : 'rgba(255,255,255,0.75)'} 0%, transparent 100%)`,
             opacity: 0.8
           }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 pr-2">
+        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
           {/* Left section: Avatar + Mode switcher + filters */}
           <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
             {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
             {showBack && (
               <motion.button
-                whileTap={{ scale: 0.92 }}
+                whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className={cn(
-                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full z-50 pointer-events-auto shadow-lg",
-                  isDark
-                    ? "bg-white/10 border border-white/20 text-white"
-                    : "bg-black/5 border border-black/10 text-foreground"
-                )}
+                className="flex-shrink-0 w-8 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
                 aria-label="Go back"
               >
-                <ArrowLeft className="w-4 h-4" strokeWidth={3} />
+                <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white/90" : "text-foreground/80")} strokeWidth={2.5} />
               </motion.button>
             )}
 
@@ -219,12 +217,18 @@ function TopBarComponent({
                   const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
                   navigate(profilePath);
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 border border-[var(--glass-border)] shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+                <Avatar className="h-11 w-11 rounded-xl overflow-hidden cursor-pointer" style={{ border: glassBorder, boxShadow: floatingShadow }}>
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
+                  <AvatarFallback className={cn(
+                    "text-xs font-black uppercase",
+                    isDark
+                      ? "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
+                      : "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
+                  )}>
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
@@ -235,7 +239,7 @@ function TopBarComponent({
 
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
-              <ThemeToggle />
+              
               <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
               <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
             </div>
@@ -249,11 +253,12 @@ function TopBarComponent({
 
           {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
           <div
-            className="flex-1 h-full cursor-pointer flex items-center justify-center"
+            className="flex-1 h-full cursor-pointer flex items-center justify-center touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
-              navigate('/dashboard');
+              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
             }}
             onClick={(e) => e.preventDefault()}
             aria-label="Go to dashboard"
@@ -280,21 +285,20 @@ function TopBarComponent({
                 <Button
                   variant="ghost"
                   className={cn(
-                    "relative h-7 sm:h-8 px-1 sm:px-1.5 rounded-md transition-all duration-300 ease-out",
+                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
                     "hover:scale-105 active:scale-95 group",
-                    "touch-manipulation",
-                    "-webkit-tap-highlight-color-transparent",
-                    "flex items-center gap-1",
-                    "liquid-glass-card refraction-edge glass-nano-texture"
+                    "touch-manipulation flex items-center gap-1 flex-shrink-0",
                   )}
+                  style={{
+                    backgroundColor: glassBg,
+                    border: glassBorder,
+                    boxShadow: floatingShadow,
+                  }}
                   onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={4} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-600")} />
-                  <span className="font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase hidden sm:inline">
-                    Tokens
-                  </span>
+                  <Zap strokeWidth={3} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-500")} />
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -305,15 +309,15 @@ function TopBarComponent({
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-foreground text-base">Token Packages</h3>
+                    <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
                     <span className="text-xs text-muted-foreground">
-                      {userRole === 'owner' ? 'Provider' : 'Explorer'}
+                      {userRole === 'owner' ? t('topbar.provider') : t('topbar.explorer')}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {userRole === 'owner'
-                      ? 'Connect with potential explorers'
-                      : 'Start conversations with providers'}
+                      ? t('topbar.connectExplorers')
+                      : t('topbar.startConversations')}
                   </p>
                 </div>
 
@@ -343,7 +347,7 @@ function TopBarComponent({
                         >
                           {isPopular && (
                             <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
-                              BEST VALUE
+                              {t('topbar.bestValue')}
                             </span>
                           )}
                           <div className="flex items-center gap-3">
@@ -356,7 +360,7 @@ function TopBarComponent({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-1.5">
                                 <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
-                                <span className="text-muted-foreground text-xs">{tokens} tokens</span>
+                                <span className="text-muted-foreground text-xs">{tokens} {t('topbar.tokens')}</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
                                 <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
@@ -377,7 +381,7 @@ function TopBarComponent({
                               }}
                             >
                               <FileText className="w-3.5 h-3.5 mr-1" />
-                              Buy
+                              {t('topbar.buy')}
                             </Button>
                           </div>
                         </motion.div>
@@ -390,7 +394,7 @@ function TopBarComponent({
                           <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
                         ))}
                       </div>
-                      <p className="text-muted-foreground text-xs">Loading packages...</p>
+                      <p className="text-muted-foreground text-xs">{t('topbar.loadingPackages')}</p>
                     </div>
                   )}
                 </div>
@@ -404,24 +408,30 @@ function TopBarComponent({
                       onMessageActivationsClick?.();
                     }}
                   >
-                    View all packages & details
+                    {t('topbar.viewAllPackages')}
                   </button>
                 </div>
               </PopoverContent>
             </Popover>
+
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Notifications Button */}
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "relative h-7 w-7 sm:h-8 sm:w-8 rounded-md transition-all duration-300 ease-out",
+                "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
                 "hover:scale-105 active:scale-95 group",
-                "group flex-shrink-0 flex items-center gap-1",
+                "flex-shrink-0 flex items-center gap-1",
                 "touch-manipulation",
-                "-webkit-tap-highlight-color-transparent",
-                "liquid-glass-card refraction-edge glass-nano-texture"
               )}
+              style={{
+                backgroundColor: glassBg,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
               onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
               onClick={(e) => e.preventDefault()}
               aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
@@ -449,11 +459,7 @@ function TopBarComponent({
                 >
                   {notificationCount > 99 ? '99+' : notificationCount}
                 </motion.span>
-              ) : (
-                <span className="hidden sm:inline font-black text-xs tracking-tighter text-foreground whitespace-nowrap uppercase">
-                  Alerts
-                </span>
-              )}
+              ) : null}
             </Button>
           </div>
         </div>

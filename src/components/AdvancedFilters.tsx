@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Bike, CircleDot, Briefcase, RotateCcw, Sparkles } from 'lucide-react';
+import { Home, Bike, Briefcase, RotateCcw, Sparkles } from 'lucide-react';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
 import { BicycleClientFilters } from '@/components/filters/BicycleClientFilters';
@@ -27,7 +28,7 @@ type CategoryType = 'property' | 'motorcycle' | 'bicycle' | 'services';
 
 const categoryBase: { id: CategoryType; name: string; icon: React.ElementType }[] = [
   { id: 'property', name: 'Property', icon: Home },
-  { id: 'motorcycle', name: 'Motos', icon: CircleDot },
+  { id: 'motorcycle', name: 'Motos', icon: MotorcycleIcon },
   { id: 'bicycle', name: 'Bikes', icon: Bike },
   { id: 'services', name: 'Workers', icon: Briefcase },
 ];
@@ -35,7 +36,7 @@ const categoryBase: { id: CategoryType; name: string; icon: React.ElementType }[
 export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, currentFilters }: AdvancedFiltersProps) {
   const safeCurrentFilters = currentFilters ?? {};
   const { theme } = useTheme();
-  const isDark = theme !== 'white-matte';
+  const isDark = theme === 'dark';
   const [activeCategory, setActiveCategory] = useState<CategoryType>('property');
   const [filterCounts, setFilterCounts] = useState<Record<CategoryType, number>>({
     property: 0,

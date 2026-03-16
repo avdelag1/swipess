@@ -41,8 +41,37 @@ export type ClientProfileLite = {
 // Type for database operations (excluding id)
 type ClientProfileUpdate = Omit<ClientProfileLite, 'id' | 'user_id'>;
 
+async function resolveAuthenticatedUserId() {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    logger.warn('Session lookup failed during profile save:', sessionError.message);
+  }
+
+  if (session?.user?.id) {
+    return session.user.id;
+  }
+
+  // First retry after short delay (handles race conditions during page transitions)
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const { data: { session: retrySession } } = await supabase.auth.getSession();
+  if (retrySession?.user?.id) {
+    return retrySession.user.id;
+  }
+
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    logger.warn('User lookup failed during profile save:', authError.message);
+  }
+
+  if (auth.user?.id) {
+    return auth.user.id;
+  }
+
+  throw new Error('Auth session missing. Please sign in again.');
+}
+
 async function fetchOwnProfile() {
-  // Use getSession for faster auth check (cached locally)
   const { data: { session } } = await supabase.auth.getSession();
   const uid = session?.user?.id;
   if (!uid) return null;
@@ -78,13 +107,7 @@ export function useSaveClientProfile() {
 
   return useMutation({
     mutationFn: async (updates: ClientProfileUpdate) => {
-      const { data: auth, error: authError } = await supabase.auth.getUser();
-      if (authError) {
-        logger.error('Error fetching authenticated user:', authError);
-        throw authError;
-      }
-      const uid = auth.user?.id;
-      if (!uid) throw new Error('Not authenticated');
+      const uid = await resolveAuthenticatedUserId();
 
       const { data: existing, error: existingError } = await supabase
         .from('client_profiles')
@@ -97,29 +120,37 @@ export function useSaveClientProfile() {
         throw existingError;
       }
 
+      // Normalize payload: strip undefined values to prevent PostgREST 400s
+      const cleanUpdates: Record<string, any> = {};
+      for (const [key, value] of Object.entries(updates)) {
+        if (value !== undefined) {
+          cleanUpdates[key] = value;
+        }
+      }
+
       let profileData: ClientProfileLite;
 
       if (existing?.id) {
         const { data, error } = await supabase
           .from('client_profiles')
-          .update(updates)
-          .eq('id', existing.id)
+          .update(cleanUpdates)
+          .eq('user_id', uid)
           .select()
           .single();
         if (error) {
-          logger.error('Error updating profile:', error);
-          throw error;
+          logger.error('Error updating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to update profile');
         }
         profileData = data as ClientProfileLite;
       } else {
         const { data, error } = await supabase
           .from('client_profiles')
-          .insert([{ ...updates, user_id: uid }])
+          .insert([{ ...cleanUpdates, user_id: uid }])
           .select()
           .single();
         if (error) {
-          logger.error('Error creating profile:', error);
-          throw error;
+          logger.error('Error creating profile:', { message: error.message, code: error.code, details: error.details, hint: error.hint });
+          throw new Error(error.message || 'Failed to create profile');
         }
         profileData = data as ClientProfileLite;
       }
@@ -131,9 +162,11 @@ export function useSaveClientProfile() {
 
       // Sync images
       if (updates.profile_images !== undefined) {
-        syncPayload.images = updates.profile_images;
+        syncPayload.images = updates.profile_images || [];
         if (updates.profile_images && updates.profile_images.length > 0) {
           syncPayload.avatar_url = updates.profile_images[0];
+        } else {
+          syncPayload.avatar_url = null;
         }
       }
 
@@ -197,17 +230,22 @@ export function useSaveClientProfile() {
       // Only update if we have real fields to sync (not just updated_at)
       const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
       if (realSyncKeys.length > 0) {
-        const { data: syncData, error: syncError } = await supabase
-          .from('profiles')
-          .update(syncPayload)
-          .eq('user_id', uid)
-          .select();
+        try {
+          const { data: syncData, error: syncError } = await supabase
+            .from('profiles')
+            .update(syncPayload)
+            .eq('user_id', uid)
+            .select();
 
-        if (syncError) {
-          logger.error('[PROFILE SYNC] Error:', syncError);
-        } else {
-          // Invalidate profiles_public cache immediately after sync
-          qc.invalidateQueries({ queryKey: ['profiles_public'] });
+          if (syncError) {
+            logger.error('[PROFILE SYNC] Error:', syncError);
+          } else {
+            // Invalidate profiles_public cache immediately after sync
+            qc.invalidateQueries({ queryKey: ['profiles_public'] });
+          }
+        } catch (syncErr) {
+          // Non-blocking: don't let sync failure prevent profile save
+          logger.error('[PROFILE SYNC] Exception:', syncErr);
         }
       }
 

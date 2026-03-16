@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Heart, Radio, Play, Pause, ChevronRight } from 'lucide-react';
+import { X, ThumbsUp, Radio, Play, Pause, ChevronRight } from 'lucide-react';
 import { RadioStation, CityLocation } from '@/types/radio';
 import { CityTheme } from '@/types/radio';
 import { getStationsByCity, cityThemes, radioStations } from '@/data/radioStations';
@@ -213,7 +213,7 @@ export function StationDrawer({
                         className="p-1.5 flex-shrink-0"
                         aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
                       >
-                        <Heart
+                        <ThumbsUp
                           className={`w-4 h-4 transition-colors ${isFav ? 'text-red-400 fill-red-400' : 'text-muted-foreground/30'
                             }`}
                         />

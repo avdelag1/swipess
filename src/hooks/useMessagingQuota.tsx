@@ -3,16 +3,19 @@ import { useUserSubscription } from './useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 
 type PlanLimits = {
   messages_per_month: number;
   unlimited_messages: boolean;
 };
 
-// ALL PLANS NOW HAVE UNLIMITED MESSAGING
+// Paid plans have unlimited messaging; free plan requires tokens
 const PLAN_LIMITS: Record<string, PlanLimits> = {
-  'free': { messages_per_month: 0, unlimited_messages: true },
+  'free': { messages_per_month: 0, unlimited_messages: false },
+  '1 Month Access': { messages_per_month: 0, unlimited_messages: true },
+  '6 Months Access': { messages_per_month: 0, unlimited_messages: true },
+  '1 Year Access': { messages_per_month: 0, unlimited_messages: true },
   'PREMIUM CLIENT': { messages_per_month: 0, unlimited_messages: true },
   'PREMIUM ++ CLIENT': { messages_per_month: 0, unlimited_messages: true },
   'UNLIMITED CLIENT': { messages_per_month: 0, unlimited_messages: true },
@@ -20,6 +23,14 @@ const PLAN_LIMITS: Record<string, PlanLimits> = {
   'PREMIUM ++ OWNER': { messages_per_month: 0, unlimited_messages: true },
   'PREMIUM MAX OWNER': { messages_per_month: 0, unlimited_messages: true },
   'UNLIMITED OWNER': { messages_per_month: 0, unlimited_messages: true },
+  // Legacy plan names
+  'Ultimate Seeker': { messages_per_month: 0, unlimited_messages: true },
+  'Multi-Matcher': { messages_per_month: 0, unlimited_messages: true },
+  'Basic Explorer': { messages_per_month: 0, unlimited_messages: true },
+  'Empire Builder': { messages_per_month: 0, unlimited_messages: true },
+  'Multi-Asset Manager': { messages_per_month: 0, unlimited_messages: true },
+  'Category Pro': { messages_per_month: 0, unlimited_messages: true },
+  'Starter Lister': { messages_per_month: 0, unlimited_messages: true },
 };
 
 export function useMessagingQuota() {
@@ -31,26 +42,26 @@ export function useMessagingQuota() {
   const { data: tokenData } = useQuery({
     queryKey: ['user-tokens', user?.id],
     queryFn: async () => {
-      if (!user?.id) return { amount: 0, token_type: null };
-      
+      if (!user?.id) return [];
+
       const { data, error } = await (supabase as any)
         .from('tokens')
-        .select('amount, token_type, source')
+        .select('remaining_activations, activation_type')
         .eq('user_id', user.id)
-        .maybeSingle();
-      
+        .gt('remaining_activations', 0);
+
       if (error) {
         logger.error('[useMessagingQuota] Error fetching tokens:', error);
-        return { amount: 0, token_type: null };
+        return [];
       }
-      
-      return data || { amount: 0, token_type: null };
+
+      return data || [];
     },
     enabled: !!user?.id,
   });
-  
-  const tokenBalance = tokenData?.amount || 0;
-  const tokenType = tokenData?.token_type || null;
+
+  const tokenBalance = (tokenData || []).reduce((sum: number, t: any) => sum + (t.remaining_activations || 0), 0);
+  const tokenType = (tokenData || []).length > 0 ? (tokenData as any[])[0]?.activation_type : null;
   
   // Check free messaging matches - query conversations directly
   const { data: freeMessagingCount = 0, isLoading: loadingMatches } = useQuery({
@@ -140,7 +151,9 @@ export function useMessagingQuota() {
   const isUnlimited = limits.unlimited_messages;
   const totalAllowed = limits.messages_per_month;
   const remainingConversations = isUnlimited ? 999999 : Math.max(0, totalAllowed - conversationsStarted);
-  const canStartNewConversation = isUnlimited || remainingConversations > 0;
+  // Users need an active subscription OR tokens to start conversations
+  const hasSubscription = planName !== 'free';
+  const canStartNewConversation = isUnlimited || (hasSubscription && remainingConversations > 0) || tokenBalance > 0;
   
   const decrementConversationCount = () => {
     queryClient.invalidateQueries({ queryKey: ['conversations-started-count', user?.id] });

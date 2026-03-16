@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { MessageCircle, Zap, Bike } from 'lucide-react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils/prodLogger';
 import { DEFAULT_DIRECT_MESSAGE } from '@/utils/directMessaging';
 
 // Custom motorcycle icon matching the one used elsewhere

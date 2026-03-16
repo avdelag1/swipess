@@ -19,6 +19,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
+import { getWorkScheduleLabel } from '@/constants/profileConstants';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -314,7 +315,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8,
-    holdDelay: 300,
+    holdDelay: 450, // Zoom needs clearly more time than swipe (movement-based) to avoid accidental activation
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
@@ -340,15 +341,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
       if (dx > 15 || dy > 15) {
-        magnifierPointerHandlers.onPointerMove(e);
+        // Meaningful movement: cancel magnifier completely, start drag
+        magnifierPointerHandlers.onPointerUp(e); // Force-cancel hold timer + any active zoom
         if (!dragStartedRef.current && storedPointerEventRef.current) {
           dragStartedRef.current = true;
           isDragging.current = true;
           triggerHaptic('light');
           dragControls.start(e.nativeEvent);
         }
-      } else {
-        magnifierPointerHandlers.onPointerMove(e);
       }
       return;
     }
@@ -452,17 +452,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     const width = rect.width;
 
     // Left third - previous image (only if multiple images)
-    if (clickX < width * 0.3 && imageCount > 1) {
+    if (clickX < width * 0.33 && imageCount > 1) {
       setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
       triggerHaptic('light');
     }
     // Right third - next image (only if multiple images)
-    else if (clickX > width * 0.7 && imageCount > 1) {
+    else if (clickX > width * 0.67 && imageCount > 1) {
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
     }
-    // Middle area - open insights
-    else if (onInsights) {
+    // Middle third - open insights
+    else if (onInsights && clickX >= width * 0.33 && clickX <= width * 0.67) {
       triggerHaptic('light');
       onInsights();
     }
@@ -641,6 +641,16 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           </div>
         </motion.div>
 
+        {/* Bottom gradient overlay for text readability against light images */}
+        <div
+          className="absolute left-0 right-0 bottom-0 z-15 pointer-events-none"
+          style={{
+            height: '55%',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.3) 40%, transparent 100%)',
+          }}
+          aria-hidden="true"
+        />
+
         {/* Content overlay - INSIDE motion.div so it moves with the card on swipe
              Dynamic bottom positioning: scales with viewport height */}
         <div
@@ -670,7 +680,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {currentImageIndex % 4 === 0 && (
             <>
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-white text-2xl font-bold drop-shadow-lg">
+                <h2 className="text-white text-2xl font-bold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
                   {profile.name || 'Anonymous'}
                 </h2>
                 {profile.age && (
@@ -705,7 +715,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
                 }}>
                   <Briefcase className="w-4 h-4 text-white" />
-                  <span className="text-base font-medium text-white">{profile.work_schedule}</span>
+                  <span className="text-base font-medium text-white">{getWorkScheduleLabel(profile.work_schedule)}</span>
                 </div>
               )}
             </>
@@ -729,7 +739,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08), 0 2px 8px rgba(0,0,0,0.25)',
                 }}>
                   <Briefcase className="w-4 h-4 text-white" />
-                  <span className="text-base font-medium text-white">{profile.work_schedule}</span>
+                  <span className="text-base font-medium text-white">{getWorkScheduleLabel(profile.work_schedule)}</span>
                 </div>
               )}
             </>
