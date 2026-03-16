@@ -304,7 +304,7 @@ function TopBarComponent({
                   <div className="flex items-center justify-between">
                     <h3 className="font-bold text-foreground text-base">{t('topbar.tokenPackages')}</h3>
                     <span className="text-xs text-muted-foreground">
-                      {userRole === 'owner' ? 'Provider' : 'Explorer'}
+                      {userRole === 'owner' ? t('topbar.provider') : t('topbar.explorer')}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
