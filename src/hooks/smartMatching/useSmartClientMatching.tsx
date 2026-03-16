@@ -129,7 +129,8 @@ export function useSmartClientMatching(
                 let profileQuery = supabase
                     .from('profiles')
                     .select(CLIENT_SWIPE_CARD_FIELDS)
-                    .neq('user_id', userId);
+                    .neq('user_id', userId)
+                    .neq('role', 'admin');
 
                 if (swipedProfileIds.size > 0) {
                     const idsToExclude = Array.from(swipedProfileIds);

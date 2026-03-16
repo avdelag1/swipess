@@ -71,7 +71,8 @@ const OwnerInterestedClients = () => {
       const { data: profiles, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .in("user_id", clientIds);
+        .in("user_id", clientIds)
+        .neq("role", "admin");
 
       if (profilesError) throw profilesError;
 
