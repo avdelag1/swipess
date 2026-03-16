@@ -31,7 +31,6 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
             onClick={handleToggle}
             className={cn(
                 'relative flex items-center justify-center rounded-xl',
-                'liquid-glass-card refraction-edge glass-nano-texture',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
                 'touch-manipulation',
