@@ -10,9 +10,7 @@ import { useOwnerProfile } from "@/hooks/useOwnerProfile";
 import {
   LogOut, Building2, User, Camera, Flame, ThumbsUp, Settings, Radio
 } from "lucide-react";
-import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
 import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
-import { ExploreFeatureLinks } from "@/components/ExploreFeatureLinks";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -176,11 +174,6 @@ const OwnerProfileNew = () => {
               </div>
             </div>
           </motion.button>
-        </motion.div>
-
-        {/* Discover Categories */}
-        <motion.div variants={childVariant}>
-          <MyHubQuickFilters />
         </motion.div>
 
         {/* Recent Activity */}

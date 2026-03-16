@@ -89,13 +89,13 @@ function TopBarComponent({
 
   const glassBg = isDark
     ? 'var(--glass-bg)'
-    : 'rgba(255, 255, 255, 0.95)';
+    : 'rgba(255, 255, 255, 0.98)';
   const glassBorder = isDark
     ? '1px solid var(--glass-border)'
-    : '1px solid rgba(0, 0, 0, 0.05)';
+    : '1px solid rgba(0, 0, 0, 0.10)';
   const floatingShadow = isDark
     ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-    : '0 10px 30px -10px rgba(0,0,0,0.1)';
+    : '0 2px 8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,1)';
   // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -217,12 +217,18 @@ function TopBarComponent({
                   const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
                   navigate(profilePath);
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
                 <Avatar className="h-11 w-11 rounded-xl overflow-hidden cursor-pointer" style={{ border: glassBorder, boxShadow: floatingShadow }}>
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
+                  <AvatarFallback className={cn(
+                    "text-xs font-black uppercase",
+                    isDark
+                      ? "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
+                      : "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
+                  )}>
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
                   </AvatarFallback>
                 </Avatar>
@@ -247,7 +253,8 @@ function TopBarComponent({
 
           {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
           <div
-            className="flex-1 h-full cursor-pointer flex items-center justify-center"
+            className="flex-1 h-full cursor-pointer flex items-center justify-center touch-manipulation"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
             onPointerDown={(e) => {
               e.preventDefault();
               haptics.tap();
