@@ -287,7 +287,8 @@ const App = () => {
                                         <Route path="/messages" element={<MessagingDashboard />} />
                                         <Route path="/notifications" element={<NotificationsPage />} />
                                         <Route path="/subscription-packages" element={<SubscriptionPackagesPage />} />
-                                        <Route path="/radio" element={<RetroRadioStation />} />
+                                        <Route path="/radio" element={<DJTurntableRadio />} />
+                                        <Route path="/radio/cassette" element={<RetroRadioStation />} />
                                         <Route path="/radio/playlists" element={<RadioPlaylists />} />
                                         <Route path="/radio/favorites" element={<RadioFavorites />} />
 
