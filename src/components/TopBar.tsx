@@ -85,6 +85,7 @@ function TopBarComponent({
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const { t } = useTranslation();
 
   const glassBg = isDark
     ? 'var(--glass-bg)'
