@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from './useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_URL } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 
 interface DeleteAccountResult {
@@ -42,7 +42,7 @@ export function useDeleteAccount() {
 
       // Call edge function with user's auth token
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-user`,
+        `${SUPABASE_URL}/functions/v1/delete-user`,
         {
           method: 'POST',
           headers: {
