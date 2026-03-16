@@ -1,56 +1,55 @@
 
 
-## Plan: Fix Owner Nav, Clean Owner Profile, Restore AI Button
+## Plan: Smart Scroll Nav with Edge Fade Indicators
 
-### Issues Found
-
-1. **Owner bottom nav** — exists with 5 items (Dashboard, Profile, Liked, Messages, Filters) and should be working. The nav bar may be hiding due to scroll direction detection. Need to verify it renders on owner routes.
-
-2. **Owner profile page** (`OwnerProfileNew.tsx`) — contains client-side sections that don't belong:
-   - `MyHubQuickFilters` (line 183) — "Discovery Categories" — **remove**
-   - `MyHubActivityFeed` (line 191) — "Recent Activity" — **remove**
-   - `ExploreFeatureLinks` is not imported but could be confused with Quick Filters
-
-3. **AI Search button** — was removed from both TopBar and BottomNavigation. Currently the TopBar has an empty comment where it used to be (line 271). Need to restore it.
-
-4. **Owner nav icons** — should match client icons more closely, with "Listings" as the only unique button.
-
----
+### Problem
+1. Tapping any icon immediately navigates — no way to drag/scroll the bar by touching on icons
+2. No visual hint that more buttons exist off-screen (left or right)
+3. Client nav is not scrollable (only owner is)
 
 ### Changes
 
-#### 1. `src/components/BottomNavigation.tsx` — Match client icons, add Listings
+#### `src/components/BottomNavigation.tsx`
 
-Update owner nav to mirror client nav but swap Filters for Listings:
+**1. Make both navs scrollable**
+- Change `isScrollable` logic: always `true` (both client 5-item and owner 7-item bars scroll)
+- Or better: enable scrollable for both by removing the `navItems.length > 5` check and always applying scroll styles + `flexShrink: 0` with `minWidth: 64`
 
-| Position | Client | Owner (new) |
-|----------|--------|-------------|
-| 1 | Compass → Explore | Compass → Explore |
-| 2 | User → Profile | User → Profile |
-| 3 | Flame → Likes | Flame → Likes |
-| 4 | MessageCircle → Messages | MessageCircle → Messages |
-| 5 | Search → Filters | Building2 → Listings |
+**2. Smart touch: distinguish tap vs drag**
+- Current: `onPointerDown` fires navigation immediately — this prevents scrolling by dragging over icons
+- Fix: Replace `onPointerDown` with a tap detection system:
+  - On `onPointerDown`: record start position + timestamp, do NOT navigate yet
+  - On `onPointerUp`: if elapsed time < 200ms AND pointer moved < 8px → treat as tap → navigate
+  - If pointer moves > 8px horizontally → it's a scroll drag → do nothing, let native scroll handle it
+- This lets users drag across icons to scroll, while quick taps still navigate
 
-Owner nav uses `Compass` (same as client) for dashboard, and `Building2` for Listings pointing to `/owner/properties`.
+**3. Edge fade indicators**
+- Add two absolutely-positioned gradient overlays inside the glass bar container (left and right edges)
+- Track scroll position with `onScroll` on the scroll container
+- `canScrollLeft`: `scrollLeft > 4` → show left fade
+- `canScrollRight`: `scrollLeft + clientWidth < scrollWidth - 4` → show right fade
+- Left fade: `linear-gradient(to right, barBg 0%, transparent 100%)` — ~20px wide
+- Right fade: `linear-gradient(to left, barBg 0%, transparent 100%)` — ~20px wide
+- Both use `pointer-events: none` so they don't block touches
+- Smooth opacity transition (200ms) when appearing/disappearing
 
-#### 2. `src/components/TopBar.tsx` — Restore AI Search button
+### Implementation Detail
 
-Add back the AI search button (Sparkles icon) in the right section of the TopBar, before the Zap button. Same glass styling as other buttons. Calls `onAISearchClick` prop.
+**Tap vs scroll detection** (replaces current `onPointerDown` handler):
+```
+// Track in ref: { x, y, time, item }
+onPointerDown → store position + time + item
+onPointerMove → if moved > 8px, mark as dragging
+onPointerUp → if !dragging && time < 200ms → navigate(item)
+```
 
-#### 3. `src/pages/OwnerProfileNew.tsx` — Remove client-only sections
+This keeps the instant-feel for taps while allowing drag-to-scroll over icons.
 
-Remove these sections (keep everything else):
-- **Line 181-184**: `MyHubQuickFilters` ("Discover Categories") — delete
-- **Line 186-192**: `MyHubActivityFeed` ("Recent Activity") — delete
-- Remove unused imports: `MyHubQuickFilters`, `MyHubActivityFeed`
+**Edge fades** — two `<div>` overlays positioned `absolute left-0` and `absolute right-0` inside the glass bar, z-index above items, `pointer-events: none`, opacity driven by scroll state.
 
-**Sections that stay**: Profile header, stats grid, edit profile button, Your Likes / Who Liked You grid, Share & Earn, Language, Radio, Settings, Sign Out.
-
-### Files (3)
+### Files (1)
 
 | File | Change |
 |------|--------|
-| `src/components/BottomNavigation.tsx` | Update owner nav: Compass icon for dashboard, Building2 for Listings, match client order |
-| `src/components/TopBar.tsx` | Restore AI Search button (Sparkles icon) in right section |
-| `src/pages/OwnerProfileNew.tsx` | Remove MyHubQuickFilters and MyHubActivityFeed sections + imports |
+| `src/components/BottomNavigation.tsx` | Enable scroll for both roles, add tap-vs-drag detection, add left/right edge fade indicators |
 
