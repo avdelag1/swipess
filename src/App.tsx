@@ -92,6 +92,9 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
+// Mini-game
+const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
+
 // Shared routes - lazy loaded
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
@@ -302,6 +305,9 @@ const App = () => {
                                         <Route path="/explore/roommates" element={<RoommateMatching />} />
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
+
+                                        {/* Mini-game */}
+                                        <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} />
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
