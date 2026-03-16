@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 interface PropertyFormData {
   title?: string;
+  description?: string;
   price?: number;
   country?: string;
   state?: string;
@@ -31,6 +32,7 @@ interface PropertyFormData {
 
 const propertyFormSchema = z.object({
   title: z.string().optional(),
+  description: z.string().optional(),
   price: z.number().optional().nullable().transform(v => v ?? undefined),
   country: z.string().optional(),
   state: z.string().optional(),
@@ -127,6 +129,10 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
         <div>
           <FormLabel>Title</FormLabel>
           <Input {...register('title')} placeholder="Beautiful 2BR Apartment" />
+        </div>
+        <div>
+          <FormLabel>Description</FormLabel>
+          <Textarea {...register('description')} placeholder="Describe the property, its location, and what makes it special..." rows={4} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
