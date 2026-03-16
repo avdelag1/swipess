@@ -324,7 +324,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
 
                   {/* Client Type Section (Owner) */}
                   <div className="space-y-2">
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">looking for</span>
+                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('filters.lookingFor')}</span>
                     <div className="grid grid-cols-2 gap-2">
                       {clientTypeOptions.map((option) => {
                         const isActive = filters.clientType === option.id;
