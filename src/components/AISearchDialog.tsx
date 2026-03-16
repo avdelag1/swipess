@@ -181,11 +181,11 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         <div className={cn("relative px-5 py-4 border-b flex items-center justify-between", isDark ? "border-white/10" : "border-gray-200")}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-10 h-10 rounded-[1rem] flex items-center justify-center relative overflow-hidden group",
-              isDark ? "bg-transparent" : "bg-transparent"
+              "w-12 h-12 rounded-2xl flex items-center justify-center relative overflow-hidden group border",
+              isDark ? "bg-zinc-900 border-white/10" : "bg-white border-gray-100 shadow-sm"
             )}>
-              <SwipessLogo size="xs" className="relative z-10" />
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <SwipessLogo size="sm" className="relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             <div>
@@ -254,14 +254,14 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                   </div>
 
                   <div className={cn(
-                    "max-w-[85%] px-4 py-3 text-[13px] font-bold leading-relaxed whitespace-pre-line",
+                    "max-w-[85%] px-4 py-3 text-[13px] font-bold leading-relaxed whitespace-pre-line shadow-lg",
                     message.role === 'user'
-                      ? "bg-primary text-white rounded-[1.25rem] rounded-tr-sm shadow-lg shadow-primary/20"
+                      ? "bg-gradient-to-br from-orange-500 to-pink-500 text-white rounded-[1.25rem] rounded-tr-sm shadow-orange-500/20"
                       : cn(
                         "rounded-[1.25rem] rounded-tl-sm border",
                         isDark 
-                          ? "bg-zinc-900/50 border-white/10 text-foreground" 
-                          : "bg-gray-50 border-gray-100 text-gray-800 shadow-sm"
+                          ? "bg-zinc-900/80 border-white/10 text-foreground" 
+                          : "bg-white border-gray-100 text-gray-800 shadow-sm"
                       )
                   )}>
                     {message.content}
@@ -290,9 +290,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
               )}>
                 <SwipessLogo size="xs" className="animate-pulse" />
               </div>
-              <div className="bg-muted px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-muted-foreground flex items-center gap-2">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                Thinking...
+              <div className="bg-gradient-to-r from-orange-500/10 to-pink-500/10 border border-orange-500/20 px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-orange-500 flex items-center gap-2 shadow-sm">
+                <Loader2 className="w-3 h-3 animate-spin text-orange-500" />
+                Assistant is thinking...
               </div>
             </motion.div>
           )}

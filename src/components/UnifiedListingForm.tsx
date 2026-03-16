@@ -271,8 +271,30 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             .select()
             .single();
 
-          if (error) throw error;
-          listingResult = data;
+          if (error) {
+            const errorMsg = error.message?.toLowerCase() || '';
+            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+            
+            if (isSchemaError) {
+              const columnMatch = error.message?.match(/column ['"]?([^'" ]+)['"]?/i);
+              const missingColumn = columnMatch ? columnMatch[1] : null;
+              
+              if (missingColumn && listingData[missingColumn] !== undefined) {
+                console.warn(`Removing problematic column "${missingColumn}" from update and retrying...`);
+                const { [missingColumn]: _, ...safeData } = listingData;
+                const { data: fallbackData, error: fallbackError } = await supabase
+                  .from('listings').update(safeData as any).eq('id', editingId).select().single();
+                if (fallbackError) throw fallbackError;
+                listingResult = fallbackData;
+              } else {
+                throw error;
+              }
+            } else {
+              throw error;
+            }
+          } else {
+            listingResult = data;
+          }
         } else {
           // Insert new listing
           const { data, error } = await supabase
@@ -282,18 +304,58 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             .single();
 
           if (error) {
-            // SELF-HEALING: If 'location' column is missing in schema cache, retry without it
-            if (error.message?.includes('location') || error.message?.includes('schema cache')) {
-              console.warn('PostgREST schema cache error detected. Retrying without "location" column...');
-              const { location, ...safeData } = listingData;
-              const { data: fallbackData, error: fallbackError } = await supabase
-                .from('listings')
-                .insert(safeData as any)
-                .select()
-                .single();
+            // DYNAMIC SELF-HEALING: Detect column names missing from schema cache and retry without them
+            const errorMsg = error.message?.toLowerCase() || '';
+            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+            
+            if (isSchemaError) {
+              console.warn('PostgREST schema cache error detected. Attempting smart retry...');
+              
+              // Extract the column name from the error message (e.g., "Could not find the 'user_id' column")
+              const columnMatch = error.message?.match(/column ['"]?([^'" ]+)['"]?/i);
+              const missingColumn = columnMatch ? columnMatch[1] : null;
+              
+              if (missingColumn && listingData[missingColumn] !== undefined) {
+                console.warn(`Removing problematic column "${missingColumn}" and retrying...`);
+                const { [missingColumn]: _, ...safeData } = listingData;
+                
+                const { data: fallbackData, error: fallbackError } = await supabase
+                  .from('listings')
+                  .insert(safeData as any)
+                  .select()
+                  .single();
 
-              if (fallbackError) throw fallbackError;
-              listingResult = fallbackData;
+                if (fallbackError) {
+                  // If it fails again with another column, try one more time stripping both (common for location + user_id)
+                  const secondColumnMatch = fallbackError.message?.match(/column ['"]?([^'" ]+)['"]?/i);
+                  const secondMissingColumn = secondColumnMatch ? secondColumnMatch[1] : null;
+                  
+                  if (secondMissingColumn && safeData[secondMissingColumn] !== undefined) {
+                    console.warn(`Removing second problematic column "${secondMissingColumn}" and retrying final time...`);
+                    const { [secondMissingColumn]: __, ...ultraSafeData } = safeData;
+                    const { data: finalData, error: finalError } = await supabase
+                      .from('listings')
+                      .insert(ultraSafeData as any)
+                      .select()
+                      .single();
+                      
+                    if (finalError) throw finalError;
+                    listingResult = finalData;
+                  } else {
+                    throw fallbackError;
+                  }
+                } else {
+                  listingResult = fallbackData;
+                }
+              } else if (errorMsg.includes('location')) {
+                // Legacy fallback for location
+                const { location, ...safeData } = listingData;
+                const { data: fallbackData, error: fallbackError } = await supabase.from('listings').insert(safeData as any).select().single();
+                if (fallbackError) throw fallbackError;
+                listingResult = fallbackData;
+              } else {
+                throw error;
+              }
             } else {
               throw error;
             }
