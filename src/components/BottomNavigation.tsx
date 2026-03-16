@@ -14,7 +14,7 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -111,28 +111,78 @@ export function BottomNavigation({
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
-  const isScrollable = navItems.length > 5;
+  const isScrollable = true; // Always scrollable for both roles
 
   // Auto-scroll active item into view
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!isScrollable || !scrollRef.current) return;
+    if (!scrollRef.current) return;
     const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
     if (activeBtn) {
       activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     }
-  }, [location.pathname, isScrollable]);
+  }, [location.pathname]);
 
-  const handleNavPress = useCallback(
-    (event: React.PointerEvent, item: NavItem) => {
-      event.stopPropagation();
-      event.preventDefault();
-      haptics.select();
-      if (item.onClick) {
-        item.onClick();
-      } else if (item.path) {
-        navigate(item.path!);
+  // ── Edge fade indicators ──────────────────────────────────────────────
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollFades = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollFades();
+    // Re-check on resize
+    window.addEventListener('resize', updateScrollFades);
+    return () => window.removeEventListener('resize', updateScrollFades);
+  }, [updateScrollFades, navItems.length]);
+
+  // ── Tap vs drag detection ─────────────────────────────────────────────
+  const touchState = useRef<{
+    x: number; y: number; time: number; item: NavItem; isDragging: boolean;
+  } | null>(null);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, item: NavItem) => {
+      e.stopPropagation();
+      touchState.current = {
+        x: e.clientX, y: e.clientY, time: Date.now(), item, isDragging: false,
+      };
+      if (item.path) prefetchRoute(item.path);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!touchState.current) return;
+    const dx = Math.abs(e.clientX - touchState.current.x);
+    if (dx > 8) {
+      touchState.current.isDragging = true;
+    }
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!touchState.current) return;
+      const { item, isDragging, time } = touchState.current;
+      const elapsed = Date.now() - time;
+      const dx = Math.abs(e.clientX - touchState.current.x);
+
+      // Quick tap with minimal movement → navigate
+      if (!isDragging && elapsed < 300 && dx < 8) {
+        haptics.select();
+        if (item.onClick) {
+          item.onClick();
+        } else if (item.path) {
+          navigate(item.path);
+        }
       }
+
+      touchState.current = null;
     },
     [navigate],
   );
@@ -212,18 +262,17 @@ export function BottomNavigation({
         <div
           ref={scrollRef}
           data-no-swipe-nav
+          onScroll={updateScrollFades}
+          onPointerMove={handlePointerMove}
           className={cn(
             'relative flex items-center w-full px-1 py-2.5 nav-scroll-hide',
-            !isScrollable && 'justify-between',
           )}
           style={{
             zIndex: 2,
             transform: 'translateZ(0)',
-            ...(isScrollable ? {
-              overflowX: 'auto',
-              scrollbarWidth: 'none' as const,
-              WebkitOverflowScrolling: 'touch',
-            } : {}),
+            overflowX: 'auto',
+            scrollbarWidth: 'none' as const,
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           {navItems.map((item) => {
@@ -234,10 +283,8 @@ export function BottomNavigation({
               <motion.button
                 key={item.id}
                 id={item.id === 'ai-search' ? 'ai-search-button' : undefined}
-                onPointerDown={(e) => {
-                  handleNavPress(e, item);
-                  if (item.path) prefetchRoute(item.path);
-                }}
+                onPointerDown={(e) => handlePointerDown(e, item)}
+                onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
                 onClick={(e) => e.preventDefault()}
@@ -253,13 +300,13 @@ export function BottomNavigation({
                     : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
-                  minWidth: isScrollable ? 64 : (isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET),
+                  minWidth: 64,
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   padding: isNarrow ? '4px 2px' : '6px 4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
-                  ...(isScrollable ? { flexShrink: 0 } : {}),
+                  flexShrink: 0,
                 }}
               >
 
@@ -317,6 +364,30 @@ export function BottomNavigation({
             );
           })}
         </div>
+
+        {/* ── Edge fade indicators ──────────────────────────────────────── */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 left-0 bottom-0 transition-opacity duration-200"
+          style={{
+            width: 24,
+            zIndex: 10,
+            borderRadius: 'inherit',
+            opacity: canScrollLeft ? 1 : 0,
+            background: `linear-gradient(to right, ${isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-0 right-0 bottom-0 transition-opacity duration-200"
+          style={{
+            width: 24,
+            zIndex: 10,
+            borderRadius: 'inherit',
+            opacity: canScrollRight ? 1 : 0,
+            background: `linear-gradient(to left, ${isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)'} 0%, transparent 100%)`,
+          }}
+        />
       </div>
 
       {/* SVG gradient defs for active icon */}
