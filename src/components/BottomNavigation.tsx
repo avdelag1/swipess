@@ -106,7 +106,7 @@ export function BottomNavigation({
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
+    { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
@@ -217,10 +217,10 @@ export function BottomNavigation({
 
   // ── Nav bar glass surface ────────────────────────────────────────────────
   // Heavy blur shows the swipe card and content behind the navigation bar.
-  const barBg = isLight ? 'rgba(255,255,255,0.72)' : 'rgba(12,12,14,0.68)';
+  const barBg = isLight ? '#ffffff' : 'rgba(12,12,14,0.68)';
   const barBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.10)';
   const barShadow = isLight
-    ? 'inset 0 1px 0 rgba(255,255,255,0.92), 0 -2px 12px rgba(0,0,0,0.06)'
+    ? '0 -2px 12px rgba(0,0,0,0.06)'
     : 'inset 0 1px 0 rgba(255,255,255,0.12), 0 -4px 20px rgba(0,0,0,0.35)';
 
 
@@ -233,12 +233,12 @@ export function BottomNavigation({
         className="pointer-events-auto w-full max-w-md mx-auto"
         style={{
           // LAYER 1: Solid glass base (no blur - massive GPU savings)
-          backgroundColor: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(12,12,14,0.92)',
+          backgroundColor: isLight ? '#ffffff' : 'rgba(12,12,14,0.92)',
           // LAYER 2: Top rim catch-light (bright edge = physical glass rim)
-          borderTop: `1px solid ${isLight ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.14)'}`,
+          borderTop: `1px solid ${isLight ? '#e5e7eb' : 'rgba(255,255,255,0.14)'}`,
           borderLeft: `1px solid ${barBorder}`,
           borderRight: `1px solid ${barBorder}`,
-          borderBottom: `1px solid ${isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.07)'}`,
+          borderBottom: `1px solid ${isLight ? '#e5e7eb' : 'rgba(255,255,255,0.07)'}`,
           borderRadius: '22px',
           boxShadow: barShadow,
           // GPU acceleration
@@ -247,6 +247,7 @@ export function BottomNavigation({
           WebkitBackfaceVisibility: 'hidden',
           position: 'relative',
           overflow: 'hidden',
+          zIndex: 1000,
         }}
       >
         {/* LAYER 3: Animated liquid highlight — the bar "shines" like glass */}
@@ -255,7 +256,7 @@ export function BottomNavigation({
           className="liquid-glass-highlight--animated pointer-events-none absolute inset-0"
           style={{
             borderRadius: 'inherit',
-            background: `
+            background: isLight ? 'transparent' : `
               radial-gradient(ellipse 160% 50% at 15% 0%,
                 rgba(255,255,255,${isLight ? 0.55 : 0.14}) 0%, transparent 60%),
               radial-gradient(ellipse 100% 60% at 85% 100%,

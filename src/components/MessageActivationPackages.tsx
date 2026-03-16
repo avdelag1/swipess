@@ -391,7 +391,7 @@ export function MessageActivationPackages({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className={cn("absolute inset-0 backdrop-blur-xl", isDark ? "bg-black/90" : "bg-white/80")}
+        className={cn("absolute inset-0 backdrop-blur-xl", isDark ? "bg-black/90" : "bg-white/95")}
         onClick={onClose}
       />
       <motion.div

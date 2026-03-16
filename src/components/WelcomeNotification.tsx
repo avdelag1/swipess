@@ -31,9 +31,8 @@ export function WelcomeNotification({ isOpen, onClose }: WelcomeNotificationProp
             className={cn(
               "pointer-events-auto w-full max-w-sm rounded-2xl overflow-hidden",
               isDark
-                ? "bg-card/95 border border-border/15 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-                : "bg-card/98 border border-border/20 shadow-[0_4px_24px_rgba(0,0,0,0.1)]",
-              "backdrop-blur-xl"
+                ? "bg-card/95 border border-border/15 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl"
+                : "bg-white border border-border/20 shadow-[0_4px_12px_rgba(0,0,0,0.05)]",
             )}
           >
             <div className="px-4 py-3.5 flex items-center gap-3">
