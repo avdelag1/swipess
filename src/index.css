@@ -262,6 +262,11 @@ body {
   pointer-events: none;
 }
 
+/* Hide scrollbar for horizontally scrollable nav */
+.nav-scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
 
 
 /* Utility Classes for Safe Area Padding */
