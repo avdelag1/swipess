@@ -5,7 +5,7 @@ import {
 } from 'framer-motion';
 import {
   Shield, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X, Gamepad2
+  ArrowLeft, Loader, Check, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,18 +125,6 @@ const LandingView = memo(({
         {effectLabel}
       </motion.button>
 
-      {/* Game button */}
-      <motion.button
-        onClick={() => navigate('/game/trumps-bad-day')}
-        whileTap={{ scale: 0.9 }}
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1, transition: { delay: 0.6 } }}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 text-white text-xs font-black uppercase tracking-wider shadow-lg border border-white/10 active:opacity-80 transition-opacity"
-        aria-label="Play mini game"
-      >
-        <Gamepad2 className="w-4 h-4" />
-        Play
-      </motion.button>
     </motion.div>
   );
 });
