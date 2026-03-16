@@ -143,8 +143,8 @@ function TopBarComponent({
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');
       toast({
-        title: "Redirecting to PayPal",
-        description: `Processing ${tier} package (${formatPriceMXN(pkg.price)})`,
+        title: t('topbar.redirectingPaypal'),
+        description: t('topbar.processingPackage', { tier, price: formatPriceMXN(pkg.price) }),
       });
       setTokensOpen(false);
     } else {
