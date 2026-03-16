@@ -102,7 +102,9 @@ const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
 const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 
 // New feature pages - lazy loaded
-const NeighborhoodMap = lazy(() => import("./pages/NeighborhoodMap"));
+const EventosFeed = lazy(() => import("./pages/EventosFeed"));
+const EventoDetail = lazy(() => import("./pages/EventoDetail"));
+const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
 const LocalIntel = lazy(() => import("./pages/LocalIntel"));
