@@ -93,9 +93,10 @@ export function BottomNavigation({
   // Client nav items
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
-    { id: 'likes', icon: Heart, label: t('nav.liked'), path: '/client/liked-properties' },
+    { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
