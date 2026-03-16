@@ -309,8 +309,8 @@ function TopBarComponent({
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {userRole === 'owner'
-                      ? 'Connect with potential explorers'
-                      : 'Start conversations with providers'}
+                      ? t('topbar.connectExplorers')
+                      : t('topbar.startConversations')}
                   </p>
                 </div>
 
