@@ -201,14 +201,14 @@ function TopBarComponent({
                   const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
                   navigate(profilePath);
                 }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation"
+                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer touch-manipulation p-0"
                 style={{ WebkitTapHighlightColor: 'transparent' }}
                 aria-label="Go to profile"
               >
-                <Avatar className="h-11 w-11 rounded-full overflow-hidden cursor-pointer border-none shadow-sm">
-                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
+                <Avatar className="h-12 w-12 rounded-full overflow-hidden cursor-pointer border-none ring-0 shadow-none">
+                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
                   <AvatarFallback className={cn(
-                    "text-xs font-black uppercase rounded-full",
+                    "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
                     isDark
                       ? "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
                       : "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"

@@ -6,7 +6,8 @@
     "profile": "Perfil",
     "settings": "Ajustes",
     "liked": "Favoritos",
-    "listings": "Anuncios"
+    "listings": "Anuncios",
+    "roommates": "Roommates"
   },
   "actions": {
     "save": "Guardar",
@@ -183,10 +184,13 @@
     "error": "Algo salió mal",
     "noResults": "Sin resultados",
     "all": "Todo",
-    "version": "Versión"
+    "version": "Versión",
+    "reset": "Reiniciar"
   },
   "eventos": {
     "title": "Eventos & Experiencias",
+    "ticketInfo": "Info de Entradas",
+    "today": "Hoy",
     "subtitle": "Descubre lo mejor en Quintana Roo",
     "searchPlaceholder": "Buscar eventos, ubicaciones...",
     "noEvents": "Sin eventos aún",
@@ -215,5 +219,21 @@
     "sortBy": "Ordenar por",
     "price": "Precio",
     "apply": "Aplicar"
+  },
+  "roommates": {
+    "findYour": "Encuentra tu compañero ideal en Tulum",
+    "noRoommatesFound": "No se encontraron compañeros que coincidan con tus filtros.",
+    "noRoommatesDesc": "¡Intenta ajustar tus filtros o vuelve más tarde!",
+    "loadingRoommates": "Buscando nómadas...",
+    "applyFilters": "Aplicar Filtros",
+    "findYourTribe": "Encuentra tu Tribu",
+    "swipeRight": "Desliza a la derecha para conectar",
+    "swipeLeft": "Desliza a la izquierda para saltar",
+    "itsAMatch": "¡Es un Match!",
+    "messageRoommate": "Mensajea a tu nuevo compañero ahora",
+    "tulumVibesOnly": "Solo Tulum Vibes",
+    "noCandidatesLeft": "No quedan más candidatos. Intenta ajustar tus parámetros.",
+    "genderPreference": "PREFERENCIA DE GÉNERO",
+    "workVibe": "VIBRA LABORAL"
   }
 }
