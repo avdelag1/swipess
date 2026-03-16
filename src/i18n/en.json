@@ -280,6 +280,8 @@
     "noCandidatesLeft": "No more candidates left. Try adjusting your parameters.",
     "genderPreference": "GENDER PREFERENCE",
     "workVibe": "WORK VIBE",
-    "applyFilters": "Apply Filters"
+    "applyFilters": "Apply Filters",
+    "visibleToOthers": "Visible",
+    "hiddenFromOthers": "Hidden"
   }
 }

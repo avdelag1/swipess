@@ -1,9 +1,9 @@
-import { useState, useCallback, useRef, memo, forwardRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ChevronLeft, Users, SlidersHorizontal, 
-  RotateCcw, ThumbsDown, Flame, Share2, 
-  MessageCircle, Sparkles, X, Heart
+import {
+  ChevronLeft, Users, SlidersHorizontal,
+  RotateCcw, ThumbsDown, Flame, Share2,
+  MessageCircle, Sparkles, X, Eye, EyeOff
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -136,6 +136,7 @@ export default function RoommateMatching() {
   const [canUndo, setCanUndo] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showInsights, setShowInsights] = useState(false);
+  const [roommateVisible, setRoommateVisible] = useState(true);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   // Filters
@@ -186,7 +187,8 @@ export default function RoommateMatching() {
       )}
     >
       {/* ── TOP NAV (Liquid Glass) ── */}
-      <div className="absolute top-0 left-0 right-0 z-50 px-3 flex items-center justify-between pointer-events-none pt-[var(--safe-top)]">
+      <div className="absolute top-0 left-0 right-0 z-50 px-3 pointer-events-none pt-[var(--safe-top)]">
+        {/* Main nav row */}
         <div className="w-full flex items-center justify-between py-3 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -203,7 +205,7 @@ export default function RoommateMatching() {
             "px-5 py-2 rounded-full backdrop-blur-xl border flex items-center gap-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.08)]",
             isLight ? "bg-white/90 border-slate-200 text-slate-900" : "bg-zinc-900/80 border-white/10 text-white"
           )}>
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className={cn("w-2 h-2 rounded-full", roommateVisible ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
             <span className="text-[11px] font-black uppercase tracking-[0.2em]">{t('nav.roommates')}</span>
           </div>
 
@@ -218,10 +220,43 @@ export default function RoommateMatching() {
             <SlidersHorizontal className="w-4 h-4" />
           </motion.button>
         </div>
+
+        {/* Visibility toggle row */}
+        <div className="flex justify-center pb-1 pointer-events-auto">
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => { triggerHaptic('light'); setRoommateVisible(v => !v); }}
+            className={cn(
+              "flex items-center gap-2.5 px-4 py-2 rounded-full backdrop-blur-xl border transition-all shadow-sm",
+              roommateVisible
+                ? isLight ? "bg-emerald-50/90 border-emerald-300 text-emerald-700" : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
+            )}
+          >
+            {roommateVisible
+              ? <Eye className="w-3.5 h-3.5" />
+              : <EyeOff className="w-3.5 h-3.5" />
+            }
+            <span className="text-[10px] font-black uppercase tracking-[0.18em]">
+              {roommateVisible ? t('roommates.visibleToOthers') : t('roommates.hiddenFromOthers')}
+            </span>
+            {/* Toggle pill */}
+            <div className={cn(
+              "relative w-8 h-4 rounded-full transition-colors duration-200",
+              roommateVisible ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/20"
+            )}>
+              <motion.div
+                animate={{ x: roommateVisible ? 16 : 2 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
+              />
+            </div>
+          </motion.button>
+        </div>
       </div>
 
       {/* ── DECK AREA ── */}
-      <div className="flex-1 relative mt-[var(--safe-top)] px-3 py-4 z-40">
+      <div className="flex-1 relative mt-[calc(var(--safe-top)+7rem)] px-3 py-4 z-40">
         <div className="relative w-full h-full max-w-md mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (

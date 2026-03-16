@@ -560,7 +560,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // IMMERSIVE FULLSCREEN: Routes that take over the entire screen (e.g. Camera, Radio, Stories-style feeds)
   const isCameraRoute = location.pathname.includes('/camera');
   const isRadioRoute = location.pathname.includes('/radio');
-  const isImmersiveFeed = location.pathname.startsWith('/explore/eventos') || location.pathname.startsWith('/explore/roommates');
+  const isRoommatesPage = location.pathname.startsWith('/explore/roommates');
+  const isImmersiveFeed = location.pathname.startsWith('/explore/eventos') || isRoommatesPage;
 
   // IMMERSIVE MODE: Detect swipe dashboard routes for full-bleed card experience
   // On these routes, TopBar becomes transparent and content extends behind it
@@ -632,7 +633,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveFeed) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveFeed) && !isRoommatesPage ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
@@ -652,7 +653,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </main>
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and immersive feeds for fullscreen UX */}
-      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
+      {/* Roommates page keeps bottom nav visible even in immersive mode */}
+      {!isCameraRoute && !isRadioRoute && (!isImmersiveFeed || isRoommatesPage) && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}
