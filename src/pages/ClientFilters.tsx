@@ -319,24 +319,24 @@ export default function ClientFilters() {
             </div>
           </section>
         </div>
-      </div>
 
-      {/* Bottom Fixed Apply Button - M3 Pill Style */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40">
-        <div className="max-w-md mx-auto">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleApply}
-            className={cn(
-              "w-full h-14 rounded-full text-base font-bold shadow-xl transition-all duration-300",
-              hasChanges
-                ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-primary/20"
-                : "bg-secondary text-muted-foreground border border-border/50"
-            )}
-          >
-            {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Apply Filters'}
-          </motion.button>
+        {/* Apply Button at the bottom of scrollable content */}
+        <div className="px-4 pb-12 pt-4">
+          <div className="max-w-md mx-auto">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleApply}
+              className={cn(
+                "w-full h-14 rounded-full text-base font-bold shadow-xl transition-all duration-300",
+                hasChanges
+                  ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-primary/20"
+                  : "bg-secondary text-muted-foreground border border-border/50"
+              )}
+            >
+              {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Apply Filters'}
+            </motion.button>
+          </div>
         </div>
       </div>
 
