@@ -18,9 +18,6 @@ if (!SUPABASE_PUBLISHABLE_KEY || SUPABASE_PUBLISHABLE_KEY === 'placeholder-key')
   logger.error('[Supabase] Invalid or missing VITE_SUPABASE_PUBLISHABLE_KEY.');
 }
 
-// Export the resolved URL so edge function callers use the same URL (with fallback) as the client.
-export { SUPABASE_URL };
-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 

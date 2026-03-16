@@ -139,8 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Email user profile setup (e.g. after email confirmation click)
             // Ensures user_roles, client/owner profiles, and onboarding are set up
             processedUserIdRef.current = session.user.id;
-              const rawRole = session.user.user_metadata?.role;
-            const metadataRole: 'client' | 'owner' = (rawRole === 'client' || rawRole === 'owner') ? rawRole : 'client';
+            const rawRole = session.user.user_metadata?.role;
+          const metadataRole: 'client' | 'owner' = (rawRole === 'client' || rawRole === 'owner') ? rawRole : 'client';
             createProfileIfMissing(session.user, metadataRole).catch((err) => {
               logger.error('[Auth] Email user profile setup failed:', err);
             });

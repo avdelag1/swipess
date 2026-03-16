@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Badge } from '@/components/ui/badge';
 import { Shield, Lock, Smartphone, Eye, EyeOff, AlertTriangle, CheckCircle, Trash2 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
-import { supabase, SUPABASE_URL } from '@/integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useSecuritySettings } from '@/hooks/useSecuritySettings';
 import { useAuth } from '@/hooks/useAuth';
@@ -189,9 +189,15 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
         return;
       }
 
+      // Get the Supabase URL to construct the edge function URL
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      if (!supabaseUrl) {
+        throw new Error('Supabase URL not configured');
+      }
+
       // Call the delete-user edge function with the auth token
       const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/delete-user`,
+        `${supabaseUrl}/functions/v1/delete-user`,
         {
           method: 'POST',
           headers: {

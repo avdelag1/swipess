@@ -38,7 +38,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     currentCity: 'tulum',
     volume: 0.7,
     isShuffle: false,
-    skin: 'retro',
+    skin: 'turntable',
     favorites: [],
     miniPlayerMode: (localStorage.getItem('swipess_radio_mini_player_mode') as 'expanded' | 'minimized' | 'closed') || 'closed',
   });
