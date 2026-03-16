@@ -97,13 +97,13 @@ export function BottomNavigation({
     { id: 'filter', icon: Search, label: 'Filters', path: '/client/filters' },
   ];
 
-  // Owner nav items — 5 max for single-line labels
+  // Owner nav items — 5 max, matching client icons except Listings
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Home, label: 'Dashboard', path: '/owner/dashboard' },
+    { id: 'browse', icon: Compass, label: 'Explore', path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: 'Profile', path: '/owner/profile' },
-    { id: 'liked', icon: Flame, label: 'Liked', path: '/owner/liked-clients' },
+    { id: 'likes', icon: Flame, label: 'Likes', path: '/owner/liked-clients' },
     { id: 'messages', icon: MessageCircle, label: 'Messages', path: '/messages', badge: unreadCount },
-    { id: 'filter', icon: Filter, label: 'Filters', path: '/owner/filters' },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
