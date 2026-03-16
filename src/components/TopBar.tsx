@@ -387,7 +387,7 @@ function TopBarComponent({
                           <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
                         ))}
                       </div>
-                      <p className="text-muted-foreground text-xs">Loading packages...</p>
+                      <p className="text-muted-foreground text-xs">{t('topbar.loadingPackages')}</p>
                     </div>
                   )}
                 </div>
