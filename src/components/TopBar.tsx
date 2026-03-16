@@ -268,27 +268,7 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button */}
-            {onAISearchClick && (
-              <Button
-                variant="ghost"
-                className={cn(
-                  "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
-                  "hover:scale-105 active:scale-95 group",
-                  "touch-manipulation flex items-center gap-1 flex-shrink-0",
-                )}
-                style={{
-                  backgroundColor: glassBg,
-                  border: glassBorder,
-                  boxShadow: floatingShadow,
-                }}
-                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onAISearchClick(); }}
-                onClick={(e) => e.preventDefault()}
-                aria-label="AI Search"
-              >
-                <Sparkles strokeWidth={3} className={cn("h-4 w-4", isDark ? "text-purple-300" : "text-purple-500")} />
-              </Button>
-            )}
+            {/* AI Search Button - Moved to BottomNavigation */}
 
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>

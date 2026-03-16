@@ -1,37 +1,56 @@
 
 
-## Plan: Add Listings + AI Buttons to Bottom Nav (Both Sides)
+## Plan: Fix Owner Nav, Clean Owner Profile, Restore AI Button
 
-### Problem
-The owner bottom nav has no "Listings" button — owners can't access their listings. The AI search button is missing from both client and owner bottom navigation bars.
+### Issues Found
+
+1. **Owner bottom nav** — exists with 5 items (Dashboard, Profile, Liked, Messages, Filters) and should be working. The nav bar may be hiding due to scroll direction detection. Need to verify it renders on owner routes.
+
+2. **Owner profile page** (`OwnerProfileNew.tsx`) — contains client-side sections that don't belong:
+   - `MyHubQuickFilters` (line 183) — "Discovery Categories" — **remove**
+   - `MyHubActivityFeed` (line 191) — "Recent Activity" — **remove**
+   - `ExploreFeatureLinks` is not imported but could be confused with Quick Filters
+
+3. **AI Search button** — was removed from both TopBar and BottomNavigation. Currently the TopBar has an empty comment where it used to be (line 271). Need to restore it.
+
+4. **Owner nav icons** — should match client icons more closely, with "Listings" as the only unique button.
+
+---
 
 ### Changes
 
-#### 1. `src/components/BottomNavigation.tsx` — Fix owner nav + add AI to both
+#### 1. `src/components/BottomNavigation.tsx` — Match client icons, add Listings
 
-**Owner nav items** (5 items):
-| # | Icon | Label | Path |
-|---|------|-------|------|
-| 1 | `Compass` | Explore | `/owner/dashboard` |
-| 2 | `User` | Profile | `/owner/profile` |
-| 3 | `Sparkles` | AI | calls `onAISearchClick` |
-| 4 | `MessageCircle` | Messages | `/messages` |
-| 5 | `Building2` | Listings | `/owner/properties` |
+Update owner nav to mirror client nav but swap Filters for Listings:
 
-**Client nav items** (5 items):
-| # | Icon | Label | Path |
-|---|------|-------|------|
-| 1 | `Compass` | Explore | `/client/dashboard` |
-| 2 | `User` | Profile | `/client/profile` |
-| 3 | `Sparkles` | AI | calls `onAISearchClick` |
-| 4 | `MessageCircle` | Messages | `/messages` |
-| 5 | `Search` | Filters | `/client/filters` |
+| Position | Client | Owner (new) |
+|----------|--------|-------------|
+| 1 | Compass → Explore | Compass → Explore |
+| 2 | User → Profile | User → Profile |
+| 3 | Flame → Likes | Flame → Likes |
+| 4 | MessageCircle → Messages | MessageCircle → Messages |
+| 5 | Search → Filters | Building2 → Listings |
 
-The AI button replaces `Flame` (Likes) from position 3. Users can still access Likes from their profile page. The AI button calls `onAISearchClick` prop (already wired in parent layouts).
+Owner nav uses `Compass` (same as client) for dashboard, and `Building2` for Listings pointing to `/owner/properties`.
 
-### Files (1)
+#### 2. `src/components/TopBar.tsx` — Restore AI Search button
+
+Add back the AI search button (Sparkles icon) in the right section of the TopBar, before the Zap button. Same glass styling as other buttons. Calls `onAISearchClick` prop.
+
+#### 3. `src/pages/OwnerProfileNew.tsx` — Remove client-only sections
+
+Remove these sections (keep everything else):
+- **Line 181-184**: `MyHubQuickFilters` ("Discover Categories") — delete
+- **Line 186-192**: `MyHubActivityFeed` ("Recent Activity") — delete
+- Remove unused imports: `MyHubQuickFilters`, `MyHubActivityFeed`
+
+**Sections that stay**: Profile header, stats grid, edit profile button, Your Likes / Who Liked You grid, Share & Earn, Language, Radio, Settings, Sign Out.
+
+### Files (3)
 
 | File | Change |
 |------|--------|
-| `src/components/BottomNavigation.tsx` | Update both `clientNavItems` and `ownerNavItems` arrays — add AI center button, add Listings for owner, use Compass for owner dashboard |
+| `src/components/BottomNavigation.tsx` | Update owner nav: Compass icon for dashboard, Building2 for Listings, match client order |
+| `src/components/TopBar.tsx` | Restore AI Search button (Sparkles icon) in right section |
+| `src/pages/OwnerProfileNew.tsx` | Remove MyHubQuickFilters and MyHubActivityFeed sections + imports |
 
