@@ -1,45 +1,86 @@
 
 
-## Plan: Fix Owner Card Text, Nav Layout, Header Consistency
+## Plan: Professional Polish Pass — Make the App Look "Wow"
 
-### 1. Owner Swipe Card — Name Text Invisible in Light Mode
-**`src/components/SimpleOwnerSwipeCard.tsx`**
+After a deep audit of the codebase, here are the areas that will have the highest visual impact when improved. This is broken into focused, high-ROI changes.
 
-The content overlay at line ~648 has no gradient behind it — white text (`text-white`) is invisible against light images. Add a bottom gradient overlay (`transparent → rgba(0,0,0,0.6)`) spanning the lower portion of the card, matching the memory for swipe card readability. Also add `textShadow` to the name heading for extra contrast.
+---
 
-### 2. Bottom Nav — Reduce to 5 Items, Single-Line Labels
-**`src/components/BottomNavigation.tsx`**
+### Problem Areas Identified
 
-**Owner nav** currently has 7 items (Dashboard, Profile, Liked Clients, Listings, Messages, AI Search, Filters). Reduce to 5:
-- `Home` → Dashboard (replace `LayoutGrid`)
-- `User` → Profile (replace `Briefcase`)  
-- `Flame` → Liked (replace `Users`, shorten "Liked Clients" → "Liked")
-- `MessageCircle` → Messages
-- `Filter` → Filters
+1. **Inconsistent typography** — Font weights and sizes vary randomly across components. No unified type scale is enforced. Some labels use `text-[10px] font-black uppercase`, others use `text-xs font-bold`, creating a chaotic feel.
 
-Remove `Listings` and `AI Search` from owner nav.
+2. **ThemeToggle too small and hidden** — The toggle is `h-7 w-7` (28px), smaller than the other header buttons (`h-9 w-9`). Easy to miss. No visual distinction.
 
-**Client nav** has 6 items. Reduce to 5:
-- Remove `AI Search` (accessible from TopBar)
+3. **Bottom nav has too many items (6-7)** — Client nav has 6 items, owner has 7. This crams the bar and makes icons tiny. Premium apps like Tinder/Bumble use 4-5 max.
 
-Also increase inner padding from `py-1.5` to `py-2.5` to give the bar slightly more height for comfortable tap targets.
+4. **Swipe action buttons are "phantom" (invisible backgrounds)** — The like/dislike/share buttons float with no container, making them feel disconnected and amateur on light backgrounds.
 
-### 3. Header Buttons — Consistent Color Styling
+5. **Gradient masks create haze on light theme** — The `GradientMaskTop`, `GradientMaskBottom`, and `GlobalVignette` layers add unnecessary white fog over the light theme, making it look washed out.
+
+6. **Star canvas still renders on light theme** — The `VisualEngine` draws semi-transparent dots on light mode, which looks odd on a clean white background.
+
+7. **500+ instances of `bg-black` hardcoded** — Many overlays, modals, and badges use `bg-black/XX` which doesn't adapt. Some are contextually fine (image overlays), but many dialogs and containers should use semantic tokens.
+
+---
+
+### Changes (Priority Order)
+
+#### 1. Make ThemeToggle prominent and properly sized
 **`src/components/ThemeToggle.tsx`**
+- Increase size from `h-7 w-7` to `h-9 w-9` (matching other TopBar buttons)
+- Add matching `rounded-xl` to be consistent with TopBar icon style
+- Use `liquid-glass-card` styling like other TopBar buttons
 
-The ThemeToggle uses different glass variables than the TopBar buttons (Zap/Bell). In light mode, TopBar uses `rgba(255,255,255,0.95)` bg while ThemeToggle uses `rgba(0,0,0,0.04)`. Unify ThemeToggle to use the same `glassBg`/`glassBorder`/`floatingShadow` values as TopBar buttons so all header buttons match.
+#### 2. Reduce bottom nav to 5 items max
+**`src/components/BottomNavigation.tsx`**
+- **Client**: Remove "AI Search" (keep it accessible via TopBar or elsewhere) → 5 items: Explore, Profile, Likes, Messages, Filters
+- **Owner**: Remove "AI Search" and merge "Listings" into Dashboard → 5 items: Dashboard, Profile, Liked Clients, Messages, Filters
+- Increase icon size slightly and add more breathing room
 
-### 4. Avatar — Bigger & Better Positioned
-**`src/components/TopBar.tsx`**
+#### 3. Give swipe action buttons subtle glass containers
+**`src/components/SwipeActionButtonBar.tsx`**
+- Add a subtle frosted pill container behind the 5 action buttons (matching the bottom nav glass treatment)
+- This grounds the buttons visually and makes them feel intentional
 
-The avatar is `h-9 w-9` (same as buttons) but user wants it slightly larger to stand out as a profile element. Increase to `h-10 w-10` and add `ml-1` to pull it away from the screen edge. Keep `rounded-xl` for consistency.
+#### 4. Disable VisualEngine effects on light theme
+**`src/visual/VisualEngine.tsx`**
+- Skip rendering the star canvas entirely when `isLight` is true
+- Clean white background = professional. Twinkling dots on white = odd.
 
-### Files to Edit (4)
+#### 5. Reduce gradient mask intensity on light theme
+**`src/components/AppLayout.tsx`**
+- Lower light-mode vignette intensity from `0.4` → `0.15`
+- Lower light-mode gradient mask intensities from `0.5` → `0.2`
+- This removes the washed-out haze effect
+
+#### 6. Standardize typography scale
+**`src/index.css`** — Add a utility layer for consistent type classes:
+- Section labels: `text-xs font-semibold uppercase tracking-wider text-muted-foreground`
+- Card titles: `text-lg font-bold text-foreground`  
+- Body text: `text-sm text-muted-foreground`
+- Reduce the overuse of `font-black` (too heavy for most contexts — reserve for headlines only)
+
+Key files to update typography: `MyHubQuickFilters.tsx`, `MyHubProfileHeader.tsx`, `MyHubActivityFeed.tsx`
+
+#### 7. Fix key dark-hardcoded containers
+**Priority files** (dialogs/sheets that look broken in light mode):
+- `QuickFilterDropdown.tsx` — already has `isDark` ternaries, mostly fine
+- `PropertyManagement.tsx` — `bg-black/70` price badges on cards (contextually OK, skip)
+- `MessageActivationPackages.tsx` — verify `isDark` ternaries work correctly
+- `ModeSwitcher.tsx` — already theme-aware, OK
+
+---
+
+### Files to Edit (7 files)
 
 | File | Change |
 |------|--------|
-| `SimpleOwnerSwipeCard.tsx` | Add bottom gradient overlay + text shadow for name readability |
-| `BottomNavigation.tsx` | Reduce to 5 items per role, update icons, shorten labels, increase bar height |
-| `ThemeToggle.tsx` | Unify glass styling with TopBar buttons |
-| `TopBar.tsx` | Enlarge avatar to h-10 w-10, adjust left spacing |
+| `ThemeToggle.tsx` | Increase size to h-9 w-9, match TopBar style |
+| `BottomNavigation.tsx` | Reduce to 5 nav items per role |
+| `SwipeActionButtonBar.tsx` | Add subtle glass container behind buttons |
+| `VisualEngine.tsx` | Skip star canvas on light theme |
+| `AppLayout.tsx` | Reduce gradient mask intensity for light |
+| `MyHubQuickFilters.tsx` | Standardize typography (reduce font-black) |
+| `MyHubProfileHeader.tsx` | Standardize typography |
 
