@@ -27,6 +27,24 @@ interface ShootingStar {
   age: number; maxAge: number; length: number;
 }
 
+interface OrbUFO {
+  x: number; y: number; vx: number; vy: number;
+  age: number; maxAge: number;
+  radius: number;
+  color: [number, number, number];
+  pulsePhase: number;
+  bobPhase: number;
+}
+
+interface SaucerUFO {
+  x: number; y: number; vx: number; vy: number;
+  age: number; maxAge: number;
+  size: number;
+  wobblePhase: number;
+  beamOn: boolean;
+  lights: Array<{ angle: number; hue: number }>;
+}
+
 interface Orb {
   x: number; y: number; vx: number; vy: number;
   radius: number; color: [number, number, number];
@@ -57,6 +75,8 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   const shootingStarsRef = useRef<ShootingStar[]>([]);
   const ripplesRef = useRef<Ripple[]>([]);
   const cloudsRef = useRef<CloudPuff[]>([]);
+  const orbUFOsRef = useRef<OrbUFO[]>([]);
+  const saucerUFOsRef = useRef<SaucerUFO[]>([]);
   const cheetahImgRef = useRef<HTMLImageElement | null>(null);
   const beachImgRef = useRef<HTMLImageElement | null>(null);
   const initializedRef = useRef<EffectMode | null>(null);
@@ -152,6 +172,47 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       });
     };
 
+    const spawnOrbUFO = (x: number, y: number) => {
+      const orbColors: [number, number, number][] = [
+        [0, 255, 180],   // alien green-cyan
+        [160, 80, 255],  // purple
+        [80, 200, 255],  // sky blue
+        [255, 220, 80],  // gold
+        [255, 100, 200], // pink
+      ];
+      const angle = (Math.random() - 0.5) * Math.PI * 0.8; // mostly horizontal
+      const speed = Math.random() * 2.5 + 1.2;
+      orbUFOsRef.current.push({
+        x, y,
+        vx: Math.cos(angle) * speed * (Math.random() < 0.5 ? 1 : -1),
+        vy: Math.sin(angle) * speed - 0.5,
+        age: 0, maxAge: Math.random() * 2.5 + 2,
+        radius: Math.random() * 8 + 6,
+        color: orbColors[Math.floor(Math.random() * orbColors.length)],
+        pulsePhase: Math.random() * Math.PI * 2,
+        bobPhase: Math.random() * Math.PI * 2,
+      });
+    };
+
+    const spawnSaucerUFO = (x: number, y: number) => {
+      const angle = (Math.random() - 0.5) * Math.PI * 0.5;
+      const speed = Math.random() * 2 + 1;
+      const lights = Array.from({ length: 6 }, (_, i) => ({
+        angle: (i / 6) * Math.PI * 2,
+        hue: Math.floor(Math.random() * 360),
+      }));
+      saucerUFOsRef.current.push({
+        x, y,
+        vx: Math.cos(angle) * speed * (Math.random() < 0.5 ? 1 : -1),
+        vy: Math.sin(angle) * speed - 0.3,
+        age: 0, maxAge: Math.random() * 3 + 2.5,
+        size: Math.random() * 16 + 18,
+        wobblePhase: Math.random() * Math.PI * 2,
+        beamOn: Math.random() < 0.6,
+        lights,
+      });
+    };
+
     const spawnCloudPuff = (x: number, y: number) => {
       const particles: CloudParticle[] = Array.from({ length: 10 }, () => {
         const angle = Math.random() * Math.PI * 2;
@@ -197,7 +258,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       // Mode-specific visual effects
       if (mode === 'stars') {
-        spawnShootingStar(e.clientX, e.clientY);
+        const roll = Math.random();
+        if (roll < 0.34) spawnShootingStar(e.clientX, e.clientY);
+        else if (roll < 0.67) spawnOrbUFO(e.clientX, e.clientY);
+        else spawnSaucerUFO(e.clientX, e.clientY);
       }
       if (mode === 'cheetah') {
         ripplesRef.current.push({
@@ -268,6 +332,146 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.fillStyle = isLightTheme ? `rgba(60,60,160,${fadeAlpha * 0.6})` : `rgba(255,255,255,${fadeAlpha})`; ctx.fill();
         ctx.beginPath(); ctx.arc(ss.x, ss.y, 3, 0, Math.PI * 2);
         ctx.fillStyle = isLightTheme ? `rgba(100,80,200,${fadeAlpha * 0.2})` : `rgba(255,220,180,${fadeAlpha * 0.3})`; ctx.fill();
+      }
+
+      // ── Orb UFOs ──
+      for (let i = orbUFOsRef.current.length - 1; i >= 0; i--) {
+        const orb = orbUFOsRef.current[i];
+        orb.age += 0.016;
+        if (orb.age >= orb.maxAge) { orbUFOsRef.current.splice(i, 1); continue; }
+        const progress = orb.age / orb.maxAge;
+        // Fade in/out envelope
+        const fadeAlpha = progress < 0.15
+          ? progress / 0.15
+          : progress > 0.75
+            ? (1 - progress) / 0.25
+            : 1;
+        // Bob up and down
+        orb.bobPhase += 0.04;
+        orb.x += orb.vx;
+        orb.y += orb.vy + Math.sin(orb.bobPhase) * 0.4;
+        orb.pulsePhase += 0.08;
+        const pulse = Math.sin(orb.pulsePhase) * 0.3 + 0.7;
+        const [r, g, b] = orb.color;
+        // Outer glow
+        const glowR = orb.radius * (2.5 + pulse * 0.8);
+        const glow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, glowR);
+        glow.addColorStop(0, `rgba(${r},${g},${b},${fadeAlpha * 0.5})`);
+        glow.addColorStop(0.4, `rgba(${r},${g},${b},${fadeAlpha * 0.2})`);
+        glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        ctx.beginPath(); ctx.arc(orb.x, orb.y, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = glow; ctx.fill();
+        // Core sphere with specular highlight
+        const coreGrad = ctx.createRadialGradient(
+          orb.x - orb.radius * 0.3, orb.y - orb.radius * 0.3, orb.radius * 0.05,
+          orb.x, orb.y, orb.radius
+        );
+        coreGrad.addColorStop(0, `rgba(255,255,255,${fadeAlpha * 0.95})`);
+        coreGrad.addColorStop(0.25, `rgba(${r},${g},${b},${fadeAlpha * 0.9})`);
+        coreGrad.addColorStop(0.7, `rgba(${Math.round(r * 0.6)},${Math.round(g * 0.6)},${Math.round(b * 0.6)},${fadeAlpha * 0.8})`);
+        coreGrad.addColorStop(1, `rgba(0,0,0,${fadeAlpha * 0.5})`);
+        ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.radius * pulse, 0, Math.PI * 2);
+        ctx.fillStyle = coreGrad; ctx.fill();
+        // Small trail dots
+        for (let t = 1; t <= 3; t++) {
+          const tx = orb.x - orb.vx * t * 2.5;
+          const ty = orb.y - orb.vy * t * 2.5;
+          const ta = fadeAlpha * (0.3 / t);
+          const tr = orb.radius * (0.4 / t);
+          ctx.beginPath(); ctx.arc(tx, ty, tr, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r},${g},${b},${ta})`; ctx.fill();
+        }
+      }
+
+      // ── Saucer UFOs ──
+      for (let i = saucerUFOsRef.current.length - 1; i >= 0; i--) {
+        const ufo = saucerUFOsRef.current[i];
+        ufo.age += 0.016;
+        if (ufo.age >= ufo.maxAge) { saucerUFOsRef.current.splice(i, 1); continue; }
+        const progress = ufo.age / ufo.maxAge;
+        const fadeAlpha = progress < 0.12
+          ? progress / 0.12
+          : progress > 0.8
+            ? (1 - progress) / 0.2
+            : 1;
+        ufo.wobblePhase += 0.05;
+        ufo.x += ufo.vx;
+        ufo.y += ufo.vy + Math.sin(ufo.wobblePhase) * 0.5;
+        const s = ufo.size;
+        ctx.save();
+        ctx.translate(ufo.x, ufo.y);
+        ctx.globalAlpha = fadeAlpha;
+
+        // Beam of light below
+        if (ufo.beamOn) {
+          const beamPulse = Math.sin(ufo.wobblePhase * 2) * 0.3 + 0.7;
+          const beamGrad = ctx.createLinearGradient(0, s * 0.3, 0, s * 2.5);
+          beamGrad.addColorStop(0, `rgba(160,255,200,${0.35 * beamPulse})`);
+          beamGrad.addColorStop(0.6, `rgba(100,255,180,${0.1 * beamPulse})`);
+          beamGrad.addColorStop(1, 'rgba(100,255,180,0)');
+          ctx.beginPath();
+          ctx.moveTo(-s * 0.6, s * 0.3);
+          ctx.lineTo(s * 0.6, s * 0.3);
+          ctx.lineTo(s * 1.1, s * 2.5);
+          ctx.lineTo(-s * 1.1, s * 2.5);
+          ctx.closePath();
+          ctx.fillStyle = beamGrad;
+          ctx.fill();
+        }
+
+        // Saucer body (flattened ellipse)
+        const bodyGrad = ctx.createRadialGradient(0, -s * 0.1, s * 0.1, 0, 0, s);
+        bodyGrad.addColorStop(0, 'rgba(210,230,255,0.95)');
+        bodyGrad.addColorStop(0.4, 'rgba(140,170,220,0.9)');
+        bodyGrad.addColorStop(0.8, 'rgba(80,100,160,0.85)');
+        bodyGrad.addColorStop(1, 'rgba(40,50,100,0.8)');
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s, s * 0.32, 0, 0, Math.PI * 2);
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
+        // Rim highlight line
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s, s * 0.32, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(180,210,255,0.7)`;
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // Dome on top
+        const domeGrad = ctx.createRadialGradient(-s * 0.15, -s * 0.45, s * 0.05, 0, -s * 0.3, s * 0.45);
+        domeGrad.addColorStop(0, 'rgba(255,255,255,0.9)');
+        domeGrad.addColorStop(0.4, 'rgba(160,220,255,0.7)');
+        domeGrad.addColorStop(1, 'rgba(80,140,200,0.3)');
+        ctx.beginPath();
+        ctx.ellipse(0, -s * 0.3, s * 0.42, s * 0.38, 0, Math.PI, 0, true);
+        ctx.fillStyle = domeGrad;
+        ctx.fill();
+
+        // Rotating rim lights
+        const lightPulse = (Math.sin(ufo.wobblePhase * 3) * 0.5 + 0.5);
+        for (const light of ufo.lights) {
+          const lx = Math.cos(light.angle + ufo.wobblePhase * 1.5) * s * 0.75;
+          const ly = Math.sin(light.angle + ufo.wobblePhase * 1.5) * s * 0.14;
+          const lightGrad = ctx.createRadialGradient(lx, ly, 0, lx, ly, s * 0.13);
+          const h = light.hue;
+          lightGrad.addColorStop(0, `hsla(${h},100%,80%,${0.9 * lightPulse})`);
+          lightGrad.addColorStop(0.5, `hsla(${h},100%,60%,${0.4 * lightPulse})`);
+          lightGrad.addColorStop(1, `hsla(${h},100%,50%,0)`);
+          ctx.beginPath();
+          ctx.arc(lx, ly, s * 0.13, 0, Math.PI * 2);
+          ctx.fillStyle = lightGrad;
+          ctx.fill();
+        }
+
+        // Outer glow aura
+        const auraGrad = ctx.createRadialGradient(0, 0, s * 0.5, 0, 0, s * 1.6);
+        auraGrad.addColorStop(0, `rgba(120,200,255,${0.12 * lightPulse})`);
+        auraGrad.addColorStop(1, 'rgba(120,200,255,0)');
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s * 1.6, s * 0.6, 0, 0, Math.PI * 2);
+        ctx.fillStyle = auraGrad;
+        ctx.fill();
+
+        ctx.restore();
       }
     };
 
