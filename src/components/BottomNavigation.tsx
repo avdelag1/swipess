@@ -94,18 +94,18 @@ export function BottomNavigation({
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
-    { id: 'likes', icon: Flame, label: t('actions.like'), path: '/client/liked-properties' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
   // Owner nav items — 5 max for single-line labels
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Home, label: t('nav.home'), path: '/owner/dashboard' },
+    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'liked', icon: Flame, label: t('actions.like'), path: '/owner/liked-clients' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
-    { id: 'filter', icon: Filter, label: t('actions.filter'), path: '/owner/filters' },
+    { id: 'listings', icon: Building2, label: 'Listings', path: '/owner/properties' },
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
