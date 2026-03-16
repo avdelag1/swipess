@@ -20,7 +20,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
-  SkipBack, SkipForward, Play, Pause
+  SkipBack, SkipForward, Play, Pause, Disc3
 } from 'lucide-react';
 
 // ── Font injection ──────────────────────────────────────────────────────────
@@ -105,6 +105,20 @@ export default function DJTurntableRadio() {
             className={`w-10 h-10 rounded-full backdrop-blur-md flex items-center justify-center ${state.isShuffle ? 'bg-white/15' : 'bg-white/5'}`}
           >
             <Shuffle className="w-4 h-4 text-white/70" />
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { triggerHaptic('light'); navigate('/radio/cassette'); }}
+            className="w-10 h-10 rounded-full bg-white/5 backdrop-blur-md flex items-center justify-center"
+            title="Switch to Cassette skin"
+          >
+            {/* Cassette icon: two circles + tape path */}
+            <svg className="w-4 h-4 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="6" width="20" height="12" rx="2"/>
+              <circle cx="7" cy="12" r="2"/>
+              <circle cx="17" cy="12" r="2"/>
+              <path d="M9 12h6"/>
+            </svg>
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Send, AlertCircle, Zap, ChevronLeft, User, Home, Info, ChevronRight, ThumbsUp, Star } from 'lucide-react';
+import { ArrowLeft, Send, AlertCircle, Zap, ChevronLeft, User, Home, Info, ChevronRight, ThumbsUp, Star, Smile } from 'lucide-react';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
@@ -115,8 +115,16 @@ const MessageBubble = memo(({ message, isMyMessage, otherUserRole }: { message: 
 
 MessageBubble.displayName = 'MessageBubble';
 
+// Curated positive / friendly emojis — no angry or negative faces
+const QUICK_EMOJIS = [
+  '👋', '😊', '😄', '😂', '🥰', '😍', '🤩', '😎',
+  '🙏', '👍', '🔥', '❤️', '🎉', '✨', '💯', '🤝',
+  '💪', '👏', '🥳', '😇', '🤗', '😁', '🌟', '💬',
+];
+
 export const MessagingInterface = memo(({ conversationId, otherUser, listing, currentUserRole = 'client', onBack }: MessagingInterfaceProps) => {
   const [newMessage, setNewMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
   const [showPreviewSheet, setShowPreviewSheet] = useState(false);
@@ -421,63 +429,102 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
         )}
 
         {/* Input Area */}
-        <form
-          onSubmit={handleSendMessage}
-          className="px-3 py-3 shrink-0"
+        <div
+          className="shrink-0"
           style={{
             background: 'hsl(var(--background) / 0.97)',
             borderTop: '1px solid hsl(var(--border))',
           }}
         >
-          <div className="flex gap-2 items-center">
-            <div className="flex-1 relative">
-              <input
-                value={newMessage}
-                onChange={(e) => {
-                  setNewMessage(e.target.value);
-                  if (e.target.value.trim()) startTyping();
-                  else stopTyping();
-                }}
-                placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
-                className="w-full text-[15px] px-4 py-2.5 rounded-full text-foreground placeholder:text-muted-foreground outline-none transition-all"
-                style={{
-                  background: 'hsl(var(--muted))',
-                  border: '1px solid hsl(var(--border))',
-                  minHeight: '42px',
-                }}
-                disabled={sendMessage.isPending || isAtLimit}
-                maxLength={1000}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e as any);
-                  }
-                }}
-              />
-              {newMessage.length > 800 && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/30">
-                  {1000 - newMessage.length}
-                </span>
-              )}
+          {/* Emoji quick-pick panel */}
+          {showEmojiPicker && (
+            <div className="px-3 pt-2 pb-1">
+              <div className="flex flex-wrap gap-1">
+                {QUICK_EMOJIS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => {
+                      setNewMessage(prev => prev + emoji);
+                      setShowEmojiPicker(false);
+                    }}
+                    className="text-xl w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-90 hover:bg-muted"
+                    style={{ lineHeight: 1 }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
             </div>
-            <motion.button
-              type="submit"
-              disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
-              className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
-              whileTap={{ scale: 0.82, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 10, mass: 0.7 } }}
-              whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 300, damping: 15 } }}
-              style={{
-                background: newMessage.trim() && !isAtLimit
-                  ? 'linear-gradient(135deg, #ec4899, #f97316)'
-                  : 'rgba(255,255,255,0.07)',
-                border: newMessage.trim() && !isAtLimit ? 'none' : '1px solid rgba(255,255,255,0.10)',
-                boxShadow: newMessage.trim() && !isAtLimit ? '0 4px 16px rgba(236,72,153,0.4)' : 'none',
-              }}
-            >
-              <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
-            </motion.button>
-          </div>
-        </form>
+          )}
+
+          <form
+            onSubmit={handleSendMessage}
+            className="px-3 py-3"
+          >
+            <div className="flex gap-2 items-center">
+              {/* Emoji toggle button */}
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(p => !p)}
+                className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+                style={{
+                  background: showEmojiPicker ? 'linear-gradient(135deg, #ec4899, #f97316)' : 'hsl(var(--muted))',
+                  border: '1px solid hsl(var(--border))',
+                }}
+              >
+                <Smile className={`w-4 h-4 ${showEmojiPicker ? 'text-white' : 'text-muted-foreground'}`} />
+              </button>
+
+              <div className="flex-1 relative">
+                <input
+                  value={newMessage}
+                  onChange={(e) => {
+                    setNewMessage(e.target.value);
+                    if (e.target.value.trim()) startTyping();
+                    else stopTyping();
+                  }}
+                  placeholder={isAtLimit ? "Monthly limit reached" : "Type a message..."}
+                  className="w-full text-[15px] px-4 py-2.5 rounded-full text-foreground placeholder:text-muted-foreground outline-none transition-all"
+                  style={{
+                    background: 'hsl(var(--muted))',
+                    border: '1px solid hsl(var(--border))',
+                    minHeight: '42px',
+                  }}
+                  disabled={sendMessage.isPending || isAtLimit}
+                  maxLength={1000}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e as any);
+                    }
+                  }}
+                />
+                {newMessage.length > 800 && (
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-white/30">
+                    {1000 - newMessage.length}
+                  </span>
+                )}
+              </div>
+              <motion.button
+                type="submit"
+                disabled={!newMessage.trim() || sendMessage.isPending || isAtLimit}
+                className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center"
+                whileTap={{ scale: 0.82, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 10, mass: 0.7 } }}
+                whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 300, damping: 15 } }}
+                style={{
+                  background: newMessage.trim() && !isAtLimit
+                    ? 'linear-gradient(135deg, #ec4899, #f97316)'
+                    : 'rgba(255,255,255,0.07)',
+                  border: newMessage.trim() && !isAtLimit ? 'none' : '1px solid rgba(255,255,255,0.10)',
+                  boxShadow: newMessage.trim() && !isAtLimit ? '0 4px 16px rgba(236,72,153,0.4)' : 'none',
+                }}
+              >
+                <Send className={`w-4 h-4 ${newMessage.trim() && !isAtLimit ? 'text-white' : 'text-white/30'}`} />
+              </motion.button>
+            </div>
+          </form>
+        </div>
 
         {/* Upgrade Dialog */}
         <MessageActivationPackages

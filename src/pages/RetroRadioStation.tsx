@@ -474,6 +474,24 @@ export default function RetroRadioStation() {
         <ListMusic className="w-4 h-4 text-white/70" />
       </motion.button>
 
+      {/* Skin toggle — switch to turntable — left of shuffle */}
+      <motion.button
+        aria-label="Switch to Turntable skin"
+        whileTap={{ scale: 0.85 }}
+        onClick={() => { triggerHaptic('light'); navigate('/radio'); }}
+        className="fixed top-3 right-[10rem] z-50 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          background: 'rgba(0,0,0,0.7)',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
+      >
+        <svg className="w-4 h-4 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="3"/>
+          <circle cx="12" cy="12" r="1" fill="currentColor"/>
+        </svg>
+      </motion.button>
+
       {/* Shuffle button — top-right */}
       <motion.button
         aria-label="Toggle shuffle"
