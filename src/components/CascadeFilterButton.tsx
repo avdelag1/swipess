@@ -104,12 +104,23 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
     };
   }, []);
 
+  const allCategoryIds = categories.map(c => c.id);
+  const allSelected = allCategoryIds.every(id => filters.categories.includes(id));
+
   const handleCategoryToggle = useCallback((categoryId: QuickFilterCategory) => {
     const newCategories = filters.categories.includes(categoryId)
       ? filters.categories.filter(c => c !== categoryId)
       : [...filters.categories, categoryId];
     onChange({ ...filters, categories: newCategories });
   }, [filters, onChange]);
+
+  const handleSelectAll = useCallback(() => {
+    if (allSelected) {
+      onChange({ ...filters, categories: [] });
+    } else {
+      onChange({ ...filters, categories: [...allCategoryIds] });
+    }
+  }, [filters, onChange, allSelected]);
 
   const handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
     onChange({ ...filters, listingType: type });
@@ -213,6 +224,22 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                   <div className="space-y-2">
                     <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">categories</span>
                     <div className="grid grid-cols-2 gap-2">
+                      {/* All categories button */}
+                      <button
+                        onClick={handleSelectAll}
+                        className={cn(
+                          buttonClass,
+                          'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium col-span-2',
+                          'border',
+                          allSelected
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'bg-muted/30 text-muted-foreground border-border/50'
+                        )}
+                      >
+                        <Filter className="w-4 h-4" />
+                        <span>all categories</span>
+                        {allSelected && <Check className="w-3 h-3 ml-auto" />}
+                      </button>
                       {categories.map((category) => {
                         const isActive = filters.categories.includes(category.id);
                         const colorClass = getCategoryColorClass(category.id, isDark);
