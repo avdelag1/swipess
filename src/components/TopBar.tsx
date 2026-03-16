@@ -21,7 +21,6 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
-import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
 
 // Tier styling for package cards
@@ -89,12 +88,12 @@ function TopBarComponent({
     ? 'var(--glass-bg)'
     : 'rgba(255, 255, 255, 0.95)';
   const glassBorder = isDark
-    ? '1px solid var(--glass-border)'
-    : '1px solid rgba(0, 0, 0, 0.05)';
-  const floatingShadow = isDark
-    ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-    : '0 10px 30px -10px rgba(0,0,0,0.1)';
-  // Removed backdropFilter blur for performance - using solid backgrounds instead
+    ? '1px solid rgba(255,255,255,0.16)'
+    : '1px solid rgba(0, 0, 0, 0.08)';
+  const pillShadow = isDark
+    ? 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.35)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 16px rgba(0,0,0,0.08)';
+
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
   // Fetch the three token packages
@@ -161,6 +160,15 @@ function TopBarComponent({
     navigate(-1);
   };
 
+  // Shared pill-frame button style — matches bottom nav energy but for the top bar
+  const pillBtn = cn(
+    'relative flex items-center justify-center flex-shrink-0',
+    'h-10 w-10 rounded-2xl',
+    'transition-all duration-150 ease-out',
+    'active:scale-[0.88] hover:scale-105',
+    'touch-manipulation',
+  );
+
   return (
     <>
       <header
@@ -170,7 +178,7 @@ function TopBarComponent({
           className
         )}
       >
-        {/* Premium multi-stop gradient overlay for flagship header readability */}
+        {/* Gradient readability overlays */}
         <div
           className="pointer-events-none absolute left-0 right-0 top-0 h-[100px] -z-10"
           style={{
@@ -180,7 +188,6 @@ function TopBarComponent({
           }}
           aria-hidden="true"
         />
-        {/* Top Shade - Fades from black at the top to transparent for maximum readability */}
         <div
           className="absolute inset-x-0 top-0 h-[200px] pointer-events-none -z-10"
           style={{
@@ -189,270 +196,249 @@ function TopBarComponent({
           }}
         />
 
-        <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
-          {/* Left section: Avatar + Mode switcher + filters */}
-          <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
-            {/* Unified Nav Group: [Back?] [Avatar] [Title] */}
+        {/* Main row — avatar fixed left, all action buttons in scrollable strip */}
+        <div className="max-w-[1400px] mx-auto w-full flex items-center relative z-10 px-2 gap-1.5">
+
+          {/* ── FIXED LEFT: Profile avatar (or back button) ── */}
+          {/* Higher z-index so scrolled buttons hide behind it */}
+          <div className="relative z-20 flex-shrink-0">
             {showBack && (
               <motion.button
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.88 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-8 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
+                className={cn(pillBtn)}
+                style={{ backgroundColor: glassBg, border: glassBorder, boxShadow: pillShadow }}
                 aria-label="Go back"
               >
                 <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white/90" : "text-foreground/80")} strokeWidth={2.5} />
               </motion.button>
             )}
 
-            {/* User Avatar - Tapping navigates to profile */}
-            {user ? (
-              <motion.button
-                whileTap={{ scale: 0.92 }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  haptics.tap();
-                  const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
-                  navigate(profilePath);
-                }}
-                className="flex-shrink-0 focus:outline-none z-50 relative pointer-events-auto cursor-pointer"
-                aria-label="Go to profile"
-              >
-                <Avatar className="h-11 w-11 rounded-xl overflow-hidden cursor-pointer" style={{ border: glassBorder, boxShadow: floatingShadow }}>
-                  <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
-                  <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
-                    {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </motion.button>
-            ) : (
-              !showBack && !title && <SwipessLogo size="sm" className="flex-shrink-0" />
-            )}
-
-
-            <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
-              
-              <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
-              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
-            </div>
-
-            {showFilters && userRole && (
-              <div className="flex-shrink-0">
-                <QuickFilterDropdown userRole={userRole} />
-              </div>
-            )}
-          </div>
-
-          {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
-          <div
-            className="flex-1 h-full cursor-pointer flex items-center justify-center"
-            onPointerDown={(e) => {
-              e.preventDefault();
-              haptics.tap();
-              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
-            }}
-            onClick={(e) => e.preventDefault()}
-            aria-label="Go to dashboard"
-          >
-            {title ? (
-              <span className={cn(
-                "font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none",
-                isDark
-                  ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
-                  : "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
-              )}>
-                {title}
-              </span>
-            ) : null}
-          </div>
-
-          {/* Right section: Actions */}
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button - Moved to BottomNavigation */}
-
-            {/* Token Packages Button with Popover */}
-            <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "relative h-9 w-9 px-0 rounded-xl transition-all duration-200 ease-out",
-                    "hover:scale-105 active:scale-95 group",
-                    "touch-manipulation flex items-center gap-1 flex-shrink-0",
-                  )}
-                  style={{
-                    backgroundColor: glassBg,
-                    border: glassBorder,
-                    boxShadow: floatingShadow,
+            {!showBack && (
+              user ? (
+                <motion.button
+                  whileTap={{ scale: 0.88 }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    haptics.tap();
+                    const profilePath = userRole === 'owner' ? '/owner/profile' : '/client/profile';
+                    navigate(profilePath);
                   }}
-                  onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
-                  onClick={(e) => e.preventDefault()}
-                  aria-label="Token Packages"
+                  className="flex-shrink-0 focus:outline-none relative cursor-pointer"
+                  aria-label="Go to profile"
                 >
-                  <Zap strokeWidth={3} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-500")} />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="end"
-                sideOffset={8}
-                className="w-[320px] sm:w-[360px] p-0 rounded-2xl liquid-glass-card refraction-edge glass-nano-texture"
-              >
-                {/* Popover Header */}
-                <div className="px-4 pt-4 pb-3 border-b border-border">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-foreground text-base">Token Packages</h3>
-                    <span className="text-xs text-muted-foreground">
-                      {userRole === 'owner' ? 'Provider' : 'Explorer'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {userRole === 'owner'
-                      ? 'Connect with potential explorers'
-                      : 'Start conversations with providers'}
-                  </p>
-                </div>
-
-                {/* Three Package Token Cards */}
-                <div className="p-3 space-y-2">
-                  {packages && packages.length > 0 ? (
-                    packages.slice(0, 3).map((pkg, index) => {
-                      const tier = tierNames[index] || 'starter';
-                      const config = tierConfig[tier];
-                      const Icon = config.icon;
-                      const isPopular = tier === 'standard';
-                      const tokens = pkg.message_activations || 0;
-                      const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
-
-                      return (
-                        <motion.div
-                          key={pkg.id}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className={cn(
-                            "relative rounded-xl border p-3 bg-gradient-to-r transition-all duration-200",
-                            config.gradient,
-                            config.border,
-                            isPopular && "ring-1 ring-blue-500/30"
-                          )}
-                        >
-                          {isPopular && (
-                            <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
-                              BEST VALUE
-                            </span>
-                          )}
-                          <div className="flex items-center gap-3">
-                            {/* Icon */}
-                            <div className={cn("flex-shrink-0 p-2 rounded-lg", config.iconBg)}>
-                              <Icon className="w-5 h-5" />
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-baseline gap-1.5">
-                                <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
-                                <span className="text-muted-foreground text-xs">{tokens} tokens</span>
-                              </div>
-                              <div className="flex items-baseline gap-1 mt-0.5">
-                                <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
-                                <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
-                              </div>
-                            </div>
-
-                            {/* Buy Button */}
-                            <Button
-                              size="sm"
-                              className={cn(
-                                "flex-shrink-0 h-8 px-3 rounded-lg font-semibold text-xs",
-                                config.button
-                              )}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleQuickPurchase(pkg, tier);
-                              }}
-                            >
-                              <FileText className="w-3.5 h-3.5 mr-1" />
-                              Buy
-                            </Button>
-                          </div>
-                        </motion.div>
-                      );
-                    })
-                  ) : (
-                    <div className="py-6 text-center">
-                      <div className="flex justify-center gap-2 mb-3">
-                        {[0, 1, 2].map((i) => (
-                          <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
-                        ))}
-                      </div>
-                      <p className="text-muted-foreground text-xs">Loading packages...</p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer: View All link */}
-                <div className="px-4 pb-3 pt-1 border-t border-border">
-                  <button
-                    className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
-                    onClick={() => {
-                      setTokensOpen(false);
-                      onMessageActivationsClick?.();
-                    }}
+                  <Avatar
+                    className="h-10 w-10 rounded-2xl overflow-hidden cursor-pointer"
+                    style={{ border: glassBorder, boxShadow: pillShadow }}
                   >
-                    View all packages & details
-                  </button>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
-            {/* Notifications Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group",
-                "flex-shrink-0 flex items-center gap-1",
-                "touch-manipulation",
-              )}
-              style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
-              onClick={(e) => e.preventDefault()}
-              aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
-            >
-              <div className="relative">
-                <Bell
-                  strokeWidth={4}
-                  className={cn(
-                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
-                    notificationCount > 0
-                      ? (isDark ? "text-orange-300 group-hover:text-orange-100" : "text-orange-500 group-hover:text-orange-700")
-                      : (isDark ? "text-white group-hover:text-white" : "text-foreground group-hover:text-foreground")
-                  )}
-                />
-              </div>
-              {notificationCount > 0 ? (
-                <motion.span
-                  key="notification-badge"
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                  className="text-white text-[10px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
-                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
-                >
-                  {notificationCount > 99 ? '99+' : notificationCount}
-                </motion.span>
-              ) : null}
-            </Button>
+                    <AvatarImage src={profile?.avatar_url || ''} className="object-cover" />
+                    <AvatarFallback className="bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80 text-xs font-black uppercase">
+                      {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                </motion.button>
+              ) : (
+                !title && <SwipessLogo size="sm" className="flex-shrink-0" />
+              )
+            )}
           </div>
+
+          {/* ── SCROLLABLE STRIP: all action buttons ── */}
+          {/* Buttons scroll left and disappear behind the profile avatar */}
+          <div
+            className="flex-1 overflow-x-auto"
+            style={{
+              scrollbarWidth: 'none' as const,
+              WebkitOverflowScrolling: 'touch',
+              // Fade left edge so buttons slide smoothly under avatar; fade right to hint more
+              maskImage: 'linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 20px), transparent 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 8px, black calc(100% - 20px), transparent 100%)',
+            } as React.CSSProperties}
+          >
+            <div className="flex items-center gap-0.5 py-1">
+
+              {/* ① Dashboard / Mode switcher */}
+              <ModeSwitcher variant="icon" size="sm" className="h-10 w-10 rounded-2xl flex-shrink-0" />
+
+              {/* ② Quick Filter */}
+              {showFilters && userRole && (
+                <QuickFilterDropdown userRole={userRole} />
+              )}
+
+              {/* ③ Token Packages */}
+              <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
+                <PopoverTrigger asChild>
+                  <button
+                    className={cn(pillBtn)}
+                    style={{ backgroundColor: glassBg, border: glassBorder, boxShadow: pillShadow }}
+                    onPointerDown={(e) => { e.preventDefault(); haptics.tap(); setTokensOpen(!tokensOpen); }}
+                    onClick={(e) => e.preventDefault()}
+                    aria-label="Token Packages"
+                  >
+                    <Zap strokeWidth={3} className={cn("w-5 h-5", isDark ? "text-amber-300" : "text-amber-500")} />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  sideOffset={8}
+                  className="w-[320px] sm:w-[360px] p-0 rounded-2xl liquid-glass-card refraction-edge glass-nano-texture"
+                >
+                  {/* Popover Header */}
+                  <div className="px-4 pt-4 pb-3 border-b border-border">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-foreground text-base">Token Packages</h3>
+                      <span className="text-xs text-muted-foreground">
+                        {userRole === 'owner' ? 'Provider' : 'Explorer'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {userRole === 'owner'
+                        ? 'Connect with potential explorers'
+                        : 'Start conversations with providers'}
+                    </p>
+                  </div>
+
+                  {/* Three Package Token Cards */}
+                  <div className="p-3 space-y-2">
+                    {packages && packages.length > 0 ? (
+                      packages.slice(0, 3).map((pkg, index) => {
+                        const tier = tierNames[index] || 'starter';
+                        const config = tierConfig[tier];
+                        const Icon = config.icon;
+                        const isPopular = tier === 'standard';
+                        const tokens = pkg.message_activations || 0;
+                        const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
+
+                        return (
+                          <motion.div
+                            key={pkg.id}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className={cn(
+                              "relative rounded-xl border p-3 bg-gradient-to-r transition-all duration-200",
+                              config.gradient,
+                              config.border,
+                              isPopular && "ring-1 ring-blue-500/30"
+                            )}
+                          >
+                            {isPopular && (
+                              <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+                                BEST VALUE
+                              </span>
+                            )}
+                            <div className="flex items-center gap-3">
+                              <div className={cn("flex-shrink-0 p-2 rounded-lg", config.iconBg)}>
+                                <Icon className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
+                                  <span className="text-muted-foreground text-xs">{tokens} tokens</span>
+                                </div>
+                                <div className="flex items-baseline gap-1 mt-0.5">
+                                  <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
+                                  <span className="text-muted-foreground text-[10px]">({formatPriceMXN(pricePerToken)}/ea)</span>
+                                </div>
+                              </div>
+                              <Button
+                                size="sm"
+                                className={cn(
+                                  "flex-shrink-0 h-8 px-3 rounded-lg font-semibold text-xs",
+                                  config.button
+                                )}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuickPurchase(pkg, tier);
+                                }}
+                              >
+                                <FileText className="w-3.5 h-3.5 mr-1" />
+                                Buy
+                              </Button>
+                            </div>
+                          </motion.div>
+                        );
+                      })
+                    ) : (
+                      <div className="py-6 text-center">
+                        <div className="flex justify-center gap-2 mb-3">
+                          {[0, 1, 2].map((i) => (
+                            <div key={i} className="h-12 w-full rounded-lg bg-muted animate-pulse" />
+                          ))}
+                        </div>
+                        <p className="text-muted-foreground text-xs">Loading packages...</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-4 pb-3 pt-1 border-t border-border">
+                    <button
+                      className="w-full text-center text-xs text-blue-500 hover:text-blue-400 font-medium py-1.5 transition-colors"
+                      onClick={() => {
+                        setTokensOpen(false);
+                        onMessageActivationsClick?.();
+                      }}
+                    >
+                      View all packages & details
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              {/* ④ Notifications */}
+              <button
+                className={cn(pillBtn, 'gap-1')}
+                style={{ backgroundColor: glassBg, border: glassBorder, boxShadow: pillShadow }}
+                onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onNotificationsClick?.(); }}
+                onClick={(e) => e.preventDefault()}
+                aria-label={`Notifications${notificationCount > 0 ? ` (${notificationCount} unread)` : ''}`}
+              >
+                <div className="relative">
+                  <Bell
+                    strokeWidth={3}
+                    className={cn(
+                      "w-5 h-5 transition-colors duration-150",
+                      notificationCount > 0
+                        ? (isDark ? "text-orange-300" : "text-orange-500")
+                        : (isDark ? "text-white" : "text-foreground")
+                    )}
+                  />
+                </div>
+                {notificationCount > 0 && (
+                  <motion.span
+                    key="notification-badge"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                    className="text-white text-[10px] font-black rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1"
+                    style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                  >
+                    {notificationCount > 99 ? '99+' : notificationCount}
+                  </motion.span>
+                )}
+              </button>
+
+              {/* ⑤ Theme / Filter Color */}
+              <ThemeToggle className="h-10 w-10 rounded-2xl flex-shrink-0" />
+
+              {/* Page title if on sub-page */}
+              {title && (
+                <span className={cn(
+                  "ml-2 font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none whitespace-nowrap flex-shrink-0",
+                  isDark
+                    ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                    : "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+                )}>
+                  {title}
+                </span>
+              )}
+
+            </div>
+          </div>
+
         </div>
       </header>
     </>
