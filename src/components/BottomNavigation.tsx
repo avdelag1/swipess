@@ -111,28 +111,78 @@ export function BottomNavigation({
   ];
 
   const navItems = userRole === 'client' ? clientNavItems : ownerNavItems;
-  const isScrollable = navItems.length > 5;
+  const isScrollable = true; // Always scrollable for both roles
 
   // Auto-scroll active item into view
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!isScrollable || !scrollRef.current) return;
+    if (!scrollRef.current) return;
     const activeBtn = scrollRef.current.querySelector('[aria-current="page"]') as HTMLElement;
     if (activeBtn) {
       activeBtn.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
     }
-  }, [location.pathname, isScrollable]);
+  }, [location.pathname]);
 
-  const handleNavPress = useCallback(
-    (event: React.PointerEvent, item: NavItem) => {
-      event.stopPropagation();
-      event.preventDefault();
-      haptics.select();
-      if (item.onClick) {
-        item.onClick();
-      } else if (item.path) {
-        navigate(item.path!);
+  // ── Edge fade indicators ──────────────────────────────────────────────
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollFades = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }, []);
+
+  useEffect(() => {
+    updateScrollFades();
+    // Re-check on resize
+    window.addEventListener('resize', updateScrollFades);
+    return () => window.removeEventListener('resize', updateScrollFades);
+  }, [updateScrollFades, navItems.length]);
+
+  // ── Tap vs drag detection ─────────────────────────────────────────────
+  const touchState = useRef<{
+    x: number; y: number; time: number; item: NavItem; isDragging: boolean;
+  } | null>(null);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, item: NavItem) => {
+      e.stopPropagation();
+      touchState.current = {
+        x: e.clientX, y: e.clientY, time: Date.now(), item, isDragging: false,
+      };
+      if (item.path) prefetchRoute(item.path);
+    },
+    [],
+  );
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!touchState.current) return;
+    const dx = Math.abs(e.clientX - touchState.current.x);
+    if (dx > 8) {
+      touchState.current.isDragging = true;
+    }
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (!touchState.current) return;
+      const { item, isDragging, time } = touchState.current;
+      const elapsed = Date.now() - time;
+      const dx = Math.abs(e.clientX - touchState.current.x);
+
+      // Quick tap with minimal movement → navigate
+      if (!isDragging && elapsed < 300 && dx < 8) {
+        haptics.select();
+        if (item.onClick) {
+          item.onClick();
+        } else if (item.path) {
+          navigate(item.path);
+        }
       }
+
+      touchState.current = null;
     },
     [navigate],
   );
