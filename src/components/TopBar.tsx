@@ -353,7 +353,7 @@ function TopBarComponent({
                             <div className="flex-1 min-w-0">
                               <div className="flex items-baseline gap-1.5">
                                 <span className="font-bold text-foreground text-sm capitalize">{tier}</span>
-                                <span className="text-muted-foreground text-xs">{tokens} tokens</span>
+                                <span className="text-muted-foreground text-xs">{tokens} {t('topbar.tokens')}</span>
                               </div>
                               <div className="flex items-baseline gap-1 mt-0.5">
                                 <span className="font-bold text-foreground text-base">{formatPriceMXN(pkg.price)}</span>
