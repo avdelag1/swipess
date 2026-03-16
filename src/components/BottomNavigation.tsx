@@ -19,7 +19,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Flame, MessageCircle, User, Building2, Heart, Filter,
-  Search, Compass, LayoutGrid, Briefcase, Users, List
+  Search, Compass, LayoutGrid, Briefcase, Users, List, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -94,6 +94,7 @@ export function BottomNavigation({
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
@@ -102,6 +103,7 @@ export function BottomNavigation({
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
+    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked' },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },

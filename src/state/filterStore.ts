@@ -54,6 +54,11 @@ interface FilterState {
   clientBudgetRange: [number, number] | null;
   clientNationalities: string[];
   
+  // ========== DISTANCE FILTER ==========
+  radiusKm: number;
+  userLatitude: number | null;
+  userLongitude: number | null;
+
   // ========== ADVANCED FILTERS ==========
   priceRange: [number, number] | null;
   bedrooms: number[];
@@ -85,6 +90,11 @@ interface FilterState {
   setClientBudgetRange: (range: [number, number] | null) => void;
   setClientNationalities: (nationalities: string[]) => void;
   
+  // Distance filter actions
+  setRadiusKm: (radius: number) => void;
+  setUserLocation: (lat: number, lon: number) => void;
+  clearUserLocation: () => void;
+
   // Advanced filter actions
   setPriceRange: (range: [number, number] | null) => void;
   setBedrooms: (bedrooms: number[]) => void;
@@ -124,6 +134,9 @@ export const useFilterStore = create<FilterState>()(
     clientAgeRange: null,
     clientBudgetRange: null,
     clientNationalities: [],
+    radiusKm: 50,
+    userLatitude: null,
+    userLongitude: null,
     priceRange: null,
     bedrooms: [],
     bathrooms: [],
@@ -131,7 +144,22 @@ export const useFilterStore = create<FilterState>()(
     propertyTypes: [],
     filterVersion: 0,
     lastChangedAt: Date.now(),
-    
+
+    // ========== DISTANCE FILTER ACTIONS ==========
+    setRadiusKm: (radius) => {
+      set((state) => ({
+        radiusKm: radius,
+        filterVersion: state.filterVersion + 1,
+        lastChangedAt: Date.now(),
+      }));
+    },
+    setUserLocation: (lat, lon) => {
+      set({ userLatitude: lat, userLongitude: lon });
+    },
+    clearUserLocation: () => {
+      set({ userLatitude: null, userLongitude: null });
+    },
+
     // ========== CATEGORY ACTIONS ==========
     setActiveCategory: (category) => {
       logger.info('[FilterStore] setActiveCategory:', category);
