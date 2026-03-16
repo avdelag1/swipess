@@ -90,25 +90,25 @@ export function BottomNavigation({
     targetSelector: '#dashboard-scroll-container',
   });
 
-  // Client nav items
+  // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Roommates, Filters
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
-    { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — 6 items, horizontally scrollable
+  // Owner nav items — order: Dashboard, Profile, Likes, AI, Listings, Messages, Filters
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
-    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 

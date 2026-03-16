@@ -11,7 +11,7 @@ import { useState, useRef, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, RotateCcw, Share2, MessageCircle, Flame, ThumbsDown,
-  Sparkles, Users,
+  Sparkles, Users, SlidersHorizontal,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
@@ -277,6 +277,14 @@ export default function RoommateMatching() {
   const [lastIndex, setLastIndex] = useState<number | null>(null);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
+  // Visibility toggle — whether the user is discoverable by others in roommate search
+  const [isVisible, setIsVisible] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Roommate filter state
+  const [filterGender, setFilterGender] = useState<string>('Any');
+  const [filterSchedule, setFilterSchedule] = useState<string>('Any');
+
   const topCard = MOCK_CANDIDATES[currentIndex] ?? null;
   const nextCard = MOCK_CANDIDATES[currentIndex + 1] ?? null;
 
@@ -356,26 +364,196 @@ export default function RoommateMatching() {
         </motion.button>
 
         {/* Current user circle avatar (static — does not move with card) */}
-        <div
-          className="flex-shrink-0 flex items-center justify-center font-bold text-sm text-white select-none"
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #667eea 0%, #f97316 100%)',
-            border: '2px solid rgba(255,255,255,0.25)',
-            boxShadow: '0 2px 12px rgba(102,126,234,0.45)',
-          }}
-        >
-          Me
+        <div className="relative flex-shrink-0">
+          <div
+            className="flex items-center justify-center font-bold text-sm text-white select-none"
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #667eea 0%, #f97316 100%)',
+              border: '2px solid rgba(255,255,255,0.25)',
+              boxShadow: '0 2px 12px rgba(102,126,234,0.45)',
+            }}
+          >
+            Me
+          </div>
+          {/* Online/offline status dot */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 1,
+              right: 1,
+              width: 11,
+              height: 11,
+              borderRadius: '50%',
+              background: isVisible ? '#22c55e' : '#6b7280',
+              border: '2px solid rgba(10,10,11,0.9)',
+              transition: 'background 0.2s ease',
+            }}
+          />
         </div>
 
         {/* Page title */}
         <div className="flex-1 flex flex-col">
           <span className="text-sm font-black text-white tracking-tight">Roommates</span>
-          <span className="text-[10px] text-white/50 font-medium">Find your match</span>
+          <span className="text-[10px] font-medium" style={{ color: isVisible ? '#86efac' : 'rgba(255,255,255,0.45)' }}>
+            {isVisible ? 'Visible to others' : 'Hidden from search'}
+          </span>
         </div>
+
+        {/* Visibility toggle pill */}
+        <motion.button
+          onClick={() => { triggerHaptic('light'); setIsVisible(v => !v); }}
+          whileTap={{ scale: 0.88, transition: BTN_SPRING }}
+          aria-label={isVisible ? 'Hide from roommate search' : 'Show in roommate search'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '5px 10px 5px 7px',
+            borderRadius: 20,
+            border: `1px solid ${isVisible ? 'rgba(34,197,94,0.35)' : 'rgba(255,255,255,0.15)'}`,
+            background: isVisible ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.08)',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background 0.2s, border-color 0.2s',
+          }}
+        >
+          <div style={{
+            width: 8, height: 8, borderRadius: '50%',
+            background: isVisible ? '#22c55e' : '#6b7280',
+            flexShrink: 0,
+            boxShadow: isVisible ? '0 0 6px rgba(34,197,94,0.7)' : 'none',
+            transition: 'background 0.2s, box-shadow 0.2s',
+          }} />
+          <span style={{ fontSize: 11, fontWeight: 700, color: isVisible ? '#86efac' : 'rgba(255,255,255,0.5)', letterSpacing: 0.3 }}>
+            {isVisible ? 'Online' : 'Hidden'}
+          </span>
+        </motion.button>
+
+        {/* Filter button */}
+        <motion.button
+          onClick={() => { triggerHaptic('light'); setShowFilters(v => !v); }}
+          whileTap={{ scale: 0.88, transition: BTN_SPRING }}
+          aria-label="Filter roommates"
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            border: showFilters ? '1px solid rgba(249,115,22,0.5)' : '1px solid rgba(255,255,255,0.15)',
+            background: showFilters ? 'rgba(249,115,22,0.18)' : 'rgba(255,255,255,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'background 0.2s, border-color 0.2s',
+          }}
+        >
+          <SlidersHorizontal
+            style={{
+              width: 16,
+              height: 16,
+              color: showFilters ? '#f97316' : 'rgba(255,255,255,0.8)',
+              transition: 'color 0.2s',
+            }}
+            strokeWidth={2.5}
+          />
+        </motion.button>
       </div>
+
+      {/* ── FILTER PANEL ─────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 28, mass: 0.6 }}
+            className="absolute left-3 right-3 z-50 overflow-hidden"
+            style={{
+              top: 'max(70px, calc(env(safe-area-inset-top, 0px) + 70px))',
+              borderRadius: 18,
+              background: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(18,18,20,0.97)',
+              border: `1px solid ${isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)'}`,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+            }}
+          >
+            <div style={{ padding: '14px 16px 16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#1a1a1a' : '#fff' }}>Filter Roommates</span>
+                <button
+                  onClick={() => setShowFilters(false)}
+                  style={{ fontSize: 11, fontWeight: 600, color: '#f97316', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}
+                >
+                  Done
+                </button>
+              </div>
+
+              {/* Gender filter */}
+              <div style={{ marginBottom: 14 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isLight ? '#6b7280' : 'rgba(255,255,255,0.5)', letterSpacing: 0.5, textTransform: 'uppercase' as const }}>Gender</span>
+                <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' as const }}>
+                  {['Any', 'Female', 'Male', 'Non-binary'].map(g => (
+                    <button
+                      key={g}
+                      onClick={() => setFilterGender(g)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: 16,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: filterGender === g
+                          ? '1px solid #f97316'
+                          : `1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)'}`,
+                        background: filterGender === g
+                          ? 'rgba(249,115,22,0.15)'
+                          : isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                        color: filterGender === g ? '#f97316' : isLight ? '#374151' : 'rgba(255,255,255,0.75)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {g}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Work schedule filter */}
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isLight ? '#6b7280' : 'rgba(255,255,255,0.5)', letterSpacing: 0.5, textTransform: 'uppercase' as const }}>Work Schedule</span>
+                <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' as const }}>
+                  {['Any', 'Remote', 'Hybrid', 'Office', 'Flexible', 'Student'].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setFilterSchedule(s)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: 16,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        border: filterSchedule === s
+                          ? '1px solid #f97316'
+                          : `1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)'}`,
+                        background: filterSchedule === s
+                          ? 'rgba(249,115,22,0.15)'
+                          : isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
+                        color: filterSchedule === s ? '#f97316' : isLight ? '#374151' : 'rgba(255,255,255,0.75)',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── CARD AREA ─────────────────────────────────────────────────────── */}
       {!topCard ? (
