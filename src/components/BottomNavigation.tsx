@@ -253,12 +253,13 @@ export function BottomNavigation({
                     : 'focus-visible:ring-orange-400/70 focus-visible:ring-offset-black',
                 )}
                 style={{
-                  minWidth: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
+                  minWidth: isScrollable ? 64 : (isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET),
                   minHeight: isNarrow ? TOUCH_TARGET_COMPACT : TOUCH_TARGET,
                   padding: isNarrow ? '4px 2px' : '6px 4px',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
+                  ...(isScrollable ? { flexShrink: 0 } : {}),
                 }}
               >
 
