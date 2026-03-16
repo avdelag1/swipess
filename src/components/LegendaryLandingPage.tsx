@@ -15,14 +15,14 @@ import { FaGoogle } from 'react-icons/fa';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
-import LandingBackgroundEffects from './LandingBackgroundEffects';
+import LandingBackgroundEffects, { EffectMode } from './LandingBackgroundEffects';
 
 
 const swipessLogo = '/icons/fire-s-logo.png';
 
 /* ─── Types ─────────────────────────────────────────────── */
 type View = 'landing' | 'auth';
-type EffectMode = 'off' | 'stars' | 'orbs';
+
 
 /* ─── Password strength ──────────────────────────────────── */
 const checkPasswordStrength = (password: string) => {
@@ -561,16 +561,36 @@ function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
   const [effectMode, setEffectMode] = useState<EffectMode>('stars');
 
-  // Cycle: stars → orbs → off → stars
+  // Cycle: stars → orbs → animal → beach → off → stars
   const cycleEffect = () => setEffectMode((p) => {
     if (p === 'stars') return 'orbs';
-    if (p === 'orbs') return 'off';
+    if (p === 'orbs') return 'animal';
+    if (p === 'animal') return 'beach';
+    if (p === 'beach') return 'off';
     return 'stars';
   });
-  const effectLabel = effectMode === 'orbs' ? '◉' : effectMode === 'stars' ? '✦' : '◼';
+
+  const effectLabel = useMemo(() => {
+    switch (effectMode) {
+      case 'stars': return '✦';
+      case 'orbs': return '◉';
+      case 'animal': return '🐆';
+      case 'beach': return '🏖️';
+      default: return '◼';
+    }
+  }, [effectMode]);
+
+  const bgColor = useMemo(() => {
+    switch (effectMode) {
+      case 'animal': return '#1a1005'; // Dark warm brown
+      case 'beach': return '#071e22';  // Dark deep teal
+      case 'orbs': return '#080510';   // Dark deep purple
+      default: return '#050505';       // Standard deep grey/black
+    }
+  }, [effectMode]);
 
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: bgColor, transition: 'background 1s ease' }}>
       <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} />
 
       <AnimatePresence mode="wait">

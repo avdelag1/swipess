@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
 import { useTheme } from '@/hooks/useTheme';
+import { SwipessLogo } from './SwipessLogo';
 
 interface AISearchDialogProps {
   isOpen: boolean;
@@ -134,7 +135,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   }, [navigate, handleClose]);
 
   const quickPrompts = useMemo(() => [
-    { icon: Home, label: 'Properties', text: 'Show me apartments to rent', color: 'text-blue-400', bg: isDark ? 'bg-blue-500/10 border-blue-500/20' : 'bg-blue-50 border-blue-200' },
+    { icon: Home, label: 'Properties', text: 'Show me apartments to rent', color: 'text-orange-400', bg: isDark ? 'bg-orange-500/10 border-orange-500/20' : 'bg-orange-50 border-orange-200' },
     { icon: Flame, label: 'Matches', text: 'Where are my matches?', color: 'text-pink-400', bg: isDark ? 'bg-pink-500/10 border-pink-500/20' : 'bg-pink-50 border-pink-200' },
     { icon: Zap, label: 'Tokens', text: 'How do tokens work?', color: 'text-amber-400', bg: isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-200' },
     { icon: MessageCircle, label: 'Help', text: 'How do I start a chat?', color: 'text-emerald-400', bg: isDark ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-emerald-50 border-emerald-200' },
@@ -150,18 +151,18 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent
-        className={cn("sm:max-w-[400px] w-[calc(100%-16px)] max-h-[80vh] border p-0 overflow-hidden rounded-[2rem] shadow-2xl outline-none [&]:top-[55%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-white/10" : "bg-white border-gray-200")}
+        className={cn("sm:max-w-[440px] w-[calc(100%-16px)] h-[85vh] max-h-[750px] border p-0 overflow-hidden rounded-[2.5rem] shadow-2xl outline-none [&]:top-[50%] !flex !flex-col !gap-0", isDark ? "bg-[#0e0e11] border-white/10" : "bg-white border-gray-200")}
         hideCloseButton={true}
       >
         {/* Header */}
         <div className={cn("relative px-5 py-4 border-b flex items-center justify-between", isDark ? "border-white/10" : "border-gray-200")}>
           <div className="flex items-center gap-3">
             <div className={cn(
-              "w-10 h-10 rounded-[1rem] flex items-center justify-center shadow-lg relative overflow-hidden group border",
-              isDark ? "bg-zinc-800 border-white/15" : "bg-orange-50 border-orange-200"
+              "w-10 h-10 rounded-[1rem] flex items-center justify-center relative overflow-hidden group",
+              isDark ? "bg-transparent" : "bg-transparent"
             )}>
-              <Sparkles className="w-5 h-5 text-orange-400 relative z-10" />
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <SwipessLogo size="xs" className="relative z-10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
 
             <div>
@@ -197,9 +198,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                 "w-20 h-20 mx-auto rounded-[2.2rem] flex items-center justify-center shadow-xl border",
                 isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
               )}>
-                <Sparkles className="w-10 h-10 text-orange-400" />
+                <SwipessLogo size="xl" />
               </div>
-              <p className="text-muted-foreground text-sm font-bold">Connecting to Oracle...</p>
+              <p className="text-muted-foreground text-xs font-black uppercase tracking-[0.2em] opacity-50">Secure Oracle Link</p>
             </motion.div>
           )}
 
@@ -219,7 +220,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                       : "bg-muted border-border"
                   )}>
                     {message.role === 'ai' ? (
-                      <Sparkles className="w-4 h-4 text-orange-400" />
+                      <SwipessLogo size="xs" />
                     ) : (
                       userAvatar ? (
                         <img src={userAvatar} alt="Me" className="w-full h-full object-cover rounded-xl" />
@@ -260,10 +261,10 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
           {isTyping && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-center gap-3 pl-2">
               <div className={cn(
-                "w-10 h-10 rounded-2xl flex items-center justify-center border",
-                isDark ? "bg-zinc-900 border-white/10" : "bg-gray-100 border-black/8"
+                "w-10 h-10 rounded-2xl flex items-center justify-center",
+                isDark ? "bg-zinc-900 border border-white/10" : "bg-gray-100 border border-black/8"
               )}>
-                <Sparkles className="w-5 h-5 text-orange-400 animate-pulse" />
+                <SwipessLogo size="xs" className="animate-pulse" />
               </div>
               <div className="bg-muted px-4 py-3 rounded-[1.5rem] rounded-tl-sm text-xs font-bold text-muted-foreground flex items-center gap-2">
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -295,25 +296,40 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
         )}
 
         {/* Input Area */}
-        <div className="p-4 sm:p-5 mt-auto border-t border-border bg-background/80 backdrop-blur-xl">
+        <div className={cn(
+          "p-4 sm:p-5 mt-auto border-t backdrop-blur-3xl relative z-20",
+          isDark ? "bg-[#0e0e11]/80 border-white/10" : "bg-white/80 border-gray-200"
+        )}>
+          {/* Subtle glow behind input */}
+          <div className="absolute inset-0 bg-gradient-to-t from-orange-500/5 to-transparent pointer-events-none" />
+          
           <div className="relative">
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Message your assistant..."
+              placeholder="How can I help you today?"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className={cn("pr-20 h-12 rounded-2xl focus:ring-1 focus:border-orange-500/40 font-bold", isDark ? "bg-muted border-border text-foreground placeholder:text-muted-foreground" : "bg-gray-50 border border-gray-200 text-gray-900 placeholder:text-gray-400 shadow-inner")}
+              className={cn(
+                "pr-14 h-14 rounded-2xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500/40 font-bold transition-all duration-300",
+                isDark 
+                  ? "bg-zinc-900 border-white/5 text-white placeholder:text-white/20 shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]" 
+                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400 shadow-inner"
+              )}
               disabled={isSearching}
             />
 
             <Button
-              size="sm"
+              size="icon"
               onClick={handleSend}
               disabled={!query.trim() || isSearching}
-              className="absolute right-1 top-1 bottom-1 rounded-xl px-4 h-auto text-white"
-              style={query.trim() ? { background: 'linear-gradient(135deg, #ec4899, #f97316)' } : { background: 'rgba(255,255,255,0.08)' }}
+              className={cn(
+                "absolute right-1.5 top-1.5 bottom-1.5 w-11 h-11 rounded-xl text-white transition-all duration-300 shadow-lg",
+                query.trim() 
+                  ? "bg-gradient-to-br from-orange-500 to-pink-500 hover:scale-105 active:scale-95" 
+                  : "bg-white/5 text-white/20"
+              )}
             >
               {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </Button>

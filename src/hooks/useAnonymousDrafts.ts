@@ -142,7 +142,7 @@ export function useAnonymousDrafts() {
           .insert({
             user_id: user.id,
             category: listingDraft.category,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             ...(listingDraft.data as any),
             status: 'published',
           } as any);

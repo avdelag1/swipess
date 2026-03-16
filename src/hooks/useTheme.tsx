@@ -85,7 +85,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add('dark');
     }
     // Update status bar meta immediately too
-    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', newTheme === 'white-matte' ? '#ffffff' : '#000000');
     }

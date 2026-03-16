@@ -404,7 +404,7 @@ export function useProfileSetup() {
       const grantWelcomeActivation = async (userId: string) => {
         try {
           // Check if welcome activation already granted - escape deep type inference
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+           
           const welcomeResult = await (supabase as any)
             .from('tokens')
             .select('id')

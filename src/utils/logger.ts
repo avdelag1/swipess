@@ -30,7 +30,7 @@ class Logger {
    */
   log(...args: unknown[]): void {
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.log(...args);
     }
   }
@@ -40,7 +40,7 @@ class Logger {
    */
   info(...args: unknown[]): void {
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.info(...args);
     }
   }
@@ -55,10 +55,10 @@ class Logger {
         : message;
 
       if (data) {
-        // eslint-disable-next-line no-console
+         
         console.debug(formatted, data);
       } else {
-        // eslint-disable-next-line no-console
+         
         console.debug(formatted);
       }
     }
@@ -70,7 +70,7 @@ class Logger {
    */
   warn(...args: unknown[]): void {
     if (isDevelopment) {
-      // eslint-disable-next-line no-console
+       
       console.warn(...args);
     }
   }
