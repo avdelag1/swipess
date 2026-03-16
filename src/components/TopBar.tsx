@@ -374,7 +374,7 @@ function TopBarComponent({
                               }}
                             >
                               <FileText className="w-3.5 h-3.5 mr-1" />
-                              Buy
+                              {t('topbar.buy')}
                             </Button>
                           </div>
                         </motion.div>
