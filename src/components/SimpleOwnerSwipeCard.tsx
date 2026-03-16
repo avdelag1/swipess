@@ -681,7 +681,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           {currentImageIndex % 4 === 0 && (
             <>
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-white text-2xl font-bold drop-shadow-lg">
+                <h2 className="text-white text-2xl font-bold" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5)' }}>
                   {profile.name || 'Anonymous'}
                 </h2>
                 {profile.age && (

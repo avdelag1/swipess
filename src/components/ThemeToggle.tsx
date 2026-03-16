@@ -13,11 +13,11 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
     const isDark = theme === 'dark';
 
-    const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.04)';
-    const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
+    const glassBg = isDark ? 'var(--glass-bg)' : 'rgba(255, 255, 255, 0.95)';
+    const glassBorder = isDark ? '1px solid var(--glass-border)' : '1px solid rgba(0, 0, 0, 0.05)';
     const floatingShadow = isDark
-        ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-        : 'inset 0 1px 0 rgba(255,255,255,0.8), 0 4px 12px rgba(0,0,0,0.08)';
+        ? '0 10px 30px -10px rgba(0,0,0,0.5)'
+        : '0 10px 30px -10px rgba(0,0,0,0.1)';
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
