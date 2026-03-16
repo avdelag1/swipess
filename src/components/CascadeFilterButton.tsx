@@ -170,7 +170,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
         )}
       >
         <Filter className="w-4 h-4" />
-        <span>Quick Filter</span>
+        <span>{t('filters.quickFilter')}</span>
         {activeCount > 0 && (
           <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-white/20 text-xs font-bold">
             {activeCount}
