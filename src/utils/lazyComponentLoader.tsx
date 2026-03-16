@@ -6,7 +6,7 @@
 
 import { lazy, Suspense, ReactNode, ComponentType, LazyExoticComponent } from 'react';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type AnyProps = any;
 
 /**
