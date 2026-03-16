@@ -332,8 +332,8 @@ export default function RoommateMatching() {
 
   return (
     <div
-      className="relative w-full flex flex-col overflow-hidden"
-      style={{ height: '100dvh', minHeight: '100dvh', background: '#0a0a0b' }}
+      className="relative w-full flex flex-col overflow-hidden transition-colors duration-500"
+      style={{ height: '100dvh', minHeight: '100dvh', background: isLight ? '#f3f4f6' : '#0a0a0b' }}
     >
       {/* ── HEADER ──────────────────────────────────────────────────────────── */}
       <div
@@ -396,8 +396,8 @@ export default function RoommateMatching() {
 
         {/* Page title */}
         <div className="flex-1 flex flex-col">
-          <span className="text-sm font-black text-white tracking-tight">Roommates</span>
-          <span className="text-[10px] font-medium" style={{ color: isVisible ? '#86efac' : 'rgba(255,255,255,0.45)' }}>
+          <span className={cn("text-sm font-black tracking-tight", isLight ? "text-gray-900" : "text-white")}>Roommates</span>
+          <span className="text-[10px] font-medium" style={{ color: isVisible ? (isLight ? '#059669' : '#86efac') : (isLight ? '#6b7280' : 'rgba(255,255,255,0.45)') }}>
             {isVisible ? 'Visible to others' : 'Hidden from search'}
           </span>
         </div>
@@ -474,46 +474,40 @@ export default function RoommateMatching() {
             className="absolute left-3 right-3 z-50 overflow-hidden"
             style={{
               top: 'max(70px, calc(env(safe-area-inset-top, 0px) + 70px))',
-              borderRadius: 18,
-              background: isLight ? 'rgba(255,255,255,0.97)' : 'rgba(18,18,20,0.97)',
-              border: `1px solid ${isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)'}`,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.35)',
+              borderRadius: 24,
+              background: isLight ? 'rgba(255,255,255,0.95)' : 'rgba(18,18,20,0.92)',
+              border: `1px solid ${isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.12)'}`,
+              boxShadow: isLight ? '0 12px 40px rgba(0,0,0,0.12)' : '0 12px 48px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(12px)',
             }}
           >
-            <div style={{ padding: '14px 16px 16px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <span style={{ fontSize: 13, fontWeight: 700, color: isLight ? '#1a1a1a' : '#fff' }}>Filter Roommates</span>
+            <div style={{ padding: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <span className={cn("text-base font-black tracking-tight", isLight ? "text-gray-900" : "text-white")}>Filter Roommates</span>
                 <button
                   onClick={() => setShowFilters(false)}
-                  style={{ fontSize: 11, fontWeight: 600, color: '#f97316', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 6px' }}
+                  className="px-4 py-1.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 text-xs font-black uppercase tracking-widest border border-orange-500/20"
                 >
                   Done
                 </button>
               </div>
 
               {/* Gender filter */}
-              <div style={{ marginBottom: 14 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: isLight ? '#6b7280' : 'rgba(255,255,255,0.5)', letterSpacing: 0.5, textTransform: 'uppercase' as const }}>Gender</span>
-                <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' as const }}>
+              <div style={{ marginBottom: 20 }}>
+                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isLight ? "text-gray-500" : "text-white/40")}>Gender</span>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' as const }}>
                   {['Any', 'Female', 'Male', 'Non-binary'].map(g => (
                     <button
                       key={g}
                       onClick={() => setFilterGender(g)}
-                      style={{
-                        padding: '5px 12px',
-                        borderRadius: 16,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        border: filterGender === g
-                          ? '1px solid #f97316'
-                          : `1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)'}`,
-                        background: filterGender === g
-                          ? 'rgba(249,115,22,0.15)'
-                          : isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
-                        color: filterGender === g ? '#f97316' : isLight ? '#374151' : 'rgba(255,255,255,0.75)',
-                        transition: 'all 0.15s ease',
-                      }}
+                      className={cn(
+                        "px-4 py-2 rounded-2xl text-xs font-bold transition-all border",
+                        filterGender === g
+                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/20'
+                          : isLight
+                            ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
+                            : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                      )}
                     >
                       {g}
                     </button>
@@ -523,27 +517,20 @@ export default function RoommateMatching() {
 
               {/* Work schedule filter */}
               <div>
-                <span style={{ fontSize: 11, fontWeight: 600, color: isLight ? '#6b7280' : 'rgba(255,255,255,0.5)', letterSpacing: 0.5, textTransform: 'uppercase' as const }}>Work Schedule</span>
-                <div style={{ display: 'flex', gap: 6, marginTop: 7, flexWrap: 'wrap' as const }}>
+                <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", isLight ? "text-gray-500" : "text-white/40")}>Work Schedule</span>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' as const }}>
                   {['Any', 'Remote', 'Hybrid', 'Office', 'Flexible', 'Student'].map(s => (
                     <button
                       key={s}
                       onClick={() => setFilterSchedule(s)}
-                      style={{
-                        padding: '5px 12px',
-                        borderRadius: 16,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        border: filterSchedule === s
-                          ? '1px solid #f97316'
-                          : `1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.15)'}`,
-                        background: filterSchedule === s
-                          ? 'rgba(249,115,22,0.15)'
-                          : isLight ? 'rgba(0,0,0,0.04)' : 'rgba(255,255,255,0.06)',
-                        color: filterSchedule === s ? '#f97316' : isLight ? '#374151' : 'rgba(255,255,255,0.75)',
-                        transition: 'all 0.15s ease',
-                      }}
+                      className={cn(
+                        "px-4 py-2 rounded-2xl text-xs font-bold transition-all border",
+                        filterSchedule === s
+                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-500/20'
+                          : isLight
+                            ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
+                            : 'bg-white/5 border-white/10 text-white/60 hover:bg-white/10'
+                      )}
                     >
                       {s}
                     </button>

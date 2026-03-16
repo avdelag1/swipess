@@ -126,41 +126,41 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   return (
     <div className="w-full pb-32 bg-background min-h-screen">
-      <div className="p-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:p-8 sm:pt-[calc(56px+var(--safe-top)+2rem)] max-w-7xl mx-auto">
-        <div className="flex items-center justify-end mb-8">
+      <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
+        {/* Category tabs and Sync button */}
+        <div className="flex items-center gap-3 mb-10 overflow-x-auto scrollbar-hide pb-2 pt-4">
+          <div className="flex gap-3 flex-1 overflow-x-auto scrollbar-hide">
+            {categories.map(({ id, label, icon: Icon }) => (
+              <motion.button
+                key={id}
+                onClick={() => handleCategoryChange(id)}
+                whileTap={{ scale: 0.96 }}
+                className={cn(
+                  "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
+                  selectedCategory === id
+                    ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-lg shadow-[var(--color-brand-accent-2)]/20"
+                    : isLight
+                    ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
+                    : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
+                )}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </motion.button>
+            ))}
+          </div>
+
           <button
             onClick={() => {
               queryClient.invalidateQueries({ queryKey: ["liked-properties"] });
               refreshLikedProperties();
             }}
             disabled={isLoading || isFetching}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-secondary border border-border text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50 ml-2"
           >
             <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
-            <span className="text-xs font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>
           </button>
-        </div>
-
-        {/* Category tabs */}
-        <div className="flex gap-3 mb-10 overflow-x-auto scrollbar-hide pb-2 pt-4">
-          {categories.map(({ id, label, icon: Icon }) => (
-            <motion.button
-              key={id}
-              onClick={() => handleCategoryChange(id)}
-              whileTap={{ scale: 0.96 }}
-              className={cn(
-                "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
-                selectedCategory === id
-                  ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
-                  : isLight
-                  ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </motion.button>
-          ))}
         </div>
 
         {/* Count + drag hint */}
