@@ -315,7 +315,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   // Magnifier hook for press-and-hold zoom - MUST be called before any callbacks that use it
   const { containerRef, pointerHandlers: magnifierPointerHandlers, isActive: isMagnifierActive, isHoldPending } = useMagnifier({
     scale: 2.8,
-    holdDelay: 300,
+    holdDelay: 450, // Zoom needs clearly more time than swipe (movement-based) to avoid accidental activation
     enabled: isTop,
     onActiveChange: setMagnifierActive,
   });
@@ -341,15 +341,14 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
       const dx = Math.abs(e.clientX - startX);
       const dy = Math.abs(e.clientY - startY);
       if (dx > 15 || dy > 15) {
-        magnifierPointerHandlers.onPointerMove(e);
+        // Meaningful movement: cancel magnifier completely, start drag
+        magnifierPointerHandlers.onPointerUp(e); // Force-cancel hold timer + any active zoom
         if (!dragStartedRef.current && storedPointerEventRef.current) {
           dragStartedRef.current = true;
           isDragging.current = true;
           triggerHaptic('light');
           dragControls.start(e.nativeEvent);
         }
-      } else {
-        magnifierPointerHandlers.onPointerMove(e);
       }
       return;
     }
@@ -453,17 +452,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     const width = rect.width;
 
     // Left third - previous image (only if multiple images)
-    if (clickX < width * 0.3 && imageCount > 1) {
+    if (clickX < width * 0.33 && imageCount > 1) {
       setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
       triggerHaptic('light');
     }
     // Right third - next image (only if multiple images)
-    else if (clickX > width * 0.7 && imageCount > 1) {
+    else if (clickX > width * 0.67 && imageCount > 1) {
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
     }
-    // Middle area - open insights
-    else if (onInsights) {
+    // Middle third - open insights
+    else if (onInsights && clickX >= width * 0.33 && clickX <= width * 0.67) {
       triggerHaptic('light');
       onInsights();
     }
