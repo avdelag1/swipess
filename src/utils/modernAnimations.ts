@@ -195,23 +195,20 @@ export const slideRightVariants: Variants = {
   }
 };
 
-// Scale pop variants
+// Scale pop variants — no blur (blur animations are GPU-expensive and cause jank)
 export const scalePopVariants: Variants = {
-  hidden: { 
-    scale: 0.8, 
+  hidden: {
+    scale: 0.82,
     opacity: 0,
-    filter: 'blur(8px)'
   },
-  visible: { 
-    scale: 1, 
+  visible: {
+    scale: 1,
     opacity: 1,
-    filter: 'blur(0px)',
     transition: springConfigs.bouncy
   },
   exit: {
-    scale: 0.9,
+    scale: 0.92,
     opacity: 0,
-    filter: 'blur(4px)',
     transition: { duration: 0.15 }
   }
 };
