@@ -259,7 +259,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                             )}
                           >
                             {category.icon}
-                            <span>{category.label}</span>
+                            <span>{t(`filters.${category.label === 'properties' ? 'properties' : category.label === 'motos' ? 'motos' : category.label === 'bikes' ? 'bikes' : 'services'}`)}</span>
                             {isActive && <Check className="w-3 h-3 ml-auto" />}
                           </button>
                         );
