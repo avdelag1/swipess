@@ -14,10 +14,10 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const isDark = theme === 'dark';
 
     const glassBg = isDark ? 'var(--glass-bg)' : 'rgba(255, 255, 255, 0.95)';
-    const glassBorder = isDark ? '1px solid var(--glass-border)' : '1px solid rgba(0, 0, 0, 0.05)';
+    const glassBorder = isDark ? '1px solid rgba(255,255,255,0.16)' : '1px solid rgba(0, 0, 0, 0.08)';
     const floatingShadow = isDark
-        ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-        : '0 10px 30px -10px rgba(0,0,0,0.1)';
+        ? 'inset 0 1px 0 rgba(255,255,255,0.12), 0 4px 16px rgba(0,0,0,0.35)'
+        : 'inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 16px rgba(0,0,0,0.08)';
 
     const handleToggle = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -30,12 +30,12 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         <button
             onClick={handleToggle}
             className={cn(
-                'relative flex items-center justify-center rounded-xl',
+                'relative flex items-center justify-center rounded-2xl',
                 'transition-all duration-100 ease-out',
                 'active:scale-[0.9]',
                 'touch-manipulation',
                 '-webkit-tap-highlight-color-transparent',
-                'h-9 w-9 flex-shrink-0',
+                'h-10 w-10 flex-shrink-0',
                 className
             )}
             style={{
@@ -54,9 +54,9 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
                     {isDark ? (
-                        <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                        <Sun strokeWidth={3} className="h-5 w-5 text-amber-400" />
                     ) : (
-                        <Moon strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
+                        <Moon strokeWidth={3} className="h-5 w-5 text-indigo-400" />
                     )}
                 </motion.div>
             </AnimatePresence>
