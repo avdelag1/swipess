@@ -1067,7 +1067,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* Static Action Buttons - Floating bottom bar */}
         {topCard && !insightsOpen && (
-          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'clamp(88px, 14vh, 128px)' }}>
+          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 84px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
