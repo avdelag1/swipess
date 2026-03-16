@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Users, Sparkles } from 'lucide-react';
@@ -47,6 +48,7 @@ function calculateCompatibility(me: any, other: any): number {
 
 export default function RoommateMatching() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [candidates, setCandidates] = useState<RoommateCandidate[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -137,7 +139,35 @@ export default function RoommateMatching() {
         .eq('direction', 'right')
         .maybeSingle();
       if (mutual) {
-        toast.success(`🎉 You matched with ${target.name || 'a roommate'}! Start chatting.`);
+        // Create a conversation for matched roommates so they can chat
+        const { data: existingConv } = await supabase
+          .from('conversations')
+          .select('id')
+          .or(`and(client_id.eq.${user.id},owner_id.eq.${target.user_id}),and(client_id.eq.${target.user_id},owner_id.eq.${user.id})`)
+          .maybeSingle();
+
+        let convId = existingConv?.id;
+        if (!convId) {
+          const { data: newConv } = await supabase
+            .from('conversations')
+            .insert({
+              client_id: user.id,
+              owner_id: target.user_id,
+              status: 'active',
+            })
+            .select('id')
+            .single();
+          convId = newConv?.id;
+        }
+
+        toast.success(`🎉 You matched with ${target.name || 'a roommate'}!`, {
+          description: 'A chat has been opened — start the conversation.',
+          action: {
+            label: 'Chat now',
+            onClick: () => navigate('/messages'),
+          },
+          duration: 6000,
+        });
       }
     }
 
