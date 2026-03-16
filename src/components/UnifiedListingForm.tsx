@@ -167,18 +167,19 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // Main listing data - ALL fields in listings table
       const rawListingData: Record<string, any> = {
         owner_id: user.user.id,
+        user_id: user.user.id, // Explicitly required by schema
         category: selectedCategory,
-        listing_type: selectedCategory === 'worker' ? 'service' : selectedMode,
+        listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
         mode: selectedMode,
         status: 'active',
         is_active: true,
         title: (formData.title as string) || `New ${selectedCategory}`,
         price: Number(formData.price) || 0,
-        currency: 'USD',
+        currency: (formData.currency as string) || 'USD',
         rental_rates: formData.rental_rates,
-        rental_duration_type: formData.rental_duration_type,
-        description: (formData.description as string) || '',
-        location: locationStr,
+        rental_duration_type: (formData.rental_duration_type as string) || null,
+        description: (formData.description as string) || (formData.about as string) || '',
+        location: locationStr || 'Tulum', // Default value to prevent NOT NULL constraint error
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
         city: (formData.city as string) || 'Unknown',
@@ -253,10 +254,16 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         includes_pump: selectedCategory === 'bicycle' ? !!formData.includes_pump : null,
       };
 
-      // Strip undefined values to prevent PostgREST schema cache issues
+      // Strip undefined and null values that might cause column mismatch
       const listingData = Object.fromEntries(
-        Object.entries(rawListingData).filter(([_, v]) => v !== undefined)
+        Object.entries(rawListingData).filter(([_, v]) => v !== undefined && v !== null)
       );
+
+      // Re-add required fields if they were stripped
+      if (listingData.location === undefined) listingData.location = 'Tulum';
+      if (listingData.price === undefined) listingData.price = 0;
+      if (listingData.title === undefined) listingData.title = `New ${selectedCategory}`;
+      if (listingData.user_id === undefined) listingData.user_id = user.user.id;
 
       let listingResult;
 
@@ -303,57 +310,17 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             .single();
 
           if (error) {
-            // DYNAMIC SELF-HEALING: Detect column names missing from schema cache and retry without them
-            const errorMsg = error.message?.toLowerCase() || '';
-            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
-            
-            if (isSchemaError) {
-              console.warn('PostgREST schema cache error detected. Attempting smart retry...');
-              
-              const columnMatch = error.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
-              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
-              
-              if (missingColumn && listingData[missingColumn] !== undefined) {
-                console.warn(`Removing problematic column "${missingColumn}" and retrying...`);
-                const { [missingColumn]: _, ...safeData } = listingData;
-                
-                const { data: fallbackData, error: fallbackError } = await supabase
-                  .from('listings')
-                  .insert(safeData as any)
-                  .select()
-                  .single();
-
-                if (fallbackError) {
-                  // If it fails again with another column, try one more time stripping both (common for location + user_id)
-                  const secondColumnMatch = fallbackError.message?.match(/(?:column\s+['"]?([^'"\s]+)['"]?)|(?:['"]?([^'"\s]+)['"]?\s+column)/i);
-                  const secondMissingColumn = secondColumnMatch ? (secondColumnMatch[1] || secondColumnMatch[2]) : null;
-                  
-                  if (secondMissingColumn && safeData[secondMissingColumn] !== undefined) {
-                    console.warn(`Removing second problematic column "${secondMissingColumn}" and retrying final time...`);
-                    const { [secondMissingColumn]: __, ...ultraSafeData } = safeData;
-                    const { data: finalData, error: finalError } = await supabase
-                      .from('listings')
-                      .insert(ultraSafeData as any)
-                      .select()
-                      .single();
-                      
-                    if (finalError) throw finalError;
-                    listingResult = finalData;
-                  } else {
-                    throw fallbackError;
-                  }
-                } else {
-                  listingResult = fallbackData;
-                }
-              } else if (errorMsg.includes('location')) {
-                // Legacy fallback for location
-                const { location, ...safeData } = listingData;
-                const { data: fallbackData, error: fallbackError } = await supabase.from('listings').insert(safeData as any).select().single();
-                if (fallbackError) throw fallbackError;
-                listingResult = fallbackData;
-              } else {
-                throw error;
-              }
+            console.error('Insert error details:', error);
+            // Fallback for location column error (common in some schema versions)
+            if (error.message?.includes('location')) {
+              const { location, ...safeData } = listingData;
+              const { data: fallbackData, error: fallbackError } = await supabase
+                .from('listings')
+                .insert(safeData as any)
+                .select()
+                .single();
+              if (fallbackError) throw fallbackError;
+              listingResult = fallbackData;
             } else {
               throw error;
             }
