@@ -767,47 +767,53 @@ const ClientSwipeContainerComponent = ({
   if (isDeckFinished) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04] bg-brand-accent-2 blur-3xl" />
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20 text-center"
+          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
         >
-          {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
-          <div className="relative group mb-2">
+          {/* RadarSearchEffect with gentle motion wrapper */}
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            className="relative"
+          >
             <RadarSearchEffect
               size={120}
               color="var(--color-brand-accent-2)"
               isActive={isRefreshing}
               icon={labels.icon}
             />
-          </div>
+          </motion.div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">
               All Caught Up!
             </h3>
-            <p className="text-muted-foreground text-sm font-extrabold opacity-80 px-4">
+            <p className="text-muted-foreground text-sm leading-relaxed px-4">
               You've seen all available {labels.plural.toLowerCase()}. Check back soon for fresh opportunities.
             </p>
           </div>
 
-          <div className="flex flex-col w-full gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <div className="flex flex-col w-full gap-3">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="w-full h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
+                className="w-full h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
               >
                 {isRefreshing ? (
                   <RadarSearchIcon size={20} isActive={true} color="white" />
                 ) : (
-                  <RefreshCw className={cn("w-5 h-5 stroke-[3.5px]", isRefreshing && "animate-spin")} />
+                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
                 )}
                 <span>{isRefreshing ? 'Scanning...' : 'Discover More'}</span>
               </Button>
             </motion.div>
-
 
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
               New {labels.plural.toLowerCase()} are added daily
@@ -843,42 +849,49 @@ const ClientSwipeContainerComponent = ({
   if (showEmptyState || !topCard) {
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.04] bg-brand-accent-2 blur-3xl" />
+
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-sm w-full gap-4 -mt-16 sm:-mt-20 text-center"
+          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
         >
-          {/* DISCOVERY HUB EFFECT - Premium sentient pulse */}
-          <div className="relative group mb-2">
+          {/* RadarSearchEffect with gentle motion wrapper */}
+          <motion.div
+            animate={{ y: [0, -5, 0] }}
+            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+            className="relative"
+          >
             <RadarSearchEffect
               size={120}
               color="var(--color-brand-accent-2)"
               isActive={isRefreshing}
               icon={labels.icon}
             />
-          </div>
+          </motion.div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">
               No {labels.plural} Found
             </h3>
-            <p className="text-muted-foreground text-sm font-extrabold opacity-80 px-4">
+            <p className="text-muted-foreground text-sm leading-relaxed px-4">
               Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()} in your area.
             </p>
           </div>
 
-          <div className="flex flex-col w-full gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <div className="flex flex-col w-full gap-3">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="w-full h-16 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
+                className="w-full h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
               >
                 {isRefreshing ? (
                   <RadarSearchIcon size={20} isActive={true} color="white" />
                 ) : (
-                  <RefreshCw className={cn("w-5 h-5 stroke-[3.5px]", isRefreshing && "animate-spin")} />
+                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
                 )}
                 <span>{isRefreshing ? 'Scanning...' : `Refresh ${labels.plural}`}</span>
               </Button>

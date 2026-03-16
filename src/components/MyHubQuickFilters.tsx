@@ -28,16 +28,10 @@ export function MyHubQuickFilters() {
     return (
         <div className="relative mb-8">
             {/* Label */}
-            <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center mb-3 px-1">
                 <h3 className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">
                     Discover Categories
                 </h3>
-                <button
-                    onClick={() => { haptics.tap(); setActiveCategory(null); }}
-                    className="text-[10px] font-black uppercase text-brand-accent-2/80 hover:text-brand-accent-2 transition-colors"
-                >
-                    Clear All
-                </button>
             </div>
 
             {/* Horizontal Scroll Area */}
@@ -91,11 +85,41 @@ export function MyHubQuickFilters() {
                     );
                 })}
 
-                {/* All / Search Placeholder */}
-                <button className="flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl bg-muted/20 border-[1.5px] border-dashed border-border text-muted-foreground hover:bg-muted/40 transition-all">
-                    <Search className="w-6 h-6 mb-2 opacity-50" />
-                    <span className="text-[10px] font-black uppercase opacity-60">More</span>
-                </button>
+                {/* All - clears active category filter */}
+                <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { haptics.select(); setActiveCategory(null); }}
+                    className={cn(
+                        "relative flex-shrink-0 flex flex-col items-center justify-center w-24 h-24 rounded-3xl transition-all duration-300",
+                        "border-[1.5px]",
+                        activeCategory === null
+                            ? "bg-brand-accent-2/10 border-brand-accent-2 shadow-[0_0_20px_rgba(228,0,124,0.2)]"
+                            : "bg-muted/30 border-border hover:bg-muted/60"
+                    )}
+                >
+                    {activeCategory === null && (
+                        <motion.div
+                            layoutId="active-indicator"
+                            className="absolute top-2 right-2 bg-brand-accent-2 rounded-full p-0.5"
+                        >
+                            <Check className="w-2.5 h-2.5 text-white" strokeWidth={4} />
+                        </motion.div>
+                    )}
+                    <div className={cn(
+                        "w-10 h-10 rounded-2xl flex items-center justify-center mb-2 shadow-inner",
+                        activeCategory === null
+                            ? "bg-gradient-to-br from-brand-accent-2 to-pink-400 text-white"
+                            : "bg-muted text-muted-foreground"
+                    )}>
+                        <Search className="w-5 h-5" strokeWidth={2.5} />
+                    </div>
+                    <span className={cn(
+                        "text-[10px] font-black uppercase tracking-tight",
+                        activeCategory === null ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                        All
+                    </span>
+                </motion.button>
             </div>
 
             {/* Explore Feature Links */}

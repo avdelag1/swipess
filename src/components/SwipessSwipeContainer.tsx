@@ -1142,41 +1142,58 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
+        {/* Subtle ambient glow behind the card */}
+        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="text-center space-y-6 p-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center space-y-8 p-8 max-w-xs w-full"
         >
-          {/* Category-specific icon with heartbeat pulse animation */}
+          {/* Icon with slow, graceful float animation */}
           <div className="flex justify-center">
-            <motion.div
-              animate={isRefreshing ? { rotate: 360 } : { scale: [1, 1.15, 1, 1.1, 1] }}
-              transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-2 border-current flex items-center justify-center ${iconColor}`}
-            >
-              <CategoryIcon className="w-10 h-10" />
-            </motion.div>
+            <div className="relative">
+              {/* Outer glow ring */}
+              <motion.div
+                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
+              />
+              {/* Icon container */}
+              <motion.div
+                animate={isRefreshing
+                  ? { rotate: 360 }
+                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
+                }
+                transition={isRefreshing
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
+              >
+                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold opacity-80">
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
               {description}
             </p>
           </div>
           <div className="flex flex-col gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="w-full gap-2 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
+                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
               >
                 {isRefreshing ? (
                   <RadarSearchIcon size={20} isActive={true} />
                 ) : (
-                  <RefreshCw className="w-5 h-5" />
+                  <RefreshCw className="w-4 h-4" />
                 )}
                 {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
               </Button>
@@ -1256,40 +1273,51 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
     return (
       <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* UNIFIED animation - all elements animate together, no staggered pop-in */}
+        {/* Subtle ambient glow */}
+        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
+
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-          className="text-center space-y-6 p-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center space-y-8 p-8 max-w-xs w-full"
         >
-          {/* Category-specific icon with heartbeat pulse animation */}
+          {/* Icon with slow, graceful float animation */}
           <div className="flex justify-center">
-            <motion.div
-              animate={{ scale: [1, 1.15, 1, 1.1, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className={`w-20 h-20 rounded-full border-[3px] border-current flex items-center justify-center ${iconColor}`}
-            >
-              <CategoryIcon className="w-10 h-10" strokeWidth={4} />
-            </motion.div>
+            <div className="relative">
+              {/* Outer glow ring */}
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.25, 0.12] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
+              />
+              {/* Icon container */}
+              <motion.div
+                animate={{ scale: [1, 1.06, 1], y: [0, -4, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
+              >
+                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <h3 className="text-xl font-black text-foreground uppercase tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto font-extrabold">
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
               {description}
             </p>
           </div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
             <Button
               onClick={handleRefresh}
               disabled={isRefreshing}
-              className="gap-2 rounded-full px-6 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
+              className="gap-2.5 rounded-full px-8 py-5 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
             >
               {isRefreshing ? (
                 <RadarSearchIcon size={18} isActive={true} />
               ) : (
-                <RefreshCw className="w-4 h-4" strokeWidth={4} />
+                <RefreshCw className="w-4 h-4" />
               )}
               {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
             </Button>
