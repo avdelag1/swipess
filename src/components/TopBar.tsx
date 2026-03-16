@@ -401,7 +401,7 @@ function TopBarComponent({
                       onMessageActivationsClick?.();
                     }}
                   >
-                    View all packages & details
+                    {t('topbar.viewAllPackages')}
                   </button>
                 </div>
               </PopoverContent>

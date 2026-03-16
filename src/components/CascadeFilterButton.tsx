@@ -360,7 +360,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
                   'w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm'
                 )}
               >
-                apply filters
+                {t('filters.applyFilters')}
               </button>
             </div>
           </motion.div>
