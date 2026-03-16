@@ -108,6 +108,10 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
     onDataChange(formData);
   }, [formData, onDataChange]);
 
+  const handleElectricToggle = (v: boolean) => {
+    setValue('electric_assist', v);
+  };
+
   return (
     <div className="space-y-5">
       <Section title="Basic Information">
@@ -218,12 +222,8 @@ export function BicycleListingForm({ onDataChange, initialData }: BicycleListing
       <Section title="Electric Features">
         <CheckboxRow
           id="electric_assist"
-          checked={!!watch('electric_assist')}
-          onCheckedChange={(v) => {
-            // Manual setValue workaround since we use Controller elsewhere
-            const form = watch();
-            onDataChange({ ...form, electric_assist: v as boolean });
-          }}
+          checked={!!isElectric}
+          onCheckedChange={handleElectricToggle}
           label="Electric Assist (E-Bike)"
         />
         {isElectric && (
