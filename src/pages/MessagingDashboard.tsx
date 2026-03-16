@@ -8,11 +8,22 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MessageCircle, Search, Plus, Home, Bike, Ship, Car } from 'lucide-react';
+import {
+  ArrowLeft, MessageCircle, Search, Plus, Home, Bike, Ship, Car,
+  MoreVertical, Archive, Trash, Check, Filter, Inbox, CircleDot,
+  Ghost, FolderArchive
+} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
-import { useConversations, useConversationStats, useStartConversation } from '@/hooks/useConversations';
+import {
+  useConversations,
+  useConversationStats,
+  useStartConversation,
+  useDeleteConversation,
+  useUpdateConversationStatus,
+  useMarkConversationAsRead
+} from '@/hooks/useConversations';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
@@ -23,6 +34,14 @@ import { MessageActivationBanner } from '@/components/MessageActivationBanner';
 import { useMessageActivations } from '@/hooks/useMessageActivations';
 import { usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { logger } from '@/utils/prodLogger';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from '@/components/ui/dropdown-menu';
+import { haptics } from '@/utils/microPolish';
 
 // Helper to check free messaging eligibility - extracted to avoid TS deep instantiation
 async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
@@ -45,6 +64,7 @@ export function MessagingDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
   const [directConversationId, setDirectConversationId] = useState<string | null>(null);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
@@ -58,6 +78,11 @@ export function MessagingDashboard() {
   const { activeMode } = useActiveMode();
 
   const { data: conversations = [], isLoading, refetch, ensureConversationInCache, fetchSingleConversation } = useConversations();
+  const deleteConversation = useDeleteConversation();
+  const updateStatus = useUpdateConversationStatus();
+  const markChatAsRead = useMarkConversationAsRead();
+  const viewerMarkAsRead = useMarkMessagesAsRead(""); 
+
   // State to store a directly fetched conversation (when not in cache)
   const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<{
     id: string;
@@ -127,15 +152,26 @@ export function MessagingDashboard() {
       const matchesSearch = conv.other_user?.full_name?.toLowerCase()?.includes(searchQuery.toLowerCase());
 
       // Mode filter
-      // Client mode: only show conversations where current user is the client (talking to owners)
-      // Owner mode: only show conversations where current user is the owner (talking to clients)
       const matchesMode = activeMode === 'client'
         ? conv.client_id === user?.id
         : conv.owner_id === user?.id;
 
-      return matchesSearch && matchesMode;
+      // Status/Category filter
+      let matchesFilter = true;
+      const isUnread = conv.last_message?.sender_id !== user?.id && conv.last_message?.is_read === false;
+
+      if (activeFilter === 'unread') {
+        matchesFilter = isUnread;
+      } else if (activeFilter === 'archived') {
+        matchesFilter = conv.status === 'archived';
+      } else {
+        // 'all' tab shows everything EXCEPT archived (standard inbox behavior)
+        matchesFilter = conv.status !== 'archived';
+      }
+
+      return matchesSearch && matchesMode && matchesFilter;
     });
-  }, [conversations, searchQuery, activeMode, user?.id]);
+  }, [conversations, searchQuery, activeMode, activeFilter, user?.id]);
 
   const selectedConversation = conversations.find(conv => conv.id === selectedConversationId);
 
@@ -412,6 +448,70 @@ export function MessagingDashboard() {
 
       <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
+          
+          {/* Header & Stats */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                <MessageCircle className="w-6 h-6 text-primary" />
+                Messages
+              </h1>
+              <p className="text-muted-foreground text-sm font-medium">
+                {activeMode === 'owner' ? 'Managing your leads' : 'Talking to providers'}
+              </p>
+            </div>
+            
+            <div className="hidden sm:flex items-center gap-4 text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">
+              <div className="flex flex-col items-end">
+                <span>Active Threads</span>
+                <span className="text-foreground/60">{conversations.filter(c => c.status !== 'archived').length}</span>
+              </div>
+            </div>
+            
+            {conversations.some(c => c.last_message?.sender_id !== user?.id && c.last_message?.is_read === false) && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5"
+                onClick={async () => {
+                  const unread = conversations.filter(c => c.last_message?.sender_id !== user?.id && c.last_message?.is_read === false);
+                  for (const conv of unread) {
+                    await markChatAsRead.mutateAsync(conv.id);
+                  }
+                  toast({ title: 'Inbox cleared', description: 'All messages marked as read.' });
+                  haptics.success();
+                }}
+              >
+                Mark all read
+              </Button>
+            )}
+          </div>
+
+          {/* Filters Bar */}
+          <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2 scrollbar-hide no-scrollbar">
+            {[
+              { id: 'all', label: 'Inbox', icon: Inbox },
+              { id: 'unread', label: 'Unread', icon: CircleDot },
+              { id: 'archived', label: 'Archived', icon: Archive }
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => {
+                  setActiveFilter(filter.id as any);
+                  haptics.impact();
+                }}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 shrink-0",
+                  activeFilter === filter.id 
+                    ? "bg-primary text-white shadow-lg shadow-primary/20 scale-105" 
+                    : "bg-white/5 text-muted-foreground hover:bg-white/10"
+                )}
+              >
+                <filter.icon className="w-3.5 h-3.5" />
+                {filter.label}
+              </button>
+            ))}
+          </div>
 
 
 
@@ -436,9 +536,9 @@ export function MessagingDashboard() {
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation, index) => {
                 const isOwner = conversation.other_user?.role === 'owner';
-                const hasUnread = conversation.last_message?.sender_id !== user?.id &&
-                  conversation.last_message_at &&
-                  new Date(conversation.last_message_at).getTime() > Date.now() - 86400000;
+                const isUnread = conversation.last_message?.sender_id !== user?.id && 
+                                conversation.last_message?.is_read === false;
+                const lastMessageAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
 
                 return (
                   <motion.div
@@ -457,9 +557,9 @@ export function MessagingDashboard() {
                           ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                           : 'bg-gradient-to-br from-blue-500 to-cyan-500'
                           }`}>
-                          <Avatar className="w-13 h-13 border-2 border-background">
+                          <Avatar className="w-13 h-13 border-2 border-background shadow-xl">
                             <AvatarImage src={conversation.other_user?.avatar_url} />
-                            <AvatarFallback className={`text-sm font-semibold text-white ${isOwner
+                            <AvatarFallback className={`text-sm font-black text-white ${isOwner
                               ? 'bg-gradient-to-br from-purple-500 to-indigo-500'
                               : 'bg-gradient-to-br from-blue-500 to-cyan-500'
                               }`}>
@@ -467,37 +567,105 @@ export function MessagingDashboard() {
                             </AvatarFallback>
                           </Avatar>
                         </div>
-                        {/* Online dot */}
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-background" />
+                        {/* Status indicator */}
+                        <div className={cn(
+                          "absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background shadow-sm",
+                          isUnread ? "bg-orange-500 animate-pulse" : "bg-emerald-500"
+                        )} />
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className={`font-semibold text-[15px] truncate ${hasUnread ? 'text-foreground' : 'text-foreground/80'}`}>
+                            <span className={cn(
+                              "text-[15px] truncate transition-colors duration-300",
+                              isUnread ? "font-black text-foreground" : "font-bold text-foreground/70"
+                            )}>
                               {conversation.other_user?.full_name || 'Unknown'}
                             </span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${isOwner
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-tighter ${isOwner
                               ? 'bg-purple-500/15 text-purple-400'
                               : 'bg-blue-500/15 text-blue-400'
                               }`}>
                               {isOwner ? 'Provider' : 'Explorer'}
                             </span>
                           </div>
-                          <span className="text-[11px] text-muted-foreground ml-2 shrink-0">
-                            {conversation.last_message_at
-                              ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: false })
-                              : ''
-                            }
-                          </span>
+                          <div className="flex items-center gap-2">
+                             <span className="text-[10px] font-bold text-muted-foreground/40 shrink-0">
+                              {lastMessageAt
+                                ? formatDistanceToNow(lastMessageAt, { addSuffix: false })
+                                : ''
+                              }
+                            </span>
+                            
+                            {/* Action Menu */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="w-8 h-8 rounded-full hover:bg-white/10"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    haptics.selection();
+                                  }}
+                                >
+                                  <MoreVertical className="w-4 h-4 text-muted-foreground/50" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48 bg-zinc-900 border-white/10 rounded-2xl shadow-2xl p-1.5">
+                                <DropdownMenuItem 
+                                  className="rounded-xl flex items-center gap-2 cursor-pointer font-bold text-xs p-3"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markChatAsRead.mutate(conversation.id);
+                                  }}
+                                  disabled={!isUnread}
+                                >
+                                  <Check className="w-4 h-4 text-emerald-400" />
+                                  Mark as read
+                                </DropdownMenuItem>
+                                
+                                <DropdownMenuItem 
+                                  className="rounded-xl flex items-center gap-2 cursor-pointer font-bold text-xs p-3"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    updateStatus.mutate({ 
+                                      conversationId: conversation.id, 
+                                      status: conversation.status === 'archived' ? 'active' : 'archived' 
+                                    });
+                                  }}
+                                >
+                                  {conversation.status === 'archived' ? <Inbox className="w-4 h-4 text-blue-400" /> : <Archive className="w-4 h-4 text-blue-400" />}
+                                  {conversation.status === 'archived' ? 'Move to Inbox' : 'Archive Chat'}
+                                </DropdownMenuItem>
+                                
+                                <DropdownMenuSeparator className="bg-white/5 my-1" />
+                                
+                                <DropdownMenuItem 
+                                  className="rounded-xl flex items-center gap-2 cursor-pointer font-bold text-xs p-3 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteConversation.mutate(conversation.id);
+                                  }}
+                                >
+                                  <Trash className="w-4 h-4" />
+                                  Delete Permanently
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <p className={`text-[13px] truncate flex-1 ${hasUnread ? 'text-foreground/70 font-medium' : 'text-muted-foreground'}`}>
+                          <p className={cn(
+                            "text-[13px] truncate flex-1",
+                            isUnread ? "text-foreground/90 font-bold" : "text-muted-foreground font-medium"
+                          )}>
                             {conversation.last_message?.message_text || 'Start a conversation...'}
                           </p>
-                          {hasUnread && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0" />
+                          {isUnread && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0 shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
                           )}
                         </div>
                       </div>
@@ -506,17 +674,39 @@ export function MessagingDashboard() {
                 );
               })
             ) : (
-              <div className="flex flex-col items-center justify-center py-20">
-                <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <MessageCircle className="w-10 h-10 text-primary" />
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-24 text-center"
+              >
+                <div className="w-24 h-24 rounded-[2.5rem] bg-white/[0.03] border border-white/[0.05] flex items-center justify-center mb-6 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  {activeFilter === 'unread' ? <CircleDot className="w-10 h-10 text-primary/40" /> : 
+                   activeFilter === 'archived' ? <FolderArchive className="w-10 h-10 text-primary/40" /> :
+                   <Ghost className="w-10 h-10 text-primary/40" />}
                 </div>
-                <p className="text-foreground font-medium mb-1">
-                  {searchQuery ? 'No conversations found' : 'No conversations yet'}
+                <h3 className="text-lg font-black tracking-tight mb-2">
+                  {searchQuery ? 'No results found' : 
+                   activeFilter === 'unread' ? 'Clean Inbox!' :
+                   activeFilter === 'archived' ? 'Archive is empty' :
+                   'No messages yet'}
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-[240px] font-medium">
+                  {searchQuery ? `We couldn't find anything matching "${searchQuery}"` : 
+                   activeFilter === 'unread' ? 'You have read all your messages. Great job!' :
+                   activeFilter === 'archived' ? 'Messages you archive will appear here.' :
+                   'Your journey starts with a simple hello. Start browsing to find matches!'}
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  {searchQuery ? 'Try a different search' : 'Start matching to chat!'}
-                </p>
-              </div>
+                {searchQuery && (
+                  <Button 
+                    variant="link" 
+                    className="mt-2 text-primary font-black uppercase tracking-widest text-[10px]"
+                    onClick={() => setSearchQuery('')}
+                  >
+                    Clear Search
+                  </Button>
+                )}
+              </motion.div>
             )}
           </div>
         </div>

@@ -108,7 +108,7 @@ export function useConversations() {
         // OPTIMIZED: Single query for all last messages instead of N queries
         const { data: messagesData, error: messagesError } = await supabase
           .from('conversation_messages')
-          .select('conversation_id, message_text, created_at, sender_id')
+          .select('conversation_id, message_text, created_at, sender_id, is_read')
           .in('conversation_id', conversationIds)
           .order('created_at', { ascending: false });
 
@@ -578,6 +578,125 @@ export function useSendMessage() {
         description: error.message,
         variant: 'destructive'
       });
+    }
+  });
+}
+
+export function useDeleteConversation() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+
+      if (error) throw error;
+      return conversationId;
+    },
+    onSuccess: (conversationId) => {
+      queryClient.setQueryData(['conversations', user?.id], (oldData: Conversation[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.filter(c => c.id !== conversationId);
+      });
+      toast({
+        title: '🗑️ Conversation deleted',
+        description: 'The chat has been removed from your dashboard.',
+      });
+    },
+    onError: (error: Error) => {
+      logger.error('Error deleting conversation:', error);
+      toast({
+        title: 'Failed to delete conversation',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  });
+}
+
+export function useUpdateConversationStatus() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async ({ conversationId, status }: { conversationId: string; status: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
+
+      const { data, error } = await supabase
+        .from('conversations')
+        .update({ status })
+        .eq('id', conversationId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['conversations', user?.id], (oldData: Conversation[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.map(c => c.id === data.id ? { ...c, status: data.status } : c);
+      });
+      
+      const title = data.status === 'archived' ? '📁 Chat archived' : '🔓 Chat unarchived';
+      toast({
+        title,
+        description: `The conversation has been ${data.status === 'archived' ? 'moved to archive' : 'moved back to inbox'}.`,
+      });
+    },
+    onError: (error: Error) => {
+      logger.error('Error updating conversation status:', error);
+      toast({
+        title: 'Action failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  });
+}
+
+export function useMarkConversationAsRead() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      if (!user?.id) throw new Error('Not authenticated');
+
+      const { error } = await supabase
+        .from('conversation_messages')
+        .update({ is_read: true, read_at: new Date().toISOString() })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', user.id)
+        .eq('is_read', false);
+
+      if (error) throw error;
+      return conversationId;
+    },
+    onSuccess: (conversationId) => {
+      // Update the local conversations count/state
+      queryClient.setQueryData(['conversations', user?.id], (oldData: Conversation[] | undefined) => {
+        if (!oldData) return [];
+        return oldData.map(c => {
+          if (c.id === conversationId && c.last_message) {
+            return {
+              ...c,
+              last_message: { ...c.last_message, is_read: true }
+            };
+          }
+          return c;
+        });
+      });
+      // Also update global unread count
+      queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
+    },
+    onError: (error: Error) => {
+      logger.error('Error marking conversation as read:', error);
     }
   });
 }
