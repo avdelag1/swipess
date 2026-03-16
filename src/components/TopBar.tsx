@@ -149,8 +149,8 @@ function TopBarComponent({
       setTokensOpen(false);
     } else {
       toast({
-        title: "Payment link unavailable",
-        description: "Please contact support to complete this purchase.",
+        title: t('topbar.paymentUnavailable'),
+        description: t('topbar.contactSupport'),
         variant: "destructive",
       });
     }
