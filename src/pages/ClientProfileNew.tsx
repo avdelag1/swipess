@@ -23,13 +23,6 @@ import { cn } from "@/lib/utils";
 import { haptics } from "@/utils/microPolish";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
-const premiumSpring = { type: "spring" as const, stiffness: 400, damping: 24, mass: 0.8 };
-const stagger = { visible: { transition: { staggerChildren: 0.06, delayChildren: 0.08 } } };
-// No blur — blur animations trigger expensive GPU re-compositing on every frame
-const childVariant = {
-  hidden: { opacity: 0, y: 18, scale: 0.96 },
-  visible: { opacity: 1, y: 0, scale: 1, transition: premiumSpring },
-};
 
 const ClientProfileNew = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -81,14 +74,9 @@ const ClientProfileNew = () => {
 
   return (
     <>
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full"
-      >
+      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
         {/* Profile Header */}
-        <motion.div className="flex items-center gap-4" variants={childVariant}>
+        <div className="flex items-center gap-4">
           <div className="relative">
             <div className="w-[84px] h-[84px] rounded-full p-[2.5px]" style={{ background: 'linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent-2))' }}>
               <div
@@ -117,10 +105,10 @@ const ClientProfileNew = () => {
             </h1>
             <p className="text-sm font-normal text-muted-foreground mt-0.5">{user?.email}</p>
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Stats Grid */}
-        <motion.div variants={childVariant} className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           {[
             { label: 'Likes', value: stats?.likesReceived ?? 0, icon: ThumbsUp, color: 'text-primary/70' },
             { label: 'Matches', value: stats?.matchesCount ?? 0, icon: Sparkles, color: 'text-amber-500/70' },
@@ -140,10 +128,10 @@ const ClientProfileNew = () => {
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Edit Profile Button */}
-        <motion.div variants={childVariant}>
+        <div>
           <Button
             variant="gradient"
             size="lg"
@@ -154,11 +142,11 @@ const ClientProfileNew = () => {
             <User className="w-5 h-5" />
             Edit Profile
           </Button>
-        </motion.div>
+        </div>
 
         {/* Profile Completion */}
         {profile && completionPercent < 100 && (
-          <motion.div variants={childVariant}>
+          <div>
             <div
               className="rounded-2xl p-5 cursor-pointer border transition-all hover:bg-muted/50"
               style={{
@@ -179,11 +167,11 @@ const ClientProfileNew = () => {
                 Complete profiles get 3x more interest. Tap to finish.
               </p>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Action Grid */}
-        <motion.div variants={childVariant} className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={() => { haptics.tap(); navigate('/client/liked-properties'); }}
@@ -221,22 +209,22 @@ const ClientProfileNew = () => {
               <div className="text-[11px] font-normal mt-0.5 text-muted-foreground">Interested</div>
             </div>
           </motion.button>
-        </motion.div>
+        </div>
 
         {/* Bio Section */}
         {profile?.bio && (
-          <motion.div variants={childVariant} className={cn(
+          <div className={cn(
             "rounded-2xl p-6 border",
             isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
           )}>
             <h3 className="text-xs font-medium text-muted-foreground mb-3">About you</h3>
             <p className="text-sm font-normal text-foreground leading-relaxed">"{profile.bio}"</p>
-          </motion.div>
+          </div>
         )}
 
         {/* Interests Section */}
         {profile?.interests && profile.interests.length > 0 && (
-          <motion.div variants={childVariant} className={cn(
+          <div className={cn(
             "rounded-2xl p-6 border",
             isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
           )}>
@@ -256,38 +244,38 @@ const ClientProfileNew = () => {
                 </span>
               ))}
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Discover Categories */}
-        <motion.div variants={childVariant}>
+        <div>
           <MyHubQuickFilters />
-        </motion.div>
+        </div>
 
         {/* Recent Activity */}
-        <motion.div variants={childVariant}>
+        <div>
           <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
             Recent Activity
           </h3>
           <MyHubActivityFeed />
-        </motion.div>
+        </div>
 
         {/* Share Profile */}
-        <motion.div variants={childVariant}>
+        <div>
           <SharedProfileSection
             profileId={user?.id}
             profileName={profile?.name || 'Your Profile'}
             isClient={true}
           />
-        </motion.div>
+        </div>
 
         {/* Language Selection */}
-        <motion.div variants={childVariant}>
+        <div>
           <LanguageToggle />
-        </motion.div>
+        </div>
 
         {/* Action Buttons - unified compact stack */}
-        <motion.div variants={childVariant} className="space-y-2">
+        <div className="space-y-2">
           {/* Premium Package */}
           <button
             onClick={() => { haptics.success(); navigate('/subscription-packages'); }}
@@ -334,10 +322,10 @@ const ClientProfileNew = () => {
             <LogOut className="w-5 h-5" />
             Sign Out
           </button>
-        </motion.div>
+        </div>
 
         <div className="h-12" />
-      </motion.div>
+      </div>
 
       <ClientProfileDialog open={showEditDialog} onOpenChange={setShowEditDialog} />
 
