@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal, 
-  ChevronLeft, Info, Share2, MessageCircle, Heart,
+import {
+  Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal,
+  ChevronLeft, Share2, MessageCircle, Heart,
   Waves, Trees, Music, Utensils, Ticket,
-  Clock, ExternalLink, ChevronDown, ArrowUpRight
+  Clock, ArrowUpRight, Check, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -29,6 +29,8 @@ interface EventItem {
   is_free: boolean;
   price_text: string | null;
 }
+
+type SortOrder = 'upcoming' | 'newest';
 
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
 
@@ -107,18 +109,72 @@ const MOCK_EVENTS: EventItem[] = [
     discount_tag: 'Exclusive Access',
     is_free: false,
     price_text: '$180 USD'
+  },
+  {
+    id: 'mock-6',
+    title: 'Zamna Ancestral Forest',
+    description: 'Deep inside the Mayan jungle, Zamna delivers an otherworldly techno and electronic music experience at sunrise.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90',
+    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Zamna Tulum',
+    location_detail: 'Carr. Tulum-Cobá km 3.5',
+    organizer_name: 'Zamna',
+    promo_text: 'Sunrise set from 4 AM',
+    discount_tag: 'Sold Out Soon',
+    is_free: false,
+    price_text: '$200 USD'
+  },
+  {
+    id: 'mock-7',
+    title: 'Taboo Beach Day Party',
+    description: 'All-day beach party at Taboo with world-class DJs, bottle service, and the best views of the Caribbean.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Taboo Tulum',
+    location_detail: 'Hotel Zone Beach',
+    organizer_name: 'Taboo',
+    promo_text: 'Ladies free before 1 PM',
+    discount_tag: 'Wave Vibes',
+    is_free: false,
+    price_text: '$60 USD'
   }
 ];
+
+const LIKED_STORAGE_KEY = 'eventos_liked_ids';
+
+function loadLikedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(LIKED_STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveLikedIds(ids: Set<string>) {
+  try {
+    localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify([...ids]));
+  } catch {}
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
 export default function EventosFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [events, setEvents] = useState<EventItem[]>([]);
+  const [allEvents, setAllEvents] = useState<EventItem[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showLiked, setShowLiked] = useState(false);
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOrder>('upcoming');
+  const [likedIds, setLikedIds] = useState<Set<string>>(loadLikedIds);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const CATEGORIES = [
@@ -138,9 +194,9 @@ export default function EventosFeed() {
           .from('events')
           .select('*')
           .order('event_date', { ascending: true });
-        
+
         if (error) throw error;
-        const formattedEvents: EventItem[] = (data || []).map((ev: any) => ({
+        const formatted: EventItem[] = (data || []).map((ev: any) => ({
           id: ev.id,
           title: ev.title || 'Untitled Event',
           description: ev.description || null,
@@ -155,9 +211,9 @@ export default function EventosFeed() {
           is_free: !!ev.is_free,
           price_text: ev.price_text || null,
         }));
-        setEvents(formattedEvents.length > 0 ? formattedEvents : MOCK_EVENTS);
-      } catch (e) {
-        setEvents(MOCK_EVENTS);
+        setAllEvents(formatted.length > 0 ? formatted : MOCK_EVENTS);
+      } catch {
+        setAllEvents(MOCK_EVENTS);
       } finally {
         setIsLoading(false);
       }
@@ -165,16 +221,43 @@ export default function EventosFeed() {
     loadEvents();
   }, []);
 
-  const filteredEvents = events.filter(e => {
-    const matchesCat = activeCategory === 'all' || e.category === activeCategory;
-    const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
-  });
+  const handleLike = useCallback((id: string) => {
+    setLikedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        triggerHaptic('medium');
+      }
+      saveLikedIds(next);
+      return next;
+    });
+  }, []);
+
+  const filteredEvents = allEvents
+    .filter(e => {
+      const matchesCat = activeCategory === 'all' || e.category === activeCategory;
+      const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFree = !freeOnly || e.is_free;
+      return matchesCat && matchesSearch && matchesFree;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime();
+      }
+      return new Date(a.event_date || 0).getTime() - new Date(b.event_date || 0).getTime();
+    });
+
+  const likedEvents = allEvents.filter(e => likedIds.has(e.id));
+  const likedCount = likedIds.size;
+  const activeFilterCount = (freeOnly ? 1 : 0) + (sortBy !== 'upcoming' ? 1 : 0);
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
     const scrollPos = scrollRef.current.scrollTop;
     const itemHeight = scrollRef.current.clientHeight;
+    if (itemHeight === 0) return;
     const index = Math.round(scrollPos / itemHeight);
     if (index !== currentIndex) {
       setCurrentIndex(index);
@@ -184,6 +267,7 @@ export default function EventosFeed() {
 
   return (
     <div className="relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col font-sans">
+      
       {/* ── STORIES PROGRESS BAR ── */}
       <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[60] px-4 flex gap-1">
         {filteredEvents.map((_, idx) => (
@@ -205,7 +289,7 @@ export default function EventosFeed() {
 
       {/* ── HEADER OVERLAY ── */}
       <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none pt-[var(--safe-top)]">
-        <div className="px-4 py-5 flex items-center justify-between pointer-events-auto">
+        <div className="px-4 py-3 flex items-center justify-between pointer-events-auto">
           <div className="flex items-center gap-3">
             <motion.button
               whileTap={{ scale: 0.9 }}
@@ -221,9 +305,25 @@ export default function EventosFeed() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Liked counter */}
+            {likedCount > 0 && (
+              <motion.button
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => { triggerHaptic('light'); setShowLiked(true); }}
+                className="h-10 px-3.5 rounded-full bg-rose-500/90 backdrop-blur-xl border border-rose-400/30 flex items-center gap-1.5 text-white shadow-lg shadow-rose-500/20"
+              >
+                <Heart className="w-3.5 h-3.5 fill-current" />
+                <span className="text-[11px] font-black">{likedCount}</span>
+              </motion.button>
+            )}
+
+            {/* Search toggle */}
             <AnimatePresence mode="wait">
               {showSearch ? (
                 <motion.div
+                  key="search-input"
                   initial={{ width: 0, opacity: 0 }}
                   animate={{ width: 180, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
@@ -233,7 +333,7 @@ export default function EventosFeed() {
                     autoFocus
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t('eventos.searchPlaceholder')}
+                    placeholder={t('eventos.searchPlaceholder', 'Search events...')}
                     className="w-full h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
                   />
                   <X className="absolute right-3 top-2.5 w-4 h-4 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
@@ -249,12 +349,19 @@ export default function EventosFeed() {
                 </motion.button>
               )}
             </AnimatePresence>
-            
+
+            {/* Filter button */}
             <motion.button
               whileTap={{ scale: 0.8 }}
-              className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+              onClick={() => { triggerHaptic('light'); setShowFilters(true); }}
+              className="relative w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
             >
               <SlidersHorizontal className="w-5 h-5" />
+              {activeFilterCount > 0 && (
+                <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
+                  <span className="text-[9px] font-black text-white">{activeFilterCount}</span>
+                </div>
+              )}
             </motion.button>
           </div>
         </div>
@@ -279,7 +386,7 @@ export default function EventosFeed() {
                 >
                   <Icon className={cn("w-3 h-3", isActive ? "text-primary" : "text-white/80")} />
                   <span className="text-[9px] font-black uppercase tracking-widest">
-                    {t('eventos.' + cat.label)}
+                    {t('eventos.' + cat.label, cat.label)}
                   </span>
                 </motion.button>
               );
@@ -288,8 +395,8 @@ export default function EventosFeed() {
         </div>
       </div>
 
-      {/* ── VERTICAL FEED (Instagram Stories Style) ── */}
-      <div 
+      {/* ── VERTICAL FEED ── */}
+      <div
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex-1 overflow-y-scroll snap-y snap-mandatory no-scrollbar"
@@ -303,180 +410,329 @@ export default function EventosFeed() {
           </div>
         ) : filteredEvents.length > 0 ? (
           filteredEvents.map((event, idx) => (
-            <StoryCard key={event.id} event={event} isActive={idx === currentIndex} />
+            <StoryCard 
+              key={event.id} 
+              event={event} 
+              isActive={idx === currentIndex} 
+              isLiked={likedIds.has(event.id)}
+              onLike={handleLike}
+            />
           ))
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-white/50 px-10 text-center gap-4">
             <Sparkles className="w-16 h-16 opacity-20" />
-            <h3 className="text-xl font-black italic">No matches found</h3>
-            <p className="text-sm">Try another category or mission parameter.</p>
+            <h3 className="text-xl font-black italic">No events found</h3>
+            <p className="text-sm">Try another category or clear your filters.</p>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => { setActiveCategory('all'); setFreeOnly(false); setSortBy('upcoming'); setSearchQuery(''); }}
+              className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white text-[11px] font-black uppercase tracking-widest"
+            >
+              Clear All Filters
+            </motion.button>
           </div>
         )}
       </div>
-    </div>
-  );
-}
 
-// ── STORY CARD COMPONENT ──
-
-function StoryCard({ event, isActive }: { event: EventItem, isActive: boolean }) {
-  const { t } = useTranslation();
-  const [isLiked, setIsLiked] = useState(false);
-
-  useEffect(() => {
-    if (isActive) {
-      // Auto-navigation logic could go here
-    }
-  }, [isActive]);
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    triggerHaptic(isLiked ? 'light' : 'success');
-  };
-
-  return (
-    <div className="relative h-full w-full snap-start overflow-hidden flex flex-col">
-      {/* Background Image */}
-      <motion.div 
-        className="absolute inset-0"
-        initial={{ scale: 1 }}
-        animate={isActive ? { scale: 1.05 } : { scale: 1 }}
-        transition={{ duration: 10, ease: "linear" }}
-      >
-        <img 
-          src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1000&q=80'} 
-          alt={event.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </motion.div>
-      
-      {/* Dynamic Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent via-50% to-black/95 pointer-events-none" />
-      
-      {/* Interactive Detail Overlay (Story Style) */}
+      {/* ── FILTER SHEET ── */}
       <AnimatePresence>
-        {isActive && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 z-10 pointer-events-none"
-          >
-             {/* Dynamic Light Streaks */}
-             <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-transparent opacity-30" />
-          </motion.div>
+        {showFilters && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilters(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+              className="fixed bottom-0 left-0 right-0 z-[201] bg-zinc-900 border-t border-white/10 rounded-t-[36px] px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] pt-6"
+            >
+              {/* Handle */}
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
+
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black text-white italic tracking-tight">Filters</h3>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => { setFreeOnly(false); setSortBy('upcoming'); }}
+                    className="text-[11px] font-black text-orange-400 uppercase tracking-widest"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+
+              {/* Free only toggle */}
+              <div className="mb-6">
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Price</p>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { triggerHaptic('light'); setFreeOnly(v => !v); }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all",
+                    freeOnly
+                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+                      : "bg-white/5 border-white/10 text-white/60"
+                  )}
+                >
+                  <span className="text-[13px] font-bold">Free Events Only</span>
+                  <div className={cn(
+                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                    freeOnly ? "bg-emerald-500 border-emerald-500" : "border-white/20"
+                  )}>
+                    {freeOnly && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                  </div>
+                </motion.button>
+              </div>
+
+              {/* Sort order */}
+              <div className="mb-8">
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Sort By</p>
+                <div className="flex gap-3">
+                  {([
+                    { key: 'upcoming', label: 'Upcoming First' },
+                    { key: 'newest', label: 'Newest Added' },
+                  ] as { key: SortOrder; label: string }[]).map(opt => (
+                    <motion.button
+                      key={opt.key}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => { triggerHaptic('light'); setSortBy(opt.key); }}
+                      className={cn(
+                        "flex-1 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all",
+                        sortBy === opt.key
+                          ? "bg-white text-black border-white"
+                          : "bg-white/5 border-white/10 text-white/60"
+                      )}
+                    >
+                      {opt.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowFilters(false)}
+                className="w-full py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[12px] shadow-xl"
+              >
+                {activeFilterCount > 0 ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Done'}
+              </motion.button>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
-      {/* Floating Discount Tag */}
-      {event.discount_tag && (
-        <motion.div 
-          initial={{ x: -20, opacity: 0 }}
-          animate={isActive ? { x: 0, opacity: 1 } : { x: -20, opacity: 0 }}
-          transition={{ delay: 0.3 }}
-          className="absolute top-40 left-4 z-20"
-        >
-          <div className="px-4 py-2 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-2xl rotate-[-2deg] border border-white/20">
-            {event.discount_tag}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Glass Content Panel */}
-      <div className="mt-auto p-6 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] space-y-6 text-white relative z-20">
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={isActive ? { y: 0, opacity: 1 } : { y: 30, opacity: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-          className="space-y-3"
-        >
-          <div className="flex items-center gap-3">
-            <div className="px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-xl border border-white/20 text-[9px] font-black uppercase tracking-[0.3em] flex items-center gap-1.5">
-              <MapPin className="w-3 h-3 text-primary" />
-              {event.location || 'Tulum'}
-            </div>
-            {event.is_free ? (
-              <div className="px-3 py-1.5 rounded-xl bg-emerald-500/80 backdrop-blur-xl text-[9px] font-black uppercase tracking-[0.3em]">
-                {t('eventos.free')}
+      {/* ── LIKED EVENTS SHEET ── */}
+      <AnimatePresence>
+        {showLiked && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLiked(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+              className="fixed bottom-0 left-0 right-0 z-[201] bg-zinc-900 border-t border-white/10 rounded-t-[36px] max-h-[80vh] flex flex-col"
+            >
+              {/* Handle + header */}
+              <div className="flex-shrink-0 px-6 pt-5 pb-4">
+                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Heart className="w-5 h-5 text-rose-500 fill-current" />
+                    <h3 className="text-xl font-black text-white italic">Liked Events</h3>
+                    <div className="w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
+                      <span className="text-[10px] font-black text-rose-400">{likedCount}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowLiked(false)}
+                    className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
+                  >
+                    <X className="w-4 h-4 text-white/60" />
+                  </button>
+                </div>
               </div>
-            ) : (
-              <div className="px-3 py-1.5 rounded-xl bg-amber-500/80 backdrop-blur-xl text-[9px] font-black uppercase tracking-[0.3em]">
-                {event.price_text}
-              </div>
-            )}
-          </div>
-          
-          <h2 className="text-5xl font-black italic tracking-tighter leading-[0.85] uppercase drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]">
-            {event.title}
-          </h2>
-          
-          <p className="text-[15px] font-medium text-white/90 line-clamp-3 leading-relaxed max-w-[95%] drop-shadow-md">
-            {event.description || 'Experience the magic of the Riviera Maya.'}
-          </p>
-        </motion.div>
 
-        {/* Story Action Bar */}
-        <div className="flex items-end justify-between pt-2">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-5">
-              <DetailItem icon={Calendar} text={event.event_date ? new Date(event.event_date).toLocaleDateString() : t('eventos.today')} />
-              <DetailItem icon={Clock} text="8 PM – LATE" />
-              <DetailItem icon={MapPin} text={event.organizer_name || 'Events'} />
-            </div>
-
-            <div className="flex items-center gap-3">
-              <motion.button
-                whileTap={{ scale: 1.4 }}
-                onClick={handleLike}
-                className={cn(
-                  "w-12 h-12 rounded-full flex items-center justify-center transition-all border backdrop-blur-xl",
-                  isLiked ? "bg-rose-500 border-rose-400 text-white shadow-[0_4px_15px_rgba(244,63,94,0.4)]" : "bg-white/10 border-white/20 text-white"
+              {/* Liked events list */}
+              <div className="flex-1 overflow-y-auto px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] space-y-3 no-scrollbar">
+                {likedEvents.length === 0 ? (
+                  <div className="py-16 flex flex-col items-center gap-4 text-white/30">
+                    <Heart className="w-12 h-12" />
+                    <p className="text-sm font-medium">No liked events yet</p>
+                  </div>
+                ) : (
+                  likedEvents.map(event => (
+                    <motion.div
+                      key={event.id}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => { setShowLiked(false); navigate(`/explore/eventos/${event.id}`); }}
+                      className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/8 cursor-pointer active:bg-white/10 transition-colors"
+                    >
+                      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+                        <img
+                          src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=200&q=60'}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-[13px] font-black text-white truncate">{event.title}</h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <MapPin className="w-3 h-3 text-white/40" />
+                          <span className="text-[11px] text-white/50 truncate">{event.location || 'Tulum'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Calendar className="w-3 h-3 text-white/40" />
+                          <span className="text-[11px] text-white/50">
+                            {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
+                          </span>
+                          {event.price_text && (
+                            <span className="text-[11px] font-black text-orange-400 ml-auto">{event.price_text}</span>
+                          )}
+                          {event.is_free && (
+                            <span className="text-[11px] font-black text-emerald-400 ml-auto">Free</span>
+                          )}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
+                    </motion.div>
+                  ))
                 )}
-              >
-                <Heart className={cn("w-6 h-6", isLiked && "fill-current")} />
-              </motion.button>
-              
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white"
-              >
-                <Share2 className="w-5 h-5" />
-              </motion.button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white"
-              >
-                <MessageCircle className="w-5 h-5" />
-              </motion.button>
+// ── STORY CARD ────────────────────────────────────────────────────────────────
+
+function StoryCard({ 
+  event, 
+  isActive,
+  isLiked,
+  onLike
+}: { 
+  event: EventItem, 
+  isActive: boolean,
+  isLiked: boolean,
+  onLike: (id: string) => void
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleDetailsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/explore/eventos/${event.id}`);
+  };
+
+  return (
+    <div className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-zinc-950">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <img
+          src={event.image_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90'}
+          className="w-full h-full object-cover"
+          alt={event.title}
+        />
+        {/* Overlays */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+      </div>
+
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1rem+68px+var(--safe-bottom))]">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-4"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black text-white uppercase tracking-widest">
+                  {event.category}
+                </span>
+                {event.discount_tag && (
+                  <span className="px-3 py-1 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 text-[10px] font-black text-primary uppercase tracking-widest">
+                    {event.discount_tag}
+                  </span>
+                )}
+              </div>
+              <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">
+                {event.title}
+              </h2>
             </div>
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            className="group relative flex flex-col items-center gap-3"
-          >
-            <div className="absolute -inset-4 bg-primary/20 blur-2xl rounded-full opacity-0 group-active:opacity-100 transition-opacity" />
-            <div className="w-16 h-24 rounded-[32px] bg-white text-black flex flex-col items-center justify-center gap-2 shadow-2xl group-active:scale-95 transition-all relative z-10 overflow-hidden">
-               <div className="absolute top-0 left-0 right-0 h-1 bg-primary/10" />
-               <Ticket className="w-6 h-6 text-primary" />
-               <ChevronDown className="w-4 h-4 animate-bounce mt-1" />
+          <p className="text-sm text-white/70 leading-relaxed font-medium line-clamp-3">
+            {event.description}
+          </p>
+
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">When</span>
+                <span className="text-xs font-bold text-white">
+                  {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Coming Soon'}
+                </span>
+              </div>
             </div>
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white drop-shadow-lg">{t('eventos.ticketInfo')}</span>
-          </motion.button>
-        </div>
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Where</span>
+                <span className="text-xs font-bold text-white truncate max-w-[80px]">
+                  {event.location || 'Tulum'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDetailsClick}
+              className="flex-[3] py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2"
+            >
+              Get Tickets {event.price_text && `• ${event.price_text}`}
+              <ArrowUpRight className="w-4 h-4" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={() => onLike(event.id)}
+              className={cn(
+                "flex-1 rounded-2xl backdrop-blur-md border flex items-center justify-center transition-all",
+                isLiked 
+                  ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" 
+                  : "bg-white/10 border-white/20"
+              )}
+            >
+              <Heart className={cn("w-6 h-6", isLiked ? "fill-white text-white" : "text-white")} />
+            </motion.button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 }
-
-function DetailItem({ icon: Icon, text }: { icon: any, text: string }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-        <Icon className="w-3.5 h-3.5 text-primary" />
-      </div>
-      <span className="text-[10px] font-black text-white/80 uppercase tracking-[0.2em]">{text}</span>
-    </div>
-  );
-}
-

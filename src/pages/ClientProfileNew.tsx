@@ -85,7 +85,7 @@ const ClientProfileNew = () => {
         initial="hidden"
         animate="visible"
         variants={stagger}
-        className="w-full max-w-lg mx-auto p-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 space-y-6 bg-background min-h-full"
+        className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full"
       >
         {/* Profile Header */}
         <motion.div className="flex items-center gap-4" variants={childVariant}>

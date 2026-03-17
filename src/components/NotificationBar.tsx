@@ -50,6 +50,7 @@ function SparklesIcon(props: any) {
 
 export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNotificationClick }: NotificationBarProps) {
   const [visible, setVisible] = useState(false);
+  const [isCoolingDown, setIsCoolingDown] = useState(false);
   const dismissedRef = useRef(false);
   const prevUnreadCountRef = useRef(0);
   const { theme } = useTheme();
@@ -59,7 +60,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
   const unreadCount = unreadNotifications.length;
 
   useEffect(() => {
-    if (unreadCount > 0) {
+    if (unreadCount > 0 && !isCoolingDown) {
       if (!dismissedRef.current || unreadCount > prevUnreadCountRef.current) {
         setVisible(true);
         dismissedRef.current = false;
@@ -71,16 +72,22 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
         }, 5000);
         return () => clearTimeout(timer);
       }
-    } else {
+    } else if (unreadCount === 0) {
       setVisible(false);
       dismissedRef.current = false;
       prevUnreadCountRef.current = 0;
     }
-  }, [unreadCount]);
+  }, [unreadCount, isCoolingDown]);
 
   const handleDismiss = () => {
     setVisible(false);
     dismissedRef.current = true;
+    // Cooldown prevents the next notification from immediately overlapping
+    setIsCoolingDown(true);
+    setTimeout(() => setIsCoolingDown(false), 700);
+    if (unreadNotifications[0]) {
+      onDismiss(unreadNotifications[0].id);
+    }
   };
 
   const currentNotification = unreadNotifications[0];
@@ -98,6 +105,10 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
           className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
         >
           <motion.div
+            drag="y"
+            dragConstraints={{ top: -80, bottom: 0 }}
+            dragElastic={{ top: 0.4, bottom: 0 }}
+            onDragEnd={(_, info) => { if (info.offset.y < -30) handleDismiss(); }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer group backdrop-blur-xl"
