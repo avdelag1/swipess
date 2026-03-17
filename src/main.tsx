@@ -60,8 +60,8 @@ deferredInit(async () => {
     ]);
     logBundleSize();
     checkAppVersion();
-    // Check for updates every 60 seconds (more aggressive)
-    setupUpdateChecker(60000);
+    // Check for updates every 5 minutes (focus/online events still trigger immediately)
+    setupUpdateChecker(300000);
     initPerformanceOptimizations();
     initWebVitalsMonitoring();
     initOfflineSync(); // PERF: Sync queued swipes when back online
@@ -93,11 +93,8 @@ if ("serviceWorker" in navigator) {
       .then((registration) => {
         logger.info('[SW] Registered successfully');
 
-        // Check for updates immediately
+        // Check for updates immediately on registration
         registration.update();
-
-        // Check for updates frequently (every 60 seconds)
-        setInterval(() => registration.update(), 60000);
 
         // Handle new SW waiting to activate
         registration.addEventListener("updatefound", () => {

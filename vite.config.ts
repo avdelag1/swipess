@@ -163,10 +163,12 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react',
       'react-dom',
+      'react/jsx-runtime',
       '@tanstack/react-query',
       'framer-motion',
       'lucide-react',
-      'dompurify'
+      'dompurify',
+      'zustand',
     ],
     exclude: ['@capacitor/core', '@capacitor/app'],
   },
@@ -176,6 +178,8 @@ export default defineConfig(({ mode }) => ({
     minifyIdentifiers: mode === 'production',
     minifySyntax: mode === 'production',
     minifyWhitespace: mode === 'production',
+    // Match build target for consistent output
+    target: 'es2022',
   },
   build: {
     sourcemap: false, // Disable sourcemaps in production
@@ -188,7 +192,8 @@ export default defineConfig(({ mode }) => ({
     // Explicit cssCodeSplit for clarity (defaults to true)
     cssCodeSplit: true,
     // Target modern browsers for smaller bundles (removes polyfills)
-    target: 'es2020',
+    // ES2022 is supported by all current browsers and Capacitor WebViews (Chrome 94+, Safari 15.4+)
+    target: 'es2022',
     // Optimize CSS for production
     cssMinify: mode === 'production' ? 'esbuild' : false,
     rollupOptions: {

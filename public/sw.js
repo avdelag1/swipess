@@ -199,6 +199,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // CACHE-FIRST for hashed /assets/* files - immutable, never change
+  // Vite outputs all JS/CSS chunks to /assets/ with content hashes in filenames.
+  // Once cached, these are served INSTANTLY with zero network requests.
+  // When a new build deploys, the hashes change → cache miss → fresh fetch.
+  if (url.pathname.startsWith('/assets/')) {
+    event.respondWith(
+      caches.open(STATIC_CACHE).then(cache => {
+        return cache.match(request).then(cachedResponse => {
+          if (cachedResponse) return cachedResponse; // instant, no network
+          return fetch(request).then(networkResponse => {
+            if (networkResponse.ok) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          });
+        });
+      })
+    );
+    return;
+  }
+
   // STALE-WHILE-REVALIDATE for JS/CSS - instant from cache, update in background
   // This is the key to "instant" feel on repeat visits
   if (request.destination === 'script' || request.destination === 'style') {
