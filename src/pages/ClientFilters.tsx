@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap } from 'lucide-react';
+import { ChevronLeft, Sparkles, Home, Bike, Briefcase, Check, RotateCcw, Zap } from 'lucide-react';
 import { AISearchDialog } from '@/components/AISearchDialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -129,28 +129,41 @@ export default function ClientFilters() {
   return (
     <div className="h-full w-full flex flex-col bg-background transition-colors duration-500 overflow-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-white/5">
+        <div className="flex items-center justify-between px-4 h-16">
           <div className="flex items-center gap-3">
             <motion.button
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, x: -2 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate(-1)}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-secondary/50 text-foreground"
+              className="w-10 h-10 flex items-center justify-center rounded-2xl bg-secondary/50 border border-border/50 text-foreground"
             >
-              <Search className="w-5 h-5 rotate-90" />
+              <ChevronLeft className="w-6 h-6" />
             </motion.button>
-            <h1 className="text-xl font-black tracking-tight">Mission Parameters</h1>
+            <div>
+              <h1 className="text-xl font-black tracking-tight leading-none">Mission Parameters</h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">
+                {activeFilterCount > 0 ? `${activeFilterCount} Active Filters` : 'Configure Sector'}
+              </p>
+            </div>
           </div>
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleReset}
-            className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/30"
-          >
-            Reset
-          </motion.button>
+          <AnimatePresence>
+            {hasChanges && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.8, x: 20 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.8, x: 20 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleReset}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary/80 border border-border/50 text-xs font-black text-foreground hover:bg-secondary transition-colors shadow-sm"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                RESET
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
