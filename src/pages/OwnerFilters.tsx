@@ -462,6 +462,7 @@ export default function OwnerFilters() {
                 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-primary/20"
                 : "bg-secondary text-muted-foreground border border-border/50"
             )}
+            data-no-swipe-nav="true"
           >
             {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Apply Filters'}
           </motion.button>
