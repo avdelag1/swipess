@@ -2,8 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
-  RotateCcw, ThumbsDown, Flame, Share2,
-  MessageCircle, Sparkles, X, Eye, EyeOff
+  Sparkles, X, Eye, EyeOff
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -256,7 +256,7 @@ export default function RoommateMatching() {
       </div>
 
       {/* ── DECK AREA ── */}
-      <div className="flex-1 relative mt-28 px-3 py-4 z-40">
+      <div className="flex-1 relative mt-28 px-3 py-4 pb-36 z-40">
         <div className="relative w-full h-full max-w-md mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (
@@ -335,55 +335,20 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* ── ACTION BAR (Liquid Glass) ── */}
+      {/* ── ACTION BAR (Frameless floating) ── */}
       {topCard && (
-        <div className="flex-shrink-0 px-4 z-[60] relative pb-[calc(1rem+var(--safe-bottom))]">
-          <div className={cn(
-            "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl relative overflow-hidden",
-            isLight ? "bg-white/80 border-slate-200" : "bg-zinc-900/60 border-white/10"
-          )}>
-            {/* Glossy highlight line */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/20 z-10" />
-
-            {/* Undo */}
-            <ActionButton 
-              onClick={handleUndo} 
-              disabled={!canUndo} 
-              icon={RotateCcw} 
-              color="amber" 
-            />
-            
-            {/* NO / Pass */}
-            <ActionButton 
-              onClick={handleDislike} 
-              icon={ThumbsDown} 
-              color="red" 
-              large 
-            />
-            
-            {/* Share */}
-            <ActionButton 
-              onClick={() => triggerHaptic('light')} 
-              icon={Share2} 
-              color="blue" 
-            />
-            
-            {/* YES / Like */}
-            <ActionButton 
-              onClick={handleLike} 
-              icon={Flame} 
-              color="orange" 
-              large 
-              filled 
-            />
-            
-            {/* Message */}
-            <ActionButton 
-              onClick={() => triggerHaptic('light')} 
-              icon={MessageCircle} 
-              color="emerald" 
-            />
-          </div>
+        <div
+          className="absolute left-0 right-0 flex justify-center z-[60]"
+          style={{ bottom: 'calc(var(--safe-bottom, 0px) + 84px)' }}
+        >
+          <SwipeActionButtonBar
+            onLike={handleLike}
+            onDislike={handleDislike}
+            onShare={() => triggerHaptic('light')}
+            onUndo={handleUndo}
+            onMessage={() => triggerHaptic('light')}
+            canUndo={canUndo}
+          />
         </div>
       )}
 
@@ -452,39 +417,6 @@ export default function RoommateMatching() {
 }
 
 // ── SUBCOMPONENTS ────────────────────────────────────────────────────────────
-
-function ActionButton({ 
-  onClick, icon: Icon, color, large = false, disabled = false, filled = false 
-}: { 
-  onClick: () => void; icon: any; color: string; large?: boolean; disabled?: boolean; filled?: boolean; 
-}) {
-  const colors = {
-    amber: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-    red: "text-rose-500 bg-rose-500/10 border-rose-500/20",
-    blue: "text-blue-500 bg-blue-500/10 border-blue-500/20",
-    orange: "text-orange-500 bg-orange-500/10 border-orange-500/20",
-    emerald: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
-  };
-
-  const filledColors = {
-    orange: "bg-gradient-to-br from-rose-500 to-orange-400 text-white border-transparent shadow-lg shadow-orange-500/30",
-  };
-
-  return (
-    <motion.button
-      whileTap={!disabled ? { scale: 0.85 } : {}}
-      onClick={!disabled ? onClick : undefined}
-      className={cn(
-        "rounded-full flex items-center justify-center transition-all border",
-        large ? "w-16 h-16" : "w-12 h-12",
-        disabled ? "opacity-20 grayscale pointer-events-none" : "opacity-100",
-        filled ? filledColors[color as keyof typeof filledColors] : colors[color as keyof typeof colors]
-      )}
-    >
-      <Icon className={cn(large ? "w-7 h-7" : "w-5 h-5")} strokeWidth={2.5} fill={filled ? "currentColor" : "none"} />
-    </motion.button>
-  );
-}
 
 function FilterGroup({ label, options, selected, setSelected }: { 
   label: string; options: string[]; selected: string; setSelected: (v: string) => void;
