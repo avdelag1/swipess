@@ -11,6 +11,7 @@ import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
+import { cn } from '@/lib/utils'
 import type { QuickFilterCategory } from '@/types/filters'
 
 // New Mobile Navigation Components
@@ -313,10 +314,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, [userId, restoreDrafts]);
 
   // SCROLL-TO-TOP: Reset scroll position on every page navigation
-  // Uses 'instant' (not smooth) so the new page always starts at the top without any animated scroll
-  useEffect(() => {
+  // Uses useLayoutEffect to ensure reset happens BEFORE the browser paints the new page
+  React.useLayoutEffect(() => {
     const el = document.getElementById('dashboard-scroll-container');
-    if (el) el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    if (el) {
+      el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    }
   }, [location.pathname]);
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
@@ -583,10 +586,20 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/settings'
     ];
 
-    return immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
+    const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
       path.includes('discovery') ||
       path.includes('view-client');
+    
+    return isMatch;
   }, [location.pathname]);
+
+  // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
+  // and take over the full screen height with 0 padding.
+  const isFullScreenRoute = useMemo(() => {
+    return isCameraRoute || isRadioRoute || isImmersiveFeed || 
+           location.pathname.includes('/client/filters') || 
+           location.pathname.includes('/owner/filters');
+  }, [isCameraRoute, isRadioRoute, isImmersiveFeed, location.pathname]);
 
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
@@ -603,7 +616,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
       {/* Top Bar - Fixed with safe-area-top. Hidden on camera, radio and immersive feeds for fullscreen UX */}
       {/* Hides smoothly on scroll down and reappears on scroll up for all routes */}
-      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
+      {!isFullScreenRoute && (
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
@@ -627,12 +640,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {/* On camera, radio route or immersive dashboard: content extends behind TopBar for full-bleed experience */}
       <main
         id="dashboard-scroll-container"
-        className="absolute inset-0 overflow-y-auto overflow-x-hidden scroll-area-momentum bg-background"
+        className={cn(
+          "absolute inset-0 overflow-x-hidden scroll-area-momentum bg-background",
+          isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto"
+        )}
         style={{
-          paddingTop: (isCameraRoute || isRadioRoute || isImmersiveFeed)
+          paddingTop: isFullScreenRoute
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveFeed) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: isFullScreenRoute ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
@@ -652,7 +668,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       </main>
 
       {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and immersive feeds for fullscreen UX */}
-      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
+      {!isFullScreenRoute && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}

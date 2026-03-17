@@ -81,7 +81,12 @@ function TopBarComponent({
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const { isVisible } = useScrollDirection({ threshold: 10, showAtTop: true });
+  const location = useLocation();
+  const { isVisible } = useScrollDirection({ 
+    threshold: 10, 
+    showAtTop: true,
+    resetTrigger: location.pathname
+  });
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
   const isDark = theme === 'dark';

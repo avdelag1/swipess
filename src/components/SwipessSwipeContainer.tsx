@@ -1450,7 +1450,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   return (
     <div
       className="relative w-full flex flex-col"
-      style={{ height: '100%', minHeight: '100dvh' }}
+      style={{ height: '100%', minHeight: '100%' }}
       onMouseEnter={handleDeckHover}
     >
       {/* Category title removed - clean immersive card experience */}
