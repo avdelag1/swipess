@@ -228,7 +228,7 @@ export function MessagingDashboard() {
     <>
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
       <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
-        <div className="w-full max-w-4xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] sm:px-6">
+        <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
@@ -257,7 +257,7 @@ export function MessagingDashboard() {
               { id: 'unread', label: 'Unread', icon: CircleDot },
               { id: 'archived', label: 'Archived', icon: Archive }
             ].map((filter) => (
-              <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.impact(); }}
+              <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.tap(); }}
                 className={cn("flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all",
                   activeFilter === filter.id ? "bg-primary text-white shadow-lg" : "bg-white/5 text-muted-foreground")}>
                 <filter.icon className="w-3.5 h-3.5" />

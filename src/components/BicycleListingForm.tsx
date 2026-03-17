@@ -97,7 +97,7 @@ const CheckboxRow = ({ id, checked, onCheckedChange, label }: { id: string; chec
 );
 
 export function BicycleListingForm({ onDataChange, initialData }: BicycleListingFormProps) {
-  const { register, control, watch } = useForm<BicycleFormData>({
+  const { register, control, watch, setValue } = useForm<BicycleFormData>({
     defaultValues: initialData || { mode: 'rent', electric_assist: false }
   });
 
