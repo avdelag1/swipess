@@ -34,10 +34,10 @@ const ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as 
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
 // ── DIMENSIONS ────────────────────────────────────────────────────────────────
-const LARGE_CSS = 'clamp(52px, 15vw, 64px)';
-const SMALL_CSS = 'clamp(40px, 11vw, 48px)';
-const LARGE_ICON = 34;
-const SMALL_ICON = 24;
+const LARGE_CSS = 'clamp(48px, 13vw, 60px)';
+const SMALL_CSS = 'clamp(36px, 10vw, 44px)';
+const LARGE_ICON = 28;
+const SMALL_ICON = 20;
 const GAP_CSS = 'clamp(8px, 3vw, 14px)';
 const TAP_SCALE = 0.87;
 
@@ -59,48 +59,48 @@ const VARIANTS: Record<Variant, VariantCfg> = {
     glow: '0 0 15px rgba(255, 107, 53, 0.3)',
     glowIntense: '0 0 30px rgba(255, 107, 53, 0.4)',
     dropShadow: '0px 2px 10px rgba(255, 107, 53, 0.5)',
-    circleBg: 'rgba(0, 0, 0, 0.4)',
-    circleBorder: 'rgba(255, 107, 53, 0.45)',
+    circleBg: 'rgba(255, 107, 53, 0.12)',
+    circleBorder: 'rgba(255, 107, 53, 0.25)',
   },
   dislike: {
     iconColor: '#ef4444',
     glow: '0 0 15px rgba(239, 68, 68, 0.3)',
     glowIntense: '0 0 30px rgba(239, 68, 68, 0.4)',
     dropShadow: '0px 2px 10px rgba(239, 68, 68, 0.5)',
-    circleBg: 'rgba(0, 0, 0, 0.4)',
-    circleBorder: 'rgba(239, 68, 68, 0.45)',
+    circleBg: 'rgba(239, 68, 68, 0.12)',
+    circleBorder: 'rgba(239, 68, 68, 0.25)',
   },
   amber: {
     iconColor: '#f59e0b',
     glow: '0 0 12px rgba(245, 158, 11, 0.25)',
     glowIntense: '0 0 24px rgba(245, 158, 11, 0.35)',
     dropShadow: '0px 2px 8px rgba(245, 158, 11, 0.45)',
-    circleBg: 'rgba(0, 0, 0, 0.4)',
-    circleBorder: 'rgba(245, 158, 11, 0.4)',
+    circleBg: 'rgba(245, 158, 11, 0.12)',
+    circleBorder: 'rgba(245, 158, 11, 0.25)',
   },
   cyan: {
     iconColor: '#06b6d4',
     glow: '0 0 12px rgba(6, 182, 212, 0.25)',
     glowIntense: '0 0 24px rgba(6, 182, 212, 0.35)',
     dropShadow: '0px 2px 8px rgba(6, 182, 212, 0.45)',
-    circleBg: 'rgba(0, 0, 0, 0.4)',
-    circleBorder: 'rgba(6, 182, 212, 0.4)',
+    circleBg: 'rgba(6, 182, 212, 0.12)',
+    circleBorder: 'rgba(6, 182, 212, 0.25)',
   },
   purple: {
     iconColor: '#a855f7',
     glow: '0 0 12px rgba(168, 85, 247, 0.25)',
     glowIntense: '0 0 24px rgba(168, 85, 247, 0.35)',
     dropShadow: '0px 2px 8px rgba(168, 85, 247, 0.45)',
-    circleBg: 'rgba(0, 0, 0, 0.4)',
-    circleBorder: 'rgba(168, 85, 247, 0.4)',
+    circleBg: 'rgba(168, 85, 247, 0.12)',
+    circleBorder: 'rgba(168, 85, 247, 0.25)',
   },
   default: {
     iconColor: '#ffffff',
     glow: '0 0 10px rgba(255,255,255,0.1)',
     glowIntense: '0 0 20px rgba(255,255,255,0.2)',
     dropShadow: '0px 2px 6px rgba(255, 255, 255, 0.25)',
-    circleBg: 'rgba(0, 0, 0, 0.4)',
-    circleBorder: 'rgba(255, 255, 255, 0.3)',
+    circleBg: 'rgba(255, 255, 255, 0.12)',
+    circleBorder: 'rgba(255, 255, 255, 0.25)',
   },
 };
 
@@ -165,10 +165,8 @@ const ActionButton = memo(({
       style={{
         width: btnSizeCss,
         height: btnSizeCss,
-        // Tinted circle background so buttons are visible on light AND dark card backgrounds
+        // Light colored tint background — visible on both light and dark card backgrounds
         backgroundColor: cfg.circleBg,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
         border: `1.5px solid ${cfg.circleBorder}`,
         borderRadius: '50%',
         boxShadow: `0 4px 15px rgba(0,0,0,0.4)`,
