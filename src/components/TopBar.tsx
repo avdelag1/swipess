@@ -1,8 +1,8 @@
 import { memo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Zap, Sparkles, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Bell, Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -22,7 +22,6 @@ import { ModeSwitcher } from './ModeSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 
 import { useScrollDirection } from '@/hooks/useScrollDirection';
-import { AISearchDialog } from './AISearchDialog';
 import { SwipessLogo } from './SwipessLogo';
 
 // Tier styling for package cards
@@ -59,7 +58,6 @@ interface TopBarProps {
   transparent?: boolean;
   hideOnScroll?: boolean;
   title?: string;
-  onAISearchClick?: () => void;
   showBack?: boolean;
 }
 
@@ -72,7 +70,6 @@ function TopBarComponent({
   transparent = false,
   hideOnScroll = false,
   title,
-  onAISearchClick,
   showBack = false,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();

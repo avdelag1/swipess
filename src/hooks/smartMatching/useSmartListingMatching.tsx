@@ -30,7 +30,7 @@ function hasJsonOverlap(listingArr: unknown, filterArr: string[]): boolean {
 
 export function useSmartListingMatching(
     userId: string | undefined,
-    excludeSwipedIds: string[] = [],
+    _excludeSwipedIds: string[] = [],
     filters?: ListingFilters,
     page: number = 0,
     pageSize: number = 10,

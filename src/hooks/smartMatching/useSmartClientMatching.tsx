@@ -211,6 +211,9 @@ export function useSmartClientMatching(
                         if (filters?.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
                             const clientBudget = profile.budget_max || profile.monthly_income || 0;
                             if (clientBudget !== 0 && (clientBudget < filters.budgetRange[0] || clientBudget > filters.budgetRange[1])) return false;
+                        } else if (dbBudgetRange && Array.isArray(dbBudgetRange) && dbBudgetRange.length === 2) {
+                            const clientBudget = profile.budget_max || profile.monthly_income || 0;
+                            if (clientBudget !== 0 && (clientBudget < dbBudgetRange[0] || clientBudget > dbBudgetRange[1])) return false;
                         }
 
                         if (filters?.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
