@@ -9,7 +9,7 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string; name?: string }) => {
+const CardImage = memo(({ src, alt, name, direction = 'right' }: { src?: string | null; alt?: string; name?: string; direction?: 'left' | 'right' }) => {
   // [NEW] Check if the src is a marketing slide identifier instead of a URL
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
@@ -124,9 +124,11 @@ const CardImage = memo(({ src, alt, name }: { src?: string | null; alt?: string;
           opacity: loaded ? 1 : 0,
           transition,
           borderRadius: '24px',
-          // Subtle zoom-in on photo switch — only plays for cached images
+          // Slide in on photo switch — only plays for cached images
           // (instant display). Network-loaded images use the opacity transition instead.
-          animation: wasInCache ? 'photo-enter 180ms ease-out forwards' : 'none',
+          animation: wasInCache
+            ? `${direction === 'left' ? 'photo-slide-from-left' : 'photo-slide-from-right'} 200ms ease-out forwards`
+            : 'none',
         }}
       />
     </div>
