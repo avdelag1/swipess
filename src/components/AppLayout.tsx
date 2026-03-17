@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import { useLocation } from 'react-router-dom';
 import { SkipToMainContent, useFocusManagement } from './AccessibilityHelpers';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useOfflineDetection } from '@/hooks/useOfflineDetection';
@@ -20,6 +21,9 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
+  const location = useLocation();
+  // Full-screen public preview pages manage their own gradient/overlay system
+  const isPublicPreview = location.pathname.startsWith('/listing/') || location.pathname.startsWith('/profile/');
 
   // Initialize app features
   useKeyboardShortcuts();
@@ -39,10 +43,10 @@ export function AppLayout({ children }: AppLayoutProps) {
         <VisualEngine />
       </Suspense>
 
-      {/* Cinematic depth layers - theme-aware */}
-      <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />
-      <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />
-      <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />
+      {/* Cinematic depth layers - theme-aware. Skip on full-screen public preview pages. */}
+      {!isPublicPreview && <GlobalVignette intensity={isLightTheme ? 0.4 : 0.8} light={isLightTheme} />}
+      {!isPublicPreview && <GradientMaskTop intensity={isLightTheme ? 0.5 : 0.75} heightPercent={22} zIndex={15} light={isLightTheme} />}
+      {!isPublicPreview && <GradientMaskBottom intensity={isLightTheme ? 0.5 : 0.75} heightPercent={38} zIndex={20} light={isLightTheme} />}
 
       <main
         id="main-content"
@@ -52,8 +56,8 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
 
-      {/* Global Radio Mini Player - accessible everywhere including landing page */}
-      <RadioMiniPlayer />
+      {/* Global Radio Mini Player - skip on full-screen public preview pages */}
+      {!isPublicPreview && <RadioMiniPlayer />}
     </div>
   );
 }
