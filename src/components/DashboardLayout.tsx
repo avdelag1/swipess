@@ -13,6 +13,7 @@ import { useFilterStore } from '@/state/filterStore'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 import { cn } from '@/lib/utils'
 import type { QuickFilterCategory } from '@/types/filters'
+import { useQueryClient } from '@tanstack/react-query'
 
 // New Mobile Navigation Components
 import { TopBar } from '@/components/TopBar'
@@ -181,6 +182,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // Shows welcome only on first signup, not every login (survives localStorage clears)
   const { shouldShowWelcome, dismissWelcome } = useWelcomeState(userId)
 
+  const queryClient = useQueryClient();
+
   // PERF: Defer route prefetching until after first paint using requestIdleCallback
   // This ensures dashboard renders instantly without blocking on prefetch
   useEffect(() => {
@@ -194,6 +197,51 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       }
     }
   }, [userRole]);
+
+  // PERF: Prefetch secondary page data in the background after dashboard mounts
+  // so navigating to liked-properties, matches, or eventos is instant on first visit
+  useEffect(() => {
+    if (!userId) return;
+
+    const prefetch = () => {
+      // Prefetch eventos feed (10-min stale, shared queryKey with EventosFeed)
+      queryClient.prefetchQuery({
+        queryKey: ['eventos'],
+        queryFn: async () => {
+          const { data } = await supabase.from('events').select('*').order('event_date', { ascending: true });
+          return data || [];
+        },
+        staleTime: 1000 * 60 * 10,
+      });
+
+      // Prefetch liked properties (matches queryKey in useLikedProperties)
+      queryClient.prefetchQuery({
+        queryKey: ['liked-properties'],
+        queryFn: async () => {
+          const { data: likes } = await supabase
+            .from('likes')
+            .select('target_id')
+            .eq('user_id', userId)
+            .eq('target_type', 'listing')
+            .eq('direction', 'right')
+            .order('created_at', { ascending: false });
+          if (!likes?.length) return [];
+          const ids = [...new Set(likes.map((l: any) => l.target_id).filter(Boolean))];
+          const { data: listings } = await supabase.from('listings').select('*').in('id', ids).eq('status', 'active');
+          return listings || [];
+        },
+        staleTime: Infinity,
+      });
+    };
+
+    if ('requestIdleCallback' in window) {
+      const idleId = (window as any).requestIdleCallback(prefetch, { timeout: 4000 });
+      return () => (window as any).cancelIdleCallback(idleId);
+    } else {
+      const t = setTimeout(prefetch, 2000);
+      return () => clearTimeout(t);
+    }
+  }, [userId, queryClient]);
 
   // Lazy load listings and profiles only when insights dialogs are opened
   // This prevents unnecessary API calls on every page load

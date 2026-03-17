@@ -13,6 +13,28 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
   const queryClient = useQueryClient();
 
   return useMutation({
+    onMutate: async ({ targetId, targetType }) => {
+      // Cancel in-flight refetches so they don't overwrite optimistic update
+      await queryClient.cancelQueries({ queryKey: ['listings'] });
+      await queryClient.cancelQueries({ queryKey: ['client-profiles'] });
+
+      // Snapshot for rollback
+      const prevListings = queryClient.getQueryData(['listings']);
+      const prevProfiles = queryClient.getQueryData(['client-profiles']);
+
+      // Optimistically remove the swiped card from the deck
+      if (targetType === 'listing') {
+        queryClient.setQueriesData({ queryKey: ['listings'] }, (old: unknown) =>
+          Array.isArray(old) ? old.filter((item: { id: string }) => item.id !== targetId) : old
+        );
+      } else {
+        queryClient.setQueriesData({ queryKey: ['client-profiles'] }, (old: unknown) =>
+          Array.isArray(old) ? old.filter((item: { id: string }) => item.id !== targetId) : old
+        );
+      }
+
+      return { prevListings, prevProfiles };
+    },
     mutationFn: async ({
       targetId,
       direction,
@@ -358,8 +380,15 @@ export function useSwipeWithMatch(options?: SwipeWithMatchOptions) {
         Promise.all(invalidations).catch(err => logger.error('[useSwipeWithMatch] Invalidation failed:', err));
       }
     },
-    onError: (error) => {
+    onError: (error, _vars, context) => {
       logger.error('Swipe error:', error);
+      // Roll back optimistic update on error
+      if (context?.prevListings !== undefined) {
+        queryClient.setQueryData(['listings'], context.prevListings);
+      }
+      if (context?.prevProfiles !== undefined) {
+        queryClient.setQueryData(['client-profiles'], context.prevProfiles);
+      }
       // Only show error toast for critical failures (auth, network), not for edge cases
       if (error instanceof Error && (error.message.includes('auth') || error.message.includes('network'))) {
         toast.error("Something went wrong. Please try again.");
