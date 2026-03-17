@@ -80,7 +80,7 @@ function preloadPlugin(): import('vite').Plugin {
       if (!ctx.bundle) return html;
 
       // Find critical chunks to preload - essential for dashboard render
-      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'supabase', 'motion', 'utils'];
+      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'supabase', 'motion', 'utils', 'feed', 'explorer'];
       const preloadLinks: string[] = [];
 
       for (const [fileName, chunk] of Object.entries(ctx.bundle)) {
@@ -247,6 +247,14 @@ export default defineConfig(({ mode }) => ({
           // Framer Motion - heavy animation library, load separately
           if (id.includes('node_modules/framer-motion')) {
             return 'motion';
+          }
+
+          // Explore Features - often visited, keep separate
+          if (id.includes('pages/EventosFeed') || id.includes('pages/EventoDetail')) {
+            return 'feed';
+          }
+          if (id.includes('pages/PriceTracker') || id.includes('pages/LocalIntel') || id.includes('pages/VideoTours')) {
+            return 'explorer';
           }
 
           // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
