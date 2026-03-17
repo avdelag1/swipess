@@ -112,7 +112,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       navigate("/", { replace: true, state: { from: location } });
       return;
     }
-  }, [user, loading, navigate, location]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading, navigate]);
 
   // Reset navigation ref only when user comes back (not on every route change)
   // This prevents potential redirect loops during auth state changes
