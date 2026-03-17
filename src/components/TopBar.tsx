@@ -177,8 +177,15 @@ function TopBarComponent({
           className
         )}
       >
-        {/* Normal header background */}
-        <div className="absolute inset-x-0 inset-y-0 bg-white dark:bg-black -z-10" />
+        {/* Normal header background - Hardware accelerated transitions */}
+        <div 
+          className={cn(
+            "absolute inset-0 transition-all duration-500 ease-in-out -z-10",
+            isDark ? "bg-black" : "bg-white",
+            transparent ? "opacity-0" : "opacity-100"
+          )} 
+          style={{ transform: 'translateZ(0)' }}
+        />
 
         <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">
           {/* Left section: Avatar + Mode switcher + filters */}

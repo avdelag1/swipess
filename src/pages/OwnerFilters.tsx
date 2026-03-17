@@ -449,8 +449,8 @@ export default function OwnerFilters() {
         </div>
       </div>
 
-      {/* Bottom Fixed Apply Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40">
+      {/* Fixed Apply Button Bar - Premium ergonomic position */}
+      <div className="flex-shrink-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40" style={{ paddingBottom: 'calc(var(--safe-bottom) + 1rem)' }}>
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -462,6 +462,7 @@ export default function OwnerFilters() {
                 ? "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-primary/20"
                 : "bg-secondary text-muted-foreground border border-border/50"
             )}
+            data-no-swipe-nav="true"
           >
             {hasChanges ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Apply Filters'}
           </motion.button>

@@ -629,7 +629,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           }}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
-          transparent={false}
+          transparent={isImmersiveDashboard}
           hideOnScroll={true}
           title={pageTitle}
           showBack={!isOnDiscoveryPage}
