@@ -150,16 +150,18 @@ export function BottomNavigation({
   }, [updateScrollFades, navItems.length]);
 
   // ── Tap vs drag detection ─────────────────────────────────────────────
+  // isDraggingRef tracks whether the user is scrolling the nav bar.
+  // onClick is the primary navigation trigger; pointer events just detect scroll.
+  const isDraggingRef = useRef(false);
   const touchState = useRef<{
-    x: number; y: number; time: number; item: NavItem; isDragging: boolean;
+    x: number; y: number;
   } | null>(null);
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent, item: NavItem) => {
       e.stopPropagation();
-      touchState.current = {
-        x: e.clientX, y: e.clientY, time: Date.now(), item, isDragging: false,
-      };
+      isDraggingRef.current = false;
+      touchState.current = { x: e.clientX, y: e.clientY };
       if (item.path) prefetchRoute(item.path);
     },
     [],
@@ -168,29 +170,32 @@ export function BottomNavigation({
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!touchState.current) return;
     const dx = Math.abs(e.clientX - touchState.current.x);
-    if (dx > 8) {
-      touchState.current.isDragging = true;
+    if (dx > 10) {
+      isDraggingRef.current = true;
     }
   }, []);
 
   const handlePointerUp = useCallback(
-    (e: React.PointerEvent) => {
-      if (!touchState.current) return;
-      const { item, isDragging, time } = touchState.current;
-      const elapsed = Date.now() - time;
-      const dx = Math.abs(e.clientX - touchState.current.x);
-
-      // Quick tap with minimal movement → navigate
-      if (!isDragging && elapsed < 300 && dx < 8) {
-        haptics.select();
-        if (item.onClick) {
-          item.onClick();
-        } else if (item.path) {
-          navigate(item.path);
-        }
-      }
-
+    (_e: React.PointerEvent) => {
       touchState.current = null;
+    },
+    [],
+  );
+
+  // Primary navigation handler — fires after pointer events, checks drag state
+  const handleNavClick = useCallback(
+    (item: NavItem) => {
+      if (isDraggingRef.current) {
+        isDraggingRef.current = false;
+        return;
+      }
+      isDraggingRef.current = false;
+      haptics.select();
+      if (item.onClick) {
+        item.onClick();
+      } else if (item.path) {
+        navigate(item.path);
+      }
     },
     [navigate],
   );
@@ -296,7 +301,7 @@ export function BottomNavigation({
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
-                onClick={(e) => e.preventDefault()}
+                onClick={() => handleNavClick(item)}
                 whileTap={{ scale: 0.88, transition: TAP_SPRING }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}

@@ -203,6 +203,7 @@ export function ConversationalListingCreator() {
 
       // Prepare listing data - removed user_id to prevent schema cache errors
       const listingData = {
+        user_id: user.id,
         owner_id: user.id,
         category: selectedCategory,
         images,

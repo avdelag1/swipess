@@ -209,7 +209,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-2xl mx-auto px-4 pt-[calc(56px+var(--safe-top)+1.5rem)] pb-32">
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-32">
 
         {/* Header */}
         <header className="flex items-center justify-between mb-8">

@@ -13,18 +13,15 @@ export function AnimatedOutlet() {
     const location = useLocation();
 
     return (
-        <AnimatePresence mode="popLayout" initial={false}>
+        <AnimatePresence mode="sync" initial={false}>
             <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0, x: 6 }}
+                initial={{ opacity: 0 }}
                 animate={{
                     opacity: 1,
-                    x: 0,
                     transition: {
-                        type: "spring",
-                        stiffness: 500,
-                        damping: 35,
-                        mass: 0.5,
+                        duration: 0.15,
+                        ease: 'easeOut',
                     }
                 }}
                 exit={{

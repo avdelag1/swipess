@@ -5,10 +5,14 @@ import { CategorySelectionDialog } from "@/components/CategorySelectionDialog";
 import { AIListingAssistant } from "@/components/AIListingAssistant";
 import { Sparkles, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const OwnerNewListing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: userRole } = useUserRole(user?.id);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isCategorySelectorOpen, setIsCategorySelectorOpen] = useState(false);
   const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
@@ -17,6 +21,12 @@ const OwnerNewListing = () => {
     mode: 'rent' | 'sale';
   } | null>(null);
   const [aiGeneratedData, setAIGeneratedData] = useState<any>(null);
+
+  useEffect(() => {
+    if (userRole && userRole !== 'owner' && userRole !== 'admin') {
+      navigate('/owner/dashboard', { replace: true });
+    }
+  }, [userRole, navigate]);
 
   useEffect(() => {
     const categoryParam = searchParams.get('category');

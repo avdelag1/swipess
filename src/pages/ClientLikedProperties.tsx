@@ -125,8 +125,8 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   };
 
   return (
-    <div className="w-full pb-32 bg-background min-h-screen">
-      <div className="p-4 pt-20 sm:p-8 sm:pt-24 max-w-7xl mx-auto">
+    <div className="w-full pb-32 bg-background">
+      <div className="p-4 pt-4 sm:p-8 sm:pt-4 max-w-7xl mx-auto">
         {/* Category tabs and Sync button */}
         <div className="flex items-center gap-3 mb-10 overflow-x-auto scrollbar-hide pb-2 pt-4">
           <div className="flex gap-3 flex-1 overflow-x-auto scrollbar-hide">

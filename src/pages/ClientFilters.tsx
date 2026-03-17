@@ -135,8 +135,8 @@ export default function ClientFilters() {
   return (
     <div className="h-full w-full flex flex-col bg-background transition-colors duration-500 overflow-hidden">
       {/* Header */}
-      <header className="flex-shrink-0 sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40" style={{ paddingTop: 'var(--safe-top)' }}>
-        <div className="flex items-center justify-between px-4 py-4">
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
+        <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -172,8 +172,8 @@ export default function ClientFilters() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto scroll-area-momentum no-scrollbar">
-        <div className="px-4 py-6 space-y-8 pb-36">
+      <div className="overflow-y-auto">
+        <div className="px-4 py-6 space-y-8 pb-4">
           {/* AI Suggestions Banner - M3 Tonal Style */}
           <section>
             <div className="relative overflow-hidden rounded-[2rem] p-6 bg-primary/5 border border-primary/10">

@@ -167,7 +167,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       // Main listing data - ALL fields in listings table
       const rawListingData: Record<string, any> = {
         owner_id: user.user.id,
-        user_id: user.user.id, // Explicitly required by schema
         category: selectedCategory,
         listing_type: selectedCategory === 'worker' ? 'service' : (formData.listing_type || selectedMode),
         mode: selectedMode,
@@ -179,7 +178,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
         rental_rates: formData.rental_rates,
         rental_duration_type: (formData.rental_duration_type as string) || null,
         description: (formData.description as string) || (formData.about as string) || '',
-        location: locationStr || 'Tulum', // Default value to prevent NOT NULL constraint error
+        location: locationStr || 'Tulum',
         country: (formData.country as string) || 'Mexico',
         state: (formData.state as string) || (formData.city as string) || 'Quintana Roo',
         city: (formData.city as string) || 'Unknown',
@@ -263,7 +262,6 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       if (listingData.location === undefined) listingData.location = 'Tulum';
       if (listingData.price === undefined) listingData.price = 0;
       if (listingData.title === undefined) listingData.title = `New ${selectedCategory}`;
-      if (listingData.user_id === undefined) listingData.user_id = user.user.id;
 
       let listingResult;
 
@@ -311,16 +309,27 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
 
           if (error) {
             console.error('Insert error details:', error);
-            // Fallback for location column error (common in some schema versions)
-            if (error.message?.includes('location')) {
-              const { location, ...safeData } = listingData;
-              const { data: fallbackData, error: fallbackError } = await supabase
-                .from('listings')
-                .insert(safeData as any)
-                .select()
-                .single();
-              if (fallbackError) throw fallbackError;
-              listingResult = fallbackData;
+            const errorMsg = error.message?.toLowerCase() || '';
+            const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
+
+            if (isSchemaError) {
+              // Extract the problematic column name from the error message and retry without it
+              const columnMatch = error.message?.match(/['"]([^'"]+)['"]\s+column|column\s+['"]([^'"]+)['"]/i);
+              const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
+
+              if (missingColumn && listingData[missingColumn] !== undefined) {
+                console.warn(`Schema cache missing column "${missingColumn}" — retrying without it...`);
+                const { [missingColumn]: _, ...safeData } = listingData;
+                const { data: fallbackData, error: fallbackError } = await supabase
+                  .from('listings')
+                  .insert(safeData as any)
+                  .select()
+                  .single();
+                if (fallbackError) throw fallbackError;
+                listingResult = fallbackData;
+              } else {
+                throw error;
+              }
             } else {
               throw error;
             }
