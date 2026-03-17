@@ -185,7 +185,7 @@ export default function PublicProfilePreview() {
 
       {/* ── TOP BAR ──────────────────────────────────────────────────── */}
       <div
-        className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 py-3"
+        className="absolute top-0 left-0 right-0 z-[60] flex items-center justify-between px-4 py-3"
         style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}
       >
         {canGoBack ? (
@@ -221,7 +221,7 @@ export default function PublicProfilePreview() {
       {/* ── IMAGE DOTS ───────────────────────────────────────────────── */}
       {allImages.length > 1 && (
         <div
-          className="absolute z-20 left-0 right-0 flex justify-center gap-1.5"
+          className="absolute z-[60] left-0 right-0 flex justify-center gap-1.5"
           style={{ top: 'max(62px, calc(env(safe-area-inset-top, 0px) + 50px))' }}
         >
           {allImages.map((_, i) => (
@@ -239,7 +239,7 @@ export default function PublicProfilePreview() {
 
       {/* ── BOTTOM CONTENT SHEET ─────────────────────────────────────── */}
       <div
-        className="absolute bottom-0 left-0 right-0 z-20"
+        className="absolute bottom-0 left-0 right-0 z-[60]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <motion.div
