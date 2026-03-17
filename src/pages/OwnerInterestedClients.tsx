@@ -168,26 +168,36 @@ const OwnerInterestedClients = () => {
           </div>
         </div>
 
-        {/* Category filter tabs */}
-        <div className="flex gap-3 mb-6 overflow-x-auto scrollbar-hide pb-2 pt-2">
-          {clientCategories.map(({ id, label, icon: Icon }) => (
-            <motion.button
-              key={id}
-              onClick={() => setSelectedCategory(id)}
-              whileTap={{ scale: 0.96 }}
-              className={cn(
-                "flex items-center gap-2.5 px-6 py-3.5 rounded-3xl text-sm font-black whitespace-nowrap transition-all flex-shrink-0 border",
-                selectedCategory === id
-                  ? "bg-[var(--color-brand-accent-2)] border-[var(--color-brand-accent-2)] text-white shadow-[0_8px_24px_rgba(228,0,124,0.4)]"
-                  : isLight
-                  ? "bg-white border-border/40 text-muted-foreground hover:text-foreground hover:bg-secondary shadow-sm"
-                  : "bg-white/[0.04] border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.08]"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </motion.button>
-          ))}
+        {/* Category filter tabs - Snappier LayoutId Pill */}
+        <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide pb-2 pt-2 px-1 bg-black/5 dark:bg-white/5 rounded-[2.5rem]">
+          {clientCategories.map(({ id, label, icon: Icon }) => {
+            const isActive = selectedCategory === id;
+            return (
+              <motion.button
+                key={id}
+                onClick={() => setSelectedCategory(id)}
+                whileTap={{ scale: 0.96 }}
+                className={cn(
+                  "relative flex items-center gap-2.5 px-6 py-3.5 rounded-[2rem] text-sm font-black whitespace-nowrap transition-colors duration-200 flex-shrink-0 z-10",
+                  isActive
+                    ? "text-white"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="category-pill-owner-interested"
+                    className="absolute inset-0 bg-[var(--color-brand-accent-2)] shadow-[0_8px_24px_rgba(228,0,124,0.3)] z-0 rounded-[2rem]"
+                    transition={{ type: 'spring', stiffness: 550, damping: 35 }}
+                  />
+                )}
+                <span className="relative z-20 flex items-center gap-2.5 font-black uppercase tracking-tight">
+                  <Icon className="w-4 h-4" strokeWidth={3} />
+                  {label}
+                </span>
+              </motion.button>
+            );
+          })}
         </div>
 
         {/* Search */}
