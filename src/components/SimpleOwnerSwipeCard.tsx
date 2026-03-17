@@ -211,20 +211,26 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
 interface SimpleOwnerSwipeCardProps {
   profile: ClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
+  onTap?: () => void;
   onDetails?: () => void;
   onInsights?: () => void;
   onMessage?: () => void;
   onShare?: () => void;
+  onUndo?: () => void;
+  canUndo?: boolean;
   isTop?: boolean;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
   onSwipe,
+  onTap,
   onDetails,
   onInsights,
   onMessage,
   onShare,
+  onUndo,
+  canUndo,
   isTop = true,
 }, ref) => {
   const isDragging = useRef(false);

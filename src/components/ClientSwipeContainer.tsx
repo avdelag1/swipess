@@ -770,7 +770,7 @@ const ClientSwipeContainerComponent = ({
         sonnerToast.success('Opening chat...', { id: 'start-conv' });
         setMessageDialogOpen(false);
         await new Promise(resolve => setTimeout(resolve, 300));
-        navigate(`/ messages ? conversationId = ${result.conversationId} `);
+        navigate(`/messages?conversationId=${result.conversationId}`);
       }
     } catch (error) {
       sonnerToast.error('Could not start conversation', {
@@ -1067,7 +1067,7 @@ const ClientSwipeContainerComponent = ({
 
         {/* Static Action Buttons - Floating bottom bar */}
         {topCard && !insightsOpen && (
-          <div className="absolute left-0 right-0 flex justify-center z-30" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 84px)' }}>
+          <div className="absolute left-0 right-0 flex justify-center z-[1100]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 112px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
