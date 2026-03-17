@@ -300,9 +300,9 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       if (!disableSoundsRef.current) {
         if (mode === 'stars' || mode === 'orbs' || mode === 'sunset' || mode === 'beach') {
-          playRandomZen(0.3).catch(() => {});
+          playRandomZen(0.3);
         } else if (mode === 'cheetah' || mode === 'animal') {
-          playJungleSound(0.3).catch(() => {});
+          playJungleSound(0.3);
         }
       }
 
