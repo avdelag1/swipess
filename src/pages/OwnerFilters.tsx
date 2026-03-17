@@ -193,7 +193,7 @@ export default function OwnerFilters() {
     <div className="min-h-full bg-background transition-colors duration-500">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
-        <div className="flex items-center justify-between px-4 py-4 pt-12">
+        <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -231,7 +231,7 @@ export default function OwnerFilters() {
       </header>
 
       <div className="overflow-y-auto">
-        <div className="px-4 py-6 space-y-8 pb-36">
+        <div className="px-4 py-6 space-y-8 pb-24">
           {/* Gender Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
@@ -450,7 +450,7 @@ export default function OwnerFilters() {
       </div>
 
       {/* Bottom Fixed Apply Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40">
+      <div className="fixed left-0 right-0 p-4 bg-background/80 backdrop-blur-xl border-t border-border/40" style={{ bottom: 'calc(68px + var(--safe-bottom, 0px))' }}>
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}
