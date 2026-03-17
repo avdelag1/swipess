@@ -227,7 +227,7 @@ export function MessagingDashboard() {
   return (
     <>
       <MessageActivationBanner isVisible={showActivationBanner} onClose={() => setShowActivationBanner(false)} userRole={userRole} variant="conversation-limit" />
-      <div className="w-full pb-24 min-h-screen min-h-dvh bg-background">
+      <div className="w-full pb-24 bg-background">
         <div className="w-full max-w-4xl mx-auto px-4 pt-4 sm:px-6">
           <div className="flex items-center justify-between mb-6">
             <div>

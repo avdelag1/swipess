@@ -397,7 +397,6 @@ function LegendaryLandingPage() {
     if (p === 'stars') return 'orbs';
     if (p === 'orbs') return 'animal';
     if (p === 'animal') return 'beach';
-    if (p === 'beach') return 'off';
     return 'stars';
   });
 
