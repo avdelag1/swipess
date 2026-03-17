@@ -366,16 +366,13 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     }
   }, [userId, restoreDrafts]);
 
-  // SCROLL-TO-TOP: Reset scroll position on every page navigation
-  // PERF: Smooth and instant reset without layout thrashing
+  // SCROLL-TO-TOP: Delayed reset after exit animation completes (150ms exit duration)
   useEffect(() => {
-    const el = document.getElementById('dashboard-scroll-container');
-    if (el) {
-      // Use requestAnimationFrame for smoother synchronization with the route transition
-      requestAnimationFrame(() => {
-        el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-      });
-    }
+    const id = setTimeout(() => {
+      const el = document.getElementById('dashboard-scroll-container');
+      el?.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    }, 160);
+    return () => clearTimeout(id);
   }, [location.pathname]);
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
