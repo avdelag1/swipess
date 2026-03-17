@@ -395,9 +395,6 @@ function LegendaryLandingPage() {
 
   const cycleEffect = () => setEffectMode((p) => {
     if (p === 'stars') return 'orbs';
-    if (p === 'orbs') return 'animal';
-    if (p === 'animal') return 'beach';
-    if (p === 'beach') return 'off';
     return 'stars';
   });
 
@@ -405,18 +402,12 @@ function LegendaryLandingPage() {
     switch (effectMode) {
       case 'stars': return '✦';
       case 'orbs': return '◉';
-      case 'animal': return '🐆';
-      case 'beach': return '🏖️';
-      case 'cheetah': return '🐆';
-      case 'sunset': return '🏖️';
       default: return '◼';
     }
   }, [effectMode]);
 
   const bgColor = useMemo(() => {
     switch (effectMode) {
-      case 'animal': case 'cheetah': return '#1a1005';
-      case 'beach': case 'sunset': return '#071e22';
       case 'orbs': return '#080510';
       default: return '#050505';
     }

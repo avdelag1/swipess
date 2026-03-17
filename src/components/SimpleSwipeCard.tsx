@@ -54,7 +54,7 @@ const SPRING_CONFIGS = {
   SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SOFT; // Changed to SOFT for purely fun swipe feedback
+const ACTIVE_SPRING = SPRING_CONFIGS.NATIVE; // Responsive iOS-like feel without excessive bounce
 
 interface SimpleSwipeCardProps {
   listing: Listing | MatchedListing;

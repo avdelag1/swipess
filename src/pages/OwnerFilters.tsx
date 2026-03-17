@@ -192,7 +192,7 @@ export default function OwnerFilters() {
   return (
     <div className="h-full w-full flex flex-col bg-background transition-colors duration-500 overflow-hidden">
       {/* Header */}
-      <header className="flex-shrink-0 sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40" style={{ paddingTop: 'var(--safe-top)' }}>
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-3">
             <motion.button
@@ -230,8 +230,8 @@ export default function OwnerFilters() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto scroll-area-momentum no-scrollbar">
-        <div className="px-4 py-6 space-y-8 pb-36">
+      <div className="overflow-y-auto">
+        <div className="px-4 py-6 space-y-8 pb-24">
           {/* Gender Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
@@ -449,8 +449,8 @@ export default function OwnerFilters() {
         </div>
       </div>
 
-      {/* Fixed Apply Button Bar - Premium ergonomic position */}
-      <div className="flex-shrink-0 p-4 pb-8 bg-background/80 backdrop-blur-xl border-t border-border/40" style={{ paddingBottom: 'calc(var(--safe-bottom) + 1rem)' }}>
+      {/* Bottom Fixed Apply Button */}
+      <div className="fixed left-0 right-0 p-4 bg-background/80 backdrop-blur-xl border-t border-border/40" style={{ bottom: 'calc(68px + var(--safe-bottom, 0px))' }}>
         <div className="max-w-md mx-auto">
           <motion.button
             whileHover={{ scale: 1.02 }}
