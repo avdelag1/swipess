@@ -18,6 +18,8 @@ import SignupErrorBoundary from "@/components/SignupErrorBoundary";
 import GlobalErrorBoundary from "@/components/GlobalErrorBoundary";
 import { AppOutagePage } from "@/components/AppOutagePage";
 import { IS_OUTAGE_ACTIVE, hasOutageBypass } from "@/config/outage";
+import { useConnectionHealth } from "@/hooks/useConnectionHealth";
+import { ConnectionErrorScreen } from "@/components/ConnectionErrorScreen";
 import Index from "./pages/Index";
 import '@/i18n';
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -188,6 +190,22 @@ function ProfileSyncWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Guards app access: shows ConnectionErrorScreen when Supabase is unreachable
+// instead of leaving the user with a blank/frozen screen
+function ConnectionGuard({ children }: { children: React.ReactNode }) {
+  const { status, retryCount, retry } = useConnectionHealth();
+
+  if (status === 'disconnected' || status === 'checking' || status === 'degraded') {
+    // Show error screen only when fully disconnected — still render app while checking/degraded
+    // to avoid false positives on slow connections
+    if (status === 'disconnected') {
+      return <ConnectionErrorScreen status={status} retryCount={retryCount} onRetry={retry} />;
+    }
+  }
+
+  return <>{children}</>;
+}
+
 const App = () => {
   // Outage gate: bypassed via ?preview=swipess URL param or 7× logo tap
   const [outageBypassed, setOutageBypassed] = useState(() => hasOutageBypass());
@@ -198,6 +216,7 @@ const App = () => {
 
   return (
     <GlobalErrorBoundary>
+      <ConnectionGuard>
       <QueryClientProvider client={queryClient}>
         {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         <BrowserRouter
@@ -360,6 +379,7 @@ const App = () => {
           </ErrorBoundary>
         </BrowserRouter>
       </QueryClientProvider>
+      </ConnectionGuard>
     </GlobalErrorBoundary>
   );
 };
