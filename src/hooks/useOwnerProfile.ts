@@ -6,7 +6,7 @@ export type OwnerProfile = {
   id?: string;
   user_id: string;
   business_name?: string | null;
-  business_description?: string | null;
+  business_description?: string | null; // Text description of the business
   business_location?: string | null;
   contact_email?: string | null;
   contact_phone?: string | null;
@@ -142,6 +142,10 @@ export function useSaveOwnerProfile() {
 
       if (updates.business_name !== undefined) {
         syncPayload.full_name = updates.business_name;
+      }
+
+      if (updates.business_description !== undefined) {
+        syncPayload.bio = updates.business_description;
       }
 
       if (updates.business_location !== undefined) {
