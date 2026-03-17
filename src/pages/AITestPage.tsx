@@ -112,7 +112,7 @@ const AITestPage = () => {
         <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-b from-brand-accent-2/5 to-transparent" />
       </div>
 
-      <div className="relative w-full max-w-lg mx-auto flex flex-col flex-1 px-4 pt-[calc(56px+var(--safe-top)+1.5rem)] sm:px-6">
+      <div className="relative w-full max-w-lg mx-auto flex flex-col flex-1 px-4 pt-6 sm:px-6">
 
         {/* Header */}
         <div className="mb-8 flex items-end justify-between">

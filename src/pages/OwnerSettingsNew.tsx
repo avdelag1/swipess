@@ -126,7 +126,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'security') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
 
 
@@ -153,7 +153,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'language') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
           <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={false} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
@@ -166,7 +166,7 @@ const OwnerSettingsNew = () => {
 
   if (activeSection === 'preferences') {
     return (
-      <div className="w-full min-h-full overflow-y-auto px-4 pt-[calc(56px+var(--safe-top)+1rem)] pb-32 bg-background">
+      <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
 
 
@@ -181,7 +181,7 @@ const OwnerSettingsNew = () => {
   }
 
   return (
-    <div className="w-full min-h-full overflow-y-auto px-6 pt-[calc(56px+var(--safe-top)+1rem)] pb-40 scrollbar-hide bg-background">
+    <div className="w-full min-h-full overflow-y-auto px-6 pt-4 pb-40 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-10">
 
 

@@ -14,7 +14,7 @@ export default function MyHub() {
 
     return (
         <div className="w-full min-h-screen bg-background pb-32 overflow-x-hidden">
-            <div className="relative w-full max-w-lg mx-auto px-4 pt-[calc(56px+var(--safe-top)+1.5rem)] sm:px-6">
+            <div className="relative w-full max-w-lg mx-auto px-4 pt-6 sm:px-6">
 
                 <MyHubProfileHeader />
                 <MyHubQuickFilters />
