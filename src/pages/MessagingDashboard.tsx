@@ -257,7 +257,7 @@ export function MessagingDashboard() {
               { id: 'unread', label: 'Unread', icon: CircleDot },
               { id: 'archived', label: 'Archived', icon: Archive }
             ].map((filter) => (
-              <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.impact(); }}
+              <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.tap(); }}
                 className={cn("flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all",
                   activeFilter === filter.id ? "bg-primary text-white shadow-lg" : "bg-white/5 text-muted-foreground")}>
                 <filter.icon className="w-3.5 h-3.5" />
