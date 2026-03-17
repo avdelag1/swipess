@@ -209,8 +209,6 @@ const CardImage = memo(({
         onError={() => setError(true)}
         draggable={false}
         loading={priority ? "eager" : "lazy"}
-        // @ts-ignore - fetchpriority is a valid attribute in modern browsers
-        fetchpriority={priority ? "high" : "auto"}
         decoding={priority ? "sync" : "async"}
       />
     </div>

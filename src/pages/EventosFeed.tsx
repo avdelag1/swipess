@@ -52,6 +52,36 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: '$120 USD'
   },
   {
+    id: 'poster-1',
+    title: 'OFF-WHITE BEACH CLUB',
+    description: 'A conceptual sensory experience. Fashion meets the ocean breeze with experimental soundscapes and minimalist aesthetics.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
+    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Paraiso Beach',
+    location_detail: 'Exclusive Zone',
+    organizer_name: 'Virgil Living',
+    promo_text: 'Limited Edition Merch',
+    discount_tag: 'POSTER EVENT',
+    is_free: false,
+    price_text: '$150 USD'
+  },
+  {
+    id: 'poster-2',
+    title: 'TULUM TECHNO TECH',
+    description: 'Industrial beats in raw nature. A fusion of light, sound, and the primal energy of the Mayan jungle.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90',
+    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'The Bunker',
+    location_detail: 'Deep Jungle',
+    organizer_name: 'Sonic Rituals',
+    promo_text: 'Secret Lineup',
+    discount_tag: 'POSTER EDITION',
+    is_free: false,
+    price_text: '$90 USD'
+  },
+  {
     id: 'mock-2',
     title: 'Bagatelle Beach Brunch',
     description: 'French Riviera vibes meet the Caribbean coast. Join us for the ultimate festive brunch experience with live performers and Mediterranean cuisine.',
@@ -67,6 +97,21 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: '$85 USD'
   },
   {
+    id: 'mock-3',
+    title: 'Hï Tulum: Black Coffee',
+    description: 'Gala event at the Zamna stage. World renowned Black Coffee brings his signature deep tech-house sound to the Mayan jungle for a night of spiritual house music.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
+    event_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Zamna Stage',
+    location_detail: 'Jungle Arena',
+    organizer_name: 'Hï Ibiza',
+    promo_text: 'Phase 2 Tickets Live',
+    discount_tag: 'Mega Event',
+    is_free: false,
+    price_text: '$250 USD'
+  },
+  {
     id: 'mock-4',
     title: 'Cenote Wellness Retreat',
     description: 'A morning of rejuvenation. Sound healing, guided meditation, and a cleansing dip in a private sacred cenote tucked deep in the Mayan jungle.',
@@ -80,21 +125,6 @@ const MOCK_EVENTS: EventItem[] = [
     discount_tag: 'Zen Experience',
     is_free: false,
     price_text: '$45 USD'
-  },
-  {
-    id: 'mock-3',
-    title: 'Papaya Playa Project',
-    description: 'Full Moon Saturday. A mystical journey through music and dance on the sands of Tulum. Connection, community, and consciousness.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
-    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'PPP Beach',
-    location_detail: 'Beach Road km 4.5',
-    organizer_name: 'Papaya Playa',
-    promo_text: 'Local ID gets priority',
-    discount_tag: 'Full Moon Ritual',
-    is_free: false,
-    price_text: 'From $150 USD'
   },
   {
     id: 'mock-5',
@@ -113,33 +143,78 @@ const MOCK_EVENTS: EventItem[] = [
   },
   {
     id: 'mock-6',
-    title: 'Zamna Ancestral Forest',
-    description: 'Deep inside the Mayan jungle, Zamna delivers an otherworldly techno and electronic music experience at sunrise.',
-    category: 'jungle',
-    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90',
-    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Zamna Tulum',
-    location_detail: 'Carr. Tulum-Cobá km 3.5',
-    organizer_name: 'Zamna',
-    promo_text: 'Sunrise set from 4 AM',
-    discount_tag: 'Sold Out Soon',
+    title: 'Kin Toh: Nest Dining',
+    description: 'Elevated Mayan cuisine in the treetops. Experience a private dinner in a hanging nest with panoramic views of the Tulum jungle and the starry night.',
+    category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=90',
+    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Azulik',
+    location_detail: 'Main Tower',
+    organizer_name: 'Azulik Culinary',
+    promo_text: 'Reservation required',
+    discount_tag: 'Luxury Dining',
     is_free: false,
-    price_text: '$200 USD'
+    price_text: 'Min Spend $250'
   },
   {
     id: 'mock-7',
-    title: 'Taboo Beach Day Party',
-    description: 'All-day beach party at Taboo with world-class DJs, bottle service, and the best views of the Caribbean.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Taboo Tulum',
-    location_detail: 'Hotel Zone Beach',
-    organizer_name: 'Taboo',
-    promo_text: 'Ladies free before 1 PM',
-    discount_tag: 'Wave Vibes',
+    title: 'Nomad Yoga Series',
+    description: 'Rise with the sun at the beach. A high-intensity Vinyasa flow followed by holistic breathwork and a community superfood breakfast.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=90',
+    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Sanctuary tulum',
+    location_detail: 'Holistic Zone',
+    organizer_name: 'The Nomad',
+    promo_text: 'Mats provided',
+    discount_tag: 'Community Vibe',
+    is_free: true,
+    price_text: 'Free Entry'
+  },
+  {
+    id: 'mock-8',
+    title: 'Sian Ka’an Eco Expo',
+    description: 'Discover the secrets of the biosphere. Photography exhibition, expert talks on sustainability, and local artisan market under the palms.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=90',
+    event_date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Centro Cultural',
+    location_detail: 'Town Square',
+    organizer_name: 'Earth Tulum',
+    promo_text: 'Support local artists',
+    discount_tag: 'Eco Friendly',
+    is_free: true,
+    price_text: 'Donation'
+  },
+  {
+    id: 'mock-9',
+    title: 'Arca Chef Residency',
+    description: 'Exclusive 7-course tasting menu by guest Michelin chefs. Fire-cooked delicacies paired with rare Mexican wines in an open-air jungle setting.',
+    category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1200&q=90',
+    event_date: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Arca Tulum',
+    location_detail: 'Beach Road km 8.5',
+    organizer_name: 'Arca Group',
+    promo_text: 'Limited seating',
+    discount_tag: 'Michelin Star',
     is_free: false,
-    price_text: '$60 USD'
+    price_text: '$150 USD'
+  },
+  {
+    id: 'mock-10',
+    title: 'Vagalume: Ritual Night',
+    description: 'Electronic music rituals by the pool. Dress in your best bohemian chic and join us for a night of fire shows, tribal beats, and cocktails.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Vagalume',
+    location_detail: 'Hotel Zone',
+    organizer_name: 'Rituals Group',
+    promo_text: 'Dinner + Dance options',
+    discount_tag: 'Pool Side',
+    is_free: false,
+    price_text: '$80 USD'
   }
 ];
 
@@ -244,19 +319,28 @@ export default function EventosFeed() {
     });
   }, []);
 
-  const filteredEvents = allEvents
-    .filter(e => {
-      const matchesCat = activeCategory === 'all' || e.category === activeCategory;
-      const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesFree = !freeOnly || e.is_free;
-      return matchesCat && matchesSearch && matchesFree;
-    })
-    .sort((a, b) => {
-      if (sortBy === 'newest') {
-        return new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime();
-      }
-      return new Date(a.event_date || 0).getTime() - new Date(b.event_date || 0).getTime();
-    });
+  const filteredEvents = useMemo(() => {
+    const base = allEvents
+      .filter(e => {
+        const matchesCat = activeCategory === 'all' || e.category === activeCategory;
+        const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFree = !freeOnly || e.is_free;
+        return matchesCat && matchesSearch && matchesFree;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'newest') {
+          return new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime();
+        }
+        return new Date(a.event_date || 0).getTime() - new Date(b.event_date || 0).getTime();
+      });
+
+    // INFINITY SCROLL HACK: Duplicate events if reaching the end to allow continuous scroll
+    // This creates a truly endless feeling for the demo/PWA
+    if (base.length > 0) {
+      return [...base, ...base.map(e => ({ ...e, id: `${e.id}-loop-1` })), ...base.map(e => ({ ...e, id: `${e.id}-loop-2` }))];
+    }
+    return base;
+  }, [allEvents, activeCategory, searchQuery, freeOnly, sortBy]);
 
   const likedEvents = allEvents.filter(e => likedIds.has(e.id));
   const likedCount = likedIds.size;
