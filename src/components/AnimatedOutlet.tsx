@@ -13,25 +13,28 @@ export function AnimatedOutlet() {
     const location = useLocation();
 
     return (
-        <AnimatePresence mode="sync" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
             <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0 }}
+                initial={{ opacity: 0, scale: 0.98 }}
                 animate={{
                     opacity: 1,
+                    scale: 1,
                     transition: {
-                        duration: 0.15,
-                        ease: 'easeOut',
+                        duration: 0.22,
+                        ease: [0.23, 1, 0.32, 1], // Deceleration curve (Power4)
                     }
                 }}
                 exit={{
                     opacity: 0,
+                    scale: 1.01,
                     transition: {
-                        duration: 0.08,
+                        duration: 0.15,
+                        ease: [0.4, 0, 1, 1],
                     }
                 }}
                 className="h-full w-full flex flex-col flex-1"
-                style={{ willChange: 'opacity' }}
+                style={{ willChange: 'opacity, transform' }}
             >
                 <Outlet />
             </motion.div>

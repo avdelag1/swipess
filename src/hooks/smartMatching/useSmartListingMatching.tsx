@@ -30,7 +30,7 @@ function hasJsonOverlap(listingArr: unknown, filterArr: string[]): boolean {
 
 export function useSmartListingMatching(
     userId: string | undefined,
-    excludeSwipedIds: string[] = [],
+    _excludeSwipedIds: string[] = [],
     filters?: ListingFilters,
     page: number = 0,
     pageSize: number = 10,
@@ -69,30 +69,18 @@ export function useSmartListingMatching(
             try {
                 logger.info('[SmartMatching] Fetching listings for user:', userId);
 
-                const { data: preferences } = await supabase
-                    .from('client_filter_preferences')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .maybeSingle();
-
-                // Fetch liked items (right swipes) - NEVER shown again
-                const { data: likedListings, error: likesError } = await supabase
-                    .from('likes')
-                    .select('target_id')
-                    .eq('user_id', userId)
-                    .eq('target_type', 'listing')
-                    .eq('direction', 'right');
+                const [
+                    { data: preferences },
+                    { data: likedListings, error: likesError },
+                    { data: leftSwipes }
+                ] = await Promise.all([
+                    supabase.from('client_filter_preferences').select('*').eq('user_id', userId).maybeSingle(),
+                    supabase.from('likes').select('target_id').eq('user_id', userId).eq('target_type', 'listing').eq('direction', 'right'),
+                    supabase.from('likes').select('target_id, created_at').eq('user_id', userId).eq('target_type', 'listing').eq('direction', 'left')
+                ]);
 
                 const likedIds = new Set(!likesError ? (likedListings?.map(like => like.target_id) || []) : []);
-
                 const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
-
-                const { data: leftSwipes } = await supabase
-                    .from('likes')
-                    .select('target_id, created_at')
-                    .eq('user_id', userId)
-                    .eq('target_type', 'listing')
-                    .eq('direction', 'left');
 
                 const permanentlyHiddenIds = new Set<string>();
                 const refreshableDislikeIds = new Set<string>();

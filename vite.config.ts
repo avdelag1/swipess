@@ -79,8 +79,8 @@ function preloadPlugin(): import('vite').Plugin {
     transformIndexHtml(html, ctx) {
       if (!ctx.bundle) return html;
 
-      // Find critical chunks to preload - only the most essential
-      const criticalChunks = ['react-vendor', 'react-router'];
+      // Find critical chunks to preload - essential for dashboard render
+      const criticalChunks = ['react-vendor', 'react-router', 'react-query', 'supabase', 'motion', 'utils'];
       const preloadLinks: string[] = [];
 
       for (const [fileName, chunk] of Object.entries(ctx.bundle)) {

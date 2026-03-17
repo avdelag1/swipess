@@ -34,50 +34,44 @@ export function useSmartClientMatching(
             try {
                 logger.info('[SmartMatching] Fetching client profiles for owner:', userId);
 
-                // Fetch owner's saved preferences as fallback for filters
+                // Variable declarations for filters
                 let dbGenderFilter: string | undefined;
                 let dbAgeRange: [number, number] | undefined;
                 let dbBudgetRange: [number, number] | undefined;
                 let dbNationalities: string[] | undefined;
                 let ownerPrefsForScoring: any = null;
-                try {
-                    const { data: ownerPrefs } = await supabase
-                        .from('owner_client_preferences')
-                        .select('*')
-                        .eq('user_id', userId)
-                        .maybeSingle();
 
-                    if (ownerPrefs) {
-                        ownerPrefsForScoring = ownerPrefs;
-                        const genders = ownerPrefs.selected_genders as string[] | null;
-                        const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
-                        if (
-                            (!filters || !filters.clientGender || filters.clientGender === 'any') &&
-                            genders?.length
-                        ) {
-                            dbGenderFilter = genders[0];
-                        }
-                        if (!filters?.ageRange && (ownerPrefs.min_age != null || ownerPrefs.max_age != null)) {
-                            dbAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
-                        }
-                        if (!filters?.budgetRange && (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)) {
-                            dbBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
-                        }
-                        if (!filters?.nationalities?.length && nationalities?.length) {
-                            dbNationalities = nationalities;
-                        }
+                // Fetch everything in parallel - Preferences, Likes, Dislikes
+                const [
+                    { data: ownerPrefs },
+                    { data: ownerLikedClients, error: ownerLikesError },
+                    { data: leftSwipes }
+                ] = await Promise.all([
+                    supabase.from('owner_client_preferences').select('*').eq('user_id', userId).maybeSingle(),
+                    supabase.from('likes').select('target_id').eq('user_id', userId).eq('target_type', 'profile').eq('direction', 'right'),
+                    supabase.from('likes').select('target_id, created_at').eq('user_id', userId).eq('target_type', 'profile').eq('direction', 'left')
+                ]);
+
+                if (ownerPrefs) {
+                    ownerPrefsForScoring = ownerPrefs;
+                    const genders = ownerPrefs.selected_genders as string[] | null;
+                    const nationalities = ownerPrefs.preferred_nationalities as string[] | null;
+                    if (
+                        (!filters || !filters.clientGender || filters.clientGender === 'any') &&
+                        genders?.length
+                    ) {
+                        dbGenderFilter = genders[0];
                     }
-                } catch {
-                    // Non-critical: continue without DB prefs
+                    if (!filters?.ageRange && (ownerPrefs.min_age != null || ownerPrefs.max_age != null)) {
+                        dbAgeRange = [ownerPrefs.min_age ?? 18, ownerPrefs.max_age ?? 65];
+                    }
+                    if (!filters?.budgetRange && (ownerPrefs.min_budget != null || ownerPrefs.max_budget != null)) {
+                        dbBudgetRange = [ownerPrefs.min_budget ?? 0, ownerPrefs.max_budget ?? 50000];
+                    }
+                    if (!filters?.nationalities?.length && nationalities?.length) {
+                        dbNationalities = nationalities;
+                    }
                 }
-
-                // Fetch liked clients
-                const { data: ownerLikedClients, error: ownerLikesError } = await supabase
-                    .from('likes')
-                    .select('target_id')
-                    .eq('user_id', userId)
-                    .eq('target_type', 'profile')
-                    .eq('direction', 'right');
 
                 const likedIds = new Set<string>();
                 if (!ownerLikesError && ownerLikedClients) {
@@ -88,14 +82,6 @@ export function useSmartClientMatching(
 
                 // Fetch left swipes with timestamps for 3-day expiry logic
                 const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
-
-                const { data: leftSwipes } = await supabase
-                    .from('likes')
-                    .select('target_id, created_at')
-                    .eq('user_id', userId)
-                    .eq('target_type', 'profile')
-                    .eq('direction', 'left');
-
                 const permanentlyHiddenIds = new Set<string>();
                 const refreshableDislikeIds = new Set<string>();
 
@@ -225,6 +211,9 @@ export function useSmartClientMatching(
                         if (filters?.budgetRange && Array.isArray(filters.budgetRange) && filters.budgetRange.length === 2) {
                             const clientBudget = profile.budget_max || profile.monthly_income || 0;
                             if (clientBudget !== 0 && (clientBudget < filters.budgetRange[0] || clientBudget > filters.budgetRange[1])) return false;
+                        } else if (dbBudgetRange && Array.isArray(dbBudgetRange) && dbBudgetRange.length === 2) {
+                            const clientBudget = profile.budget_max || profile.monthly_income || 0;
+                            if (clientBudget !== 0 && (clientBudget < dbBudgetRange[0] || clientBudget > dbBudgetRange[1])) return false;
                         }
 
                         if (filters?.ageRange && Array.isArray(filters.ageRange) && filters.ageRange.length === 2 && profile.age) {
