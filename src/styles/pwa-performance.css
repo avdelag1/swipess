@@ -7,6 +7,19 @@
 html.pwa-mode {
     /* Additional PWA optimizations applied via JS class */
     --animation-speed-multiplier: 0.8; /* Faster but still fluid */
+    overscroll-behavior-y: none;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+html.pwa-mode body {
+    overscroll-behavior-y: none;
+    height: 100dvh;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
 }
 
 html.pwa-mode .backdrop-blur-xl {
@@ -137,9 +150,14 @@ html.pwa-mode .animate-out {
 button[role="tab"] {
     min-height: 48px;
     min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     /* Prevent text selection on double-tap */
     -webkit-user-select: none;
     user-select: none;
+    /* Velocity: Faster press response */
+    transition: transform 0.08s cubic-bezier(0, 0, 0.2, 1) !important;
 }
 
 /* FIX #6: Optimize Scrolling Performance */
@@ -206,13 +224,15 @@ button:disabled,
 /* FIX #11: Fullscreen Modal Optimization for Mobile */
 @media (max-width: 767px) {
     [data-radix-dialog-content] {
-        /* Fullscreen on mobile for better UX */
+        /* Fullscreen on mobile with dynamic viewport height */
         width: 100vw !important;
-        height: 100vh !important;
+        height: 100dvh !important;
         max-width: 100vw !important;
-        max-height: 100vh !important;
+        max-height: 100dvh !important;
         border-radius: 0 !important;
         border: none !important;
+        /* Performance: Force layer */
+        transform: translateZ(0);
     }
 }
 

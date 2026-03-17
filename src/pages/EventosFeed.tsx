@@ -37,21 +37,6 @@ type SortOrder = 'upcoming' | 'newest';
 
 const MOCK_EVENTS: EventItem[] = [
   {
-    id: 'mock-1',
-    title: 'Gitano Jungle Party',
-    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes with artisanal mezcal cocktails, world-class DJs, and a mystical atmosphere that only Tulum can provide.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=90',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Tulum Jungle',
-    location_detail: 'Beach Road km 7.5',
-    organizer_name: 'Gitano',
-    promo_text: 'Tulum Residents 20% OFF',
-    discount_tag: '20% Local Discount',
-    is_free: false,
-    price_text: '$120 USD'
-  },
-  {
     id: 'poster-1',
     title: 'OFF-WHITE BEACH CLUB',
     description: 'A conceptual sensory experience. Fashion meets the ocean breeze with experimental soundscapes and minimalist aesthetics.',
@@ -80,6 +65,126 @@ const MOCK_EVENTS: EventItem[] = [
     discount_tag: 'POSTER EDITION',
     is_free: false,
     price_text: '$90 USD'
+  },
+  {
+    id: 'poster-3',
+    title: 'DIOR RIVIERA SUNDOWN',
+    description: 'A couture journey on the sands of Tulum. Signature cocktails, bespoke music, and the ultimate luxury sundowner experience.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1549417229-aa67d3263c09?w=1200&q=90',
+    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Ahau Beach',
+    location_detail: 'Beach Road',
+    organizer_name: 'House of Dior',
+    promo_text: 'Invitation Only',
+    discount_tag: 'EXCLUSIVE POSTER',
+    is_free: false,
+    price_text: 'GALA ENTRY'
+  },
+  {
+    id: 'poster-4',
+    title: 'MAYA WARRIOR RITUAL',
+    description: 'The return of the legendary bus. Experience the primal energy of the Mayan soul through cutting-edge light and sound design.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Deep Tulum',
+    location_detail: 'Secret Location',
+    organizer_name: 'Maya Warrior',
+    promo_text: 'Proceeds to Charity',
+    discount_tag: 'ICONIC EVENT',
+    is_free: false,
+    price_text: '$120 USD'
+  },
+  {
+    id: 'poster-5',
+    title: 'PRADA MAYAN ESCAPE',
+    description: 'Minimalist luxury meets tropical brutalism. A curated weekend of art, fashion previews, and experimental soundscapes.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?w=1200&q=90',
+    event_date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Sian K’aan',
+    location_detail: 'Eco Reserve',
+    organizer_name: 'Prada Group',
+    promo_text: 'Eco-conscious Luxury',
+    discount_tag: 'COLLECTOR POSTER',
+    is_free: false,
+    price_text: 'INVITE ONLY'
+  },
+  {
+    id: 'poster-6',
+    title: 'TESLA CYBER JUNGLE',
+    description: 'Future meets ancient. An electronic music showcase powered entirely by solar energy in the heart of the Tulum reserve.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=90',
+    event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Solar Valley',
+    location_detail: 'Jungle Outpost',
+    organizer_name: 'Tesla Energy',
+    promo_text: 'Sustainable Sound',
+    discount_tag: 'FUTURE POSTER',
+    is_free: true,
+    price_text: 'FREE REGISTRATION'
+  },
+  {
+    id: 'poster-7',
+    title: 'GUCCI COSMO TULUM',
+    description: 'An intergalactic fusion of Italian craftsmanship and Mayan astrology. Digital art installations and galactic beats.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=90',
+    event_date: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Holistika',
+    location_detail: 'The Dome',
+    organizer_name: 'Gucci Global',
+    promo_text: 'VR Experience included',
+    discount_tag: 'LUXURY POSTER',
+    is_free: false,
+    price_text: '$300 USD'
+  },
+  {
+    id: 'poster-8',
+    title: 'ROLEX DEEP SEA GALA',
+    description: 'Celebrating the mysteries of the ocean. A formal evening of exploration stories and charity auctions at the water edge.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=1200&q=90',
+    event_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Ziggys Beach',
+    location_detail: 'Private Pier',
+    organizer_name: 'Rolex Mexico',
+    promo_text: 'Black Tie Optional',
+    discount_tag: 'LEGACY POSTER',
+    is_free: false,
+    price_text: 'TABLE BOOKING'
+  },
+  {
+    id: 'poster-9',
+    title: 'APPLE RIVIERA KEYNOTE',
+    description: 'Experience the future of spatial computing in the most beautiful place on earth. Vision Pro demos and developer workshops.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=90',
+    event_date: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Digital Nomad Hub',
+    location_detail: 'Main Hall',
+    organizer_name: 'Apple Inc.',
+    promo_text: 'Registration Required',
+    discount_tag: 'TECH POSTER',
+    is_free: true,
+    price_text: 'FREE'
+  },
+  {
+    id: 'mock-1',
+    title: 'Gitano Jungle Party',
+    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes with artisanal mezcal cocktails, world-class DJs, and a mystical atmosphere that only Tulum can provide.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Tulum Jungle',
+    location_detail: 'Beach Road km 7.5',
+    organizer_name: 'Gitano',
+    promo_text: 'Tulum Residents 20% OFF',
+    discount_tag: '20% Local Discount',
+    is_free: false,
+    price_text: '$120 USD'
   },
   {
     id: 'mock-2',
@@ -337,7 +442,20 @@ export default function EventosFeed() {
     // INFINITY SCROLL HACK: Duplicate events if reaching the end to allow continuous scroll
     // This creates a truly endless feeling for the demo/PWA
     if (base.length > 0) {
-      return [...base, ...base.map(e => ({ ...e, id: `${e.id}-loop-1` })), ...base.map(e => ({ ...e, id: `${e.id}-loop-2` }))];
+      // 5-layer loop for truly infinite feel
+      return [
+        ...base, 
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-1` })), 
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-2` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-3` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-4` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-5` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-6` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-7` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-8` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-9` })),
+        ...base.map(e => ({ ...e, id: `${e.id}-loop-10` }))
+      ];
     }
     return base;
   }, [allEvents, activeCategory, searchQuery, freeOnly, sortBy]);
@@ -742,6 +860,7 @@ function StoryCard({
   onLike: (id: string) => void
 }) {
   const navigate = useNavigate();
+  const isPoster = event.id.startsWith('poster');
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -758,13 +877,20 @@ function StoryCard({
       >
         <img
           src={event.image_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90'}
-          className="w-full h-full object-cover"
+          className={cn(
+            "w-full h-full object-cover transform-gpu",
+            isPoster && "brightness-110 contrast-110"
+          )}
           alt={event.title}
-          style={{ transform: 'translateZ(0)' }}
         />
         {/* Overlays */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+        
+        {/* Poster special effect: subtle floating particles or lens flare would go here */}
+        {isPoster && (
+          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-orange-500/5 mix-blend-overlay pointer-events-none" />
+        )}
       </motion.div>
 
       {/* Content */}
@@ -782,12 +908,26 @@ function StoryCard({
                   {event.category}
                 </span>
                 {event.discount_tag && (
-                  <span className="px-3 py-1 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 text-[10px] font-black text-primary uppercase tracking-widest">
+                  <motion.span 
+                    animate={isPoster ? { 
+                      boxShadow: ['0 0 0px var(--primary)', '0 0 15px var(--primary)', '0 0 0px var(--primary)']
+                    } : {}}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className={cn(
+                      "px-3 py-1 rounded-full backdrop-blur-md border text-[10px] font-black uppercase tracking-widest",
+                      isPoster 
+                        ? "bg-primary text-white border-primary" 
+                        : "bg-primary/20 border-primary/30 text-primary"
+                    )}
+                  >
                     {event.discount_tag}
-                  </span>
+                  </motion.span>
                 )}
               </div>
-              <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">
+              <h2 className={cn(
+                "text-4xl font-black text-white italic tracking-tighter uppercase leading-none",
+                isPoster && "text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60"
+              )}>
                 {event.title}
               </h2>
             </div>
@@ -826,14 +966,20 @@ function StoryCard({
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleDetailsClick}
-              className="flex-[3] py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2"
+              className={cn(
+                "flex-[3] py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2 transition-all",
+                isPoster 
+                  ? "bg-gradient-to-r from-rose-600 to-orange-600 text-white" 
+                  : "bg-white text-black"
+              )}
             >
-              Get Tickets {event.price_text && `• ${event.price_text}`}
+              {isPoster ? 'Join Exclusive' : 'Get Tickets'} {event.price_text && `• ${event.price_text}`}
               <ArrowUpRight className="w-4 h-4" />
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.8 }}
               onClick={() => onLike(event.id)}
+              aria-label={isLiked ? "Unlike event" : "Like event"}
               className={cn(
                 "flex-1 rounded-2xl backdrop-blur-md border flex items-center justify-center transition-all",
                 isLiked 

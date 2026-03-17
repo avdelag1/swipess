@@ -216,6 +216,7 @@ export default function EventoDetail() {
             {imageGallery.map((_, i) => (
               <button
                 key={i}
+                aria-label={`Go to image ${i + 1}`}
                 onClick={() => { setActiveImageIndex(i); triggerHaptic('light'); }}
                 className={cn(
                   "rounded-full transition-all duration-300",
