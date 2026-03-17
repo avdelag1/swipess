@@ -211,9 +211,7 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
 interface SimpleOwnerSwipeCardProps {
   profile: ClientProfile;
   onSwipe: (direction: 'left' | 'right') => void;
-  onTap?: () => void;
-  onUndo?: () => void;
-  canUndo?: boolean;
+  onDetails?: () => void;
   onInsights?: () => void;
   onMessage?: () => void;
   onShare?: () => void;
@@ -223,9 +221,7 @@ interface SimpleOwnerSwipeCardProps {
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
   onSwipe,
-  onTap,
-  onUndo,
-  canUndo = false,
+  onDetails,
   onInsights,
   onMessage,
   onShare,
@@ -434,10 +430,10 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   }, [profile?.user_id, onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
-    if (!isDragging.current && onTap) {
-      onTap();
+    if (!isDragging.current && onDetails) {
+      onDetails();
     }
-  }, [onTap]);
+  }, [onDetails]);
 
   const handleImageTap = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();

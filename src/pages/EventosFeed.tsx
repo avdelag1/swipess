@@ -38,54 +38,84 @@ const MOCK_EVENTS: EventItem[] = [
   {
     id: 'mock-1',
     title: 'Gitano Jungle Party',
-    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes with artisanal mezcal cocktails under the stars.',
+    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes with artisanal mezcal cocktails, world-class DJs, and a mystical atmosphere that only Tulum can provide.',
     category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1000&q=80',
+    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=90',
     event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     location: 'Tulum Jungle',
     location_detail: 'Beach Road km 7.5',
     organizer_name: 'Gitano',
     promo_text: 'Tulum Residents 20% OFF',
-    discount_tag: '20% Residents',
+    discount_tag: '20% Local Discount',
     is_free: false,
     price_text: '$120 USD'
   },
   {
     id: 'mock-2',
     title: 'Bagatelle Beach Brunch',
-    description: 'French Riviera vibes meet the Caribbean coast. Join us for the ultimate festive brunch with DJ sets and fresh seafood.',
+    description: 'French Riviera vibes meet the Caribbean coast. Join us for the ultimate festive brunch experience with live performers and Mediterranean cuisine.',
     category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1000&q=80',
+    image_url: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1200&q=90',
     event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
     location: 'Bagatelle',
     location_detail: 'Beach Zone',
     organizer_name: 'Bagatelle Tulum',
     promo_text: 'Includes welcome drink',
-    discount_tag: 'Trending',
+    discount_tag: 'Trending Now',
     is_free: false,
     price_text: '$85 USD'
   },
   {
+    id: 'mock-4',
+    title: 'Cenote Wellness Retreat',
+    description: 'A morning of rejuvenation. Sound healing, guided meditation, and a cleansing dip in a private sacred cenote tucked deep in the Mayan jungle.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=1200&q=90',
+    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Cenote Corazon',
+    location_detail: 'Aldea Zama North',
+    organizer_name: 'Healing Hands',
+    promo_text: 'Early bird 15% OFF',
+    discount_tag: 'Zen Experience',
+    is_free: false,
+    price_text: '$45 USD'
+  },
+  {
     id: 'mock-3',
     title: 'Papaya Playa Project',
-    description: 'Full Moon Saturday. A mystical journey through music and dance on the pristine sands of Tulum Beach.',
+    description: 'Full Moon Saturday. A mystical journey through music and dance on the sands of Tulum. Connection, community, and consciousness.',
     category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1000&q=80',
+    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
     event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
     location: 'PPP Beach',
     location_detail: 'Beach Road km 4.5',
     organizer_name: 'Papaya Playa',
     promo_text: 'Local ID gets priority',
-    discount_tag: 'Full Moon',
+    discount_tag: 'Full Moon Ritual',
     is_free: false,
     price_text: 'From $150 USD'
   },
   {
-    id: 'mock-4',
+    id: 'mock-5',
+    title: 'Sunset Yacht Session',
+    description: 'Sail the Caribbean waters as the sun dips below the horizon. Open bar, fresh ceviche, and deep house beats on a 50ft luxury catamaran.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1567899378494-47b22a2ad96a?w=1200&q=90',
+    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Marina Puerto',
+    location_detail: 'Dock B-12',
+    organizer_name: 'Aqua Marine',
+    promo_text: 'Max 12 people',
+    discount_tag: 'Exclusive Access',
+    is_free: false,
+    price_text: '$180 USD'
+  },
+  {
+    id: 'mock-6',
     title: 'Zamna Ancestral Forest',
     description: 'Deep inside the Mayan jungle, Zamna delivers an otherworldly techno and electronic music experience at sunrise.',
     category: 'jungle',
-    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1000&q=80',
+    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90',
     event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
     location: 'Zamna Tulum',
     location_detail: 'Carr. Tulum-Cobá km 3.5',
@@ -96,95 +126,20 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: '$200 USD'
   },
   {
-    id: 'mock-5',
-    title: 'Cenote Swim & Yoga',
-    description: 'Morning yoga flow followed by a private cenote dip. Connect with nature, local healers, and your inner self.',
-    category: 'jungle',
-    image_url: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?w=1000&q=80',
-    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Cenote Cristal',
-    location_detail: 'Carr. Tulum-Cobá',
-    organizer_name: 'Holistika Tulum',
-    promo_text: 'Mat & towel provided',
-    discount_tag: 'Limited Spots',
-    is_free: false,
-    price_text: '$55 USD'
-  },
-  {
-    id: 'mock-6',
+    id: 'mock-7',
     title: 'Taboo Beach Day Party',
     description: 'All-day beach party at Taboo with world-class DJs, bottle service, and the best views of the Caribbean.',
     category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1000&q=80',
+    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
     event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     location: 'Taboo Tulum',
     location_detail: 'Hotel Zone Beach',
     organizer_name: 'Taboo',
     promo_text: 'Ladies free before 1 PM',
-    discount_tag: '🌊 Beach',
+    discount_tag: 'Wave Vibes',
     is_free: false,
     price_text: '$60 USD'
-  },
-  {
-    id: 'mock-7',
-    title: 'Raw Food Chef Dinner',
-    description: "An intimate farm-to-table tasting menu crafted by Tulum's most celebrated vegan chef. 8 courses, 20 guests only.",
-    category: 'food',
-    image_url: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1000&q=80',
-    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'La Zebra',
-    location_detail: 'Beach Road km 8.2',
-    organizer_name: 'La Zebra Kitchen',
-    promo_text: 'Wine pairing included',
-    discount_tag: '8-Course Menu',
-    is_free: false,
-    price_text: '$180 USD'
-  },
-  {
-    id: 'mock-8',
-    title: 'Mezcal & Taco Sunday',
-    description: 'The best local taqueros and mezcaleros gather for an outdoor fiesta. Street food, live marimba, and good vibes.',
-    category: 'food',
-    image_url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1000&q=80',
-    event_date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Tulum Centro',
-    location_detail: 'Av. Tulum',
-    organizer_name: 'Local Eats Collective',
-    promo_text: 'Free mezcal shot on entry',
-    discount_tag: 'Free Entry',
-    is_free: true,
-    price_text: null
-  },
-  {
-    id: 'mock-9',
-    title: 'Resident Discount Market',
-    description: 'Monthly deals market exclusively for Tulum residents. 40+ vendors offering 20–60% off on services, food, and tours.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=1000&q=80',
-    event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Gran Cenote Area',
-    location_detail: 'Carr. Tulum-Cobá',
-    organizer_name: 'Tulum Residents Network',
-    promo_text: 'Bring your local ID',
-    discount_tag: 'Up to 60% OFF',
-    is_free: true,
-    price_text: null
-  },
-  {
-    id: 'mock-10',
-    title: 'Ahau 2-for-1 Sundowner',
-    description: 'Every Tuesday, Ahau offers buy-one-get-one cocktails at sunset. Acoustic sessions, hammocks, and ocean breeze.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1000&q=80',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Ahau Tulum',
-    location_detail: 'Beach Road km 7',
-    organizer_name: 'Ahau',
-    promo_text: '2-for-1 cocktails 5–7 PM',
-    discount_tag: '2x1 Happy Hour',
-    is_free: false,
-    price_text: '$18 USD'
-  },
+  }
 ];
 
 const LIKED_STORAGE_KEY = 'eventos_liked_ids';
@@ -214,6 +169,7 @@ export default function EventosFeed() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [showLiked, setShowLiked] = useState(false);
   const [freeOnly, setFreeOnly] = useState(false);
@@ -297,20 +253,56 @@ export default function EventosFeed() {
   const likedCount = likedIds.size;
   const activeFilterCount = (freeOnly ? 1 : 0) + (sortBy !== 'upcoming' ? 1 : 0);
 
+  const handleScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const scrollPos = scrollRef.current.scrollTop;
+    const itemHeight = scrollRef.current.clientHeight;
+    if (itemHeight === 0) return;
+    const index = Math.round(scrollPos / itemHeight);
+    if (index !== currentIndex) {
+      setCurrentIndex(index);
+      triggerHaptic('light');
+    }
+  }, [currentIndex]);
+
   return (
     <div className="relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col font-sans">
+      
+      {/* ── STORIES PROGRESS BAR ── */}
+      <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[60] px-4 flex gap-1">
+        {filteredEvents.map((_, idx) => (
+          <div key={idx} className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/20">
+            <motion.div 
+              className="h-full bg-white"
+              initial={{ width: 0 }}
+              animate={{ 
+                width: idx < currentIndex ? '100%' : idx === currentIndex ? '100%' : '0%' 
+              }}
+              transition={{ 
+                duration: idx === currentIndex ? 5 : 0, 
+                ease: "linear" 
+              }}
+            />
+          </div>
+        ))}
+      </div>
 
       {/* ── HEADER OVERLAY ── */}
-      <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none pt-[var(--safe-top,0px)]">
+      <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none pt-[var(--safe-top)]">
         <div className="px-4 py-3 flex items-center justify-between pointer-events-auto">
-          {/* Back button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white flex-shrink-0"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </motion.button>
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{t('nav.explore')}</span>
+              <span className="text-sm font-black text-white italic tracking-tight">{t('eventos.title')}</span>
+            </div>
+          </div>
 
           <div className="flex items-center gap-2">
             {/* Liked counter */}
@@ -333,7 +325,7 @@ export default function EventosFeed() {
                 <motion.div
                   key="search-input"
                   initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 200, opacity: 1 }}
+                  animate={{ width: 180, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
                   className="relative overflow-hidden"
                 >
@@ -341,21 +333,17 @@ export default function EventosFeed() {
                     autoFocus
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search events..."
-                    className="w-full h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-4 text-sm text-white focus:outline-none placeholder:text-white/40"
+                    placeholder={t('eventos.searchPlaceholder', 'Search events...')}
+                    className="w-full h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
                   />
-                  <button onClick={() => { setShowSearch(false); setSearchQuery(''); }} className="absolute right-3 top-2.5">
-                    <X className="w-4 h-4 text-white/60" />
-                  </button>
+                  <X className="absolute right-3 top-2.5 w-4 h-4 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
                 </motion.div>
               ) : (
                 <motion.button
                   key="search-btn"
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  whileTap={{ scale: 0.9 }}
+                  whileTap={{ scale: 0.8 }}
                   onClick={() => setShowSearch(true)}
-                  className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+                  className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
                 >
                   <Search className="w-5 h-5" />
                 </motion.button>
@@ -364,9 +352,9 @@ export default function EventosFeed() {
 
             {/* Filter button */}
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.8 }}
               onClick={() => { triggerHaptic('light'); setShowFilters(true); }}
-              className="relative w-10 h-10 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+              className="relative w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
             >
               <SlidersHorizontal className="w-5 h-5" />
               {activeFilterCount > 0 && (
@@ -379,8 +367,8 @@ export default function EventosFeed() {
         </div>
 
         {/* ── CATEGORY BAR ── */}
-        <div className="px-4 overflow-x-auto no-scrollbar pointer-events-auto">
-          <div className="flex gap-2.5 pb-4">
+        <div className="px-4 overflow-x-auto no-scrollbar pointer-events-auto mt-1">
+          <div className="flex gap-2.5 pb-2">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = activeCategory === cat.key;
@@ -390,14 +378,14 @@ export default function EventosFeed() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
                   className={cn(
-                    "flex-shrink-0 px-4 py-2 rounded-full backdrop-blur-2xl border transition-all flex items-center gap-1.5",
-                    isActive
-                      ? "bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.25)]"
+                    "flex-shrink-0 px-4 py-2 rounded-full backdrop-blur-xl border transition-all flex items-center gap-2",
+                    isActive 
+                      ? "bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.3)]" 
                       : "bg-black/30 text-white border-white/10"
                   )}
                 >
-                  <Icon className={cn("w-3.5 h-3.5", isActive ? "text-orange-500" : "text-white/70")} />
-                  <span className="text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
+                  <Icon className={cn("w-3 h-3", isActive ? "text-primary" : "text-white/80")} />
+                  <span className="text-[9px] font-black uppercase tracking-widest">
                     {t('eventos.' + cat.label, cat.label)}
                   </span>
                 </motion.button>
@@ -410,17 +398,22 @@ export default function EventosFeed() {
       {/* ── VERTICAL FEED ── */}
       <div
         ref={scrollRef}
+        onScroll={handleScroll}
         className="flex-1 overflow-y-scroll snap-y snap-mandatory no-scrollbar"
       >
         {isLoading ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="w-12 h-12 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+          <div className="h-full flex flex-col items-center justify-center gap-4 bg-zinc-950">
+            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center animate-pulse">
+              <Sparkles className="w-8 h-8 text-white/20" />
+            </div>
+            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest animate-pulse">Scanning the Riviera...</p>
           </div>
         ) : filteredEvents.length > 0 ? (
-          filteredEvents.map((event) => (
-            <StoryCard
-              key={event.id}
-              event={event}
+          filteredEvents.map((event, idx) => (
+            <StoryCard 
+              key={event.id} 
+              event={event} 
+              isActive={idx === currentIndex} 
               isLiked={likedIds.has(event.id)}
               onLike={handleLike}
             />
@@ -628,176 +621,118 @@ export default function EventosFeed() {
 
 // ── STORY CARD ────────────────────────────────────────────────────────────────
 
-function StoryCard({
-  event,
+function StoryCard({ 
+  event, 
+  isActive,
   isLiked,
-  onLike,
-}: {
-  event: EventItem;
-  isLiked: boolean;
-  onLike: (id: string) => void;
+  onLike
+}: { 
+  event: EventItem, 
+  isActive: boolean,
+  isLiked: boolean,
+  onLike: (id: string) => void
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const formatDate = (iso: string | null) => {
-    if (!iso) return 'Today';
-    const d = new Date(iso);
-    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  };
-
-  const formatTime = (iso: string | null) => {
-    if (!iso) return '8 PM – LATE';
-    const d = new Date(iso);
-    const h = d.getHours();
-    if (h < 6) return '12 AM – DAWN';
-    if (h < 12) return '10 AM – NOON';
-    if (h < 16) return '12 PM – SUNSET';
-    return '8 PM – LATE';
+  const handleDetailsClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/explore/eventos/${event.id}`);
   };
 
   return (
-    <div className="relative w-full snap-start overflow-hidden flex flex-col" style={{ height: '100%', minHeight: '100%' }}>
+    <div className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-zinc-950">
       {/* Background Image */}
-      <img
-        src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1000&q=80'}
-        alt={event.title}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
+      <div className="absolute inset-0">
+        <img
+          src={event.image_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90'}
+          className="w-full h-full object-cover"
+          alt={event.title}
+        />
+        {/* Overlays */}
+        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+      </div>
 
-      {/* Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/10 to-black/90 pointer-events-none" />
-
-      {/* Discount tag */}
-      {event.discount_tag && (
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1rem+68px+var(--safe-bottom))]">
         <motion.div
-          initial={{ x: -20, opacity: 0 }}
-          whileInView={{ x: 0, opacity: 1 }}
-          className="absolute top-[30%] left-4 z-10"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="space-y-4"
         >
-          <div className="px-3 py-1.5 rounded-xl bg-orange-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl rotate-[-2deg]">
-            {event.discount_tag}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Organizer badge — top right */}
-      {event.organizer_name && (
-        <div className="absolute top-[30%] right-4 z-10">
-          <div className="px-3 py-1.5 rounded-xl bg-black/50 backdrop-blur-xl border border-white/10 text-white text-[10px] font-black uppercase tracking-widest">
-            {event.organizer_name}
-          </div>
-        </div>
-      )}
-
-      {/* Content panel */}
-      <div className="mt-auto px-5 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] pt-6 space-y-4 text-white relative z-10">
-        <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="space-y-2"
-        >
-          {/* Location + free badge */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/15 text-[10px] font-black uppercase tracking-[0.18em]">
-              {event.location || 'Tulum'}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black text-white uppercase tracking-widest">
+                  {event.category}
+                </span>
+                {event.discount_tag && (
+                  <span className="px-3 py-1 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 text-[10px] font-black text-primary uppercase tracking-widest">
+                    {event.discount_tag}
+                  </span>
+                )}
+              </div>
+              <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-none">
+                {event.title}
+              </h2>
             </div>
-            {event.is_free && (
-              <div className="px-2.5 py-1 rounded-lg bg-emerald-500/80 border border-emerald-400/20 text-[10px] font-black uppercase tracking-[0.18em]">
-                Free
-              </div>
-            )}
-            {event.promo_text && (
-              <div className="px-2.5 py-1 rounded-lg bg-orange-500/60 border border-orange-400/20 text-[10px] font-bold tracking-wide">
-                {event.promo_text}
-              </div>
-            )}
           </div>
 
-          {/* Title */}
-          <h2 className="text-[2.4rem] font-black italic tracking-tighter leading-none uppercase drop-shadow-2xl">
-            {event.title}
-          </h2>
-
-          {/* Description */}
-          <p className="text-[13px] text-white/75 line-clamp-2 leading-relaxed max-w-[88%]">
-            {event.description || 'Experience the magic of the Riviera Maya.'}
+          <p className="text-sm text-white/70 leading-relaxed font-medium line-clamp-3">
+            {event.description}
           </p>
-        </motion.div>
 
-        {/* Action Row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Like */}
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                <Calendar className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">When</span>
+                <span className="text-xs font-bold text-white">
+                  {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Coming Soon'}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                <MapPin className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Where</span>
+                <span className="text-xs font-bold text-white truncate max-w-[80px]">
+                  {event.location || 'Tulum'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
             <motion.button
-              whileTap={{ scale: 1.35 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDetailsClick}
+              className="flex-[3] py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2"
+            >
+              Get Tickets {event.price_text && `• ${event.price_text}`}
+              <ArrowUpRight className="w-4 h-4" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.8 }}
               onClick={() => onLike(event.id)}
               className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center border backdrop-blur-xl transition-all",
-                isLiked
-                  ? "bg-rose-500 border-rose-400 text-white shadow-lg shadow-rose-500/30"
-                  : "bg-black/25 border-white/20 text-white"
+                "flex-1 rounded-2xl backdrop-blur-md border flex items-center justify-center transition-all",
+                isLiked 
+                  ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" 
+                  : "bg-white/10 border-white/20"
               )}
             >
-              <Heart className={cn("w-5 h-5 transition-all", isLiked && "fill-current scale-110")} />
-            </motion.button>
-
-            {/* Share */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={async () => {
-                triggerHaptic('light');
-                if (navigator.share) {
-                  await navigator.share({ title: event.title, text: event.description || '', url: window.location.href });
-                }
-              }}
-              className="w-12 h-12 rounded-full bg-black/25 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white"
-            >
-              <Share2 className="w-5 h-5" />
-            </motion.button>
-
-            {/* Message organizer */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => triggerHaptic('light')}
-              className="w-12 h-12 rounded-full bg-black/25 backdrop-blur-xl border border-white/20 flex items-center justify-center text-white"
-            >
-              <MessageCircle className="w-5 h-5" />
+              <Heart className={cn("w-6 h-6", isLiked ? "fill-white text-white" : "text-white")} />
             </motion.button>
           </div>
-
-          {/* Ticket CTA */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate(`/explore/eventos/${event.id}`)}
-            className="flex items-center gap-2 group"
-          >
-            <div className="flex flex-col items-end">
-              <span className="text-[9px] font-black uppercase tracking-widest text-white/50">Tickets</span>
-              <span className="text-lg font-black leading-none">{event.price_text || 'Free'}</span>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center shadow-xl group-active:scale-95 transition-transform">
-              <ArrowUpRight className="w-6 h-6" />
-            </div>
-          </motion.button>
-        </div>
-
-        {/* Date / Time / Location pills */}
-        <div className="flex items-center gap-4 pt-1">
-          <DetailPill icon={Calendar} text={formatDate(event.event_date)} />
-          <DetailPill icon={Clock} text={formatTime(event.event_date)} />
-          <DetailPill icon={MapPin} text={event.location_detail || event.location || 'Tulum'} />
-        </div>
+        </motion.div>
       </div>
-    </div>
-  );
-}
-
-function DetailPill({ icon: Icon, text }: { icon: any; text: string }) {
-  return (
-    <div className="flex items-center gap-1.5 min-w-0">
-      <Icon className="w-3.5 h-3.5 text-white/45 flex-shrink-0" />
-      <span className="text-[10px] font-bold text-white/75 uppercase tracking-widest truncate">{text}</span>
     </div>
   );
 }

@@ -2,7 +2,9 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
-  Sparkles, X, Eye, EyeOff
+  Sparkles, X, Eye, EyeOff, MapPin, 
+  Briefcase, RotateCcw, ThumbsDown, Share2, 
+  Flame, MessageCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +12,6 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -86,45 +87,7 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     preferred_activities: ['Art galleries', 'Eco-tours'],
     compatibility: 88
   },
-  {
-    user_id: 'mock-4',
-    name: 'Kai S.',
-    age: 28,
-    city: 'Centro',
-    country: 'Australia',
-    bio: 'Freelance photographer, always looking for new adventures. Love exploring local culture.',
-    profile_images: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Photography', 'Travel', 'Food'],
-    languages: ['English'],
-    work_schedule: 'Project-based',
-    cleanliness_level: 'Moderate',
-    noise_tolerance: 'High',
-    personality_traits: ['Adventurous', 'Spontaneous'],
-    preferred_activities: ['Exploring markets', 'Beach days'],
-    compatibility: 76
-  },
-  {
-    user_id: 'mock-5',
-    name: 'Yuki T.',
-    age: 31,
-    city: 'Holistika',
-    country: 'Japan',
-    bio: 'Yoga instructor and wellness coach. Seeking a peaceful home environment.',
-    profile_images: ['https://images.unsplash.com/photo-1502823403499-6ccfcf4cf453?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Yoga', 'Meditation', 'Healthy cooking'],
-    languages: ['Japanese', 'English'],
-    work_schedule: 'Part-time',
-    cleanliness_level: 'Very Clean',
-    noise_tolerance: 'Low',
-    personality_traits: ['Calm', 'Mindful'],
-    preferred_activities: ['Morning rituals', 'Healthy meals'],
-    compatibility: 91
-  },
 ];
-
-// ── UTILS ─────────────────────────────────────────────────────────────────────
-
-const BTN_SPRING = { type: 'spring' as const, stiffness: 450, damping: 25, mass: 0.6 };
 
 export default function RoommateMatching() {
   const { t } = useTranslation();
@@ -135,7 +98,7 @@ export default function RoommateMatching() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [canUndo, setCanUndo] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [showInsights, setShowInsights] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const [roommateVisible, setRoommateVisible] = useState(true);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
@@ -189,7 +152,6 @@ export default function RoommateMatching() {
     >
       {/* ── TOP NAV (Liquid Glass) ── */}
       <div className="absolute top-0 left-0 right-0 z-50 px-3 pointer-events-none pt-[var(--safe-top)]">
-        {/* Main nav row */}
         <div className="w-full flex items-center justify-between py-3 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.9 }}
@@ -222,7 +184,7 @@ export default function RoommateMatching() {
           </motion.button>
         </div>
 
-        {/* Visibility toggle row */}
+        {/* ── VISIBILITY TOGGLE ── */}
         <div className="flex justify-center pb-1 pointer-events-auto">
           <motion.button
             whileTap={{ scale: 0.97 }}
@@ -234,22 +196,18 @@ export default function RoommateMatching() {
                 : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
             )}
           >
-            {roommateVisible
-              ? <Eye className="w-3.5 h-3.5" />
-              : <EyeOff className="w-3.5 h-3.5" />
-            }
+            {roommateVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
             <span className="text-[10px] font-black uppercase tracking-[0.18em]">
               {roommateVisible ? t('roommates.visibleToOthers') : t('roommates.hiddenFromOthers')}
             </span>
-            {/* Toggle pill */}
             <div className={cn(
-              "relative w-8 h-4 rounded-full transition-colors duration-200",
+              "relative w-7 h-4 rounded-full transition-all duration-300",
               roommateVisible ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/20"
             )}>
               <motion.div
-                animate={{ x: roommateVisible ? 16 : 2 }}
+                animate={{ x: roommateVisible ? 12 : 2 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
+                className="absolute top-0.5 left-0 w-3 h-3 rounded-full bg-white shadow-sm"
               />
             </div>
           </motion.button>
@@ -272,43 +230,34 @@ export default function RoommateMatching() {
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-2xl font-black text-foreground tracking-tight italic">{t('roommates.tulumVibesOnly')}</h2>
-                  <p className="text-sm text-muted-foreground leading-relaxed max-w-[240px]">
-                    {t('roommates.noCandidatesLeft')}
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    No more candidates matching your vibe right now.
                   </p>
                 </div>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentIndex(0)}
-                  className="px-10 py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-[0_10px_30px_rgba(236,72,153,0.3)] transition-all active:shadow-none"
+                  className="px-10 py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/30"
                 >
                   {t('common.reset')}
                 </motion.button>
               </motion.div>
             ) : (
               <>
-                {/* Visual indicator for back card */}
                 {nextCard && (
-                  <motion.div
-                    key={`next-${nextCard.user_id}`}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 0.5, scale: 0.94, y: 15 }}
-                    exit={{ opacity: 0, scale: 1 }}
-                    className="absolute inset-0 z-10 pointer-events-none"
-                    style={{ filter: 'blur(1px)' }}
-                  >
+                  <div className="absolute inset-0 z-10 opacity-30 scale-95 translate-y-4 pointer-events-none">
                     <SimpleOwnerSwipeCard
                       profile={toCardProfile(nextCard)}
                       onSwipe={() => {}}
                       isTop={false}
                     />
-                  </motion.div>
+                  </div>
                 )}
-
-                {/* Top card */}
                 <motion.div 
-                  key={`top-${topCard.user_id}`}
+                  key={topCard.user_id}
                   initial={{ opacity: 0, x: 50, scale: 0.9, rotate: 2 }}
                   animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
+                  exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   className="absolute inset-0 z-20"
                 >
@@ -316,11 +265,9 @@ export default function RoommateMatching() {
                     ref={cardRef}
                     profile={toCardProfile(topCard)}
                     onSwipe={handleSwipe}
-                    onInsights={() => setShowInsights(true)}
+                    onDetails={() => setShowDetails(true)}
                     isTop
                   />
-                  
-                  {/* Premium Compatibility Badge */}
                   <div className="absolute top-24 right-4 z-30 pointer-events-none">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-xl">
                       <Sparkles className="w-3 h-3 text-amber-400" />
@@ -336,114 +283,105 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* ── ACTION BAR (Frameless floating) ── */}
+      {/* ── ACTION BAR ── */}
       {topCard && (
-        <div className="flex-shrink-0 px-4 z-[60] relative" style={{ paddingBottom: 'calc(68px + 1rem + var(--safe-bottom, 0px))' }}>
+        <div className="px-4 pb-[calc(1rem+68px+var(--safe-bottom))] z-[60] relative">
           <div className={cn(
-            "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl relative overflow-hidden",
+            "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl",
             isLight ? "bg-white/80 border-slate-200" : "bg-zinc-900/60 border-white/10"
           )}>
-            {/* Glossy highlight line */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/20 z-10" />
-
-            {/* Undo */}
-            <ActionButton 
-              onClick={handleUndo} 
-              disabled={!canUndo} 
-              icon={RotateCcw} 
-              color="amber" 
-            />
-            
-            {/* NO / Pass */}
-            <ActionButton 
-              onClick={handleDislike} 
-              icon={ThumbsDown} 
-              color="red" 
-              large 
-            />
-            
-            {/* Share */}
-            <ActionButton 
-              onClick={() => triggerHaptic('light')} 
-              icon={Share2} 
-              color="blue" 
-            />
-            
-            {/* YES / Like */}
-            <ActionButton 
-              onClick={handleLike} 
-              icon={Flame} 
-              color="orange" 
-              large 
-              filled 
-            />
-            
-            {/* Message */}
-            <ActionButton 
-              onClick={() => triggerHaptic('light')} 
-              icon={MessageCircle} 
-              color="emerald" 
-            />
+            <ActionButton onClick={handleUndo} disabled={!canUndo} icon={RotateCcw} color="amber" />
+            <ActionButton onClick={handleDislike} icon={ThumbsDown} color="red" large />
+            <ActionButton onClick={() => triggerHaptic('light')} icon={Share2} color="blue" />
+            <ActionButton onClick={handleLike} icon={Flame} color="orange" large filled />
+            <ActionButton onClick={() => triggerHaptic('light')} icon={MessageCircle} color="emerald" />
           </div>
         </div>
       )}
 
-      {/* ── FILTER OVERLAY (Glassmorphism) ── */}
+      {/* ── PROFILE DETAILS OVERLAY ── */}
       <AnimatePresence>
-        {showFilters && (
+        {showDetails && topCard && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowFilters(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
+              onClick={() => setShowDetails(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110]"
             />
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
               className={cn(
-                "fixed bottom-0 left-0 right-0 z-[101] rounded-t-[40px] border-t p-8 pb-[calc(2rem+var(--safe-bottom))]",
-                isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10"
+                "fixed inset-x-0 bottom-0 top-[10%] z-[111] rounded-t-[40px] border-t overflow-hidden flex flex-col",
+                isLight ? "bg-white border-slate-200" : "bg-zinc-950 border-white/10"
               )}
             >
-              <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-8" />
-              
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-black italic tracking-tight italic">{t('roommates.findYourTribe')}</h3>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setShowFilters(false)}
-                  className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center"
-                >
+              <div className="absolute top-4 right-4 z-[120]">
+                <button onClick={() => setShowDetails(false)} className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white">
                   <X className="w-5 h-5" />
-                </motion.button>
+                </button>
               </div>
+              <div className="flex-1 overflow-y-auto no-scrollbar">
+                <div className="relative h-[60%] w-full">
+                  <img src={topCard.profile_images[0]} className="w-full h-full object-cover" alt={topCard.name} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
+                  <div className="absolute bottom-8 left-8">
+                    <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase">{topCard.name}, {topCard.age}</h2>
+                    <p className="text-white/60 font-bold uppercase tracking-widest text-xs mt-2 flex items-center gap-2">
+                       <MapPin className="w-3 h-3" /> {topCard.city}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-8 space-y-8">
+                  <div className="grid grid-cols-2 gap-4">
+                    <DetailBadge icon={Sparkles} label="Compatibility" value={`${topCard.compatibility}%`} />
+                    <DetailBadge icon={Briefcase} label="Schedule" value={topCard.work_schedule} />
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">About Me</h3>
+                    <p className="text-sm leading-relaxed text-foreground/80">{topCard.bio}</p>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Vibe Check</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {topCard.personality_traits.map(tag => (
+                        <span key={tag} className="px-4 py-2 rounded-xl bg-muted/30 text-[10px] font-bold uppercase tracking-widest border border-muted/10">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="p-8 border-t bg-zinc-950/50 backdrop-blur-xl flex gap-4">
+                <button onClick={() => { handleSwipe('left'); setShowDetails(false); }} className="flex-1 py-4 rounded-2xl bg-zinc-900 border border-white/5 text-white font-black uppercase tracking-widest text-[10px]">Pass</button>
+                <button onClick={() => { handleSwipe('right'); setShowDetails(false); }} className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/20">Connect</button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
+      {/* ── FILTER OVERLAY ── */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]" />
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className={cn("fixed bottom-0 left-0 right-0 z-[101] rounded-t-[40px] border-t p-8 pb-[calc(2rem+var(--safe-bottom))]", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}>
+              <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-8" />
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-2xl font-black italic tracking-tight">{t('roommates.findYourTribe')}</h3>
+                <button onClick={() => setShowFilters(false)} className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center"><X className="w-5 h-5" /></button>
+              </div>
               <div className="space-y-8 mb-10">
-                <FilterGroup 
-                  label={t('roommates.genderPreference')} 
-                  options={['Any', 'Female', 'Male', 'Non-binary']} 
-                  selected={filterGender} 
-                  setSelected={setFilterGender} 
-                />
-                <FilterGroup 
-                  label={t('roommates.workVibe')} 
-                  options={['Any', 'Remote', 'Hybrid', 'Office', 'Flexible']} 
-                  selected={filterSchedule} 
-                  setSelected={setFilterSchedule} 
-                />
+                <FilterGroup label={t('roommates.genderPreference')} options={['Any', 'Female', 'Male', 'Non-binary']} selected={filterGender} setSelected={setFilterGender} />
+                <FilterGroup label={t('roommates.workVibe')} options={['Any', 'Remote', 'Hybrid', 'Office', 'Flexible']} selected={filterSchedule} setSelected={setFilterSchedule} />
               </div>
-
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setShowFilters(false)}
-                className="w-full py-5 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20"
-              >
-                {t('roommates.applyFilters')}
-              </motion.button>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowFilters(false)} className="w-full py-5 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20">{t('roommates.applyFilters')}</motion.button>
             </motion.div>
           </>
         )}
@@ -454,29 +392,44 @@ export default function RoommateMatching() {
 
 // ── SUBCOMPONENTS ────────────────────────────────────────────────────────────
 
-function FilterGroup({ label, options, selected, setSelected }: { 
-  label: string; options: string[]; selected: string; setSelected: (v: string) => void;
-}) {
+function DetailBadge({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+  return (
+    <div className="p-4 rounded-2xl bg-muted/10 border border-muted/10">
+      <div className="flex items-center gap-2 mb-1">
+        <Icon className="w-3 h-3 text-primary" />
+        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+      </div>
+      <p className="text-sm font-bold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function ActionButton({ onClick, icon: Icon, color, large = false, disabled = false, filled = false }: { onClick: () => void; icon: any; color: string; large?: boolean; disabled?: boolean; filled?: boolean; }) {
+  const colors = {
+    amber: "text-amber-500 bg-amber-500/10 border-amber-500/20",
+    red: "text-rose-500 bg-rose-500/10 border-rose-500/20",
+    blue: "text-blue-500 bg-blue-500/10 border-blue-500/20",
+    orange: "text-orange-500 bg-orange-500/10 border-orange-500/20",
+    emerald: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
+  };
+  const filledColors = { orange: "bg-gradient-to-br from-rose-500 to-orange-400 text-white border-transparent shadow-lg shadow-orange-500/30" };
+  return (
+    <motion.button
+      whileTap={!disabled ? { scale: 0.85 } : {}}
+      onClick={!disabled ? onClick : undefined}
+      className={cn("rounded-full flex items-center justify-center transition-all border", large ? "w-16 h-16" : "w-12 h-12", disabled ? "opacity-20 grayscale pointer-events-none" : "opacity-100", filled ? filledColors[color as keyof typeof filledColors] : colors[color as keyof typeof colors])}>
+      <Icon className={cn(large ? "w-7 h-7" : "w-5 h-5")} strokeWidth={2.5} fill={filled ? "currentColor" : "none"} />
+    </motion.button>
+  );
+}
+
+function FilterGroup({ label, options, selected, setSelected }: { label: string; options: string[]; selected: string; setSelected: (v: string) => void; }) {
   return (
     <div>
-      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">
-        {label}
-      </p>
+      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">{label}</p>
       <div className="flex flex-wrap gap-2.5">
         {options.map(opt => (
-          <motion.button
-            key={opt}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => { triggerHaptic('light'); setSelected(opt); }}
-            className={cn(
-              "px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest border transition-all",
-              selected === opt 
-                ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
-                : "bg-muted/5 border-muted/20 text-muted-foreground hover:bg-muted/10"
-            )}
-          >
-            {opt}
-          </motion.button>
+          <motion.button key={opt} whileTap={{ scale: 0.95 }} onClick={() => { triggerHaptic('light'); setSelected(opt); }} className={cn("px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest border transition-all", selected === opt ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-muted/5 border-muted/20 text-muted-foreground hover:bg-muted/10")}>{opt}</motion.button>
         ))}
       </div>
     </div>
