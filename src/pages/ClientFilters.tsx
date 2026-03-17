@@ -173,7 +173,7 @@ export default function ClientFilters() {
       </header>
 
       <div className="overflow-y-auto">
-        <div className="px-4 py-6 space-y-8 pb-36">
+        <div className="px-4 py-6 space-y-8 pb-4">
           {/* AI Suggestions Banner - M3 Tonal Style */}
           <section>
             <div className="relative overflow-hidden rounded-[2rem] p-6 bg-primary/5 border border-primary/10">
