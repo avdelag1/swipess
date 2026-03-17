@@ -56,51 +56,51 @@ interface VariantCfg {
 const VARIANTS: Record<Variant, VariantCfg> = {
   like: {
     iconColor: '#ff6b35',
-    glow: '0 4px 20px rgba(255, 107, 53, 0.45), 0 0 8px rgba(255, 107, 53, 0.25)',
-    glowIntense: '0 0 28px rgba(255, 107, 53, 0.6), 0 0 56px rgba(255, 107, 53, 0.3)',
-    dropShadow: '0px 3px 14px rgba(255, 107, 53, 0.65)',
-    circleBg: 'rgba(255, 107, 53, 0.18)',
+    glow: '0 0 15px rgba(255, 107, 53, 0.3)',
+    glowIntense: '0 0 30px rgba(255, 107, 53, 0.4)',
+    dropShadow: '0px 2px 10px rgba(255, 107, 53, 0.5)',
+    circleBg: 'rgba(0, 0, 0, 0.4)',
     circleBorder: 'rgba(255, 107, 53, 0.45)',
   },
   dislike: {
     iconColor: '#ef4444',
-    glow: '0 4px 20px rgba(239, 68, 68, 0.45), 0 0 8px rgba(239, 68, 68, 0.25)',
-    glowIntense: '0 0 28px rgba(239, 68, 68, 0.6), 0 0 56px rgba(239, 68, 68, 0.3)',
-    dropShadow: '0px 3px 14px rgba(239, 68, 68, 0.65)',
-    circleBg: 'rgba(239, 68, 68, 0.18)',
+    glow: '0 0 15px rgba(239, 68, 68, 0.3)',
+    glowIntense: '0 0 30px rgba(239, 68, 68, 0.4)',
+    dropShadow: '0px 2px 10px rgba(239, 68, 68, 0.5)',
+    circleBg: 'rgba(0, 0, 0, 0.4)',
     circleBorder: 'rgba(239, 68, 68, 0.45)',
   },
   amber: {
     iconColor: '#f59e0b',
-    glow: '0 4px 16px rgba(245, 158, 11, 0.40), 0 0 6px rgba(245, 158, 11, 0.20)',
-    glowIntense: '0 0 24px rgba(245, 158, 11, 0.55), 0 0 48px rgba(245, 158, 11, 0.25)',
-    dropShadow: '0px 3px 12px rgba(245, 158, 11, 0.55)',
-    circleBg: 'rgba(245, 158, 11, 0.15)',
-    circleBorder: 'rgba(245, 158, 11, 0.40)',
+    glow: '0 0 12px rgba(245, 158, 11, 0.25)',
+    glowIntense: '0 0 24px rgba(245, 158, 11, 0.35)',
+    dropShadow: '0px 2px 8px rgba(245, 158, 11, 0.45)',
+    circleBg: 'rgba(0, 0, 0, 0.4)',
+    circleBorder: 'rgba(245, 158, 11, 0.4)',
   },
   cyan: {
     iconColor: '#06b6d4',
-    glow: '0 4px 16px rgba(6, 182, 212, 0.40), 0 0 6px rgba(6, 182, 212, 0.20)',
-    glowIntense: '0 0 24px rgba(6, 182, 212, 0.55), 0 0 48px rgba(6, 182, 212, 0.25)',
-    dropShadow: '0px 3px 12px rgba(6, 182, 212, 0.55)',
-    circleBg: 'rgba(6, 182, 212, 0.15)',
-    circleBorder: 'rgba(6, 182, 212, 0.40)',
+    glow: '0 0 12px rgba(6, 182, 212, 0.25)',
+    glowIntense: '0 0 24px rgba(6, 182, 212, 0.35)',
+    dropShadow: '0px 2px 8px rgba(6, 182, 212, 0.45)',
+    circleBg: 'rgba(0, 0, 0, 0.4)',
+    circleBorder: 'rgba(6, 182, 212, 0.4)',
   },
   purple: {
     iconColor: '#a855f7',
-    glow: '0 4px 16px rgba(168, 85, 247, 0.40), 0 0 6px rgba(168, 85, 247, 0.20)',
-    glowIntense: '0 0 24px rgba(168, 85, 247, 0.55), 0 0 48px rgba(168, 85, 247, 0.25)',
-    dropShadow: '0px 3px 12px rgba(168, 85, 247, 0.55)',
-    circleBg: 'rgba(168, 85, 247, 0.15)',
-    circleBorder: 'rgba(168, 85, 247, 0.40)',
+    glow: '0 0 12px rgba(168, 85, 247, 0.25)',
+    glowIntense: '0 0 24px rgba(168, 85, 247, 0.35)',
+    dropShadow: '0px 2px 8px rgba(168, 85, 247, 0.45)',
+    circleBg: 'rgba(0, 0, 0, 0.4)',
+    circleBorder: 'rgba(168, 85, 247, 0.4)',
   },
   default: {
     iconColor: '#ffffff',
-    glow: '0 4px 12px rgba(255,255,255,0.15)',
-    glowIntense: '0 0 20px rgba(255,255,255,0.3)',
-    dropShadow: '0px 2px 8px rgba(255, 255, 255, 0.35)',
-    circleBg: 'rgba(255, 255, 255, 0.12)',
-    circleBorder: 'rgba(255, 255, 255, 0.28)',
+    glow: '0 0 10px rgba(255,255,255,0.1)',
+    glowIntense: '0 0 20px rgba(255,255,255,0.2)',
+    dropShadow: '0px 2px 6px rgba(255, 255, 255, 0.25)',
+    circleBg: 'rgba(0, 0, 0, 0.4)',
+    circleBorder: 'rgba(255, 255, 255, 0.3)',
   },
 };
 
@@ -167,9 +167,11 @@ const ActionButton = memo(({
         height: btnSizeCss,
         // Tinted circle background so buttons are visible on light AND dark card backgrounds
         backgroundColor: cfg.circleBg,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         border: `1.5px solid ${cfg.circleBorder}`,
         borderRadius: '50%',
-        boxShadow: `0 2px 10px rgba(0,0,0,0.28)`,
+        boxShadow: `0 4px 15px rgba(0,0,0,0.4)`,
         transform: 'translateZ(0)',
         opacity: disabled ? 0.35 : 1,
         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -272,7 +274,7 @@ function SwipeActionButtonBarComponent({
           ariaLabel="Pass on this listing"
           index={1}
         >
-          <ThumbsDown className="w-full h-full" fill="currentColor" strokeWidth={0} />
+          <ThumbsDown className="w-full h-full" strokeWidth={2.4} />
         </ActionButton>
 
         {onShare && (
@@ -296,7 +298,7 @@ function SwipeActionButtonBarComponent({
           ariaLabel="Like this listing"
           index={3}
         >
-          <Flame className="w-full h-full" fill="currentColor" strokeWidth={0} />
+          <Flame className="w-full h-full" strokeWidth={2.4} />
         </ActionButton>
 
         {onMessage && (
