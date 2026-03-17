@@ -285,7 +285,7 @@ export default function RoommateMatching() {
 
       {/* ── ACTION BAR ── */}
       {topCard && (
-        <div className="px-4 pb-[calc(1rem+68px+var(--safe-bottom))] z-[60] relative">
+        <div className="px-4 pb-[calc(1.5rem+104px+var(--safe-bottom))] z-[60] relative">
           <div className={cn(
             "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl",
             isLight ? "bg-white/80 border-slate-200" : "bg-zinc-900/60 border-white/10"
