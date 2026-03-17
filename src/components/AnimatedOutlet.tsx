@@ -36,7 +36,6 @@ export function AnimatedOutlet() {
                         ease: [0.4, 0, 1, 1],
                     }
                 }}
-                exit={{ opacity: 1 }}
                 className="h-full w-full flex flex-col flex-1"
                 style={{ 
                     willChange: 'opacity, transform',

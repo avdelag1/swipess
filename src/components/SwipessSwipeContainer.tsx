@@ -35,7 +35,7 @@ import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigati
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
 import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
@@ -324,6 +324,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // Without this, appending to deckQueueRef doesn't trigger re-render and empty state persists
   const [deckLength, setDeckLength] = useState(0);
 
+  // Prevents skeleton flash when filters change — holds back skeleton for one render frame
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   // =============================================================================
   // FIX #1: SWIPE PHASE ISOLATION - DOM moves first, React cleans up after
   // This is the key to "Tinder-level" feel: freeze React during the swipe gesture
@@ -556,6 +559,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // Reset the filter changed flag
     filterChangedRef.current = false;
 
+    // Signal transition start — suppresses skeleton for one frame to avoid flash
+    setIsTransitioning(true);
+
     // Clear deck for fresh results with new filters
     deckQueueRef.current = [];
     currentIndexRef.current = 0;
@@ -571,6 +577,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     currentIndexRef.current = 0;
     setCurrentIndex(0);
     setDeckLength(0);
+
+    // Clear flag after one frame so skeleton can appear with a fade instead of a flash
+    requestAnimationFrame(() => setIsTransitioning(false));
   }, [filterSignature, resetClientDeck]);
 
   // Get listings with filters - PERF: pass userId to avoid getUser() inside queryFn
@@ -1106,6 +1115,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   const progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
+  const deckFadeVariants = {
+    initial: { opacity: 0 },
+    animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
+    exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
+  };
+
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
   // isReady means we've fully initialized at least once - skip loading UI on return
   // CRITICAL FIX: When filters change, deck is reset, so check if we're actually loading new data
@@ -1114,9 +1129,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
   // Once hydrated or ready, never show full skeleton again (use placeholderData from query)
   // PERF: GPU-accelerated skeleton to match card styling
-  if (!hasHydratedData && isLoading) {
+  if (!hasHydratedData && isLoading && !isTransitioning) {
     return (
-      <div className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
+      <AnimatePresence mode="wait">
+      <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
         <div className="relative flex-1 w-full">
           <div
             className="absolute inset-0 overflow-hidden"
@@ -1180,7 +1196,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
           </div>
         </div>
-      </div>
+      </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -1235,7 +1252,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     const { title, description, cta } = getCaughtUpMessage();
 
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <AnimatePresence mode="wait">
+      <motion.div key="caught-up" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* Subtle ambient glow behind the card */}
         <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
 
@@ -1306,7 +1324,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             />
           </div>
         </motion.div>
-      </div>
+      </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -1317,7 +1336,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     // FIX: Ensure categoryLabel is always a string, never an object
     const categoryLabel = String(categoryInfo?.plural || 'listings');
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <AnimatePresence mode="wait">
+      <motion.div key="error" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
           <div className="text-6xl mb-4">:(</div>
           <h3 className="text-xl font-bold mb-2">Oops! Something went wrong</h3>
@@ -1327,7 +1347,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             Try Again
           </Button>
         </Card>
-      </div>
+      </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -1375,7 +1396,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     const { title, description } = getEmptyMessage();
 
     return (
-      <div className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <AnimatePresence mode="wait">
+      <motion.div key="empty" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* Subtle ambient glow */}
         <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
 
@@ -1436,7 +1458,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           />
 
         </motion.div>
-      </div>
+      </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -1448,7 +1471,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
   return (
-    <div
+    <AnimatePresence mode="wait">
+    <motion.div
+      key="cards"
+      variants={deckFadeVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
       className="relative w-full flex flex-col"
       style={{ height: '100%', minHeight: '100%' }}
       onMouseEnter={handleDeckHover}
@@ -1566,7 +1595,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
         isLoading={isCreatingConversation}
         category={selectedListing?.category}
       />
-    </div>
+    </motion.div>
+    </AnimatePresence>
   );
 };
 
