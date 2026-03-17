@@ -106,7 +106,7 @@ export default function RoommateMatching() {
   const [filterGender, setFilterGender] = useState('Any');
   const [filterSchedule, setFilterSchedule] = useState('Any');
 
-  const handleSwipe = useCallback((direction: 'left' | 'right') => {
+  const handleSwipe = useCallback((_direction: 'left' | 'right') => {
     setCurrentIndex(prev => prev + 1);
     setCanUndo(true);
   }, []);
@@ -269,12 +269,23 @@ export default function RoommateMatching() {
                     isTop
                   />
                   <div className="absolute top-24 right-4 z-30 pointer-events-none">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-xl">
-                      <Sparkles className="w-3 h-3 text-amber-400" />
-                      <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                    <motion.div 
+                      key={`compat-${topCard.user_id}`}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden relative"
+                    >
+                      {/* Animated Shimmer */}
+                      <motion.div
+                        animate={{ x: ['100%', '-100%'] }}
+                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12"
+                      />
+                      <Sparkles className="w-3 h-3 text-amber-400 relative z-10" />
+                      <span className="text-[10px] font-black text-white uppercase tracking-widest relative z-10">
                         {topCard.compatibility}% Match
                       </span>
-                    </div>
+                    </motion.div>
                   </div>
                 </motion.div>
               </>

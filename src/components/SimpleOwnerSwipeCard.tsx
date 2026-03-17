@@ -32,7 +32,7 @@ const SWIPE_THRESHOLD = 100; // Distance to trigger swipe
 const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 18; // Matches client card for consistency
+const MAX_ROTATION = 15; // Slightly reduced for a more "expensive" feel
 
 // Calculate exit distance dynamically based on viewport
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -40,17 +40,18 @@ const FALLBACK_PLACEHOLDER = '/placeholder.svg';
 
 /**
  * SPRING CONFIGS - Tinder-tuned physics
+ * Optimized for "Velocity" - minimal drag and maximum return speed
  */
 const SPRING_CONFIGS = {
-  // SNAPPY: Quick response, minimal overshoot
-  SNAPPY: { stiffness: 600, damping: 30, mass: 0.8 },
-  // NATIVE: iOS-like balanced feel (DEFAULT)
-  NATIVE: { stiffness: 400, damping: 28, mass: 1 },
-  // SOFT: Playful with bounce - matches client card
-  SOFT: { stiffness: 250, damping: 18, mass: 1.1 },
+  // SNAPPY: Quick response, minimal overshoot (Best for high-volume swiping)
+  SNAPPY: { stiffness: 600, damping: 35, mass: 0.8 },
+  // NATIVE: iOS-like balanced feel
+  NATIVE: { stiffness: 450, damping: 28, mass: 1 },
+  // PREMIUM: Heavy, smooth, luxurious
+  PREMIUM: { stiffness: 350, damping: 25, mass: 1.2 },
 };
 
-const ACTIVE_SPRING = SPRING_CONFIGS.SOFT;
+const ACTIVE_SPRING = SPRING_CONFIGS.SNAPPY;
 
 // Client profile type
 interface ClientProfile {
@@ -122,7 +123,17 @@ import { imageCache } from '@/lib/swipe/cardImageCache';
  * - Sits at the LOWEST z-layer (z-index: 1)
  * - Preloads image when rendered (for next card in stack)
  */
-const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: string | null }) => {
+const CardImage = memo(({ 
+  src, 
+  alt, 
+  name, 
+  priority = false 
+}: { 
+  src: string; 
+  alt: string; 
+  name?: string | null;
+  priority?: boolean;
+}) => {
   const [loaded, setLoaded] = useState(() => imageCache.has(src));
   const [error, setError] = useState(false);
 
@@ -130,15 +141,13 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
   const isPlaceholder = !src || src === FALLBACK_PLACEHOLDER || error;
 
   // CRITICAL FIX: Check cache on every render, not just once
-  // This ensures cached images show instantly when tapping between photos
-  // Hooks must be called unconditionally (before any early return)
   const wasInCache = useMemo(() => imageCache.has(src), [src]);
 
   // Preload image when card renders (for non-top cards)
   useEffect(() => {
     if (!src || error || isPlaceholder) return;
 
-    // If already in cache, mark as loaded immediately (no transition)
+    // If already in cache, mark as loaded immediately
     if (imageCache.has(src)) {
       setLoaded(true);
       return;
@@ -161,17 +170,15 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
     <div
       className="absolute inset-0 w-full h-full rounded-[24px]"
       style={{
-        // GPU acceleration
         transform: 'translateZ(0)',
         touchAction: 'none',
         WebkitUserSelect: 'none',
         userSelect: 'none',
-        // LOWEST z-layer - image sits behind everything
         zIndex: 1,
         overflow: 'hidden',
       }}
     >
-      {/* Skeleton - only show if image not in cache, smooth 150ms crossfade */}
+      {/* Skeleton - only show if image not in cache */}
       <div
         className="absolute inset-0 bg-gradient-to-br from-muted to-muted-foreground/20"
         style={{
@@ -187,13 +194,13 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
         alt={alt}
         className="absolute inset-0 w-full h-full rounded-[24px]"
         style={{
-          // CRITICAL: object-fit: cover ensures no letterboxing/padding
           objectFit: 'cover',
           objectPosition: 'center',
           opacity: loaded ? 1 : 0,
           transition: wasInCache ? 'none' : 'opacity 150ms ease-out',
           WebkitUserDrag: 'none',
           pointerEvents: 'none',
+          transform: 'translateZ(0)', // GPU promotion
         } as React.CSSProperties}
         onLoad={() => {
           imageCache.set(src, true);
@@ -201,8 +208,10 @@ const CardImage = memo(({ src, alt, name }: { src: string; alt: string; name?: s
         }}
         onError={() => setError(true)}
         draggable={false}
-        loading="eager"
-        decoding="async"
+        loading={priority ? "eager" : "lazy"}
+        // @ts-ignore - fetchpriority is a valid attribute in modern browsers
+        fetchpriority={priority ? "high" : "auto"}
+        decoding={priority ? "sync" : "async"}
       />
     </div>
   );
@@ -564,14 +573,15 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           rotate: cardRotate,
           opacity: cardOpacity,
           transformOrigin: 'bottom center',
-          willChange: 'auto',
+          willChange: 'transform, opacity', // Force GPU acceleration for interaction
           backfaceVisibility: 'hidden',
           WebkitBackfaceVisibility: 'hidden',
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
+          transform: 'translateZ(0)', // Force compositor layer
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-xl"
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-2xl"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
@@ -585,7 +595,12 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           }}
         >
           {/* PHOTO - LOWEST LAYER (z-index: 1) - 100% viewport coverage */}
-          <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
+          <CardImage 
+            src={currentImage} 
+            alt={profile.name || 'Client'} 
+            name={profile.name} 
+            priority={isTop}
+          />
 
           {/* Image dots - Positioned below header area */}
           {imageCount > 1 && (
