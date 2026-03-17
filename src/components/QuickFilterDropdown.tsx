@@ -207,47 +207,71 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         </div>
 
         <div className="py-3 px-4 space-y-4 max-h-[65vh] overflow-y-auto">
-          {/* Gender - horizontal pills */}
+          {/* Gender - snappier layoutId pill */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
-            <div className="flex gap-1.5">
-              {genderOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleGenderSelect(option.id)}
-                  className={cn(
-                    'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
-                    clientGender === option.id
-                      ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md"
-                      : "text-gray-500 hover:bg-black/[0.02] bg-white border border-black/[0.08]"
-                  )}
-                >
-                  {option.icon}
-                  <span>{option.label}</span>
-                </button>
-              ))}
+            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-2 opacity-50">Gender Preference</p>
+            <div className="flex gap-1.5 p-1 bg-black/5 dark:bg-white/5 rounded-2xl relative">
+              {genderOptions.map((option) => {
+                const isActive = clientGender === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleGenderSelect(option.id)}
+                    className={cn(
+                      'flex-1 relative flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-[11px] font-black transition-colors duration-200 touch-manipulation z-10',
+                      isActive
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="owner-gender-pill"
+                        className="absolute inset-0 bg-white dark:bg-white/10 shadow-sm border border-black/5 dark:border-white/10 rounded-xl"
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-20 flex items-center gap-1.5">
+                      {option.icon}
+                      {option.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Client Type - horizontal pills */}
+          {/* Client Type - snappier grid layoutId */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Looking For</p>
-            <div className="grid grid-cols-2 gap-1.5">
-              {clientTypeOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleClientTypeSelect(option.id)}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
-                    clientType === option.id
-                      ? "bg-white text-purple-600 border-2 border-purple-600 shadow-md"
-                      : "text-gray-500 hover:bg-black/[0.02] bg-white border border-black/[0.08]"
-                  )}
-                >
-                  {option.icon}
-                  <span>{option.label}</span>
-                </button>
-              ))}
+            <p className="text-[11px] font-black text-muted-foreground uppercase tracking-wider mb-2 opacity-50">Looking For</p>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-black/5 dark:bg-white/5 rounded-2xl relative">
+              {clientTypeOptions.map((option) => {
+                const isActive = clientType === option.id;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => handleClientTypeSelect(option.id)}
+                    className={cn(
+                      'relative flex items-center justify-center gap-1.5 px-2 py-2.5 rounded-xl text-[11px] font-black transition-colors duration-200 touch-manipulation z-10',
+                      isActive
+                        ? "text-purple-600 dark:text-purple-400"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="owner-type-pill"
+                        className="absolute inset-0 bg-white dark:bg-white/10 shadow-sm border border-black/5 dark:border-white/10 rounded-xl"
+                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-20 flex items-center gap-1.5">
+                      {option.icon}
+                      {option.label}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -425,24 +449,31 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         </AnimatePresence>
       </motion.button>
 
-      {/* Dropdown */}
+      {/* Dropdown - Snappier Spring */}
       <AnimatePresence>
         {isOpen && (
           <>
-            <div
-              className="fixed inset-0 z-[10001] bg-transparent"
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[10001] bg-black/5 dark:bg-black/20 backdrop-blur-[2px]"
               onClick={() => {
                 setIsOpen(false);
                 setClickedCategory(null);
               }}
             />
 
-            <div
+            <motion.div
               ref={dropdownRef}
-              className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 550, damping: 35 }}
+              className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2 origin-top"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
-            </div>
+            </motion.div>
           </>
         )}
       </AnimatePresence>
