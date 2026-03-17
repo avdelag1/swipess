@@ -133,7 +133,7 @@ export default function ClientFilters() {
   }, [resetFilters]);
 
   return (
-    <div className="min-h-full bg-background transition-colors duration-500">
+    <div className="h-full w-full flex flex-col bg-background transition-colors duration-500 overflow-hidden">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/40">
         <div className="flex items-center justify-between px-4 py-3">

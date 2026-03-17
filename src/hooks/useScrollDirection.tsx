@@ -9,6 +9,8 @@ interface UseScrollDirectionOptions {
   showAtTop?: boolean;
   /** Target element selector (defaults to document-level detection) */
   targetSelector?: string;
+  /** Optional value that triggers a reset of visibility when changed (e.g. location.pathname) */
+  resetTrigger?: any;
 }
 
 interface UseScrollDirectionReturn {
@@ -43,6 +45,7 @@ export function useScrollDirection({
   threshold = 10,
   showAtTop = true,
   targetSelector,
+  resetTrigger,
 }: UseScrollDirectionOptions = {}): UseScrollDirectionReturn {
   const [scrollDirection, setScrollDirection] = useState<ScrollDirection>('none');
   const [isVisible, setIsVisible] = useState(true);
@@ -200,7 +203,7 @@ export function useScrollDirection({
         clearInterval(rebindIntervalRef.current);
       }
     };
-  }, [findScrollContainer, getCurrentScrollY]);
+  }, [findScrollContainer, getCurrentScrollY, resetTrigger]);
 
   return {
     scrollDirection,
