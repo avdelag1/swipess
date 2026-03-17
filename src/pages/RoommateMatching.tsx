@@ -182,9 +182,10 @@ export default function RoommateMatching() {
   return (
     <div
       className={cn(
-        "relative w-full h-full flex flex-col overflow-hidden transition-colors duration-500",
+        "relative w-full flex flex-col overflow-hidden transition-colors duration-500",
         isLight ? "bg-slate-50" : "bg-black"
       )}
+      style={{ height: '100dvh' }}
     >
       {/* ── TOP NAV (Liquid Glass) ── */}
       <div className="absolute top-0 left-0 right-0 z-50 px-3 pointer-events-none pt-[var(--safe-top)]">
@@ -256,7 +257,7 @@ export default function RoommateMatching() {
       </div>
 
       {/* ── DECK AREA ── */}
-      <div className="flex-1 relative mt-28 px-3 py-4 z-40">
+      <div className="flex-1 relative px-3 py-4 z-40" style={{ marginTop: 'calc(var(--safe-top, 0px) + 7rem)' }}>
         <div className="relative w-full h-full max-w-md mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (
@@ -337,7 +338,7 @@ export default function RoommateMatching() {
 
       {/* ── ACTION BAR (Liquid Glass) ── */}
       {topCard && (
-        <div className="flex-shrink-0 px-4 z-[60] relative pb-[calc(1rem+var(--safe-bottom))]">
+        <div className="flex-shrink-0 px-4 z-[60] relative" style={{ paddingBottom: 'calc(68px + 1rem + var(--safe-bottom, 0px))' }}>
           <div className={cn(
             "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl relative overflow-hidden",
             isLight ? "bg-white/80 border-slate-200" : "bg-zinc-900/60 border-white/10"

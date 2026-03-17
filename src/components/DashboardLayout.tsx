@@ -633,7 +633,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           paddingTop: (isCameraRoute || isRadioRoute || isImmersiveFeed)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveFeed) && !isRoommatesPage ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isCameraRoute || isRadioRoute || isImmersiveFeed) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
