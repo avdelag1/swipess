@@ -39,6 +39,11 @@ const routeImports: Record<string, RouteImport> = {
   '/messages': () => import('@/pages/MessagingDashboard').then(m => ({ default: m.MessagingDashboard })),
   '/notifications': () => import('@/pages/NotificationsPage'),
   '/subscription-packages': () => import('@/pages/SubscriptionPackagesPage'),
+  '/explore/eventos': () => import('@/pages/EventosFeed'),
+  '/explore/roommates': () => import('@/pages/RoommateMatching'),
+  '/explore/prices': () => import('@/pages/PriceTracker'),
+  '/explore/intel': () => import('@/pages/LocalIntel'),
+  '/explore/tours': () => import('@/pages/VideoTours'),
 };
 
 // Cache for prefetched routes
@@ -109,29 +114,35 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
   // Wait for complete idle before even starting - never compete with first paint
   scheduleIdle(() => {
     if (role === 'client') {
-      // Only the single most likely next route first
+      // Critical path first
       prefetchRoute('/messages');
+      prefetchRoute('/client/profile');
       
       // Secondary routes - much later, one at a time
       scheduleIdle(() => {
         prefetchRoutesSequentially([
           '/client/liked-properties',
           '/notifications',
+          '/explore/eventos',
+          '/explore/roommates',
         ]);
-      }, 5000);
+      }, 3000);
     } else {
-      // Only the single most likely next route first
+      // Critical path first
       prefetchRoute('/messages');
+      prefetchRoute('/owner/profile');
       
       // Secondary routes - much later, one at a time
       scheduleIdle(() => {
         prefetchRoutesSequentially([
           '/owner/properties',
           '/notifications',
+          '/owner/liked-clients',
+          '/explore/eventos',
         ]);
-      }, 5000);
+      }, 3000);
     }
-  }, 2000); // 2 second delay to ensure first paint is complete
+  }, 1000); // Reduced delay for faster PWA feel
 }
 
 /**

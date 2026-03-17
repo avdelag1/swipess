@@ -60,13 +60,13 @@ const PWA_OPTIMIZATIONS: PWAOptimizations = {
   springStiffness: 600, // Stiffer = faster snap, less frames needed
   springDamping: 40,    // Higher damping = less oscillation
   springMass: 0.3,      // Lighter mass = more responsive
-  transitionDuration: 0.2, // Shorter transitions
-  enableShadows: false,   // Shadows are expensive in PWA
-  enableBlur: false,      // Blur kills PWA performance
-  enableGlow: false,      // Animated glows are heavy
-  enableOverlayEffects: false, // Disable ping animations etc
-  preloadCount: 5,        // Preload more images upfront
-  imageQuality: 75,       // Lower quality for faster decode
+  transitionDuration: 0.25, // Slightly longer for fluidity
+  enableShadows: true,    // Shadows are relatively cheap on modern mobile GPUs
+  enableBlur: true,       // CRITICAL for premium aesthetic
+  enableGlow: true,       // Subtle glows are fine
+  enableOverlayEffects: true, // Keep it alive
+  preloadCount: 5,        
+  imageQuality: 80,       // Better quality
   isPWA: true,
   isIOS: false,
   isAndroid: false,
@@ -75,12 +75,12 @@ const PWA_OPTIMIZATIONS: PWAOptimizations = {
 // iOS PWA is the worst - even more aggressive
 const IOS_PWA_OPTIMIZATIONS: PWAOptimizations = {
   ...PWA_OPTIMIZATIONS,
-  springStiffness: 700,
+  springStiffness: 650,
   springDamping: 45,
-  springMass: 0.25,
-  transitionDuration: 0.15,
+  springMass: 0.3,
+  transitionDuration: 0.22,
   preloadCount: 6,
-  imageQuality: 70,
+  imageQuality: 75,
   isIOS: true,
 };
 

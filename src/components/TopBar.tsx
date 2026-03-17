@@ -83,7 +83,7 @@ function TopBarComponent({
 
   const location = useLocation();
   const { isVisible } = useScrollDirection({ 
-    threshold: 10, 
+    threshold: 25, 
     showAtTop: true,
     resetTrigger: location.pathname
   });

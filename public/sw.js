@@ -174,25 +174,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // NETWORK-FIRST for HTML navigation requests
-  // This is CRITICAL to ensure fresh HTML after deploy (new asset hashes)
+  // STALE-WHILE-REVALIDATE for HTML navigation requests
+  // This is the key to INSTANT launch of the PWA from home screen
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
-      fetch(request, {
-        cache: 'no-store', // Bypass ALL caches for navigation
+      caches.open(DYNAMIC_CACHE).then(cache => {
+        return cache.match(request).then(cachedResponse => {
+          // Always fetch fresh version in background
+          const fetchPromise = fetch(request, {
+            cache: 'no-store' // Bypass browser cache but populate our SW cache
+          }).then(networkResponse => {
+            if (networkResponse.ok) {
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          }).catch(() => cachedResponse);
+
+          // Return cached immediately for instant launch, otherwise wait for network
+          // If no cache, wait for network (first launch)
+          return cachedResponse || fetchPromise;
+        });
       })
-        .then(response => {
-          if (response.ok) {
-            const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE)
-              .then(cache => cache.put(request, responseClone));
-          }
-          return response;
-        })
-        .catch(() => {
-          // Offline fallback - serve from cache
-          return caches.match(request);
-        })
     );
     return;
   }

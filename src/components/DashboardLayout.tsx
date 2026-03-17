@@ -140,10 +140,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [appliedFilters, setAppliedFilters] = useState<any>(null);
 
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
+  // PERF: Disabled on PWA/touch devices to save CPU and battery
   useEffect(() => {
+    // Only enable on desktop with mouse
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    if (isTouchDevice) return;
+
     let rafId = 0;
     const handleMouseMove = (e: MouseEvent) => {
-      if (rafId) return; // skip if a frame is already queued
+      if (rafId) return; 
       rafId = requestAnimationFrame(() => {
         document.documentElement.style.setProperty('--mouse-x', `${(e.clientX / window.innerWidth) * 100}%`);
         document.documentElement.style.setProperty('--mouse-y', `${(e.clientY / window.innerHeight) * 100}%`);
@@ -314,12 +319,16 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   }, [userId, restoreDrafts]);
 
   // SCROLL-TO-TOP: Reset scroll position on every page navigation
-  // Uses useLayoutEffect to ensure reset happens BEFORE the browser paints the new page
-  React.useLayoutEffect(() => {
-    const el = document.getElementById('dashboard-scroll-container');
-    if (el) {
-      el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-    }
+  // PERF: Use a slight delay to allow page exit animations to complete 
+  // without jumping (prevents 'shaking' effect)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const el = document.getElementById('dashboard-scroll-container');
+      if (el) {
+        el.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+      }
+    }, 100); // 100ms syncs with AnimatedOutlet exit
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   // SWIPE NAVIGATION: Horizontal swipe between bottom-nav pages
