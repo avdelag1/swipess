@@ -80,19 +80,17 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
   });
 
   const initStars = useCallback((w: number, h: number) => {
-    // High density for premium feel
-    const count = Math.floor((w * h) / 800);
-    starsRef.current = Array.from({ length: Math.min(count, 800) }, () => {
+    const count = Math.floor((w * h) / 2000);
+    starsRef.current = Array.from({ length: Math.min(count, 400) }, () => {
       const x = Math.random() * w;
       const y = Math.random() * h;
       return {
         x, y, baseX: x, baseY: y, vx: 0, vy: 0,
-        // Larger stars for better visibility
-        size: Math.random() * 1.5 + 0.5,
-        opacity: Math.random() * 0.8 + 0.2,
-        twinkleSpeed: Math.random() * 0.05 + 0.01,
+        size: Math.random() * 0.7 + 0.15,
+        opacity: Math.random() * 0.55 + 0.15,
+        twinkleSpeed: Math.random() * 0.04 + 0.008,
         twinklePhase: Math.random() * Math.PI * 2,
-        glow: Math.random() > 0.8,
+        glow: Math.random() > 0.93,
       };
     });
   }, []);
@@ -222,8 +220,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       if (mode === 'stars') {
         const roll = Math.random();
-        if (roll < 0.34) spawnShootingStar(e.clientX, e.clientY);
-        else if (roll < 0.67) spawnOrbUFO(e.clientX, e.clientY);
+        if (roll < 0.5) spawnShootingStar(e.clientX, e.clientY);
         else spawnSaucerUFO(e.clientX, e.clientY);
       }
     };
@@ -258,7 +255,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         if (alpha < 0.05) continue;
 
         if (star.glow) {
-          ctx.shadowBlur = 4;
+          ctx.shadowBlur = 2;
           ctx.shadowColor = 'white';
         }
 
@@ -298,26 +295,50 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.stroke();
       }
 
-      // UFOs
-      for (let i = orbUFOsRef.current.length - 1; i >= 0; i--) {
-        const orb = orbUFOsRef.current[i];
-        orb.age += 0.016;
-        if (orb.age >= orb.maxAge) { orbUFOsRef.current.splice(i, 1); continue; }
-        const progress = orb.age / orb.maxAge;
-        const fadeAlpha = progress < 0.15 ? progress / 0.15 : progress > 0.75 ? (1 - progress) / 0.25 : 1;
-        orb.bobPhase += 0.04;
-        orb.x += orb.vx; orb.y += orb.vy + Math.sin(orb.bobPhase) * 0.4;
-        orb.pulsePhase += 0.08;
-        const pulse = Math.sin(orb.pulsePhase) * 0.3 + 0.7;
-        const [r, g, b] = orb.color;
-        const glowR = orb.radius * (2.5 + pulse * 0.8);
-        const glow = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, glowR);
-        glow.addColorStop(0, `rgba(${r},${g},${b},${fadeAlpha * 0.5})`);
-        glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
-        ctx.beginPath(); ctx.arc(orb.x, orb.y, glowR, 0, Math.PI * 2);
-        ctx.fillStyle = glow; ctx.fill();
-        ctx.beginPath(); ctx.arc(orb.x, orb.y, orb.radius * pulse, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${r},${g},${b},${fadeAlpha})`; ctx.fill();
+      // Saucer UFOs
+      for (let i = saucerUFOsRef.current.length - 1; i >= 0; i--) {
+        const saucer = saucerUFOsRef.current[i];
+        saucer.age += 0.016;
+        if (saucer.age >= saucer.maxAge) { saucerUFOsRef.current.splice(i, 1); continue; }
+        const progress = saucer.age / saucer.maxAge;
+        const fadeAlpha = progress < 0.1 ? progress / 0.1 : progress > 0.8 ? (1 - progress) / 0.2 : 1;
+        saucer.wobblePhase += 0.03;
+        saucer.x += saucer.vx;
+        saucer.y += saucer.vy + Math.sin(saucer.wobblePhase) * 0.3;
+        const s = saucer.size;
+
+        ctx.save();
+        ctx.translate(saucer.x, saucer.y);
+        ctx.globalAlpha = fadeAlpha;
+
+        // Main disk body
+        ctx.beginPath();
+        ctx.ellipse(0, 2, s, s * 0.28, 0, 0, Math.PI * 2);
+        const bodyGrad = ctx.createLinearGradient(0, -s * 0.28, 0, s * 0.28);
+        bodyGrad.addColorStop(0, 'rgba(210,210,215,0.95)');
+        bodyGrad.addColorStop(0.45, 'rgba(155,155,165,0.9)');
+        bodyGrad.addColorStop(1, 'rgba(70,70,80,0.75)');
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
+
+        // Dome
+        ctx.beginPath();
+        ctx.ellipse(0, 0, s * 0.38, s * 0.26, 0, Math.PI, 0);
+        const domeGrad = ctx.createLinearGradient(0, -s * 0.3, 0, 0);
+        domeGrad.addColorStop(0, 'rgba(225,225,235,0.75)');
+        domeGrad.addColorStop(1, 'rgba(130,130,145,0.5)');
+        ctx.fillStyle = domeGrad;
+        ctx.fill();
+
+        // Rim highlight
+        ctx.beginPath();
+        ctx.ellipse(0, 2, s, s * 0.28, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+
+        ctx.globalAlpha = 1;
+        ctx.restore();
       }
     };
 
