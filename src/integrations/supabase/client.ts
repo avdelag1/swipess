@@ -29,7 +29,26 @@ export const supabase = createClient<Database>(
       storage: localStorage,
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
-    }
+      detectSessionInUrl: true,
+    },
+    global: {
+      // Fetch with 15s timeout — prevents the app from hanging indefinitely
+      // when Supabase is slow/unreachable (e.g. project paused, network issues)
+      fetch: (url: RequestInfo | URL, options?: RequestInit) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        return fetch(url, { ...options, signal: controller.signal })
+          .finally(() => clearTimeout(timeoutId));
+      },
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+      // Explicit heartbeat + exponential reconnect backoff
+      // Prevents rapid reconnect loops that flood the server on connection loss
+      heartbeatIntervalMs: 30000,
+      reconnectAfterMs: (tries: number) => Math.min(1000 * Math.pow(2, tries), 30000),
+    },
   }
 );
