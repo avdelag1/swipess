@@ -512,23 +512,6 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.drawImage(img, (w - drawW) / 2, (h - drawH) / 2, drawW, drawH);
         ctx.globalAlpha = 1;
       }
-
-      for (const wave of wavesRef.current) {
-        wave.phase += wave.speed;
-        ctx.beginPath();
-        ctx.moveTo(0, wave.y);
-        for (let x = 0; x <= w; x += 10) {
-          const y = wave.y + Math.sin(x * wave.frequency + wave.phase) * wave.amplitude;
-          ctx.lineTo(x, y);
-        }
-        ctx.lineTo(w, h);
-        ctx.lineTo(0, h);
-        ctx.closePath();
-        ctx.fillStyle = wave.color;
-        ctx.globalAlpha = wave.opacity;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-      }
     };
 
     const loop = () => {
