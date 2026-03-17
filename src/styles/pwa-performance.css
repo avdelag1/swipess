@@ -74,6 +74,8 @@ html.pwa-mode .animate-out {
 * {
     /* Remove iOS tap highlight */
     -webkit-tap-highlight-color: transparent;
+    /* Eliminate 300ms tap delay on ALL browsers (not just PWA mode) */
+    touch-action: manipulation;
 }
 
 /* FIX #2: GPU Acceleration - Force hardware acceleration on key elements

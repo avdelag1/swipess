@@ -17,6 +17,37 @@ export function useSwipe() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    onMutate: async ({ targetId, targetType = 'listing' }) => {
+      // Cancel any in-flight refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['listings'] });
+      await queryClient.cancelQueries({ queryKey: ['client-profiles'] });
+
+      // Snapshot current data for rollback
+      const prevListings = queryClient.getQueryData(['listings']);
+      const prevProfiles = queryClient.getQueryData(['client-profiles']);
+
+      // Optimistically remove the swiped card from the deck immediately
+      if (targetType === 'listing') {
+        queryClient.setQueriesData({ queryKey: ['listings'] }, (old: unknown) =>
+          Array.isArray(old) ? old.filter((item: { id: string }) => item.id !== targetId) : old
+        );
+      } else {
+        queryClient.setQueriesData({ queryKey: ['client-profiles'] }, (old: unknown) =>
+          Array.isArray(old) ? old.filter((item: { id: string }) => item.id !== targetId) : old
+        );
+      }
+
+      return { prevListings, prevProfiles };
+    },
+    onError: (_err, _vars, context) => {
+      // Roll back optimistic update on error
+      if (context?.prevListings !== undefined) {
+        queryClient.setQueryData(['listings'], context.prevListings);
+      }
+      if (context?.prevProfiles !== undefined) {
+        queryClient.setQueryData(['client-profiles'], context.prevProfiles);
+      }
+    },
     mutationFn: async ({ targetId, direction, targetType = 'listing' }: {
       targetId: string;
       direction: 'left' | 'right';

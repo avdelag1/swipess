@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -164,9 +165,7 @@ function saveLikedIds(ids: Set<string>) {
 export default function EventosFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [allEvents, setAllEvents] = useState<EventItem[]>([]);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -177,6 +176,36 @@ export default function EventosFeed() {
   const [likedIds, setLikedIds] = useState<Set<string>>(loadLikedIds);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const { data: allEvents = MOCK_EVENTS, isLoading } = useQuery({
+    queryKey: ['eventos'],
+    queryFn: async (): Promise<EventItem[]> => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('event_date', { ascending: true });
+
+      if (error) throw error;
+      const formatted: EventItem[] = (data || []).map((ev: any) => ({
+        id: ev.id,
+        title: ev.title || 'Untitled Event',
+        description: ev.description || null,
+        category: ev.category || 'all',
+        image_url: ev.image_url || null,
+        event_date: ev.event_date || null,
+        location: ev.location || null,
+        location_detail: ev.location_detail || null,
+        organizer_name: ev.organizer_name || null,
+        promo_text: ev.promo_text || null,
+        discount_tag: ev.discount_tag || null,
+        is_free: !!ev.is_free,
+        price_text: ev.price_text || null,
+      }));
+      return formatted.length > 0 ? formatted : MOCK_EVENTS;
+    },
+    staleTime: 1000 * 60 * 10,   // Events rarely change; 10min stale
+    placeholderData: MOCK_EVENTS, // Show mock data instantly while fetching
+  });
+
   const CATEGORIES = [
     { key: 'all', label: 'allEvents', icon: Sparkles },
     { key: 'beach', label: 'beachClubs', icon: Waves },
@@ -186,40 +215,6 @@ export default function EventosFeed() {
     { key: 'promo', label: 'promosDiscounts', icon: Ticket },
   ];
 
-  useEffect(() => {
-    const loadEvents = async () => {
-      setIsLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .order('event_date', { ascending: true });
-
-        if (error) throw error;
-        const formatted: EventItem[] = (data || []).map((ev: any) => ({
-          id: ev.id,
-          title: ev.title || 'Untitled Event',
-          description: ev.description || null,
-          category: ev.category || 'all',
-          image_url: ev.image_url || null,
-          event_date: ev.event_date || null,
-          location: ev.location || null,
-          location_detail: ev.location_detail || null,
-          organizer_name: ev.organizer_name || null,
-          promo_text: ev.promo_text || null,
-          discount_tag: ev.discount_tag || null,
-          is_free: !!ev.is_free,
-          price_text: ev.price_text || null,
-        }));
-        setAllEvents(formatted.length > 0 ? formatted : MOCK_EVENTS);
-      } catch {
-        setAllEvents(MOCK_EVENTS);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadEvents();
-  }, []);
 
   const handleLike = useCallback((id: string) => {
     setLikedIds(prev => {
