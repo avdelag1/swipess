@@ -5,12 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, MapPin, Search } from 'lucide-react';
-import {
-  getRegions,
-  getCountriesInRegion,
-  getCitiesInCountry,
-  getCityByName,
-} from '@/data/worldLocations';
+import { useWorldLocations } from '@/hooks/useWorldLocations';
 
 interface OwnerLocationSelectorProps {
   region?: string;
@@ -42,6 +37,8 @@ export function OwnerLocationSelector({
   const [citySearch, setCitySearch] = useState('');
   const [neighborhoodSearch, setNeighborhoodSearch] = useState('');
 
+  const { getRegions, getCountriesInRegion, getCitiesInCountry, getCityByName } = useWorldLocations();
+
   // Get all unique countries across all regions
   const allCountries = useMemo(() => {
     const countries = new Set<string>();
@@ -51,7 +48,7 @@ export function OwnerLocationSelector({
       regionCountries.forEach(c => countries.add(c));
     }
     return Array.from(countries).sort();
-  }, []);
+  }, [getRegions, getCountriesInRegion]);
 
   // Filtered countries based on search
   const filteredCountries = useMemo(() =>
@@ -71,20 +68,20 @@ export function OwnerLocationSelector({
         }
       }
     }
-  }, [country]);
+  }, [country, getRegions, getCountriesInRegion]);
 
   // Get cities for the selected country
   const availableCities = useMemo(() => {
     if (!country || !selectedRegion) return [];
     return getCitiesInCountry(selectedRegion, country);
-  }, [country, selectedRegion]);
+  }, [country, selectedRegion, getCitiesInCountry]);
 
   // Get neighborhoods for the selected city
   const availableNeighborhoods = useMemo(() => {
     if (!city) return [];
     const cityData = getCityByName(city);
     return cityData?.city.neighborhoods || [];
-  }, [city]);
+  }, [city, getCityByName]);
 
   // Filtered cities based on search
   const filteredCities = useMemo(() =>

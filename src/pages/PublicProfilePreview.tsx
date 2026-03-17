@@ -14,6 +14,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { STORAGE } from '@/constants/app';
 import { cn } from '@/lib/utils';
 
+interface PublicProfile {
+  user_id: string;
+  full_name: string | null;
+  city: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  images: string[] | null;
+  interests: string[] | null;
+  nationality: string | null;
+  languages_spoken: string[] | null;
+  lifestyle_tags: string[] | null;
+  age: number | null;
+  gender: string | null;
+  neighborhood: string | null;
+  country: string | null;
+  verified?: boolean;
+  profile_images?: string[] | null;
+}
+
 export default function PublicProfilePreview() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -47,7 +66,7 @@ export default function PublicProfilePreview() {
         .eq('user_id', id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as PublicProfile | null;
     },
     enabled: !!id,
   });
@@ -62,8 +81,8 @@ export default function PublicProfilePreview() {
 
   const allImages: string[] = (() => {
     if (!profile) return [];
-    const imgs = (profile as any).images || (profile as any).profile_images || [];
-    const avatar = (profile as any).avatar_url;
+    const imgs = profile.images || profile.profile_images || [];
+    const avatar = profile.avatar_url;
     if (imgs.length > 0) return imgs;
     if (avatar) return [avatar];
     return [];
@@ -127,8 +146,8 @@ export default function PublicProfilePreview() {
   }
 
   const currentImage = allImages.length > 0 ? allImages[currentImageIndex] : null;
-  const interests: string[] = (profile as any).interests || [];
-  const languages: string[] = (profile as any).languages_spoken || [];
+  const interests: string[] = profile.interests || [];
+  const languages: string[] = profile.languages_spoken || [];
 
   // ── Main Render ────────────────────────────────────────────────────
   return (
@@ -148,7 +167,7 @@ export default function PublicProfilePreview() {
             {currentImage ? (
               <img
                 src={currentImage}
-                alt={(profile as any).full_name || 'Profile'}
+                alt={profile.full_name || 'Profile'}
                 className="w-full h-full object-cover object-top"
                 onLoad={() => setImgLoaded(true)}
                 style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.25s' }}
@@ -260,30 +279,30 @@ export default function PublicProfilePreview() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl font-bold text-foreground">
-                    {(profile as any).full_name || 'Anonymous'}
+                    {profile.full_name || 'Anonymous'}
                   </h1>
-                  {(profile as any).age && (
+                  {profile.age && (
                     <span className="text-lg text-muted-foreground font-medium">
-                      {(profile as any).age}
+                      {profile.age}
                     </span>
                   )}
-                  {(profile as any).verified && (
+                  {profile.verified && (
                     <Badge className="bg-blue-500/15 text-blue-500 border border-blue-500/25 text-xs py-0 px-1.5">
                       ✓ Verified
                     </Badge>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
-                  {((profile as any).city || (profile as any).neighborhood) && (
+                  {(profile.city || profile.neighborhood) && (
                     <span className="flex items-center gap-1">
                       <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                      {[(profile as any).neighborhood, (profile as any).city].filter(Boolean).join(', ')}
+                      {[profile.neighborhood, profile.city].filter(Boolean).join(', ')}
                     </span>
                   )}
-                  {(profile as any).nationality && (
+                  {profile.nationality && (
                     <span className="flex items-center gap-1">
                       <Globe className="w-3.5 h-3.5 flex-shrink-0" />
-                      {(profile as any).nationality}
+                      {profile.nationality}
                     </span>
                   )}
                 </div>
@@ -291,9 +310,9 @@ export default function PublicProfilePreview() {
             </div>
 
             {/* Bio */}
-            {(profile as any).bio && (
+            {profile.bio && (
               <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
-                {(profile as any).bio}
+                {profile.bio}
               </p>
             )}
 
