@@ -20,6 +20,9 @@
 
   <!-- Supabase preconnect is injected dynamically at build time by Vite -->
 
+  <!-- Preload splash logo — first visible element, load with highest priority -->
+  <link rel="preload" as="image" href="/icons/fire-s-logo.png" fetchpriority="high">
+
   <!-- Fonts - deferred priority -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
