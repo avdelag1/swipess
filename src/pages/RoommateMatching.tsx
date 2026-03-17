@@ -182,9 +182,10 @@ export default function RoommateMatching() {
   return (
     <div
       className={cn(
-        "relative w-full h-full flex flex-col overflow-hidden transition-colors duration-500",
+        "relative w-full flex flex-col overflow-hidden transition-colors duration-500",
         isLight ? "bg-slate-50" : "bg-black"
       )}
+      style={{ height: '100dvh' }}
     >
       {/* ── TOP NAV (Liquid Glass) ── */}
       <div className="absolute top-0 left-0 right-0 z-50 px-3 pointer-events-none pt-[var(--safe-top)]">
@@ -256,7 +257,7 @@ export default function RoommateMatching() {
       </div>
 
       {/* ── DECK AREA ── */}
-      <div className="flex-1 relative mt-28 px-3 py-4 pb-36 z-40">
+      <div className="flex-1 relative px-3 py-4 z-40" style={{ marginTop: 'calc(var(--safe-top, 0px) + 7rem)' }}>
         <div className="relative w-full h-full max-w-md mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (
@@ -337,18 +338,53 @@ export default function RoommateMatching() {
 
       {/* ── ACTION BAR (Frameless floating) ── */}
       {topCard && (
-        <div
-          className="absolute left-0 right-0 flex justify-center z-[60]"
-          style={{ bottom: 'calc(var(--safe-bottom, 0px) + 84px)' }}
-        >
-          <SwipeActionButtonBar
-            onLike={handleLike}
-            onDislike={handleDislike}
-            onShare={() => triggerHaptic('light')}
-            onUndo={handleUndo}
-            onMessage={() => triggerHaptic('light')}
-            canUndo={canUndo}
-          />
+        <div className="flex-shrink-0 px-4 z-[60] relative" style={{ paddingBottom: 'calc(68px + 1rem + var(--safe-bottom, 0px))' }}>
+          <div className={cn(
+            "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl relative overflow-hidden",
+            isLight ? "bg-white/80 border-slate-200" : "bg-zinc-900/60 border-white/10"
+          )}>
+            {/* Glossy highlight line */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-white/20 z-10" />
+
+            {/* Undo */}
+            <ActionButton 
+              onClick={handleUndo} 
+              disabled={!canUndo} 
+              icon={RotateCcw} 
+              color="amber" 
+            />
+            
+            {/* NO / Pass */}
+            <ActionButton 
+              onClick={handleDislike} 
+              icon={ThumbsDown} 
+              color="red" 
+              large 
+            />
+            
+            {/* Share */}
+            <ActionButton 
+              onClick={() => triggerHaptic('light')} 
+              icon={Share2} 
+              color="blue" 
+            />
+            
+            {/* YES / Like */}
+            <ActionButton 
+              onClick={handleLike} 
+              icon={Flame} 
+              color="orange" 
+              large 
+              filled 
+            />
+            
+            {/* Message */}
+            <ActionButton 
+              onClick={() => triggerHaptic('light')} 
+              icon={MessageCircle} 
+              color="emerald" 
+            />
+          </div>
         </div>
       )}
 
