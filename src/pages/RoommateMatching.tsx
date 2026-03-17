@@ -2,9 +2,8 @@ import { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
-  Sparkles, X, Eye, EyeOff, MapPin, 
-  Briefcase, RotateCcw, ThumbsDown, Share2, 
-  Flame, MessageCircle
+  Sparkles, X, Eye, EyeOff, MapPin,
+  Briefcase
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -285,17 +285,13 @@ export default function RoommateMatching() {
 
       {/* ── ACTION BAR ── */}
       {topCard && (
-        <div className="px-4 pb-[calc(1.5rem+104px+var(--safe-bottom))] z-[60] relative">
-          <div className={cn(
-            "max-w-md mx-auto rounded-[32px] border backdrop-blur-3xl p-2.5 flex items-center justify-between gap-2 shadow-2xl",
-            isLight ? "bg-white/80 border-slate-200" : "bg-zinc-900/60 border-white/10"
-          )}>
-            <ActionButton onClick={handleUndo} disabled={!canUndo} icon={RotateCcw} color="amber" />
-            <ActionButton onClick={handleDislike} icon={ThumbsDown} color="red" large />
-            <ActionButton onClick={() => triggerHaptic('light')} icon={Share2} color="blue" />
-            <ActionButton onClick={handleLike} icon={Flame} color="orange" large filled />
-            <ActionButton onClick={() => triggerHaptic('light')} icon={MessageCircle} color="emerald" />
-          </div>
+        <div className="flex justify-center pb-[calc(1rem+var(--safe-bottom,0px)+80px)] z-[60] relative">
+          <SwipeActionButtonBar
+            onLike={handleLike}
+            onDislike={handleDislike}
+            onUndo={handleUndo}
+            canUndo={canUndo}
+          />
         </div>
       )}
 
@@ -404,24 +400,6 @@ function DetailBadge({ icon: Icon, label, value }: { icon: any; label: string; v
   );
 }
 
-function ActionButton({ onClick, icon: Icon, color, large = false, disabled = false, filled = false }: { onClick: () => void; icon: any; color: string; large?: boolean; disabled?: boolean; filled?: boolean; }) {
-  const colors = {
-    amber: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-    red: "text-rose-500 bg-rose-500/10 border-rose-500/20",
-    blue: "text-blue-500 bg-blue-500/10 border-blue-500/20",
-    orange: "text-orange-500 bg-orange-500/10 border-orange-500/20",
-    emerald: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20",
-  };
-  const filledColors = { orange: "bg-gradient-to-br from-rose-500 to-orange-400 text-white border-transparent shadow-lg shadow-orange-500/30" };
-  return (
-    <motion.button
-      whileTap={!disabled ? { scale: 0.85 } : {}}
-      onClick={!disabled ? onClick : undefined}
-      className={cn("rounded-full flex items-center justify-center transition-all border", large ? "w-16 h-16" : "w-12 h-12", disabled ? "opacity-20 grayscale pointer-events-none" : "opacity-100", filled ? filledColors[color as keyof typeof filledColors] : colors[color as keyof typeof colors])}>
-      <Icon className={cn(large ? "w-7 h-7" : "w-5 h-5")} strokeWidth={2.5} fill={filled ? "currentColor" : "none"} />
-    </motion.button>
-  );
-}
 
 function FilterGroup({ label, options, selected, setSelected }: { label: string; options: string[]; selected: string; setSelected: (v: string) => void; }) {
   return (

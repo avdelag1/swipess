@@ -536,7 +536,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
              stays above action buttons on all devices (SE → Pro Max → tablets) */}
         <div
           className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
-          style={{ bottom: 'clamp(140px, 24vh, 200px)' }}
+          style={{ bottom: 'clamp(170px, 26vh, 220px)' }}
         >
           {/* Rating Display - Glass-pill tactile badge */}
           <div className="mb-3">
