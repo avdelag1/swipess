@@ -260,5 +260,6 @@ export function useEnsureSpecializedProfile() {
     };
 
     ensureProfile();
-  }, [user?.id, queryClient]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, initialized, queryClient]);
 }
