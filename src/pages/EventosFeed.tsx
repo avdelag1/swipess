@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal,
-  ChevronLeft, Share2, MessageCircle, Heart,
+  ChevronLeft, Heart,
   Waves, Trees, Music, Utensils, Ticket,
-  Clock, ArrowUpRight, Check, ChevronRight
+  ArrowUpRight, Check, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -216,6 +216,20 @@ export default function EventosFeed() {
   ];
 
 
+  const handleSwipe = useCallback((id: string, _direction: 'left' | 'right') => {
+    setLikedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+        triggerHaptic('medium');
+      }
+      saveLikedIds(next);
+      return next;
+    });
+  }, []);
+
   const handleLike = useCallback((id: string) => {
     setLikedIds(prev => {
       const next = new Set(prev);
@@ -264,18 +278,34 @@ export default function EventosFeed() {
     <div className="relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col font-sans">
       
       {/* ── STORIES PROGRESS BAR ── */}
-      <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[60] px-4 flex gap-1">
+      <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[60] px-4 flex gap-1.5">
         {filteredEvents.map((_, idx) => (
           <div key={idx} className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/20">
             <motion.div 
-              className="h-full bg-white"
+              className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
               initial={{ width: 0 }}
               animate={{ 
                 width: idx < currentIndex ? '100%' : idx === currentIndex ? '100%' : '0%' 
               }}
               transition={{ 
-                duration: idx === currentIndex ? 5 : 0, 
+                duration: idx === currentIndex ? 8 : 0, // 8-second auto-advance feel
                 ease: "linear" 
+              }}
+              onAnimationComplete={() => {
+                if (idx === currentIndex && currentIndex < filteredEvents.length - 1) {
+                  // Pre-load next image before advancing
+                  const nextEvent = filteredEvents[currentIndex + 1];
+                  if (nextEvent?.image_url) {
+                    const img = new Image();
+                    img.src = nextEvent.image_url;
+                  }
+                  setCurrentIndex(prev => prev + 1);
+                  // Scroll the feed to the next item
+                  scrollRef.current?.scrollTo({
+                    top: (currentIndex + 1) * scrollRef.current.clientHeight,
+                    behavior: 'smooth'
+                  });
+                }
               }}
             />
           </div>
@@ -627,7 +657,6 @@ function StoryCard({
   isLiked: boolean,
   onLike: (id: string) => void
 }) {
-  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleDetailsClick = (e: React.MouseEvent) => {
@@ -638,16 +667,21 @@ function StoryCard({
   return (
     <div className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-zinc-950">
       {/* Background Image */}
-      <div className="absolute inset-0">
+      <motion.div 
+        className="absolute inset-0"
+        animate={isActive ? { scale: 1 } : { scale: 1.1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
         <img
           src={event.image_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90'}
           className="w-full h-full object-cover"
           alt={event.title}
+          style={{ transform: 'translateZ(0)' }}
         />
         {/* Overlays */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-      </div>
+      </motion.div>
 
       {/* Content */}
       <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1rem+68px+var(--safe-bottom))]">
