@@ -6,23 +6,37 @@
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  SWIPE CARD PHOTO TRANSITION                                          */
-/*  Subtle zoom-in when switching photos within a card (cached images). */
-/*  Gives each photo tap a premium, intentional feel.                   */
+/*  Simple slide when switching photos within a card (cached images).  */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
-@keyframes photo-enter {
+@keyframes photo-slide-from-right {
   from {
-    opacity: 0.82;
-    transform: scale(1.035);
+    opacity: 0;
+    transform: translateX(6%);
   }
   to {
     opacity: 1;
-    transform: scale(1.0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes photo-slide-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-6%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  @keyframes photo-enter {
+  @keyframes photo-slide-from-right {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes photo-slide-from-left {
     from { opacity: 1; transform: none; }
     to   { opacity: 1; transform: none; }
   }

@@ -114,6 +114,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
   const [magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
@@ -324,11 +325,13 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
     // Left third - previous image (only if multiple images)
     if (clickX < width * 0.33 && imageCount > 1) {
+      setPhotoDirection('left');
       setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
       triggerHaptic('light');
     }
     // Right third - next image (only if multiple images)
     else if (clickX > width * 0.67 && imageCount > 1) {
+      setPhotoDirection('right');
       setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
       triggerHaptic('light');
     }
@@ -409,7 +412,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
             style={{ pointerEvents: 'none', zIndex: 1 }}
           />
         ) : (
-          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+          <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} direction={photoDirection} />
         )}
         {/* No gradient - full-bleed cards */}
       </div>
@@ -472,7 +475,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
               style={{ pointerEvents: 'none', zIndex: 1 }}
             />
           ) : (
-            <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} />
+            <CardImage src={currentImage} alt={listing.title || 'Listing'} name={listing.title} direction={photoDirection} />
           )}
 
           {/* Image dots - Positioned below header area */}
