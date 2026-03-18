@@ -650,10 +650,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
-    // Only Camera and Radio remain fully fullscreen (hiding everything)
-    // Eventos and Roommates now show TopBar/BottomNav per user request
-    return isCameraRoute || isRadioRoute || 
-           location.pathname.includes('/client/filters') || 
+    // Camera, Radio, and Eventos are fully fullscreen (no TopBar, no BottomNav, no padding)
+    // Eventos takes over the full screen for immersive flyer/story feed experience
+    return isCameraRoute || isRadioRoute ||
+           location.pathname.startsWith('/explore/eventos') ||
+           location.pathname.includes('/client/filters') ||
            location.pathname.includes('/owner/filters');
   }, [isCameraRoute, isRadioRoute, location.pathname]);
 
