@@ -195,10 +195,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
       if ('requestIdleCallback' in window) {
-        const idleId = (window as any).requestIdleCallback(() => prefetchRoleRoutes(userRole), { timeout: 2000 });
+        const idleId = (window as any).requestIdleCallback(() => prefetchRoleRoutes(userRole), { timeout: 800 });
         return () => (window as any).cancelIdleCallback(idleId);
       } else {
-        const timeoutId = setTimeout(() => prefetchRoleRoutes(userRole), 1000);
+        const timeoutId = setTimeout(() => prefetchRoleRoutes(userRole), 300);
         return () => clearTimeout(timeoutId);
       }
     }
