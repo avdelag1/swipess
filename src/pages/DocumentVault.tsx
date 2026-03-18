@@ -359,12 +359,12 @@ export default function DocumentVault() {
                       {getDocTypeLabel(doc.document_type)} · {formatSize(doc.file_size)} · {format(new Date(doc.created_at), 'MMM d, yyyy')}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 ml-auto">
-                    <Button variant="ghost" size="icon" className="h-9 w-9 bg-accent/30 sm:bg-transparent" onClick={() => handleDownload(doc)}>
-                      <Download className="w-4.5 h-4.5" />
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDownload(doc)}>
+                      <Download className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive bg-destructive/10 sm:bg-transparent" onClick={() => setDeleteTarget(doc)}>
-                      <Trash2 className="w-4.5 h-4.5" />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget(doc)}>
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
                 </motion.div>

@@ -683,13 +683,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
-          onAISearchClick={() => {
-            if (userRole === 'owner') {
-              navigate('/owner/listings/new-ai');
-            } else {
-              setIsAISearchOpen(true);
-            }
-          }}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
           transparent={isImmersiveDashboard || isImmersiveFeed}

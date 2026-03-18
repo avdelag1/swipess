@@ -180,10 +180,11 @@ function TopBarComponent({
         {/* Normal header background - Hardware accelerated transitions */}
         <div 
           className={cn(
-            "absolute inset-0 transition-all duration-300 ease-out -z-10 will-change-transform",
+            "absolute inset-0 transition-all duration-500 ease-in-out -z-10",
             isDark ? "bg-black" : "bg-white",
             transparent ? "opacity-0" : "opacity-100"
           )} 
+          style={{ transform: 'translateZ(0)' }}
         />
 
         <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">

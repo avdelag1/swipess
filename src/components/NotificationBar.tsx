@@ -144,8 +144,8 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
                 }}
               >
                 <Icon
-                  className="w-5 h-5"
-                  style={{ color: config.accentColor, width: 20, height: 20 }}
+                  className="w-4.5 h-4.5"
+                  style={{ color: config.accentColor, width: 17, height: 17 }}
                 />
               </div>
 
@@ -166,7 +166,7 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNot
                 )}
                 aria-label="Dismiss"
               >
-                <X className="w-4.5 h-4.5 text-muted-foreground" />
+                <X className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             </div>
           </motion.div>
