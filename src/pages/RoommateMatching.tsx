@@ -283,7 +283,7 @@ export default function RoommateMatching() {
       </div>
 
       {/* ── DECK AREA ── */}
-      <div className="flex-1 relative px-3 py-4 z-40" style={{ marginTop: 'calc(var(--safe-top, 0px) + 7rem)' }}>
+      <div className="absolute inset-0 z-40">
         <div className="relative w-full h-full max-w-md mx-auto">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (
