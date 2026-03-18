@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
@@ -535,8 +535,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (convertedFilters.amenities?.length) activeFilterCount += convertedFilters.amenities.length;
     if (convertedFilters.priceRange) activeFilterCount += 1;
 
-    toast({
-      title: 'Filters Applied',
+    toast('Filters Applied', {
       description: activeFilterCount > 0
         ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`
         : 'Showing all listings',
@@ -650,10 +649,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
-    // Only Camera and Radio remain fully fullscreen (hiding everything)
-    // Eventos and Roommates now show TopBar/BottomNav per user request
-    return isCameraRoute || isRadioRoute || 
-           location.pathname.includes('/client/filters') || 
+    // Camera, Radio, and Eventos are fully fullscreen (no TopBar, no BottomNav, no padding)
+    // Eventos takes over the full screen for immersive flyer/story feed experience
+    return isCameraRoute || isRadioRoute ||
+           location.pathname.startsWith('/explore/eventos') ||
+           location.pathname.includes('/client/filters') ||
            location.pathname.includes('/owner/filters');
   }, [isCameraRoute, isRadioRoute, location.pathname]);
 
@@ -881,8 +881,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             setShowOnboarding(false);
             // Clear cache so we don't show onboarding again
             clearOnboardingCache();
-            toast({
-              title: 'Profile Complete!',
+            toast('Profile Complete!', {
               description: 'Start exploring and find your perfect match!',
             });
           }}

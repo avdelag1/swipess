@@ -10,16 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Navigation, Loader2, AlertCircle, Search, Globe, Star, Building } from 'lucide-react';
 import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
-import {
-  getRegions,
-  getCountriesInRegion,
-  getCitiesInCountry,
-  getPopularCities,
-  searchCities,
-  getNeighborhoodsForCity,
-  getFeaturedDestinations,
-  CityLocation,
-} from '@/data/worldLocations';
+import type { CityLocation } from '@/data/worldLocations';
+import { useWorldLocations } from '@/hooks/useWorldLocations';
 
 interface GoogleLocationSelectorProps {
   latitude?: number;
@@ -91,13 +83,15 @@ export function GoogleLocationSelector({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<any>(null);
 
+  const { getRegions, getCountriesInRegion, getCitiesInCountry, getNeighborhoodsForCity, getFeaturedDestinations, searchCities } = useWorldLocations();
+
   // Get data
-  const regions = useMemo(() => getRegions(), []);
-  const countries = useMemo(() => selectedRegion ? getCountriesInRegion(selectedRegion) : [], [selectedRegion]);
-  const cities = useMemo(() => selectedRegion && selectedCountry ? getCitiesInCountry(selectedRegion, selectedCountry) : [], [selectedRegion, selectedCountry]);
-  const neighborhoods = useMemo(() => selectedCity ? getNeighborhoodsForCity(selectedCity) : [], [selectedCity]);
-  const featuredDestinations = useMemo(() => getFeaturedDestinations(), []);
-  const searchResults = useMemo(() => searchQuery.length >= 2 ? searchCities(searchQuery) : [], [searchQuery]);
+  const regions = useMemo(() => getRegions(), [getRegions]);
+  const countries = useMemo(() => selectedRegion ? getCountriesInRegion(selectedRegion) : [], [selectedRegion, getCountriesInRegion]);
+  const cities = useMemo(() => selectedRegion && selectedCountry ? getCitiesInCountry(selectedRegion, selectedCountry) : [], [selectedRegion, selectedCountry, getCitiesInCountry]);
+  const neighborhoods = useMemo(() => selectedCity ? getNeighborhoodsForCity(selectedCity) : [], [selectedCity, getNeighborhoodsForCity]);
+  const featuredDestinations = useMemo(() => getFeaturedDestinations(), [getFeaturedDestinations]);
+  const searchResults = useMemo(() => searchQuery.length >= 2 ? searchCities(searchQuery) : [], [searchQuery, searchCities]);
 
   // Initialize Google Map
   useEffect(() => {

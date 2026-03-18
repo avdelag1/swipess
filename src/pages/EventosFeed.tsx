@@ -404,7 +404,37 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: '$85 USD'
   },
   {
-    id: 'beach-5',
+    id: 'mock-3',
+    title: 'Papaya Playa Project',
+    description: 'Full Moon Saturday at the legendary Papaya. A mystical journey through music and dance on the pristine sands of Tulum Beach with world-class DJs.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
+    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Papaya Playa',
+    location_detail: 'Beach Road km 4.5',
+    organizer_name: 'Papaya Playa Project',
+    promo_text: 'Full Moon Edition',
+    discount_tag: 'Iconic Venue',
+    is_free: false,
+    price_text: 'From $150 USD'
+  },
+  {
+    id: 'mock-4',
+    title: 'Cenote Wellness Retreat',
+    description: 'A morning of rejuvenation. Sound healing, guided meditation, and a cleansing dip in a private sacred cenote tucked deep in the Mayan jungle.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=1200&q=90',
+    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Cenote Corazon',
+    location_detail: 'Aldea Zama North',
+    organizer_name: 'Healing Hands',
+    promo_text: 'Early bird 15% OFF',
+    discount_tag: 'Zen Experience',
+    is_free: false,
+    price_text: '$45 USD'
+  },
+  {
+    id: 'mock-5',
     title: 'Sunset Yacht Session',
     description: 'Sail the waters on a luxury catamaran. Open bar, fresh ceviche, and house beats.',
     category: 'beach',
@@ -672,67 +702,28 @@ export default function EventosFeed() {
   return (
     <div className="relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col font-sans">
       
-      {/* ── STORIES PROGRESS BAR ── */}
-      <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[60] px-4 flex gap-1.5">
-        {filteredEvents.map((_, idx) => (
-          <div key={idx} className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/20">
-            <motion.div 
-              className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-              initial={{ width: 0 }}
-              animate={{ 
-                width: idx < currentIndex ? '100%' : idx === currentIndex ? '100%' : '0%' 
-              }}
-              transition={{ 
-                duration: idx === currentIndex ? 8 : 0, // 8-second auto-advance feel
-                ease: "linear" 
-              }}
-              onAnimationComplete={() => {
-                if (idx === currentIndex && currentIndex < filteredEvents.length - 1) {
-                  // Pre-load next image before advancing
-                  const nextEvent = filteredEvents[currentIndex + 1];
-                  if (nextEvent?.image_url) {
-                    const img = new Image();
-                    img.src = nextEvent.image_url;
-                  }
-                  setCurrentIndex(prev => prev + 1);
-                  // Scroll the feed to the next item
-                  scrollRef.current?.scrollTo({
-                    top: (currentIndex + 1) * scrollRef.current.clientHeight,
-                    behavior: 'smooth'
-                  });
-                }
-              }}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* ── HEADER OVERLAY ── */}
+      {/* ── FLOATING CONTROLS ── */}
       <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none pt-[var(--safe-top)]">
-        <div className="px-4 py-3 flex items-center justify-between pointer-events-auto">
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{t('nav.explore')}</span>
-              <span className="text-sm font-black text-white italic tracking-tight">{t('eventos.title')}</span>
-            </div>
-          </div>
+
+        {/* Row 1: Back + action buttons */}
+        <div className="flex items-center justify-between px-4 py-3 pointer-events-auto">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => navigate(-1)}
+            className="w-11 h-11 rounded-full bg-black/30 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white shadow-lg"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </motion.button>
 
           <div className="flex items-center gap-2">
-            {/* Liked counter */}
+            {/* Liked counter pill */}
             {likedCount > 0 && (
               <motion.button
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { triggerHaptic('light'); setShowLiked(true); }}
-                className="h-10 px-3.5 rounded-full bg-rose-500/90 backdrop-blur-xl border border-rose-400/30 flex items-center gap-1.5 text-white shadow-lg shadow-rose-500/20"
+                className="h-11 px-3.5 rounded-full bg-rose-500/90 backdrop-blur-xl border border-rose-400/30 flex items-center gap-1.5 text-white shadow-lg shadow-rose-500/20"
               >
                 <Heart className="w-3.5 h-3.5 fill-current" />
                 <span className="text-[11px] font-black">{likedCount}</span>
@@ -745,7 +736,7 @@ export default function EventosFeed() {
                 <motion.div
                   key="search-input"
                   initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 180, opacity: 1 }}
+                  animate={{ width: 176, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
                   className="relative overflow-hidden"
                 >
@@ -754,16 +745,16 @@ export default function EventosFeed() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={t('eventos.searchPlaceholder', 'Search events...')}
-                    className="w-full h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
+                    className="w-full h-11 bg-black/30 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
                   />
-                  <X className="absolute right-3 top-2.5 w-5 h-5 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
+                  <X className="absolute right-3 top-3 w-4 h-4 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
                 </motion.div>
               ) : (
                 <motion.button
                   key="search-btn"
                   whileTap={{ scale: 0.8 }}
                   onClick={() => setShowSearch(true)}
-                  className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+                  className="w-11 h-11 rounded-full bg-black/30 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white"
                 >
                   <Search className="w-5 h-5" />
                 </motion.button>
@@ -774,7 +765,7 @@ export default function EventosFeed() {
             <motion.button
               whileTap={{ scale: 0.8 }}
               onClick={() => { triggerHaptic('light'); setShowFilters(true); }}
-              className="relative w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
+              className="relative w-11 h-11 rounded-full bg-black/30 backdrop-blur-xl border border-white/15 flex items-center justify-center text-white"
             >
               <SlidersHorizontal className="w-5 h-5" />
               {activeFilterCount > 0 && (
@@ -786,9 +777,9 @@ export default function EventosFeed() {
           </div>
         </div>
 
-        {/* ── CATEGORY BAR ── */}
-        <div className="px-4 overflow-x-auto no-scrollbar pointer-events-auto mt-1">
-          <div className="flex gap-2.5 pb-2">
+        {/* Row 2: Category filter pills */}
+        <div className="px-4 overflow-x-auto no-scrollbar pointer-events-auto">
+          <div className="flex gap-2 pb-1">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isActive = activeCategory === cat.key;
@@ -798,10 +789,10 @@ export default function EventosFeed() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
                   className={cn(
-                    "flex-shrink-0 px-4 py-2 rounded-full backdrop-blur-xl border transition-all flex items-center gap-2 relative overflow-hidden",
-                    isActive 
-                      ? "bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.3)]" 
-                      : "bg-black/30 text-white border-white/10"
+                    "flex-shrink-0 px-3 py-1.5 rounded-full backdrop-blur-xl border transition-all flex items-center gap-1.5",
+                    isActive
+                      ? "bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.25)]"
+                      : "bg-black/25 text-white border-white/10"
                   )}
                 >
                   {isActive && (
@@ -1116,7 +1107,7 @@ function StoryCard({
       </motion.div>
 
       {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1rem+68px+var(--safe-bottom))]">
+      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(2rem+var(--safe-bottom))]">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}

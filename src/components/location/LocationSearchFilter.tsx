@@ -8,14 +8,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { MapPin, Search, Globe, Star, X, Filter, ChevronDown, ChevronUp } from 'lucide-react';
-import {
-  getRegions,
-  getCountriesInRegion,
-  getCitiesInCountry,
-  searchCities,
-  getFeaturedDestinations,
-  CityLocation,
-} from '@/data/worldLocations';
+import type { CityLocation } from '@/data/worldLocations';
+import { useWorldLocations } from '@/hooks/useWorldLocations';
 
 export interface LocationFilter {
   region?: string;
@@ -51,12 +45,14 @@ export function LocationSearchFilter({
   const [radius, setRadius] = useState(currentFilter.radiusKm || 50);
   const [isExpanded, setIsExpanded] = useState(!compact);
 
+  const { getRegions, getCountriesInRegion, getCitiesInCountry, searchCities, getFeaturedDestinations } = useWorldLocations();
+
   // Get data
-  const regions = useMemo(() => getRegions(), []);
-  const countries = useMemo(() => selectedRegion ? getCountriesInRegion(selectedRegion) : [], [selectedRegion]);
-  const cities = useMemo(() => selectedRegion && selectedCountry ? getCitiesInCountry(selectedRegion, selectedCountry) : [], [selectedRegion, selectedCountry]);
-  const featuredDestinations = useMemo(() => getFeaturedDestinations(), []);
-  const searchResults = useMemo(() => searchQuery.length >= 2 ? searchCities(searchQuery) : [], [searchQuery]);
+  const regions = useMemo(() => getRegions(), [getRegions]);
+  const countries = useMemo(() => selectedRegion ? getCountriesInRegion(selectedRegion) : [], [selectedRegion, getCountriesInRegion]);
+  const cities = useMemo(() => selectedRegion && selectedCountry ? getCitiesInCountry(selectedRegion, selectedCountry) : [], [selectedRegion, selectedCountry, getCitiesInCountry]);
+  const featuredDestinations = useMemo(() => getFeaturedDestinations(), [getFeaturedDestinations]);
+  const searchResults = useMemo(() => searchQuery.length >= 2 ? searchCities(searchQuery) : [], [searchQuery, searchCities]);
 
   // Get selected city data
   const selectedCityData = useMemo(() => {

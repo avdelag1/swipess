@@ -8,7 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface EventRow {
@@ -54,7 +54,6 @@ const emptyForm = {
 export default function AdminEventos() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [events, setEvents] = useState<EventRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -93,7 +92,7 @@ export default function AdminEventos() {
     const path = `${crypto.randomUUID()}.${ext}`;
     const { error } = await supabase.storage.from('event-images').upload(path, file);
     if (error) {
-      toast({ title: 'Upload failed', variant: 'destructive' });
+      toast.error('Upload failed');
       setUploading(false);
       return;
     }
@@ -104,7 +103,7 @@ export default function AdminEventos() {
 
   const handleSave = async () => {
     if (!form.title.trim()) {
-      toast({ title: 'Title is required', variant: 'destructive' });
+      toast.error('Title is required');
       return;
     }
 
@@ -129,11 +128,11 @@ export default function AdminEventos() {
 
     if (editingId) {
       await supabase.from('events').update(payload).eq('id', editingId);
-      toast({ title: 'Event updated' });
+      toast('Event updated');
     } else {
       payload.created_by = user!.id;
       await supabase.from('events').insert(payload);
-      toast({ title: 'Event published 🎉' });
+      toast('Event published 🎉');
     }
 
     setShowForm(false);
@@ -170,7 +169,7 @@ export default function AdminEventos() {
 
   const handleDelete = async (eventId: string) => {
     await supabase.from('events').delete().eq('id', eventId);
-    toast({ title: 'Event deleted' });
+    toast('Event deleted');
     fetchEvents();
   };
 
