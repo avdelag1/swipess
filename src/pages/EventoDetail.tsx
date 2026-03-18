@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -99,6 +99,8 @@ function BrandBenefitsSection() {
 
 export default function EventoDetail() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const stateEventData = (location.state as any)?.eventData as EventDetail | undefined;
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -108,10 +110,9 @@ export default function EventoDetail() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    if (!id) return;
-    fetchEvent();
-    if (user) checkFavorite();
-  }, [id, user]);
+    // Scroll to top on mount
+    window.scrollTo(0, 0);
+  }, [id]);
 
   // 🚀 SPEED OF LIGHT: Unified Event Data Query
   const { data: event, isLoading } = useQuery({
@@ -122,11 +123,15 @@ export default function EventoDetail() {
         .select('*')
         .eq('id', id!)
         .single();
-      if (error) throw error;
+      if (error || !data) {
+        if (stateEventData) return stateEventData;
+        throw error ?? new Error('Event not found');
+      }
       return data as EventDetail;
     },
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    initialData: stateEventData,
+    staleTime: 1000 * 60 * 5,
   });
 
   // 🚀 SPEED OF LIGHT: Favorite Status Query

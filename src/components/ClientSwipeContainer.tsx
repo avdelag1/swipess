@@ -32,7 +32,8 @@ import { cn } from '@/lib/utils';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, Wrench, User, Sparkles, Navigation } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, Wrench, User, Sparkles, Navigation, Home } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
@@ -54,6 +55,8 @@ interface DistanceSliderProps {
 
 const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   return (
     <div className="w-full max-w-xs mx-auto mt-2 px-2">
       <div className="flex items-center justify-between mb-2">
@@ -69,8 +72,8 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
             style={{
               background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
-              borderColor: detected ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.15)',
-              color: detected ? '#f97316' : 'rgba(255,255,255,0.6)',
+              borderColor: detected ? 'rgba(249,115,22,0.4)' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+              color: detected ? '#f97316' : isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)',
             }}
           >
             <Navigation className="w-2.5 h-2.5" />
@@ -79,7 +82,7 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
         </div>
       </div>
       <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
           <div
             className="h-full rounded-full"
             style={{
@@ -145,11 +148,11 @@ const ClientSwipeContainerComponent = ({
   // Dynamic labels based on category
   const getCategoryLabel = () => {
     switch (category) {
-      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', icon: <MapPin className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', icon: <Bike className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', icon: <MotorcycleIcon className="w-10 h-10 opacity-80" /> };
-      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', icon: <Wrench className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings', icon: <User className="w-10 h-10 opacity-80" strokeWidth={3} /> };
+      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', Icon: MapPin, color: 'text-primary' };
+      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', Icon: Bike, color: 'text-emerald-500' };
+      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500' };
+      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', Icon: Wrench, color: 'text-purple-500' };
+      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Clients', Icon: Users, color: 'text-pink-500' };
     }
   };
 
@@ -723,14 +726,8 @@ const ClientSwipeContainerComponent = ({
   }, [refetch, resetOwnerDeck, category]);
 
   const handleInsights = useCallback((clientId: string) => {
-    if (onInsights) {
-      onInsights(clientId);
-    } else {
-      sonnerToast.success('Client Insights', {
-        description: 'Viewing detailed insights for this client.',
-      });
-    }
-  }, [onInsights]);
+    navigate(`/owner/view-client/${clientId}`);
+  }, [navigate]);
 
   const handleShare = useCallback(() => {
     setShareDialogOpen(true);
@@ -861,10 +858,11 @@ const ClientSwipeContainerComponent = ({
 
   // "All Caught Up" - finished swiping through all cards
   if (isDeckFinished) {
+    const { Icon: CaughtUpIcon, color: caughtUpColor } = labels;
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04] bg-brand-accent-2 blur-3xl" />
+        <div className={`absolute inset-0 pointer-events-none ${caughtUpColor} opacity-[0.03] blur-3xl`} />
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -872,19 +870,29 @@ const ClientSwipeContainerComponent = ({
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
         >
-          {/* RadarSearchEffect with gentle motion wrapper */}
-          <motion.div
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
-          >
-            <RadarSearchEffect
-              size={120}
-              color="var(--color-brand-accent-2)"
-              isActive={isRefreshing}
-              icon={labels.icon}
-            />
-          </motion.div>
+          {/* Animated circle with category icon — matching client swipe style */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <motion.div
+                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${caughtUpColor} blur-lg`}
+              />
+              <motion.div
+                animate={isRefreshing
+                  ? { rotate: 360 }
+                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
+                }
+                transition={isRefreshing
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${caughtUpColor} shadow-lg`}
+              >
+                <CaughtUpIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
+          </div>
 
           <div className="space-y-2.5">
             <h3 className="text-lg font-black text-foreground tracking-tight">
@@ -900,14 +908,14 @@ const ClientSwipeContainerComponent = ({
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="w-full h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
+                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
               >
                 {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} color="white" />
+                  <RadarSearchIcon size={20} isActive={true} />
                 ) : (
-                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                  <RefreshCw className="w-4 h-4" />
                 )}
-                <span>{isRefreshing ? 'Scanning...' : 'Discover More'}</span>
+                {isRefreshing ? `Scanning for ${labels.plural}...` : `Discover More ${labels.plural}`}
               </Button>
             </motion.div>
 
@@ -952,10 +960,11 @@ const ClientSwipeContainerComponent = ({
 
   // Empty state (no cards fetched yet)
   if (showEmptyState || !topCard) {
+    const { Icon: EmptyIcon, color: emptyColor } = labels;
     return (
       <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
         {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04] bg-brand-accent-2 blur-3xl" />
+        <div className={`absolute inset-0 pointer-events-none ${emptyColor} opacity-[0.03] blur-3xl`} />
 
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -963,19 +972,29 @@ const ClientSwipeContainerComponent = ({
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
         >
-          {/* RadarSearchEffect with gentle motion wrapper */}
-          <motion.div
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
-          >
-            <RadarSearchEffect
-              size={120}
-              color="var(--color-brand-accent-2)"
-              isActive={isRefreshing}
-              icon={labels.icon}
-            />
-          </motion.div>
+          {/* Animated circle with category icon — matching client swipe style */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <motion.div
+                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${emptyColor} blur-lg`}
+              />
+              <motion.div
+                animate={isRefreshing
+                  ? { rotate: 360 }
+                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
+                }
+                transition={isRefreshing
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${emptyColor} shadow-lg`}
+              >
+                <EmptyIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
+          </div>
 
           <div className="space-y-2.5">
             <h3 className="text-lg font-black text-foreground tracking-tight">
@@ -991,17 +1010,16 @@ const ClientSwipeContainerComponent = ({
               <Button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
-                className="w-full h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
+                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
               >
                 {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} color="white" />
+                  <RadarSearchIcon size={20} isActive={true} />
                 ) : (
-                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
+                  <RefreshCw className="w-4 h-4" />
                 )}
-                <span>{isRefreshing ? 'Scanning...' : `Refresh ${labels.plural}`}</span>
+                {isRefreshing ? `Scanning for ${labels.plural}...` : `Refresh ${labels.plural}`}
               </Button>
             </motion.div>
-
 
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
               Fresh listings arrive every hour

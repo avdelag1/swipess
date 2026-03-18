@@ -106,7 +106,7 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
   const pricingInfo = PRICING_UNITS.find(p => p.value === worker.pricing_unit);
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow border-border/50">
+    <Card className="overflow-hidden rounded-2xl transition-all shadow-sm border-border/40 bg-card hover:shadow-lg hover:border-border/60">
       <div className="relative aspect-[4/3] bg-muted">
         {worker.images?.[0] ? (
           <img
@@ -187,14 +187,14 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
               </span>
             )}
           </div>
-          <Button
-            size="sm"
+          <button
             onClick={() => onContact(worker.owner_id)}
-            className="gap-1"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black text-white transition-all active:scale-95"
+            style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
           >
-            <MessageCircle className="w-4 h-4" />
+            <MessageCircle className="w-3.5 h-3.5" />
             Contact
-          </Button>
+          </button>
         </div>
       </CardContent>
     </Card>
@@ -270,33 +270,23 @@ export default function ClientWorkerDiscovery() {
         <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50 px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
+              <button
                 onClick={() => navigate(-1)}
-                className="rounded-full"
+                className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors duration-150"
               >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                <Briefcase className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">Find Services</h1>
-                <p className="text-xs text-muted-foreground">
-                  Browse skilled professionals
-                </p>
-              </div>
+                <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
+                <span>Back</span>
+              </button>
+              <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_6px_var(--color-brand-accent-2)] mx-1" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Find Services</span>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
+            <button
               onClick={() => refetch()}
               disabled={isRefetching}
-              className="rounded-full"
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-border/40 text-muted-foreground hover:text-foreground transition-all disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${isRefetching ? 'animate-spin' : ''}`} />
-            </Button>
+            </button>
           </div>
 
           {/* Hire Duration Quick Filter */}
@@ -440,22 +430,24 @@ export default function ClientWorkerDiscovery() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-16"
+              className="flex flex-col items-center justify-center py-24 text-center rounded-[3rem] border border-border/40 bg-muted/20"
             >
-              <div className="w-20 h-20 mx-auto bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center mb-4">
-                <Sparkles className="w-10 h-10 text-primary" />
+              <div className="w-24 h-24 rounded-[2rem] bg-muted/60 border border-border/30 flex items-center justify-center mb-8 shadow-xl">
+                <Sparkles className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">No Services Found</h3>
-              <p className="text-muted-foreground text-sm max-w-xs mx-auto mb-4">
+              <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">No Services Found</h3>
+              <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10">
                 {hasActiveFilters
                   ? "Try adjusting your filters to find more service providers"
                   : "Service providers will appear here once sellers list their services"}
               </p>
-              {hasActiveFilters && (
-                <Button variant="outline" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-              )}
+              <button
+                onClick={hasActiveFilters ? clearFilters : () => navigate('/client/dashboard')}
+                className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+              >
+                {hasActiveFilters ? 'CLEAR FILTERS' : 'EXPLORE WORLD'}
+              </button>
             </motion.div>
           )}
         </div>

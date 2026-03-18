@@ -31,7 +31,8 @@ import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigation } from 'lucide-react';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigation, Users } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -190,6 +191,8 @@ interface DistanceSliderProps {
 
 const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   return (
     <div className="w-full max-w-xs mx-auto mt-2 px-2">
       <div className="flex items-center justify-between mb-2">
@@ -205,8 +208,8 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
             style={{
               background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
-              borderColor: detected ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.15)',
-              color: detected ? '#f97316' : 'rgba(255,255,255,0.6)',
+              borderColor: detected ? 'rgba(249,115,22,0.4)' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+              color: detected ? '#f97316' : isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)',
             }}
           >
             <Navigation className="w-2.5 h-2.5" />
@@ -215,7 +218,7 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
         </div>
       </div>
       <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
+        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
           <div
             className="h-full rounded-full"
             style={{
@@ -279,6 +282,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
+  const setCategories = useFilterStore((s) => s.setCategories);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
@@ -978,7 +982,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   };
 
   const handleInsights = () => {
-    setInsightsModalOpen(true);
+    const listing = deckQueueRef.current[currentIndexRef.current];
+    if (listing?.id) {
+      navigate(`/listing/${listing.id}`);
+    } else {
+      setInsightsModalOpen(true);
+    }
     triggerHaptic('light');
   };
 
@@ -1125,6 +1134,82 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // isReady means we've fully initialized at least once - skip loading UI on return
   // CRITICAL FIX: When filters change, deck is reset, so check if we're actually loading new data
   const hasHydratedData = (isClientHydrated() || isClientReady() || deckQueue.length > 0) && !isLoading;
+
+  // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
+  // When the user has not chosen a specific category, show a category overview
+  // so they can pick what they want to browse instead of defaulting to properties.
+  if (storeCategories.length === 0) {
+    const allCategories = [
+      { id: 'property' as const, label: 'Properties', Icon: Home, color: 'text-primary', gradient: 'from-blue-500/15 to-cyan-500/5', border: 'border-blue-400/25', description: 'Houses, apartments & rooms' },
+      { id: 'motorcycle' as const, label: 'Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500', gradient: 'from-orange-500/15 to-amber-500/5', border: 'border-orange-400/25', description: 'Mopeds, scooters & bikes' },
+      { id: 'bicycle' as const, label: 'Bicycles', Icon: Bike, color: 'text-emerald-500', gradient: 'from-emerald-500/15 to-green-500/5', border: 'border-emerald-400/25', description: 'City, mountain & road bikes' },
+      { id: 'services' as const, label: 'Workers', Icon: Briefcase, color: 'text-purple-500', gradient: 'from-purple-500/15 to-violet-500/5', border: 'border-purple-400/25', description: 'Skilled freelancers & staff' },
+    ];
+
+    return (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key="all-dashboard"
+          variants={deckFadeVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="relative w-full flex-1 flex flex-col items-center justify-center px-4 py-6 overflow-y-auto"
+          style={{ minHeight: 'calc(100dvh - 140px)' }}
+        >
+          {/* Subtle background glow */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-gradient-to-br from-primary via-brand-accent-2 to-purple-500 blur-3xl" />
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-xs"
+          >
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted/50 border border-border/50 mb-4">
+                <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Explore Tulum</span>
+              </div>
+              <h2 className="text-2xl font-black text-foreground tracking-tight">What are you<br />looking for?</h2>
+              <p className="text-sm text-muted-foreground mt-2">Choose a category to start swiping</p>
+            </div>
+
+            {/* Category grid — 2×2 */}
+            <div className="grid grid-cols-2 gap-3">
+              {allCategories.map(({ id, label, Icon, color, gradient, border, description }, i) => (
+                <motion.button
+                  key={id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.02 }}
+                  onClick={() => setCategories([id])}
+                  className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-gradient-to-br ${gradient} border ${border} text-center transition-all active:brightness-95`}
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
+                >
+                  {/* Icon circle */}
+                  <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/20 flex items-center justify-center ${color} shadow-sm`}>
+                    <Icon className="w-7 h-7" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-black text-foreground tracking-tight">{label}</div>
+                    <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{description}</div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+
+            <p className="text-center text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/50 mt-6">
+              Tulum's #1 discovery platform
+            </p>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
 
   // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
   // Once hydrated or ready, never show full skeleton again (use placeholderData from query)

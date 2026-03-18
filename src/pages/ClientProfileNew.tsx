@@ -124,7 +124,10 @@ const ClientProfileNew = () => {
               )}
             >
               <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
-              <div className="text-lg font-semibold text-foreground leading-none mb-1">{stat.value}</div>
+              <div
+                className="text-lg font-black leading-none mb-1"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+              >{stat.value}</div>
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
