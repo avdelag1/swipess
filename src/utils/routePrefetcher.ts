@@ -44,6 +44,9 @@ const routeImports: Record<string, RouteImport> = {
   '/explore/prices': () => import('@/pages/PriceTracker'),
   '/explore/intel': () => import('@/pages/LocalIntel'),
   '/explore/tours': () => import('@/pages/VideoTours'),
+  // Filter routes
+  '/client/filters': () => import('@/pages/ClientFilters'),
+  '/owner/filters': () => import('@/pages/OwnerFilters'),
 };
 
 // Cache for prefetched routes
