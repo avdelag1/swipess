@@ -658,12 +658,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
                           location.pathname !== '/explore/eventos' && 
                           location.pathname !== '/explore/eventos/';
+    
+    // User wants header gone from Events to avoid interference
+    const isEventsMain = location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/';
 
     return isCameraRoute || isRadioRoute || 
            location.pathname.includes('/client/filters') || 
            location.pathname.includes('/owner/filters') ||
-           isEventoDetail;
-  }, [isCameraRoute, isRadioRoute, location.pathname]);
+           isEventoDetail || isEventsMain || isRoommatesPage;
+  }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
   // Get page title based on location for TopBar display
   const activeCategory = useFilterStore((s) => s.activeCategory);
