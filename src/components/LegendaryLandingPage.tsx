@@ -19,7 +19,6 @@ import { cn } from '@/lib/utils';
 
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
-import { EffectMode } from './LandingBackgroundEffects';
 
 const swipessLogo = '/icons/fire-s-logo.png';
 
