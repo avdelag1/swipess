@@ -390,6 +390,49 @@ export function useSendMessage() {
   const { user } = useAuth();
 
   return useMutation({
+    onMutate: async ({ conversationId, message }) => {
+      // Cancel refetches to prevent overwriting our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['conversation-messages', conversationId] });
+      await queryClient.cancelQueries({ queryKey: ['conversations', user?.id] });
+
+      // Snapshot previous data
+      const prevMessages = queryClient.getQueryData(['conversation-messages', conversationId]);
+      const prevConversations = queryClient.getQueryData(['conversations', user?.id]);
+
+      // Optimistically add the new message to the message list
+      const optimisticMessage = {
+        id: `temp-${Date.now()}`,
+        conversation_id: conversationId,
+        sender_id: user?.id,
+        content: message,
+        message_text: message,
+        message_type: 'text',
+        created_at: new Date().toISOString(),
+        is_read: true,
+        is_optimistic: true, // Tag for potential UI styling (like grayed out)
+        sender: {
+          id: user?.id,
+          full_name: 'You',
+          avatar_url: undefined
+        }
+      };
+
+      queryClient.setQueryData(['conversation-messages', conversationId], (old: any[] | undefined) => 
+        old ? [...old, optimisticMessage] : [optimisticMessage]
+      );
+
+      // Update the conversation list's last message optimistically
+      queryClient.setQueryData(['conversations', user?.id], (old: any[] | undefined) => {
+        if (!old) return [];
+        return old.map(c => 
+          c.id === conversationId 
+            ? { ...c, last_message: optimisticMessage, last_message_at: optimisticMessage.created_at } 
+            : c
+        ).sort((a, b) => new Date(b.last_message_at || 0).getTime() - new Date(a.last_message_at || 0).getTime());
+      });
+
+      return { prevMessages, prevConversations };
+    },
     mutationFn: async ({ conversationId, message }: { conversationId: string; message: string }) => {
       if (!user?.id) throw new Error('Not authenticated');
 
@@ -406,11 +449,25 @@ export function useSendMessage() {
         .single();
 
       if (error) throw error;
+      
+      // Update basic conversation metadata silently
       await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', conversationId);
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    onError: (err, variables, context) => {
+      // Rollback on error
+      if (context?.prevMessages) {
+        queryClient.setQueryData(['conversation-messages', variables.conversationId], context.prevMessages);
+      }
+      if (context?.prevConversations) {
+        queryClient.setQueryData(['conversations', user?.id], context.prevConversations);
+      }
+      toast.error('Failed to send message. Please try again.');
+    },
+    onSettled: (data, error, variables) => {
+      // Refetch to ensure everything is in sync after the real update
+      queryClient.invalidateQueries({ queryKey: ['conversation-messages', variables.conversationId] });
+      queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['unread-message-count'] });
     }
   });

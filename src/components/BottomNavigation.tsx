@@ -28,6 +28,7 @@ import { prefetchRoute } from '@/utils/routePrefetcher';
 import { useTheme } from '@/hooks/useTheme';
 import { haptics } from '@/utils/microPolish';
 import { useTranslation } from 'react-i18next';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 const ICON_SIZE = 22;
 const ICON_SIZE_COMPACT = 20;
@@ -68,7 +69,7 @@ export function BottomNavigation({
   onListingsClick,
   onAISearchClick,
 }: BottomNavigationProps) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const location = useLocation();
   const { unreadCount } = useUnreadMessageCount();
   const { theme } = useTheme();
