@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
+import { cn } from '@/lib/utils';
 
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
@@ -122,6 +123,38 @@ const LandingView = memo(({
     </motion.div>
   );
 });
+
+const GlowingField = ({ children, className }: { children: React.ReactNode; className?: string }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.005 }}
+      whileTap={{ scale: 0.995 }}
+      className={cn("relative group transition-all duration-300", className)}
+    >
+      <motion.div
+        className="absolute -inset-[1.5px] rounded-[17px] opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 overflow-hidden pointer-events-none"
+        initial={false}
+      >
+        {/* The "Car" energy racing line */}
+        <motion.div
+          className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f97316_50%,#ec4899_70%,transparent_100%)]"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute inset-[1.5px] bg-card rounded-[15.5px]" />
+      </motion.div>
+
+      {/* Outer Neon Glow */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-[18px] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      {children}
+
+      <motion.div
+        className="absolute inset-0 rounded-[16px] pointer-events-none border border-white/5 group-focus-within:border-orange-500/30 transition-all duration-500"
+      />
+    </motion.div>
+  );
+};
 
 /* ─── Auth view ──────────────────────────────────────────── */
 const AuthView = memo(({ onBack }: { onBack: () => void }) => {
@@ -298,26 +331,30 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5">
             <form onSubmit={handleSubmit} className="space-y-3">
               {!isLogin && !isForgotPassword && (
-                <motion.div variants={itemVariants} className="relative group">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                  <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-10 h-11" />
+                <motion.div variants={itemVariants}>
+                  <GlowingField className="relative group">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
+                    <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Full Name" className="pl-10 h-11" />
+                  </GlowingField>
                 </motion.div>
               )}
 
-              <motion.div variants={itemVariants} className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
-                <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-10 h-11" />
+              <motion.div variants={itemVariants}>
+                <GlowingField className="relative group">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
+                  <Input type="email" name="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="Email" className="pl-10 h-11" />
+                </GlowingField>
               </motion.div>
 
               {!isForgotPassword && (
                 <motion.div variants={itemVariants}>
-                  <div className="relative group">
+                  <GlowingField className="relative group">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-400" />
                     <Input type={showPassword ? 'text' : 'password'} name="password" autoComplete={isLogin ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="Password" className="pl-10 pr-10 h-11" />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
-                  </div>
+                  </GlowingField>
                   {!isLogin && password && (
                     <div className="mt-2 flex items-center gap-2">
                       <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
@@ -357,8 +394,23 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
               )}
 
               <motion.div variants={itemVariants}>
-                <Button type="submit" disabled={isLoading} className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500">
-                  {isLoading ? 'Wait...' : isForgotPassword ? 'Reset' : isLogin ? 'Sign In' : 'Sign Up'}
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full h-12 text-sm font-bold text-white bg-gradient-to-r from-orange-500 to-pink-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all relative overflow-hidden group"
+                >
+                  <motion.div
+                    className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"
+                    style={{ skewX: -20 }}
+                  />
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader className="w-4 h-4 animate-spin" />
+                      <span>Authenticating...</span>
+                    </div>
+                  ) : (
+                    isForgotPassword ? 'Send Reset Link' : isLogin ? 'Sign In' : 'Join the Club'
+                  )}
                 </Button>
               </motion.div>
             </form>
