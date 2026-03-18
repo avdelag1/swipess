@@ -28,6 +28,8 @@ import { validateContent } from '@/utils/contactInfoValidation';
 import { useAnonymousDrafts } from '@/hooks/useAnonymousDrafts';
 import { useAuth } from '@/hooks/useAuth';
 import { ListingVideoUpload } from './video/ListingVideoUpload';
+import { ListingSuccessCelebration } from './ListingSuccessCelebration';
+import { Loader2 } from 'lucide-react';
 
 interface EditingListing {
   id?: string;
@@ -61,6 +63,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
   const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [editingId, setEditingId] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // Use refs to track latest values for mutation (avoids closure staleness)
   const imagesRef = useRef(images);
@@ -345,11 +348,12 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
       return listingResult;
     },
     onSuccess: () => {
-      handleClose();
       if (editingId) {
         toast.success(`${selectedCategory} listing updated successfully`);
+        handleClose();
       } else {
-        toast.success(`${selectedCategory} listing created successfully`);
+        setShowCelebration(true);
+        // handleClose() will be called after celebration via onComplete
       }
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -668,32 +672,70 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
           </motion.button>
 
           <div className="flex items-center gap-3">
-            <motion.button
-              whileTap={{ scale: 0.96 }}
-              onClick={handleSubmit}
-              disabled={createListingMutation.isPending}
-              className={cn(
-                "px-10 rounded-2xl h-12 font-bold shadow-xl transition-all flex items-center gap-2 text-white disabled:opacity-50",
-                selectedCategory === 'property' && "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20",
-                selectedCategory === 'motorcycle' && "bg-orange-600 hover:bg-orange-500 shadow-orange-500/20",
-                selectedCategory === 'bicycle' && "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20",
-                selectedCategory === 'worker' && "bg-amber-600 hover:bg-amber-500 shadow-amber-500/20",
+            <motion.div className="relative group">
+              {/* The "Energy Slipstream" Ring - Category Colored */}
+              {!createListingMutation.isPending && (
+                <motion.div
+                  className="absolute -inset-[2px] rounded-[18px] opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden pointer-events-none"
+                  initial={false}
+                >
+                  <motion.div
+                    className={cn(
+                      "absolute inset-[-100%]",
+                      selectedCategory === 'property' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#10b981_50%,#059669_70%,transparent_100%)]",
+                      selectedCategory === 'motorcycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f97316_50%,#ea580c_70%,transparent_100%)]",
+                      selectedCategory === 'bicycle' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#a855f7_50%,#9333ea_70%,transparent_100%)]",
+                      selectedCategory === 'worker' && "bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f59e0b_50%,#d97706_70%,transparent_100%)]"
+                    )}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                  />
+                </motion.div>
               )}
-            >
-              {createListingMutation.isPending ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <span>{editingId ? 'Update Listing' : 'Publish Listing'}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </>
-              )}
-            </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={handleSubmit}
+                disabled={createListingMutation.isPending}
+                className={cn(
+                  "px-10 rounded-2xl h-12 font-black shadow-2xl transition-all flex items-center gap-3 text-white disabled:opacity-50 relative z-10",
+                  selectedCategory === 'property' && "bg-emerald-600 shadow-emerald-500/20",
+                  selectedCategory === 'motorcycle' && "bg-orange-600 shadow-orange-500/20",
+                  selectedCategory === 'bicycle' && "bg-purple-600 shadow-purple-500/20",
+                  selectedCategory === 'worker' && "bg-amber-600 shadow-amber-500/20"
+                )}
+              >
+                {createListingMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Materializing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="tracking-tight">{editingId ? 'Update Listing' : 'Publish Listing'}</span>
+                    <ChevronRight className={cn(
+                      "w-4 h-4 transition-transform group-hover:translate-x-1",
+                      selectedCategory === 'property' && "text-emerald-100",
+                      selectedCategory === 'motorcycle' && "text-orange-100",
+                      selectedCategory === 'bicycle' && "text-purple-100",
+                      selectedCategory === 'worker' && "text-amber-100"
+                    )} />
+                  </>
+                )}
+              </motion.button>
+            </motion.div>
           </div>
         </div>
+
+        <ListingSuccessCelebration 
+          isOpen={showCelebration}
+          category={selectedCategory}
+          onComplete={() => {
+            setShowCelebration(false);
+            handleClose();
+          }}
+        />
       </DialogContent>
     </Dialog>
   );
