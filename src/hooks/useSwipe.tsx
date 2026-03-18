@@ -47,6 +47,9 @@ export function useSwipe() {
       if (context?.prevProfiles !== undefined) {
         queryClient.setQueryData(['client-profiles'], context.prevProfiles);
       }
+      // Show error toast
+      logger.error('[useSwipe] Error:', _err);
+      toast.error((_err as any)?.message || 'Could not save. Please try again.');
     },
     mutationFn: async ({ targetId, direction, targetType = 'listing' }: {
       targetId: string;

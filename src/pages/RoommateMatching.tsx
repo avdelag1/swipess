@@ -365,11 +365,13 @@ export default function RoommateMatching() {
 
       {/* ── ACTION BAR ── */}
       {topCard && (
-        <div className="flex justify-center pb-[calc(1rem+var(--safe-bottom,0px)+80px)] z-[60] relative">
+        <div className="absolute left-0 right-0 flex justify-center z-[60]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
           <SwipeActionButtonBar
             onLike={handleLike}
             onDislike={handleDislike}
             onUndo={handleUndo}
+            onShare={() => { triggerHaptic('light'); }}
+            onMessage={() => { triggerHaptic('light'); }}
             canUndo={canUndo}
           />
         </div>
