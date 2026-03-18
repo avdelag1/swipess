@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPriceMXN } from '@/utils/subscriptionPricing';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
@@ -76,6 +76,8 @@ function TopBarComponent({
   const navigate = useNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
+
   const location = useLocation();
   const { isVisible } = useScrollDirection({ 
     threshold: 25, 
@@ -142,13 +144,16 @@ function TopBarComponent({
 
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');
-      toast(t('topbar.redirectingPaypal'), {
+      toast({
+        title: t('topbar.redirectingPaypal'),
         description: t('topbar.processingPackage', { tier, price: formatPriceMXN(pkg.price) }),
       });
       setTokensOpen(false);
     } else {
-      toast.error(t('topbar.paymentUnavailable'), {
+      toast({
+        title: t('topbar.paymentUnavailable'),
         description: t('topbar.contactSupport'),
+        variant: "destructive",
       });
     }
   };
@@ -172,10 +177,11 @@ function TopBarComponent({
         {/* Normal header background - Hardware accelerated transitions */}
         <div 
           className={cn(
-            "absolute inset-0 transition-all duration-300 ease-out -z-10 will-change-transform",
+            "absolute inset-0 transition-all duration-500 ease-in-out -z-10",
             isDark ? "bg-black" : "bg-white",
             transparent ? "opacity-0" : "opacity-100"
           )} 
+          style={{ transform: 'translateZ(0)' }}
         />
 
         <div className="max-w-[1400px] mx-auto w-full flex items-center justify-between relative z-10 px-2">

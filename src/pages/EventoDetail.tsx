@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight, Zap, Info, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 
@@ -33,6 +33,7 @@ export default function EventoDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
   const { t } = useTranslation();
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,17 +75,17 @@ export default function EventoDetail() {
   const toggleFavorite = async () => {
     triggerHaptic('medium');
     if (!user) {
-      toast.error(t('eventos.signInToSave'));
+      toast({ title: t('eventos.signInToSave'), variant: 'destructive' });
       return;
     }
     if (isFavorited) {
       await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', id!);
       setIsFavorited(false);
-      toast(t('eventos.removedFavorite'));
+      toast({ title: t('eventos.removedFavorite') });
     } else {
       await supabase.from('event_favorites').insert({ user_id: user.id, event_id: id! });
       setIsFavorited(true);
-      toast(t('eventos.savedFavorite'));
+      toast({ title: t('eventos.savedFavorite') });
     }
   };
 
@@ -98,7 +99,7 @@ export default function EventoDetail() {
       }).catch(() => {});
     } else {
       await navigator.clipboard.writeText(window.location.href);
-      toast(t('eventos.linkCopied'));
+      toast({ title: t('eventos.linkCopied') });
     }
   };
 

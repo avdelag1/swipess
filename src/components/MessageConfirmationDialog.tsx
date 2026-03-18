@@ -5,7 +5,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { MessageCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
-import { triggerHaptic } from '@/utils/haptics';
 
 interface MessageConfirmationDialogProps {
   open: boolean;
@@ -35,7 +34,6 @@ export function MessageConfirmationDialog({
     }
 
     logger.info('[MessageConfirmationDialog] User confirmed message send');
-    triggerHaptic('success');
     onConfirm(message);
   };
 

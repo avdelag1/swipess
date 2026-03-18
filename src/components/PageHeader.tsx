@@ -57,7 +57,7 @@ export function PageHeader({
               boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
             }}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
             Back
           </motion.button>
         )}

@@ -2,7 +2,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Sparkles, Zap, Clock, Shield, Check, Crown, Star, X } from "lucide-react";
-import { toast } from 'sonner';
+import { useToast } from "@/hooks/use-toast";
 import { formatPriceMXN } from "@/utils/subscriptionPricing";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,7 @@ export function MessageActivationPackages({
   showAsPage = false,
   userRole
 }: MessageActivationPackagesProps) {
+  const { toast } = useToast();
   const { user } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -140,7 +141,8 @@ export function MessageActivationPackages({
 
     if (pkg.paypalUrl) {
       window.open(pkg.paypalUrl, '_blank');
-      toast('Redirecting to PayPal', {
+      toast({
+        title: "Redirecting to PayPal",
         description: `Processing ${pkg.name} package (${formatPriceMXN(pkg.price)})`,
       });
 
@@ -154,8 +156,10 @@ export function MessageActivationPackages({
         }]).then(() => { }, () => { });
       }
     } else {
-      toast.error("Payment link unavailable", {
+      toast({
+        title: "Payment link unavailable",
         description: "Please contact support to complete this purchase.",
+        variant: "destructive",
       });
     }
   };

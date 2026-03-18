@@ -14,7 +14,12 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Check, MapPin, Search } from 'lucide-react';
-import { useWorldLocations } from '@/hooks/useWorldLocations';
+import {
+  getRegions,
+  getCountriesInRegion,
+  getCitiesInCountry,
+  getCityByName,
+} from '@/data/worldLocations';
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
 
@@ -83,8 +88,6 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
   // Client intentions - what they're looking for
   const [intentions, setIntentions] = useState<string[]>([]);
-
-  const { getRegions, getCountriesInRegion, getCitiesInCountry, getCityByName } = useWorldLocations();
 
   // Get all unique countries across all regions
   const allCountries = (() => {

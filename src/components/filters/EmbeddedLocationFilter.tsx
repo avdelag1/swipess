@@ -6,7 +6,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { ChevronDown, MapPin, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useWorldLocations } from '@/hooks/useWorldLocations';
+import {
+  getRegions,
+  getCountriesInRegion,
+  getCitiesInCountry,
+} from '@/data/worldLocations';
 
 export interface LocationFilterValues {
   country?: string;
@@ -57,10 +61,8 @@ export function EmbeddedLocationFilter({
   const [citySearch, setCitySearch] = useState('');
   const [neighborhoodSearch, setNeighborhoodSearch] = useState('');
 
-  const { getRegions, getCountriesInRegion, getCitiesInCountry } = useWorldLocations();
-
   // Get all available data
-  const regions = useMemo(() => getRegions(), [getRegions]);
+  const regions = useMemo(() => getRegions(), []);
 
   // Get all countries across all regions for direct country selection
   const allCountriesWithRegion = useMemo(() => {
@@ -72,14 +74,14 @@ export function EmbeddedLocationFilter({
       }
     }
     return result.sort((a, b) => a.country.localeCompare(b.country));
-  }, [regions, getCountriesInRegion]);
+  }, [regions]);
   const availableCountries = useMemo(() =>
     selectedRegion ? getCountriesInRegion(selectedRegion) : [],
-    [selectedRegion, getCountriesInRegion]
+    [selectedRegion]
   );
   const availableCities = useMemo(() =>
     selectedRegion && country ? getCitiesInCountry(selectedRegion, country) : [],
-    [selectedRegion, country, getCitiesInCountry]
+    [selectedRegion, country]
   );
 
   // Get selected city data for neighborhoods
