@@ -688,7 +688,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               ) : (
                 <>
                   <span>{editingId ? 'Update Listing' : 'Publish Listing'}</span>
-                  <ChevronRight className="w-5 h-5" />
+                  <ChevronRight className="w-4 h-4" />
                 </>
               )}
             </motion.button>

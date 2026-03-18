@@ -1539,7 +1539,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
         {/* Action buttons INSIDE card area - Tinder style overlay */}
         {topCard && !insightsModalOpen && (
-          <div className="absolute left-0 right-0 flex justify-center z-[1100]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 148px)' }}>
+          <div className="absolute left-0 right-0 flex justify-center z-[1100]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
             <SwipeActionButtonBar
               onLike={handleButtonLike}
               onDislike={handleButtonDislike}
