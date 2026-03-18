@@ -44,6 +44,9 @@ const routeImports: Record<string, RouteImport> = {
   '/explore/prices': () => import('@/pages/PriceTracker'),
   '/explore/intel': () => import('@/pages/LocalIntel'),
   '/explore/tours': () => import('@/pages/VideoTours'),
+  // Filter routes
+  '/client/filters': () => import('@/pages/ClientFilters'),
+  '/owner/filters': () => import('@/pages/OwnerFilters'),
 };
 
 // Cache for prefetched routes
@@ -95,7 +98,7 @@ function prefetchRoutesSequentially(routes: string[]): void {
     prefetchRoute(route).finally(() => {
       // Schedule next prefetch only after current one completes
       if (index < routes.length) {
-        scheduleIdle(prefetchNext, 3000);
+        scheduleIdle(prefetchNext, 500);
       }
     });
   };
@@ -111,38 +114,38 @@ function prefetchRoutesSequentially(routes: string[]): void {
  * Only prefetch 1-2 critical routes, use long idle delays
  */
 export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
-  // Wait for complete idle before even starting - never compete with first paint
-  scheduleIdle(() => {
-    if (role === 'client') {
-      // Critical path first
-      prefetchRoute('/messages');
-      prefetchRoute('/client/profile');
-      
-      // Secondary routes - much later, one at a time
-      scheduleIdle(() => {
-        prefetchRoutesSequentially([
-          '/client/liked-properties',
-          '/notifications',
-          '/explore/eventos',
-          '/explore/roommates',
-        ]);
-      }, 3000);
-    } else {
-      // Critical path first
-      prefetchRoute('/messages');
-      prefetchRoute('/owner/profile');
-      
-      // Secondary routes - much later, one at a time
-      scheduleIdle(() => {
-        prefetchRoutesSequentially([
-          '/owner/properties',
-          '/notifications',
-          '/owner/liked-clients',
-          '/explore/eventos',
-        ]);
-      }, 3000);
-    }
-  }, 1000); // Reduced delay for faster PWA feel
+  // SPEED: Prefetch nav-bar routes immediately (no idle wait) — these are the most tapped
+  if (role === 'client') {
+    prefetchRoute('/client/profile');
+    prefetchRoute('/client/liked-properties');
+    prefetchRoute('/messages');
+    
+    // Secondary routes — idle-scheduled
+    scheduleIdle(() => {
+      prefetchRoutesSequentially([
+        '/notifications',
+        '/client/filters',
+        '/explore/eventos',
+        '/explore/roommates',
+        '/client/settings',
+      ]);
+    }, 1500);
+  } else {
+    prefetchRoute('/owner/profile');
+    prefetchRoute('/owner/properties');
+    prefetchRoute('/messages');
+    
+    // Secondary routes — idle-scheduled
+    scheduleIdle(() => {
+      prefetchRoutesSequentially([
+        '/owner/liked-clients',
+        '/notifications',
+        '/owner/clients/property',
+        '/explore/eventos',
+        '/owner/settings',
+      ]);
+    }, 1500);
+  }
 }
 
 /**

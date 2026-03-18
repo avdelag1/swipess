@@ -165,11 +165,6 @@ const ActionButton = memo(({
       style={{
         width: btnSizeCss,
         height: btnSizeCss,
-        // Light colored tint background — visible on both light and dark card backgrounds
-        backgroundColor: cfg.circleBg,
-        border: `1.5px solid ${cfg.circleBorder}`,
-        borderRadius: '50%',
-        boxShadow: `0 4px 15px rgba(0,0,0,0.4)`,
         transform: 'translateZ(0)',
         opacity: disabled ? 0.35 : 1,
         cursor: disabled ? 'not-allowed' : 'pointer',

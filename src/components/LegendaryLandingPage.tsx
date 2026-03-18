@@ -131,6 +131,15 @@ const GlowingField = ({ children, className }: { children: React.ReactNode; clas
       whileTap={{ scale: 0.995 }}
       className={cn("relative group transition-all duration-300", className)}
     >
+      {/* Ambient resting glow — breathes slowly even without focus */}
+      <motion.div
+        className="absolute -inset-2 rounded-[20px] blur-xl pointer-events-none"
+        style={{ background: 'linear-gradient(135deg, rgba(249,115,22,0.10) 0%, rgba(236,72,153,0.10) 100%)' }}
+        animate={{ opacity: [0.35, 0.75, 0.35] }}
+        transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
+        aria-hidden="true"
+      />
+
       <motion.div
         className="absolute -inset-[1.5px] rounded-[17px] opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 overflow-hidden pointer-events-none"
         initial={false}

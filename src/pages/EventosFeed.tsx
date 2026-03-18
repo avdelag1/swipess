@@ -21,6 +21,7 @@ import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { useTheme } from '@/hooks/useTheme';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
+
 interface EventItem {
   id: string;
   title: string;
@@ -35,7 +36,6 @@ interface EventItem {
   discount_tag: string | null;
   is_free: boolean;
   price_text: string | null;
-  is_promo?: boolean;
 }
 
 type SortOrder = 'upcoming' | 'newest';
@@ -903,6 +903,187 @@ function StoriesView({
           </div>
         )}
       </div>
+
+      {/* ── FILTER SHEET ── */}
+      <AnimatePresence>
+        {showFilters && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilters(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+              className="fixed bottom-0 left-0 right-0 z-[201] bg-zinc-900 border-t border-white/10 rounded-t-[36px] px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] pt-6"
+            >
+              {/* Handle */}
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
+
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-black text-white italic tracking-tight">Filters</h3>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => { setFreeOnly(false); setSortBy('upcoming'); }}
+                    className="text-[11px] font-black text-orange-400 uppercase tracking-widest"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+
+              {/* Free only toggle */}
+              <div className="mb-6">
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Price</p>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { triggerHaptic('light'); setFreeOnly(v => !v); }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all",
+                    freeOnly
+                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
+                      : "bg-white/5 border-white/10 text-white/60"
+                  )}
+                >
+                  <span className="text-[13px] font-bold">Free Events Only</span>
+                  <div className={cn(
+                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
+                    freeOnly ? "bg-emerald-500 border-emerald-500" : "border-white/20"
+                  )}>
+                    {freeOnly && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                  </div>
+                </motion.button>
+              </div>
+
+              {/* Sort order */}
+              <div className="mb-8">
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Sort By</p>
+                <div className="flex gap-3">
+                  {([
+                    { key: 'upcoming', label: 'Upcoming First' },
+                    { key: 'newest', label: 'Newest Added' },
+                  ] as { key: SortOrder; label: string }[]).map(opt => (
+                    <motion.button
+                      key={opt.key}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => { triggerHaptic('light'); setSortBy(opt.key); }}
+                      className={cn(
+                        "flex-1 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all",
+                        sortBy === opt.key
+                          ? "bg-white text-black border-white"
+                          : "bg-white/5 border-white/10 text-white/60"
+                      )}
+                    >
+                      {opt.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowFilters(false)}
+                className="w-full py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[12px] shadow-xl"
+              >
+                {activeFilterCount > 0 ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Done'}
+              </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── LIKED EVENTS SHEET ── */}
+      <AnimatePresence>
+        {showLiked && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLiked(false)}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
+            />
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+              className="fixed bottom-0 left-0 right-0 z-[201] bg-zinc-900 border-t border-white/10 rounded-t-[36px] max-h-[80vh] flex flex-col"
+            >
+              {/* Handle + header */}
+              <div className="flex-shrink-0 px-6 pt-5 pb-4">
+                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Heart className="w-5 h-5 text-rose-500 fill-current" />
+                    <h3 className="text-xl font-black text-white italic">Liked Events</h3>
+                    <div className="w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
+                      <span className="text-[10px] font-black text-rose-400">{likedCount}</span>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowLiked(false)} aria-label="Close liked events" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:scale-90 transition-all shadow-lg active:bg-white/10">
+                    <X className="w-6 h-6 text-white/80" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Liked events list */}
+              <div className="flex-1 overflow-y-auto px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] space-y-3 no-scrollbar">
+                {likedEvents.length === 0 ? (
+                  <div className="py-16 flex flex-col items-center gap-4 text-white/30">
+                    <Heart className="w-12 h-12" />
+                    <p className="text-sm font-medium">No liked events yet</p>
+                  </div>
+                ) : (
+                  likedEvents.map(event => (
+                    <motion.div
+                      key={event.id}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => { setShowLiked(false); navigate(`/explore/eventos/${event.id}`); }}
+                      className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/8 cursor-pointer active:bg-white/10 transition-colors"
+                    >
+                      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+                        <img
+                          src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=200&q=60'}
+                          alt={event.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-[13px] font-black text-white truncate">{event.title}</h4>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <MapPin className="w-3 h-3 text-white/40" />
+                          <span className="text-[11px] text-white/50 truncate">{event.location || 'Tulum'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <Calendar className="w-3 h-3 text-white/40" />
+                          <span className="text-[11px] text-white/50">
+                            {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
+                          </span>
+                          {event.price_text && (
+                            <span className="text-[11px] font-black text-orange-400 ml-auto">{event.price_text}</span>
+                          )}
+                          {event.is_free && (
+                            <span className="text-[11px] font-black text-emerald-400 ml-auto">Free</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-hover:text-white/60 transition-colors">
+                         <ChevronRight className="w-5 h-5" />
+                      </div>
+                    </motion.div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
