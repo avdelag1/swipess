@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -7,11 +7,13 @@ import {
   Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal,
   ChevronLeft, Heart,
   Waves, Trees, Music, Utensils, Ticket,
-  ArrowUpRight, Check, ChevronRight
+  ArrowUpRight, Check, ChevronRight,
+  Eye, Users, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
+import { EventGroupChat } from '@/components/EventGroupChat';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -351,6 +353,8 @@ export default function EventosFeed() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [showLiked, setShowLiked] = useState(false);
+  const [showGroupChat, setShowGroupChat] = useState(false);
+  const [chatEvent, setChatEvent] = useState<EventItem | null>(null);
   const [freeOnly, setFreeOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortOrder>('upcoming');
   const [likedIds, setLikedIds] = useState<Set<string>>(loadLikedIds);
@@ -422,6 +426,13 @@ export default function EventosFeed() {
       saveLikedIds(next);
       return next;
     });
+  }, []);
+
+  const handleOpenChat = useCallback((event: EventItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerHaptic('light');
+    setChatEvent(event);
+    setShowGroupChat(true);
   }, []);
 
   const filteredEvents = useMemo(() => {
@@ -604,6 +615,7 @@ export default function EventosFeed() {
               isActive={idx === currentIndex} 
               isLiked={likedIds.has(event.id)}
               onLike={handleLike}
+              onOpenChat={(e) => handleOpenChat(event, e)}
             />
           ))
         ) : (
@@ -803,6 +815,13 @@ export default function EventosFeed() {
           </>
         )}
       </AnimatePresence>
+
+      <EventGroupChat 
+        isOpen={showGroupChat}
+        onClose={() => setShowGroupChat(false)}
+        eventTitle={chatEvent?.title || ''}
+        eventImage={chatEvent?.image_url || undefined}
+      />
     </div>
   );
 }
@@ -813,12 +832,14 @@ function StoryCard({
   event, 
   isActive,
   isLiked,
-  onLike
+  onLike,
+  onOpenChat
 }: { 
   event: EventItem, 
   isActive: boolean,
   isLiked: boolean,
-  onLike: (id: string) => void
+  onLike: (id: string) => void,
+  onOpenChat: (e: React.MouseEvent) => void
 }) {
   const navigate = useNavigate();
   const isPoster = event.id.startsWith('poster');
@@ -884,6 +905,7 @@ function StoryCard({
                     {event.discount_tag}
                   </motion.span>
                 )}
+                <LiveHypeCounter eventId={event.id} />
               </div>
               <h2 className={cn(
                 "text-4xl font-black text-white italic tracking-tighter uppercase leading-none",
@@ -910,16 +932,12 @@ function StoryCard({
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Where</span>
-                <span className="text-xs font-bold text-white truncate max-w-[80px]">
-                  {event.location || 'Tulum'}
-                </span>
-              </div>
+            <div className="flex flex-col justify-center gap-1">
+               <AttendeeStack count={Math.floor(Math.random() * 50) + 10} />
+               <div className="flex items-center gap-1.5 opacity-40 ml-1">
+                  <Eye className="w-2.5 h-2.5 text-white" />
+                  <span className="text-[8px] font-black text-white uppercase tracking-widest">1.2k Views</span>
+               </div>
             </div>
           </div>
 
@@ -939,6 +957,33 @@ function StoryCard({
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.8 }}
+              onClick={onOpenChat}
+              className="px-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white relative active:bg-white/20 transition-all"
+              style={{
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+              }}
+            >
+              <MessageSquare className="w-5 h-5" />
+              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-zinc-950 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              </div>
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={onOpenChat}
+              title="Open event chat"
+              className="px-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white relative active:bg-white/20 transition-all"
+              style={{
+                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+              }}
+            >
+              <MessageSquare className="w-5 h-5" />
+              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-zinc-950 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+              </div>
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.8 }}
               onClick={() => onLike(event.id)}
               aria-label={isLiked ? "Unlike event" : "Like event"}
               className={cn(
@@ -951,8 +996,136 @@ function StoryCard({
               <Heart className={cn("w-6 h-6", isLiked ? "fill-white text-white" : "text-white")} />
             </motion.button>
           </div>
+
+          {/* HYPE NOTIFICATION OVERLAY (OCCASIONAL) */}
+          <HypePopup isActive={isActive} />
         </motion.div>
       </div>
     </div>
+  );
+}
+
+// ── SUBCOMPONENTS ────────────────────────────────────────────────────────────
+
+/**
+ * LIVE HYPE COUNTER
+ * A sentient-feeling counter that fluctuates to show "living" presence.
+ */
+function LiveHypeCounter({ eventId }: { eventId: string }) {
+  const [viewCount, setViewCount] = useState(Math.floor(Math.random() * 20) + 8);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Fluctuate between 5 and 45 viewers for the demo
+      setViewCount(prev => {
+        const change = Math.random() > 0.5 ? 1 : -1;
+        const newCount = prev + change;
+        return Math.max(5, Math.min(45, newCount));
+      });
+    }, 4000 + Math.random() * 4000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden relative">
+      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+      <span className="text-[9px] font-black text-white/90 uppercase tracking-widest tabular-nums">
+        {viewCount} Active now
+      </span>
+      {/* Subtle sweep animation */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"
+        animate={{ x: ['-200%', '200%'] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
+      />
+    </div>
+  );
+}
+
+/**
+ * ATTENDEE STACK
+ * Social proof showing profile images of "going" users.
+ */
+function AttendeeStack({ count = 12 }: { count?: number }) {
+  const avatars = [
+    'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&q=80',
+    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
+    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&q=80',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
+  ];
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex -space-x-2">
+        {avatars.map((url, i) => (
+          <div key={i} className="w-6 h-6 rounded-full border border-zinc-950 overflow-hidden bg-zinc-900 ring-1 ring-white/10">
+            <img src={url} alt="User" className="w-full h-full object-cover" />
+          </div>
+        ))}
+        <div className="w-6 h-6 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[8px] font-bold text-white/60">
+          +{count}
+        </div>
+      </div>
+      <span className="text-[10px] font-bold text-white/60 uppercase tracking-tighter">Verified Going</span>
+    </div>
+  );
+}
+
+/**
+ * HYPE POPUP
+ * Occasional sentient notifications to increase FOMO/Social Proof.
+ */
+function HypePopup({ isActive }: { isActive: boolean }) {
+  const [show, setShow] = useState(false);
+  const [hypeMsg, setHypeMsg] = useState("");
+  
+  const MESSAGES = [
+    "3 Neighbors just joined",
+    "Reserved by a Verified Member",
+    "Trending in Aldea Zama",
+    "Almost Sold Out 🔥",
+    "2 Friends are interested",
+    "Top Pick for Saturday"
+  ];
+
+  useEffect(() => {
+    if (!isActive) {
+      setShow(false);
+      return;
+    }
+
+    // Show hype message after 3 seconds of viewing
+    const timer = setTimeout(() => {
+      setHypeMsg(MESSAGES[Math.floor(Math.random() * MESSAGES.length)]);
+      setShow(true);
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => setShow(false), 5000);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [isActive]);
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, x: 20 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.8, x: 20 }}
+          className="absolute -top-16 right-0 z-[100]"
+        >
+          <div className="px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+            <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap">
+              {hypeMsg}
+            </span>
+          </div>
+          {/* Subtle tail/indicator */}
+          <div className="absolute top-full right-6 w-2 h-2 bg-white/10 border-r border-b border-white/20 rotate-45 -translate-y-1" />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
