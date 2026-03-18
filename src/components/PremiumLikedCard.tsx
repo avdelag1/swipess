@@ -60,9 +60,11 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
 
                 <button
                     onClick={() => onAction('remove', data)}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/5 text-white/60 hover:text-rose-500 transition-colors active:scale-95"
+                    aria-label="Remove from favorites"
+                    title="Remove from favorites"
+                    className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white/60 hover:text-rose-500 transition-all active:scale-95 shadow-lg group/trash"
                 >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-5 h-5 transition-transform group-hover/trash:scale-110" />
                 </button>
 
                 {/* Bottom Info on Image */}

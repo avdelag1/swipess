@@ -1,8 +1,9 @@
 import { memo, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useAppNavigate } from "@/hooks/useAppNavigate";
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Bell, Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
+import { Bell, Zap, MessageCircle, Crown, FileText, ArrowLeft, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -52,6 +53,7 @@ const tierConfig = {
 interface TopBarProps {
   onNotificationsClick?: () => void;
   onMessageActivationsClick?: () => void;
+  onAISearchClick?: () => void;
   className?: string;
   showFilters?: boolean;
   userRole?: 'client' | 'owner' | 'admin';
@@ -64,6 +66,7 @@ interface TopBarProps {
 function TopBarComponent({
   onNotificationsClick,
   onMessageActivationsClick,
+  onAISearchClick,
   className,
   showFilters,
   userRole,
@@ -73,7 +76,7 @@ function TopBarComponent({
   showBack = false,
 }: TopBarProps) {
   const { unreadCount: notificationCount } = useUnreadNotifications();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -191,7 +194,12 @@ function TopBarComponent({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onPointerDown={handleBack}
-                className="flex-shrink-0 w-8 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation"
+                className="flex-shrink-0 w-9 h-9 flex items-center justify-center z-50 pointer-events-auto touch-manipulation rounded-xl"
+                style={{
+                  backgroundColor: glassBg,
+                  border: glassBorder,
+                  boxShadow: floatingShadow,
+                }}
                 aria-label="Go back"
               >
                 <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white/90" : "text-foreground/80")} strokeWidth={2.5} />
@@ -269,7 +277,30 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button - Moved to BottomNavigation */}
+            {/* AI Search Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
+                "hover:scale-105 active:scale-95 group",
+                "flex-shrink-0 flex items-center justify-center",
+                "touch-manipulation",
+              )}
+              style={{
+                backgroundColor: glassBg,
+                border: glassBorder,
+                boxShadow: floatingShadow,
+              }}
+              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onAISearchClick?.(); }}
+              onClick={(e) => e.preventDefault()}
+              aria-label="AI Search"
+            >
+              <Sparkles className={cn(
+                "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
+                isDark ? "text-orange-300" : "text-orange-500"
+              )} />
+            </Button>
 
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>

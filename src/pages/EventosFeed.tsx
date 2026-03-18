@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 interface EventItem {
@@ -1012,8 +1014,8 @@ export default function EventosFeed() {
                       <span className="text-[10px] font-black text-rose-400">{likedCount}</span>
                     </div>
                   </div>
-                  <button onClick={() => setShowLiked(false)} aria-label="Close liked events" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:bg-white/10 transition-colors">
-                    <X className="w-5 h-5 text-white/80" />
+                  <button onClick={() => setShowLiked(false)} aria-label="Close liked events" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:scale-90 transition-all shadow-lg active:bg-white/10">
+                    <X className="w-6 h-6 text-white/80" />
                   </button>
                 </div>
               </div>
@@ -1075,18 +1077,9 @@ export default function EventosFeed() {
           </>
         )}
       </AnimatePresence>
-
-      <EventGroupChat 
-        isOpen={showGroupChat}
-        onClose={() => setShowGroupChat(false)}
-        eventTitle={chatEvent?.title || ''}
-        eventImage={chatEvent?.image_url || undefined}
-      />
     </div>
   );
 }
-
-// ── STORY CARD ────────────────────────────────────────────────────────────────
 
 function StoryCard({ 
   event, 
@@ -1101,36 +1094,107 @@ function StoryCard({
   onLike: (id: string) => void,
   onOpenChat: (e: React.MouseEvent) => void
 }) {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
+  const queryClient = useQueryClient();
   const isPoster = event.id.startsWith('poster');
+  const isPromo = event.is_promo;
+
+  const prefetchEvent = () => {
+    if (!isPromo) {
+      queryClient.prefetchQuery({
+        queryKey: ['evento', event.id],
+        queryFn: async () => {
+          const { data, error } = await supabase
+            .from('events')
+            .select('*')
+            .eq('id', event.id)
+            .single();
+          if (error) throw error;
+          return data;
+        },
+        staleTime: 1000 * 60 * 5,
+      });
+    }
+  };
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    triggerHaptic('medium');
+    if (isPromo) {
+      // Direct to WhatsApp for advertising
+      const phone = '529841234567'; // Promotional contact
+      const msg = encodeURIComponent("Hey Swipess! I want to promote my event/brand in the app. Give me more info! 🔥");
+      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+      return;
+    }
     navigate(`/explore/eventos/${event.id}`);
   };
 
   return (
-    <div className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-zinc-950">
-      {/* Background Image */}
+    <div 
+      className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-zinc-950"
+      onMouseEnter={prefetchEvent}
+    >
+      {/* Background Image / Promo Flyer Design */}
       <motion.div 
         className="absolute inset-0"
         animate={isActive ? { scale: 1 } : { scale: 1.1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
       >
-        <img
-          src={event.image_url || 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90'}
-          className={cn(
-            "w-full h-full object-cover transform-gpu",
-            isPoster && "brightness-110 contrast-110"
-          )}
-          alt={event.title}
-        />
+        {isPromo ? (
+           <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center p-12 text-center relative overflow-hidden">
+              {/* Luxury Geometric Pattern */}
+              <div className="absolute inset-0 opacity-10 pointer-events-none">
+                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                       <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+                 </svg>
+              </div>
+              
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-indigo-500/10 blur-[150px] rounded-full animate-pulse" />
+              
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={isActive ? { opacity: 1, scale: 1 } : {}}
+                className="relative z-10"
+              >
+                  <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl mb-8 mx-auto shadow-indigo-500/40">
+                     <Sparkles className="w-12 h-12 text-white" />
+                  </div>
+                  
+                  <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-[0.85] mb-6">
+                    Swipess <br/> Brand <br/> Direct
+                  </h2>
+                  
+                  <p className="text-white/40 font-medium text-xs max-w-xs mx-auto leading-relaxed mb-10 tracking-widest uppercase italic">
+                    The Exclusive Channel for <span className="text-indigo-400">Elite Riviera Brands</span>
+                  </p>
+
+                  <div className="px-8 py-3.5 rounded-full bg-white text-slate-950 text-xs font-black tracking-[0.3em] uppercase">
+                    Connect Now
+                  </div>
+              </motion.div>
+           </div>
+        ) : (
+          <img
+            src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=80'}
+            alt={event.title}
+            className={cn(
+              "w-full h-full object-cover transform-gpu",
+              isPoster && "brightness-110 contrast-110"
+            )}
+          />
+        )}
+        
         {/* Overlays */}
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
         
-        {/* Poster special effect: subtle floating particles or lens flare would go here */}
-        {isPoster && (
+        {isPoster && !isPromo && (
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-orange-500/5 mix-blend-overlay pointer-events-none" />
         )}
       </motion.div>
@@ -1146,8 +1210,11 @@ function StoryCard({
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-black text-white uppercase tracking-widest">
-                  {event.category}
+                <span className={cn(
+                  "px-3 py-1 rounded-full backdrop-blur-md border text-[10px] font-black uppercase tracking-widest",
+                  isPromo ? "bg-indigo-500/20 text-indigo-300 border-indigo-400/30" : "bg-white/10 text-white/60 border-white/20"
+                )}>
+                  {isPromo ? 'ADVERTISING' : event.category}
                 </span>
                 {event.discount_tag && (
                   <motion.span 
@@ -1157,7 +1224,7 @@ function StoryCard({
                     transition={{ duration: 2, repeat: Infinity }}
                     className={cn(
                       "px-3 py-1 rounded-full backdrop-blur-md border text-[10px] font-black uppercase tracking-widest",
-                      isPoster 
+                      isPoster && !isPromo 
                         ? "bg-primary text-white border-primary" 
                         : "bg-primary/20 border-primary/30 text-primary"
                     )}
@@ -1165,11 +1232,12 @@ function StoryCard({
                     {event.discount_tag}
                   </motion.span>
                 )}
-                <LiveHypeCounter eventId={event.id} />
+                {!isPromo && <LiveHypeCounter eventId={event.id} />}
               </div>
               <h2 className={cn(
                 "text-4xl font-black text-white italic tracking-tighter uppercase leading-none",
-                isPoster && "text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60"
+                isPoster && "text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60",
+                isPromo && "text-indigo-50"
               )}>
                 {event.title}
               </h2>
@@ -1180,84 +1248,77 @@ function StoryCard({
             {event.description}
           </p>
 
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-              <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
-                <Calendar className="w-4 h-4 text-white" />
+          {!isPromo && (
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">When</span>
+                  <span className="text-xs font-bold text-white">
+                    {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Coming Soon'}
+                  </span>
+                </div>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">When</span>
-                <span className="text-xs font-bold text-white">
-                  {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Coming Soon'}
-                </span>
+              <div className="flex flex-col justify-center gap-1">
+                 <AttendeeStack count={Math.floor(Math.random() * 50) + 10} />
+                 <div className="flex items-center gap-1.5 opacity-40 ml-1">
+                    <Eye className="w-2.5 h-2.5 text-white" />
+                    <span className="text-[8px] font-black text-white uppercase tracking-widest">1.2k Views</span>
+                 </div>
               </div>
             </div>
-            <div className="flex flex-col justify-center gap-1">
-               <AttendeeStack count={Math.floor(Math.random() * 50) + 10} />
-               <div className="flex items-center gap-1.5 opacity-40 ml-1">
-                  <Eye className="w-2.5 h-2.5 text-white" />
-                  <span className="text-[8px] font-black text-white uppercase tracking-widest">1.2k Views</span>
-               </div>
-            </div>
-          </div>
+          )}
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 pt-4">
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleDetailsClick}
               className={cn(
-                "flex-[3] py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2 transition-all",
-                isPoster 
-                  ? "bg-gradient-to-r from-rose-600 to-orange-600 text-white" 
-                  : "bg-white text-black"
+                "flex-[4] py-4 rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2 transition-all active:scale-95",
+                isPromo 
+                  ? "bg-indigo-600 text-white shadow-indigo-600/30"
+                  : (isPoster ? "bg-gradient-to-r from-rose-600 to-orange-600 text-white" : "bg-white text-black")
               )}
             >
-              {isPoster ? 'Join Exclusive' : 'Get Tickets'} {event.price_text && `• ${event.price_text}`}
-              <ArrowUpRight className="w-4 h-4" />
+              {isPromo ? 'Contact Partnerships' : (isPoster ? 'Join Exclusive' : 'Get Tickets')} {!isPromo && event.price_text && `• ${event.price_text}`}
+              <ArrowUpRight className="w-5 h-5 flex-shrink-0" />
             </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={onOpenChat}
-              className="px-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white relative active:bg-white/20 transition-all"
-              style={{
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-              }}
-            >
-              <MessageSquare className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-zinc-950 flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              </div>
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={onOpenChat}
-              title="Open event chat"
-              className="px-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white relative active:bg-white/20 transition-all"
-              style={{
-                boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-              }}
-            >
-              <MessageSquare className="w-5 h-5" />
-              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-zinc-950 flex items-center justify-center">
-                <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              </div>
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={() => onLike(event.id)}
-              aria-label={isLiked ? "Unlike event" : "Like event"}
-              className={cn(
-                "flex-1 rounded-2xl backdrop-blur-md border flex items-center justify-center transition-all",
-                isLiked 
-                  ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" 
-                  : "bg-white/10 border-white/20"
-              )}
-            >
-              <Heart className={cn("w-6 h-6", isLiked ? "fill-white text-white" : "text-white")} />
-            </motion.button>
+            
+            {!isPromo && (
+              <>
+                <motion.button
+                  whileTap={{ scale: 0.8 }}
+                  onClick={(e) => { triggerHaptic('light'); onOpenChat(e); }}
+                  title="Open event chat"
+                  className="flex-1 rounded-[1.25rem] bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white relative active:bg-white/20 transition-all h-auto"
+                  style={{
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                  }}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  <div className="absolute top-3 right-3 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-zinc-950 flex items-center justify-center shadow-lg">
+                    <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  </div>
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.8 }}
+                  onClick={() => { triggerHaptic('medium'); onLike(event.id); }}
+                  aria-label={isLiked ? "Unlike event" : "Like event"}
+                  className={cn(
+                    "flex-1 rounded-[1.25rem] backdrop-blur-md border flex items-center justify-center transition-all h-auto",
+                    isLiked 
+                      ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" 
+                      : "bg-white/10 border-white/20"
+                  )}
+                >
+                  <Heart className={cn("w-5 h-5 transition-transform", isLiked ? "fill-white text-white scale-110" : "text-white")} />
+                </motion.button>
+              </>
+            )}
           </div>
 
-          {/* HYPE NOTIFICATION OVERLAY (OCCASIONAL) */}
           <HypePopup isActive={isActive} />
         </motion.div>
       </div>

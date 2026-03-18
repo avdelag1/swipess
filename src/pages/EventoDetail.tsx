@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight, Zap, Info, ShieldCheck, Star, Users } from 'lucide-react';
+import { Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight, Zap, Info, ShieldCheck, Star, Users, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 interface EventDetail {
   id: string;
@@ -29,70 +31,150 @@ interface EventDetail {
   price_text: string | null;
 }
 
+/**
+ * BRAND ADVERTISING COMPONENT
+ * Shows benefits for brands to advertise in Swipess.
+ */
+function BrandBenefitsSection() {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="p-8 rounded-[3rem] bg-indigo-600 dark:bg-indigo-600/30 text-white relative overflow-hidden group shadow-2xl shadow-indigo-500/20 my-10"
+    >
+       {/* Background Decoration */}
+       <div className="absolute -top-24 -right-24 w-64 h-64 bg-indigo-400 blur-[80px] opacity-30 group-hover:opacity-50 transition-opacity" />
+       <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500 blur-[80px] opacity-20 group-hover:opacity-40 transition-opacity" />
+       
+       <div className="relative z-10 space-y-7">
+          <div className="inline-flex p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20">
+             <Sparkles className="w-6 h-6 text-white" />
+          </div>
+          
+          <div className="space-y-3">
+             <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-[0.85]">Elevate Your <br/> Brand <br/> Presence</h3>
+             <p className="text-sm font-medium text-white/70 italic tracking-tight leading-relaxed max-w-[85%]">Promote your business to the most elite, high-intent audience in the Riviera Maya.</p>
+          </div>
+          
+          <div className="space-y-4 pt-2">
+             <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
+                   <Zap className="w-4 h-4 text-indigo-200" />
+                </div>
+                <div className="flex flex-col">
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Direct WA Connection</span>
+                   <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">Instant lead generation</span>
+                </div>
+             </div>
+             <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center border border-white/10">
+                   <Users className="w-4 h-4 text-indigo-200" />
+                </div>
+                <div className="flex flex-col">
+                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Elite Targeted Traffic</span>
+                   <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mt-0.5">15k+ Monthly active neighbors</span>
+                </div>
+             </div>
+          </div>
+          
+          <div className="pt-4">
+             <motion.button
+                whileTap={{ scale: 0.95 }}
+                className="w-full py-4.5 h-14 rounded-2xl bg-white text-indigo-600 text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"
+                onClick={() => {
+                   triggerHaptic('medium');
+                   const phone = '529841234567';
+                   const msg = encodeURIComponent("Hey Swipess! I want to promote my brand. What are the options? 🔥");
+                   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                }}
+             >
+                Contact Partnerships <ArrowUpRight className="w-4 h-4" />
+             </motion.button>
+          </div>
+       </div>
+    </motion.div>
+  );
+}
+
 export default function EventoDetail() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useTranslation();
-  const [event, setEvent] = useState<EventDetail | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFavorited, setIsFavorited] = useState(false);
+  const queryClient = useQueryClient();
+
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [userRating, setUserRating] = useState<number>(0);
-  const [showRatings, setShowRatings] = useState(false);
 
-  useEffect(() => {
-    if (!id) return;
-    fetchEvent();
-    if (user) {
-      checkFavorite();
-      // Mocked user rating
-      setUserRating(Math.floor(Math.random() * 5));
-    }
-  }, [id, user]);
-
-  const fetchEvent = async () => {
-    try {
-      const { data } = await supabase
+  // 🚀 SPEED OF LIGHT: Unified Event Data Query
+  const { data: event, isLoading } = useQuery({
+    queryKey: ['evento', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
         .from('events')
         .select('*')
         .eq('id', id!)
         .single();
-      setEvent(data as any);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
+      if (error) throw error;
+      return data as EventDetail;
+    },
+    enabled: !!id,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // 🚀 SPEED OF LIGHT: Favorite Status Query
+  const { data: isFavorited = false } = useQuery({
+    queryKey: ['event-is-favorited', id, user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from('event_favorites')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('event_id', id!)
+        .maybeSingle();
+      return !!data;
+    },
+    enabled: !!id && !!user,
+  });
+
+  // 🚀 SPEED OF LIGHT: Optimistic Favorite Mutation
+  const toggleFavoriteMutation = useMutation({
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['event-is-favorited', id, user?.id] });
+      const previousStatus = queryClient.getQueryData(['event-is-favorited', id, user?.id]);
+      
+      queryClient.setQueryData(['event-is-favorited', id, user?.id], !previousStatus);
+      triggerHaptic('medium');
+      
+      return { previousStatus };
+    },
+    mutationFn: async () => {
+      if (!user) throw new Error('Sign in required');
+      if (isFavorited) {
+        return supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', id!);
+      } else {
+        return supabase.from('event_favorites').insert({ user_id: user.id, event_id: id! });
+      }
+    },
+    onError: (err, vars, context) => {
+      queryClient.setQueryData(['event-is-favorited', id, user?.id], context?.previousStatus);
+      toast({ title: t('eventos.error'), variant: 'destructive' });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['event-is-favorited', id, user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['event-favorites', user?.id] });
     }
-  };
+  });
 
-  const checkFavorite = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from('event_favorites')
-      .select('id')
-      .eq('user_id', user.id)
-      .eq('event_id', id!)
-      .maybeSingle();
-    setIsFavorited(!!data);
-  };
-
-  const toggleFavorite = async () => {
-    triggerHaptic('medium');
+  const toggleFavorite = () => {
     if (!user) {
       toast({ title: t('eventos.signInToSave'), variant: 'destructive' });
       return;
     }
-    if (isFavorited) {
-      await supabase.from('event_favorites').delete().eq('user_id', user.id).eq('event_id', id!);
-      setIsFavorited(false);
-      toast({ title: t('eventos.removedFavorite') });
-    } else {
-      await supabase.from('event_favorites').insert({ user_id: user.id, event_id: id! });
-      setIsFavorited(true);
-      toast({ title: t('eventos.savedFavorite') });
-    }
+    toggleFavoriteMutation.mutate();
   };
 
   const handleShare = async () => {
@@ -144,7 +226,7 @@ export default function EventoDetail() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 text-center gap-4">
         <Info className="w-12 h-12 text-slate-300" strokeWidth={1} />
         <p className="text-xs font-black uppercase tracking-widest text-slate-400">{t('common.noResults')}</p>
-        <button onClick={() => navigate(-1)} className="text-primary font-black uppercase tracking-widest text-[10px]">Go Back</button>
+        <button onClick={() => navigate('/explore/eventos')} className="text-primary font-black uppercase tracking-widest text-[10px]">Go Back</button>
       </div>
     );
   }
@@ -159,7 +241,7 @@ export default function EventoDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black pb-32">
+    <div className="min-h-screen bg-slate-50 dark:bg-black pb-48">
       {/* ── HERO GALLERY ── */}
       <div className="relative h-[65dvh] overflow-hidden">
         <AnimatePresence mode="wait">
@@ -189,7 +271,7 @@ export default function EventoDetail() {
         <div className="absolute top-[var(--safe-top)] left-4 right-4 flex justify-between items-center z-50 py-4">
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(-1)}
+            onClick={() => navigate('/explore/eventos')}
             aria-label="Go back"
             className="w-11 h-11 rounded-2xl bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
           >
@@ -243,52 +325,53 @@ export default function EventoDetail() {
       </div>
 
       {/* ── CONTENT AREA ── */}
-      <div className="px-6 -mt-4 relative z-30 space-y-8">
+      <div className="px-6 -mt-4 relative z-30 space-y-10">
         
-        <div className="space-y-2">
-          <h1 className="text-4xl font-black text-slate-900 dark:text-white leading-none italic tracking-tighter uppercase">
+        <div className="space-y-4">
+          <h1 className="text-5xl font-black text-slate-900 dark:text-white leading-[0.9] italic tracking-tighter uppercase">
             {event.title}
           </h1>
           {event.promo_text && (
-            <p className="text-primary font-black uppercase text-[10px] tracking-widest flex items-center gap-2">
-               <Sparkles className="w-3 h-3" /> {event.promo_text}
-            </p>
+            <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20">
+               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+               <span className="text-amber-600 dark:text-amber-400 font-black uppercase text-[10px] tracking-widest">{event.promo_text}</span>
+            </div>
           )}
         </div>
 
         {/* Core Info Cards */}
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-4">
           <motion.div 
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="flex items-center gap-4 p-5 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 shadow-xl shadow-black/5 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="flex items-center gap-5 p-6 rounded-[2.5rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 shadow-xl shadow-black/5 backdrop-blur-md"
           >
-            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-500">
-              <Calendar className="w-7 h-7" />
+            <div className="w-16 h-16 rounded-[1.5rem] bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+              <Calendar className="w-8 h-8" />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-widest mb-1">When & Time</p>
-              <h4 className="text-base font-black text-slate-900 dark:text-white italic uppercase leading-none">
+              <p className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.2em] mb-1.5">When & Time</p>
+              <h4 className="text-lg font-black text-slate-900 dark:text-white italic uppercase leading-none">
                 {formatDate(event.event_date)}
               </h4>
-              <p className="text-xs font-bold text-slate-500 dark:text-white/40 mt-1 uppercase">
+              <p className="text-xs font-bold text-slate-500 dark:text-white/40 mt-1.5 uppercase">
                 {formatTime(event.event_date)} {event.event_end_date && ` — ${formatTime(event.event_end_date)}`}
               </p>
             </div>
           </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            className="flex items-center gap-4 p-5 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 shadow-xl shadow-black/5 backdrop-blur-sm"
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+            className="flex items-center gap-5 p-6 rounded-[2.5rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 shadow-xl shadow-black/5 backdrop-blur-md"
           >
-            <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-              <MapPin className="w-7 h-7" />
+            <div className="w-16 h-16 rounded-[1.5rem] bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+              <MapPin className="w-8 h-8" />
             </div>
             <div className="flex-1">
-              <p className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-widest mb-1">The Location</p>
-              <h4 className="text-base font-black text-slate-900 dark:text-white italic uppercase leading-none">
+              <p className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.2em] mb-1.5">The Location</p>
+              <h4 className="text-lg font-black text-slate-900 dark:text-white italic uppercase leading-none">
                 {event.location}
               </h4>
-              <p className="text-xs font-bold text-slate-500 dark:text-white/40 mt-1 uppercase line-clamp-1">
+              <p className="text-xs font-bold text-slate-500 dark:text-white/40 mt-1.5 uppercase line-clamp-1">
                 {event.location_detail || 'Verified Destination'}
               </p>
             </div>
@@ -296,106 +379,110 @@ export default function EventoDetail() {
         </div>
 
         {/* Description Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <h3 className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.3em]">The Experience</h3>
-            <div className="h-px flex-1 bg-slate-100 dark:bg-white/5" />
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <h3 className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.3em] whitespace-nowrap">The Experience</h3>
+            <div className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
           </div>
-          <p className="text-sm font-medium text-slate-600 dark:text-white/60 leading-relaxed italic">
+          <p className="text-lg font-medium text-slate-600 dark:text-white/70 leading-relaxed italic pr-4">
             {event.description || 'Join us for an unforgettable experience in the heart of the Riviera Maya.'}
           </p>
         </div>
 
         {/* ── INSIGHTS SECTION ── */}
-        <div className="space-y-4 pt-4">
-           <div className="flex items-center gap-2">
-              <h3 className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.3em]">Insights & Social</h3>
-              <div className="h-px flex-1 bg-slate-100 dark:bg-white/5" />
+        <div className="space-y-6">
+           <div className="flex items-center gap-4">
+              <h3 className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.3em] whitespace-nowrap">Insights & Community</h3>
+              <div className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
            </div>
            
-           <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-3xl bg-emerald-500/5 border border-emerald-500/10">
-                 <div className="flex items-center justify-between mb-2">
-                    <Users className="w-4 h-4 text-emerald-500" />
-                    <span className="text-[10px] font-black text-emerald-500/50 uppercase">Trending</span>
+           <div className="grid grid-cols-2 gap-4">
+              <div className="p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10 shadow-inner">
+                 <div className="flex items-center justify-between mb-3">
+                    <Users className="w-5 h-5 text-emerald-500" />
+                    <span className="text-[10px] font-black text-emerald-500/50 uppercase tracking-widest">Trending</span>
                  </div>
-                 <p className="text-lg font-black text-slate-900 dark:text-white italic leading-none">84+ GOING</p>
-                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-1 uppercase">Matches Attending</p>
+                 <p className="text-2xl font-black text-slate-900 dark:text-white italic leading-none">84+ GOING</p>
+                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-2 uppercase tracking-wide">Verified Members</p>
               </div>
 
-              <div className="p-4 rounded-3xl bg-indigo-500/5 border border-indigo-500/10">
-                 <div className="flex items-center justify-between mb-2">
-                    <Sparkles className="w-4 h-4 text-indigo-500" />
-                    <span className="text-[10px] font-black text-indigo-500/50 uppercase">Prime Time</span>
+              <div className="p-6 rounded-[2rem] bg-indigo-500/5 border border-indigo-500/10 shadow-inner">
+                 <div className="flex items-center justify-between mb-3">
+                    <Sparkles className="w-5 h-5 text-indigo-500" />
+                    <span className="text-[10px] font-black text-indigo-500/50 uppercase tracking-widest">Premium</span>
                  </div>
-                 <p className="text-lg font-black text-slate-900 dark:text-white italic leading-none">SUNDOWN</p>
-                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-1 uppercase">Best Arrival Time</p>
+                 <p className="text-2xl font-black text-slate-900 dark:text-white italic leading-none">GOLDEN</p>
+                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-2 uppercase tracking-wide">Best Performance</p>
               </div>
            </div>
 
            {/* User's Star Rating */}
-           <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex items-center justify-between">
+           <div className="p-6 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex items-center justify-between shadow-xl shadow-black/5">
               <div>
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Your Personal Rating</p>
-                 <div className="flex gap-1">
+                 <p className="text-[9px] font-black text-slate-400 dark:text-white/40 uppercase tracking-[0.2em] mb-2">Member Rating</p>
+                 <div className="flex gap-1.5">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         onClick={() => { setUserRating(star); triggerHaptic('medium'); }}
                         title={`${star} Stars`}
-                        className="transition-transform active:scale-90"
+                        className="transition-transform active:scale-90 hover:scale-110"
                       >
-                        <Star className={cn("w-5 h-5", star <= userRating ? "fill-amber-400 text-amber-400" : "text-slate-200 dark:text-white/10")} />
+                        <Star className={cn("w-6 h-6 transition-all", star <= userRating ? "fill-amber-400 text-amber-400" : "text-slate-200 dark:text-white/10")} />
                       </button>
                     ))}
                  </div>
               </div>
               <div className="text-right">
-                 <p className="text-[24px] font-black text-slate-900 dark:text-white italic leading-none">{userRating}.0</p>
-                 <p className="text-[9px] font-bold text-amber-500 uppercase">Premium Select</p>
+                 <p className="text-3xl font-black text-slate-900 dark:text-white italic leading-none">{userRating || '4'}.0</p>
+                 <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-1">Prime Choice</p>
               </div>
            </div>
         </div>
 
         {/* Admission / Ticket Info */}
-        <div className="p-6 rounded-[2.5rem] bg-slate-900 dark:bg-white/5 border border-white/5 relative overflow-hidden group">
-           <div className="absolute top-0 right-0 w-32 h-32 bg-primary blur-[60px] opacity-10 group-hover:opacity-20 transition-opacity" />
+        <div className="p-8 rounded-[3rem] bg-slate-900 dark:bg-zinc-900 border border-white/10 relative overflow-hidden group shadow-2xl">
+           <div className="absolute top-0 right-0 w-48 h-48 bg-primary blur-[80px] opacity-20 group-hover:opacity-30 transition-opacity" />
            <div className="relative z-10 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Access Pass</p>
-                <h4 className="text-2xl font-black text-white italic uppercase tracking-tighter">
-                  {event.is_free ? 'FREE ACCESS' : (event.price_text || 'Premium')}
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1.5">Admission Pass</p>
+                <h4 className="text-4xl font-black text-white italic uppercase tracking-tighter leading-none">
+                  {event.is_free ? 'FREE ENTRY' : (event.price_text || 'Premium')}
                 </h4>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mt-3">Verified Booking Required</p>
               </div>
-              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center shadow-inner">
-                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+              <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 flex items-center justify-center shadow-inner border border-white/5">
+                <ShieldCheck className="w-8 h-8 text-emerald-400" />
               </div>
            </div>
         </div>
 
+        {/* ── BRAND BENEFITS (Dynamic Ad Section) ── */}
+        <BrandBenefitsSection />
+
         {/* Organizer info */}
         {event.organizer_name && (
-          <div className="flex items-center justify-between py-6 border-y border-slate-100 dark:border-white/5">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-full border-2 border-primary/20 p-0.5">
-                 <div className="w-full h-full rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
+          <div className="flex items-center justify-between py-10 border-y border-slate-200 dark:border-white/10">
+            <div className="flex items-center gap-5">
+              <div className="w-16 h-16 rounded-full border-2 border-primary/20 p-1 bg-gradient-to-tr from-primary to-purple-500">
+                 <div className="w-full h-full rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden ring-4 ring-white dark:ring-black">
                     {event.organizer_photo_url ? (
                       <img src={event.organizer_photo_url} alt={event.organizer_name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-400">
-                        <User className="w-6 h-6" />
+                        <User className="w-7 h-7" />
                       </div>
                     )}
                  </div>
               </div>
               <div>
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Host Organizers</p>
-                <h5 className="text-sm font-black text-slate-900 dark:text-white uppercase italic tracking-tight">{event.organizer_name}</h5>
+                <p className="text-[9px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.2em] mb-1">Elite Organizer</p>
+                <h5 className="text-lg font-black text-slate-900 dark:text-white uppercase italic tracking-tighter">{event.organizer_name}</h5>
               </div>
             </div>
             
-            <div className="px-4 py-2 rounded-xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 shadow-sm">
-                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Verified Host</span>
+            <div className="px-5 py-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 shadow-xl shadow-black/5">
+                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Verified Host</span>
             </div>
           </div>
         )}
@@ -403,17 +490,18 @@ export default function EventoDetail() {
       </div>
 
       {/* ── STICKY FOOTER CTA ── */}
-      <div className="fixed bottom-0 left-0 right-0 px-6 py-8 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50 dark:via-black to-transparent z-50">
-        <div className="max-w-2xl mx-auto flex gap-3">
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-10 bg-gradient-to-t from-slate-50 dark:from-black via-slate-50 dark:via-black/95 to-transparent z-50">
+        <div className="max-w-xl mx-auto flex gap-4">
           {event.organizer_whatsapp && (
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleWhatsApp}
-              className="flex-1 flex items-center justify-center gap-3 py-4 rounded-3xl font-black text-white uppercase tracking-[0.15em] text-[11px] shadow-2xl shadow-emerald-500/20"
+              className="flex-1 flex items-center justify-center gap-3.5 py-5 rounded-[2rem] font-black text-white uppercase tracking-[0.25em] text-[12px] shadow-2xl shadow-emerald-500/40 relative overflow-hidden group active:scale-95 transition-all"
               style={{ background: 'linear-gradient(135deg, #25D366, #128C7E)' }}
             >
-              <MessageCircle className="w-5 h-5" />
-              Secure My Spot
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+              <MessageCircle className="w-6 h-6 relative z-10" />
+              <span className="relative z-10">Secure Entry Spot</span>
             </motion.button>
           )}
           
@@ -421,9 +509,9 @@ export default function EventoDetail() {
              whileTap={{ scale: 0.95 }}
              onClick={handleShare}
              aria-label="Share event"
-             className="w-16 h-full aspect-square rounded-3xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-lg"
+             className="w-20 h-full aspect-square rounded-[2rem] bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 flex items-center justify-center shadow-xl shadow-black/5 active:scale-90 transition-all"
           >
-             <Share2 className="w-5 h-5 text-slate-600 dark:text-white" />
+             <Share2 className="w-6 h-6 text-slate-700 dark:text-white" />
           </motion.button>
         </div>
       </div>

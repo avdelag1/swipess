@@ -5,7 +5,8 @@ import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from '@/hooks/use-toast'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useAppNavigate } from "@/hooks/useAppNavigate";
+import { Link, useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
@@ -170,7 +171,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const clientGender = useFilterStore((state) => state.clientGender);
   const clientType = useFilterStore((state) => state.clientType);
 
-  const navigate = useNavigate()
+  const { navigate } = useAppNavigate();
   const location = useLocation()
   const { user } = useAuth()
   const { restoreDrafts } = useAnonymousDrafts()
@@ -652,9 +653,15 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const isFullScreenRoute = useMemo(() => {
     // Only Camera and Radio remain fully fullscreen (hiding everything)
     // Eventos and Roommates now show TopBar/BottomNav per user request
+    // HOWEVER, the Detail page for Eventos should be fullscreen to avoid "double access" X/Back issues
+    const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
+                          location.pathname !== '/explore/eventos' && 
+                          location.pathname !== '/explore/eventos/';
+
     return isCameraRoute || isRadioRoute || 
            location.pathname.includes('/client/filters') || 
-           location.pathname.includes('/owner/filters');
+           location.pathname.includes('/owner/filters') ||
+           isEventoDetail;
   }, [isCameraRoute, isRadioRoute, location.pathname]);
 
   // Get page title based on location for TopBar display
