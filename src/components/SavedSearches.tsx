@@ -34,17 +34,24 @@ export function SavedSearches({ userRole, onApplyFilter }: SavedSearchesProps) {
 
   if (savedFilters.length === 0) {
     return (
-      <Card className="bg-muted/30 border-border">
-        <CardContent className="p-6 text-center">
-          <Search className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-          <p className="text-foreground/70">No saved filters yet</p>
-          <p className="text-muted-foreground text-sm">
-            {userRole === 'owner' 
-              ? 'Save your client discovery filters for quick access' 
-              : 'Save your property search filters for quick access'}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center py-20 text-center rounded-[2.5rem] border border-border/40 bg-muted/20">
+        <div className="w-20 h-20 rounded-[1.5rem] bg-muted/60 border border-border/30 flex items-center justify-center mb-6 shadow-xl">
+          <Search className="w-10 h-10 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
+        </div>
+        <p className="text-foreground font-black text-xl tracking-tight mb-3">No Saved Filters</p>
+        <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-medium mb-8">
+          {userRole === 'owner'
+            ? 'Save your client discovery filters for quick access'
+            : 'Save your property search filters for quick access'}
+        </p>
+        <button
+          onClick={() => window.history.back()}
+          className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
+          style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+        >
+          {userRole === 'owner' ? 'DISCOVER CLIENTS' : 'EXPLORE LISTINGS'}
+        </button>
+      </div>
     );
   }
 
