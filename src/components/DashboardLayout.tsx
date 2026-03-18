@@ -5,7 +5,8 @@ import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from '@/hooks/use-toast'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useAppNavigate } from "@/hooks/useAppNavigate";
+import { Link, useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
@@ -170,7 +171,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const clientGender = useFilterStore((state) => state.clientGender);
   const clientType = useFilterStore((state) => state.clientType);
 
-  const navigate = useNavigate()
+  const { navigate } = useAppNavigate();
   const location = useLocation()
   const { user } = useAuth()
   const { restoreDrafts } = useAnonymousDrafts()
@@ -194,10 +195,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
       if ('requestIdleCallback' in window) {
-        const idleId = (window as any).requestIdleCallback(() => prefetchRoleRoutes(userRole), { timeout: 2000 });
+        const idleId = (window as any).requestIdleCallback(() => prefetchRoleRoutes(userRole), { timeout: 800 });
         return () => (window as any).cancelIdleCallback(idleId);
       } else {
-        const timeoutId = setTimeout(() => prefetchRoleRoutes(userRole), 1000);
+        const timeoutId = setTimeout(() => prefetchRoleRoutes(userRole), 300);
         return () => clearTimeout(timeoutId);
       }
     }
@@ -650,12 +651,17 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   // FULLSCREEN MODE: These routes hide the global TopBar and BottomNav entirely
   // and take over the full screen height with 0 padding.
   const isFullScreenRoute = useMemo(() => {
-    // Camera, Radio, and Eventos are fully fullscreen (no TopBar, no BottomNav, no padding)
-    // Eventos takes over the full screen for immersive flyer/story feed experience
-    return isCameraRoute || isRadioRoute ||
-           location.pathname.startsWith('/explore/eventos') ||
-           location.pathname.includes('/client/filters') ||
-           location.pathname.includes('/owner/filters');
+    // Only Camera and Radio remain fully fullscreen (hiding everything)
+    // Eventos and Roommates now show TopBar/BottomNav per user request
+    // HOWEVER, the Detail page for Eventos should be fullscreen to avoid "double access" X/Back issues
+    const isEventoDetail = location.pathname.startsWith('/explore/eventos/') && 
+                          location.pathname !== '/explore/eventos' && 
+                          location.pathname !== '/explore/eventos/';
+
+    return isCameraRoute || isRadioRoute || 
+           location.pathname.includes('/client/filters') || 
+           location.pathname.includes('/owner/filters') ||
+           isEventoDetail;
   }, [isCameraRoute, isRadioRoute, location.pathname]);
 
   // Get page title based on location for TopBar display
@@ -677,13 +683,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         <TopBar
           onNotificationsClick={handleNotificationsClick}
           onMessageActivationsClick={handleMessageActivationsClick}
-          onAISearchClick={() => {
-            if (userRole === 'owner') {
-              navigate('/owner/listings/new-ai');
-            } else {
-              setIsAISearchOpen(true);
-            }
-          }}
           showFilters={isOnDiscoveryPage}
           userRole={userRole}
           transparent={isImmersiveDashboard || isImmersiveFeed}

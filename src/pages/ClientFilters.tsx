@@ -202,7 +202,7 @@ export default function ClientFilters() {
           {/* Categories Grid */}
           <section className="space-y-4">
             <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 px-1">Active Sectors</h2>
-            <div className="grid grid-cols-2 gap-3 p-1.5 bg-black/5 dark:bg-white/5 rounded-[2.5rem]">
+            <div className="grid grid-cols-2 gap-3">
               {categories.map((cat) => {
                 const isActive = selectedCategories.includes(cat.id);
                 return (
@@ -212,31 +212,21 @@ export default function ClientFilters() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => toggleCategory(cat.id)}
                     className={cn(
-                      "relative p-4 rounded-[2rem] text-left overflow-hidden transition-colors duration-300 z-10",
-                      isActive ? "text-primary-foreground" : "text-foreground/70"
+                      "relative p-4 rounded-[2rem] text-left overflow-hidden transition-all duration-300 border-2",
+                      isActive ? "border-primary shadow-lg shadow-primary/10" : "border-border/40 bg-secondary/20 hover:bg-secondary/40"
                     )}
                     data-no-swipe-nav="true"
                   >
-                    {isActive && (
-                      <motion.div
-                        layoutId="category-active-pill"
-                        className="absolute inset-0 bg-primary shadow-lg shadow-primary/20 z-0"
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                      />
-                    )}
                     <div className="relative z-10 flex flex-col gap-3">
                       <div className={cn(
                         "w-10 h-10 rounded-2xl flex items-center justify-center transition-colors",
-                        isActive ? "bg-white/20 text-white" : "bg-black/5 dark:bg-white/5 text-foreground/70"
+                        isActive ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground/70"
                       )}>
                         {cat.icon}
                       </div>
                       <div>
-                        <div className="font-black text-sm tracking-tight">{cat.label}</div>
-                        <div className={cn(
-                          "text-[10px] font-bold uppercase tracking-wider opacity-60",
-                          isActive ? "text-white" : "text-muted-foreground"
-                        )}>{cat.description}</div>
+                        <div className="font-black text-sm">{cat.label}</div>
+                        <div className="text-[10px] text-muted-foreground/80 font-bold">{cat.description}</div>
                       </div>
                     </div>
                   </motion.button>
@@ -248,7 +238,7 @@ export default function ClientFilters() {
           {/* Listing Type */}
           <section className="space-y-4">
             <h2 className="text-sm font-black uppercase tracking-widest text-muted-foreground/60 px-1">Transaction Mode</h2>
-            <div className="flex gap-2 p-1.5 bg-black/5 dark:bg-white/5 rounded-[2rem] relative">
+            <div className="flex gap-3">
               {(['rent', 'sale'] as ListingType[]).map((type) => {
                 const isActive = selectedListingType === type;
                 return (
@@ -258,21 +248,14 @@ export default function ClientFilters() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedListingType(prev => prev === type ? 'both' : type)}
                     className={cn(
-                      "flex-1 relative h-14 rounded-[1.5rem] font-black text-sm transition-colors duration-300 capitalize z-10",
+                      "flex-1 h-14 rounded-3xl font-black text-sm border-2 transition-all duration-300 capitalize",
                       isActive 
-                        ? "text-primary-foreground" 
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/10" 
+                        : "bg-secondary/20 border-border/40 text-muted-foreground"
                     )}
                     data-no-swipe-nav="true"
                   >
-                    {isActive && (
-                      <motion.div
-                        layoutId="listing-type-pill"
-                        className="absolute inset-0 bg-primary shadow-lg shadow-primary/20 rounded-[1.5rem]"
-                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-                      />
-                    )}
-                    <span className="relative z-20">{type}</span>
+                    {type}
                   </motion.button>
                 );
               })}

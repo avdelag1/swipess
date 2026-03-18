@@ -4,7 +4,7 @@ import { Loader2, X, Send, Zap, Home, MessageCircle, Flame, ArrowRight, User } f
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigate } from '@/hooks/useAppNavigate';
 import { cn } from '@/lib/utils';
 import { useClientProfile } from '@/hooks/useClientProfile';
 import { useTheme } from '@/hooks/useTheme';
@@ -30,7 +30,7 @@ interface Message {
 // ────────────────────────────────────────────────────────────────────────────
 export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -201,9 +201,9 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
             variant="ghost"
             size="icon"
             onClick={handleClose}
-            className={cn("h-9 w-9 rounded-full transition-colors border", isDark ? "hover:bg-white/15 border-white/15 text-white/80 hover:text-white" : "hover:bg-gray-100 border-gray-200 text-gray-600 hover:text-gray-900")}
+            className={cn("h-11 w-11 rounded-full transition-all border shadow-lg active:scale-90", isDark ? "bg-white/5 hover:bg-white/15 border-white/10 text-white/80 hover:text-white" : "bg-black/5 hover:bg-black/10 border-gray-200 text-gray-600 hover:text-gray-900")}
           >
-            <X className="w-4 h-4" />
+            <X className="h-5 w-5" />
           </Button>
         </div>
 
@@ -259,8 +259,8 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
                       ? "bg-gradient-to-br from-orange-500 to-pink-500 text-white rounded-[1.25rem] rounded-tr-sm shadow-orange-500/20"
                       : cn(
                         "rounded-[1.25rem] rounded-tl-sm border",
-                        isDark 
-                          ? "bg-zinc-900/80 border-white/10 text-foreground" 
+                        isDark
+                          ? "bg-zinc-900/80 border-white/10 text-foreground"
                           : "bg-white border-gray-100 text-gray-800 shadow-sm"
                       )
                   )}>
