@@ -119,7 +119,7 @@ export function BottomNavigation({
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
   ];
 
-  const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
+  const navItems = userRole === 'client' || userRole === 'admin' ? clientNavItems : ownerNavItems;
   const isScrollable = true; // Always scrollable for both roles
 
   // Auto-scroll active item into view

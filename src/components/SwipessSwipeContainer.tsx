@@ -978,7 +978,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   };
 
   const handleInsights = () => {
-    setInsightsModalOpen(true);
+    const listing = deckQueueRef.current[currentIndexRef.current];
+    if (listing?.id) {
+      navigate(`/listing/${listing.id}`);
+    } else {
+      setInsightsModalOpen(true);
+    }
     triggerHaptic('light');
   };
 

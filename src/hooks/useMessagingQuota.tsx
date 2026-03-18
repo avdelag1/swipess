@@ -51,7 +51,9 @@ export function useMessagingQuota() {
         .gt('remaining_activations', 0);
 
       if (error) {
-        logger.error('[useMessagingQuota] Error fetching tokens:', error);
+        if (error.code !== '42703') {
+          logger.error('[useMessagingQuota] Error fetching tokens:', error);
+        }
         return [];
       }
 

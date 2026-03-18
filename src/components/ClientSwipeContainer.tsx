@@ -723,14 +723,8 @@ const ClientSwipeContainerComponent = ({
   }, [refetch, resetOwnerDeck, category]);
 
   const handleInsights = useCallback((clientId: string) => {
-    if (onInsights) {
-      onInsights(clientId);
-    } else {
-      sonnerToast.success('Client Insights', {
-        description: 'Viewing detailed insights for this client.',
-      });
-    }
-  }, [onInsights]);
+    navigate(`/owner/view-client/${clientId}`);
+  }, [navigate]);
 
   const handleShare = useCallback(() => {
     setShareDialogOpen(true);
