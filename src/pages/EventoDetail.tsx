@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight, Zap, Info, ShieldCheck, Star, Users } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight, Zap, Info, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -39,17 +39,11 @@ export default function EventoDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [userRating, setUserRating] = useState<number>(0);
-  const [showRatings, setShowRatings] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     fetchEvent();
-    if (user) {
-      checkFavorite();
-      // Mocked user rating
-      setUserRating(Math.floor(Math.random() * 5));
-    }
+    if (user) checkFavorite();
   }, [id, user]);
 
   const fetchEvent = async () => {
@@ -304,57 +298,6 @@ export default function EventoDetail() {
           <p className="text-sm font-medium text-slate-600 dark:text-white/60 leading-relaxed italic">
             {event.description || 'Join us for an unforgettable experience in the heart of the Riviera Maya.'}
           </p>
-        </div>
-
-        {/* ── INSIGHTS SECTION ── */}
-        <div className="space-y-4 pt-4">
-           <div className="flex items-center gap-2">
-              <h3 className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.3em]">Insights & Social</h3>
-              <div className="h-px flex-1 bg-slate-100 dark:bg-white/5" />
-           </div>
-           
-           <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-3xl bg-emerald-500/5 border border-emerald-500/10">
-                 <div className="flex items-center justify-between mb-2">
-                    <Users className="w-4 h-4 text-emerald-500" />
-                    <span className="text-[10px] font-black text-emerald-500/50 uppercase">Trending</span>
-                 </div>
-                 <p className="text-lg font-black text-slate-900 dark:text-white italic leading-none">84+ GOING</p>
-                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-1 uppercase">Matches Attending</p>
-              </div>
-
-              <div className="p-4 rounded-3xl bg-indigo-500/5 border border-indigo-500/10">
-                 <div className="flex items-center justify-between mb-2">
-                    <Sparkles className="w-4 h-4 text-indigo-500" />
-                    <span className="text-[10px] font-black text-indigo-500/50 uppercase">Prime Time</span>
-                 </div>
-                 <p className="text-lg font-black text-slate-900 dark:text-white italic leading-none">SUNDOWN</p>
-                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-1 uppercase">Best Arrival Time</p>
-              </div>
-           </div>
-
-           {/* User's Star Rating */}
-           <div className="p-5 rounded-3xl bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex items-center justify-between">
-              <div>
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Your Personal Rating</p>
-                 <div className="flex gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => { setUserRating(star); triggerHaptic('medium'); }}
-                        title={`${star} Stars`}
-                        className="transition-transform active:scale-90"
-                      >
-                        <Star className={cn("w-5 h-5", star <= userRating ? "fill-amber-400 text-amber-400" : "text-slate-200 dark:text-white/10")} />
-                      </button>
-                    ))}
-                 </div>
-              </div>
-              <div className="text-right">
-                 <p className="text-[24px] font-black text-slate-900 dark:text-white italic leading-none">{userRating}.0</p>
-                 <p className="text-[9px] font-bold text-amber-500 uppercase">Premium Select</p>
-              </div>
-           </div>
         </div>
 
         {/* Admission / Ticket Info */}
