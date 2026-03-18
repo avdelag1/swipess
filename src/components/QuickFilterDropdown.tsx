@@ -1,6 +1,6 @@
 import { memo, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase, Search } from 'lucide-react';
+import { Home, Bike, Wrench, X, Users, User, Briefcase, ShoppingBag, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
@@ -34,57 +34,75 @@ interface QuickFilterDropdownProps {
 type CategoryOption = {
   id: QuickFilterCategory;
   label: string;
+  description: string;
   icon: React.ReactNode;
   hasSubOptions: boolean;
+  gradient: string;
+  iconBg: string;
+  activeText: string;
 };
 
-const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string })[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-400' },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-400' },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-emerald-600 to-green-500', inactiveColor: 'text-emerald-400' },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-400' },
+const categoryOptionBase: CategoryOption[] = [
+  {
+    id: 'property',
+    label: 'Property',
+    description: 'Houses & Apartments',
+    icon: <Home strokeWidth={2.5} className="w-5 h-5" />,
+    hasSubOptions: true,
+    gradient: 'from-pink-500 to-rose-600',
+    iconBg: 'bg-pink-500/15',
+    activeText: 'text-pink-400',
+  },
+  {
+    id: 'motorcycle',
+    label: 'Motorcycle',
+    description: 'Bikes & Scooters',
+    icon: <MotorcycleIcon className="w-5 h-5" />,
+    hasSubOptions: true,
+    gradient: 'from-orange-500 to-amber-600',
+    iconBg: 'bg-orange-500/15',
+    activeText: 'text-orange-400',
+  },
+  {
+    id: 'bicycle',
+    label: 'Bicycle',
+    description: 'Bikes & E-bikes',
+    icon: <Bike strokeWidth={2.5} className="w-5 h-5" />,
+    hasSubOptions: true,
+    gradient: 'from-emerald-500 to-green-600',
+    iconBg: 'bg-emerald-500/15',
+    activeText: 'text-emerald-400',
+  },
+  {
+    id: 'services',
+    label: 'Workers',
+    description: 'Freelancers & Services',
+    icon: <Wrench strokeWidth={2.5} className="w-5 h-5" />,
+    hasSubOptions: false,
+    gradient: 'from-purple-500 to-violet-600',
+    iconBg: 'bg-purple-500/15',
+    activeText: 'text-purple-400',
+  },
 ];
 
-const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
-  { id: 'both', label: 'Both' },
-  { id: 'rent', label: 'Rent' },
-  { id: 'sale', label: 'Buy' },
+const listingTypeOptions: { id: QuickFilterListingType; label: string; emoji: string }[] = [
+  { id: 'both', label: 'Both', emoji: '✦' },
+  { id: 'rent', label: 'Rent', emoji: '🔑' },
+  { id: 'sale', label: 'Buy', emoji: '🏷️' },
 ];
 
-const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500' },
-  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500' },
+const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; gradient: string; activeRing: string }[] = [
+  { id: 'any', label: 'All', icon: <Users strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-slate-500 to-gray-600', activeRing: 'ring-slate-400/50' },
+  { id: 'female', label: 'Women', icon: <User strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-pink-500 to-rose-500', activeRing: 'ring-pink-400/50' },
+  { id: 'male', label: 'Men', icon: <User strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-blue-500 to-indigo-600', activeRing: 'ring-blue-400/50' },
 ];
 
-const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'all', label: 'All Types', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
-  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
-  { id: 'buy', label: 'Buying', icon: <Search strokeWidth={4} className="w-4 h-4" />, color: 'from-green-500 to-emerald-500' },
+const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; gradient: string; activeRing: string }[] = [
+  { id: 'all', label: 'All Types', icon: <Users strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-slate-500 to-gray-600', activeRing: 'ring-slate-400/50' },
+  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-purple-500 to-violet-600', activeRing: 'ring-purple-400/50' },
+  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-orange-500 to-amber-500', activeRing: 'ring-orange-400/50' },
+  { id: 'buy', label: 'Buying', icon: <ShoppingBag strokeWidth={2.5} className="w-4 h-4" />, gradient: 'from-emerald-500 to-green-600', activeRing: 'ring-emerald-400/50' },
 ];
-
-// UPGRADED BRIGHTNESS: Text is a bright, glowing gradient
-const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
-  <>
-    <span className={cn(
-      "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap uppercase",
-      hasActiveFilters
-        ? "text-pink-600"
-        : isDark ? "text-white" : "text-slate-700"
-    )}>
-      Quick Filter
-    </span>
-    <span className={cn(
-      "sm:hidden font-black text-xs tracking-tight whitespace-nowrap uppercase",
-      hasActiveFilters
-        ? "text-pink-600"
-        : isDark ? "text-white" : "text-slate-700"
-    )}>
-      Filter
-    </span>
-  </>
-);
 
 function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -100,6 +118,16 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
     : '0 4px 12px rgba(0,0,0,0.05)';
 
+  const panelBg = isDark
+    ? 'rgba(18, 18, 24, 0.97)'
+    : 'rgba(255, 255, 255, 0.98)';
+  const panelBorder = isDark
+    ? '1px solid rgba(255, 255, 255, 0.08)'
+    : '1px solid rgba(0, 0, 0, 0.07)';
+  const panelShadow = isDark
+    ? '0 24px 60px rgba(0,0,0,0.6), 0 8px 20px rgba(0,0,0,0.4)'
+    : '0 24px 60px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06)';
+
   // ========== READ FROM ZUSTAND STORE ==========
   const categories = useFilterStore((state) => state.categories);
   const listingType = useFilterStore((state) => state.listingType);
@@ -114,7 +142,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
-  // Count active filters from store values
+  // Count active filters
   const activeFilterCount = (() => {
     let count = 0;
     count += categories.length;
@@ -130,10 +158,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-
-      // FIX: Ignore clicks on AI search button to prevent it from closing filters
       const isAISearchClick = target.closest('#ai-search-button');
-
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(target) &&
@@ -149,23 +174,26 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleCategoryClick = (categoryId: QuickFilterCategory) => {
-    // Workers/services: select directly without submenu (no rent/buy/both)
+  const handleCategoryPillClick = (categoryId: QuickFilterCategory) => {
     if (categoryId === 'services') {
       setCategories([categoryId]);
       setListingType('both');
-      setIsOpen(false);
       setClickedCategory(null);
+      setIsOpen(false);
       return;
     }
-    // Toggle the submenu for other categories with sub-options
-    setClickedCategory(clickedCategory === categoryId ? null : categoryId);
+    const isAlreadyActive = categories.includes(categoryId) && clickedCategory === categoryId;
+    if (isAlreadyActive) {
+      setClickedCategory(null);
+    } else {
+      setCategories([categoryId]);
+      setClickedCategory(categoryId);
+    }
   };
 
-  const handleCategorySelect = (categoryId: QuickFilterCategory, selectedListingType: QuickFilterListingType) => {
-    // Apply category with listing type - dispatch to store
+  const handleListingTypeSelect = (categoryId: QuickFilterCategory, lt: QuickFilterListingType) => {
     setCategories([categoryId]);
-    setListingType(selectedListingType);
+    setListingType(lt);
     setIsOpen(false);
     setClickedCategory(null);
   };
@@ -188,200 +216,355 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     setClickedCategory(null);
   };
 
-  // Render owner filters dropdown - clean horizontal pills
+  // ─── OWNER FILTER PANEL ────────────────────────────────────────────────────
   const renderOwnerFilters = () => {
+    const hasActiveOwnerFilters = clientGender !== 'any' || clientType !== 'all';
+
     return (
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),340px)]">
+      <motion.div
+        initial={{ opacity: 0, y: -8, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -8, scale: 0.96 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+        style={{ background: panelBg, border: panelBorder, boxShadow: panelShadow }}
+        className="w-[min(calc(100vw-1.5rem),340px)] rounded-2xl overflow-hidden"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-black/5">
-          <span className="text-sm font-semibold text-foreground">Filter Clients</span>
-          {activeFilterCount > 0 && (
+        <div className={cn(
+          "flex items-center justify-between px-4 py-3.5",
+          isDark ? "border-b border-white/[0.06]" : "border-b border-black/[0.05]"
+        )}>
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "w-6 h-6 rounded-lg flex items-center justify-center",
+              isDark ? "bg-white/10" : "bg-black/[0.06]"
+            )}>
+              <SlidersHorizontal className={cn("w-3.5 h-3.5", isDark ? "text-white/70" : "text-foreground/70")} strokeWidth={2.5} />
+            </div>
+            <span className={cn("text-sm font-bold", isDark ? "text-white" : "text-foreground")}>
+              Filter Clients
+            </span>
+          </div>
+          {hasActiveOwnerFilters && (
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={handleClearFilters}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 flex items-center justify-center touch-manipulation"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold touch-manipulation transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #ec4899, #f97316)',
+                color: 'white',
+              }}
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
+              Clear
             </motion.button>
           )}
         </div>
 
-        <div className="py-3 px-4 space-y-4 max-h-[65vh] overflow-y-auto">
-          {/* Gender - horizontal pills */}
+        <div className="p-4 space-y-5">
+          {/* ── Gender ─────────────────────────────── */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Gender</p>
-            <div className="flex gap-1.5">
-              {genderOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleGenderSelect(option.id)}
-                  className={cn(
-                    'flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
-                    clientGender === option.id
-                      ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md"
-                      : "text-gray-500 hover:bg-black/[0.02] bg-white border border-black/[0.08]"
-                  )}
-                >
-                  {option.icon}
-                  <span>{option.label}</span>
-                </button>
-              ))}
+            <p className={cn(
+              "text-[10px] font-bold uppercase tracking-[0.12em] mb-2.5",
+              isDark ? "text-white/40" : "text-foreground/40"
+            )}>
+              Gender
+            </p>
+            <div className="flex gap-2">
+              {genderOptions.map((opt) => {
+                const isActive = clientGender === opt.id;
+                return (
+                  <motion.button
+                    key={opt.id}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => handleGenderSelect(opt.id)}
+                    className={cn(
+                      'relative flex-1 flex flex-col items-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 touch-manipulation overflow-hidden',
+                      isActive
+                        ? 'text-white ring-2 ' + opt.activeRing
+                        : isDark
+                          ? 'text-white/60 bg-white/[0.05] hover:bg-white/[0.08]'
+                          : 'text-foreground/60 bg-black/[0.04] hover:bg-black/[0.07]'
+                    )}
+                    style={isActive ? {
+                      background: `linear-gradient(135deg, ${opt.gradient.includes('slate') ? '#64748b, #4b5563' : opt.gradient.includes('pink') ? '#ec4899, #f43f5e' : '#3b82f6, #4f46e5'})`,
+                    } : {}}
+                  >
+                    {opt.icon}
+                    <span>{opt.label}</span>
+                    {isActive && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-white/30 flex items-center justify-center"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                      </motion.div>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Client Type - horizontal pills */}
+          {/* ── Client Type ────────────────────────── */}
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Looking For</p>
-            <div className="grid grid-cols-2 gap-1.5">
-              {clientTypeOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => handleClientTypeSelect(option.id)}
-                  className={cn(
-                    'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium transition-all duration-150 touch-manipulation',
-                    clientType === option.id
-                      ? "bg-white text-purple-600 border-2 border-purple-600 shadow-md"
-                      : "text-gray-500 hover:bg-black/[0.02] bg-white border border-black/[0.08]"
-                  )}
-                >
-                  {option.icon}
-                  <span>{option.label}</span>
-                </button>
-              ))}
+            <p className={cn(
+              "text-[10px] font-bold uppercase tracking-[0.12em] mb-2.5",
+              isDark ? "text-white/40" : "text-foreground/40"
+            )}>
+              Looking For
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {clientTypeOptions.map((opt) => {
+                const isActive = clientType === opt.id;
+                const gradColors: Record<string, string> = {
+                  'from-slate-500 to-gray-600': '#64748b, #4b5563',
+                  'from-purple-500 to-violet-600': '#a855f7, #7c3aed',
+                  'from-orange-500 to-amber-500': '#f97316, #f59e0b',
+                  'from-emerald-500 to-green-600': '#10b981, #16a34a',
+                };
+                const gradStr = gradColors[opt.gradient] || '#64748b, #4b5563';
+                return (
+                  <motion.button
+                    key={opt.id}
+                    whileTap={{ scale: 0.93 }}
+                    onClick={() => handleClientTypeSelect(opt.id)}
+                    className={cn(
+                      'relative flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 touch-manipulation overflow-hidden',
+                      isActive
+                        ? 'text-white ring-2 ' + opt.activeRing
+                        : isDark
+                          ? 'text-white/60 bg-white/[0.05] hover:bg-white/[0.08]'
+                          : 'text-foreground/60 bg-black/[0.04] hover:bg-black/[0.07]'
+                    )}
+                    style={isActive ? { background: `linear-gradient(135deg, ${gradStr})` } : {}}
+                  >
+                    <span className={cn(
+                      "flex-shrink-0",
+                      isActive ? "opacity-90" : ""
+                    )}>
+                      {opt.icon}
+                    </span>
+                    <span className="truncate">{opt.label}</span>
+                    {isActive && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="ml-auto flex-shrink-0"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white/80" />
+                      </motion.span>
+                    )}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
-
         </div>
-      </div>
+      </motion.div>
     );
   };
 
-  // Render client filters dropdown (categories) - MOBILE OPTIMIZED
+  // ─── CLIENT FILTER PANEL ──────────────────────────────────────────────────
   const renderClientFilters = () => {
     const isAllActive = categories.length === 0;
+
     return (
-      <div className="bg-white border border-black/10 rounded-2xl shadow-2xl overflow-hidden w-[min(calc(100vw-1.5rem),400px)]">
+      <motion.div
+        initial={{ opacity: 0, y: -8, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: -8, scale: 0.96 }}
+        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+        style={{ background: panelBg, border: panelBorder, boxShadow: panelShadow }}
+        className="w-[min(calc(100vw-1.5rem),360px)] rounded-2xl overflow-hidden"
+      >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-black/5">
-          <span className="text-sm sm:text-base font-semibold text-foreground">Select Category</span>
-          {activeFilterCount > 0 && (
+        <div className={cn(
+          "flex items-center justify-between px-4 py-3.5",
+          isDark ? "border-b border-white/[0.06]" : "border-b border-black/[0.05]"
+        )}>
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "w-6 h-6 rounded-lg flex items-center justify-center",
+              isDark ? "bg-white/10" : "bg-black/[0.06]"
+            )}>
+              <SlidersHorizontal className={cn("w-3.5 h-3.5", isDark ? "text-white/70" : "text-foreground/70")} strokeWidth={2.5} />
+            </div>
+            <span className={cn("text-sm font-bold", isDark ? "text-white" : "text-foreground")}>
+              Quick Filter
+            </span>
+          </div>
+          {!isAllActive && (
             <motion.button
-              whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleClearFilters}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 flex items-center justify-center touch-manipulation"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold touch-manipulation"
+              style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)', color: 'white' }}
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
+              Clear
             </motion.button>
           )}
         </div>
 
-        {/* Category Options - always inline (no flyout) */}
-        <div className="py-2 max-h-[60vh] overflow-y-auto">
-          {/* ALL option */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0 }}
-            className="relative"
+        <div className="p-3 space-y-2">
+          {/* ALL card — full width */}
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={handleClearFilters}
+            className={cn(
+              'w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 touch-manipulation',
+              isAllActive
+                ? 'text-white'
+                : isDark
+                  ? 'text-white/70 hover:bg-white/[0.06] bg-white/[0.03]'
+                  : 'text-foreground/70 hover:bg-black/[0.05] bg-black/[0.025]'
+            )}
+            style={isAllActive ? {
+              background: 'linear-gradient(135deg, #334155, #1e293b)',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+            } : {}}
           >
-            <button
-              onClick={() => { handleClearFilters(); }}
-              className={cn(
-                'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
-                isAllActive
-                  ? 'bg-slate-700 text-white'
-                  : 'text-gray-700 hover:bg-black/[0.04]'
-              )}
-            >
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className={cn(
-                  'p-1.5 sm:p-2 rounded-lg',
-                  isAllActive ? 'bg-white/20 text-white' : 'bg-black/5 text-gray-500'
-                )}>
-                  <Search strokeWidth={4} className="w-4 h-4" />
-                </span>
-                <span className="font-medium text-sm sm:text-base">All</span>
+            <div className={cn(
+              "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0",
+              isAllActive ? "bg-white/20" : isDark ? "bg-white/[0.07]" : "bg-black/[0.06]"
+            )}>
+              <span className="text-base">✦</span>
+            </div>
+            <div className="flex-1 text-left">
+              <div className="font-bold text-sm">All Categories</div>
+              <div className={cn("text-xs mt-0.5", isAllActive ? "text-white/60" : isDark ? "text-white/35" : "text-foreground/40")}>
+                Show everything
               </div>
-            </button>
-          </motion.div>
+            </div>
+            {isAllActive && <CheckCircle2 className="w-5 h-5 text-white/70 flex-shrink-0" />}
+          </motion.button>
 
-          {categoryOptionBase.map((category, index) => {
-            const isActive = categories.includes(category.id);
-            return (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: (index + 1) * 0.05 }}
-              className="relative"
-            >
-              <button
-                onClick={() => handleCategoryClick(category.id)}
-                className={cn(
-                  'w-full flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-sm transition-all duration-200 touch-manipulation min-h-[52px]',
-                  isActive
-                    ? "bg-white text-blue-600 border-2 border-blue-600 shadow-md"
-                    : "text-gray-700 hover:bg-black/[0.02]"
-                )}
-              >
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <span className={cn(
-                    'p-1.5 sm:p-2 rounded-lg',
-                    isActive ? 'bg-white/20 text-white' : 'bg-black/5 text-gray-400'
-                  )}>
-                    {category.icon}
-                  </span>
-                  <span className="font-medium text-sm sm:text-base">{category.label}</span>
-                </div>
-                {category.hasSubOptions && (
-                  <ChevronRight strokeWidth={3} className={cn(
-                    "w-5 h-5 transition-transform",
-                    isActive ? "text-white/70" : "text-gray-400",
-                    clickedCategory === category.id && "rotate-90"
-                  )} />
-                )}
-              </button>
+          {/* Category cards — 2-column grid */}
+          <div className="grid grid-cols-2 gap-2">
+            {categoryOptionBase.map((cat, index) => {
+              const isActive = categories.includes(cat.id);
+              const isExpanded = clickedCategory === cat.id && isActive && cat.hasSubOptions && cat.id !== 'services';
 
-              {/* Sub-menu for listing type - skip for workers/services */}
-              <AnimatePresence>
-                {clickedCategory === category.id && category.hasSubOptions && category.id !== 'services' && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ type: 'spring', stiffness: 600, damping: 30 }}
-                    className="overflow-hidden"
+              const gradColorMap: Record<string, string> = {
+                'from-pink-500 to-rose-600': '#ec4899, #e11d48',
+                'from-orange-500 to-amber-600': '#f97316, #d97706',
+                'from-emerald-500 to-green-600': '#10b981, #16a34a',
+                'from-purple-500 to-violet-600': '#a855f7, #7c3aed',
+              };
+              const gradStr = gradColorMap[cat.gradient] || '#ec4899, #e11d48';
+
+              return (
+                <motion.div key={cat.id} layout>
+                  <motion.button
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => handleCategoryPillClick(cat.id)}
+                    className={cn(
+                      'w-full flex flex-col items-start gap-2 p-3.5 rounded-xl transition-all duration-200 touch-manipulation overflow-hidden relative',
+                      isActive
+                        ? 'text-white'
+                        : isDark
+                          ? 'text-white/70 bg-white/[0.04] hover:bg-white/[0.07]'
+                          : 'text-foreground/70 bg-black/[0.025] hover:bg-black/[0.05]'
+                    )}
+                    style={isActive ? {
+                      background: `linear-gradient(135deg, ${gradStr})`,
+                      boxShadow: `0 6px 20px rgba(0,0,0,0.2)`,
+                    } : {}}
                   >
-                    <div className="pl-12 sm:pl-14 pr-4 pb-2">
-                      {listingTypeOptions.map((ltOption, ltIndex) => (
-                        <motion.button
-                          key={ltOption.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: ltIndex * 0.05 }}
-                          onClick={() => handleCategorySelect(category.id, ltOption.id)}
-                          className={cn(
-                            'w-full flex items-center px-4 py-2.5 rounded-xl text-sm transition-all duration-200 touch-manipulation min-h-[44px] mb-1',
-                            categories.includes(category.id) && listingType === ltOption.id
-                              ? cn('bg-gradient-to-r', category.color, 'text-white')
-                              : isDark
-                                ? cn('hover:bg-white/10 bg-white/5', category.inactiveColor)
-                                : cn('hover:bg-black/5 bg-black/[0.03]', category.inactiveColor)
-                          )}
-                        >
-                          <span className="font-medium text-sm sm:text-base">{ltOption.label}</span>
-                        </motion.button>
-                      ))}
+                    {/* Icon */}
+                    <div className={cn(
+                      "w-8 h-8 rounded-xl flex items-center justify-center",
+                      isActive ? "bg-white/20" : isDark ? "bg-white/[0.08]" : cat.iconBg
+                    )}>
+                      <span className={cn(isActive ? "text-white" : isDark ? "text-white/70" : cat.activeText)}>
+                        {cat.icon}
+                      </span>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-          })}
+
+                    {/* Label + description */}
+                    <div className="text-left w-full">
+                      <div className="font-bold text-sm leading-tight">{cat.label}</div>
+                      <div className={cn("text-[10px] mt-0.5 leading-tight", isActive ? "text-white/60" : isDark ? "text-white/30" : "text-foreground/40")}>
+                        {cat.description}
+                      </div>
+                    </div>
+
+                    {/* Active check */}
+                    {isActive && (
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute top-2.5 right-2.5"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-white/80" />
+                      </motion.div>
+                    )}
+                  </motion.button>
+
+                  {/* Listing type sub-chips — span full width via absolute trick using col-span */}
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Listing type chips — rendered outside the grid when a category is active */}
+          <AnimatePresence>
+            {clickedCategory && categories.includes(clickedCategory) && clickedCategory !== 'services' && (
+              <motion.div
+                key="listing-type-row"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                className="overflow-hidden"
+              >
+                {(() => {
+                  const activeCat = categoryOptionBase.find(c => c.id === clickedCategory);
+                  const gradColorMap: Record<string, string> = {
+                    'from-pink-500 to-rose-600': '#ec4899, #e11d48',
+                    'from-orange-500 to-amber-600': '#f97316, #d97706',
+                    'from-emerald-500 to-green-600': '#10b981, #16a34a',
+                    'from-purple-500 to-violet-600': '#a855f7, #7c3aed',
+                  };
+                  const gradStr = activeCat ? (gradColorMap[activeCat.gradient] || '#ec4899, #e11d48') : '#ec4899, #e11d48';
+
+                  return (
+                    <div className="flex gap-2 pt-1">
+                      {listingTypeOptions.map((lt) => {
+                        const isLtActive = listingType === lt.id;
+                        return (
+                          <motion.button
+                            key={lt.id}
+                            whileTap={{ scale: 0.93 }}
+                            onClick={() => handleListingTypeSelect(clickedCategory, lt.id)}
+                            className={cn(
+                              'flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 touch-manipulation',
+                              isLtActive
+                                ? 'text-white'
+                                : isDark
+                                  ? 'text-white/60 bg-white/[0.06] hover:bg-white/[0.1]'
+                                  : 'text-foreground/60 bg-black/[0.04] hover:bg-black/[0.07]'
+                            )}
+                            style={isLtActive ? {
+                              background: `linear-gradient(135deg, ${gradStr})`,
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                            } : {}}
+                          >
+                            <span>{lt.emoji}</span>
+                            <span>{lt.label}</span>
+                          </motion.button>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -389,7 +572,6 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
 
   return (
     <div className={cn('relative', className)}>
-      {/* UPGRADED BRIGHTNESS: Button now has a conditional glow and brighter text */}
       <motion.button
         ref={buttonRef}
         whileHover={{ scale: 1.02 }}
@@ -409,8 +591,18 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
           boxShadow: floatingShadow,
         }}
       >
-        <QuickFilterText hasActiveFilters={hasActiveFilters} isDark={isDark} />
-        {/* Badge */}
+        <span className={cn(
+          "hidden sm:inline font-black text-sm tracking-tight whitespace-nowrap uppercase",
+          hasActiveFilters ? "text-pink-600" : isDark ? "text-white" : "text-slate-700"
+        )}>
+          Quick Filter
+        </span>
+        <span className={cn(
+          "sm:hidden font-black text-xs tracking-tight whitespace-nowrap uppercase",
+          hasActiveFilters ? "text-pink-600" : isDark ? "text-white" : "text-slate-700"
+        )}>
+          Quick Filter
+        </span>
         <AnimatePresence>
           {hasActiveFilters && (
             <motion.span
@@ -436,10 +628,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 setClickedCategory(null);
               }}
             />
-
             <div
               ref={dropdownRef}
-              className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
+              className="fixed left-3 top-16 z-[10002] sm:left-auto sm:top-auto sm:absolute sm:mt-2"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
             </div>
