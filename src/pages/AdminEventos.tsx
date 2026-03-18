@@ -208,7 +208,7 @@ export default function AdminEventos() {
           >
             <div className="flex justify-between items-center">
               <h3 className="font-semibold text-foreground">{editingId ? 'Edit Event' : 'New Event'}</h3>
-              <button onClick={() => { setShowForm(false); setEditingId(null); }}><X className="w-5 h-5 text-muted-foreground" /></button>
+              <button onClick={() => { setShowForm(false); setEditingId(null); }} aria-label="Close form"><X className="w-5 h-5 text-muted-foreground" /></button>
             </div>
 
             <Input placeholder="Event title *" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
@@ -217,6 +217,7 @@ export default function AdminEventos() {
             <select
               value={form.category}
               onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
+              title="Event Category"
               className="w-full h-10 rounded-2xl border border-input bg-background px-3 text-sm"
             >
               {CATEGORY_OPTIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -308,14 +309,14 @@ export default function AdminEventos() {
                 </div>
               </div>
               <div className="flex gap-1.5">
-                <button onClick={() => togglePublish(ev.id, ev.is_published)} className="p-2 rounded-lg hover:bg-muted/50">
-                  {ev.is_published ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
+                <button onClick={() => togglePublish(ev.id, ev.is_published)} className="p-2.5 rounded-lg hover:bg-muted/50 transition-colors" aria-label={ev.is_published ? 'Unpublish' : 'Publish'}>
+                  {ev.is_published ? <EyeOff className="w-4.5 h-4.5 text-muted-foreground" /> : <Eye className="w-4.5 h-4.5 text-muted-foreground" />}
                 </button>
-                <button onClick={() => handleEdit(ev.id)} className="p-2 rounded-lg hover:bg-muted/50">
-                  <Pencil className="w-4 h-4 text-muted-foreground" />
+                <button onClick={() => handleEdit(ev.id)} className="p-2.5 rounded-lg hover:bg-muted/50 transition-colors" aria-label="Edit event">
+                  <Pencil className="w-4.5 h-4.5 text-muted-foreground" />
                 </button>
-                <button onClick={() => handleDelete(ev.id)} className="p-2 rounded-lg hover:bg-red-500/10">
-                  <Trash2 className="w-4 h-4 text-red-400" />
+                <button onClick={() => handleDelete(ev.id)} className="p-2.5 rounded-lg hover:bg-red-500/10 transition-colors" aria-label="Delete event">
+                  <Trash2 className="w-4.5 h-4.5 text-red-500" />
                 </button>
               </div>
             </div>

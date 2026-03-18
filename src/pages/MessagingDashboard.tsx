@@ -260,14 +260,14 @@ export function MessagingDashboard() {
               <button key={filter.id} onClick={() => { setActiveFilter(filter.id as any); haptics.tap(); }}
                 className={cn("flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all",
                   activeFilter === filter.id ? "bg-primary text-white shadow-lg" : "bg-white/5 text-muted-foreground")}>
-                <filter.icon className="w-3.5 h-3.5" />
+                <filter.icon className="w-4.5 h-4.5" />
                 {filter.label}
               </button>
             ))}
           </div>
 
           <div className="relative mb-5">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
             <input placeholder="Search conversations..." className="w-full pl-11 pr-4 h-12 rounded-2xl text-[15px] bg-white/[0.04] border border-white/10 outline-none" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
           </div>
 

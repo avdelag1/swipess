@@ -38,6 +38,7 @@ type SortOrder = 'upcoming' | 'newest';
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
 
 const MOCK_EVENTS: EventItem[] = [
+  // --- POSTERS (MIXED CATEGORIES) ---
   {
     id: 'poster-1',
     title: 'OFF-WHITE BEACH CLUB',
@@ -113,115 +114,56 @@ const MOCK_EVENTS: EventItem[] = [
     is_free: false,
     price_text: 'INVITE ONLY'
   },
+  // --- JUNGLE (5) ---
   {
-    id: 'poster-6',
-    title: 'TESLA CYBER JUNGLE',
-    description: 'Future meets ancient. An electronic music showcase powered entirely by solar energy in the heart of the Tulum reserve.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=90',
-    event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Solar Valley',
-    location_detail: 'Jungle Outpost',
-    organizer_name: 'Tesla Energy',
-    promo_text: 'Sustainable Sound',
-    discount_tag: 'FUTURE POSTER',
-    is_free: true,
-    price_text: 'FREE REGISTRATION'
-  },
-  {
-    id: 'poster-7',
-    title: 'GUCCI COSMO TULUM',
-    description: 'An intergalactic fusion of Italian craftsmanship and Mayan astrology. Digital art installations and galactic beats.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=90',
-    event_date: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Holistika',
-    location_detail: 'The Dome',
-    organizer_name: 'Gucci Global',
-    promo_text: 'VR Experience included',
-    discount_tag: 'LUXURY POSTER',
-    is_free: false,
-    price_text: '$300 USD'
-  },
-  {
-    id: 'poster-8',
-    title: 'ROLEX DEEP SEA GALA',
-    description: 'Celebrating the mysteries of the ocean. A formal evening of exploration stories and charity auctions at the water edge.',
-    category: 'beach',
+    id: 'jungle-1',
+    title: 'MONKEY SANCTUARY EXPEDITION',
+    description: 'Private tour of the Mayan spider monkey reserve. Expert guides, wildlife photography, and jungle breakfast.',
+    category: 'jungle',
     image_url: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=1200&q=90',
-    event_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Ziggys Beach',
-    location_detail: 'Private Pier',
-    organizer_name: 'Rolex Mexico',
-    promo_text: 'Black Tie Optional',
-    discount_tag: 'LEGACY POSTER',
+    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Sian K’aan South',
+    location_detail: 'Eco Gate',
+    organizer_name: 'Wild Tulum',
+    promo_text: 'Family Friendly',
+    discount_tag: 'NATURE PICK',
     is_free: false,
-    price_text: 'TABLE BOOKING'
+    price_text: '$65 USD'
   },
   {
-    id: 'poster-9',
-    title: 'APPLE RIVIERA KEYNOTE',
-    description: 'Experience the future of spatial computing in the most beautiful place on earth. Vision Pro demos and developer workshops.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=90',
-    event_date: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Digital Nomad Hub',
-    location_detail: 'Main Hall',
-    organizer_name: 'Apple Inc.',
-    promo_text: 'Registration Required',
-    discount_tag: 'TECH POSTER',
-    is_free: true,
-    price_text: 'FREE'
-  },
-  {
-    id: 'mock-1',
-    title: 'Gitano Jungle Party',
-    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes with artisanal mezcal cocktails, world-class DJs, and a mystical atmosphere that only Tulum can provide.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=90',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Tulum Jungle',
-    location_detail: 'Beach Road km 7.5',
-    organizer_name: 'Gitano',
-    promo_text: 'Tulum Residents 20% OFF',
-    discount_tag: '20% Local Discount',
-    is_free: false,
-    price_text: '$120 USD'
-  },
-  {
-    id: 'mock-2',
-    title: 'Bagatelle Beach Brunch',
-    description: 'French Riviera vibes meet the Caribbean coast. Join us for the ultimate festive brunch experience with live performers and Mediterranean cuisine.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1200&q=90',
+    id: 'jungle-2',
+    title: 'ANCESTRAL FIRE CEREMONY',
+    description: 'Spiritual night journey. Traditional Mayan drums, copal ritual, and sacred cacao in the heart of the reserve.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=1200&q=90',
     event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Bagatelle',
-    location_detail: 'Beach Zone',
-    organizer_name: 'Bagatelle Tulum',
-    promo_text: 'Includes welcome drink',
-    discount_tag: 'Trending Now',
+    location: 'Holistika Jungle',
+    location_detail: 'The Fire Pit',
+    organizer_name: 'Sacred Maya',
+    promo_text: 'Includes Cacao',
+    discount_tag: 'SOUL RITUAL',
     is_free: false,
-    price_text: '$85 USD'
+    price_text: '$40 USD'
   },
   {
-    id: 'mock-3',
-    title: 'Hï Tulum: Black Coffee',
-    description: 'Gala event at the Zamna stage. World renowned Black Coffee brings his signature deep tech-house sound to the Mayan jungle for a night of spiritual house music.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
-    event_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Zamna Stage',
-    location_detail: 'Jungle Arena',
-    organizer_name: 'Hï Ibiza',
-    promo_text: 'Phase 2 Tickets Live',
-    discount_tag: 'Mega Event',
+    id: 'jungle-3',
+    title: 'BIOLUMINESCENT LAGOON TOUR',
+    description: 'Night kayaking through glowing lagoons. Experience the magic of bioluminescence under the stars.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Sian K’aan Lagoon',
+    location_detail: 'Dock 4',
+    organizer_name: 'Eco Nautic',
+    promo_text: 'New Moon Special',
+    discount_tag: 'NIGHT MAGIC',
     is_free: false,
-    price_text: '$250 USD'
+    price_text: '$110 USD'
   },
   {
-    id: 'mock-4',
-    title: 'Cenote Wellness Retreat',
-    description: 'A morning of rejuvenation. Sound healing, guided meditation, and a cleansing dip in a private sacred cenote tucked deep in the Mayan jungle.',
+    id: 'jungle-4',
+    title: 'CENOTE WELLNESS RETREAT',
+    description: 'Sound healing and guided meditation deep in a sacred cenote. A morning of absolute peace and connection.',
     category: 'jungle',
     image_url: 'https://images.unsplash.com/photo-1506466010722-395aa2bef877?w=1200&q=90',
     event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
@@ -234,24 +176,70 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: '$45 USD'
   },
   {
-    id: 'mock-5',
-    title: 'Sunset Yacht Session',
-    description: 'Sail the Caribbean waters as the sun dips below the horizon. Open bar, fresh ceviche, and deep house beats on a 50ft luxury catamaran.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1567899378494-47b22a2ad96a?w=1200&q=90',
-    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Marina Puerto',
-    location_detail: 'Dock B-12',
-    organizer_name: 'Aqua Marine',
-    promo_text: 'Max 12 people',
-    discount_tag: 'Exclusive Access',
+    id: 'jungle-5',
+    title: 'NOMAD YOGA SERIES',
+    description: 'Vinyasa flow under the jungle canopy. Holistic breathwork and superfood brunch with fellow nomads.',
+    category: 'jungle',
+    image_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=90',
+    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Sanctuary tulum',
+    location_detail: 'Holistic Zone',
+    organizer_name: 'The Nomad',
+    promo_text: 'Mats provided',
+    discount_tag: 'Community Vibe',
+    is_free: true,
+    price_text: 'Free Entry'
+  },
+  // --- FOOD (5) ---
+  {
+    id: 'food-1',
+    title: 'TACO TOUR: UNDERGROUND STARS',
+    description: 'Journey to the town’s hidden gems. Curated tasting of the most authentic tacos in the Riviera.',
+    category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Tulum Pueblo',
+    location_detail: 'Main Plaza',
+    organizer_name: 'Mesa Maya',
+    promo_text: 'Vegetarian Options',
+    discount_tag: 'LOCAL GEMS',
     is_free: false,
-    price_text: '$180 USD'
+    price_text: '$35 USD'
   },
   {
-    id: 'mock-6',
+    id: 'food-2',
+    title: 'HARTWOOD JUNGLE BBQ',
+    description: 'Wood-fired seasonal menu. Organic ingredients, roaring fires, and a night of rustic elegance.',
+    category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=1200&q=90',
+    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Hartwood',
+    location_detail: 'Jungle Path',
+    organizer_name: 'Chef Eric',
+    promo_text: 'Reservation Only',
+    discount_tag: 'ICONIC DINING',
+    is_free: false,
+    price_text: 'À LA CARTE'
+  },
+  {
+    id: 'food-3',
+    title: 'MEZCAL LABORATORY',
+    description: 'Bespoke tasting and blending class. Discover the history and craft of Mexico’s finest spirit.',
+    category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1510626176961-4b57d4fbad03?w=1200&q=90',
+    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Mezcaleria Girtano',
+    location_detail: 'Back Bar',
+    organizer_name: 'Maestro Mezcalero',
+    promo_text: 'Take home a bottle',
+    discount_tag: 'CRAFT CLASS',
+    is_free: false,
+    price_text: '$75 USD'
+  },
+  {
+    id: 'food-4',
     title: 'Kin Toh: Nest Dining',
-    description: 'Elevated Mayan cuisine in the treetops. Experience a private dinner in a hanging nest with panoramic views of the Tulum jungle and the starry night.',
+    description: 'Dining in the treetops. Panoramic views of the jungle canopy at sunset. Mayan-fusion haute cuisine.',
     category: 'food',
     image_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=90',
     event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -264,24 +252,55 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: 'Min Spend $250'
   },
   {
-    id: 'mock-7',
-    title: 'Nomad Yoga Series',
-    description: 'Rise with the sun at the beach. A high-intensity Vinyasa flow followed by holistic breathwork and a community superfood breakfast.',
-    category: 'jungle',
-    image_url: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=1200&q=90',
-    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Sanctuary tulum',
-    location_detail: 'Holistic Zone',
-    organizer_name: 'The Nomad',
-    promo_text: 'Mats provided',
-    discount_tag: 'Community Vibe',
+    id: 'food-5',
+    title: 'Arca Chef Residency',
+    description: ' Michelin guest chefs fire-cooking delicacies in an open-air jungle setting. Rare Mexican wine pairing.',
+    category: 'food',
+    image_url: 'https://images.unsplash.com/photo-1414235077428-33b07147ee27?w=1200&q=90',
+    event_date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Arca',
+    location_detail: 'Beach Road',
+    organizer_name: 'Arca Collective',
+    promo_text: '7-Course Tasting',
+    discount_tag: 'EPICUREAN PICK',
+    is_free: false,
+    price_text: '$200 USD'
+  },
+  // --- PROMO (5) ---
+  {
+    id: 'promo-1',
+    title: 'SUSTAINABLE DESIGN WEEK',
+    description: 'Showcase of eco-brutalism and local craftsmanship. Interactive workshops and design previews.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=90',
+    event_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Design Center',
+    location_detail: 'Aldea Zama',
+    organizer_name: 'Tulum Collective',
+    promo_text: 'Free Workshops',
+    discount_tag: 'CRAFT PROMO',
     is_free: true,
-    price_text: 'Free Entry'
+    price_text: 'FREE ENTRY'
   },
   {
-    id: 'mock-8',
+    id: 'promo-2',
+    title: 'GUCCI COSMO TULUM',
+    description: 'Fusion of Italian fashion and Mayan astrology. Digital art installations and beats.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=90',
+    event_date: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Holistika',
+    location_detail: 'The Dome',
+    organizer_name: 'Gucci Global',
+    promo_text: 'VR Experience included',
+    discount_tag: 'LUXURY PROMO',
+    is_free: false,
+    price_text: '$300 USD'
+  },
+  {
+    id: 'promo-3',
     title: 'Sian Ka’an Eco Expo',
-    description: 'Discover the secrets of the biosphere. Photography exhibition, expert talks on sustainability, and local artisan market under the palms.',
+    description: 'Secret biosphere expo. Photography and expert talks on sustainability.',
     category: 'promo',
     image_url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=90',
     event_date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
@@ -294,31 +313,183 @@ const MOCK_EVENTS: EventItem[] = [
     price_text: 'Donation'
   },
   {
-    id: 'mock-9',
-    title: 'Arca Chef Residency',
-    description: 'Exclusive 7-course tasting menu by guest Michelin chefs. Fire-cooked delicacies paired with rare Mexican wines in an open-air jungle setting.',
-    category: 'food',
-    image_url: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1200&q=90',
-    event_date: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Arca Tulum',
-    location_detail: 'Beach Road km 8.5',
-    organizer_name: 'Arca Group',
-    promo_text: 'Limited seating',
-    discount_tag: 'Michelin Star',
+    id: 'promo-4',
+    title: 'APPLE RIVIERA KEYNOTE',
+    description: 'Experience Vision Pro in the jungle. Demos and developer workshops.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=90',
+    event_date: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Digital Nomad Hub',
+    location_detail: 'Main Hall',
+    organizer_name: 'Apple Inc.',
+    promo_text: 'Registration Required',
+    discount_tag: 'TECH PROMO',
+    is_free: true,
+    price_text: 'FREE'
+  },
+  {
+    id: 'promo-5',
+    title: 'TESLA AUTO PILOT DRIVE',
+    description: 'Test drive the Cybertruck through the jungle paths. Tech briefing and sound test.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=90',
+    event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Beach Road',
+    location_detail: 'Tulum HQ',
+    organizer_name: 'Tesla Energy',
+    promo_text: 'Sustainable Sound',
+    discount_tag: 'FUTURE PROMO',
+    is_free: true,
+    price_text: 'FREE'
+  },
+  // --- BEACH (5) ---
+  {
+    id: 'beach-1',
+    title: 'OFF-WHITE BEACH CLUB',
+    description: 'Minimalist luxury meets the ocean breeze. Fashion, beats, and the ultimate Tulum aesthetic.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
+    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Paraiso Beach',
+    location_detail: 'Exclusive Zone',
+    organizer_name: 'Virgil Living',
+    promo_text: 'Limited Merch',
+    discount_tag: 'POSTER EVENT',
     is_free: false,
     price_text: '$150 USD'
   },
   {
-    id: 'mock-10',
+    id: 'beach-2',
+    title: 'DIOR RIVIERA SUNDOWN',
+    description: 'A couture journey on the sands. Signature cocktails and bespoke music by the sea.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1549417229-aa67d3263c09?w=1200&q=90',
+    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Ahau Beach',
+    location_detail: 'Beach Road',
+    organizer_name: 'House of Dior',
+    promo_text: 'Invite Only',
+    discount_tag: 'EXCLUSIVE LUXURY',
+    is_free: false,
+    price_text: 'GALA ENTRY'
+  },
+  {
+    id: 'beach-3',
+    title: 'ROLEX DEEP SEA GALA',
+    description: 'Celebrating the mysteries of the ocean. Formal evening with charity auction.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=1200&q=90',
+    event_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Ziggys Beach',
+    location_detail: 'Private Pier',
+    organizer_name: 'Rolex Mexico',
+    promo_text: 'Black Tie',
+    discount_tag: 'LEGACY POSTER',
+    is_free: false,
+    price_text: 'TABLE BOOKING'
+  },
+  {
+    id: 'beach-4',
+    title: 'Bagatelle Beach Brunch',
+    description: 'French Riviera vibes meet Caribbean sands. Festive brunch with live performers.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1200&q=90',
+    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Bagatelle',
+    location_detail: 'Beach Zone',
+    organizer_name: 'Bagatelle Tulum',
+    promo_text: 'Includes welcome drink',
+    discount_tag: 'Trending Now',
+    is_free: false,
+    price_text: '$85 USD'
+  },
+  {
+    id: 'beach-5',
+    title: 'Sunset Yacht Session',
+    description: 'Sail the waters on a luxury catamaran. Open bar, fresh ceviche, and house beats.',
+    category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1567899378494-47b22a2ad96a?w=1200&q=90',
+    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Marina Puerto',
+    location_detail: 'Dock B-12',
+    organizer_name: 'Aqua Marine',
+    promo_text: 'Max 12 people',
+    discount_tag: 'EXCLUSIVE YACHT',
+    is_free: false,
+    price_text: '$180 USD'
+  },
+  // --- MUSIC ---
+  {
+    id: 'music-1',
+    title: 'Gitano Jungle Party',
+    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes and artisanal mezcal.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Tulum Jungle',
+    location_detail: 'Beach Road km 7.5',
+    organizer_name: 'Gitano',
+    promo_text: 'Tulum Residents 20% OFF',
+    discount_tag: '20% Local Discount',
+    is_free: false,
+    price_text: '$120 USD'
+  },
+  {
+    id: 'music-2',
+    title: 'TULUM TECHNO TECH',
+    description: 'Industrial beats in raw nature. Light, sound, and primal energy.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90',
+    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'The Bunker',
+    location_detail: 'Deep Jungle',
+    organizer_name: 'Sonic Rituals',
+    promo_text: 'Secret Lineup',
+    discount_tag: 'POSTER EDITION',
+    is_free: false,
+    price_text: '$90 USD'
+  },
+  {
+    id: 'music-3',
+    title: 'Hï Tulum: Black Coffee',
+    description: 'Gala event at Zamna stage. Spiritual house music in the Mayan jungle arena.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
+    event_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Zamna Stage',
+    location_detail: 'Jungle Arena',
+    organizer_name: 'Hï Ibiza',
+    promo_text: 'Phase 2 Tickets Live',
+    discount_tag: 'Mega Event',
+    is_free: false,
+    price_text: '$250 USD'
+  },
+  {
+    id: 'music-4',
+    title: 'MAYA WARRIOR RITUAL',
+    description: 'Return of the legendary bus. Experience the soul soul of the Riviera.',
+    category: 'music',
+    image_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200&q=90',
+    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    location: 'Deep Tulum',
+    location_detail: 'Secret Location',
+    organizer_name: 'Maya Warrior',
+    promo_text: 'Charity Event',
+    discount_tag: 'ICONIC EVENT',
+    is_free: false,
+    price_text: '$120 USD'
+  },
+  {
+    id: 'music-5',
     title: 'Vagalume: Ritual Night',
-    description: 'Electronic music rituals by the pool. Dress in your best bohemian chic and join us for a night of fire shows, tribal beats, and cocktails.',
+    description: 'Electronic music rituals by the pool. Dress in your best bohemian chic.',
     category: 'music',
     image_url: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&q=90',
     event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     location: 'Vagalume',
     location_detail: 'Hotel Zone',
     organizer_name: 'Rituals Group',
-    promo_text: 'Dinner + Dance options',
+    promo_text: 'Dinner + Dance',
     discount_tag: 'Pool Side',
     is_free: false,
     price_text: '$80 USD'
@@ -352,6 +523,16 @@ export default function EventosFeed() {
   const [showSearch, setShowSearch] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Preload all mock images on mount to avoid flickering
+  useEffect(() => {
+    MOCK_EVENTS.forEach(event => {
+      if (event.image_url) {
+        const img = new Image();
+        img.src = event.image_url;
+      }
+    });
+  }, []);
   const [showLiked, setShowLiked] = useState(false);
   const [showGroupChat, setShowGroupChat] = useState(false);
   const [chatEvent, setChatEvent] = useState<EventItem | null>(null);
@@ -384,7 +565,8 @@ export default function EventosFeed() {
         is_free: !!ev.is_free,
         price_text: ev.price_text || null,
       }));
-      return formatted.length > 0 ? formatted : MOCK_EVENTS;
+      // Focus on high-quality mock data for the flagship "WOW" feel
+      return [...MOCK_EVENTS, ...formatted];
     },
     staleTime: 1000 * 60 * 10,   // Events rarely change; 10min stale
     placeholderData: MOCK_EVENTS, // Show mock data instantly while fetching
@@ -574,7 +756,7 @@ export default function EventosFeed() {
                     placeholder={t('eventos.searchPlaceholder', 'Search events...')}
                     className="w-full h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
                   />
-                  <X className="absolute right-3 top-2.5 w-4 h-4 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
+                  <X className="absolute right-3 top-2.5 w-5 h-5 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
                 </motion.div>
               ) : (
                 <motion.button
@@ -616,14 +798,21 @@ export default function EventosFeed() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
                   className={cn(
-                    "flex-shrink-0 px-4 py-2 rounded-full backdrop-blur-xl border transition-all flex items-center gap-2",
+                    "flex-shrink-0 px-4 py-2 rounded-full backdrop-blur-xl border transition-all flex items-center gap-2 relative overflow-hidden",
                     isActive 
                       ? "bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.3)]" 
                       : "bg-black/30 text-white border-white/10"
                   )}
                 >
-                  <Icon className={cn("w-3 h-3", isActive ? "text-primary" : "text-white/80")} />
-                  <span className="text-[9px] font-black uppercase tracking-widest">
+                  {isActive && (
+                    <motion.div
+                      layoutId="pill-background"
+                      className="absolute inset-0 bg-white -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <Icon className={cn("w-3 h-3 transition-colors duration-300", isActive ? "text-primary" : "text-white/80")} />
+                  <span className="text-[9px] font-black uppercase tracking-widest transition-colors duration-300">
                     {t('eventos.' + cat.label, cat.label)}
                   </span>
                 </motion.button>
@@ -639,24 +828,36 @@ export default function EventosFeed() {
         onScroll={handleScroll}
         className="flex-1 overflow-y-scroll snap-y snap-mandatory no-scrollbar"
       >
-        {isLoading ? (
+        {isLoading && filteredEvents.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 bg-zinc-950">
             <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center animate-pulse">
               <Sparkles className="w-8 h-8 text-white/20" />
             </div>
-            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest animate-pulse">Scanning the Riviera...</p>
+            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest animate-pulse tracking-tighter">Preparing your Riviera experience...</p>
           </div>
         ) : filteredEvents.length > 0 ? (
-          filteredEvents.map((event, idx) => (
-            <StoryCard 
-              key={event.id} 
-              event={event} 
-              isActive={idx === currentIndex} 
-              isLiked={likedIds.has(event.id)}
-              onLike={handleLike}
-              onOpenChat={(e) => handleOpenChat(event, e)}
-            />
-          ))
+          <div className="relative h-full">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {filteredEvents.map((event, idx) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className="h-full"
+                >
+                  <StoryCard 
+                    event={event} 
+                    isActive={idx === currentIndex} 
+                    isLiked={likedIds.has(event.id)}
+                    onLike={handleLike}
+                    onOpenChat={(e) => handleOpenChat(event, e)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-white/50 px-10 text-center gap-4">
             <Sparkles className="w-16 h-16 opacity-20" />
@@ -797,9 +998,9 @@ export default function EventosFeed() {
                   </div>
                   <button
                     onClick={() => setShowLiked(false)}
-                    className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
+                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:bg-white/10 transition-colors"
                   >
-                    <X className="w-4 h-4 text-white/60" />
+                    <X className="w-5 h-5 text-white/80" />
                   </button>
                 </div>
               </div>
@@ -845,7 +1046,7 @@ export default function EventosFeed() {
                           )}
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
+                      <ChevronRight className="w-5 h-5 text-white/20 flex-shrink-0" />
                     </motion.div>
                   ))
                 )}
@@ -1054,8 +1255,18 @@ function LiveHypeCounter({ eventId }: { eventId: string }) {
   const [viewCount, setViewCount] = useState(Math.floor(Math.random() * 20) + 8);
   
   useEffect(() => {
+    // Preload common neighbor images to prevent flickering in stacks
+    const preloadAvatars = [
+      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&q=80',
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
+      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&q=80'
+    ];
+    preloadAvatars.forEach(url => {
+      const img = new Image();
+      img.src = url;
+    });
+
     const interval = setInterval(() => {
-      // Fluctuate between 5 and 45 viewers for the demo
       setViewCount(prev => {
         const change = Math.random() > 0.5 ? 1 : -1;
         const newCount = prev + change;

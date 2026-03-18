@@ -159,7 +159,7 @@ export default function ClientFilters() {
                 onClick={handleReset}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-secondary/80 border border-border/50 text-xs font-black text-foreground hover:bg-secondary transition-colors shadow-sm"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw className="w-4.5 h-4.5" />
                 RESET
               </motion.button>
             )}
