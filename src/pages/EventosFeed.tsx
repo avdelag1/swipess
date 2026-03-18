@@ -8,7 +8,9 @@ import {
   ChevronLeft, Heart, 
   Waves, Trees, Music, Utensils, Ticket, 
   ArrowUpRight, Check, ChevronRight, 
-  Eye, Users, MessageSquare, Star
+  Eye, Users, MessageSquare, Star,
+  LayoutGrid, PanelsTopLeft, Filter,
+  TrendingUp, Compass, Bookmark, Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +18,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
+import { useTheme } from '@/hooks/useTheme';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 interface EventItem {
@@ -36,6 +39,7 @@ interface EventItem {
 }
 
 type SortOrder = 'upcoming' | 'newest';
+type ViewMode = 'discover' | 'stories';
 
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
 
@@ -283,235 +287,16 @@ const MOCK_EVENTS: EventItem[] = [
     discount_tag: 'EPICUREAN PICK',
     is_free: false,
     price_text: '$200 USD'
-  },
-  // --- PROMO (5) ---
-  {
-    id: 'promo-1',
-    title: 'SUSTAINABLE DESIGN WEEK',
-    description: 'Showcase of eco-brutalism and local craftsmanship. Interactive workshops and design previews.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=90',
-    event_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Design Center',
-    location_detail: 'Aldea Zama',
-    organizer_name: 'Tulum Collective',
-    promo_text: 'Free Workshops',
-    discount_tag: 'CRAFT PROMO',
-    is_free: true,
-    price_text: 'FREE ENTRY'
-  },
-  {
-    id: 'promo-2',
-    title: 'GUCCI COSMO TULUM',
-    description: 'Fusion of Italian fashion and Mayan astrology. Digital art installations and beats.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=1200&q=90',
-    event_date: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Holistika',
-    location_detail: 'The Dome',
-    organizer_name: 'Gucci Global',
-    promo_text: 'VR Experience included',
-    discount_tag: 'LUXURY PROMO',
-    is_free: false,
-    price_text: '$300 USD'
-  },
-  {
-    id: 'promo-3',
-    title: 'Sian Ka’an Eco Expo',
-    description: 'Secret biosphere expo. Photography and expert talks on sustainability.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=90',
-    event_date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Centro Cultural',
-    location_detail: 'Town Square',
-    organizer_name: 'Earth Tulum',
-    promo_text: 'Support local artists',
-    discount_tag: 'Eco Friendly',
-    is_free: true,
-    price_text: 'Donation'
-  },
-  {
-    id: 'promo-4',
-    title: 'APPLE RIVIERA KEYNOTE',
-    description: 'Experience Vision Pro in the jungle. Demos and developer workshops.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=90',
-    event_date: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Digital Nomad Hub',
-    location_detail: 'Main Hall',
-    organizer_name: 'Apple Inc.',
-    promo_text: 'Registration Required',
-    discount_tag: 'TECH PROMO',
-    is_free: true,
-    price_text: 'FREE'
-  },
-  {
-    id: 'promo-5',
-    title: 'TESLA AUTO PILOT DRIVE',
-    description: 'Test drive the Cybertruck through the jungle paths. Tech briefing and sound test.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=90',
-    event_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Beach Road',
-    location_detail: 'Tulum HQ',
-    organizer_name: 'Tesla Energy',
-    promo_text: 'Sustainable Sound',
-    discount_tag: 'FUTURE PROMO',
-    is_free: true,
-    price_text: 'FREE'
-  },
-  // --- BEACH (5) ---
-  {
-    id: 'beach-1',
-    title: 'OFF-WHITE BEACH CLUB',
-    description: 'Minimalist luxury meets the ocean breeze. Fashion, beats, and the ultimate Tulum aesthetic.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=90',
-    event_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Paraiso Beach',
-    location_detail: 'Exclusive Zone',
-    organizer_name: 'Virgil Living',
-    promo_text: 'Limited Merch',
-    discount_tag: 'POSTER EVENT',
-    is_free: false,
-    price_text: '$150 USD'
-  },
-  {
-    id: 'beach-2',
-    title: 'DIOR RIVIERA SUNDOWN',
-    description: 'A couture journey on the sands. Signature cocktails and bespoke music by the sea.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1549417229-aa67d3263c09?w=1200&q=90',
-    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Ahau Beach',
-    location_detail: 'Beach Road',
-    organizer_name: 'House of Dior',
-    promo_text: 'Invite Only',
-    discount_tag: 'EXCLUSIVE LUXURY',
-    is_free: false,
-    price_text: 'GALA ENTRY'
-  },
-  {
-    id: 'beach-3',
-    title: 'ROLEX DEEP SEA GALA',
-    description: 'Celebrating the mysteries of the ocean. Formal evening with charity auction.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1518152006812-edab29b069ac?w=1200&q=90',
-    event_date: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Ziggys Beach',
-    location_detail: 'Private Pier',
-    organizer_name: 'Rolex Mexico',
-    promo_text: 'Black Tie',
-    discount_tag: 'LEGACY POSTER',
-    is_free: false,
-    price_text: 'TABLE BOOKING'
-  },
-  {
-    id: 'beach-4',
-    title: 'Bagatelle Beach Brunch',
-    description: 'French Riviera vibes meet Caribbean sands. Festive brunch with live performers.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=1200&q=90',
-    event_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Bagatelle',
-    location_detail: 'Beach Zone',
-    organizer_name: 'Bagatelle Tulum',
-    promo_text: 'Includes welcome drink',
-    discount_tag: 'Trending Now',
-    is_free: false,
-    price_text: '$85 USD'
-  },
-  {
-    id: 'beach-5',
-    title: 'Sunset Yacht Session',
-    description: 'Sail the waters on a luxury catamaran. Open bar, fresh ceviche, and house beats.',
-    category: 'beach',
-    image_url: 'https://images.unsplash.com/photo-1567899378494-47b22a2ad96a?w=1200&q=90',
-    event_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Marina Puerto',
-    location_detail: 'Dock B-12',
-    organizer_name: 'Aqua Marine',
-    promo_text: 'Max 12 people',
-    discount_tag: 'EXCLUSIVE YACHT',
-    is_free: false,
-    price_text: '$180 USD'
-  },
-  // --- MUSIC ---
-  {
-    id: 'music-1',
-    title: 'Gitano Jungle Party',
-    description: 'The legendary Friday night in the jungle. Gypsy Disco vibes and artisanal mezcal.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=90',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Tulum Jungle',
-    location_detail: 'Beach Road km 7.5',
-    organizer_name: 'Gitano',
-    promo_text: 'Tulum Residents 20% OFF',
-    discount_tag: '20% Local Discount',
-    is_free: false,
-    price_text: '$120 USD'
-  },
-  {
-    id: 'music-2',
-    title: 'TULUM TECHNO TECH',
-    description: 'Industrial beats in raw nature. Light, sound, and primal energy.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=1200&q=90',
-    event_date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'The Bunker',
-    location_detail: 'Deep Jungle',
-    organizer_name: 'Sonic Rituals',
-    promo_text: 'Secret Lineup',
-    discount_tag: 'POSTER EDITION',
-    is_free: false,
-    price_text: '$90 USD'
-  },
-  {
-    id: 'music-3',
-    title: 'Hï Tulum: Black Coffee',
-    description: 'Gala event at Zamna stage. Spiritual house music in the Mayan jungle arena.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1200&q=90',
-    event_date: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Zamna Stage',
-    location_detail: 'Jungle Arena',
-    organizer_name: 'Hï Ibiza',
-    promo_text: 'Phase 2 Tickets Live',
-    discount_tag: 'Mega Event',
-    is_free: false,
-    price_text: '$250 USD'
-  },
-  {
-    id: 'music-4',
-    title: 'MAYA WARRIOR RITUAL',
-    description: 'Return of the legendary bus. Experience the soul soul of the Riviera.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=1200&q=90',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Deep Tulum',
-    location_detail: 'Secret Location',
-    organizer_name: 'Maya Warrior',
-    promo_text: 'Charity Event',
-    discount_tag: 'ICONIC EVENT',
-    is_free: false,
-    price_text: '$120 USD'
-  },
-  {
-    id: 'music-5',
-    title: 'Vagalume: Ritual Night',
-    description: 'Electronic music rituals by the pool. Dress in your best bohemian chic.',
-    category: 'music',
-    image_url: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&q=90',
-    event_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-    location: 'Vagalume',
-    location_detail: 'Hotel Zone',
-    organizer_name: 'Rituals Group',
-    promo_text: 'Dinner + Dance',
-    discount_tag: 'Pool Side',
-    is_free: false,
-    price_text: '$80 USD'
   }
+];
+
+const CATEGORIES = [
+  { key: 'all', label: 'allEvents', icon: Sparkles, color: '#FFD700' },
+  { key: 'beach', label: 'beachClubs', icon: Waves, color: '#00BFFF' },
+  { key: 'jungle', label: 'jungleNature', icon: Trees, color: '#32CD32' },
+  { key: 'music', label: 'musicFiestas', icon: Music, color: '#FF4500' },
+  { key: 'food', label: 'foodRestaurants', icon: Utensils, color: '#FFA500' },
+  { key: 'promo', label: 'promosDiscounts', icon: Ticket, color: '#BA55D3' },
 ];
 
 const LIKED_STORAGE_KEY = 'eventos_liked_ids';
@@ -536,13 +321,23 @@ function saveLikedIds(ids: Set<string>) {
 export default function EventosFeed() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
+  const [viewMode, setViewMode] = useState<ViewMode>('discover');
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [showSearch, setShowSearch] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [showLiked, setShowLiked] = useState(false);
+  const [showGroupChat, setShowGroupChat] = useState(false);
+  const [chatEvent, setChatEvent] = useState<EventItem | null>(null);
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOrder>('upcoming');
+  const [likedIds, setLikedIds] = useState<Set<string>>(loadLikedIds);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Preload all mock images on mount to avoid flickering
+  // Preload image hook
   useEffect(() => {
     MOCK_EVENTS.forEach(event => {
       if (event.image_url) {
@@ -551,13 +346,6 @@ export default function EventosFeed() {
       }
     });
   }, []);
-  const [showLiked, setShowLiked] = useState(false);
-  const [showGroupChat, setShowGroupChat] = useState(false);
-  const [chatEvent, setChatEvent] = useState<EventItem | null>(null);
-  const [freeOnly, setFreeOnly] = useState(false);
-  const [sortBy, setSortBy] = useState<SortOrder>('upcoming');
-  const [likedIds, setLikedIds] = useState<Set<string>>(loadLikedIds);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   const { data: allEvents = MOCK_EVENTS, isLoading } = useQuery({
     queryKey: ['eventos'],
@@ -583,36 +371,30 @@ export default function EventosFeed() {
         is_free: !!ev.is_free,
         price_text: ev.price_text || null,
       }));
-      // Focus on high-quality mock data for the flagship "WOW" feel
       return [...MOCK_EVENTS, ...formatted];
     },
-    staleTime: 1000 * 60 * 10,   // Events rarely change; 10min stale
-    placeholderData: MOCK_EVENTS, // Show mock data instantly while fetching
+    staleTime: 1000 * 60 * 10,
+    placeholderData: MOCK_EVENTS,
   });
 
-  const CATEGORIES = [
-    { key: 'all', label: 'allEvents', icon: Sparkles },
-    { key: 'beach', label: 'beachClubs', icon: Waves },
-    { key: 'jungle', label: 'jungleNature', icon: Trees },
-    { key: 'music', label: 'musicFiestas', icon: Music },
-    { key: 'food', label: 'foodRestaurants', icon: Utensils },
-    { key: 'promo', label: 'promosDiscounts', icon: Ticket },
-  ];
+  const filteredEvents = useMemo(() => {
+    return allEvents
+      .filter(e => {
+        const matchesCat = activeCategory === 'all' || e.category === activeCategory;
+        const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesFree = !freeOnly || e.is_free;
+        return matchesCat && matchesSearch && matchesFree;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'newest') {
+          return new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime();
+        }
+        return new Date(a.event_date || 0).getTime() - new Date(b.event_date || 0).getTime();
+      });
+  }, [allEvents, activeCategory, searchQuery, freeOnly, sortBy]);
 
-
-  const handleSwipe = useCallback((id: string, _direction: 'left' | 'right') => {
-    setLikedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-        triggerHaptic('medium');
-      }
-      saveLikedIds(next);
-      return next;
-    });
-  }, []);
+  const likedCount = likedIds.size;
+  const activeFilterCount = (freeOnly ? 1 : 0) + (sortBy !== 'upcoming' ? 1 : 0);
 
   const handleLike = useCallback((id: string) => {
     setLikedIds(prev => {
@@ -635,45 +417,420 @@ export default function EventosFeed() {
     setShowGroupChat(true);
   }, []);
 
-  const filteredEvents = useMemo(() => {
-    const base = allEvents
-      .filter(e => {
-        const matchesCat = activeCategory === 'all' || e.category === activeCategory;
-        const matchesSearch = !searchQuery || e.title.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesFree = !freeOnly || e.is_free;
-        return matchesCat && matchesSearch && matchesFree;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'newest') {
-          return new Date(b.event_date || 0).getTime() - new Date(a.event_date || 0).getTime();
-        }
-        return new Date(a.event_date || 0).getTime() - new Date(b.event_date || 0).getTime();
-      });
+  return (
+    <div className={cn(
+      "relative w-full h-[100dvh] overflow-hidden flex flex-col font-sans transition-colors duration-500",
+      isLight ? "bg-slate-50" : "bg-black"
+    )}>
+      
+      {/* ── CUSTOM IMMERSIVE HEADER ── */}
+      <div className={cn(
+        "absolute top-0 left-0 right-0 z-[60] pt-[var(--safe-top)] pb-4 transition-all duration-300",
+        viewMode === 'stories' ? "pointer-events-none" : "bg-transparent"
+      )}>
+        <div className="px-4 py-3 flex items-center justify-between pointer-events-auto">
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center border transition-all",
+                isLight 
+                  ? "bg-white border-slate-200 text-slate-900 shadow-sm" 
+                  : "bg-black/20 backdrop-blur-xl border-white/10 text-white"
+              )}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+            <div className="flex flex-col">
+              <span className={cn(
+                "text-[9px] font-black uppercase tracking-widest",
+                isLight ? "text-slate-400" : "text-white/60"
+              )}>{t('nav.explore')}</span>
+              <span className={cn(
+                "text-sm font-black italic tracking-tight uppercase",
+                isLight ? "text-slate-900" : "text-white"
+              )}>{t('eventos.title')}</span>
+            </div>
+          </div>
 
-    // INFINITY SCROLL HACK: Duplicate events if reaching the end to allow continuous scroll
-    // This creates a truly endless feeling for the demo/PWA
-    if (base.length > 0) {
-      // 5-layer loop for truly infinite feel
-      return [
-        ...base, 
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-1` })), 
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-2` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-3` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-4` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-5` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-6` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-7` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-8` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-9` })),
-        ...base.map(e => ({ ...e, id: `${e.id}-loop-10` }))
-      ];
-    }
-    return base;
-  }, [allEvents, activeCategory, searchQuery, freeOnly, sortBy]);
+          {/* VIEW MODE TOGGLE */}
+          <div className={cn(
+            "flex p-1 rounded-full border transition-all h-10",
+            isLight ? "bg-slate-200/50 border-slate-200" : "bg-white/5 border-white/10"
+          )}>
+            <button
+              onClick={() => { triggerHaptic('light'); setViewMode('discover'); }}
+              className={cn(
+                "px-4 h-full rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all",
+                viewMode === 'discover' 
+                  ? isLight ? "bg-white text-slate-900 shadow-sm" : "bg-white text-black"
+                  : isLight ? "text-slate-500" : "text-white/40"
+              )}
+            >
+              <LayoutGrid className="w-3 h-3" />
+              <span className="hidden sm:inline">Discover</span>
+            </button>
+            <button
+              onClick={() => { triggerHaptic('light'); setViewMode('stories'); }}
+              className={cn(
+                "px-4 h-full rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all",
+                viewMode === 'stories' 
+                  ? isLight ? "bg-white text-slate-900 shadow-sm" : "bg-white text-black"
+                  : isLight ? "text-slate-500" : "text-white/40"
+              )}
+            >
+              <PanelsTopLeft className="w-3 h-3" />
+              <span className="hidden sm:inline">Stories</span>
+            </button>
+          </div>
 
-  const likedEvents = allEvents.filter(e => likedIds.has(e.id));
-  const likedCount = likedIds.size;
-  const activeFilterCount = (freeOnly ? 1 : 0) + (sortBy !== 'upcoming' ? 1 : 0);
+          <div className="flex items-center gap-2">
+            {likedCount > 0 && (
+              <motion.button
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => { triggerHaptic('light'); setShowLiked(true); }}
+                className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-lg"
+              >
+                <Heart className="w-4 h-4 fill-current" />
+              </motion.button>
+            )}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setShowFilters(true)}
+              className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center border transition-all relative",
+                isLight 
+                  ? "bg-white border-slate-200 text-slate-900 shadow-sm" 
+                  : "bg-black/20 backdrop-blur-xl border-white/10 text-white"
+              )}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {activeFilterCount > 0 && <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center text-[9px] font-black text-white">{activeFilterCount}</div>}
+            </motion.button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MAIN CONTENT ── */}
+      <div className="flex-1 w-full relative">
+        <AnimatePresence mode="wait">
+          {viewMode === 'discover' ? (
+            <motion.div
+              key="discover"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="w-full h-full overflow-y-auto no-scrollbar pt-[calc(var(--safe-top)+80px)]"
+            >
+              <DiscoverContent 
+                events={allEvents} 
+                categories={CATEGORIES} 
+                activeCategory={activeCategory}
+                setActiveCategory={setActiveCategory}
+                onEventClick={(id) => navigate(`/explore/eventos/${id}`)}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="stories"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full h-full"
+            >
+              <StoriesView 
+                events={filteredEvents}
+                currentIndex={currentIndex}
+                setCurrentIndex={setCurrentIndex}
+                likedIds={likedIds}
+                onLike={handleLike}
+                onOpenChat={handleOpenChat}
+                isLoading={isLoading}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ── OVERLAYS ── */}
+      <FilterSheet 
+        isOpen={showFilters} 
+        onClose={() => setShowFilters(false)} 
+        freeOnly={freeOnly}
+        setFreeOnly={setFreeOnly}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        activeFilterCount={activeFilterCount}
+      />
+
+      <LikedSheet 
+        isOpen={showLiked} 
+        onClose={() => setShowLiked(false)} 
+        likedEvents={allEvents.filter(e => likedIds.has(e.id))}
+        likedCount={likedCount}
+      />
+
+      {showGroupChat && chatEvent && (
+        <EventGroupChat 
+          eventId={chatEvent.id} 
+          eventTitle={chatEvent.title} 
+          onClose={() => setShowGroupChat(false)} 
+        />
+      )}
+    </div>
+  );
+}
+
+// ── DISCOVER CONTENT COMPONENT ────────────────────────────────────────────────
+
+function DiscoverContent({ 
+  events, 
+  categories, 
+  activeCategory, 
+  setActiveCategory,
+  onEventClick 
+}: { 
+  events: EventItem[], 
+  categories: any[], 
+  activeCategory: string,
+  setActiveCategory: (val: string) => void,
+  onEventClick: (id: string) => void
+}) {
+  const { t } = useTranslation();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
+  const spotlightEvents = useMemo(() => events.filter(e => e.discount_tag).slice(0, 5), [events]);
+  const trendingEvents = useMemo(() => events.slice(5, 11), [events]);
+  const upcomingEvents = useMemo(() => events.filter(e => e.event_date).slice(0, 8), [events]);
+
+  return (
+    <div className="pb-24">
+      {/* ── SPOTLIGHT (HORIZONTAL SCROLL) ── */}
+      <div className="px-4 mb-10">
+        <SectionHeader title="Spotlight" icon={Sparkles} actionLabel="View all" />
+        <div className="flex gap-4 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 pr-10">
+          {spotlightEvents.map((event) => (
+            <motion.div
+              key={event.id}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => { triggerHaptic('light'); onEventClick(event.id); }}
+              className="flex-shrink-0 w-[85vw] max-w-[340px] aspect-[16/10] rounded-[2rem] overflow-hidden relative shadow-2xl"
+            >
+              <img src={event.image_url || ''} className="w-full h-full object-cover" alt={event.title} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <span className="px-2.5 py-1 rounded-full bg-primary text-white text-[9px] font-black uppercase tracking-widest mb-2 inline-block shadow-lg">
+                  {event.discount_tag}
+                </span>
+                <h3 className="text-xl font-black text-white uppercase italic leading-none truncate">{event.title}</h3>
+                <div className="flex items-center gap-2 mt-2 opacity-70">
+                   <MapPin className="w-3 h-3 text-white" />
+                   <span className="text-[10px] font-bold text-white uppercase tracking-wider">{event.location}</span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CATEGORIES (ICON GRID) ── */}
+      <div className="px-4 mb-10">
+        <SectionHeader title="Explore Spaces" icon={Compass} />
+        <div className="grid grid-cols-3 gap-3">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = activeCategory === cat.key;
+            return (
+              <motion.button
+                key={cat.key}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
+                className={cn(
+                  "flex flex-col items-center justify-center p-4 rounded-3xl border transition-all",
+                  isActive 
+                    ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" 
+                    : isLight ? "bg-white border-slate-200 text-slate-900" : "bg-white/5 border-white/10 text-white"
+                )}
+              >
+                <div className={cn(
+                  "w-10 h-10 rounded-2xl flex items-center justify-center mb-2",
+                  isActive ? "bg-white/20" : isLight ? "bg-slate-100" : "bg-white/10"
+                )}>
+                  <Icon className="w-5 h-5" style={{ color: isActive ? '#fff' : cat.color }} />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-widest text-center truncate w-full">
+                  {t('eventos.' + cat.label, cat.label)}
+                </span>
+              </motion.button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── THIS WEEKEND (CARD ROW) ── */}
+      <div className="px-4 mb-10">
+        <SectionHeader title="This Weekend" icon={Calendar} BadgeContent="HYPE" />
+        <div className="space-y-3">
+          {upcomingEvents.slice(0, 4).map((event) => (
+            <DiscoverListCard key={event.id} event={event} onClick={onEventClick} />
+          ))}
+        </div>
+      </div>
+
+      {/* ── TRENDING (GRID) ── */}
+      <div className="px-4 mb-10">
+        <SectionHeader title="Trending in Tulum" icon={TrendingUp} />
+        <div className="grid grid-cols-2 gap-4">
+           {trendingEvents.map((event) => (
+             <TrendingGridCard key={event.id} event={event} onClick={onEventClick} />
+           ))}
+        </div>
+      </div>
+
+      {/* ── PROMO BANNER ── */}
+      <div className="px-4 mb-12">
+        <motion.div 
+          whileTap={{ scale: 0.98 }}
+          className="w-full p-8 rounded-[2.5rem] bg-indigo-600 relative overflow-hidden group shadow-2xl shadow-indigo-600/30"
+        >
+          <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Sparkles className="w-24 h-24" />
+          </div>
+          <div className="relative z-10">
+            <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase mb-2">Host an Event?</h3>
+            <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest opacity-80 mb-6 max-w-[200px]">
+              Promote your brand to the elite Swipess community.
+            </p>
+            <button className="px-6 py-2.5 rounded-full bg-white text-indigo-600 text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
+              Apply now
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function SectionHeader({ title, icon: Icon, actionLabel, BadgeContent }: { title: string, icon?: any, actionLabel?: string, BadgeContent?: string }) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        {Icon && <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center", isLight ? "bg-slate-200" : "bg-white/10")}><Icon className="w-4 h-4 text-primary" /></div>}
+        <div className="flex items-center gap-2">
+           <h2 className={cn("text-lg font-black italic tracking-tight uppercase", isLight ? "text-slate-900" : "text-white")}>{title}</h2>
+           {BadgeContent && <span className="px-1.5 py-0.5 rounded bg-orange-500 text-[8px] font-black text-white tracking-widest">{BadgeContent}</span>}
+        </div>
+      </div>
+      {actionLabel && (
+        <button className={cn("text-[9px] font-black uppercase tracking-widest opacity-50 transition-opacity hover:opacity-100", isLight ? "text-slate-900" : "text-white")}>
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function DiscoverListCard({ event, onClick }: { event: EventItem, onClick: (id: string) => void }) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
+  return (
+    <motion.div
+      whileTap={{ scale: 0.98 }}
+      onClick={() => { triggerHaptic('light'); onClick(event.id); }}
+      className={cn(
+        "relative w-full p-4 rounded-3xl border flex items-center gap-4 transition-all group overflow-hidden",
+        isLight ? "bg-white border-slate-200 shadow-sm" : "bg-white/5 border-white/10"
+      )}
+    >
+      <div className="absolute inset-0 bg-primary/0 group-active:bg-primary/5 transition-colors" />
+      <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-lg">
+        <img src={event.image_url || ''} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[8px] font-black text-primary uppercase tracking-widest">{event.category}</span>
+          {event.is_free && <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">• Free</span>}
+        </div>
+        <h4 className={cn("text-sm font-black italic tracking-tight uppercase truncate leading-none mb-1", isLight ? "text-slate-900" : "text-white")}>
+          {event.title}
+        </h4>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 opacity-50">
+            <MapPin className={cn("w-2.5 h-2.5", isLight ? "text-slate-900" : "text-white")} />
+            <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-900" : "text-white")}>{event.location}</span>
+          </div>
+          <div className="flex items-center gap-1 opacity-50">
+            <Clock className={cn("w-2.5 h-2.5", isLight ? "text-slate-900" : "text-white")} />
+            <span className={cn("text-[10px] font-bold uppercase tracking-wider", isLight ? "text-slate-900" : "text-white")}>8 PM</span>
+          </div>
+        </div>
+      </div>
+      <div className={cn("w-8 h-8 rounded-full flex items-center justify-center opacity-20", isLight ? "bg-slate-900" : "bg-white")}>
+        <ChevronRight className="w-4 h-4" />
+      </div>
+    </motion.div>
+  );
+}
+
+function TrendingGridCard({ event, onClick }: { event: EventItem, onClick: (id: string) => void }) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+
+  return (
+    <motion.div
+      whileTap={{ scale: 0.98 }}
+      onClick={() => { triggerHaptic('light'); onClick(event.id); }}
+      className="relative flex flex-col gap-2 group"
+    >
+      <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden shadow-xl">
+        <img src={event.image_url || ''} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute top-3 right-3">
+           <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md border border-white/20 flex items-center justify-center">
+              <Heart className="w-3.5 h-3.5 text-white" />
+           </div>
+        </div>
+      </div>
+      <div className="px-2">
+         <h4 className={cn("text-xs font-black italic tracking-tight uppercase truncate leading-none mb-1", isLight ? "text-slate-900" : "text-white")}>
+           {event.title}
+         </h4>
+         <p className={cn("text-[9px] font-bold uppercase tracking-widest opacity-50 truncate", isLight ? "text-slate-900" : "text-white")}>
+           {event.organizer_name || 'Guest Organizer'}
+         </p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ── STORIES VIEW COMPONENT ───────────────────────────────────────────────────
+
+function StoriesView({ 
+  events, 
+  currentIndex, 
+  setCurrentIndex, 
+  likedIds, 
+  onLike, 
+  onOpenChat,
+  isLoading 
+}: { 
+  events: EventItem[], 
+  currentIndex: number, 
+  setCurrentIndex: (val: any) => void,
+  likedIds: Set<string>,
+  onLike: (id: string) => void,
+  onOpenChat: (e: React.MouseEvent) => void,
+  isLoading: boolean
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const handleScroll = useCallback(() => {
     if (!scrollRef.current) return;
@@ -685,14 +842,13 @@ export default function EventosFeed() {
       setCurrentIndex(index);
       triggerHaptic('light');
     }
-  }, [currentIndex]);
+  }, [currentIndex, setCurrentIndex]);
 
   return (
-    <div className="relative w-full h-[100dvh] bg-black overflow-hidden flex flex-col font-sans">
-      
+    <div className="relative w-full h-full bg-black">
       {/* ── STORIES PROGRESS BAR ── */}
-      <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[60] px-4 flex gap-1.5">
-        {filteredEvents.map((_, idx) => (
+      <div className="absolute top-[calc(var(--safe-top)+4px)] left-0 right-0 z-[70] px-4 flex gap-1.5 pointer-events-none">
+        {events.map((_, idx) => (
           <div key={idx} className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/20">
             <motion.div 
               className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
@@ -701,19 +857,12 @@ export default function EventosFeed() {
                 width: idx < currentIndex ? '100%' : idx === currentIndex ? '100%' : '0%' 
               }}
               transition={{ 
-                duration: idx === currentIndex ? 8 : 0, // 8-second auto-advance feel
+                duration: idx === currentIndex ? 8 : 0, 
                 ease: "linear" 
               }}
               onAnimationComplete={() => {
-                if (idx === currentIndex && currentIndex < filteredEvents.length - 1) {
-                  // Pre-load next image before advancing
-                  const nextEvent = filteredEvents[currentIndex + 1];
-                  if (nextEvent?.image_url) {
-                    const img = new Image();
-                    img.src = nextEvent.image_url;
-                  }
+                if (idx === currentIndex && currentIndex < events.length - 1) {
                   setCurrentIndex(prev => prev + 1);
-                  // Scroll the feed to the next item
                   scrollRef.current?.scrollTo({
                     top: (currentIndex + 1) * scrollRef.current.clientHeight,
                     behavior: 'smooth'
@@ -725,361 +874,40 @@ export default function EventosFeed() {
         ))}
       </div>
 
-      {/* ── HEADER OVERLAY ── */}
-      <div className="absolute top-0 left-0 right-0 z-50 pointer-events-none pt-[var(--safe-top)]">
-        <div className="px-4 py-3 flex items-center justify-between pointer-events-auto">
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => navigate(-1)}
-              className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{t('nav.explore')}</span>
-              <span className="text-sm font-black text-white italic tracking-tight">{t('eventos.title')}</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Liked counter */}
-            {likedCount > 0 && (
-              <motion.button
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => { triggerHaptic('light'); setShowLiked(true); }}
-                className="h-10 px-3.5 rounded-full bg-rose-500/90 backdrop-blur-xl border border-rose-400/30 flex items-center gap-1.5 text-white shadow-lg shadow-rose-500/20"
-              >
-                <Heart className="w-3.5 h-3.5 fill-current" />
-                <span className="text-[11px] font-black">{likedCount}</span>
-              </motion.button>
-            )}
-
-            {/* Search toggle */}
-            <AnimatePresence mode="wait">
-              {showSearch ? (
-                <motion.div
-                  key="search-input"
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 180, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  className="relative overflow-hidden"
-                >
-                  <input
-                    autoFocus
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder={t('eventos.searchPlaceholder', 'Search events...')}
-                    className="w-full h-10 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
-                  />
-                  <X className="absolute right-3 top-2.5 w-5 h-5 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
-                </motion.div>
-              ) : (
-                <motion.button
-                  key="search-btn"
-                  whileTap={{ scale: 0.8 }}
-                  onClick={() => setShowSearch(true)}
-                  className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
-                >
-                  <Search className="w-5 h-5" />
-                </motion.button>
-              )}
-            </AnimatePresence>
-
-            {/* Filter button */}
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={() => { triggerHaptic('light'); setShowFilters(true); }}
-              className="relative w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white"
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-              {activeFilterCount > 0 && (
-                <div className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center">
-                  <span className="text-[9px] font-black text-white">{activeFilterCount}</span>
-                </div>
-              )}
-            </motion.button>
-          </div>
-        </div>
-
-        {/* ── CATEGORY BAR ── */}
-        <div className="px-4 overflow-x-auto no-scrollbar pointer-events-auto mt-1">
-          <div className="flex gap-2.5 pb-2">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              const isActive = activeCategory === cat.key;
-              return (
-                <motion.button
-                  key={cat.key}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
-                  className={cn(
-                    "flex-shrink-0 px-4 py-2 rounded-full backdrop-blur-xl border transition-all flex items-center gap-2 relative overflow-hidden",
-                    isActive 
-                      ? "bg-white text-black border-white shadow-[0_4px_15px_rgba(255,255,255,0.3)]" 
-                      : "bg-black/30 text-white border-white/10"
-                  )}
-                >
-                  {isActive && (
-                    <motion.div
-                      layoutId="pill-background"
-                      className="absolute inset-0 bg-white -z-10"
-                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                    />
-                  )}
-                  <Icon className={cn("w-3 h-3 transition-colors duration-300", isActive ? "text-primary" : "text-white/80")} />
-                  <span className="text-[9px] font-black uppercase tracking-widest transition-colors duration-300">
-                    {t('eventos.' + cat.label, cat.label)}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── VERTICAL FEED ── */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-scroll snap-y snap-mandatory no-scrollbar"
+        className="flex-1 h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"
       >
-        {isLoading && filteredEvents.length === 0 ? (
+        {isLoading && events.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center gap-4 bg-zinc-950">
-            <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center animate-pulse">
-              <Sparkles className="w-8 h-8 text-white/20" />
-            </div>
-            <p className="text-white/40 text-[10px] font-black uppercase tracking-widest animate-pulse tracking-tighter">Preparing your Riviera experience...</p>
+            <Sparkles className="w-12 h-12 text-white/10 animate-pulse" />
           </div>
-        ) : filteredEvents.length > 0 ? (
+        ) : events.length > 0 ? (
           <div className="relative h-full">
-            <AnimatePresence mode="popLayout" initial={false}>
-              {filteredEvents.map((event, idx) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="h-full"
-                >
-                  <StoryCard 
-                    event={event} 
-                    isActive={idx === currentIndex} 
-                    isLiked={likedIds.has(event.id)}
-                    onLike={handleLike}
-                    onOpenChat={(e) => handleOpenChat(event, e)}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {events.map((event, idx) => (
+              <StoryCard 
+                key={event.id}
+                event={event} 
+                isActive={idx === currentIndex} 
+                isLiked={likedIds.has(event.id)}
+                onLike={onLike}
+                onOpenChat={(e) => onOpenChat(event, e)}
+              />
+            ))}
           </div>
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-white/50 px-10 text-center gap-4">
-            <Sparkles className="w-16 h-16 opacity-20" />
-            <h3 className="text-xl font-black italic">No events found</h3>
-            <p className="text-sm">Try another category or clear your filters.</p>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => { setActiveCategory('all'); setFreeOnly(false); setSortBy('upcoming'); setSearchQuery(''); }}
-              className="px-6 py-3 rounded-2xl bg-white/10 border border-white/20 text-white text-[11px] font-black uppercase tracking-widest"
-            >
-              Clear All Filters
-            </motion.button>
+          <div className="h-full flex flex-col items-center justify-center text-white/30 p-10 text-center gap-4">
+            <Sparkles className="w-12 h-12" />
+            <p className="text-sm font-black uppercase tracking-widest">No stories left</p>
           </div>
         )}
       </div>
-
-      {/* ── FILTER SHEET ── */}
-      <AnimatePresence>
-        {showFilters && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowFilters(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-              className="fixed bottom-0 left-0 right-0 z-[201] bg-zinc-900 border-t border-white/10 rounded-t-[36px] px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] pt-6"
-            >
-              {/* Handle */}
-              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
-
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-black text-white italic tracking-tight">Filters</h3>
-                {activeFilterCount > 0 && (
-                  <button
-                    onClick={() => { setFreeOnly(false); setSortBy('upcoming'); }}
-                    className="text-[11px] font-black text-orange-400 uppercase tracking-widest"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-
-              {/* Free only toggle */}
-              <div className="mb-6">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Price</p>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { triggerHaptic('light'); setFreeOnly(v => !v); }}
-                  className={cn(
-                    "w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all",
-                    freeOnly
-                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
-                      : "bg-white/5 border-white/10 text-white/60"
-                  )}
-                >
-                  <span className="text-[13px] font-bold">Free Events Only</span>
-                  <div className={cn(
-                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                    freeOnly ? "bg-emerald-500 border-emerald-500" : "border-white/20"
-                  )}>
-                    {freeOnly && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                  </div>
-                </motion.button>
-              </div>
-
-              {/* Sort order */}
-              <div className="mb-8">
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3">Sort By</p>
-                <div className="flex gap-3">
-                  {([
-                    { key: 'upcoming', label: 'Upcoming First' },
-                    { key: 'newest', label: 'Newest Added' },
-                  ] as { key: SortOrder; label: string }[]).map(opt => (
-                    <motion.button
-                      key={opt.key}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => { triggerHaptic('light'); setSortBy(opt.key); }}
-                      className={cn(
-                        "flex-1 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all",
-                        sortBy === opt.key
-                          ? "bg-white text-black border-white"
-                          : "bg-white/5 border-white/10 text-white/60"
-                      )}
-                    >
-                      {opt.label}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setShowFilters(false)}
-                className="w-full py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[12px] shadow-xl"
-              >
-                {activeFilterCount > 0 ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Done'}
-              </motion.button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* ── LIKED EVENTS SHEET ── */}
-      <AnimatePresence>
-        {showLiked && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowLiked(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-              className="fixed bottom-0 left-0 right-0 z-[201] bg-zinc-900 border-t border-white/10 rounded-t-[36px] max-h-[80vh] flex flex-col"
-            >
-              {/* Handle + header */}
-              <div className="flex-shrink-0 px-6 pt-5 pb-4">
-                <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Heart className="w-5 h-5 text-rose-500 fill-current" />
-                    <h3 className="text-xl font-black text-white italic">Liked Events</h3>
-                    <div className="w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                      <span className="text-[10px] font-black text-rose-400">{likedCount}</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setShowLiked(false)} aria-label="Close liked events" className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:scale-90 transition-all shadow-lg active:bg-white/10">
-                    <X className="w-6 h-6 text-white/80" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Liked events list */}
-              <div className="flex-1 overflow-y-auto px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] space-y-3 no-scrollbar">
-                {likedEvents.length === 0 ? (
-                  <div className="py-16 flex flex-col items-center gap-4 text-white/30">
-                    <Heart className="w-12 h-12" />
-                    <p className="text-sm font-medium">No liked events yet</p>
-                  </div>
-                ) : (
-                  likedEvents.map(event => (
-                    <motion.div
-                      key={event.id}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => { setShowLiked(false); navigate(`/explore/eventos/${event.id}`); }}
-                      className="group relative flex items-center gap-4 p-4 rounded-[2.5rem] bg-white/5 border border-white/8 cursor-pointer active:bg-white/10 transition-all hover:border-white/20"
-                    >
-                      <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden flex-shrink-0 shadow-2xl">
-                        <img
-                          src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=200&q=60'}
-                          alt={event.title}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 pr-2">
-                        <div className="flex items-center justify-between mb-1">
-                           <h4 className="text-[14px] font-black text-white truncate uppercase italic tracking-tight">{event.title}</h4>
-                           <div className="flex items-center gap-0.5">
-                              <Star className="w-3 h-3 text-amber-400 fill-current" />
-                              <span className="text-[10px] font-black text-amber-400">4.0</span>
-                           </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="w-3 h-3 text-white/30" />
-                            <span className="text-[10px] font-bold text-white/50 truncate uppercase tracking-widest">{event.location || 'Tulum'}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <Users className="w-3 h-3 text-emerald-400/60" />
-                            <span className="text-[10px] font-black text-emerald-400/80 uppercase">84+</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-black text-indigo-400 uppercase tracking-widest italic leading-none">
-                             Top Match
-                          </span>
-                        </div>
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-hover:text-white/60 transition-colors">
-                         <ChevronRight className="w-5 h-5" />
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
+
+// ── STORY CARD COMPONENT ──────────────────────────────────────────────────────
 
 function StoryCard({ 
   event, 
@@ -1095,35 +923,15 @@ function StoryCard({
   onOpenChat: (e: React.MouseEvent) => void
 }) {
   const { navigate } = useAppNavigate();
-  const queryClient = useQueryClient();
   const isPoster = event.id.startsWith('poster');
   const isPromo = event.is_promo;
-
-  const prefetchEvent = () => {
-    if (!isPromo) {
-      queryClient.prefetchQuery({
-        queryKey: ['evento', event.id],
-        queryFn: async () => {
-          const { data, error } = await supabase
-            .from('events')
-            .select('*')
-            .eq('id', event.id)
-            .single();
-          if (error) throw error;
-          return data;
-        },
-        staleTime: 1000 * 60 * 5,
-      });
-    }
-  };
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     triggerHaptic('medium');
     if (isPromo) {
-      // Direct to WhatsApp for advertising
-      const phone = '529841234567'; // Promotional contact
-      const msg = encodeURIComponent("Hey Swipess! I want to promote my event/brand in the app. Give me more info! 🔥");
+      const phone = '529841234567';
+      const msg = encodeURIComponent("Hey Swipess! I want to promote my event/brand in the app.");
       window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
       return;
     }
@@ -1131,331 +939,152 @@ function StoryCard({
   };
 
   return (
-    <div 
-      className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-zinc-950"
-      onMouseEnter={prefetchEvent}
-    >
-      {/* Background Image / Promo Flyer Design */}
+    <div className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-black">
       <motion.div 
         className="absolute inset-0"
         animate={isActive ? { scale: 1 } : { scale: 1.1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.8 }}
       >
-        {isPromo ? (
-           <div className="w-full h-full bg-slate-900 flex flex-col items-center justify-center p-12 text-center relative overflow-hidden">
-              {/* Luxury Geometric Pattern */}
-              <div className="absolute inset-0 opacity-10 pointer-events-none">
-                 <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                       <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" strokeWidth="0.5"/>
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#grid)" />
-                 </svg>
-              </div>
-              
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[180%] h-[180%] bg-indigo-500/10 blur-[150px] rounded-full animate-pulse" />
-              
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={isActive ? { opacity: 1, scale: 1 } : {}}
-                className="relative z-10"
-              >
-                  <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-2xl mb-8 mx-auto shadow-indigo-500/40">
-                     <Sparkles className="w-12 h-12 text-white" />
-                  </div>
-                  
-                  <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-[0.85] mb-6">
-                    Swipess <br/> Brand <br/> Direct
-                  </h2>
-                  
-                  <p className="text-white/40 font-medium text-xs max-w-xs mx-auto leading-relaxed mb-10 tracking-widest uppercase italic">
-                    The Exclusive Channel for <span className="text-indigo-400">Elite Riviera Brands</span>
-                  </p>
-
-                  <div className="px-8 py-3.5 rounded-full bg-white text-slate-950 text-xs font-black tracking-[0.3em] uppercase">
-                    Connect Now
-                  </div>
-              </motion.div>
-           </div>
-        ) : (
-          <img
-            src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=1200&q=80'}
-            alt={event.title}
-            className={cn(
-              "w-full h-full object-cover transform-gpu",
-              isPoster && "brightness-110 contrast-110"
-            )}
-          />
-        )}
-        
-        {/* Overlays */}
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/80 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-        
-        {isPoster && !isPromo && (
-          <div className="absolute inset-0 bg-gradient-to-tr from-primary/5 via-transparent to-orange-500/5 mix-blend-overlay pointer-events-none" />
-        )}
+        <img src={event.image_url || ''} alt={event.title} className="w-full h-full object-cover" />
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent" />
       </motion.div>
 
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1rem+68px+var(--safe-bottom))]">
+      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1.5rem+var(--safe-bottom))]">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          animate={isActive ? { opacity: 1, y: 0 } : {}}
           className="space-y-4"
         >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <span className={cn(
-                  "px-3 py-1 rounded-full backdrop-blur-md border text-[10px] font-black uppercase tracking-widest",
-                  isPromo ? "bg-indigo-500/20 text-indigo-300 border-indigo-400/30" : "bg-white/10 text-white/60 border-white/20"
-                )}>
-                  {isPromo ? 'ADVERTISING' : event.category}
-                </span>
-                {event.discount_tag && (
-                  <motion.span 
-                    animate={isPoster ? { 
-                      boxShadow: ['0 0 0px var(--primary)', '0 0 15px var(--primary)', '0 0 0px var(--primary)']
-                    } : {}}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className={cn(
-                      "px-3 py-1 rounded-full backdrop-blur-md border text-[10px] font-black uppercase tracking-widest",
-                      isPoster && !isPromo 
-                        ? "bg-primary text-white border-primary" 
-                        : "bg-primary/20 border-primary/30 text-primary"
-                    )}
-                  >
-                    {event.discount_tag}
-                  </motion.span>
-                )}
-                {!isPromo && <LiveHypeCounter eventId={event.id} />}
-              </div>
-              <h2 className={cn(
-                "text-4xl font-black text-white italic tracking-tighter uppercase leading-none",
-                isPoster && "text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60",
-                isPromo && "text-indigo-50"
-              )}>
-                {event.title}
-              </h2>
-            </div>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[8px] font-black uppercase tracking-widest text-white/80">
+              {event.category}
+            </span>
+            {event.discount_tag && <span className="px-2 py-1 rounded-full bg-primary text-white text-[8px] font-black uppercase tracking-widest shadow-lg shadow-primary/20">{event.discount_tag}</span>}
           </div>
 
-          <p className="text-sm text-white/70 leading-relaxed font-medium line-clamp-3">
+          <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase leading-[0.85]">
+            {event.title}
+          </h2>
+
+          <p className="text-sm text-white/60 leading-relaxed line-clamp-2">
             {event.description}
           </p>
 
-          {!isPromo && (
-            <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
-                  <Calendar className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">When</span>
-                  <span className="text-xs font-bold text-white">
-                    {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }) : 'Coming Soon'}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col justify-center gap-1">
-                 <AttendeeStack count={Math.floor(Math.random() * 50) + 10} />
-                 <div className="flex items-center gap-1.5 opacity-40 ml-1">
-                    <Eye className="w-2.5 h-2.5 text-white" />
-                    <span className="text-[8px] font-black text-white uppercase tracking-widest">1.2k Views</span>
-                 </div>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center gap-6 pt-2">
+             <div className="flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 text-white/40" />
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">{event.location}</span>
+             </div>
+             <div className="flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Live Now</span>
+             </div>
+          </div>
 
           <div className="flex gap-2 pt-4">
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleDetailsClick}
+              className="flex-[4] py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2"
+            >
+              Get Tickets <ArrowUpRight className="w-4 h-4" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={onOpenChat}
+              className="flex-1 h-12 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-white"
+            >
+              <MessageSquare className="w-5 h-5" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={() => onLike(event.id)}
               className={cn(
-                "flex-[4] py-4 rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl flex items-center justify-center gap-2 transition-all active:scale-95",
-                isPromo 
-                  ? "bg-indigo-600 text-white shadow-indigo-600/30"
-                  : (isPoster ? "bg-gradient-to-r from-rose-600 to-orange-600 text-white" : "bg-white text-black")
+                "flex-1 h-12 rounded-2xl border flex items-center justify-center transition-all",
+                isLiked ? "bg-rose-500 border-rose-400 text-white" : "bg-white/10 border-white/20 text-white"
               )}
             >
-              {isPromo ? 'Contact Partnerships' : (isPoster ? 'Join Exclusive' : 'Get Tickets')} {!isPromo && event.price_text && `• ${event.price_text}`}
-              <ArrowUpRight className="w-5 h-5 flex-shrink-0" />
+              <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
             </motion.button>
-            
-            {!isPromo && (
-              <>
-                <motion.button
-                  whileTap={{ scale: 0.8 }}
-                  onClick={(e) => { triggerHaptic('light'); onOpenChat(e); }}
-                  title="Open event chat"
-                  className="flex-1 rounded-[1.25rem] bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white relative active:bg-white/20 transition-all h-auto"
-                  style={{
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-                  }}
-                >
-                  <MessageSquare className="w-5 h-5" />
-                  <div className="absolute top-3 right-3 w-3.5 h-3.5 bg-rose-500 rounded-full border-2 border-zinc-950 flex items-center justify-center shadow-lg">
-                    <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  </div>
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.8 }}
-                  onClick={() => { triggerHaptic('medium'); onLike(event.id); }}
-                  aria-label={isLiked ? "Unlike event" : "Like event"}
-                  className={cn(
-                    "flex-1 rounded-[1.25rem] backdrop-blur-md border flex items-center justify-center transition-all h-auto",
-                    isLiked 
-                      ? "bg-rose-500 border-rose-400 shadow-lg shadow-rose-500/20" 
-                      : "bg-white/10 border-white/20"
-                  )}
-                >
-                  <Heart className={cn("w-5 h-5 transition-transform", isLiked ? "fill-white text-white scale-110" : "text-white")} />
-                </motion.button>
-              </>
-            )}
           </div>
-
-          <HypePopup isActive={isActive} />
         </motion.div>
       </div>
     </div>
   );
 }
 
-// ── SUBCOMPONENTS ────────────────────────────────────────────────────────────
+// ── FILTER & LIKED SHEETS ────────────────────────────────────────────────────
 
-/**
- * LIVE HYPE COUNTER
- * A sentient-feeling counter that fluctuates to show "living" presence.
- */
-function LiveHypeCounter({ eventId }: { eventId: string }) {
-  const [viewCount, setViewCount] = useState(Math.floor(Math.random() * 20) + 8);
-  
-  useEffect(() => {
-    // Preload common neighbor images to prevent flickering in stacks
-    const preloadAvatars = [
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&q=80',
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-      'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&q=80'
-    ];
-    preloadAvatars.forEach(url => {
-      const img = new Image();
-      img.src = url;
-    });
-
-    const interval = setInterval(() => {
-      setViewCount(prev => {
-        const change = Math.random() > 0.5 ? 1 : -1;
-        const newCount = prev + change;
-        return Math.max(5, Math.min(45, newCount));
-      });
-    }, 4000 + Math.random() * 4000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden relative">
-      <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-      <span className="text-[9px] font-black text-white/90 uppercase tracking-widest tabular-nums">
-        {viewCount} Active now
-      </span>
-      {/* Subtle sweep animation */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"
-        animate={{ x: ['-200%', '200%'] }}
-        transition={{ duration: 3, repeat: Infinity, ease: 'linear', repeatDelay: 1 }}
-      />
-    </div>
-  );
-}
-
-/**
- * ATTENDEE STACK
- * Social proof showing profile images of "going" users.
- */
-function AttendeeStack({ count = 12 }: { count?: number }) {
-  const avatars = [
-    'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&q=80',
-    'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-    'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=100&q=80',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80',
-  ];
-
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex -space-x-2">
-        {avatars.map((url, i) => (
-          <div key={i} className="w-6 h-6 rounded-full border border-zinc-950 overflow-hidden bg-zinc-900 ring-1 ring-white/10">
-            <img src={url} alt="User" className="w-full h-full object-cover" />
-          </div>
-        ))}
-        <div className="w-6 h-6 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-[8px] font-bold text-white/60">
-          +{count}
-        </div>
-      </div>
-      <span className="text-[10px] font-bold text-white/60 uppercase tracking-tighter">Verified Going</span>
-    </div>
-  );
-}
-
-/**
- * HYPE POPUP
- * Occasional sentient notifications to increase FOMO/Social Proof.
- */
-function HypePopup({ isActive }: { isActive: boolean }) {
-  const [show, setShow] = useState(false);
-  const [hypeMsg, setHypeMsg] = useState("");
-  
-  const MESSAGES = [
-    "3 Neighbors just joined",
-    "Reserved by a Verified Member",
-    "Trending in Aldea Zama",
-    "Almost Sold Out 🔥",
-    "2 Friends are interested",
-    "Top Pick for Saturday"
-  ];
-
-  useEffect(() => {
-    if (!isActive) {
-      setShow(false);
-      return;
-    }
-
-    // Show hype message after 3 seconds of viewing
-    const timer = setTimeout(() => {
-      setHypeMsg(MESSAGES[Math.floor(Math.random() * MESSAGES.length)]);
-      setShow(true);
-      
-      // Auto-hide after 5 seconds
-      setTimeout(() => setShow(false), 5000);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [isActive]);
-
+function FilterSheet({ isOpen, onClose, freeOnly, setFreeOnly, sortBy, setSortBy, activeFilterCount }: any) {
   return (
     <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, x: 20 }}
-          animate={{ opacity: 1, scale: 1, x: 0 }}
-          exit={{ opacity: 0, scale: 0.8, x: 20 }}
-          className="absolute -top-16 right-0 z-[100]"
-        >
-          <div className="px-4 py-2 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-            <span className="text-[10px] font-black text-white uppercase tracking-widest whitespace-nowrap">
-              {hypeMsg}
-            </span>
-          </div>
-          {/* Subtle tail/indicator */}
-          <div className="absolute top-full right-6 w-2 h-2 bg-white/10 border-r border-b border-white/20 rotate-45 -translate-y-1" />
-        </motion.div>
+      {isOpen && (
+        <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]" />
+          <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className="fixed bottom-0 left-0 right-0 z-[201] bg-white rounded-t-[40px] p-8 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))]">
+            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-8" />
+            <div className="flex items-center justify-between mb-8">
+               <h3 className="text-2xl font-black italic uppercase tracking-tighter">Filters</h3>
+               <button onClick={onClose} aria-label="Close filters" className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="space-y-8 mb-10">
+               <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Price Preference</p>
+                  <button onClick={() => setFreeOnly(!freeOnly)} className={cn("w-full p-4 rounded-2xl border flex items-center justify-between", freeOnly ? "bg-emerald-50 border-emerald-500 text-emerald-700" : "border-slate-200 text-slate-600")}>
+                    <span className="font-bold">Free Events Only</span>
+                    <div className={cn("w-5 h-5 rounded-full border-2", freeOnly ? "bg-emerald-500 border-emerald-500" : "border-slate-300")} />
+                  </button>
+               </div>
+               <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Sort By</p>
+                  <div className="flex gap-2">
+                    {['upcoming', 'newest'].map(opt => (
+                      <button key={opt} onClick={() => setSortBy(opt)} className={cn("flex-1 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest", sortBy === opt ? "bg-slate-900 border-slate-900 text-white" : "border-slate-200 text-slate-500")}>
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+               </div>
+            </div>
+            <button onClick={onClose} className="w-full py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[11px] shadow-2xl">Apply Filters</button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function LikedSheet({ isOpen, onClose, likedEvents, likedCount }: any) {
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]" />
+          <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className={cn("fixed bottom-0 left-0 right-0 z-[201] rounded-t-[40px] max-h-[85vh] flex flex-col", isLight ? "bg-slate-50" : "bg-zinc-900")}>
+            <div className="p-6 pb-2 border-b border-black/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Heart className="w-5 h-5 text-rose-500 fill-current" />
+                <h3 className="text-xl font-black italic uppercase tracking-tighter">Favorites</h3>
+              </div>
+              <button onClick={onClose} aria-label="Close favorites" className="w-10 h-10 rounded-full bg-slate-200/50 flex items-center justify-center"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 no-scrollbar pb-[calc(2rem+var(--safe-bottom))]">
+               {likedEvents.map((event: any) => (
+                 <div key={event.id} className="flex items-center gap-4 p-3 rounded-3xl bg-white border border-slate-200 shadow-sm">
+                    <img src={event.image_url} alt={event.title} className="w-16 h-16 rounded-2xl object-cover" />
+                    <div className="flex-1 min-w-0">
+                       <h4 className="text-sm font-black italic tracking-tight uppercase truncate">{event.title}</h4>
+                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{event.location}</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-slate-300" />
+                 </div>
+               ))}
+            </div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

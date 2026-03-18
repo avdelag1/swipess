@@ -15,6 +15,7 @@ import { memo, useRef, useState, useCallback, useMemo, useEffect, forwardRef, us
 import { motion, useMotionValue, useTransform, PanInfo, animate, useDragControls } from 'framer-motion';
 import { MapPin, DollarSign, Briefcase } from 'lucide-react';
 import { triggerHaptic } from '@/utils/haptics';
+import { cn } from '@/lib/utils';
 
 import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
@@ -127,12 +128,14 @@ const CardImage = memo(({
   src, 
   alt, 
   name, 
-  priority = false 
+  priority = false,
+  fullScreen = false
 }: { 
   src: string; 
   alt: string; 
   name?: string | null;
   priority?: boolean;
+  fullScreen?: boolean;
 }) => {
   const [loaded, setLoaded] = useState(() => imageCache.has(src));
   const [error, setError] = useState(false);
@@ -168,7 +171,7 @@ const CardImage = memo(({
 
   return (
     <div
-      className="absolute inset-0 w-full h-full rounded-[24px]"
+      className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[24px]")}
       style={{
         transform: 'translateZ(0)',
         touchAction: 'none',
@@ -192,7 +195,7 @@ const CardImage = memo(({
       <img
         src={src}
         alt={alt}
-        className="absolute inset-0 w-full h-full rounded-[24px]"
+        className={cn("absolute inset-0 w-full h-full", !fullScreen && "rounded-[24px]")}
         style={{
           objectFit: 'cover',
           objectPosition: 'center',
@@ -226,6 +229,7 @@ interface SimpleOwnerSwipeCardProps {
   onUndo?: () => void;
   canUndo?: boolean;
   isTop?: boolean;
+  fullScreen?: boolean;
 }
 
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
@@ -239,6 +243,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   onUndo,
   canUndo,
   isTop = true,
+  fullScreen = false,
 }, ref) => {
   const isDragging = useRef(false);
   const hasExited = useRef(false);
@@ -542,7 +547,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           pointerEvents: 'none',
         }}
       >
-        <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} />
+        <CardImage src={currentImage} alt={profile.name || 'Client'} name={profile.name} fullScreen={fullScreen} />
         {/* No gradient - full-bleed cards */}
       </div>
     );
@@ -578,13 +583,18 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
           transform: 'translateZ(0)', // Force compositor layer
+          borderRadius: fullScreen ? '0px' : '24px',
+          boxShadow: fullScreen ? 'none' : undefined,
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-2xl"
+        className={cn(
+          "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",
+          !fullScreen && "shadow-2xl"
+        )}
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div
           ref={containerRef}
-          className="absolute inset-0 w-full h-full overflow-hidden rounded-[24px]"
+          className={cn("absolute inset-0 w-full h-full overflow-hidden", !fullScreen && "rounded-[24px]")}
           onClick={handleImageTap}
           style={{
             touchAction: 'none',
@@ -598,6 +608,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
             alt={profile.name || 'Client'} 
             name={profile.name} 
             priority={isTop}
+            fullScreen={fullScreen}
           />
 
           {/* Image dots - Positioned below header area */}
