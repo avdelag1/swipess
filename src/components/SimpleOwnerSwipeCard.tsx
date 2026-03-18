@@ -460,18 +460,24 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     const clickX = e.clientX - rect.left;
     const width = rect.width;
 
-    // Left third - previous image (only if multiple images)
-    if (clickX < width * 0.33 && imageCount > 1) {
-      setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
-      triggerHaptic('light');
-    }
-    // Right third - next image (only if multiple images)
-    else if (clickX > width * 0.67 && imageCount > 1) {
-      setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
-      triggerHaptic('light');
-    }
-    // Middle third - open insights
-    else if (onInsights && clickX >= width * 0.33 && clickX <= width * 0.67) {
+    if (imageCount > 1) {
+      // Left third - previous image
+      if (clickX < width * 0.33) {
+        setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
+        triggerHaptic('light');
+      }
+      // Right third - next image
+      else if (clickX > width * 0.67) {
+        setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
+        triggerHaptic('light');
+      }
+      // Middle third - open inside page
+      else if (onInsights) {
+        triggerHaptic('light');
+        onInsights();
+      }
+    } else if (onInsights) {
+      // Single image: any tap opens the inside page
       triggerHaptic('light');
       onInsights();
     }
