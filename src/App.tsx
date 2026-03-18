@@ -95,14 +95,10 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
-// Mini-game (disabled — re-enable when ready)
-// const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
-
 // Shared routes - lazy loaded
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
-const MyHub = lazy(() => import("./pages/MyHub"));
 const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
 const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
@@ -133,9 +129,8 @@ const OwnerProfileCamera = lazy(() => import("./pages/OwnerProfileCamera"));
 const PublicProfilePreview = lazy(() => import("./pages/PublicProfilePreview"));
 const PublicListingPreview = lazy(() => import("./pages/PublicListingPreview"));
 
-// Test pages
+// Test pages (dev only)
 const MockOwnersTestPage = lazy(() => import("./pages/MockOwnersTestPage"));
-const AITestPage = lazy(() => import("./pages/AITestPage"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
@@ -327,8 +322,6 @@ const App = () => {
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
 
-                                        {/* Mini-game disabled — re-enable when ready */}
-                                        {/* <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} /> */}
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
@@ -340,9 +333,6 @@ const App = () => {
                                       <Route path="/terms-of-service" element={<TermsOfService />} />
                                       <Route path="/agl" element={<AGLPage />} />
                                       <Route path="/legal" element={<LegalPage />} />
-
-                                      {/* AI Test — public, no login required */}
-                                      <Route path="/ai-test" element={<AITestPage />} />
 
                                       {/* Legacy /dashboard redirect — always go to client dashboard */}
                                       <Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />

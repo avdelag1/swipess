@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
@@ -158,26 +158,26 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         redirectTo: `${window.location.origin}/reset-password`,
       });
       if (error) throw error;
-      toast({ title: 'Check your email', description: "We've sent you a password reset link." });
+      toast('Check your email', { description: "We've sent you a password reset link." });
       setIsForgotPassword(false);
       setEmail('');
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to send reset email.', variant: 'destructive' });
+      toast.error('Error', { description: error.message || 'Failed to send reset email.' });
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleResendConfirmation = async () => {
-    if (!email) { toast({ title: 'Email Required', description: 'Please enter your email address.', variant: 'destructive' }); return; }
+    if (!email) { toast.error('Email Required', { description: 'Please enter your email address.' }); return; }
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resend({ type: 'signup', email });
       if (error) throw error;
-      toast({ title: 'Confirmation Email Sent', description: 'Please check your inbox and verify your email.' });
+      toast('Confirmation Email Sent', { description: 'Please check your inbox and verify your email.' });
       setShowResendConfirmation(false);
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to resend.', variant: 'destructive' });
+      toast.error('Error', { description: error.message || 'Failed to resend.' });
     } finally {
       setIsLoading(false);
     }
@@ -197,7 +197,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         } else throw error;
       } else {
         if (!agreeToTerms) {
-          toast({ title: 'Terms Required', description: 'Please agree to the terms.', variant: 'destructive' });
+          toast.error('Terms Required', { description: 'Please agree to the terms.' });
           setIsLoading(false);
           return;
         }
@@ -230,30 +230,9 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
         sentientDescription = "Too many attempts. For your safety, please wait a few minutes before trying again.";
       }
 
-      toast({
-        title: sentientTitle,
+      toast.error(sentientTitle, {
         description: sentientDescription,
-        variant: 'destructive',
-        action: (
-          <div className="flex flex-col gap-2">
-            <button
-              onClick={() => setShowErrorDetails(true)}
-              className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-white/10"
-            >
-              Details
-            </button>
-            <button
-              onClick={async () => {
-                if (window.confirm("This will clear all local session data and reload the app. Continue?")) {
-                  nuclearReset();
-                }
-              }}
-              className="px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 rounded-lg text-[9px] font-bold uppercase tracking-wider transition-colors border border-orange-500/20"
-            >
-              System Fix
-            </button>
-          </div>
-        )
+        action: { label: 'Details', onClick: () => setShowErrorDetails(true) },
       });
     } finally {
       setIsLoading(false);

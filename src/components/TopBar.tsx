@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { formatPriceMXN } from '@/utils/subscriptionPricing';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useTheme } from '@/hooks/useTheme';
 import { STORAGE } from '@/constants/app';
 import { haptics } from '@/utils/microPolish';
@@ -76,8 +76,6 @@ function TopBarComponent({
   const navigate = useNavigate();
   const [tokensOpen, setTokensOpen] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
-
   const location = useLocation();
   const { isVisible } = useScrollDirection({ 
     threshold: 25, 
@@ -144,16 +142,13 @@ function TopBarComponent({
 
     if (pkg.paypal_link) {
       window.open(pkg.paypal_link, '_blank');
-      toast({
-        title: t('topbar.redirectingPaypal'),
+      toast(t('topbar.redirectingPaypal'), {
         description: t('topbar.processingPackage', { tier, price: formatPriceMXN(pkg.price) }),
       });
       setTokensOpen(false);
     } else {
-      toast({
-        title: t('topbar.paymentUnavailable'),
+      toast.error(t('topbar.paymentUnavailable'), {
         description: t('topbar.contactSupport'),
-        variant: "destructive",
       });
     }
   };

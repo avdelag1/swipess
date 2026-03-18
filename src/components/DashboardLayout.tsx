@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
-import { toast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
@@ -535,8 +535,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     if (convertedFilters.amenities?.length) activeFilterCount += convertedFilters.amenities.length;
     if (convertedFilters.priceRange) activeFilterCount += 1;
 
-    toast({
-      title: 'Filters Applied',
+    toast('Filters Applied', {
       description: activeFilterCount > 0
         ? `${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} active`
         : 'Showing all listings',
@@ -881,8 +880,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
             setShowOnboarding(false);
             // Clear cache so we don't show onboarding again
             clearOnboardingCache();
-            toast({
-              title: 'Profile Complete!',
+            toast('Profile Complete!', {
               description: 'Start exploring and find your perfect match!',
             });
           }}
