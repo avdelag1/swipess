@@ -334,6 +334,7 @@ export default function RoommateMatching() {
                     profile={toCardProfile(topCard)}
                     onSwipe={handleSwipe}
                     onDetails={() => setShowDetails(true)}
+                    onInsights={() => setShowDetails(true)}
                     isTop
                   />
                   <div className="absolute top-24 right-4 z-30 pointer-events-none">
