@@ -98,7 +98,7 @@ function prefetchRoutesSequentially(routes: string[]): void {
     prefetchRoute(route).finally(() => {
       // Schedule next prefetch only after current one completes
       if (index < routes.length) {
-        scheduleIdle(prefetchNext, 3000);
+        scheduleIdle(prefetchNext, 500);
       }
     });
   };
