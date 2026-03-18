@@ -235,7 +235,7 @@ export function PhotoUploadManager({
                   <Button
                     size="sm"
                     variant="destructive"
-                    className="absolute top-1 right-1 w-7 h-7 p-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
+                    className="absolute top-1 right-1 w-8 h-8 p-0 flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity touch-manipulation"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRemovePhoto(index);

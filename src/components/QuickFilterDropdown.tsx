@@ -199,7 +199,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={handleClearFilters}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 touch-manipulation"
+              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 flex items-center justify-center touch-manipulation"
             >
               <X className="w-4 h-4" />
             </motion.button>
@@ -293,9 +293,9 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleClearFilters}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 touch-manipulation"
+              className="text-xs text-muted-foreground hover:text-destructive transition-colors p-1 flex items-center justify-center touch-manipulation"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </motion.button>
           )}
         </div>

@@ -535,7 +535,9 @@ export default function EventosFeed() {
                     placeholder={t('eventos.searchPlaceholder', 'Search events...')}
                     className="w-full h-11 bg-black/30 backdrop-blur-xl border border-white/20 rounded-full px-4 text-xs text-white focus:outline-none placeholder:text-white/40"
                   />
-                  <X className="absolute right-3 top-3 w-4 h-4 text-white/60 cursor-pointer" onClick={() => { setShowSearch(false); setSearchQuery(''); }} />
+                  <button onClick={() => { setShowSearch(false); setSearchQuery(''); }} className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center text-white/60 hover:text-white/90 transition-colors">
+                    <X className="w-4 h-4" />
+                  </button>
                 </motion.div>
               ) : (
                 <motion.button

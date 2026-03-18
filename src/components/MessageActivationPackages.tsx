@@ -405,7 +405,7 @@ export function MessageActivationPackages({
             <Button
               variant="ghost"
               size="icon"
-              className={cn("absolute right-6 top-6 z-[120] rounded-full border transition-all hover:rotate-90", isDark ? "bg-white/5 hover:bg-white/10 text-white border-white/10" : "bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200")}
+              className={cn("absolute right-4 top-4 z-[120] rounded-full border transition-all hover:rotate-90", isDark ? "bg-white/5 hover:bg-white/10 text-white border-white/10" : "bg-gray-100 hover:bg-gray-200 text-gray-900 border-gray-200")}
               onClick={onClose}
             >
               <X className="w-5 h-5" />
