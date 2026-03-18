@@ -47,6 +47,9 @@ export function useSwipe() {
       if (context?.prevProfiles !== undefined) {
         queryClient.setQueryData(['client-profiles'], context.prevProfiles);
       }
+      // Show error toast
+      logger.error('[useSwipe] Error:', _err);
+      toast.error((_err as any)?.message || 'Could not save. Please try again.');
     },
     mutationFn: async ({ targetId, direction, targetType = 'listing' }: {
       targetId: string;
@@ -121,9 +124,5 @@ export function useSwipe() {
       queryClient.invalidateQueries({ queryKey: ['match'] }).catch(err => logger.error('[useSwipe] Match invalidation failed:', err));
       queryClient.invalidateQueries({ queryKey: ['owner'] }).catch(err => logger.error('[useSwipe] Owner invalidation failed:', err));
     },
-    onError: (error: any) => {
-      logger.error('[useSwipe] Error:', error);
-      toast.error(error?.message || 'Could not save. Please try again.');
-    }
   });
 }

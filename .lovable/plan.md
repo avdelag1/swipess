@@ -1,54 +1,56 @@
 
 
-## Plan: Restore Full Action Buttons & Fix Swipe Card Layout
+## Plan: Fix Owner Nav, Clean Owner Profile, Restore AI Button
 
-### Build Errors (Fix First)
+### Issues Found
 
-1. **`DashboardLayout.tsx` line 679**: Remove `onAISearchClick` prop — it doesn't exist on `TopBarProps`. The AI search logic needs to be handled differently (either add the prop to TopBarProps or remove the call).
+1. **Owner bottom nav** — exists with 5 items (Dashboard, Profile, Liked, Messages, Filters) and should be working. The nav bar may be hiding due to scroll direction detection. Need to verify it renders on owner routes.
 
-2. **`useSwipe.tsx` line 124**: Duplicate `onError` property. The mutation has two `onError` handlers (line 42 for rollback, line 124 for toast). Merge them into one that does both rollback and toast.
+2. **Owner profile page** (`OwnerProfileNew.tsx`) — contains client-side sections that don't belong:
+   - `MyHubQuickFilters` (line 183) — "Discovery Categories" — **remove**
+   - `MyHubActivityFeed` (line 191) — "Recent Activity" — **remove**
+   - `ExploreFeatureLinks` is not imported but could be confused with Quick Filters
 
-### Swipe Card Layout Fixes
+3. **AI Search button** — was removed from both TopBar and BottomNavigation. Currently the TopBar has an empty comment where it used to be (line 271). Need to restore it.
 
-**Goal**: Cards fill full screen top-to-bottom. Info sits at ~60% from top. Action buttons float below info. Bottom nav stays at the very bottom. Nothing overlaps.
+4. **Owner nav icons** — should match client icons more closely, with "Listings" as the only unique button.
 
-3. **`SimpleSwipeCard.tsx`** — Content overlay positioning:
-   - Change `bottom: 'clamp(170px, 26vh, 220px)'` to `bottom: 'clamp(130px, 22vh, 180px)'` to move info lower and make room for buttons above nav.
+---
 
-4. **`SimpleOwnerSwipeCard.tsx`** — Same content overlay fix:
-   - Same bottom adjustment for the info overlay positioning.
+### Changes
 
-5. **All three containers** — Standardize button bar positioning:
-   - **`SwipessSwipeContainer.tsx`** (client): Currently at `bottom: calc(var(--safe-bottom, 0px) + 148px)` — adjust to `calc(var(--safe-bottom, 0px) + 100px)` so buttons sit between info and bottom nav.
-   - **`ClientSwipeContainer.tsx`** (owner): Same positioning fix.
-   - **`RoommateMatching.tsx`**: Change from flow-based positioning to absolute positioning matching the other containers.
+#### 1. `src/components/BottomNavigation.tsx` — Match client icons, add Listings
 
-### Restore Missing Buttons
+Update owner nav to mirror client nav but swap Filters for Listings:
 
-6. **`RoommateMatching.tsx`** — Add `onShare` and `onMessage` to `SwipeActionButtonBar`:
-   - Add share handler and message handler.
-   - Pass `onShare` and `onMessage` props to the button bar (currently only has like/dislike/undo).
-   - Also add `onInsights` and middle-tap to the `SimpleOwnerSwipeCard` in roommate matching.
+| Position | Client | Owner (new) |
+|----------|--------|-------------|
+| 1 | Compass → Explore | Compass → Explore |
+| 2 | User → Profile | User → Profile |
+| 3 | Flame → Likes | Flame → Likes |
+| 4 | MessageCircle → Messages | MessageCircle → Messages |
+| 5 | Search → Filters | Building2 → Listings |
 
-7. **All three sides already have the SwipeActionButtonBar with 5 buttons** (undo, dislike, share, like, message). Client and owner containers already pass all props. Only roommate is missing `onShare` and `onMessage`.
+Owner nav uses `Compass` (same as client) for dashboard, and `Building2` for Listings pointing to `/owner/properties`.
 
-### Middle Tap → Insights
+#### 2. `src/components/TopBar.tsx` — Restore AI Search button
 
-8. **Client side (`SwipessSwipeContainer.tsx`)**: Already passes `onInsights={handleInsights}` to `SimpleSwipeCard`, and `handleImageTap` already handles middle-third tap → `onInsights()`. This should work. Verify the `handleInsights` function opens the insights modal.
+Add back the AI search button (Sparkles icon) in the right section of the TopBar, before the Zap button. Same glass styling as other buttons. Calls `onAISearchClick` prop.
 
-9. **Owner side (`ClientSwipeContainer.tsx`)**: Already passes `onInsights={() => handleInsights(topCard.user_id)}`. The `SimpleOwnerSwipeCard` already handles middle-third tap → `onInsights()`. Should work.
+#### 3. `src/pages/OwnerProfileNew.tsx` — Remove client-only sections
 
-10. **Roommate side (`RoommateMatching.tsx`)**: Currently passes `onDetails` but NOT `onInsights`. Need to add `onInsights` handler that opens a profile/insights view. The `SimpleOwnerSwipeCard` has separate `onTap` and `onInsights` props — `onInsights` triggers on middle-third tap.
+Remove these sections (keep everything else):
+- **Line 181-184**: `MyHubQuickFilters` ("Discover Categories") — delete
+- **Line 186-192**: `MyHubActivityFeed` ("Recent Activity") — delete
+- Remove unused imports: `MyHubQuickFilters`, `MyHubActivityFeed`
 
-### Summary of Files to Edit
+**Sections that stay**: Profile header, stats grid, edit profile button, Your Likes / Who Liked You grid, Share & Earn, Language, Radio, Settings, Sign Out.
 
-| File | Changes |
-|------|---------|
-| `src/components/DashboardLayout.tsx` | Remove `onAISearchClick` prop from TopBar |
-| `src/hooks/useSwipe.tsx` | Merge duplicate `onError` handlers |
-| `src/components/SimpleSwipeCard.tsx` | Adjust info overlay bottom position |
-| `src/components/SimpleOwnerSwipeCard.tsx` | Adjust info overlay bottom position |
-| `src/components/SwipessSwipeContainer.tsx` | Adjust button bar bottom position |
-| `src/components/ClientSwipeContainer.tsx` | Adjust button bar bottom position |
-| `src/pages/RoommateMatching.tsx` | Add share/message/insights to button bar, use absolute positioning for buttons, add onInsights to card |
+### Files (3)
+
+| File | Change |
+|------|--------|
+| `src/components/BottomNavigation.tsx` | Update owner nav: Compass icon for dashboard, Building2 for Listings, match client order |
+| `src/components/TopBar.tsx` | Restore AI Search button (Sparkles icon) in right section |
+| `src/pages/OwnerProfileNew.tsx` | Remove MyHubQuickFilters and MyHubActivityFeed sections + imports |
 
