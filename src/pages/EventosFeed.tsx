@@ -3,12 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal,
-  ChevronLeft, Heart,
-  Waves, Trees, Music, Utensils, Ticket,
-  ArrowUpRight, Check, ChevronRight,
-  Eye, Users, MessageSquare
+import { 
+  Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal, 
+  ChevronLeft, Heart, 
+  Waves, Trees, Music, Utensils, Ticket, 
+  ArrowUpRight, Check, ChevronRight, 
+  Eye, Users, MessageSquare, Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
-
 interface EventItem {
   id: string;
   title: string;
@@ -31,6 +30,7 @@ interface EventItem {
   discount_tag: string | null;
   is_free: boolean;
   price_text: string | null;
+  is_promo?: boolean;
 }
 
 type SortOrder = 'upcoming' | 'newest';
@@ -113,6 +113,22 @@ const MOCK_EVENTS: EventItem[] = [
     discount_tag: 'COLLECTOR POSTER',
     is_free: false,
     price_text: 'INVITE ONLY'
+  },
+  {
+    id: 'swipess-promo-1',
+    title: 'PROMOTE YOUR BRAND HERE',
+    description: 'Reach high-end clients in Tulum and beyond. Swipess puts your events and business in front of the elite community of owners and explorers.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=90',
+    event_date: null,
+    location: 'Global Placement',
+    location_detail: 'Everywhere in App',
+    organizer_name: 'Swipess Ads',
+    promo_text: 'Contact for Pricing',
+    discount_tag: 'BECOME A SPONSOR',
+    is_free: false,
+    price_text: 'ADVERTISE',
+    is_promo: true
   },
   // --- JUNGLE (5) ---
   {
@@ -996,10 +1012,7 @@ export default function EventosFeed() {
                       <span className="text-[10px] font-black text-rose-400">{likedCount}</span>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setShowLiked(false)}
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:bg-white/10 transition-colors"
-                  >
+                  <button onClick={() => setShowLiked(false)} aria-label="Close liked events" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center active:bg-white/10 transition-colors">
                     <X className="w-5 h-5 text-white/80" />
                   </button>
                 </div>
@@ -1018,35 +1031,42 @@ export default function EventosFeed() {
                       key={event.id}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => { setShowLiked(false); navigate(`/explore/eventos/${event.id}`); }}
-                      className="flex items-center gap-4 p-3 rounded-2xl bg-white/5 border border-white/8 cursor-pointer active:bg-white/10 transition-colors"
+                      className="group relative flex items-center gap-4 p-4 rounded-[2.5rem] bg-white/5 border border-white/8 cursor-pointer active:bg-white/10 transition-all hover:border-white/20"
                     >
-                      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+                      <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden flex-shrink-0 shadow-2xl">
                         <img
                           src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=200&q=60'}
                           alt={event.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-[13px] font-black text-white truncate">{event.title}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <MapPin className="w-3 h-3 text-white/40" />
-                          <span className="text-[11px] text-white/50 truncate">{event.location || 'Tulum'}</span>
+                      <div className="flex-1 min-w-0 pr-2">
+                        <div className="flex items-center justify-between mb-1">
+                           <h4 className="text-[14px] font-black text-white truncate uppercase italic tracking-tight">{event.title}</h4>
+                           <div className="flex items-center gap-0.5">
+                              <Star className="w-3 h-3 text-amber-400 fill-current" />
+                              <span className="text-[10px] font-black text-amber-400">4.0</span>
+                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Calendar className="w-3 h-3 text-white/40" />
-                          <span className="text-[11px] text-white/50">
-                            {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1.5">
+                            <MapPin className="w-3 h-3 text-white/30" />
+                            <span className="text-[10px] font-bold text-white/50 truncate uppercase tracking-widest">{event.location || 'Tulum'}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <Users className="w-3 h-3 text-emerald-400/60" />
+                            <span className="text-[10px] font-black text-emerald-400/80 uppercase">84+</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className="px-2 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-[9px] font-black text-indigo-400 uppercase tracking-widest italic leading-none">
+                             Top Match
                           </span>
-                          {event.price_text && (
-                            <span className="text-[11px] font-black text-orange-400 ml-auto">{event.price_text}</span>
-                          )}
-                          {event.is_free && (
-                            <span className="text-[11px] font-black text-emerald-400 ml-auto">Free</span>
-                          )}
                         </div>
                       </div>
-                      <ChevronRight className="w-5 h-5 text-white/20 flex-shrink-0" />
+                      <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/20 group-hover:text-white/60 transition-colors">
+                         <ChevronRight className="w-5 h-5" />
+                      </div>
                     </motion.div>
                   ))
                 )}
