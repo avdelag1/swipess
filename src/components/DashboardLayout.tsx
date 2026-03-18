@@ -393,10 +393,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/messages',
     '/owner/filters',
   ];
+  const isDashboardSwipePage = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin',
+    enabled: userRole !== 'admin' && !isDashboardSwipePage,
   });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
@@ -701,10 +702,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto"
         )}
         style={{
-          paddingTop: isFullScreenRoute
+          paddingTop: (isFullScreenRoute || isDashboardSwipePage)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: isFullScreenRoute ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isFullScreenRoute || isDashboardSwipePage) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',
