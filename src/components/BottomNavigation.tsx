@@ -16,7 +16,7 @@
 
 import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Home, Flame, MessageCircle, User, Building2, Heart, Filter,
   Search, Compass, LayoutGrid, Briefcase, Users, List, Sparkles, ShieldCheck, Zap
@@ -274,6 +274,7 @@ export function BottomNavigation({
         />
 
         {/* Nav items row */}
+        <LayoutGroup id="bottom-nav">
         <div
           ref={scrollRef}
           data-no-swipe-nav
@@ -375,10 +376,28 @@ export function BottomNavigation({
                     {item.label}
                   </span>
                 )}
+
+                {/* Sliding active pill — springs between tabs */}
+                {active && (
+                  <motion.span
+                    layoutId="nav-active-dot"
+                    aria-hidden="true"
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2"
+                    style={{
+                      width: 20,
+                      height: 2.5,
+                      borderRadius: 2,
+                      background: 'linear-gradient(90deg, #ec4899, #f97316)',
+                      boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }}
+                  />
+                )}
               </motion.button>
             );
           })}
         </div>
+        </LayoutGroup>
 
         {/* ── Edge fade indicators ──────────────────────────────────────── */}
         <div
