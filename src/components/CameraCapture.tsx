@@ -502,7 +502,7 @@ export function CameraCapture({
                     }}
                     className="text-red-500"
                   >
-                    <Trash2 className="w-6 h-6" />
+                    <Trash2 className="w-5 h-5" />
                   </Button>
                 </div>
               </div>
