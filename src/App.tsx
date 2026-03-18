@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -218,7 +217,6 @@ const App = () => {
     <GlobalErrorBoundary>
       <ConnectionGuard>
       <QueryClientProvider client={queryClient}>
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         <BrowserRouter
           future={{
             v7_startTransition: true,

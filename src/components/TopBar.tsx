@@ -3,7 +3,7 @@ import { useAppNavigate } from "@/hooks/useAppNavigate";
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Bell, Zap, MessageCircle, Crown, FileText, ArrowLeft, Sparkles } from 'lucide-react';
+import { Bell, Zap, MessageCircle, Crown, FileText, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -66,7 +66,6 @@ interface TopBarProps {
 function TopBarComponent({
   onNotificationsClick,
   onMessageActivationsClick,
-  onAISearchClick,
   className,
   showFilters,
   userRole,
@@ -278,31 +277,6 @@ function TopBarComponent({
 
           {/* Right section: Actions */}
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0 justify-end">
-            {/* AI Search Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "relative h-9 w-9 rounded-xl transition-all duration-200 ease-out",
-                "hover:scale-105 active:scale-95 group",
-                "flex-shrink-0 flex items-center justify-center",
-                "touch-manipulation",
-              )}
-              style={{
-                backgroundColor: glassBg,
-                border: glassBorder,
-                boxShadow: floatingShadow,
-              }}
-              onPointerDown={(e) => { e.preventDefault(); haptics.tap(); onAISearchClick?.(); }}
-              onClick={(e) => e.preventDefault()}
-              aria-label="AI Search"
-            >
-              <Sparkles className={cn(
-                "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
-                isDark ? "text-orange-300" : "text-orange-500"
-              )} />
-            </Button>
-
             {/* Token Packages Button with Popover */}
             <Popover open={tokensOpen} onOpenChange={setTokensOpen}>
               <PopoverTrigger asChild>
