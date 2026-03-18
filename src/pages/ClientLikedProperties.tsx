@@ -152,7 +152,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
                     />
                   )}
                   <span className="relative z-20 flex items-center gap-2.5 font-black uppercase tracking-tight">
-                    <Icon className="w-4 h-4" strokeWidth={3} />
+                    <Icon className="w-5 h-5" strokeWidth={3} />
                     {label}
                   </span>
                 </motion.button>
@@ -168,7 +168,7 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
             disabled={isLoading || isFetching}
             className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-secondary/80 border border-border/50 text-muted-foreground hover:text-foreground transition-all active:scale-95 disabled:opacity-50 ml-2"
           >
-            <RefreshCw className={cn("w-4 h-4", (isLoading || isFetching) && "animate-spin")} />
+            <RefreshCw className={cn("w-5 h-5", (isLoading || isFetching) && "animate-spin")} />
             <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-brand-accent-2)]">Sync</span>
           </button>
         </div>

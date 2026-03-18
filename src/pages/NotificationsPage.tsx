@@ -220,8 +220,8 @@ export default function NotificationsPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">Your Updates</h1>
           </div>
           {notifications.length > 0 && (
-            <Button variant="ghost" size="icon" className="rounded-xl bg-muted/30 border border-border/40 hover:bg-muted/50" onClick={() => setDeleteDialogOpen(true)}>
-              <Trash2 className="w-4 h-4 text-muted-foreground" />
+            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl bg-muted/30 border border-border/40 hover:bg-muted/50" onClick={() => setDeleteDialogOpen(true)}>
+              <Trash2 className="w-5 h-5 text-muted-foreground" />
             </Button>
           )}
         </header>
@@ -304,10 +304,10 @@ export default function NotificationsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="w-7 h-7 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500/10 hover:text-rose-500"
+                            className="w-8 h-8 rounded-lg sm:opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500/10 hover:text-rose-500 bg-rose-500/10 sm:bg-transparent text-rose-500 sm:text-muted-foreground"
                             onClick={(e) => deleteNotification(n.id, e)}
                           >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="w-4.5 h-4.5" />
                           </Button>
                         </CardContent>
                       </Card>
