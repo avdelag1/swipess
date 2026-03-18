@@ -9,7 +9,19 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-const CardImage = memo(({ src, alt, name, direction = 'right' }: { src?: string | null; alt?: string; name?: string; direction?: 'left' | 'right' }) => {
+const CardImage = memo(({ 
+  src, 
+  alt, 
+  name, 
+  direction = 'right',
+  fullScreen = false 
+}: { 
+  src?: string | null; 
+  alt?: string; 
+  name?: string; 
+  direction?: 'left' | 'right';
+  fullScreen?: boolean;
+}) => {
   // [NEW] Check if the src is a marketing slide identifier instead of a URL
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
@@ -92,7 +104,7 @@ const CardImage = memo(({ src, alt, name, direction = 'right' }: { src?: string 
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        borderRadius: '24px',
+        borderRadius: fullScreen ? '0px' : '24px',
         zIndex: 1,
       }}
     >
@@ -123,13 +135,18 @@ const CardImage = memo(({ src, alt, name, direction = 'right' }: { src?: string 
           objectFit: 'cover',
           opacity: loaded ? 1 : 0,
           transition,
-          borderRadius: '24px',
+          borderRadius: fullScreen ? '0px' : '24px',
           // Slide in on photo switch — only plays for cached images
           // (instant display). Network-loaded images use the opacity transition instead.
           animation: wasInCache
             ? `${direction === 'left' ? 'photo-slide-from-left' : 'photo-slide-from-right'} 200ms ease-out forwards`
             : 'none',
         }}
+        onLoad={() => {
+          if (src) imageCache.set(src, true);
+          setLoaded(true);
+        }}
+        onError={() => setError(true)}
       />
     </div>
   );

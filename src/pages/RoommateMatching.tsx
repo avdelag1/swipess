@@ -1,9 +1,11 @@
-import { useState, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, Eye, EyeOff, MapPin,
-  Briefcase
+  Briefcase, Heart, MessageCircle, Share2, Undo2, Filter,
+  ShieldCheck, Zap, Info, Clock, Languages, Star,
+  Check, XIcon, ThumbsDown, Flame
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,6 +14,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -120,42 +123,35 @@ const MOCK_CANDIDATES: RoommateCandidate[] = [
     personality_traits: ['Zen', 'Organized'],
     preferred_activities: ['Meditation', 'Skin care'],
     compatibility: 94
-  },
-  {
-    user_id: 'mock-6',
-    name: 'Diego S.',
-    age: 25,
-    city: 'Tulum Centro',
-    country: 'Mexico',
-    bio: 'Local architect and DJ. I know all the hidden spots in Tulum. Very chill and happy to share tips.',
-    profile_images: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Architecture', 'Techno', 'History'],
-    languages: ['Spanish', 'English', 'Italian'],
-    work_schedule: 'Afternoons',
-    cleanliness_level: 'Relaxed',
-    noise_tolerance: 'High',
-    personality_traits: ['Laid back', 'Knowledgeable'],
-    preferred_activities: ['Underground parties', 'Local food'],
-    compatibility: 78
-  },
-  {
-    user_id: 'mock-7',
-    name: 'Sasha V.',
-    age: 28,
-    city: 'Aldea Zama',
-    country: 'Russia',
-    bio: 'Crypto trader and fitnes enthusiast. I live in the gym or at my laptop. Looking for a high-end apartment share.',
-    profile_images: ['https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'],
-    interests: ['Gym', 'Bitcoin', 'Finance'],
-    languages: ['Russian', 'English'],
-    work_schedule: 'Market hours',
-    cleanliness_level: 'Clean',
-    noise_tolerance: 'Moderate',
-    personality_traits: ['Ambitious', 'Focused'],
-    preferred_activities: ['Weights', 'Fine dining'],
-    compatibility: 85
   }
 ];
+
+// ── CUSTOM HOOKS ─────────────────────────────────────────────────────────────
+
+/**
+ * detectScroll: Tracks scroll direction to hide/show UI components.
+ * Returns { isVisible }
+ */
+function useHideOnScroll(threshold = 10) {
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  const onScroll = useCallback((e: any) => {
+    const currentY = e.target.scrollTop;
+    if (Math.abs(currentY - lastScrollY.current) < threshold) return;
+    
+    if (currentY > lastScrollY.current && currentY > 50) {
+      setIsVisible(false); // Scrolling down
+    } else {
+      setIsVisible(true); // Scrolling up
+    }
+    lastScrollY.current = currentY;
+  }, [threshold]);
+
+  return { isVisible, onScroll };
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 
 export default function RoommateMatching() {
   const { t } = useTranslation();
@@ -170,9 +166,7 @@ export default function RoommateMatching() {
   const [roommateVisible, setRoommateVisible] = useState(true);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
-  // Filters
-  const [filterGender, setFilterGender] = useState('Any');
-  const [filterSchedule, setFilterSchedule] = useState('Any');
+  const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
 
   const handleSwipe = useCallback((_direction: 'left' | 'right') => {
     setCurrentIndex(prev => prev + 1);
@@ -213,253 +207,359 @@ export default function RoommateMatching() {
   return (
     <div
       className={cn(
-        "relative w-full flex flex-col overflow-hidden transition-colors duration-500",
-        isLight ? "bg-slate-50" : "bg-black"
+        "relative w-full h-[100dvh] overflow-hidden flex flex-col transition-colors duration-500",
+        isLight ? "bg-slate-50" : "bg-[#0A0A0B]"
       )}
-      style={{ height: '100dvh' }}
     >
-      {/* ── TOP NAV (Liquid Glass) ── */}
-      <div className="absolute top-0 left-0 right-0 z-50 px-3 pointer-events-none pt-[var(--safe-top)]">
-        <div className="w-full flex items-center justify-between py-3 pointer-events-auto">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(-1)}
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all",
-              isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-white/10 border-white/10 text-white"
-            )}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </motion.button>
-
-          <div className={cn(
-            "px-5 py-2 rounded-full backdrop-blur-xl border flex items-center gap-2.5 shadow-[0_4px_12px_rgba(0,0,0,0.08)]",
-            isLight ? "bg-white/90 border-slate-200 text-slate-900" : "bg-zinc-900/80 border-white/10 text-white"
-          )}>
-            <div className={cn("w-2 h-2 rounded-full", roommateVisible ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
-            <span className="text-[11px] font-black uppercase tracking-[0.2em]">{t('nav.roommates')}</span>
+      {/* ── IMMERSIVE HEADER (Liquid Glass) ── */}
+      <motion.div 
+        animate={{ y: uiVisible ? 0 : -120 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+        className="absolute top-0 left-0 right-0 z-[100] pt-[var(--safe-top)] pb-6 px-4"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => navigate(-1)}
+              className={cn(
+                "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
+                isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
+              )}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </motion.button>
+            <div className="flex flex-col">
+              <span className={cn("text-[9px] font-black uppercase tracking-[0.25em] opacity-50", isLight ? "text-slate-900" : "text-white")}>Tulum</span>
+              <span className={cn("text-sm font-black italic tracking-tight uppercase leading-none", isLight ? "text-slate-900" : "text-white")}>{t('nav.roommates')}</span>
+            </div>
           </div>
 
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setShowFilters(!showFilters)}
-            className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-xl border transition-all relative overflow-hidden",
-              isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-white/10 border-white/10 text-white"
-            )}
-          >
-            <SlidersHorizontal className="w-4 h-4" />
-          </motion.button>
-        </div>
+          <div className="flex items-center gap-3">
+             {/* VISIBILITY STATUS BUBBLE */}
+             <motion.button
+               whileTap={{ scale: 0.95 }}
+               onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
+               className={cn(
+                 "px-4 h-11 rounded-[1.2rem] border backdrop-blur-3xl flex items-center gap-2.5 transition-all shadow-sm",
+                 roommateVisible
+                   ? isLight ? "bg-emerald-50/90 border-emerald-300 text-emerald-700" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                   : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
+               )}
+             >
+               <div className={cn("w-2 h-2 rounded-full", roommateVisible ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
+               <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+                 {roommateVisible ? 'Visible' : 'Hidden'}
+               </span>
+             </motion.button>
 
-        {/* ── VISIBILITY TOGGLE ── */}
-        <div className="flex justify-center pb-1 pointer-events-auto">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => { triggerHaptic('light'); setRoommateVisible(v => !v); }}
-            className={cn(
-              "flex items-center gap-2.5 px-4 py-2 rounded-full backdrop-blur-xl border transition-all shadow-sm",
-              roommateVisible
-                ? isLight ? "bg-emerald-50/90 border-emerald-300 text-emerald-700" : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
-                : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
-            )}
-          >
-            {roommateVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
-            <span className="text-[10px] font-black uppercase tracking-[0.18em]">
-              {roommateVisible ? t('roommates.visibleToOthers') : t('roommates.hiddenFromOthers')}
-            </span>
-            <div className={cn(
-              "relative w-7 h-4 rounded-full transition-all duration-300",
-              roommateVisible ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-white/20"
-            )}>
-              <motion.div
-                animate={{ x: roommateVisible ? 12 : 2 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="absolute top-0.5 left-0 w-3 h-3 rounded-full bg-white shadow-sm"
-              />
-            </div>
-          </motion.button>
+             <motion.button
+               whileTap={{ scale: 0.9 }}
+               onClick={() => setShowFilters(true)}
+               className={cn(
+                 "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
+                 isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
+               )}
+             >
+               <SlidersHorizontal className="w-4 h-4" />
+             </motion.button>
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* ── DECK AREA ── */}
-      <div className="absolute inset-0 z-40">
-        <div className="relative w-full h-full max-w-md mx-auto">
+      {/* ── CARD STACK AREA ── */}
+      <div className="flex-1 relative w-full h-full">
+        <div className="absolute inset-0 z-0">
           <AnimatePresence mode="popLayout" initial={false}>
             {!topCard ? (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 flex flex-col items-center justify-center text-center gap-6 px-10"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="absolute inset-0 flex flex-col items-center justify-center text-center px-12 gap-8"
               >
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 shadow-2xl shadow-primary/20">
-                  <Users className="w-12 h-12 text-primary" strokeWidth={1} />
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
+                  <div className={cn(
+                    "w-32 h-32 rounded-[3.5rem] flex items-center justify-center border relative z-10",
+                    isLight ? "bg-white border-slate-200 shadow-2xl" : "bg-zinc-900 border-white/5 shadow-2xl"
+                  )}>
+                    <Users className="w-14 h-14 text-primary" strokeWidth={1} />
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <h2 className="text-2xl font-black text-foreground tracking-tight italic">{t('roommates.tulumVibesOnly')}</h2>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    No more candidates matching your vibe right now.
+                <div className="space-y-4">
+                  <h2 className={cn("text-3xl font-black italic tracking-tighter uppercase", isLight ? "text-slate-900" : "text-white")}>
+                    {t('roommates.tulumVibesOnly')}
+                  </h2>
+                  <p className={cn("text-sm font-bold uppercase tracking-widest leading-relaxed opacity-50", isLight ? "text-slate-600" : "text-white/50")}>
+                    Everyone has been matched. Check back later for new arrivals.
                   </p>
                 </div>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setCurrentIndex(0)}
-                  className="px-10 py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/30"
+                  className="px-12 py-5 rounded-[2rem] bg-primary text-white font-black uppercase tracking-[0.25em] text-[11px] shadow-[0_20px_40px_rgba(var(--primary-rgb),0.3)]"
                 >
-                  {t('common.reset')}
+                  Find more
                 </motion.button>
               </motion.div>
             ) : (
-              <>
+              <div className="absolute inset-0">
                 {nextCard && (
-                  <div className="absolute inset-0 z-10 opacity-30 scale-95 translate-y-4 pointer-events-none">
-                    <SimpleOwnerSwipeCard
-                      profile={toCardProfile(nextCard)}
-                      onSwipe={() => {}}
-                      isTop={false}
-                    />
+                  <div className="absolute inset-0 z-10 opacity-40 scale-[0.98] translate-y-2 pointer-events-none">
+                     <SimpleOwnerSwipeCard profile={toCardProfile(nextCard)} onSwipe={() => {}} isTop={false} fullScreen={true} />
                   </div>
                 )}
-                <motion.div 
+                <div 
                   key={topCard.user_id}
-                  initial={{ opacity: 0, x: 50, scale: 0.9, rotate: 2 }}
-                  animate={{ opacity: 1, x: 0, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   className="absolute inset-0 z-20"
                 >
-                  <SimpleOwnerSwipeCard
-                    ref={cardRef}
-                    profile={toCardProfile(topCard)}
-                    onSwipe={handleSwipe}
-                    onDetails={() => setShowDetails(true)}
-                    onInsights={() => setShowDetails(true)}
-                    isTop
-                  />
-                  <div className="absolute top-24 right-4 z-30 pointer-events-none">
-                    <motion.div 
-                      key={`compat-${topCard.user_id}`}
-                      initial={{ scale: 0.8, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden relative"
-                    >
-                      {/* Animated Shimmer */}
-                      <motion.div
-                        animate={{ x: ['100%', '-100%'] }}
-                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-12"
-                      />
-                      <Sparkles className="w-3 h-3 text-amber-400 relative z-10" />
-                      <span className="text-[10px] font-black text-white uppercase tracking-widest relative z-10">
-                        {topCard.compatibility}% Match
-                      </span>
-                    </motion.div>
+                  {/* FULL-SCREEN SWIPE CARD */}
+                  <div className="w-full h-full relative group">
+                    <SimpleOwnerSwipeCard
+                      ref={cardRef}
+                      profile={toCardProfile(topCard)}
+                      onSwipe={handleSwipe}
+                      onDetails={() => setShowDetails(true)}
+                      onInsights={() => setShowDetails(true)}
+                      isTop
+                      fullScreen={true}
+                    />
+
+                    {/* OVERLAY: COMPATIBILITY BADGE (Positioned lower as requested) */}
+                    <div className="absolute top-[calc(var(--safe-top)+100px)] left-0 right-0 flex justify-center z-30 pointer-events-none">
+                       <motion.div 
+                         initial={{ opacity: 0, y: -20 }}
+                         animate={{ opacity: 1, y: 0 }}
+                         className="px-5 py-2.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-3"
+                       >
+                         <Sparkles className="w-4 h-4 text-amber-400" />
+                         <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">{topCard.compatibility}% Match</span>
+                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                       </motion.div>
+                    </div>
                   </div>
-                </motion.div>
-              </>
+                </div>
+              </div>
             )}
           </AnimatePresence>
         </div>
       </div>
 
-      {/* ── ACTION BAR ── */}
-      {topCard && (
-        <div className="absolute left-0 right-0 flex justify-center z-[60]" style={{ bottom: 'calc(var(--safe-bottom, 0px) + 100px)' }}>
-          <SwipeActionButtonBar
-            onLike={handleLike}
-            onDislike={handleDislike}
-            onUndo={handleUndo}
-            onShare={() => { triggerHaptic('light'); }}
-            onMessage={() => { triggerHaptic('light'); }}
-            canUndo={canUndo}
-          />
-        </div>
-      )}
-
-      {/* ── PROFILE DETAILS OVERLAY ── */}
-      <AnimatePresence>
-        {showDetails && topCard && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowDetails(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110]"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+      {/* ── ACTION OVERLAY (Liquid Glass) ── */}
+      <motion.div 
+        animate={{ y: uiVisible ? 0 : 150 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 30 }}
+        className="absolute bottom-0 left-0 right-0 z-[100] pb-[calc(1.5rem+var(--safe-bottom))] px-4"
+      >
+        <div className="max-w-md mx-auto relative h-20">
+          <div className="absolute inset-0 flex items-center justify-center gap-6">
+            {/* DISLIKE */}
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={handleDislike}
               className={cn(
-                "fixed inset-x-0 bottom-0 top-[10%] z-[111] rounded-t-[40px] border-t overflow-hidden flex flex-col",
-                isLight ? "bg-white border-slate-200" : "bg-zinc-950 border-white/10"
+                "w-14 h-14 rounded-full border backdrop-blur-3xl flex items-center justify-center transition-all bg-black/20 border-white/10 group",
+                "hover:bg-rose-500/20 hover:border-rose-500/40"
               )}
             >
-              <div className="absolute top-4 right-4 z-[120]">
-                <button onClick={() => setShowDetails(false)} className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-xl border border-white/10 flex items-center justify-center text-white">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <div className="flex-1 overflow-y-auto no-scrollbar">
-                <div className="relative h-[60%] w-full">
-                  <img src={topCard.profile_images[0]} className="w-full h-full object-cover" alt={topCard.name} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 to-transparent" />
-                  <div className="absolute bottom-8 left-8">
-                    <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase">{topCard.name}, {topCard.age}</h2>
-                    <p className="text-white/60 font-bold uppercase tracking-widest text-xs mt-2 flex items-center gap-2">
-                       <MapPin className="w-3 h-3" /> {topCard.city}
-                    </p>
-                  </div>
-                </div>
-                <div className="p-8 space-y-8">
-                  <div className="grid grid-cols-2 gap-4">
-                    <DetailBadge icon={Sparkles} label="Compatibility" value={`${topCard.compatibility}%`} />
-                    <DetailBadge icon={Briefcase} label="Schedule" value={topCard.work_schedule} />
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">About Me</h3>
-                    <p className="text-sm leading-relaxed text-foreground/80">{topCard.bio}</p>
-                  </div>
-                  <div className="space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Vibe Check</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {topCard.personality_traits.map(tag => (
-                        <span key={tag} className="px-4 py-2 rounded-xl bg-muted/30 text-[10px] font-bold uppercase tracking-widest border border-muted/10">
-                          {tag}
-                        </span>
-                      ))}
+              <ThumbsDown className="w-6 h-6 text-white group-hover:text-rose-400" />
+            </motion.button>
+
+            {/* MESSAGE */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => { triggerHaptic('light'); navigate('/messages'); }}
+              className="w-12 h-12 rounded-full border backdrop-blur-3xl flex items-center justify-center bg-black/20 border-white/10"
+            >
+              <MessageCircle className="w-5 h-5 text-white/60" />
+            </motion.button>
+
+            {/* LIKE */}
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={handleLike}
+              className={cn(
+                "w-18 h-18 rounded-full border-2 backdrop-blur-3xl flex items-center justify-center transition-all bg-primary/20 border-primary/40 group",
+                "shadow-[0_0_30px_rgba(var(--primary-rgb),0.2)]"
+              )}
+              style={{ width: '72px', height: '72px' }}
+            >
+              <Flame className="w-9 h-9 text-primary animate-pulse" />
+            </motion.button>
+
+            {/* UNDO */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              disabled={!canUndo}
+              onClick={handleUndo}
+              className={cn(
+                "w-12 h-12 rounded-full border backdrop-blur-3xl flex items-center justify-center bg-black/20 border-white/10 transition-opacity",
+                !canUndo ? "opacity-20 grayscale" : "opacity-100"
+              )}
+            >
+              <Undo2 className="w-5 h-5 text-white/60" />
+            </motion.button>
+
+            {/* DETAILS / INFO (Repositioned Filter-like accessible button) */}
+            <motion.button
+              whileTap={{ scale: 0.8 }}
+              onClick={() => setShowDetails(true)}
+              className="w-14 h-14 rounded-full border backdrop-blur-3xl flex items-center justify-center bg-black/20 border-white/10 text-white"
+            >
+              <Info className="w-6 h-6" />
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ── PROFILE DETAILS OVERLAY (MODERN FULL-PAGE TRANSITION) ── */}
+      <AnimatePresence>
+        {showDetails && topCard && (
+          <motion.div
+            initial={{ y: '100dvh' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100dvh' }}
+            transition={{ type: 'spring', damping: 32, stiffness: 280 }}
+            onScroll={handleScroll}
+            className={cn(
+              "fixed inset-0 z-[200] overflow-y-auto no-scrollbar",
+              isLight ? "bg-white" : "bg-[#0A0A0B]"
+            )}
+          >
+            {/* HERO SECTION */}
+            <div className="relative h-[65dvh] w-full">
+               <img src={topCard.profile_images[0]} className="w-full h-full object-cover" alt={topCard.name} />
+               <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B]/20 to-transparent" />
+               <motion.button 
+                 onClick={() => setShowDetails(false)}
+                 whileTap={{ scale: 0.9 }}
+                 className="absolute top-[var(--safe-top)] left-6 w-11 h-11 rounded-[1.25rem] bg-black/40 backdrop-blur-2xl border border-white/20 flex items-center justify-center text-white z-50"
+               >
+                 <X className="w-5 h-5" />
+               </motion.button>
+               
+               <div className="absolute bottom-10 left-8 right-8">
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="flex flex-col gap-2"
+                  >
+                    <div className="flex items-center gap-3">
+                       <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">{topCard.name}</h2>
+                       <span className="text-3xl font-bold text-white/40">{topCard.age}</span>
                     </div>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 w-fit">
+                       <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                       <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Verified Human</span>
+                    </div>
+                  </motion.div>
+               </div>
+            </div>
+
+            {/* CONTENT SECTION */}
+            <div className="px-8 pt-8 pb-32 space-y-12">
+               {/* STATS GRID */}
+               <div className="grid grid-cols-2 gap-4">
+                  <InfoPill icon={MapPin} label="Vibe Location" value={topCard.city} />
+                  <InfoPill icon={Briefcase} label="Hustle" value={topCard.work_schedule} />
+                  <InfoPill icon={Clock} label="Noise" value={topCard.noise_tolerance} />
+                  <InfoPill icon={Sparkles} label="Purity" value={topCard.cleanliness_level} />
+               </div>
+
+               {/* BIO */}
+               <div className="space-y-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Manifesto</h3>
+                  <p className={cn("text-lg font-bold leading-snug", isLight ? "text-slate-900" : "text-white/90")}>
+                    {topCard.bio}
+                  </p>
+               </div>
+
+               {/* TAGS */}
+               <div className="space-y-6">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Frequency Alignment</h3>
+                  <div className="flex flex-wrap gap-2.5">
+                    {topCard.personality_traits.map(tag => (
+                      <span key={tag} className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/5 text-[11px] font-black uppercase tracking-widest text-white/70">
+                        {tag}
+                      </span>
+                    ))}
+                    {topCard.interests.map(tag => (
+                      <span key={tag} className="px-5 py-2.5 rounded-2xl bg-primary/10 border border-primary/20 text-[11px] font-black uppercase tracking-widest text-primary">
+                        {tag}
+                      </span>
+                    ))}
                   </div>
-                </div>
-              </div>
-              <div className="p-8 border-t bg-zinc-950/50 backdrop-blur-xl flex gap-4">
-                <button onClick={() => { handleSwipe('left'); setShowDetails(false); }} className="flex-1 py-4 rounded-2xl bg-zinc-900 border border-white/5 text-white font-black uppercase tracking-widest text-[10px]">Pass</button>
-                <button onClick={() => { handleSwipe('right'); setShowDetails(false); }} className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-primary/20">Connect</button>
-              </div>
-            </motion.div>
-          </>
+               </div>
+
+               {/* LANGUAGES */}
+               <div className="space-y-4">
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Languages</h3>
+                  <div className="flex items-center gap-4">
+                    {topCard.languages.map(lang => (
+                      <div key={lang} className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                        <span className="text-sm font-bold text-white/80">{lang}</span>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+            </div>
+
+            {/* STICKY BOTTOM ACTIONS */}
+            <div className="fixed bottom-0 left-0 right-0 p-8 pt-12 bg-gradient-to-t from-[#0A0A0B] via-[#0A0A0B] to-transparent z-[210] pointer-events-none">
+               <div className="max-w-md mx-auto flex gap-4 pointer-events-auto">
+                  <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { handleSwipe('left'); setShowDetails(false); }}
+                    className="flex-1 py-4 rounded-2xl bg-zinc-900 border border-white/5 text-white/40 font-black uppercase tracking-widest text-[10px]"
+                  >
+                    Not my vibe
+                  </motion.button>
+                  <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { handleSwipe('right'); setShowDetails(false); }}
+                    className="flex-[2] py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.25em] text-[10px] shadow-2xl shadow-primary/20"
+                  >
+                    Send Connection
+                  </motion.button>
+               </div>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── FILTER OVERLAY ── */}
+      {/* ── FILTER SHEET (FULL GLASS) ── */}
       <AnimatePresence>
         {showFilters && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]" />
-            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} className={cn("fixed bottom-0 left-0 right-0 z-[101] rounded-t-[40px] border-t p-8 pb-[calc(2rem+var(--safe-bottom))]", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}>
-              <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-8" />
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-2xl font-black italic tracking-tight">{t('roommates.findYourTribe')}</h3>
-                <button onClick={() => setShowFilters(false)} className="w-10 h-10 rounded-full bg-muted/10 flex items-center justify-center"><X className="w-5 h-5" /></button>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilters(false)} className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[300]" />
+            <motion.div 
+              initial={{ y: '100%' }} 
+              animate={{ y: 0 }} 
+              exit={{ y: '100%' }} 
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className={cn("fixed bottom-0 left-0 right-0 z-[301] rounded-t-[3.5rem] border-t p-8 pb-[calc(2.5rem+var(--safe-bottom))]", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}
+            >
+              <div className="w-14 h-1.5 bg-white/10 rounded-full mx-auto mb-10" />
+              <div className="flex items-center justify-between mb-10">
+                <h3 className="text-3xl font-black italic tracking-tighter uppercase leading-none">Vibe Filter</h3>
+                <button onClick={() => setShowFilters(false)} className="w-12 h-12 rounded-[1.25rem] bg-white/5 flex items-center justify-center border border-white/10"><X className="w-5 h-5 text-white" /></button>
               </div>
-              <div className="space-y-8 mb-10">
-                <FilterGroup label={t('roommates.genderPreference')} options={['Any', 'Female', 'Male', 'Non-binary']} selected={filterGender} setSelected={setFilterGender} />
-                <FilterGroup label={t('roommates.workVibe')} options={['Any', 'Remote', 'Hybrid', 'Office', 'Flexible']} selected={filterSchedule} setSelected={setFilterSchedule} />
+              
+              <div className="space-y-12 mb-12">
+                 <FilterGroup label="Alignment Preference" options={['Any', 'Female', 'Male', 'Non-binary']} selected="Any" setSelected={() => {}} />
+                 <FilterGroup label="Work Flow" options={['Any', 'Remote', 'Creative', 'Hustle', 'Slow']} selected="Any" setSelected={() => {}} />
               </div>
-              <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowFilters(false)} className="w-full py-5 rounded-2xl bg-primary text-white font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/20">{t('roommates.applyFilters')}</motion.button>
+              
+              <motion.button 
+                whileTap={{ scale: 0.97 }} 
+                onClick={() => setShowFilters(false)} 
+                className="w-full py-5 rounded-[2rem] bg-primary text-white font-black uppercase tracking-[0.3em] text-[11px] shadow-2xl shadow-primary/30"
+              >
+                Manifest Results
+              </motion.button>
             </motion.div>
           </>
         )}
@@ -468,28 +568,39 @@ export default function RoommateMatching() {
   );
 }
 
-// ── SUBCOMPONENTS ────────────────────────────────────────────────────────────
+// ── ELEMENTS ─────────────────────────────────────────────────────────────────
 
-function DetailBadge({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+function InfoPill({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
   return (
-    <div className="p-4 rounded-2xl bg-muted/10 border border-muted/10">
-      <div className="flex items-center gap-2 mb-1">
-        <Icon className="w-3 h-3 text-primary" />
-        <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{label}</span>
+    <div className="p-5 rounded-3xl bg-white/5 border border-white/5 hover:bg-white/[0.08] transition-colors group">
+      <div className="flex items-center gap-2.5 mb-2">
+        <Icon className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
+        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/40">{label}</span>
       </div>
-      <p className="text-sm font-bold text-foreground">{value}</p>
+      <p className="text-sm font-black text-white italic tracking-tight">{value}</p>
     </div>
   );
 }
-
 
 function FilterGroup({ label, options, selected, setSelected }: { label: string; options: string[]; selected: string; setSelected: (v: string) => void; }) {
   return (
     <div>
-      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">{label}</p>
-      <div className="flex flex-wrap gap-2.5">
+      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.4em] mb-6">{label}</p>
+      <div className="flex flex-wrap gap-3">
         {options.map(opt => (
-          <motion.button key={opt} whileTap={{ scale: 0.95 }} onClick={() => { triggerHaptic('light'); setSelected(opt); }} className={cn("px-5 py-2.5 rounded-2xl text-[11px] font-bold uppercase tracking-widest border transition-all", selected === opt ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" : "bg-muted/5 border-muted/20 text-muted-foreground hover:bg-muted/10")}>{opt}</motion.button>
+          <motion.button 
+            key={opt} 
+            whileTap={{ scale: 0.95 }} 
+            onClick={() => { triggerHaptic('light'); setSelected(opt); }} 
+            className={cn(
+              "px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] border transition-all", 
+              selected === opt 
+                ? "bg-primary text-white border-primary shadow-[0_10px_20px_rgba(var(--primary-rgb),0.2)] scale-105" 
+                : "bg-white/5 border-white/10 text-white/50 hover:bg-white/10"
+            )}
+          >
+            {opt}
+          </motion.button>
         ))}
       </div>
     </div>
