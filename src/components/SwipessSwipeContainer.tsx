@@ -1140,10 +1140,10 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // so they can pick what they want to browse instead of defaulting to properties.
   if (storeCategories.length === 0) {
     const allCategories = [
-      { id: 'property' as const, label: 'Properties', Icon: Home, color: 'text-primary', gradient: 'from-blue-500/15 to-cyan-500/5', border: 'border-blue-400/25', description: 'Houses, apartments & rooms' },
-      { id: 'motorcycle' as const, label: 'Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500', gradient: 'from-orange-500/15 to-amber-500/5', border: 'border-orange-400/25', description: 'Mopeds, scooters & bikes' },
-      { id: 'bicycle' as const, label: 'Bicycles', Icon: Bike, color: 'text-emerald-500', gradient: 'from-emerald-500/15 to-green-500/5', border: 'border-emerald-400/25', description: 'City, mountain & road bikes' },
-      { id: 'services' as const, label: 'Workers', Icon: Briefcase, color: 'text-purple-500', gradient: 'from-purple-500/15 to-violet-500/5', border: 'border-purple-400/25', description: 'Skilled freelancers & staff' },
+      { id: 'property' as const, label: 'Properties', Icon: Home, color: 'text-primary', gradient: 'from-blue-500/10 to-cyan-500/5', border: '', description: 'Houses, apartments & rooms' },
+      { id: 'motorcycle' as const, label: 'Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500', gradient: 'from-orange-500/10 to-amber-500/5', border: '', description: 'Mopeds, scooters & bikes' },
+      { id: 'bicycle' as const, label: 'Bicycles', Icon: Bike, color: 'text-emerald-500', gradient: 'from-emerald-500/10 to-green-500/5', border: '', description: 'City, mountain & road bikes' },
+      { id: 'services' as const, label: 'Workers', Icon: Briefcase, color: 'text-purple-500', gradient: 'from-purple-500/10 to-violet-500/5', border: '', description: 'Skilled freelancers & staff' },
     ];
 
     return (
@@ -1154,7 +1154,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
           initial="initial"
           animate="animate"
           exit="exit"
-          className="relative w-full flex-1 flex flex-col items-center justify-center px-4 py-6 overflow-y-auto"
+          className="relative w-full flex-1 flex flex-col items-center justify-center px-4 py-6 pb-32 overflow-y-auto"
           style={{ minHeight: 'calc(100dvh - 140px)' }}
         >
           {/* Subtle background glow */}
@@ -1187,7 +1187,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
                   whileTap={{ scale: 0.95 }}
                   whileHover={{ scale: 1.02 }}
                   onClick={() => setCategories([id])}
-                  className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-gradient-to-br ${gradient} border ${border} text-center transition-all active:brightness-95`}
+                  className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl bg-gradient-to-br ${gradient} text-center transition-all active:brightness-95`}
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
                   {/* Icon circle */}

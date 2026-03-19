@@ -240,8 +240,8 @@ function TopBarComponent({
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               
-              <ModeSwitcher variant="pill" size="sm" className="md:hidden" />
-              <ModeSwitcher variant="pill" size="sm" className="hidden md:flex" />
+              <ModeSwitcher variant="pill" size="lg" className="md:hidden" />
+              <ModeSwitcher variant="pill" size="lg" className="hidden md:flex" />
             </div>
 
             {showFilters && userRole && (
@@ -272,9 +272,7 @@ function TopBarComponent({
               )}>
                 {title}
               </span>
-            ) : (
-              <SwipessLogo size="sm" className="pointer-events-none opacity-80" />
-            )}
+            ) : null}
           </div>
 
           {/* Right section: Actions */}
