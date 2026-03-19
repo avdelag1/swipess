@@ -116,11 +116,10 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
   const completionPercentage = Math.round(
     ((businessName ? 15 : 0) +
-      (businessDescription ? 15 : 0) +
-      (serviceOfferings.length > 0 ? 25 : 0) +
+      (serviceOfferings.length > 0 ? 35 : 0) +
       (businessLocation ? 15 : 0) +
       (contactEmail ? 10 : 0) +
-      (profileImages.length > 0 ? 20 : 0))
+      (profileImages.length > 0 ? 25 : 0))
   );
 
   return (
