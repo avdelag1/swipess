@@ -10,13 +10,14 @@ export function useSmartClientMatching(
     page: number = 0,
     pageSize: number = 10,
     isRefreshMode: boolean = false, // When true, show disliked profiles within cooldown
-    filters?: ClientFilters
+    filters?: ClientFilters,
+    isRoommateSection: boolean = false
 ) {
     // Serialize filters to string for stable query key
     const filtersKey = filters ? JSON.stringify(filters) : '';
 
     return useQuery<MatchedClientProfile[]>({
-        queryKey: ['smart-clients', userId, category, page, isRefreshMode, filtersKey],
+        queryKey: ['smart-clients', userId, category, page, isRefreshMode, filtersKey, isRoommateSection],
         staleTime: 10 * 60 * 1000, // 10 minutes - profiles are stable
         gcTime: 15 * 60 * 1000,
         placeholderData: (prev: any) => prev,
@@ -116,7 +117,8 @@ export function useSmartClientMatching(
                     .from('profiles')
                     .select(CLIENT_SWIPE_CARD_FIELDS)
                     .neq('user_id', userId)
-                    .neq('role', 'admin');
+                    .neq('role', 'admin')
+                    .eq('role', 'client');
 
                 if (swipedProfileIds.size > 0) {
                     const idsToExclude = Array.from(swipedProfileIds);
@@ -146,7 +148,7 @@ export function useSmartClientMatching(
                 const { data: clientProfileData } = profileUserIds.length > 0
                     ? await supabase
                         .from('client_profiles')
-                        .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, relationship_status, has_children, smoking_habit, drinking_habit, cleanliness_level, noise_tolerance, work_schedule, dietary_preferences, personality_traits, interest_categories')
+                        .select('user_id, name, age, gender, city, country, profile_images, bio, interests, nationality, languages, neighborhood, intentions, relationship_status, has_children, smoking_habit, drinking_habit, cleanliness_level, noise_tolerance, work_schedule, dietary_preferences, personality_traits, interest_categories, roommate_available')
                         .in('user_id', profileUserIds)
                     : { data: null };
 
@@ -198,8 +200,14 @@ export function useSmartClientMatching(
                             dietary_preferences: cpData?.dietary_preferences || [],
                             personality_traits: cpData?.personality_traits || [],
                             interest_categories: cpData?.interest_categories || [],
+                            roommate_available: !!cpData?.roommate_available,
                         };
                     });
+
+                // Section-specific filtering
+                if (isRoommateSection) {
+                    filteredProfiles = filteredProfiles.filter(p => (p as any).roommate_available === true);
+                }
 
                 // Apply client filters if provided (merge with DB fallbacks)
                 const effectiveGender = filters?.clientGender && filters.clientGender !== 'any'
