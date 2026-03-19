@@ -56,10 +56,6 @@ function applyThemeToDOM(theme: Theme) {
   const targetColor = theme === 'dark' ? '#000000' : '#ffffff';
   meta.setAttribute('content', targetColor);
   
-  // Force repaint for smooth transition
-  if (root.offsetHeight) {
-    // Trigger a reflow to ensure transition is applied
-  }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
