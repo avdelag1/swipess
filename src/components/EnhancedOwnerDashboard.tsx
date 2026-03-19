@@ -57,26 +57,33 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
     }
   }, [ownerPrefs, storeGender, setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities]);
 
-  // PERF FIX: Read filters from store directly using filterVersion as change signal
-  // Avoids cascading object recreation through prop drilling
+  // PERF FIX: Read owner CLIENT filters from store — use getClientFilters() NOT getListingFilters().
+  // getListingFilters() produces listing/category filters for the CLIENT swipe deck.
+  // getClientFilters() produces the correct {clientGender, ageRange, budgetRange, ...} shape
+  // that useSmartClientMatching understands.
   const storeFilterVersion = useFilterStore((s) => s.filterVersion);
+  const clientFilters = useMemo(() => {
+    return useFilterStore.getState().getClientFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storeFilterVersion]);
+
+  // Merge any prop-passed filters with store client filters (store takes precedence)
   const mergedFilters = useMemo(() => {
-    const storeFilters = useFilterStore.getState().getListingFilters();
-    return { ...filters, ...storeFilters };
+    return { ...filters, ...clientFilters };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeFilterVersion, filters]);
 
   // FIX: Pass filters to query so fetched profiles match what container displays
   // Extract category from filters if available
-  const filterCategory = mergedFilters?.categories?.[0] || mergedFilters?.category || undefined;
-  if (import.meta.env.DEV) console.log('[EnhancedOwnerDashboard] Rendering with filters:', mergedFilters);
+  const filterCategory = mergedFilters?.categories?.[0] || undefined;
+  if (import.meta.env.DEV) console.log('[EnhancedOwnerDashboard] Rendering with clientFilters:', mergedFilters);
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
     filterCategory as any,
     0,      // page
     50,     // limit
     false,  // isRefreshMode
-    mergedFilters as any // FIX: Now includes synced filters!
+    mergedFilters as any // Now correctly typed as ClientFilters!
   );
 
   if (import.meta.env.DEV) {

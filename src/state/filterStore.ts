@@ -113,6 +113,7 @@ interface FilterState {
   // Getters
   getQuickFilters: () => QuickFilters;
   getListingFilters: () => ListingFilters;
+  getClientFilters: () => ClientFiltersShape;
   hasActiveFilters: (role: 'client' | 'owner') => boolean;
   getActiveFilterCount: (role: 'client' | 'owner') => number;
 }
@@ -122,6 +123,17 @@ const mapCategoryToDb = (category: QuickFilterCategory): string => {
   if (category === 'services') return 'worker';
   return category;
 };
+
+// Shape that useSmartClientMatching expects (from smartMatching/types.ts)
+interface ClientFiltersShape {
+  clientGender?: string;
+  clientType?: string;
+  ageRange?: [number, number];
+  budgetRange?: [number, number];
+  nationalities?: string[];
+  categories?: string[];
+  genders?: string[];
+}
 
 export const useFilterStore = create<FilterState>()(
   subscribeWithSelector((set, get) => ({
@@ -390,6 +402,28 @@ export const useFilterStore = create<FilterState>()(
         ageRange: state.clientAgeRange ?? undefined,
         budgetRange: state.clientBudgetRange ?? undefined,
         nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
+      };
+    },
+
+    // ── OWNER CLIENT FILTERS ─────────────────────────────────────────────────
+    // Maps owner filter store state to the ClientFilters shape expected by
+    // useSmartClientMatching. This is the CORRECT bridge between the two systems.
+    getClientFilters: () => {
+      const state = get();
+      return {
+        // Gender: map single value to array (hook expects string[])
+        clientGender: state.clientGender !== 'any' ? state.clientGender : undefined,
+        genders: state.clientGender !== 'any' ? [state.clientGender] : undefined,
+        // Client type (rent/buy/hire/individual/family/business)
+        clientType: state.clientType !== 'all' ? state.clientType : undefined,
+        // Age range
+        ageRange: state.clientAgeRange ?? undefined,
+        // Budget range
+        budgetRange: state.clientBudgetRange ?? undefined,
+        // Nationality list
+        nationalities: state.clientNationalities.length > 0 ? state.clientNationalities : undefined,
+        // Category from owner's perspective (what they offer)
+        categories: state.categories.map(mapCategoryToDb),
       };
     },
     

@@ -118,6 +118,26 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
         });
     }
 
+    // Freshness signal: newer listings score higher (recency matters for UX)
+    if ((listing as any).created_at) {
+        const daysSincePosted = (Date.now() - new Date((listing as any).created_at).getTime()) / (1000 * 60 * 60 * 24);
+        const freshnessScore = Math.max(0, 1 - daysSincePosted / 30); // 100% if today, 0% if 30+ days
+        criteria.push({
+            weight: 10,
+            matches: freshnessScore > 0.5,
+            reason: 'Recently posted',
+            incompatibleReason: ''
+        });
+    }
+
+    // Desirability signals (universal perks)
+    if ((listing as any).furnished) {
+        criteria.push({ weight: 5, matches: true, reason: 'Furnished', incompatibleReason: '' });
+    }
+    if ((listing as any).pet_friendly) {
+        criteria.push({ weight: 5, matches: true, reason: 'Pet-friendly', incompatibleReason: '' });
+    }
+
     // Calculate weighted percentage
     let totalWeight = 0;
     let matchedWeight = 0;
@@ -132,7 +152,18 @@ export function calculateListingMatch(preferences: ClientFilterPreferences, list
         }
     });
 
-    const percentage = totalWeight > 0 ? Math.round((matchedWeight / totalWeight) * 100) : 85;
+    // If no criteria were set (user has no preferences), score based on category alignment
+    // + recency signals rather than a meaningless flat number
+    if (totalWeight === 0) {
+        const isCategoryMatch =
+            (listing.category === 'property' && (preferences as any).interested_in_properties) ||
+            (listing.category === 'motorcycle' && (preferences as any).interested_in_motorcycles) ||
+            (listing.category === 'bicycle' && (preferences as any).interested_in_bicycles);
+        const base = isCategoryMatch ? 72 : 60;
+        return { percentage: base, reasons: ['Matches your search area'], incompatible: [] };
+    }
+
+    const percentage = Math.round((matchedWeight / totalWeight) * 100);
 
     return {
         percentage,
