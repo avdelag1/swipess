@@ -296,11 +296,14 @@ export function LikedClients() {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-              {filteredClients.map((client) => (
+              {filteredClients.map((client, index) => (
                 <Reorder.Item
                   key={client.id}
                   value={client}
                   className="list-none"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
                   whileDrag={{ scale: 1.03, zIndex: 50, boxShadow: "0 20px 60px rgba(228,0,124,0.25)" }}
                 >
                   <PremiumLikedCard
