@@ -272,7 +272,9 @@ function TopBarComponent({
               )}>
                 {title}
               </span>
-            ) : null}
+            ) : (
+              <SwipessLogo size="sm" className="pointer-events-none opacity-80" />
+            )}
           </div>
 
           {/* Right section: Actions */}

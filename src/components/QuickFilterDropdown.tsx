@@ -67,7 +67,7 @@ const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.React
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
   <>
     <span className={cn(
-      "font-black text-sm tracking-tight whitespace-nowrap uppercase",
+      "font-black text-sm sm:text-base tracking-tight whitespace-nowrap uppercase",
       hasActiveFilters
         ? "text-pink-600"
         : isDark ? "text-white" : "text-slate-700"
@@ -396,7 +396,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-8 sm:h-9 rounded-lg transition-all duration-200 touch-manipulation',
+          'relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 h-9 sm:h-10 rounded-xl transition-all duration-200 touch-manipulation',
           hasActiveFilters && 'ring-1 ring-pink-500/30'
         )}
         style={{
