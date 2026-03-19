@@ -161,6 +161,7 @@ export default defineConfig(({ mode }) => ({
     target: 'es2022',
   },
   build: {
+    outDir: 'dist/public',
     sourcemap: false,
     minify: 'esbuild',
     assetsInlineLimit: 8192,
