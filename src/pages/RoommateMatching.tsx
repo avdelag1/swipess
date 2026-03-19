@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
+import { useAuth } from '@/hooks/useAuth';
+import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
 import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
@@ -156,6 +158,7 @@ function useHideOnScroll(threshold = 10) {
 export default function RoommateMatching() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
@@ -167,6 +170,23 @@ export default function RoommateMatching() {
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
+
+  // REAL DATA HOOK
+  const { data: realCandidates, isLoading } = useSmartClientMatching(
+    user?.id,
+    undefined,
+    0,
+    20,
+    false,
+    undefined,
+    true // isRoommateSection
+  );
+
+  // Merge real and mock for dev fallback
+  const candidates = useMemo(() => {
+    if (realCandidates && realCandidates.length > 0) return realCandidates;
+    return MOCK_CANDIDATES;
+  }, [realCandidates]);
 
   const handleSwipe = useCallback((_direction: 'left' | 'right') => {
     setCurrentIndex(prev => prev + 1);
@@ -184,19 +204,19 @@ export default function RoommateMatching() {
   const handleLike = () => cardRef.current?.triggerSwipe('right');
   const handleDislike = () => cardRef.current?.triggerSwipe('left');
 
-  const topCard = MOCK_CANDIDATES[currentIndex] ?? null;
-  const nextCard = MOCK_CANDIDATES[currentIndex + 1] ?? null;
+  const topCard = candidates[currentIndex] ?? null;
+  const nextCard = candidates[currentIndex + 1] ?? null;
 
-  const toCardProfile = (c: RoommateCandidate) => ({
+  const toCardProfile = (c: any) => ({
     user_id: c.user_id,
-    name: c.name,
+    name: c.name || (c as any).full_name,
     age: c.age,
-    city: c.city,
+    city: c.city || (c as any).location?.city,
     country: c.country,
     bio: c.bio,
-    profile_images: c.profile_images,
+    profile_images: c.profile_images || (c as any).images,
     interests: c.interests,
-    languages: c.languages,
+    languages: c.languages || (c as any).languages_spoken,
     work_schedule: c.work_schedule,
     cleanliness_level: c.cleanliness_level,
     noise_tolerance: c.noise_tolerance,
