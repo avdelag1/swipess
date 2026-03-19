@@ -19,7 +19,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
-import { useTheme } from '@/hooks/useTheme';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
