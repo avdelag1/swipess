@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 /**
  * ANIMATED OUTLET
  *
- * Provides the signature "slide-up + fade" transition used in the premium Auth flow.
+ * Provides the signature "slide-up + fade" transition used across the app.
  * Every top-level navigation (Bottom Nav switches) triggers this transition.
  */
 export function AnimatedOutlet() {
@@ -22,7 +22,7 @@ export function AnimatedOutlet() {
                     opacity: 1, 
                     transition: { 
                         duration: 0.3, 
-                        ease: [0.25, 0.46, 0.45, 0.94] // The "Signature" ease-out
+                        ease: [0.25, 0.46, 0.45, 0.94]
                     } 
                 }}
                 exit={{ 

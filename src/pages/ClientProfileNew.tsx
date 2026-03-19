@@ -74,7 +74,7 @@ const ClientProfileNew = () => {
 
   return (
     <>
-      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
+      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full stagger-children">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">

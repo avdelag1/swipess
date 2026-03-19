@@ -2349,6 +2349,31 @@ html[data-navigation-direction="back"] {
   }
 }
 
+/* ── PAGE SECTION STAGGER ─────────────────────────────────────────── */
+/* Add .stagger-children to any container whose direct children       */
+/* should appear one-by-one on page mount (up to 12 items).           */
+@keyframes stagger-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.stagger-children > * {
+  opacity: 0;
+  animation: stagger-up 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.stagger-children > *:nth-child(1)   { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(2)   { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3)   { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(4)   { animation-delay: 0.22s; }
+.stagger-children > *:nth-child(5)   { animation-delay: 0.27s; }
+.stagger-children > *:nth-child(6)   { animation-delay: 0.31s; }
+.stagger-children > *:nth-child(7)   { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8)   { animation-delay: 0.38s; }
+.stagger-children > *:nth-child(9)   { animation-delay: 0.41s; }
+.stagger-children > *:nth-child(10)  { animation-delay: 0.43s; }
+.stagger-children > *:nth-child(11)  { animation-delay: 0.45s; }
+.stagger-children > *:nth-child(n+12){ animation-delay: 0.46s; }
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  FILTER-BASED LIGHT THEME -> REPLACED WITH NATIVE VARIABLES      */
 /*  (Removed global invert in favor of native light mode variables)    */
