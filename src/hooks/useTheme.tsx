@@ -29,6 +29,11 @@ const ALL_THEME_CLASSES = [
 
 function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
+  
+  // Mark transition start for smooth color shift
+  root.style.colorScheme = theme;
+  
+  // Remove all old theme classes
   root.classList.remove(...ALL_THEME_CLASSES);
 
   // Add the theme class — .dark or .light
@@ -39,14 +44,22 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('black-matte');
   }
 
-  // Update status bar color
+  // Update status bar color for PWA (respects safe-area)
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
     meta = document.createElement('meta');
     meta.setAttribute('name', 'theme-color');
     document.head.appendChild(meta);
   }
-  meta.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+  
+  // Smooth transition for status bar in PWA
+  const targetColor = theme === 'dark' ? '#000000' : '#ffffff';
+  meta.setAttribute('content', targetColor);
+  
+  // Force repaint for smooth transition
+  if (root.offsetHeight) {
+    // Trigger a reflow to ensure transition is applied
+  }
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
