@@ -5,9 +5,14 @@ import { logger } from '@/utils/prodLogger';
 
 type Theme = 'dark' | 'light';
 
+export interface ThemeToggleCoords {
+  x: number;
+  y: number;
+}
+
 interface ThemeContextType {
   theme: Theme;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -92,10 +97,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   // Save theme to database and update state
-  const setTheme = async (newTheme: Theme) => {
-    // Apply CSS immediately to prevent flash
-    applyThemeToDOM(newTheme);
-    setThemeState(newTheme);
+  const setTheme = async (newTheme: Theme, coords?: ThemeToggleCoords) => {
+    const root = window.document.documentElement;
+
+    // Store click origin for the CSS clip-path reveal animation
+    if (coords) {
+      root.style.setProperty('--theme-reveal-x', `${coords.x}px`);
+      root.style.setProperty('--theme-reveal-y', `${coords.y}px`);
+    } else {
+      root.style.setProperty('--theme-reveal-x', '50%');
+      root.style.setProperty('--theme-reveal-y', '50%');
+    }
+
+    // Use View Transitions API for circular ripple reveal if supported
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    if (doc.startViewTransition) {
+      doc.startViewTransition(() => {
+        applyThemeToDOM(newTheme);
+        setThemeState(newTheme);
+      });
+    } else {
+      // Fallback: apply immediately (CSS transition handles the rest)
+      applyThemeToDOM(newTheme);
+      setThemeState(newTheme);
+    }
 
     if (user?.id) {
       try {

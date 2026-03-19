@@ -21,9 +21,43 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── View Transitions: circular ripple reveal from toggle button ─── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Old theme snapshot: freeze in place, let the new one slide over it */
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+/* New theme snapshot: expand as a circle from the toggle button origin */
+::view-transition-new(root) {
+  animation: theme-circle-reveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 2;
+}
+
+@keyframes theme-circle-reveal {
+  from {
+    clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
+    opacity: 0.92;
+  }
+  to {
+    clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     transition: none;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
   }
 }
 
