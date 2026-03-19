@@ -272,7 +272,9 @@ function TopBarComponent({
               )}>
                 {title}
               </span>
-            ) : null}
+            ) : (
+              <SwipessLogo size="sm" className="pointer-events-none opacity-80" />
+            )}
           </div>
 
           {/* Right section: Actions */}
@@ -302,7 +304,7 @@ function TopBarComponent({
               <PopoverContent
                 align="end"
                 sideOffset={8}
-                className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-white border border-black/10 shadow-2xl"
+                className="w-[min(calc(100vw-1.5rem),420px)] p-0 rounded-2xl bg-card border border-border shadow-2xl"
               >
                 {/* Popover Header */}
                 <div className="px-4 pt-4 pb-3 border-b border-border">

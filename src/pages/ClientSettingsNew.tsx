@@ -139,7 +139,7 @@ const ClientSettingsNew = () => {
         <div className="max-w-3xl mx-auto">
 
 
-          <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={false} />
+          <PageHeader title={t('settings.security')} subtitle={t('settings.securityDesc')} showBack={true} onBack={() => setActiveSection(null)} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <div className="rounded-2xl overflow-hidden bg-card border border-border">
@@ -164,7 +164,7 @@ const ClientSettingsNew = () => {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
-          <PageHeader title={t('settings.verification')} subtitle={t('settings.verificationDesc')} showBack={false} />
+          <PageHeader title={t('settings.verification')} subtitle={t('settings.verificationDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <ClientVerificationFlow onComplete={() => setActiveSection(null)} />
           </motion.div>
@@ -177,7 +177,7 @@ const ClientSettingsNew = () => {
     return (
       <div className="w-full min-h-full overflow-y-auto px-4 pt-4 pb-32 bg-background">
         <div className="max-w-3xl mx-auto">
-          <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={false} />
+          <PageHeader title={t('settings.language')} subtitle={t('settings.languageDesc')} showBack={true} onBack={() => setActiveSection(null)} />
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <LanguageToggle />
           </motion.div>
@@ -192,7 +192,7 @@ const ClientSettingsNew = () => {
         <div className="max-w-3xl mx-auto">
 
 
-          <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={false} />
+          <PageHeader title={t('settings.preferences')} subtitle={t('settings.preferencesDesc')} showBack={true} onBack={() => setActiveSection(null)} />
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={fastSpring} className="space-y-6">
             <SwipeSoundSettings />

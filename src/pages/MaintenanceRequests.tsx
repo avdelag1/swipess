@@ -61,7 +61,7 @@ const MaintenanceRequests = () => {
     <div className="w-full min-h-full px-4 pt-4 pb-32 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <PageHeader title="Maintenance" subtitle="Report and track issues" showBack />
+          <PageHeader title="Maintenance" subtitle="Report and track issues" showBack backTo="/client/settings" />
           {!showForm && (
             <Button
               onClick={() => setShowForm(true)}
