@@ -2,8 +2,23 @@ import React, { createContext, useContext, useState, useEffect, useRef, useCallb
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { RadioStation, CityLocation, RadioSkin, RadioPlayerState } from '@/types/radio';
-import { getStationsByCity, getStationById, getRandomStation } from '@/data/radioStations';
+import { getStationsByCity, getStationById, radioStations } from '@/data/radioStations';
 import { logger } from '@/utils/prodLogger';
+
+/** Fisher-Yates shuffle — returns a new shuffled array, never starting with excludeId */
+function shuffleArray<T extends { id: string }>(arr: T[], excludeId?: string): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  // Move the excluded station away from position 0 to avoid immediate repeat
+  if (excludeId && a.length > 1 && a[0].id === excludeId) {
+    const swapIdx = 1 + Math.floor(Math.random() * (a.length - 1));
+    [a[0], a[swapIdx]] = [a[swapIdx], a[0]];
+  }
+  return a;
+}
 
 interface RadioContextType {
   state: RadioPlayerState;
@@ -76,6 +91,10 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const failedStationsRef = useRef<Set<string>>(new Set());
   const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const errorTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Shuffle queue: pre-shuffled list of ALL stations, consumed in order, reshuffled when exhausted
+  const shuffleQueueRef = useRef<RadioStation[]>([]);
+  const shuffleIndexRef = useRef<number>(0);
 
   // Refs to hold latest callbacks for event handlers (avoids stale closures)
   const changeStationRef = useRef<(direction: 'next' | 'prev') => void>(() => { });
@@ -340,14 +359,30 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   }, [state.isPoweredOn]);
 
   const changeStation = useCallback((direction: 'next' | 'prev') => {
+    if (state.isShuffle) {
+      // Advance (or retreat) through the pre-shuffled queue
+      let nextIndex: number;
+      if (direction === 'next') {
+        nextIndex = shuffleIndexRef.current + 1;
+        // When we've exhausted the queue, re-shuffle avoiding the last played station
+        if (nextIndex >= shuffleQueueRef.current.length) {
+          const lastId = shuffleQueueRef.current[shuffleQueueRef.current.length - 1]?.id;
+          shuffleQueueRef.current = shuffleArray(radioStations, lastId);
+          nextIndex = 0;
+        }
+      } else {
+        nextIndex = shuffleIndexRef.current - 1;
+        if (nextIndex < 0) nextIndex = 0; // Clamp at start
+      }
+      shuffleIndexRef.current = nextIndex;
+      const station = shuffleQueueRef.current[nextIndex];
+      if (station) play(station);
+      return;
+    }
+
     const city = state.currentCity;
     const stations = getStationsByCity(city);
     if (stations.length === 0) return;
-
-    if (state.isShuffle) {
-      play(getRandomStation());
-      return;
-    }
 
     const currentIndex = state.currentStation
       ? stations.findIndex(s => s.id === state.currentStation?.id)
@@ -384,9 +419,19 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
 
   const toggleShuffle = useCallback(() => {
     const newShuffle = !state.isShuffle;
+    if (newShuffle) {
+      // Build a fresh shuffle queue across ALL stations, excluding current station from position 0
+      const currentId = state.currentStation?.id;
+      shuffleQueueRef.current = shuffleArray(radioStations, currentId);
+      shuffleIndexRef.current = 0;
+    } else {
+      // Reset queue so next toggle starts fresh
+      shuffleQueueRef.current = [];
+      shuffleIndexRef.current = 0;
+    }
     setState(prev => ({ ...prev, isShuffle: newShuffle }));
     savePreferences({ isShuffle: newShuffle });
-  }, [state.isShuffle]);
+  }, [state.isShuffle, state.currentStation]);
 
   const setSkin = useCallback((skin: RadioSkin) => {
     setState(prev => ({ ...prev, skin }));
