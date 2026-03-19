@@ -324,7 +324,7 @@ export default function EventosFeed() {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   
-  const [viewMode, setViewMode] = useState<ViewMode>('discover');
+  const [viewMode, setViewMode] = useState<ViewMode>('stories');
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -827,7 +827,7 @@ function StoriesView({
   setCurrentIndex: (val: any) => void,
   likedIds: Set<string>,
   onLike: (id: string) => void,
-  onOpenChat: (e: React.MouseEvent) => void,
+  onOpenChat: (event: EventItem, e: React.MouseEvent) => void,
   isLoading: boolean
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -852,19 +852,21 @@ function StoriesView({
           <div key={idx} className="flex-1 h-0.5 rounded-full overflow-hidden bg-white/20">
             <motion.div 
               className="h-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-              initial={{ width: 0 }}
+              key={`progress-${idx}-${currentIndex}`}
+              initial={{ width: idx < currentIndex ? '100%' : '0%' }}
               animate={{ 
                 width: idx < currentIndex ? '100%' : idx === currentIndex ? '100%' : '0%' 
               }}
               transition={{ 
-                duration: idx === currentIndex ? 8 : 0, 
+                duration: idx === currentIndex ? 10 : 0.15, 
                 ease: "linear" 
               }}
               onAnimationComplete={() => {
                 if (idx === currentIndex && currentIndex < events.length - 1) {
-                  setCurrentIndex(prev => prev + 1);
+                  const nextIndex = currentIndex + 1;
+                  setCurrentIndex(nextIndex);
                   scrollRef.current?.scrollTo({
-                    top: (currentIndex + 1) * scrollRef.current.clientHeight,
+                    top: nextIndex * scrollRef.current.clientHeight,
                     behavior: 'smooth'
                   });
                 }
@@ -877,27 +879,42 @@ function StoriesView({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"
+        className="w-full h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"
       >
         {isLoading && events.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center gap-4 bg-zinc-950">
+          <div className="h-full w-full snap-start flex flex-col items-center justify-center gap-4 bg-zinc-950">
             <Sparkles className="w-12 h-12 text-white/10 animate-pulse" />
           </div>
         ) : events.length > 0 ? (
-          <div className="relative h-full">
+          <>
             {events.map((event, idx) => (
-              <StoryCard 
-                key={event.id}
-                event={event} 
-                isActive={idx === currentIndex} 
-                isLiked={likedIds.has(event.id)}
-                onLike={onLike}
-                onOpenChat={(e) => onOpenChat(event, e)}
-              />
+              <div key={event.id} className="w-full h-full snap-start snap-always shrink-0 flex-shrink-0">
+                <StoryCard 
+                  event={event} 
+                  isActive={idx === currentIndex} 
+                  isLiked={likedIds.has(event.id)}
+                  onLike={onLike}
+                  onOpenChat={(e) => onOpenChat(event, e)}
+                  onTapLeft={() => {
+                    if (currentIndex > 0) {
+                      const prevIndex = currentIndex - 1;
+                      setCurrentIndex(prevIndex);
+                      scrollRef.current?.scrollTo({ top: prevIndex * scrollRef.current.clientHeight, behavior: 'smooth' });
+                    }
+                  }}
+                  onTapRight={() => {
+                    if (currentIndex < events.length - 1) {
+                      const nextIndex = currentIndex + 1;
+                      setCurrentIndex(nextIndex);
+                      scrollRef.current?.scrollTo({ top: nextIndex * scrollRef.current.clientHeight, behavior: 'smooth' });
+                    }
+                  }}
+                />
+              </div>
             ))}
-          </div>
+          </>
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-white/30 p-10 text-center gap-4">
+          <div className="h-full w-full snap-start flex flex-col items-center justify-center text-white/30 p-10 text-center gap-4">
             <Sparkles className="w-12 h-12" />
             <p className="text-sm font-black uppercase tracking-widest">No stories left</p>
           </div>
@@ -914,13 +931,17 @@ function StoryCard({
   isActive,
   isLiked,
   onLike,
-  onOpenChat
+  onOpenChat,
+  onTapLeft,
+  onTapRight,
 }: { 
   event: EventItem, 
   isActive: boolean,
   isLiked: boolean,
   onLike: (id: string) => void,
-  onOpenChat: (e: React.MouseEvent) => void
+  onOpenChat: (e: React.MouseEvent) => void,
+  onTapLeft?: () => void,
+  onTapRight?: () => void,
 }) {
   const { navigate } = useAppNavigate();
   const isPoster = event.id.startsWith('poster');
@@ -939,7 +960,7 @@ function StoryCard({
   };
 
   return (
-    <div className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-black">
+    <div className="relative h-full w-full overflow-hidden bg-black">
       <motion.div 
         className="absolute inset-0"
         animate={isActive ? { scale: 1 } : { scale: 1.1 }}
@@ -949,7 +970,14 @@ function StoryCard({
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/40 to-transparent" />
       </motion.div>
 
-      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1.5rem+var(--safe-bottom))]">
+      {/* Tap zones for Instagram-style navigation */}
+      <div className="absolute inset-0 flex z-10 pointer-events-none">
+        <div className="flex-1 h-full pointer-events-auto" onClick={onTapLeft} />
+        <div className="flex-[3] h-full pointer-events-none" />
+        <div className="flex-1 h-full pointer-events-auto" onClick={onTapRight} />
+      </div>
+
+      <div className="absolute inset-0 flex flex-col justify-end p-6 pb-[calc(1.5rem+var(--safe-bottom))] z-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isActive ? { opacity: 1, y: 0 } : {}}
