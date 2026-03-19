@@ -1164,47 +1164,32 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-xs"
+            className="w-full max-w-[17rem]"
           >
-            {/* Header */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted/50 border border-border/50 mb-4">
-                <Users className="w-3.5 h-3.5 text-muted-foreground" />
-                <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">Explore Tulum</span>
-              </div>
-              <h2 className="text-2xl font-black text-foreground tracking-tight">What are you<br />looking for?</h2>
-              <p className="text-sm text-muted-foreground mt-2">Choose a category to start swiping</p>
-            </div>
-
-            {/* Category grid — 2×2 */}
-            <div className="grid grid-cols-2 gap-3">
+            {/* Category grid — 2×2 compact */}
+            <div className="grid grid-cols-2 gap-2">
               {allCategories.map(({ id, label, Icon, color, description }, i) => (
                 <motion.button
                   key={id}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                  whileTap={{ scale: 0.93 }}
                   whileHover={{ scale: 1.02 }}
                   onClick={() => setCategories([id])}
-                  className="relative flex flex-col items-center gap-3 p-5 rounded-2xl text-center transition-all active:brightness-95"
+                  className="relative flex flex-col items-center gap-2 p-4 rounded-2xl text-center bg-muted/30 border border-border/40 hover:bg-muted/60 hover:border-border/70 transition-all active:brightness-95"
                   style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
-                  {/* Icon circle */}
-                  <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/20 flex items-center justify-center ${color} shadow-sm`}>
-                    <Icon className="w-7 h-7" strokeWidth={1.5} />
+                  <div className={`w-11 h-11 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/20 flex items-center justify-center ${color} shadow-sm`}>
+                    <Icon className="w-5 h-5" strokeWidth={1.6} />
                   </div>
                   <div>
-                    <div className="text-sm font-black text-foreground tracking-tight">{label}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{description}</div>
+                    <div className="text-[13px] font-black text-foreground tracking-tight leading-none">{label}</div>
+                    <div className="text-[9.5px] text-muted-foreground mt-1 leading-tight">{description}</div>
                   </div>
                 </motion.button>
               ))}
             </div>
-
-            <p className="text-center text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground/50 mt-6">
-              Tulum's #1 discovery platform
-            </p>
           </motion.div>
         </motion.div>
       </AnimatePresence>

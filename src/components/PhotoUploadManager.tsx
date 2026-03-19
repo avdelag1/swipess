@@ -17,6 +17,7 @@ interface PhotoUploadManagerProps {
   onUpload?: (file: File) => Promise<string>; // Returns URL
   listingId?: string;
   showCameraButton?: boolean;
+  replaceOnFull?: boolean; // When true and at capacity, replaces instead of blocking
 }
 
 export function PhotoUploadManager({
@@ -27,6 +28,7 @@ export function PhotoUploadManager({
   onUpload,
   listingId,
   showCameraButton = true,
+  replaceOnFull = false,
 }: PhotoUploadManagerProps) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -55,10 +57,19 @@ export function PhotoUploadManager({
   const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
-    const remainingSlots = maxPhotos - currentPhotos.length;
+    let effectiveCurrentPhotos = currentPhotos;
+    let remainingSlots = maxPhotos - currentPhotos.length;
+
     if (remainingSlots <= 0) {
-      toast.error("Photo Limit Reached", { description: `You can only upload ${maxPhotos} photos for ${uploadType}s.` });
-      return;
+      if (replaceOnFull) {
+        // Clear existing photos so the new upload replaces them
+        onPhotosChange([]);
+        effectiveCurrentPhotos = [];
+        remainingSlots = maxPhotos;
+      } else {
+        toast.error("Photo Limit Reached", { description: `You can only upload ${maxPhotos} photos for ${uploadType}s.` });
+        return;
+      }
     }
 
     const filesToUpload = Array.from(files).slice(0, remainingSlots);
@@ -125,7 +136,7 @@ export function PhotoUploadManager({
 
       // Update photos with successfully uploaded ones
       if (newUrls.length > 0) {
-        const updatedPhotos = [...currentPhotos, ...newUrls];
+        const updatedPhotos = [...effectiveCurrentPhotos, ...newUrls];
         onPhotosChange(updatedPhotos);
       }
 

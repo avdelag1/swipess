@@ -4,7 +4,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
@@ -13,7 +12,7 @@ import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
-import { Building2, Bike, Briefcase, Check, Camera, MapPin, Mail, Phone } from 'lucide-react';
+import { Building2, Bike, Briefcase, Check, Camera, MapPin, Mail } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 
@@ -29,20 +28,16 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
   const saveMutation = useSaveOwnerProfile();
 
   const [businessName, setBusinessName] = useState<string>('');
-  const [businessDescription, setBusinessDescription] = useState<string>('');
   const [businessLocation, setBusinessLocation] = useState<string>('');
   const [contactEmail, setContactEmail] = useState<string>('');
-  const [contactPhone, setContactPhone] = useState<string>('');
   const [profileImages, setProfileImages] = useState<string[]>([]);
   const [serviceOfferings, setServiceOfferings] = useState<string[]>([]);
 
   useEffect(() => {
     if (!data) return;
     setBusinessName(data.business_name ?? '');
-    setBusinessDescription(data.business_description ?? '');
     setBusinessLocation(data.business_location ?? '');
     setContactEmail(data.contact_email ?? '');
-    setContactPhone(data.contact_phone ?? '');
     setProfileImages(data.profile_images ?? []);
     setServiceOfferings(data.service_offerings ?? []);
   }, [data]);
@@ -78,7 +73,6 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
     // Content moderation on business name & location (not email/phone - those are legitimate)
     for (const { text, label } of [
       { text: businessName, label: 'Business Name' },
-      { text: businessDescription, label: 'Business Description' },
       { text: businessLocation, label: 'Business Location' },
     ]) {
       if (text) {
@@ -92,10 +86,8 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
 
     const payload = {
       business_name: businessName || null,
-      business_description: businessDescription || null,
       business_location: businessLocation || null,
       contact_email: contactEmail || null,
-      contact_phone: contactPhone || null,
       profile_images: profileImages,
       service_offerings: serviceOfferings,
     };
@@ -170,6 +162,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                 uploadType="profile"
                 onUpload={handleImageUpload}
                 showCameraButton={false}
+                replaceOnFull
               />
             </div>
 
@@ -190,18 +183,6 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="Your business name"
                   className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="business_description" className="text-muted-foreground text-sm sm:text-base">Business Description</Label>
-                <Textarea
-                  id="business_description"
-                  value={businessDescription}
-                  onChange={(e) => setBusinessDescription(e.target.value)}
-                  placeholder="Describe your business, what you offer and what makes you unique..."
-                  rows={4}
-                  className="text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)] resize-none"
                 />
               </div>
 
@@ -291,7 +272,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             <div className="space-y-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-                  <Phone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <Label className="text-foreground text-base font-semibold">Contact Information</Label>
               </div>
@@ -308,17 +289,6 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="contact_phone" className="text-muted-foreground text-sm sm:text-base">Contact Phone</Label>
-                <Input
-                  id="contact_phone"
-                  type="tel"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="+1 (555) 000-0000"
-                  className="h-14 text-base bg-secondary border-border rounded-2xl text-foreground placeholder:text-muted-foreground focus:border-[var(--color-brand-accent-2)]"
-                />
-              </div>
             </div>
           </div>
         </ScrollArea>

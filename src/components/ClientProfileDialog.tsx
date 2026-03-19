@@ -397,6 +397,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 uploadType="profile"
                 onUpload={handleImageUpload}
                 showCameraButton={false}
+                replaceOnFull
               />
             </div>
 
