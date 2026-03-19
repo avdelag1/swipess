@@ -220,8 +220,9 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
 
       if (mode === 'stars') {
         const roll = Math.random();
-        if (roll < 0.5) spawnShootingStar(e.clientX, e.clientY);
-        else spawnSaucerUFO(e.clientX, e.clientY);
+        if (roll < 0.33) spawnShootingStar(e.clientX, e.clientY);
+        else if (roll < 0.66) spawnSaucerUFO(e.clientX, e.clientY);
+        else spawnOrbUFO(e.clientX, e.clientY);
       }
     };
 
@@ -311,33 +312,138 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
         ctx.translate(saucer.x, saucer.y);
         ctx.globalAlpha = fadeAlpha;
 
-        // Main disk body
+        // --- 1. Tractor Beam (If On) ---
+        if (saucer.beamOn && progress > 0.1 && progress < 0.9) {
+          const beamPulse = Math.sin(time * 0.2) * 0.15 + 0.35;
+          const beamGrad = ctx.createLinearGradient(0, 0, 0, 80);
+          beamGrad.addColorStop(0, `rgba(100, 255, 220, ${beamPulse * 0.6 * fadeAlpha})`);
+          beamGrad.addColorStop(1, `rgba(0, 255, 180, 0.0)`);
+          
+          ctx.beginPath();
+          ctx.moveTo(-s * 0.2, 2);
+          ctx.lineTo(-s * 0.6, 80);
+          ctx.lineTo(s * 0.6, 80);
+          ctx.lineTo(s * 0.2, 2);
+          ctx.closePath();
+          ctx.fillStyle = beamGrad;
+          ctx.fill();
+        }
+
+        // --- 2. Thruster Glow (Bottom) ---
+        const thrustPulse = Math.sin(time * 0.4 + i) * 0.2 + 0.4;
+        const thrustGrad = ctx.createRadialGradient(0, 2, 0, 0, 2, s * 0.8);
+        thrustGrad.addColorStop(0, `rgba(80, 200, 255, ${thrustPulse * fadeAlpha})`);
+        thrustGrad.addColorStop(1, 'rgba(0, 100, 255, 0)');
+        ctx.fillStyle = thrustGrad;
+        ctx.beginPath();
+        ctx.ellipse(0, 2, s * 0.8, s * 0.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // --- 3. Main Disk Body (Liquid Metal Style) ---
         ctx.beginPath();
         ctx.ellipse(0, 2, s, s * 0.28, 0, 0, Math.PI * 2);
         const bodyGrad = ctx.createLinearGradient(0, -s * 0.28, 0, s * 0.28);
-        bodyGrad.addColorStop(0, 'rgba(210,210,215,0.95)');
-        bodyGrad.addColorStop(0.45, 'rgba(155,155,165,0.9)');
-        bodyGrad.addColorStop(1, 'rgba(70,70,80,0.75)');
+        bodyGrad.addColorStop(0, 'rgba(230,230,240,0.95)'); // Bright top catch
+        bodyGrad.addColorStop(0.4, 'rgba(170,170,185,0.9)'); // Mid metal
+        bodyGrad.addColorStop(0.6, 'rgba(120,120,135,0.85)'); // Shadow divide
+        bodyGrad.addColorStop(1, 'rgba(60,60,75,0.8)'); // Bottom shadow
         ctx.fillStyle = bodyGrad;
         ctx.fill();
 
-        // Dome
+        // --- 4. Blinking Rim Lights ---
+        saucer.lights.forEach((light, li) => {
+          const lx = Math.cos(light.angle + saucer.wobblePhase * 0.5) * s * 0.85;
+          const ly = Math.sin(light.angle + saucer.wobblePhase * 0.5) * s * 0.15 + 2;
+          
+          // Blink logic
+          const isOn = Math.sin(time * 0.15 + li) > 0;
+          if (isOn) {
+            ctx.beginPath();
+            ctx.arc(lx, ly, 2.5, 0, Math.PI * 2);
+            ctx.fillStyle = `hsla(${light.hue}, 100%, 75%, ${fadeAlpha})`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = `hsla(${light.hue}, 100%, 70%, 1)`;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Core pixel
+            ctx.beginPath();
+            ctx.arc(lx, ly, 1, 0, Math.PI * 2);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+          } else {
+            ctx.beginPath();
+            ctx.arc(lx, ly, 1.8, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(40, 40, 50, 0.4)';
+            ctx.fill();
+          }
+        });
+
+        // --- 5. Glass Dome ---
         ctx.beginPath();
         ctx.ellipse(0, 0, s * 0.38, s * 0.26, 0, Math.PI, 0);
         const domeGrad = ctx.createLinearGradient(0, -s * 0.3, 0, 0);
-        domeGrad.addColorStop(0, 'rgba(225,225,235,0.75)');
-        domeGrad.addColorStop(1, 'rgba(130,130,145,0.5)');
+        domeGrad.addColorStop(0, 'rgba(180,240,255,0.8)'); // Sky/light reflection
+        domeGrad.addColorStop(0.5, 'rgba(100,180,255,0.4)'); // Translucent blue
+        domeGrad.addColorStop(1, 'rgba(40,60,100,0.2)'); // Depth
         ctx.fillStyle = domeGrad;
         ctx.fill();
 
-        // Rim highlight
+        // Dome Inner Detail (Small Alien Silhouette)
+        ctx.beginPath();
+        ctx.arc(0, -s * 0.08, s * 0.06, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fill();
+
+        // High gloss rim highlight
         ctx.beginPath();
         ctx.ellipse(0, 2, s, s * 0.28, 0, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-        ctx.lineWidth = 0.6;
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.lineWidth = 0.8;
         ctx.stroke();
 
         ctx.globalAlpha = 1;
+        ctx.restore();
+      }
+
+      // Orb UFOs (Energy Spheres)
+      for (let i = orbUFOsRef.current.length - 1; i >= 0; i--) {
+        const orb = orbUFOsRef.current[i];
+        orb.age += 0.016;
+        if (orb.age >= orb.maxAge) { orbUFOsRef.current.splice(i, 1); continue; }
+        
+        const progress = orb.age / orb.maxAge;
+        const currentFade = progress < 0.2 ? progress / 0.2 : progress > 0.8 ? (1 - progress) / 0.2 : 1;
+        
+        orb.x += orb.vx;
+        orb.y += orb.vy + Math.sin(time * 0.1 + orb.bobPhase) * 0.5;
+        orb.pulsePhase += 0.1;
+        
+        const [r, g, b] = orb.color;
+        const glowSize = orb.radius * (1.5 + Math.sin(orb.pulsePhase) * 0.3);
+        
+        ctx.save();
+        ctx.globalAlpha = currentFade;
+        
+        // Outer Glow
+        const grad = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, glowSize);
+        grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.8)`);
+        grad.addColorStop(0.4, `rgba(${r}, ${g}, ${b}, 0.3)`);
+        grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(orb.x, orb.y, glowSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Core
+        ctx.beginPath();
+        ctx.arc(orb.x, orb.y, orb.radius * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'white';
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `rgb(${r}, ${g}, ${b})`;
+        ctx.fill();
+        
         ctx.restore();
       }
     };
