@@ -42,6 +42,13 @@ export function checkForUpdates(): UpdateInfo {
     return { available: false, needsRefresh: false };
   }
 
+  // In dev mode, BUILD_TIMESTAMP is Date.now() on every load — always different.
+  // Suppress update notifications entirely so they don't block the preview.
+  if (import.meta.env.DEV) {
+    markVersionAsInstalled();
+    return { available: false, needsRefresh: false };
+  }
+
   const storedVersion = localStorage.getItem(VERSION_STORAGE_KEY);
 
   // First visit or version changed (always true on new deployment)
@@ -296,6 +303,12 @@ function checkHtmlVersionMismatch(): boolean {
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
+    // In dev mode, skip forced updates — version changes every load
+    if (import.meta.env.DEV) {
+      markVersionAsInstalled();
+      return;
+    }
+
     // GUARD 1: Session-level cooldown — only trigger one reload per session
     const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
     if (alreadyReloaded) return;
