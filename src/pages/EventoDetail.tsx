@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,6 +36,7 @@ interface EventDetail {
  * Shows benefits for brands to advertise in Swipess.
  */
 function BrandBenefitsSection() {
+  const navigate = useNavigate();
   return (
     <motion.div 
       initial={{ opacity: 0, y: 30 }}
@@ -84,12 +85,10 @@ function BrandBenefitsSection() {
                 className="w-full py-4.5 h-14 rounded-2xl bg-white text-indigo-600 text-[11px] font-black uppercase tracking-[0.3em] shadow-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"
                 onClick={() => {
                    triggerHaptic('medium');
-                   const phone = '529841234567';
-                   const msg = encodeURIComponent("Hey Swipess! I want to promote my brand. What are the options? 🔥");
-                   window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                   navigate('/explore/eventos/promote');
                 }}
              >
-                Contact Partnerships <ArrowUpRight className="w-4 h-4" />
+                Submit Your Brand <ArrowUpRight className="w-4 h-4" />
              </motion.button>
           </div>
        </div>

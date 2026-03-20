@@ -111,6 +111,7 @@ const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 // New feature pages - lazy loaded
 const EventosFeed = lazy(() => import("./pages/EventosFeed"));
 const EventoDetail = lazy(() => import("./pages/EventoDetail"));
+const PromotionRequest = lazy(() => import("./pages/PromotionRequest"));
 const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
@@ -318,6 +319,7 @@ const App = () => {
 
                                         {/* New feature routes */}
                                         <Route path="/explore/eventos" element={<EventosFeed />} />
+                                        <Route path="/explore/eventos/promote" element={<PromotionRequest />} />
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
                                         <Route path="/admin/eventos" element={<AdminEventos />} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
