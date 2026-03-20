@@ -3,7 +3,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, SlidersHorizontal, DollarSign, Home, Bike, Wrench, Check,
-  ChevronDown, Zap, Droplets, Car, Fuel, Gauge, Shield, Wifi,
+  ChevronDown, Zap, Droplets, Fuel, Gauge, Shield, Wifi,
   ParkingCircle, Waves, Dumbbell, Sofa, PawPrint, Building2, Castle,
   Hotel, Trees
 } from 'lucide-react';

@@ -188,7 +188,7 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interestType, bicycleTypes, selectedBudgetRange, frameSize, condition, suspensionType, isElectricOnly, locationCountries, locationCities, locationNeighborhoods]);
 
-  const handleClear = () => {
+  const _handleClear = () => {
     setInterestType('both');
     setBicycleTypes([]);
     setFrameSize('any');
@@ -221,7 +221,7 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
     onApply({});
   };
 
-  const handleSavePreferences = async () => {
+  const _handleSavePreferences = async () => {
     try {
       const budgetValues = getBudgetValues();
       await savePreferencesMutation.mutateAsync({
@@ -240,7 +240,7 @@ export function BicycleClientFilters({ onApply, initialFilters = {}, activeCount
         bicycle_battery_range_min: batteryRange > 0 ? batteryRange : null,
       });
       toast.success('Preferences saved!', { description: 'Your bicycle filter preferences have been saved successfully.' });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error', { description: 'Failed to save preferences. Please try again.' });
     }
   };

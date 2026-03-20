@@ -4,7 +4,7 @@ import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, MapPin,
   Briefcase, Heart, MessageCircle, Undo2,
-  ShieldCheck, Zap, Info, Clock,
+  ShieldCheck, Info, Clock,
   ThumbsDown, Flame
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
