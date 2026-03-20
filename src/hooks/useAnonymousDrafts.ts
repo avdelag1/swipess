@@ -159,7 +159,7 @@ export function useAnonymousDrafts() {
     // Restore profile draft
     if (profileDraft) {
       try {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('profiles')
           .upsert({
             id: user.id,

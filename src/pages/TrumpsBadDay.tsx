@@ -756,7 +756,7 @@ export default function TrumpsBadDay() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      await (supabase as any).from('trump_game_scores').insert({
+      await supabase.from('trump_game_scores').insert({
         user_id: session.user.id, score: g.score, combo: g.combo,
         weapon_used: g.weapon, background: BACKGROUNDS[g.bgIndex].key,
       });
@@ -766,7 +766,7 @@ export default function TrumpsBadDay() {
   // ── Fetch leaderboard
   const fetchLB = useCallback(async () => {
     try {
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('trump_game_scores').select('score, created_at')
         .order('score', { ascending: false }).limit(5);
       if (data) setLeaderboard(data);

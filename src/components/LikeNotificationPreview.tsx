@@ -75,20 +75,20 @@ export function LikeNotificationPreview({
           });
         } else {
           // Show owner's listings preview
-          const { data: listings } = await (supabase as any)
+          const { data: listings } = await supabase
             .from('listings')
             .select('id, title, city, neighborhood, images, property_type')
             .eq('owner_id', likerId)
             .eq('status', 'active')
             .limit(1);
 
-          const { data: profile } = await (supabase as any)
+          const { data: profile } = await supabase
             .from('profiles')
             .select('city')
             .eq('user_id', likerId)
             .maybeSingle();
 
-          const { count } = await (supabase as any)
+          const { count } = await supabase
             .from('listings')
             .select('id', { count: 'exact', head: true })
             .eq('owner_id', likerId)
