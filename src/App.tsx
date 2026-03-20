@@ -95,8 +95,8 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
-// Mini-game (disabled — re-enable when ready)
-// const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
+// Mini-game
+const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
 
 // Shared routes - lazy loaded
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
@@ -326,8 +326,8 @@ const App = () => {
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
 
-                                        {/* Mini-game disabled — re-enable when ready */}
-                                        {/* <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} /> */}
+                                        {/* Mini-game */}
+                                        <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} />
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
