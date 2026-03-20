@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { RadioStation, CityLocation, RadioSkin, RadioPlayerState } from '@/types/radio';
@@ -55,10 +55,15 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current.preload = 'auto';
     }
 
-    // Cleanup on unmount
+    // Cleanup on unmount: clear timeouts first, then stop audio
     return () => {
       if (loadTimeoutRef.current) {
         clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+        errorTimeoutRef.current = null;
       }
       if (audioRef.current) {
         audioRef.current.pause();
@@ -416,7 +421,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('swipess_radio_mini_player_mode', mode);
   }, []);
 
-  const value = {
+  const isStationFavorite = useCallback((stationId: string) => {
+    return state.favorites.includes(stationId);
+  }, [state.favorites]);
+
+  const value = useMemo(() => ({
     state,
     loading,
     error,
@@ -430,11 +439,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     toggleShuffle,
     setSkin,
     toggleFavorite,
-    isStationFavorite: (stationId: string) => state.favorites.includes(stationId),
+    isStationFavorite,
     playPlaylist,
     playFavorites,
     setMiniPlayerMode,
-  };
+  }), [state, loading, error, play, pause, togglePlayPause, togglePower, changeStation, setCity, setVolume, toggleShuffle, setSkin, toggleFavorite, isStationFavorite, playPlaylist, playFavorites, setMiniPlayerMode]);
 
   return <RadioContext.Provider value={value}>{children}</RadioContext.Provider>;
 }

@@ -639,7 +639,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/client/services',
       '/messages',
       '/notifications',
-      '/settings'
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
@@ -667,9 +666,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            location.pathname.includes('/owner/filters') ||
            isEventoDetail || isEventsMain || isRoommatesPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
-
-  // Get page title based on location for TopBar display
-  const activeCategory = useFilterStore((s) => s.activeCategory);
 
   // Round 8: Page titles removed — bottom nav is sufficient indicator
   const pageTitle = '';

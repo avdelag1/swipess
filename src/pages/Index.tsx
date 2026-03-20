@@ -139,7 +139,7 @@ const Index = () => {
     // This prevents the loading screen hang after signup
     if (isNewUser) {
       const returnTo = searchParams.get('returnTo');
-      if (returnTo) {
+      if (returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')) {
         hasNavigated.current = true;
         navigate(returnTo, { replace: true });
         return;

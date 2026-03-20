@@ -178,9 +178,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.removeQueries({ queryKey: ['owner-profile'] });
 
       // Check localStorage first, then URL params
-      const pendingRole = localStorage.getItem('pendingOAuthRole') as 'client' | 'owner' | null;
+      const rawPendingRole = localStorage.getItem('pendingOAuthRole');
+      const pendingRole = (rawPendingRole === 'client' || rawPendingRole === 'owner') ? rawPendingRole : null;
       const urlParams = new URLSearchParams(window.location.search);
-      const roleFromUrl = urlParams.get('role') as 'client' | 'owner' | null;
+      const rawUrlRole = urlParams.get('role');
+      const roleFromUrl = (rawUrlRole === 'client' || rawUrlRole === 'owner') ? rawUrlRole : null;
 
       const roleToUse = pendingRole || roleFromUrl;
 
@@ -211,7 +213,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } else {
         // Try metadata role
-        const role = user.user_metadata?.role as 'client' | 'owner' | undefined;
+        const rawRole = user.user_metadata?.role;
+        const role = (rawRole === 'client' || rawRole === 'owner') ? rawRole : undefined;
         if (role) {
           await createProfileIfMissing(user, role);
           // Invalidate role cache after profile creation
