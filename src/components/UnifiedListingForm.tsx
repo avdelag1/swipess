@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
-import { Upload, X, Bike, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { Upload, X, Bike, ChevronRight, Shield } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';

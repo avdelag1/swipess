@@ -14,7 +14,7 @@ interface MessageActivationBannerProps {
 export function MessageActivationBanner({
   isVisible,
   onClose,
-  userRole,
+  userRole: _userRole,
   variant = 'activation-required',
 }: MessageActivationBannerProps) {
   const navigate = useNavigate();

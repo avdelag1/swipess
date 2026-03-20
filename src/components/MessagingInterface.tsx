@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Send, AlertCircle, Zap, ChevronLeft, User, Home, Info, ChevronRight, ThumbsUp, Star, Smile } from 'lucide-react';

@@ -63,7 +63,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
         const { data: urlData } = supabase.storage.from('listing-images').getPublicUrl(fileName);
         setPhotos(prev => [...prev, urlData.publicUrl]);
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to upload photo');
     } finally {
       setUploading(false);
@@ -109,7 +109,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
 
       toast.success('Maintenance request submitted!');
       onSuccess();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to submit request');
     } finally {
       setSubmitting(false);
