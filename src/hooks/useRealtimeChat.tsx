@@ -290,6 +290,7 @@ export function useRealtimeChat(conversationId: string) {
       setIsConnected(true); // Reset to true to avoid flicker on next mount
       typingChannelRef.current = null;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, user?.id, queryClient]);
 
   // Cleanup typing on unmount

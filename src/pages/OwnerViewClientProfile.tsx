@@ -20,7 +20,7 @@ export default function OwnerViewClientProfile() {
   const [isCreatingConversation, setIsCreatingConversation] = useReactState(false);
   const startConversation = useStartConversation();
 
-  const { data: client, isLoading, error } = useQuery({
+  const { data: client, isLoading, error: _error } = useQuery({
     queryKey: ['client-profile', clientId],
     queryFn: async () => {
       if (!clientId) throw new Error('No client ID provided');
@@ -135,7 +135,7 @@ export default function OwnerViewClientProfile() {
     );
   }
 
-  const images = client.images || [];
+  const _images = client.images || [];
 
   return (
     <>

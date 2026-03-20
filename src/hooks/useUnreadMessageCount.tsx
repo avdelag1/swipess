@@ -102,6 +102,7 @@ export function useUnreadMessageCount() {
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return {

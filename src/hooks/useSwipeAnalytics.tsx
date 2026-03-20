@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { logger } from '@/utils/prodLogger';
 
 interface SwipeMetrics {
@@ -113,7 +112,7 @@ export function useSwipeAnalytics(userRole: 'client' | 'owner') {
       const peakActivity = `${peakHour}:00`;
 
       // Top categories based on target type from patterns
-      const targetTypeCounts = patterns.reduce((acc, p) => {
+      const _targetTypeCounts = patterns.reduce((acc, p) => {
         acc[p.targetType] = (acc[p.targetType] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);

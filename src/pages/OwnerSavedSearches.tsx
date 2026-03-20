@@ -15,7 +15,7 @@ const OwnerSavedSearches = () => {
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
-  const handleApplyFilter = (filterId: string) => {
+  const handleApplyFilter = (_filterId: string) => {
     toast({
       title: "Filter Applied",
       description: "Navigating to client discovery with your filter...",

@@ -1,15 +1,14 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   List, ListOrdered, Undo, Redo, Download, Printer, FileText,
-  Save, Send, Minus, Plus, ArrowLeft
+  Save, Minus, Plus, ArrowLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ContractTemplate } from '@/data/contractTemplates';
@@ -36,7 +35,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 }) => {
   const [documentTitle, setDocumentTitle] = useState(template?.name || 'New Contract');
   const [fontSize, setFontSize] = useState(14);
-  const [showSignature, setShowSignature] = useState(false);
+  const [_showSignature, _setShowSignature] = useState(false);
   const [signatureData, setSignatureData] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
@@ -99,7 +98,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
     toast.success('Print dialog opened - Save as PDF');
   };
 
-  const handleSignatureCapture = (data: string, type: 'drawn' | 'typed' | 'uploaded') => {
+  const handleSignatureCapture = (data: string, _type: 'drawn' | 'typed' | 'uploaded') => {
     setSignatureData(data);
     toast.success('Signature captured!');
   };
@@ -196,7 +195,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 
       toast.success('Contract saved successfully!');
       onOpenChange(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to save contract');
     } finally {
       setIsSaving(false);

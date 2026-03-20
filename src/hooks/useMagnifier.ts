@@ -147,6 +147,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
         imageRef.current.style.transition = 'none';
       }
     }, 200);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applyZoomPan, findImage]);
 
   const deactivateMagnifier = useCallback(() => {
@@ -189,6 +190,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     }
 
     startPosRef.current = null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateMagnifier = useCallback((x: number, y: number) => {

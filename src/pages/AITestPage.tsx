@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Zap, AlertCircle, CheckCircle, Lock, Trash2, Sparkles, ChevronLeft } from "lucide-react";
+import { Bot, Zap, Lock, Trash2, Sparkles, ChevronLeft } from "lucide-react";
 import { haptics } from "@/utils/microPolish";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";

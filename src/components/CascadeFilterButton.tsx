@@ -122,6 +122,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
     } else {
       onChange({ ...filters, categories: [...allCategoryIds] });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, onChange, allSelected]);
 
   const handleListingTypeChange = useCallback((type: QuickFilterListingType) => {

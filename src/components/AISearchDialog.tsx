@@ -63,6 +63,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
       const t = setTimeout(() => { setMessages([]); setQuery(''); }, 300);
       return () => clearTimeout(t);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   useEffect(() => {

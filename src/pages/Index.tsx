@@ -269,6 +269,7 @@ const Index = () => {
       hasNavigated.current = false;
       setShowEscapeHatch(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   // Escape hatch: show a recovery UI if loading is stuck beyond 6 seconds
@@ -276,6 +277,7 @@ const Index = () => {
     if (!user || !initialized) return;
     const timer = setTimeout(() => setShowEscapeHatch(true), 6000);
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, initialized]);
 
   if (!initialized || loading) {

@@ -1,11 +1,11 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { useState, useCallback, useRef, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
-  Sparkles, X, Eye, EyeOff, MapPin,
-  Briefcase, Heart, MessageCircle, Share2, Undo2, Filter,
-  ShieldCheck, Zap, Info, Clock, Languages, Star,
-  Check, XIcon, ThumbsDown, Flame
+  Sparkles, X, MapPin,
+  Briefcase, Heart, MessageCircle, Undo2,
+  ShieldCheck, Zap, Info, Clock,
+  ThumbsDown, Flame
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +15,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
-import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
@@ -172,7 +171,7 @@ export default function RoommateMatching() {
   const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
 
   // REAL DATA HOOK
-  const { data: realCandidates, isLoading } = useSmartClientMatching(
+  const { data: realCandidates, isLoading: _isLoading } = useSmartClientMatching(
     user?.id,
     undefined,
     0,

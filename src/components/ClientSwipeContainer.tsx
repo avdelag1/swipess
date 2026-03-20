@@ -652,6 +652,7 @@ const ClientSwipeContainerComponent = ({
     }
 
     // Note: Image preloading is handled in handleSwipe (next 5 cards)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swipeMutation, recordSwipe, recordProfileView, markOwnerSwiped, category, dismissTarget]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {

@@ -1,9 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveMode } from "@/hooks/useActiveMode";
-import { Crown, Check, Shield, Clock, Sparkles, ArrowLeft, Zap, Star, ChevronLeft, MessageCircle } from "lucide-react";
+import { Crown, Check, Shield, Clock, Sparkles, Zap, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { toast } from "@/components/ui/sonner";
@@ -100,7 +98,7 @@ const accentStyles = {
 };
 
 export default function SubscriptionPackagesPage() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const navigate = useNavigate();
   const { activeMode, isLoading: roleLoading } = useActiveMode();
   const userRole = activeMode;

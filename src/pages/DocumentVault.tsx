@@ -89,6 +89,7 @@ export default function DocumentVault() {
   useEffect(() => {
     if (!user) return;
     fetchDocuments();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchDocuments = async () => {

@@ -1,12 +1,11 @@
 
 import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from '@/hooks/use-toast'
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
@@ -20,7 +19,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { AdvancedFilters } from '@/components/AdvancedFilters'
-import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
 import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
@@ -419,12 +417,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowSubscriptionPackages(true)
   }, [userRole])
 
-  const handlePropertyInsights = useCallback((listingId: string) => {
+  const _handlePropertyInsights = useCallback((listingId: string) => {
     setSelectedListingId(listingId)
     setShowPropertyInsights(true)
   }, [])
 
-  const handleClientInsights = useCallback((profileId: string) => {
+  const _handleClientInsights = useCallback((profileId: string) => {
     setSelectedProfileId(profileId)
     setShowClientInsights(true)
   }, [])
@@ -453,7 +451,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowMessageActivations(true)
   }, [])
 
-  const handleMenuItemClick = useCallback((action: string) => {
+  const _handleMenuItemClick = useCallback((action: string) => {
     switch (action) {
       case 'add-listing':
         setShowCategoryDialog(true)
@@ -564,7 +562,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // Combine quick filters with applied filters - MEMOIZED to prevent identity changes
   // Now reads directly from Zustand store values instead of local state
-  const combinedFilters = useMemo(() => {
+  const _combinedFilters = useMemo(() => {
     const base = appliedFilters || {};
 
     // Check if any quick filters are active (from store)

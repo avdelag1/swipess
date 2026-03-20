@@ -73,10 +73,10 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState('activity');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
-  const [removingLikeId, setRemovingLikeId] = useState<string | null>(null);
+  const [_removingLikeId, setRemovingLikeId] = useState<string | null>(null);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const _isDark = theme === 'dark';
   const { data: likedProperties, isLoading: likedLoading } = useLikedProperties();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -119,6 +119,7 @@ export default function NotificationsPage() {
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const markAllAsReadSilently = async () => {
@@ -158,7 +159,7 @@ export default function NotificationsPage() {
       const { error } = await supabase.from('notifications').delete().eq('id', id);
       if (error) throw error;
       setNotifications(prev => prev.filter(n => n.id !== id));
-    } catch (e) { toast.error('Failed to delete'); }
+    } catch (_e) { toast.error('Failed to delete'); }
   };
 
   const deleteAllNotifications = async () => {
@@ -168,7 +169,7 @@ export default function NotificationsPage() {
       await supabase.from('notifications').delete().eq('user_id', user.id);
       setNotifications([]);
       toast.success('Clear!');
-    } catch (e) { toast.error('Failed to clear'); }
+    } catch (_e) { toast.error('Failed to clear'); }
     finally { setDeletingAll(false); setDeleteDialogOpen(false); }
   };
 
@@ -181,7 +182,7 @@ export default function NotificationsPage() {
       await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', listingId).eq('target_type', 'listing');
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
       toast.success('Removed');
-    } catch (e) { toast.error('Failed'); }
+    } catch (_e) { toast.error('Failed'); }
     finally { setRemovingLikeId(null); }
   };
 

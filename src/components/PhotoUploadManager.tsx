@@ -156,6 +156,7 @@ export function PhotoUploadManager({
     } finally {
       setUploading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPhotos, maxPhotos, uploadType, onUpload, onPhotosChange]);
 
   const handleRemovePhoto = (index: number) => {

@@ -70,7 +70,7 @@ interface SimpleSwipeCardProps {
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
   listing,
   onSwipe,
-  onTap,
+  onTap: _onTap,
   onInsights,
   isTop = true,
   externalX,
@@ -115,7 +115,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
-  const [magnifierActive, setMagnifierActive] = useState(false);
+  const [_magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     let result: string[] = [];
@@ -248,7 +248,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const offsetX = info.offset.x;
     const offsetY = info.offset.y;
     const velocityX = info.velocity.x;
-    const velocityY = info.velocity.y;
+    const _velocityY = info.velocity.y;
 
     // Swipe threshold based on X distance or velocity
     const shouldSwipe = Math.abs(offsetX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD;
@@ -393,7 +393,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Format price
   // Format price - moved before conditional render to avoid hook order issues
   const rentalType = listing.rental_duration_type;
-  const formattedPrice = listing.price
+  const _formattedPrice = listing.price
     ? `$${listing.price.toLocaleString()}${rentalType === 'monthly' ? '/mo' : rentalType === 'daily' ? '/day' : ''}`
     : null;
 

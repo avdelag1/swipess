@@ -1,10 +1,9 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
+import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
@@ -23,17 +22,15 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession, getDeckFromSession } from '@/state/swipeDeckStore';
+import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigation, Users } from 'lucide-react';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
-import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
+import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -132,7 +129,7 @@ const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string 
 };
 
 // Debounce utility for preventing rapid-fire actions
-function useDebounce<T extends (...args: any[]) => any>(
+function _useDebounce<T extends (...args: any[]) => any>(
   callback: T,
   delay: number
 ): T {
@@ -393,9 +390,9 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageClick, locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const [page, setPage] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [insightsModalOpen, setInsightsModalOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -453,7 +450,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // FIX: Track deck length in state to force re-render when listings are appended
   // Without this, appending to deckQueueRef doesn't trigger re-render and empty state persists
-  const [deckLength, setDeckLength] = useState(0);
+  const [_deckLength, setDeckLength] = useState(0);
 
   // Prevents skeleton flash when filters change — holds back skeleton for one render frame
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -485,7 +482,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const deckQueueRef = useRef<any[]>(getInitialDeck());
   const currentIndexRef = useRef(useSwipeDeckStore.getState().clientDeck.currentIndex);
   const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDeck.swipedIds));
-  const initializedRef = useRef(deckQueueRef.current.length > 0);
+  const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   // Ref to trigger swipe animations from the fixed action buttons
   const cardRef = useRef<SimpleSwipeCardRef>(null);
@@ -504,7 +501,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const isReturningRef = useRef(
     deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDeck.isReady
   );
-  const hasAnimatedOnceRef = useRef(isReturningRef.current);
+  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
@@ -575,7 +572,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { /* Ignore session storage errors */ }
   }, []);
 
   // PERF FIX: Removed competing filter hydration from client_filter_preferences.
@@ -586,8 +583,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // Cleanup on unmount
   useEffect(() => {
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, []);
 
@@ -780,8 +778,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       }, 300);
     }
 
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
 
   }, [currentIndex, prefetchListingDetails, isDashboard]); // currentIndex updates on each swipe, triggering reliable prefetch

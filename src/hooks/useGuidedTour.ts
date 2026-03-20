@@ -61,6 +61,7 @@ export function useGuidedTour(steps: TourStep[] = defaultSteps) {
     } else {
       completeTour();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentStep, steps.length]);
 
   const prevStep = useCallback(() => {

@@ -30,7 +30,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   ArrowLeft, ListMusic, Play, Pause, ThumbsUp,
-  SkipBack, SkipForward, Square, Circle, Shuffle
+  SkipBack, SkipForward, Square, Shuffle
 } from 'lucide-react';
 
 // ── Font injection ──────────────────────────────────────────────────────────

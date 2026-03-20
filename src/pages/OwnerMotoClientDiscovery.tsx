@@ -50,7 +50,7 @@ export default function OwnerMotoClientDiscovery() {
   }, [filters]);
 
   // PERF: pass userId to avoid getUser() inside queryFn
-  const { data: clients = [], refetch } = useSmartClientMatching(user?.id, 'moto', 0, 10, false, clientFilters);
+  const { data: clients = [], refetch: _refetch } = useSmartClientMatching(user?.id, 'moto', 0, 10, false, clientFilters);
 
   const filteredClients = (clients || []).filter(client =>
     client.name?.toLowerCase()?.includes(searchQuery.toLowerCase())

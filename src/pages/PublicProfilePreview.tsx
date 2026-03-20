@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  User, MapPin, Briefcase, Lock, LogIn, UserPlus, ArrowLeft,
-  Sparkles, Star, ThumbsUp, Globe, Heart
+  User, MapPin, Lock, LogIn, UserPlus, ArrowLeft,
+  Sparkles, Globe
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { STORAGE } from '@/constants/app';

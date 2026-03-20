@@ -174,6 +174,7 @@ export function GoogleLocationSelector({
         markerRef.current.setMap(null);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showMap]);
 
   // Update marker when location changes
