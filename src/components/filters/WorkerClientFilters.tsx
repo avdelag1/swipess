@@ -43,8 +43,8 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
   // Experience and skills
   const [experienceLevels, setExperienceLevels] = useState<string[]>(initialFilters.experience_levels || []);
   const [minExperienceYears, setMinExperienceYears] = useState(initialFilters.min_experience_years || 0);
-  const [requiredSkills, setRequiredSkills: _setRequiredSkills] = useState<string[]>(initialFilters.required_skills || []);
-  const [requiredCertifications, setRequiredCertifications: _setRequiredCertifications] = useState<string[]>(initialFilters.required_certifications || []);
+  const [requiredSkills, _setRequiredSkills] = useState<string[]>(initialFilters.required_skills || []);
+  const [requiredCertifications, _setRequiredCertifications] = useState<string[]>(initialFilters.required_certifications || []);
 
   // Service details
   const [maxServiceRadius, setMaxServiceRadius] = useState(initialFilters.max_service_radius || 50);
@@ -90,7 +90,7 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
     }
   };
 
-  const handleApply = async () => {
+  const _handleApply = async () => {
     const rateValues = getRateValues();
     const filters = {
       service_categories: serviceCategories,
@@ -135,7 +135,7 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
         title: 'Filters applied!',
         description: 'Your worker preferences have been saved.',
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Error',
         description: 'Failed to save preferences.',
@@ -161,7 +161,7 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceCategories, workTypes, scheduleTypes, selectedRateRange, experienceLevels, minExperienceYears, needsEmergencyService, needsBackgroundCheck, locationCountries, locationCities, locationNeighborhoods]);
 
-  const handleSave = async () => {
+  const _handleSave = async () => {
     try {
       const rateValues = getRateValues();
       // Store worker filter preferences in localStorage
@@ -191,7 +191,7 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
         title: "Preferences Saved",
         description: "Your worker filter preferences have been saved.",
       });
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: "Error",
         description: "Failed to save preferences. Please try again.",
