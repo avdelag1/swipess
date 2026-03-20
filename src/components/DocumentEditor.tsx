@@ -11,7 +11,7 @@ import {
   Type, Minus, Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { sanitizeHTML } from '@/utils/sanitizeHTML';
+import { sanitizeHTML, escapeHTML } from '@/utils/sanitizeHTML';
 
 interface DocumentEditorProps {
   initialContent?: string;
@@ -37,13 +37,14 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
   }, []);
 
   const handlePrint = () => {
-    const content = editorRef.current?.innerHTML || '';
+    const content = sanitizeHTML(editorRef.current?.innerHTML || '');
+    const safeTitle = escapeHTML(documentTitle);
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
         <html>
           <head>
-            <title>${documentTitle}</title>
+            <title>${safeTitle}</title>
             <style>
               body {
                 font-family: 'Times New Roman', serif;
@@ -54,7 +55,7 @@ export const DocumentEditor: React.FC<DocumentEditorProps> = ({
             </style>
           </head>
           <body>
-            <h1>${documentTitle}</h1>
+            <h1>${safeTitle}</h1>
             ${content}
           </body>
         </html>

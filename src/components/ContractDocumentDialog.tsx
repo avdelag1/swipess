@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { ContractTemplate } from '@/data/contractTemplates';
 import { DigitalSignaturePad } from './DigitalSignaturePad';
 import { useCreateContract } from '@/hooks/useContracts';
-import { sanitizeHTML } from '@/utils/sanitizeHTML';
+import { sanitizeHTML, escapeHTML } from '@/utils/sanitizeHTML';
 
 interface ContractDocumentDialogProps {
   open: boolean;
@@ -54,14 +54,21 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
     editorRef.current?.focus();
   }, []);
 
+  const isValidSignatureDataUrl = (data: string | null): boolean => {
+    if (!data) return false;
+    return /^data:image\/(png|jpeg|svg\+xml);base64,/.test(data);
+  };
+
   const handlePrint = () => {
-    const content = editorRef.current?.innerHTML || '';
+    const content = sanitizeHTML(editorRef.current?.innerHTML || '');
+    const safeTitle = escapeHTML(documentTitle);
+    const safeSignature = isValidSignatureDataUrl(signatureData) ? signatureData : null;
     const printWindow = window.open('', '_blank');
     if (printWindow) {
       printWindow.document.write(`
         <html>
           <head>
-            <title>${documentTitle}</title>
+            <title>${safeTitle}</title>
             <style>
               body {
                 font-family: 'Times New Roman', serif;
@@ -78,7 +85,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
           </head>
           <body>
             ${content}
-            ${signatureData ? `<div style="margin-top: 30px;"><img src="${signatureData}" style="max-width: 200px;" /></div>` : ''}
+            ${safeSignature ? `<div style="margin-top: 30px;"><img src="${safeSignature}" style="max-width: 200px;" /></div>` : ''}
           </body>
         </html>
       `);
@@ -99,6 +106,8 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 
   const handleSaveAsFile = async () => {
     const content = sanitizeHTML(editorRef.current?.innerHTML || '');
+    const safeTitle = escapeHTML(documentTitle);
+    const safeSignature = isValidSignatureDataUrl(signatureData) ? signatureData : null;
 
     // Create HTML file content
     const htmlContent = `
@@ -106,7 +115,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>${documentTitle}</title>
+  <title>${safeTitle}</title>
   <style>
     body {
       font-family: 'Times New Roman', serif;
@@ -122,7 +131,7 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
 </head>
 <body>
   ${content}
-  ${signatureData ? `<div style="margin-top: 30px;"><p><strong>Digital Signature:</strong></p><img src="${signatureData}" style="max-width: 200px;" /></div>` : ''}
+  ${safeSignature ? `<div style="margin-top: 30px;"><p><strong>Digital Signature:</strong></p><img src="${safeSignature}" style="max-width: 200px;" /></div>` : ''}
 </body>
 </html>`;
 
@@ -146,12 +155,13 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
       const content = sanitizeHTML(editorRef.current.innerHTML);
 
       // Create HTML file content
+      const safeTitle = escapeHTML(documentTitle);
       const htmlContent = `
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>${documentTitle}</title>
+  <title>${safeTitle}</title>
   <style>
     body { font-family: 'Times New Roman', serif; padding: 40px; line-height: 1.6; }
     table { width: 100%; border-collapse: collapse; }
