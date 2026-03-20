@@ -6,7 +6,6 @@
  */
 
 import { toast } from '@/components/ui/sonner';
-import { CheckCircle2, XCircle, AlertCircle, Info, Flame, MessageCircle, Upload } from 'lucide-react';
 
 export type NotificationType =
   | 'success'

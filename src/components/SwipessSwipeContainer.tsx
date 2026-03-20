@@ -592,12 +592,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // Hooks for functionality
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
   const navigate = useNavigate();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const swipeMutation = useSwipe();
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
-  const { dismissedIds, dismissTarget, filterDismissed } = useSwipeDismissal('listing');
+  const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('listing');
 
   // FIX: Sync local state when undo completes successfully
   useEffect(() => {
@@ -835,6 +835,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
 
     isFetchingMore.current = false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   // Get current visible cards for 2-card stack (top + next)
@@ -843,7 +844,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
-  const nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
+  const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   // =============================================================================
   // FIX #1: SWIPE PHASE ISOLATION - Two-phase swipe for Tinder-level feel
@@ -990,6 +991,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
   // PHASE 1: Called when user swipes - ONLY updates refs and triggers animation
@@ -1098,7 +1100,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       toast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, {
         description: `Showing ${refreshLabel} you passed on. Liked ones stay saved!`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast.error('Refresh Failed', {
         description: 'Please try again.',
       });
@@ -1248,7 +1250,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     }
   }, []);
 
-  const progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
+  const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
   // isReady means we've fully initialized at least once - skip loading UI on return
@@ -1529,9 +1531,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
 
   // Get current category info for the page title
   const activeCategoryInfo = getActiveCategoryInfo(filters);
-  const activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
-  const ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
-  const activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
+  const _activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
+  const _ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
+  const _activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
 
   // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
   return (
