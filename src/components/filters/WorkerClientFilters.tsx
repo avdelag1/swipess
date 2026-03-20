@@ -3,16 +3,15 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Save } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { toast } from '@/components/ui/sonner';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
-import { SERVICE_CATEGORIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import { SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
 const COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];
 
 // Predefined hourly rate ranges for workers
