@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
+import { logger } from '@/utils/prodLogger';
 
 interface IntelPost {
   id: string;
@@ -47,7 +48,7 @@ export default function LocalIntel() {
         .order('published_at', { ascending: false });
       setPosts((data as IntelPost[]) || []);
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setIsLoading(false);
     }

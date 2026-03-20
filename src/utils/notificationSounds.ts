@@ -4,6 +4,7 @@
  */
 
 import type { SwipeTheme } from './sounds';
+import { logger } from '@/utils/prodLogger';
 
 export type NotificationSoundType = 'message' | 'match' | 'like' | 'general';
 
@@ -78,7 +79,7 @@ export async function playNotificationSound(type: NotificationSoundType = 'gener
     }
 
     if (!soundPath) {
-      console.warn('No sound defined for notification type:', type);
+      logger.warn('No sound defined for notification type:', type);
       return;
     }
 
@@ -89,7 +90,7 @@ export async function playNotificationSound(type: NotificationSoundType = 'gener
     await audio.play();
   } catch (error) {
     // Fail silently — don't disrupt user experience if sound fails
-    console.warn('Failed to play notification sound:', error);
+    logger.warn('Failed to play notification sound:', error);
   }
 }
 
@@ -123,13 +124,13 @@ export function canPlayNotificationSounds(): boolean {
     }
 
     if (typeof window !== 'undefined' && window.isSecureContext === false) {
-      console.warn('Notification sounds require a secure context (HTTPS)');
+      logger.warn('Notification sounds require a secure context (HTTPS)');
       return false;
     }
 
     return true;
   } catch (error) {
-    console.warn('Cannot determine if notification sounds are available:', error);
+    logger.warn('Cannot determine if notification sounds are available:', error);
     return false;
   }
 }

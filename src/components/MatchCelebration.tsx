@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { logger } from '@/utils/prodLogger';
 import { triggerHaptic } from '@/utils/haptics';
 import { playNotificationSound } from '@/utils/notificationSounds';
 
@@ -27,7 +28,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
 
       // Play celebratory bell sound for the match
       playNotificationSound('match').catch((error) => {
-        console.warn('Failed to play match notification sound:', error);
+        logger.warn('Failed to play match notification sound:', error);
       });
 
       const timer = setTimeout(() => setShowContent(true), 500);

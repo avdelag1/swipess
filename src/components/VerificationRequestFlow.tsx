@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ShieldCheck, Upload, FileCheck, AlertTriangle } from 'lucide-react';
+import { logger } from '@/utils/prodLogger';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -64,7 +65,7 @@ export function VerificationRequestFlow({ open, onOpenChange, currentStatus }: V
       toast.success('Verification document submitted! Review typically takes 24-48 hours.');
       setStep(2);
     } catch (err) {
-      console.error('Upload error:', err);
+      logger.error('Upload error:', err);
       toast.error('Failed to upload document');
     } finally {
       setIsUploading(false);

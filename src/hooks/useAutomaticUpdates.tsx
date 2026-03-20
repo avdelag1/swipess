@@ -15,6 +15,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/sonner';
+import { logger } from '@/utils/prodLogger';
 
 // Get build timestamp from Vite injected environment variable
 // This changes EVERY deployment, ensuring all users get updates
@@ -124,7 +125,7 @@ export async function forceAppUpdate(): Promise<void> {
     // Reload the page
     window.location.reload();
   } catch (error) {
-    console.error('Failed to update app:', error);
+    logger.error('Failed to update app:', error);
     toast({
       title: 'Update Failed',
       description: 'Please try clearing your browser cache manually.',
@@ -163,7 +164,7 @@ export function useAutomaticUpdates() {
     
     setIsUpdating(true);
     try {
-      console.info('[AutoUpdate] Performing manual update...');
+      logger.info('[AutoUpdate] Performing manual update...');
       
       // Clear React Query cache
       queryClient.clear();
@@ -180,7 +181,7 @@ export function useAutomaticUpdates() {
       // Reload
       window.location.reload();
     } catch (error) {
-      console.error('Update failed:', error);
+      logger.error('Update failed:', error);
       setIsUpdating(false);
       toast({
         title: 'Update Failed',

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
+import { logger } from '@/utils/prodLogger';
 
 interface VideoListing {
   id: string;
@@ -35,7 +36,7 @@ export default function VideoTours() {
           .limit(20);
         setListings((data || []) as VideoListing[]);
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       } finally {
         setIsLoading(false);
       }

@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { useConversationalAI } from '@/hooks/ai/useConversationalAI';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/prodLogger';
 import { validateImageFile } from '@/utils/fileValidation';
 
 type Step = 'category' | 'photos' | 'conversation' | 'review';
@@ -232,7 +233,7 @@ export function ConversationalListingCreator() {
           const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
           
           if (missingColumn && (listingData as any)[missingColumn] !== undefined) {
-            console.warn(`Conversational AI: Removing problematic column "${missingColumn}" and retrying...`);
+            logger.warn(`Conversational AI: Removing problematic column "${missingColumn}" and retrying...`);
             const { [missingColumn]: _, ...safeData } = listingData as any;
             const { error: retryError } = await supabase.from('listings').insert([safeData]);
             if (retryError) throw retryError;
@@ -247,7 +248,7 @@ export function ConversationalListingCreator() {
       toast.success('Listing created successfully!');
       navigate('/owner-dashboard');
     } catch (error) {
-      console.error('Failed to create listing:', error);
+      logger.error('Failed to create listing:', error);
       toast.error('Failed to create listing');
     } finally {
       setIsSubmitting(false);
