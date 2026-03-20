@@ -156,8 +156,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       toast({ title: 'Check your email', description: "We've sent you a password reset link." });
       setIsForgotPassword(false);
       setEmail('');
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to send reset email.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to send reset email.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -171,8 +171,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       if (error) throw error;
       toast({ title: 'Confirmation Email Sent', description: 'Please check your inbox and verify your email.' });
       setShowResendConfirmation(false);
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to resend.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to resend.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }

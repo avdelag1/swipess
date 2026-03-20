@@ -37,7 +37,7 @@ const OwnerInterestedClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [clientToDelete, setClientToDelete] = useState<any>(null);
+  const [clientToDelete, setClientToDelete] = useState<{ user_id: string } | null>(null);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 

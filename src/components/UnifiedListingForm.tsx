@@ -341,7 +341,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             listingResult = data;
           }
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         logger.error('Listing mutation failed:', err);
         throw err;
       }

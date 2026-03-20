@@ -76,8 +76,8 @@ export function useAIGeneration() {
       }
 
       return (fnData?.result as T) || null;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       logger.error('[useAI] Generation error:', err);
       return null;
     } finally {

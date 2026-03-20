@@ -20,12 +20,12 @@ export async function retryWithBackoff<T>(
   maxAttempts: number = 3,
   baseDelay: number = 300
 ): Promise<T> {
-  let lastError: Error = new Error('No attempts made');
-  
+  let lastError: unknown = new Error('No attempts made');
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
       
       if (attempt === maxAttempts) break;

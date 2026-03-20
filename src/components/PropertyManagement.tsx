@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useOwnerListings } from '@/hooks/useListings';
+import { useOwnerListings, type Listing } from '@/hooks/useListings';
 import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
@@ -45,13 +45,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState(initialCategory || 'all');
-  const [viewingProperty, setViewingProperty] = useState<any>(null);
+  const [viewingProperty, setViewingProperty] = useState<Listing | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<any>(null);
+  const [editingProperty, setEditingProperty] = useState<Partial<Listing> | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const [sharingListing, setSharingListing] = useState<any>(null);
+  const [sharingListing, setSharingListing] = useState<Listing | null>(null);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
@@ -168,13 +168,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       toast.error('Error', { description: 'Failed to delete property' });
     }
   };
 
-  const handleAvailabilityChange = async (listing: any, newStatus: string) => {
+  const handleAvailabilityChange = async (listing: Listing, newStatus: string) => {
     try {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: newStatus }));
 
@@ -194,7 +194,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: listing.status }));
       toast.error('Error', { description: 'Failed to update availability' });
     }

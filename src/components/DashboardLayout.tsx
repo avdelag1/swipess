@@ -139,7 +139,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showMessageActivations, setShowMessageActivations] = useState(false)
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
-  const [appliedFilters, setAppliedFilters] = useState<any>(null);
+  const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown> | null>(null);
 
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   // PERF: Disabled on PWA/touch devices to save CPU and battery

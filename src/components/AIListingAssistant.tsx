@@ -198,9 +198,9 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
       setGeneratedData(baseData);
       setStep('review');
       toast.success('AI listing generated!');
-    } catch (err: any) {
+    } catch (err: unknown) {
       logger.error('[AI] Generation error:', err);
-      toast.error(err.message || 'AI generation failed. Using defaults.');
+      toast.error(err instanceof Error ? err.message : 'AI generation failed. Using defaults.');
 
       const baseData: Record<string, unknown> = {
         title: description.slice(0, 50) || 'New Listing',

@@ -60,7 +60,7 @@ export function formatFileSize(bytes: number): string {
  */
 export function validateImageFile(file: File): FileValidationResult {
   // Check MIME type
-  if (!ALLOWED_MIME_TYPES.IMAGES.includes(file.type as any)) {
+  if (!(ALLOWED_MIME_TYPES.IMAGES as readonly string[]).includes(file.type)) {
     return {
       isValid: false,
       error: `Invalid file type. Only JPG, PNG, WebP, and GIF images are allowed.`,
@@ -69,7 +69,7 @@ export function validateImageFile(file: File): FileValidationResult {
 
   // Check file extension
   const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-  if (!ALLOWED_EXTENSIONS.IMAGES.includes(extension as any)) {
+  if (!(ALLOWED_EXTENSIONS.IMAGES as readonly string[]).includes(extension)) {
     return {
       isValid: false,
       error: `Invalid file extension. Only ${ALLOWED_EXTENSIONS.IMAGES.join(', ')} are allowed.`,
@@ -92,7 +92,7 @@ export function validateImageFile(file: File): FileValidationResult {
  */
 export function validateDocumentFile(file: File): FileValidationResult {
   // Check MIME type
-  if (!ALLOWED_MIME_TYPES.DOCUMENTS.includes(file.type as any)) {
+  if (!(ALLOWED_MIME_TYPES.DOCUMENTS as readonly string[]).includes(file.type)) {
     return {
       isValid: false,
       error: `Invalid file type. Only PDF, images (JPG, PNG, WebP), and Word documents are allowed.`,
@@ -101,7 +101,7 @@ export function validateDocumentFile(file: File): FileValidationResult {
 
   // Check file extension
   const extension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-  if (!ALLOWED_EXTENSIONS.DOCUMENTS.includes(extension as any)) {
+  if (!(ALLOWED_EXTENSIONS.DOCUMENTS as readonly string[]).includes(extension)) {
     return {
       isValid: false,
       error: `Invalid file extension. Only ${ALLOWED_EXTENSIONS.DOCUMENTS.join(', ')} are allowed.`,

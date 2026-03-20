@@ -50,9 +50,9 @@ export function LikedClients() {
   const [filterSafeOnly, setFilterSafeOnly] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [clientToDelete, setClientToDelete] = useState<any>(null);
+  const [clientToDelete, setClientToDelete] = useState<{ user_id: string } | null>(null);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
-  const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
+  const [selectedClientForView, setSelectedClientForView] = useState<Record<string, unknown> | null>(null);
 
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();

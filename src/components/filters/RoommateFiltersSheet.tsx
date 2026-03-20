@@ -124,7 +124,7 @@ export function RoommateFiltersSheet({ open, onClose, onApply, currentFilters }:
       onApply(filters);
       onClose();
       toast.success('Roommate preferences saved');
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error('Failed to save preferences');
     } finally {
       setSaving(false);

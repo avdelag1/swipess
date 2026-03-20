@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/sonner';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { logger } from '@/utils/prodLogger';
 
-interface Conversation {
+export interface Conversation {
   id: string;
   client_id: string;
   owner_id: string;

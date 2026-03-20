@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ComponentType } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Newspaper, Zap, Coffee, Shield, Utensils, Building, Calendar, ExternalLink, ChevronLeft, MapPin, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -19,7 +19,7 @@ interface IntelPost {
   published_at: string;
 }
 
-const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+const CATEGORY_CONFIG: Record<string, { label: string; icon: ComponentType<{ className?: string }>; color: string; bg: string }> = {
   all: { label: 'Latest', icon: Newspaper, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
   infrastructure: { label: 'Urban', icon: Building, color: 'text-blue-400', bg: 'bg-blue-500/10' },
   events: { label: 'Social', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },

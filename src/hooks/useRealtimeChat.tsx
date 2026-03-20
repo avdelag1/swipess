@@ -30,7 +30,7 @@ export function useRealtimeChat(conversationId: string) {
 
   // Track typing with debounce - use ref to avoid circular dependencies
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typingChannelRef = useRef<any>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const connectionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Use ref to track typing state to avoid dependency on isTyping in callback

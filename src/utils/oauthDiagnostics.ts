@@ -97,8 +97,8 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
           diagnostics.warnings.push(`Google OAuth check returned: ${googleError.message}`);
         }
       }
-    } catch (e: any) {
-      diagnostics.warnings.push(`Google OAuth test failed: ${e.message}`);
+    } catch (e: unknown) {
+      diagnostics.warnings.push(`Google OAuth test failed: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Test Facebook OAuth
@@ -130,8 +130,8 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
           diagnostics.warnings.push(`Facebook OAuth check returned: ${facebookError.message}`);
         }
       }
-    } catch (e: any) {
-      diagnostics.warnings.push(`Facebook OAuth test failed: ${e.message}`);
+    } catch (e: unknown) {
+      diagnostics.warnings.push(`Facebook OAuth test failed: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Check current URL configuration
@@ -152,8 +152,8 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
       diagnostics.recommendations.push('OAuth configuration appears to be correct!');
     }
 
-  } catch (error: any) {
-    diagnostics.errors.push(`Diagnostic failed: ${error.message}`);
+  } catch (error: unknown) {
+    diagnostics.errors.push(`Diagnostic failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   return diagnostics;

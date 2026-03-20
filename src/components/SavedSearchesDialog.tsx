@@ -83,8 +83,8 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
       if (error) throw error;
       setSavedSearches((data || []) as any[]);
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to load saved searches';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load saved searches';
       setFetchError(errorMessage);
       toast({
         title: 'Error Loading Searches',
@@ -173,10 +173,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       setCity('');
       setActiveTab('list');
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -199,10 +199,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       });
 
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     }
@@ -230,10 +230,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       });
 
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

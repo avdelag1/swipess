@@ -22,7 +22,8 @@ import {
   useStartConversation,
   useDeleteConversation,
   useUpdateConversationStatus,
-  useMarkConversationAsRead
+  useMarkConversationAsRead,
+  type Conversation
 } from '@/hooks/useConversations';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
@@ -80,7 +81,7 @@ export function MessagingDashboard() {
   const updateStatus = useUpdateConversationStatus();
   const markChatAsRead = useMarkConversationAsRead();
 
-  const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<any>(null);
+  const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<Conversation | null>(null);
   const startConversation = useStartConversation();
   const { totalActivations, canSendMessage } = useMessageActivations();
 
@@ -99,7 +100,7 @@ export function MessagingDashboard() {
     }
   }, [conversations, prefetchTopConversationMessages]);
 
-  const refetchTimeoutRef = useRef<any>(null);
+  const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedRefetch = useCallback(() => {
     if (refetchTimeoutRef.current) clearTimeout(refetchTimeoutRef.current);
     refetchTimeoutRef.current = setTimeout(() => refetch(), 500);

@@ -238,12 +238,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         );
         const result = await Promise.race([checkPromise, timeoutPromise]);
         existingProfile = result.profile;
-      } catch (checkError: any) {
+      } catch (checkError: unknown) {
         // Log timeout specifically so we can track if this is happening frequently
-        if (checkError?.message === 'Check timeout') {
+        const msg = checkError instanceof Error ? checkError.message : String(checkError);
+        if (msg === 'Check timeout') {
           logger.warn('[Auth] Existing account check timed out after 5s, proceeding with signup');
         } else {
-          logger.warn('[Auth] Existing account check failed:', checkError?.message || checkError);
+          logger.warn('[Auth] Existing account check failed:', msg);
         }
       }
 
