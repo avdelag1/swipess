@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { motion, Reorder } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
+import type { Listing } from "@/hooks/useListings";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,10 +45,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryFromUrl = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryFromUrl);
-  const [propertyToDelete, setPropertyToDelete] = useState<any>(null);
+  const [propertyToDelete, setPropertyToDelete] = useState<Listing | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
-  const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<any>(null);
+  const [selectedPropertyForModal, setSelectedPropertyForModal] = useState<Listing | null>(null);
 
   const { data: likedProperties = [], isLoading, refetch: refreshLikedProperties, isFetching } = useLikedProperties();
   const startConversation = useStartConversation();

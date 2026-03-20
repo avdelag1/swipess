@@ -126,8 +126,8 @@ export function VideoCropper({
                     toast.success('Video uploaded successfully!');
                     onUploadSuccess(url);
                     onClose();
-                } catch (err: any) {
-                    toast.error(err.message || 'Error uploading video');
+                } catch (err: unknown) {
+                    toast.error(err instanceof Error ? err.message : 'Error uploading video');
                 } finally {
                     setIsProcessing(false);
                 }
@@ -145,8 +145,8 @@ export function VideoCropper({
                 video.pause();
             }, segmentDuration);
 
-        } catch (err: any) {
-            toast.error(err.message || 'Error processing video.');
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Error processing video.');
             setIsProcessing(false);
         }
     };

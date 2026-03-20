@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
-const categoryIcons: Record<string, any> = {
+const categoryIcons: Record<string, ComponentType<{ className?: string }>> = {
   plumbing: Wrench,
   electrical: Zap,
   ac: Wind,
@@ -20,7 +20,7 @@ const categoryIcons: Record<string, any> = {
   other: MoreHorizontal,
 };
 
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: ComponentType<{ className?: string }> }> = {
   submitted: { label: 'Submitted', color: 'bg-blue-500/15 text-blue-400 border-blue-500/25', icon: Clock },
   in_progress: { label: 'In Progress', color: 'bg-amber-500/15 text-amber-400 border-amber-500/25', icon: Wrench },
   resolved: { label: 'Resolved', color: 'bg-green-500/15 text-green-400 border-green-500/25', icon: CheckCircle2 },

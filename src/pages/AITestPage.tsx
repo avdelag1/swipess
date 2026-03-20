@@ -66,13 +66,13 @@ const AITestPage = () => {
         ...prev,
         { role: "assistant", content: reply, provider, ts: Date.now() },
       ]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus("error");
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: `Connection Error: ${err.message}`,
+          content: `Connection Error: ${err instanceof Error ? err.message : String(err)}`,
           error: true,
           ts: Date.now(),
         },

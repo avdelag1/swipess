@@ -75,7 +75,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     setFetchError(null);
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)
@@ -83,8 +83,8 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
       if (error) throw error;
       setSavedSearches((data || []) as any[]);
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to load saved searches';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load saved searches';
       setFetchError(errorMessage);
       toast({
         title: 'Error Loading Searches',
@@ -149,7 +149,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
         city: city || null,
       };
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('saved_searches')
         .insert({
           user_id: user?.id,
@@ -173,10 +173,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       setCity('');
       setActiveTab('list');
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -186,7 +186,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
   const handleToggleAlerts = async (searchId: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('saved_searches')
         .update({ last_matched_at: new Date().toISOString() } as any)
         .eq('id', searchId);
@@ -199,10 +199,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       });
 
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     }
@@ -217,7 +217,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     if (!deleteTarget) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('saved_searches')
         .delete()
         .eq('id', deleteTarget.id);
@@ -230,10 +230,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       });
 
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

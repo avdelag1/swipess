@@ -63,8 +63,9 @@ export function initWebVitalsMonitoring(callback?: MetricCallback) {
     let clsValue = 0;
     const clsObserver = new PerformanceObserver((entryList) => {
       entryList.getEntries().forEach((entry) => {
-        if (!(entry as any).hadRecentInput) {
-          clsValue += (entry as any).value;
+        const layoutShift = entry as PerformanceEntry & { hadRecentInput: boolean; value: number };
+        if (!layoutShift.hadRecentInput) {
+          clsValue += layoutShift.value;
         }
       });
     });

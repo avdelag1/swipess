@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { logger } from '@/utils/prodLogger';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -197,9 +198,9 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
       setGeneratedData(baseData);
       setStep('review');
       toast.success('AI listing generated!');
-    } catch (err: any) {
-      console.error('[AI] Generation error:', err);
-      toast.error(err.message || 'AI generation failed. Using defaults.');
+    } catch (err: unknown) {
+      logger.error('[AI] Generation error:', err);
+      toast.error(err instanceof Error ? err.message : 'AI generation failed. Using defaults.');
 
       const baseData: Record<string, unknown> = {
         title: description.slice(0, 50) || 'New Listing',

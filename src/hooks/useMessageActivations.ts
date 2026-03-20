@@ -13,7 +13,7 @@ export function useMessageActivations() {
       if (!user?.id) return { totalRemaining: 999 };
 
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('tokens')
           .select('*')
           .eq('user_id', user.id);

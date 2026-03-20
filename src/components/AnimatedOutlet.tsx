@@ -15,7 +15,7 @@ export function AnimatedOutlet() {
     return (
         <AnimatePresence mode="wait" initial={true}>
             <motion.div
-                key={location.pathname}
+                key={location.key}
                 initial={{ y: 24, opacity: 0 }}
                 animate={{ 
                     y: 0, 

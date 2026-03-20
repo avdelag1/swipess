@@ -113,13 +113,13 @@ export function BottomNavigation({
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
-  // Admin nav items — admin panel only
+  // Admin nav items — admin panel + messaging
   const adminNavItems: NavItem[] = [
-    { id: 'admin', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'admin-panel', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
+    { id: 'admin-messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
   ];
 
-  const navItems = userRole === 'client' || userRole === 'admin' ? clientNavItems : ownerNavItems;
+  const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
   const isScrollable = true; // Always scrollable for both roles
 
   // Auto-scroll active item into view
@@ -231,7 +231,7 @@ export function BottomNavigation({
 
 
   return (
-    <nav className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}

@@ -46,9 +46,9 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
         await supabase.auth.signOut();
         navigate('/', { replace: true });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete account error:', error);
-      toast.error('Error', { description: error.message || 'Failed to delete account. Please try again.' });
+      toast.error('Error', { description: error instanceof Error ? error.message : 'Failed to delete account. Please try again.' });
     }
   };
 

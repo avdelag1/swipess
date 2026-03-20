@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/prodLogger';
 
 export interface AIListingResult {
   title: string;
@@ -48,7 +49,7 @@ export function useAIGeneration() {
       if (fnError) {
         // Check for rate limit / payment errors
         const msg = fnError.message || 'AI request failed';
-        console.error('[useAI] Supabase function error:', fnError);
+        logger.error('[useAI] Supabase function error:', fnError);
 
         if (msg.includes('429') || msg.includes('rate limit')) {
           toast.error('AI rate limit reached. Please try again in a moment.');
@@ -62,7 +63,7 @@ export function useAIGeneration() {
         throw new Error(msg);
       }
       if (fnData?.error) {
-        console.error('[useAI] Function returned error:', fnData.error);
+        logger.error('[useAI] Function returned error:', fnData.error);
 
         if (fnData.error.includes('rate limit') || fnData.error.includes('429')) {
           toast.error(fnData.error);
@@ -75,9 +76,9 @@ export function useAIGeneration() {
       }
 
       return (fnData?.result as T) || null;
-    } catch (err: any) {
-      setError(err.message);
-      console.error('[useAI] Generation error:', err);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+      logger.error('[useAI] Generation error:', err);
       return null;
     } finally {
       setIsLoading(false);

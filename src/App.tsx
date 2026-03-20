@@ -11,6 +11,7 @@ import { RadioProvider } from "@/contexts/RadioContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
@@ -317,7 +318,7 @@ const App = () => {
                                         {/* New feature routes */}
                                         <Route path="/explore/eventos" element={<EventosFeed />} />
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
-                                        <Route path="/admin/eventos" element={<AdminEventos />} />
+                                        <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
@@ -330,8 +331,8 @@ const App = () => {
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
-                                      <Route path="/payment/success" element={<PaymentSuccess />} />
-                                      <Route path="/payment/cancel" element={<PaymentCancel />} />
+                                      <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><PaymentSuccess /></Suspense>} />
+                                      <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><PaymentCancel /></Suspense>} />
 
                                       {/* Legal Pages - Public Access */}
                                       <Route path="/privacy-policy" element={<PrivacyPolicy />} />

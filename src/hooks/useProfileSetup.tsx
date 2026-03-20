@@ -70,7 +70,7 @@ export function useProfileSetup() {
       }
 
       // Check if reward already granted (prevent abuse)
-      const { data: existingReward } = await (supabase as any)
+      const { data: existingReward } = await supabase
         .from('tokens')
         .select('id')
         .eq('user_id', referrerId)
@@ -87,7 +87,7 @@ export function useProfileSetup() {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 60);
 
-      const { data: activationData, error: activError } = await (supabase as any)
+      const { data: activationData, error: activError } = await supabase
         .from('tokens')
         .insert({
           user_id: referrerId,
@@ -110,7 +110,7 @@ export function useProfileSetup() {
         });
 
         // Create notification for referrer (silent, non-blocking)
-        (supabase as any)
+        supabase
           .from('notifications')
           .insert([{
             user_id: referrerId,
@@ -405,7 +405,7 @@ export function useProfileSetup() {
         try {
           // Check if welcome activation already granted - escape deep type inference
            
-          const welcomeResult = await (supabase as any)
+          const welcomeResult = await supabase
             .from('tokens')
             .select('id')
             .eq('user_id', userId)
@@ -467,7 +467,7 @@ export function useProfileSetup() {
             expires_at: expiresAt.toISOString(),
             notes: notesText,
           };
-          const { error: activError } = await (supabase as any)
+          const { error: activError } = await supabase
             .from('tokens')
             .insert(insertData);
 

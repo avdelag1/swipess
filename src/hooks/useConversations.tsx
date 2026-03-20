@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/sonner';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { logger } from '@/utils/prodLogger';
 
-interface Conversation {
+export interface Conversation {
   id: string;
   client_id: string;
   owner_id: string;
@@ -54,7 +54,7 @@ export function useConversations() {
 
       try {
         // Fetch conversations first, then join profiles manually (no FK constraints on new columns)
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('conversations')
           .select('*')
           .or(`client_id.eq.${user.id},owner_id.eq.${user.id}`)
@@ -198,7 +198,7 @@ export function useConversations() {
     if (!user?.id) return null;
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('conversations')
         .select('*')
         .eq('id', conversationId)

@@ -44,7 +44,7 @@ export function useMessagingQuota() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('tokens')
         .select('remaining_activations, activation_type')
         .eq('user_id', user.id)

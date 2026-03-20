@@ -84,13 +84,17 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
   });
   const [isSwitching, setIsSwitching] = useState(false);
 
-  // Update initial mode when user changes
+  // Update initial mode when user changes; reset on logout
   useEffect(() => {
     if (user?.id) {
       const cached = getCachedMode(user.id);
       if (cached && cached !== localMode) {
         setLocalMode(cached);
       }
+    } else {
+      // User logged out — reset to default and clear stale cache entries
+      setLocalMode('client');
+      queryClient.removeQueries({ queryKey: ['active-mode'] });
     }
   }, [user?.id]);
 

@@ -78,10 +78,10 @@ const ResetPassword = () => {
       setTimeout(() => {
         navigate("/");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error updating password",
-        description: error.message || "Please try again or request a new reset link.",
+        description: error instanceof Error ? error.message : "Please try again or request a new reset link.",
         variant: "destructive",
       });
     } finally {

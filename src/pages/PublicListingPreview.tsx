@@ -60,7 +60,7 @@ export default function PublicListingPreview() {
     queryFn: async () => {
       if (!id) return null;
       try {
-        await (supabase as any)
+        await supabase
           .from('listings')
           .update({ views: ((listing as any)?.views || 0) + 1 })
           .eq('id', id);

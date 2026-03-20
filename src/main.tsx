@@ -124,7 +124,7 @@ if ("serviceWorker" in navigator) {
           }
         });
       })
-      .catch((err) => console.error('[SW] Registration failed:', err));
+      .catch((err) => logger.error('[SW] Registration failed:', err));
 
     // Graceful update handling instead of forced reload
     navigator.serviceWorker.addEventListener("controllerchange", () => {

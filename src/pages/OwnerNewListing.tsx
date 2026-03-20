@@ -20,7 +20,7 @@ const OwnerNewListing = () => {
     category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
     mode: 'rent' | 'sale';
   } | null>(null);
-  const [aiGeneratedData, setAIGeneratedData] = useState<any>(null);
+  const [aiGeneratedData, setAIGeneratedData] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     if (userRole && userRole !== 'owner' && userRole !== 'admin') {
