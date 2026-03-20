@@ -12,7 +12,7 @@ import { ClientDemographicFilters } from './ClientDemographicFilters';
 import { EmbeddedLocationFilter } from './EmbeddedLocationFilter';
 import { WORK_TYPES, SCHEDULE_TYPES, DAYS_OF_WEEK, TIME_SLOTS, LOCATION_TYPES, EXPERIENCE_LEVELS } from '../WorkerListingForm';
 import { SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
-const COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];
+const _COMMON_SKILLS = ['Communication', 'Time Management', 'Problem Solving', 'Teamwork', 'Adaptability', 'Organization', 'Customer Service', 'Technical Skills'];
 
 // Predefined hourly rate ranges for workers
 const WORKER_RATE_RANGES = [
@@ -30,7 +30,7 @@ interface WorkerClientFiltersProps {
 }
 
 export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount }: WorkerClientFiltersProps) {
-  const savePreferencesMutation = useSaveClientFilterPreferences();
+  const _savePreferencesMutation = useSaveClientFilterPreferences();
 
   // Service filters
   const [serviceCategories, setServiceCategories] = useState<string[]>(initialFilters.service_categories || []);
@@ -43,8 +43,8 @@ export function WorkerClientFilters({ onApply, initialFilters = {}, activeCount 
   // Experience and skills
   const [experienceLevels, setExperienceLevels] = useState<string[]>(initialFilters.experience_levels || []);
   const [minExperienceYears, setMinExperienceYears] = useState(initialFilters.min_experience_years || 0);
-  const [requiredSkills, setRequiredSkills] = useState<string[]>(initialFilters.required_skills || []);
-  const [requiredCertifications, setRequiredCertifications] = useState<string[]>(initialFilters.required_certifications || []);
+  const [requiredSkills, setRequiredSkills: _setRequiredSkills] = useState<string[]>(initialFilters.required_skills || []);
+  const [requiredCertifications, setRequiredCertifications: _setRequiredCertifications] = useState<string[]>(initialFilters.required_certifications || []);
 
   // Service details
   const [maxServiceRadius, setMaxServiceRadius] = useState(initialFilters.max_service_radius || 50);
