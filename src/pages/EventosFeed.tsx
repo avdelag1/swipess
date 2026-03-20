@@ -4,20 +4,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
-import { 
-  Search, MapPin, Calendar, Sparkles, X, SlidersHorizontal, 
-  ChevronLeft, Heart, 
-  Waves, Trees, Music, Utensils, Ticket, 
-  ArrowUpRight, Check, ChevronRight, 
-  Eye, Users, MessageSquare, Star,
-  LayoutGrid, PanelsTopLeft, Filter,
-  TrendingUp, Compass, Bookmark, Clock
+import {
+  MapPin, Calendar, Sparkles, X, SlidersHorizontal,
+  ChevronLeft, Heart,
+  Waves, Trees, Music, Utensils, Ticket,
+  ArrowUpRight, Check, ChevronRight,
+  Eye, Users, MessageSquare,
+  LayoutGrid, PanelsTopLeft,
+  TrendingUp, Compass, Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from 'react-i18next';
 import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAppNavigate } from '@/hooks/useAppNavigate';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
@@ -313,7 +312,7 @@ function loadLikedIds(): Set<string> {
 function saveLikedIds(ids: Set<string>) {
   try {
     localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify([...ids]));
-  } catch {}
+  } catch { /* intentionally empty */ }
 }
 
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
@@ -326,7 +325,7 @@ export default function EventosFeed() {
   
   const [viewMode, setViewMode] = useState<ViewMode>('stories');
   const [activeCategory, setActiveCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, _setSearchQuery] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [showLiked, setShowLiked] = useState(false);
@@ -335,7 +334,7 @@ export default function EventosFeed() {
   const [freeOnly, setFreeOnly] = useState(false);
   const [sortBy, setSortBy] = useState<SortOrder>('upcoming');
   const [likedIds, setLikedIds] = useState<Set<string>>(loadLikedIds);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const _scrollRef = useRef<HTMLDivElement>(null);
 
   // Preload image hook
   useEffect(() => {
@@ -1125,7 +1124,7 @@ function StoryCard({
   onTapRight?: () => void,
 }) {
   const { navigate } = useAppNavigate();
-  const isPoster = event.id.startsWith('poster');
+  const _isPoster = event.id.startsWith('poster');
   const isPromo = event.is_promo;
 
   const handleDetailsClick = (e: React.MouseEvent) => {
@@ -1140,7 +1139,7 @@ function StoryCard({
     navigate(`/explore/eventos/${baseEventId}`, { state: { eventData: event } });
   };
 
-  const handleCardTap = () => {
+  const _handleCardTap = () => {
     if (isPromo) return;
     triggerHaptic('light');
     navigate(`/explore/eventos/${baseEventId}`, { state: { eventData: event } });
@@ -1230,7 +1229,7 @@ function StoryCard({
 
 // ── FILTER & LIKED SHEETS ────────────────────────────────────────────────────
 
-function FilterSheet({ isOpen, onClose, freeOnly, setFreeOnly, sortBy, setSortBy, activeFilterCount }: any) {
+function FilterSheet({ isOpen, onClose, freeOnly, setFreeOnly, sortBy, setSortBy, activeFilterCount: _activeFilterCount }: any) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -1269,7 +1268,7 @@ function FilterSheet({ isOpen, onClose, freeOnly, setFreeOnly, sortBy, setSortBy
   );
 }
 
-function LikedSheet({ isOpen, onClose, likedEvents, likedCount }: any) {
+function LikedSheet({ isOpen, onClose, likedEvents, likedCount: _likedCount }: any) {
   const { theme } = useTheme();
   const isLight = theme === 'light';
   

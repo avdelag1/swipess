@@ -1,19 +1,16 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Bell, MessageSquare, Flame, Star, Sparkles, Trash2,
-  MoreHorizontal, Heart, Home, Ship, Bike, Car,
-  ExternalLink, X, Clock, MapPin, Zap, ChevronRight
+  Heart, X, MapPin
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { useLikedProperties } from '@/hooks/useLikedProperties';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,12 +18,6 @@ import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,

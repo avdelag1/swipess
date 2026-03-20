@@ -38,7 +38,7 @@ export function useMessageActivations() {
 
   // Use a token (conversation start) - simplified
   const useActivation = useMutation({
-    mutationFn: async ({ conversationId }: { conversationId: string }) => {
+    mutationFn: async ({ conversationId: _conversationId }: { conversationId: string }) => {
       // No-op for now - messaging is free
       return { success: true };
     },

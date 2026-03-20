@@ -1,6 +1,6 @@
-import { memo, useCallback, useState, useRef, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check, Globe } from 'lucide-react';
+import { memo, useCallback, useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Check, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
@@ -24,7 +24,7 @@ interface QuickFilterBarProps {
   userRole?: 'client' | 'owner';
 }
 
-const allCategories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
+const _allCategories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycle', 'services'];
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
   { id: 'property', label: 'Properties', icon: <Home className="w-4 h-4" /> },
@@ -45,7 +45,7 @@ function saveQuickFilter(cats: QuickFilterCategory[]): void {
   try { localStorage.setItem('quickFilter', value); } catch { /* ignore */ }
 }
 
-const listingTypes: { id: QuickFilterListingType; label: string }[] = [
+const _listingTypes: { id: QuickFilterListingType; label: string }[] = [
   { id: 'both', label: 'All Types' },
   { id: 'rent', label: 'Rent Only' },
   { id: 'sale', label: 'Buy Only' },
@@ -203,7 +203,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     onChange({ ...filters, categories: newCategories, listingType: 'both' });
   }, [filters, onChange]);
 
-  const handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
+  const _handleListingTypeChange = useCallback((type: QuickFilterListingType) => {
     onChange({
       ...filters,
       listingType: type,
@@ -233,7 +233,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     });
   }, [onChange]);
 
-  const hasActiveFilters = userRole === 'client'
+  const _hasActiveFilters = userRole === 'client'
     ? filters.categories.length > 0 || filters.listingType !== 'both'
     : (filters.clientGender && filters.clientGender !== 'any') || (filters.clientType && filters.clientType !== 'all');
 

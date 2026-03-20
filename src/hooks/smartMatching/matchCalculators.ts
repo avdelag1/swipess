@@ -1,10 +1,5 @@
 import { Listing } from '../useListings';
 import { ClientFilterPreferences } from '../useClientFilterPreferences';
-import {
-    LIFESTYLE_TAGS,
-    CLIENT_INTENTION_OPTIONS,
-    OWNER_SERVICE_OFFERING_OPTIONS
-} from '@/constants/profileConstants';
 
 /**
  * Calculate match percentage between client preferences and a listing.

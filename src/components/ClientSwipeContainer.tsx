@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 
-import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
+import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
@@ -24,18 +24,16 @@ import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwip
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession, getDeckFromSession } from '@/state/swipeDeckStore';
+import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { cn } from '@/lib/utils';
-import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, Wrench, User, Sparkles, Navigation, Home } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
+import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
@@ -131,8 +129,8 @@ interface ClientSwipeContainerProps {
 
 const ClientSwipeContainerComponent = ({
   onClientTap,
-  onInsights,
-  onMessageClick,
+  onInsights: _onInsights,
+  onMessageClick: _onMessageClick,
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,
@@ -183,7 +181,7 @@ const ClientSwipeContainerComponent = ({
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -210,12 +208,12 @@ const ClientSwipeContainerComponent = ({
   // FIX: Track deck length in state to force re-render when profiles are appended
   // Without this, the "No Clients Found" empty state persists because
   // appending to deckQueueRef alone doesn't trigger a React re-render
-  const [deckLength, setDeckLength] = useState(0);
+  const [_deckLength, setDeckLength] = useState(0);
 
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
   // CRITICAL: Filter out own profile from cached deck items
-  const filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
+  const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
     if (!userId) return items;
     return items.filter(p => {
       const profileId = p.user_id || p.id;
@@ -241,7 +239,7 @@ const ClientSwipeContainerComponent = ({
   const currentDeckState = useSwipeDeckStore.getState().ownerDecks[category];
   const currentIndexRef = useRef(currentDeckState?.currentIndex || 0);
   const swipedIdsRef = useRef<Set<string>>(new Set(currentDeckState?.swipedIds || []));
-  const initializedRef = useRef(deckQueueRef.current.length > 0);
+  const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   // Sync state with ref on mount
   useEffect(() => {
@@ -300,7 +298,7 @@ const ClientSwipeContainerComponent = ({
   const isReturningRef = useRef(
     deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().ownerDecks[category]?.isReady
   );
-  const hasAnimatedOnceRef = useRef(isReturningRef.current);
+  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
@@ -348,7 +346,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-items'); } catch (err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { /* Ignore session storage errors */ }
   }, [category]);
 
   // ========================================
@@ -360,21 +358,21 @@ const ClientSwipeContainerComponent = ({
   // PERF: pass userId to avoid getUser() inside queryFn
   // Extract category from filters if available (for filtering client profiles by their interests)
   const filterCategory = filters?.categories?.[0] || filters?.category || undefined;
-  const { data: internalProfiles = [], isLoading: internalIsLoading, refetch, isRefetching, error: internalError } = useSmartClientMatching(user?.id, filterCategory, page, 50, isRefreshMode, filters);
+  const { data: internalProfiles = [], isLoading: internalIsLoading, refetch, isRefetching: _isRefetching, error: internalError } = useSmartClientMatching(user?.id, filterCategory, page, 50, isRefreshMode, filters);
 
   const clientProfiles = externalProfiles || internalProfiles;
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const error = externalError !== undefined ? externalError : internalError;
 
   const swipeMutation = useSwipe();
-  const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
+  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const startConversation = useStartConversation();
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
 
   // Swipe dismissal tracking for client profiles
-  const { dismissedIds, dismissTarget, filterDismissed } = useSwipeDismissal('client');
+  const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('client');
 
   // Prefetch manager for client profile details
   const { prefetchClientProfileDetails } = usePrefetchManager();
@@ -428,8 +426,9 @@ const ClientSwipeContainerComponent = ({
 
   // Cleanup prefetch scheduler on unmount
   useEffect(() => {
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, []);
 
@@ -444,8 +443,9 @@ const ClientSwipeContainerComponent = ({
       }, 300);
     }
 
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, [currentIndex, prefetchClientProfileDetails]);
 
@@ -718,7 +718,7 @@ const ClientSwipeContainerComponent = ({
 
     try {
       await refetch();
-    } catch (err) {
+    } catch (_err) {
       sonnerToast.error('Refresh failed', { description: 'Please try again.' });
     } finally {
       setIsRefreshing(false);

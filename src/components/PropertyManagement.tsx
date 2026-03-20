@@ -1,6 +1,5 @@
 import { useState, useEffect, memo } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -38,7 +37,7 @@ const getCategoryColor = (category: string) => {
 };
 
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { data: listings = [], isLoading, error } = useOwnerListings();
@@ -168,7 +167,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       toast.error('Error', { description: 'Failed to delete property' });
     }
@@ -194,7 +193,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: listing.status }));
       toast.error('Error', { description: 'Failed to update availability' });
     }

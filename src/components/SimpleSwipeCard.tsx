@@ -306,7 +306,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [listing.id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     // Card tap does nothing by default - image taps handle photo navigation
@@ -383,7 +383,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
     // SAFETY NET: tighter timeout matching tween duration
     setTimeout(fireSwipe, 300);
-  }, [listing.id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
   useImperativeHandle(ref, () => ({

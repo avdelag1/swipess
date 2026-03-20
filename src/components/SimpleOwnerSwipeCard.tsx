@@ -445,7 +445,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [profile?.user_id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     if (!isDragging.current && onDetails) {
@@ -523,7 +523,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
     // SAFETY NET: If animation callback doesn't fire within 350ms, force it
     setTimeout(fireSwipe, 350);
-  }, [profile?.user_id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
   useImperativeHandle(ref, () => ({

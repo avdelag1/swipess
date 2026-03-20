@@ -163,7 +163,7 @@ export function PhotoUploadManager({
     onPhotosChange(updatedPhotos);
   };
 
-  const handleReorderPhoto = (fromIndex: number, toIndex: number) => {
+  const _handleReorderPhoto = (fromIndex: number, toIndex: number) => {
     const updatedPhotos = [...currentPhotos];
     const [movedPhoto] = updatedPhotos.splice(fromIndex, 1);
     updatedPhotos.splice(toIndex, 0, movedPhoto);

@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { MaintenanceRequestForm } from '@/components/MaintenanceRequestForm';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Plus, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal, Clock, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';

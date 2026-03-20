@@ -5,7 +5,6 @@ import { useQuery } from "@tanstack/react-query";
 import LegendaryLandingPage from "@/components/LegendaryLandingPage";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 import { logger } from "@/utils/prodLogger";
 import { STORAGE } from "@/constants/app";
 
@@ -44,7 +43,7 @@ const Index = () => {
     data: userRole,
     isLoading: profileLoading,
     isFetching,
-    error,
+    error: _error,
   } = useQuery({
     queryKey: ["user-role", user?.id],
     queryFn: async () => {

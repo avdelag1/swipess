@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Check, X } from 'lucide-react';
 import { Button } from './ui/button';
-import { cn } from '@/lib/utils';
 import { detectFaceCenter } from '@/utils/faceDetection';
 import { compressImage } from '@/utils/imageCompression';
 import { logger } from '@/utils/prodLogger';
@@ -103,7 +102,7 @@ const PhotoCrop: React.FC<PhotoCropProps> = ({
             centerX = Math.max(0, Math.min(centerX, displayWidth - cropSize));
             centerY = Math.max(0, Math.min(centerY, displayHeight - cropSize));
           }
-        } catch (error) {
+        } catch (_error) {
           // Face detection not available, using center crop
         }
       }

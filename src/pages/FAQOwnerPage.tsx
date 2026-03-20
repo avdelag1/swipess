@@ -74,7 +74,7 @@ const faqItems: FAQItem[] = [
 ];
 
 export default function FAQOwnerPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   const toggleExpand = (index: number) => {

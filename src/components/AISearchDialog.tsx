@@ -138,7 +138,7 @@ export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearc
     } finally {
       setIsSearching(false);
     }
-  }, [query, isSearching, userRole, messages, user]);
+  }, [query, isSearching, messages, user]);
 
   const handleClose = useCallback(() => {
     onClose();
