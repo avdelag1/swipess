@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, MessageSquare
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
@@ -300,6 +300,24 @@ const ClientProfileNew = () => {
           >
             <Radio className="w-5 h-5 text-emerald-400" />
             Radio Station
+          </button>
+
+          {/* Promote / Advertise */}
+          <button
+            onClick={() => { haptics.tap(); navigate('/client/advertise'); }}
+            data-testid="button-advertise"
+            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] relative overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(168,85,247,0.15) 100%)',
+              border: '1.5px solid rgba(251,146,60,0.35)',
+              backdropFilter: 'blur(12px)',
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-purple-500/5" />
+            <Megaphone className="w-5 h-5 text-orange-400 relative z-10" />
+            <span className="relative z-10 bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">
+              Promote Your Event or Service
+            </span>
           </button>
 
           {/* Settings */}

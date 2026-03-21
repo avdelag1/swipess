@@ -93,6 +93,7 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 
 // Filter pages - lazy loaded
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
+const AdvertisePage = lazy(() => import("./pages/AdvertisePage"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
 // Mini-game
@@ -282,6 +283,7 @@ const App = () => {
                                         <Route path="/client/legal-services" element={<ClientLawyerServices />} />
                                         <Route path="/client/camera" element={<ClientSelfieCamera />} />
                                         <Route path="/client/filters" element={<ClientFilters />} />
+                                        <Route path="/client/advertise" element={<AdvertisePage />} />
                                         <Route path="/client/maintenance" element={<MaintenanceRequests />} />
 
                                         {/* Owner routes */}

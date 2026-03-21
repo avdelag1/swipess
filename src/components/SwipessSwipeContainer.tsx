@@ -270,10 +270,10 @@ const FAN_CARD_PHOTOS: Record<string, string[]> = {
 };
 
 const FAN_CARDS = [
-  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -22, tx: -115, ty: 22 },
-  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -7, tx: -38, ty: 6 },
-  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 7, tx: 38, ty: 6 },
-  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 22, tx: 115, ty: 22 },
+  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -18, tx: -90, ty: 18 },
+  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -6, tx: -30, ty: 4 },
+  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 6, tx: 30, ty: 4 },
+  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 18, tx: 90, ty: 18 },
 ];
 
 const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
@@ -309,9 +309,9 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
       whileTap={{ scale: 0.95 }}
       className="absolute"
       style={{
-        width: 138,
-        height: 210,
-        borderRadius: 18,
+        width: 160,
+        height: 240,
+        borderRadius: 20,
         overflow: 'hidden',
         boxShadow: isHovered
           ? `0 24px 48px rgba(${card.accentRgb},0.35), 0 8px 24px rgba(0,0,0,0.4)`
@@ -321,20 +321,20 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
         border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.5 : 0.2})`,
       }}
     >
-      {/* Live photo carousel background */}
+      {/* Live photo carousel background — CSS crossfade, no flicker */}
       <div className="absolute inset-0">
-        <AnimatePresence mode="sync">
-          <motion.img
-            key={photoIdx}
-            src={photos[photoIdx]}
-            alt={card.label}
+        {photos.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
             className="absolute inset-0 w-full h-full object-cover"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.9 }}
+            style={{
+              opacity: i === (photoIdx % photos.length) ? 1 : 0,
+              transition: 'opacity 1.1s ease-in-out',
+            }}
           />
-        </AnimatePresence>
+        ))}
       </div>
 
       {/* Glassmorphic gradient overlay */}
@@ -449,7 +449,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan of cards */}
         <div
           className="relative z-10"
-          style={{ width: 320, height: 260 }}
+          style={{ width: 300, height: 280 }}
         >
           {FAN_CARDS.map((card, i) => (
             <FanPokerCard
@@ -466,8 +466,8 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
               key={`hover-${card.id}`}
               className="absolute"
               style={{
-                width: 138,
-                height: 210,
+                width: 160,
+                height: 240,
                 left: '50%',
                 top: '50%',
                 transform: `translate(-50%, -50%) translateX(${card.tx}px) translateY(${card.ty}px) rotate(${card.rotate}deg)`,
