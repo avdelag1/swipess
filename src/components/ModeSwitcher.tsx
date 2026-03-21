@@ -16,16 +16,16 @@ interface ModeSwitcherProps {
 function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: ModeSwitcherProps) {
   const { activeMode, isSwitching, switchMode, canSwitchMode } = useActiveMode();
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isLight = theme === 'light';
   const lastClickTime = useRef(0);
   const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
-  const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
-  const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
-  const floatingShadow = isDark
-    ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
-    : '0 4px 12px rgba(0,0,0,0.05)';
+  const glassBg = isLight ? '#ffffff' : 'rgba(255, 255, 255, 0.06)';
+  const glassBorder = isLight ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.12)';
+  const floatingShadow = isLight
+    ? '0 4px 12px rgba(0,0,0,0.05)'
+    : 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)';
 
   const handleModeSwitch = useCallback(async (newMode: ActiveMode) => {
     const now = Date.now();
@@ -143,7 +143,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
           'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
-          activeMode === 'client' ? 'text-teal-400 font-black scale-105' : (isDark ? 'text-white/50 hover:text-white/80' : 'text-foreground/50 hover:text-foreground/80')
+          activeMode === 'client' ? 'text-teal-400 font-black scale-105' : (isLight ? 'text-foreground/50 hover:text-foreground/80' : 'text-white/50 hover:text-white/80')
         )}>
           <User strokeWidth={4} className="h-3 w-3" />
           <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Client</span>
@@ -151,7 +151,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
         <div className={cn(
           'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
-          activeMode === 'owner' ? 'text-orange-400 font-black scale-105' : (isDark ? 'text-white/50 hover:text-white/80' : 'text-foreground/50 hover:text-foreground/80')
+          activeMode === 'owner' ? 'text-orange-400 font-black scale-105' : (isLight ? 'text-foreground/50 hover:text-foreground/80' : 'text-white/50 hover:text-white/80')
         )}>
           <UserCog strokeWidth={4} className="h-3 w-3" />
           <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Business</span>
@@ -205,7 +205,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         >
           {/* HIGH CONTRAST: Clear colors without glow effects */}
           {isSwitching ? (
-            <Loader2 className={cn("h-3.5 w-3.5 animate-spin", isDark ? "text-white" : "text-foreground")} />
+            <Loader2 className={cn("h-3.5 w-3.5 animate-spin", isLight ? "text-foreground" : "text-white")} />
           ) : activeMode === 'client' ? (
             <>
               <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
@@ -220,7 +220,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         </motion.div>
       </AnimatePresence>
 
-      <ArrowLeftRight className={cn("h-3 w-3", isDark ? "text-white/80" : "text-foreground/60")} />
+      <ArrowLeftRight className={cn("h-3 w-3", isLight ? "text-foreground/60" : "text-white/80")} />
     </button>
   );
 }

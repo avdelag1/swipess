@@ -88,18 +88,14 @@ function TopBarComponent({
   });
   const shouldHide = hideOnScroll && !isVisible;
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isLight = theme === 'light';
   const { t } = useTranslation();
 
-  const glassBg = isDark
-    ? 'var(--glass-bg)'
-    : '#ffffff';
-  const glassBorder = isDark
-    ? '1px solid var(--glass-border)'
-    : '1px solid #e5e7eb';
-  const floatingShadow = isDark
-    ? '0 10px 30px -10px rgba(0,0,0,0.5)'
-    : '0 2px 4px rgba(0,0,0,0.05)';
+  const glassBg = isLight ? '#ffffff' : 'var(--glass-bg)';
+  const glassBorder = isLight ? '1px solid #e5e7eb' : '1px solid var(--glass-border)';
+  const floatingShadow = isLight
+    ? '0 2px 4px rgba(0,0,0,0.05)'
+    : '0 10px 30px -10px rgba(0,0,0,0.5)';
   // Removed backdropFilter blur for performance - using solid backgrounds instead
   const packageCategory = userRole === 'owner' ? 'owner_pay_per_use' : 'client_pay_per_use';
 
@@ -180,7 +176,7 @@ function TopBarComponent({
         <div 
           className={cn(
             "absolute inset-0 transition-all duration-500 ease-in-out -z-10",
-            isDark ? "bg-black" : "bg-white",
+            isLight ? "bg-white" : "bg-black",
             transparent ? "opacity-0" : "opacity-100"
           )} 
           style={{ transform: 'translateZ(0)' }}
@@ -202,7 +198,7 @@ function TopBarComponent({
                 }}
                 aria-label="Go back"
               >
-                <ArrowLeft className={cn("w-5 h-5", isDark ? "text-white/90" : "text-foreground/80")} strokeWidth={2.5} />
+                <ArrowLeft className={cn("w-5 h-5", isLight ? "text-foreground/80" : "text-white/90")} strokeWidth={2.5} />
               </motion.button>
             )}
 
@@ -225,9 +221,9 @@ function TopBarComponent({
                   <AvatarImage src={profile?.avatar_url || ''} className="object-cover w-full h-full rounded-full" />
                   <AvatarFallback className={cn(
                     "text-xs font-black uppercase rounded-full w-full h-full flex items-center justify-center",
-                    isDark
-                      ? "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
-                      : "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
+                    isLight
+                      ? "bg-gradient-to-br from-brand-primary/15 to-brand-accent/15 text-foreground/70"
+                      : "bg-gradient-to-br from-brand-primary/20 to-brand-accent/20 text-foreground/80"
                   )}>
                     {profile?.full_name?.charAt(0) || user.email?.charAt(0) || 'U'}
                   </AvatarFallback>
@@ -266,9 +262,9 @@ function TopBarComponent({
             {title ? (
               <span className={cn(
                 "font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none",
-                isDark
-                  ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
-                  : "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+                isLight
+                  ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
+                  : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
               )}>
                 {title}
               </span>
@@ -296,7 +292,7 @@ function TopBarComponent({
                   onClick={(e) => e.preventDefault()}
                   aria-label="Token Packages"
                 >
-                  <Zap strokeWidth={3} className={cn("h-4 w-4", isDark ? "text-amber-300" : "text-amber-500")} />
+                  <Zap strokeWidth={3} className={cn("h-4 w-4", isLight ? "text-amber-500" : "text-amber-300")} />
                 </Button>
               </PopoverTrigger>
               <PopoverContent
@@ -440,8 +436,8 @@ function TopBarComponent({
                   className={cn(
                     "h-4 w-4 sm:h-5 sm:w-5 transition-colors duration-150",
                     notificationCount > 0
-                      ? (isDark ? "text-orange-300 group-hover:text-orange-100" : "text-orange-500 group-hover:text-orange-700")
-                      : (isDark ? "text-white group-hover:text-white" : "text-foreground group-hover:text-foreground")
+                      ? (isLight ? "text-orange-500 group-hover:text-orange-700" : "text-orange-300 group-hover:text-orange-100")
+                      : (isLight ? "text-foreground group-hover:text-foreground" : "text-white group-hover:text-white")
                   )}
                 />
               </div>

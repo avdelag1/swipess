@@ -6,15 +6,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
-import { Briefcase, Search, Filter, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft, CalendarDays } from 'lucide-react';
+import { Briefcase, RefreshCw, X, Sparkles, MapPin, DollarSign, Clock, MessageCircle, Star, ArrowLeft, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
 import { PRICING_UNITS } from '@/components/WorkerListingForm';
-import { SERVICE_GROUPS, getGroupedCategories, findCategory } from '@/data/serviceCategories';
+import { findCategory } from '@/data/serviceCategories';
 import { cn } from '@/lib/utils';
 
 // Hire duration quick filter options
@@ -203,29 +201,13 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
 
 export default function ClientWorkerDiscovery() {
   const navigate = useNavigate();
-  const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
   const [selectedDuration, setSelectedDuration] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(selectedType, selectedDuration);
+  const { data: workers, isLoading, refetch, isRefetching } = useWorkerListings(undefined, selectedDuration);
   const startConversation = useStartConversation();
   const [contactingId, setContactingId] = useState<string | null>(null);
 
-  // Filter workers by search query and service type
-  const filteredWorkers = workers?.filter(worker => {
-    // Service type filter
-    if (selectedType && worker.service_category !== selectedType) return false;
-
-    // Search query filter
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      worker.title?.toLowerCase()?.includes(query) ||
-      worker.owner?.full_name?.toLowerCase()?.includes(query) ||
-      worker.city?.toLowerCase()?.includes(query) ||
-      worker.description?.toLowerCase()?.includes(query)
-    );
-  });
+  const filteredWorkers = workers;
 
   const handleContact = useCallback(async (userId: string) => {
     if (contactingId) return;
@@ -256,12 +238,10 @@ export default function ClientWorkerDiscovery() {
   }, [contactingId, startConversation, navigate]);
 
   const clearFilters = () => {
-    setSelectedType(undefined);
     setSelectedDuration('all');
-    setSearchQuery('');
   };
 
-  const hasActiveFilters = selectedType || selectedDuration !== 'all' || searchQuery;
+  const hasActiveFilters = selectedDuration !== 'all';
 
   return (
     <>
@@ -309,50 +289,6 @@ export default function ClientWorkerDiscovery() {
             ))}
           </div>
 
-          {/* Search and Service Type Filters */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search services..."
-                className="pl-9 bg-background/50"
-              />
-            </div>
-            <Select
-              value={selectedType || 'all'}
-              onValueChange={(v) => setSelectedType(v === 'all' ? undefined : v)}
-            >
-              <SelectTrigger className="w-[160px] bg-background/50">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                <SelectItem value="all">All Types</SelectItem>
-                {SERVICE_GROUPS.map(group => {
-                  const cats = getGroupedCategories()[group];
-                  if (!cats.length) return null;
-                  return (
-                    <SelectGroup key={group}>
-                      <SelectLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        {group}
-                      </SelectLabel>
-                      {cats.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          <span className="flex items-center gap-2">
-                            <span>{type.icon}</span>
-                            <span>{type.label}</span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Active Filters */}
           {hasActiveFilters && (
             <div className="flex items-center gap-2 mt-3">
@@ -363,24 +299,6 @@ export default function ClientWorkerDiscovery() {
                   <X
                     className="w-3 h-3 cursor-pointer"
                     onClick={() => setSelectedDuration('all')}
-                  />
-                </Badge>
-              )}
-              {selectedType && (
-                <Badge variant="secondary" className="gap-1">
-                  {findCategory(selectedType)?.label}
-                  <X
-                    className="w-3 h-3 cursor-pointer"
-                    onClick={() => setSelectedType(undefined)}
-                  />
-                </Badge>
-              )}
-              {searchQuery && (
-                <Badge variant="secondary" className="gap-1">
-                  "{searchQuery}"
-                  <X
-                    className="w-3 h-3 cursor-pointer"
-                    onClick={() => setSearchQuery('')}
                   />
                 </Badge>
               )}

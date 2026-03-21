@@ -110,7 +110,16 @@
   box-shadow: var(--shadow-soft-lg);
 }
 
-/* Hide scrollbar for horizontal scrolling action buttons */
+/* Hide ALL scrollbars — this is a native app, not a website */
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Utility class for explicit usage */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -376,6 +385,4 @@ body {
   transition: transform 50ms ease;
 }
 
-/* ... keep all other utilities, animations, skeleton, ripple, etc. from HEAD ... */
-
-/* End of file */
+/* Keep the rest of your utilities, animations, skeleton, ripple, safe area helpers, etc. from HEAD here */

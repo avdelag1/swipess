@@ -695,7 +695,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       <main
         id="dashboard-scroll-container"
         className={cn(
-          "absolute inset-0 overflow-x-hidden scroll-area-momentum bg-background",
+          "absolute inset-0 overflow-x-hidden scroll-area-momentum bg-background scrollbar-hide",
           isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto"
         )}
         style={{

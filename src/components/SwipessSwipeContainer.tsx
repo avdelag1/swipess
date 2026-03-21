@@ -158,7 +158,7 @@ interface DistanceSliderProps {
 const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
   const maxKm = 100;
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isLight = theme === 'light';
   return (
     <div className="w-full max-w-xs mx-auto mt-2 px-2">
       <div className="flex items-center justify-between mb-2">
@@ -174,8 +174,8 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
             className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
             style={{
               background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
-              borderColor: detected ? 'rgba(249,115,22,0.4)' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
-              color: detected ? '#f97316' : isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)',
+              borderColor: detected ? 'rgba(249,115,22,0.4)' : isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)',
+              color: detected ? '#f97316' : isLight ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.7)',
             }}
           >
             <Navigation className="w-2.5 h-2.5" />
@@ -184,7 +184,7 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
         </div>
       </div>
       <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' }}>
           <div
             className="h-full rounded-full"
             style={{
