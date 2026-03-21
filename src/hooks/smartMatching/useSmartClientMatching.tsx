@@ -120,7 +120,8 @@ export function useSmartClientMatching(
                     .neq('role', 'admin')
                     .eq('role', 'client')
                     .eq('is_active', true)
-                    .eq('onboarding_completed', true);
+                    .eq('onboarding_completed', true)
+                    .not('email', 'ilike', '%test%');
 
                 if (swipedProfileIds.size > 0) {
                     const idsToExclude = Array.from(swipedProfileIds);
