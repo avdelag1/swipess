@@ -329,10 +329,10 @@ const App = () => {
                                         <Route path="/explore/roommates" element={<RoommateMatching />} />
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
-
-                                        {/* Mini-game */}
-                                        <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} />
                                       </Route>
+ 
+                                      {/* Public Mini-game */}
+                                      <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} />
 
                                       {/* Payment routes - outside layout */}
                                       <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><PaymentSuccess /></Suspense>} />

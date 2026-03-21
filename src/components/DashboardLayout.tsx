@@ -11,6 +11,7 @@ import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
+
 import { cn } from '@/lib/utils'
 import type { QuickFilterCategory } from '@/types/filters'
 import { useQueryClient } from '@tanstack/react-query'
@@ -23,9 +24,7 @@ import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
 const SubscriptionPackages = lazy(() => import("@/components/SubscriptionPackages").then(m => ({ default: m.SubscriptionPackages })))
-const LikedPropertiesDialog = lazy(() => import("@/components/LikedPropertiesDialog").then(m => ({ default: m.LikedPropertiesDialog })))
 const LegalDocumentsDialog = lazy(() => import("@/components/LegalDocumentsDialog").then(m => ({ default: m.LegalDocumentsDialog })))
-const ClientPreferencesDialog = lazy(() => import("@/components/ClientPreferencesDialog").then(m => ({ default: m.ClientPreferencesDialog })))
 const ClientProfileDialog = lazy(() => import("@/components/ClientProfileDialog").then(m => ({ default: m.ClientProfileDialog })))
 const PropertyDetails = lazy(() => import("@/components/PropertyDetails").then(m => ({ default: m.PropertyDetails })))
 const PropertyInsightsDialog = lazy(() => import("@/components/PropertyInsightsDialog").then(m => ({ default: m.PropertyInsightsDialog })))
@@ -110,7 +109,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showSubscriptionPackages, setShowSubscriptionPackages] = useState(false)
-  const [showLikedProperties, setShowLikedProperties] = useState(false)
+
   const [showPreferences, setShowPreferences] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null)
@@ -770,17 +769,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       {userRole === 'client' && (
         <Suspense fallback={null}>
           <>
-            <LikedPropertiesDialog
-              isOpen={showLikedProperties}
-              onClose={() => setShowLikedProperties(false)}
-              onPropertySelect={handleLikedPropertySelect}
-            />
-
-            <ClientPreferencesDialog
-              open={showPreferences}
-              onOpenChange={setShowPreferences}
-            />
-
             <ClientProfileDialog
               open={showProfile}
               onOpenChange={setShowProfile}
