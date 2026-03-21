@@ -145,10 +145,10 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       pointerRef.current.isActive = false;
     };
 
-    window.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('pointerup', handlePointerUp);
-    window.addEventListener('pointercancel', handlePointerUp);
-    window.addEventListener('pointerdown', handleCanvasPointerDown);
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('pointerup', handlePointerUp, { passive: true });
+    window.addEventListener('pointercancel', handlePointerUp, { passive: true });
+    window.addEventListener('pointerdown', handleCanvasPointerDown, { passive: true });
 
     const drawStars = () => {
       ctx.clearRect(0, 0, w, h);

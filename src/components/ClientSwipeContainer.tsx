@@ -678,7 +678,6 @@ const ClientSwipeContainerComponent = ({
     // The next card will show with skeleton placeholder until image loads
     executeSwipe(direction);
 
-    // AGGRESSIVE PREFETCH: Preload ALL images of next 3 profiles to prevent blink
     [1, 2, 3].forEach((offset) => {
       const futureProfile = deckQueueRef.current[currentIndexRef.current + offset];
       if (futureProfile?.profile_images && Array.isArray(futureProfile.profile_images)) {
@@ -689,6 +688,19 @@ const ClientSwipeContainerComponent = ({
         preloadClientImageToCache(futureProfile.avatar_url);
       }
     });
+
+    prefetchSchedulerRef.current.schedule(() => {
+      [4, 5].forEach((offset) => {
+        const futureProfile = deckQueueRef.current[currentIndexRef.current + offset];
+        if (futureProfile?.profile_images && Array.isArray(futureProfile.profile_images)) {
+          futureProfile.profile_images.forEach((imgUrl: string) => {
+            if (imgUrl) preloadClientImageToCache(imgUrl);
+          });
+        } else if (futureProfile?.avatar_url) {
+          preloadClientImageToCache(futureProfile.avatar_url);
+        }
+      });
+    }, 200);
   }, [executeSwipe, playSwipeSound]);
 
   const handleButtonLike = useCallback(() => {

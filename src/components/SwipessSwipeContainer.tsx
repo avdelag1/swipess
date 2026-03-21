@@ -300,14 +300,14 @@ const FAN_CARDS = [
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-const CARD_W = 220;
-const CARD_H = 400;
+const CARD_W = 170;
+const CARD_H = 360;
 
 const FAN_CARDS_WITH_POS = [
-  { ...FAN_CARDS[0], rotate: -7,   tx: -78, ty: 16 },
-  { ...FAN_CARDS[1], rotate: -2.5, tx: -26, ty: 4  },
-  { ...FAN_CARDS[2], rotate: 2.5,  tx: 26,  ty: 4  },
-  { ...FAN_CARDS[3], rotate: 7,    tx: 78,  ty: 16 },
+  { ...FAN_CARDS[0], rotate: -8,  tx: -138, ty: 18 },
+  { ...FAN_CARDS[1], rotate: -2.5, tx: -46, ty: 4  },
+  { ...FAN_CARDS[2], rotate: 2.5,  tx: 46,  ty: 4  },
+  { ...FAN_CARDS[3], rotate: 8,   tx: 138,  ty: 18 },
 ];
 
 const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
