@@ -313,15 +313,14 @@ const CategoryCard = memo(({ card, index, onTap, photoIdx }: {
     <motion.button
       onClick={onTap}
       data-testid={`fan-filter-${card.id}`}
-      initial={{ opacity: 0, y: 30, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30, mass: 0.7, delay: index * 0.08 }}
-      whileTap={{ scale: 0.96 }}
-      className="relative w-full overflow-hidden pointer-events-auto"
+      initial={{ opacity: 0, x: index < 2 ? -40 : 40, scale: 0.92 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 350, damping: 28, mass: 0.7, delay: index * 0.06 }}
+      whileTap={{ scale: 0.97 }}
+      className="relative flex-1 min-w-0 overflow-hidden pointer-events-auto"
       style={{
-        borderRadius: 18,
-        aspectRatio: '16/11',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.35), 0 2px 8px rgba(0,0,0,0.2)',
+        borderRadius: 16,
+        boxShadow: '0 8px 28px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25)',
         WebkitTapHighlightColor: 'transparent',
         border: `1.5px solid rgba(${card.accentRgb}, 0.25)`,
       }}
@@ -346,28 +345,24 @@ const CategoryCard = memo(({ card, index, onTap, photoIdx }: {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.78) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.82) 100%)',
         }}
       />
 
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <div className="flex items-center gap-2">
-          <div
-            className="flex-shrink-0 flex items-center justify-center rounded-lg"
-            style={{
-              width: 32, height: 32,
-              background: `rgba(${card.accentRgb}, 0.22)`,
-              border: `1px solid rgba(${card.accentRgb}, 0.4)`,
-              color: `rgba(${card.accentRgb}, 1)`,
-            }}
-          >
-            <card.Icon />
-          </div>
-          <div>
-            <p className="text-white font-black text-[15px] tracking-tight leading-tight">{card.label}</p>
-            <p className="text-white/55 text-[11px] leading-tight">{card.description}</p>
-          </div>
+      <div className="absolute bottom-0 left-0 right-0 p-3 flex flex-col items-center text-center">
+        <div
+          className="flex items-center justify-center rounded-xl mb-2"
+          style={{
+            width: 40, height: 40,
+            background: `rgba(${card.accentRgb}, 0.22)`,
+            border: `1px solid rgba(${card.accentRgb}, 0.45)`,
+            color: `rgba(${card.accentRgb}, 1)`,
+          }}
+        >
+          <card.Icon />
         </div>
+        <p className="text-white font-black text-[14px] tracking-tight leading-tight">{card.label}</p>
+        <p className="text-white/50 text-[10px] leading-tight mt-0.5">{card.description}</p>
       </div>
     </motion.button>
   );
@@ -409,23 +404,24 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-1 flex flex-col px-3"
-        style={{ minHeight: 'calc(100dvh - 148px)' }}
+        className="relative w-full flex-1 flex flex-row gap-1.5 px-2"
+        style={{
+          minHeight: 'calc(100dvh - 148px)',
+          height: 'calc(100dvh - 148px)',
+          zIndex: 10,
+          paddingTop: 4,
+          paddingBottom: 4,
+        }}
       >
-        <div
-          className="grid grid-cols-2 gap-2.5 w-full max-w-md mx-auto py-2"
-          style={{ zIndex: 10 }}
-        >
-          {FAN_CARDS.map((card, i) => (
-            <CategoryCard
-              key={card.id}
-              card={card}
-              index={i}
-              onTap={() => handleTap(card.id)}
-              photoIdx={photoIndices[i]}
-            />
-          ))}
-        </div>
+        {FAN_CARDS.map((card, i) => (
+          <CategoryCard
+            key={card.id}
+            card={card}
+            index={i}
+            onTap={() => handleTap(card.id)}
+            photoIdx={photoIndices[i]}
+          />
+        ))}
       </motion.div>
     </AnimatePresence>
   );
