@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ThumbsUp, Radio, Play, Pause, ChevronRight } from 'lucide-react';
+import { X, ThumbsUp, Radio, ChevronRight } from 'lucide-react';
 import { RadioStation, CityLocation } from '@/types/radio';
-import { CityTheme } from '@/types/radio';
 import { getStationsByCity, cityThemes, radioStations } from '@/data/radioStations';
 
 interface StationDrawerProps {

@@ -32,7 +32,7 @@ declare global {
 export function ClientLocationSelector({
   latitude,
   longitude,
-  address,
+  address: _address,
   locationType = 'home',
   onLocationChange,
 }: ClientLocationSelectorProps) {
