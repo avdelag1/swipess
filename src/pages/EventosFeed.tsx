@@ -36,6 +36,7 @@ interface EventItem {
   discount_tag: string | null;
   is_free: boolean;
   price_text: string | null;
+  is_promo?: boolean;
 }
 
 type SortOrder = 'upcoming' | 'newest';
@@ -920,187 +921,6 @@ function StoriesView({
           </div>
         )}
       </div>
-
-      {/* ── FILTER SHEET ── */}
-      <AnimatePresence>
-        {showFilters && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowFilters(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-              className={cn("fixed bottom-0 left-0 right-0 z-[201] border-t rounded-t-[36px] px-6 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))] pt-6", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}
-            >
-              {/* Handle */}
-              <div className={cn("w-10 h-1 rounded-full mx-auto mb-6", isLight ? "bg-slate-200" : "bg-white/20")} />
-
-              <div className="flex items-center justify-between mb-6">
-                <h3 className={cn("text-xl font-black italic tracking-tight", isLight ? "text-slate-900" : "text-white")}>Filters</h3>
-                {activeFilterCount > 0 && (
-                  <button
-                    onClick={() => { setFreeOnly(false); setSortBy('upcoming'); }}
-                    className="text-[11px] font-black text-orange-400 uppercase tracking-widest"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
-
-              {/* Free only toggle */}
-              <div className="mb-6">
-                <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] mb-3", isLight ? "text-slate-400" : "text-white/40")}>Price</p>
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => { triggerHaptic('light'); setFreeOnly(v => !v); }}
-                  className={cn(
-                    "w-full flex items-center justify-between px-5 py-4 rounded-2xl border transition-all",
-                    freeOnly
-                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-400"
-                      : "bg-white/5 border-white/10 text-white/60"
-                  )}
-                >
-                  <span className="text-[13px] font-bold">Free Events Only</span>
-                  <div className={cn(
-                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all",
-                    freeOnly ? "bg-emerald-500 border-emerald-500" : "border-white/20"
-                  )}>
-                    {freeOnly && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-                  </div>
-                </motion.button>
-              </div>
-
-              {/* Sort order */}
-              <div className="mb-8">
-                <p className={cn("text-[10px] font-black uppercase tracking-[0.2em] mb-3", isLight ? "text-slate-400" : "text-white/40")}>Sort By</p>
-                <div className="flex gap-3">
-                  {([
-                    { key: 'upcoming', label: 'Upcoming First' },
-                    { key: 'newest', label: 'Newest Added' },
-                  ] as { key: SortOrder; label: string }[]).map(opt => (
-                    <motion.button
-                      key={opt.key}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => { triggerHaptic('light'); setSortBy(opt.key); }}
-                      className={cn(
-                        "flex-1 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest border transition-all",
-                        sortBy === opt.key
-                          ? "bg-white text-black border-white"
-                          : "bg-white/5 border-white/10 text-white/60"
-                      )}
-                    >
-                      {opt.label}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setShowFilters(false)}
-                className="w-full py-4 rounded-2xl bg-white text-black font-black uppercase tracking-[0.15em] text-[12px] shadow-xl"
-              >
-                {activeFilterCount > 0 ? `Apply ${activeFilterCount} Filter${activeFilterCount > 1 ? 's' : ''}` : 'Done'}
-              </motion.button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-
-      {/* ── LIKED EVENTS SHEET ── */}
-      <AnimatePresence>
-        {showLiked && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowLiked(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200]"
-            />
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-              className={cn("fixed bottom-0 left-0 right-0 z-[201] border-t rounded-t-[36px] max-h-[80vh] flex flex-col", isLight ? "bg-white border-slate-200" : "bg-zinc-900 border-white/10")}
-            >
-              {/* Handle + header */}
-              <div className="flex-shrink-0 px-6 pt-5 pb-4">
-                <div className={cn("w-10 h-1 rounded-full mx-auto mb-5", isLight ? "bg-slate-200" : "bg-white/20")} />
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Heart className="w-5 h-5 text-rose-500 fill-current" />
-                    <h3 className={cn("text-xl font-black italic", isLight ? "text-slate-900" : "text-white")}>Liked Events</h3>
-                    <div className="w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                      <span className="text-[10px] font-black text-rose-400">{likedCount}</span>
-                    </div>
-                  </div>
-                  <button onClick={() => setShowLiked(false)} aria-label="Close liked events" className={cn("w-11 h-11 rounded-full flex items-center justify-center active:scale-90 transition-all shadow-lg border", isLight ? "bg-slate-100 border-slate-200 text-slate-600" : "bg-white/5 border-white/10 text-white/80")}>
-                    <X className="w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Liked events list */}
-              <div className="flex-1 overflow-y-auto px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] space-y-3 no-scrollbar">
-                {likedEvents.length === 0 ? (
-                  <div className="py-16 flex flex-col items-center gap-4 text-white/30">
-                    <Heart className="w-12 h-12" />
-                    <p className="text-sm font-medium">No liked events yet</p>
-                  </div>
-                ) : (
-                  likedEvents.map(event => (
-                    <motion.div
-                      key={event.id}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => { setShowLiked(false); navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } }); }}
-                      className={cn("flex items-center gap-4 p-3 rounded-2xl cursor-pointer transition-colors border", isLight ? "bg-slate-50 border-slate-200 active:bg-slate-100" : "bg-white/5 border-white/8 active:bg-white/10")}
-                    >
-                      <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
-                        <img
-                          src={event.image_url || 'https://images.unsplash.com/photo-1545128485-c400e7702796?w=200&q=60'}
-                          alt={event.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className={cn("text-[13px] font-black truncate", isLight ? "text-slate-900" : "text-white")}>{event.title}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <MapPin className={cn("w-3 h-3", isLight ? "text-slate-400" : "text-white/40")} />
-                          <span className={cn("text-[11px] truncate", isLight ? "text-slate-500" : "text-white/50")}>{event.location || 'Tulum'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <Calendar className={cn("w-3 h-3", isLight ? "text-slate-400" : "text-white/40")} />
-                          <span className={cn("text-[11px]", isLight ? "text-slate-500" : "text-white/50")}>
-                            {event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'TBD'}
-                          </span>
-                          {event.price_text && (
-                            <span className="text-[11px] font-black text-orange-400 ml-auto">{event.price_text}</span>
-                          )}
-                          {event.is_free && (
-                            <span className="text-[11px] font-black text-emerald-400 ml-auto">Free</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center transition-colors", isLight ? "bg-slate-100 text-slate-400" : "bg-white/5 text-white/20")}>
-                         <ChevronRight className="w-5 h-5" />
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -1137,17 +957,24 @@ function StoryCard({
       window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
       return;
     }
-    navigate(`/explore/eventos/${baseEventId}`, { state: { eventData: event } });
+    navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
   };
 
   const handleCardTap = () => {
     if (isPromo) return;
     triggerHaptic('light');
-    navigate(`/explore/eventos/${baseEventId}`, { state: { eventData: event } });
+    navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
   };
 
   return (
+<<<<<<< HEAD
     <div className="relative h-full w-full overflow-hidden bg-black">
+=======
+    <div
+      className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-black"
+      onClick={handleCardTap}
+    >
+>>>>>>> 90b07471 (fix: events Stories view crash and navigation)
       <motion.div 
         className="absolute inset-0"
         animate={isActive ? { scale: 1 } : { scale: 1.1 }}
