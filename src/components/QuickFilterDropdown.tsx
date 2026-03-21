@@ -4,8 +4,7 @@ import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase, Search, Sl
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
 import { useTheme } from '@/hooks/useTheme';
-import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
-import { getCategoryGradientClass } from '@/types/filters';
+import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
 
 // Custom motorcycle icon
 const MotorcycleIcon = ({ className }: { className?: string }) => (

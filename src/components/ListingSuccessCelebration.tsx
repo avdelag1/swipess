@@ -40,7 +40,7 @@ const CATEGORY_CONFIG = {
 export function ListingSuccessCelebration({ isOpen, category, onComplete }: ListingSuccessCelebrationProps) {
   const config = CATEGORY_CONFIG[category];
   const Icon = config.icon;
-  const [hasStarted, setHasStarted] = useState(false);
+  const [_hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     if (isOpen) {

@@ -3,10 +3,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Listing } from '@/hooks/useListings';
 import { MatchedClientProfile } from '@/hooks/useSmartMatching';
-import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, MessageCircle, TrendingUp, ThumbsUp, Sparkles, Users, Gauge, Ruler, Flame } from 'lucide-react';
+import { Eye, MapPin, DollarSign, Calendar, Shield, CheckCircle, Star, Bed, Bath, Square, Anchor, Bike, Car, Home, Zap, Clock, TrendingUp, ThumbsUp, Sparkles, Users, Gauge, Ruler, Flame } from 'lucide-react';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useState, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
 import { usePWAMode } from '@/hooks/usePWAMode';
 
 // Category icons for listings
@@ -944,7 +943,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
   );
 }
 
-function StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
+function _StatCard({ label, value, icon }: { label: string; value: number; icon: string }) {
   return (
     <div className="p-3 bg-muted/50 rounded-xl text-center">
       <div className="text-2xl mb-1">{icon}</div>

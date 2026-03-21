@@ -1,7 +1,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useHasPremiumFeature, useUserSubscription } from '@/hooks/useSubscription';
+import { useUserSubscription } from '@/hooks/useSubscription';
 import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { logger } from '@/utils/prodLogger';
 
@@ -27,7 +27,7 @@ export function useMessaging() {
 }
 
 export function useCanAccessMessaging() {
-  const { data: subscription } = useUserSubscription();
+  const { data: _subscription } = useUserSubscription();
   const { canSendMessage } = useMessagingQuota();
   
   // User needs an active subscription or has remaining free messages

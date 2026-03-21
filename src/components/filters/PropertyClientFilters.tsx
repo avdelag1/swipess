@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -8,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Save, Home, DollarSign, Bed, Bath, Sparkles, PawPrint, Sofa, Building2, Eye, Compass, Car, Calendar } from 'lucide-react';
+import { ChevronDown, Home, DollarSign, Bed, Sparkles, PawPrint, Sofa, Building2, Eye, Car, Calendar } from 'lucide-react';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { toast } from 'sonner';
 import { ClientDemographicFilters } from './ClientDemographicFilters';
@@ -45,7 +44,7 @@ interface PropertyClientFiltersProps {
   activeCount: number;
 }
 
-export function PropertyClientFilters({ onApply, initialFilters = {}, activeCount }: PropertyClientFiltersProps) {
+export function PropertyClientFilters({ onApply, initialFilters = {}, activeCount: _activeCount }: PropertyClientFiltersProps) {
   const savePreferencesMutation = useSaveClientFilterPreferences();
 
   const [interestType, setInterestType] = useState(initialFilters.interest_type || 'both');
@@ -116,7 +115,7 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
     { value: 'penthouse', label: 'Penthouse' }
   ];
 
-  const handleApply = async () => {
+  const _handleApply = async () => {
     const budgetValues = getBudgetValues();
     const durationValues = getRentalDurationValues();
 
@@ -137,7 +136,7 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         location_zones: locationNeighborhoods.length > 0 ? locationNeighborhoods : null,
       });
       toast.success('Filters applied!', { description: 'Your preferences have been saved.' });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error', { description: 'Failed to save preferences.' });
     }
 
@@ -199,7 +198,7 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interestType, propertyTypes, selectedBudgetRange, rentalDuration, bedrooms, bathrooms, amenities, petFriendly, furnished, locationCountries, locationCities, locationNeighborhoods]);
 
-  const handleClear = () => {
+  const _handleClear = () => {
     setInterestType('both');
     setPropertyTypes([]);
     setSelectedBudgetRange('');
@@ -232,7 +231,7 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
     onApply({});
   };
 
-  const handleSavePreferences = async () => {
+  const _handleSavePreferences = async () => {
     try {
       const budgetValues = getBudgetValues();
       await savePreferencesMutation.mutateAsync({
@@ -247,7 +246,7 @@ export function PropertyClientFilters({ onApply, initialFilters = {}, activeCoun
         furnished_required: furnished,
       });
       toast.success('Preferences saved!', { description: 'Your property filter preferences have been saved.' });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error', { description: 'Failed to save preferences.' });
     }
   };

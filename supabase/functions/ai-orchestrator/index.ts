@@ -37,7 +37,7 @@ const EnhanceSchema = z.object({
 
 const ConversationSchema = z.object({
   message: z.string().min(1),
-  extractedData: z.record(z.any()),
+  extractedData: z.record(z.unknown()),
   isComplete: z.boolean(),
   nextSteps: z.string().optional(),
 }).passthrough();

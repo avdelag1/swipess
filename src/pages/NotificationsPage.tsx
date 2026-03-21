@@ -1,19 +1,16 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Bell, MessageSquare, Flame, Star, Sparkles, Trash2,
-  MoreHorizontal, Heart, Home, Ship, Bike, Car,
-  ExternalLink, X, Clock, MapPin, Zap, ChevronRight
+  Heart, X, MapPin
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useUserRole } from '@/hooks/useUserRole';
 import { useLikedProperties } from '@/hooks/useLikedProperties';
 import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,12 +18,6 @@ import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,7 +48,7 @@ interface Notification {
   };
 }
 
-const NotificationIcon = ({ type, role = 'neutral' }: { type: string; role?: 'client' | 'owner' | 'neutral' }) => {
+const NotificationIcon = ({ type, role: _role = 'neutral' }: { type: string; role?: 'client' | 'owner' | 'neutral' }) => {
   const baseClass = "w-5 h-5 transition-transform group-hover:scale-110";
   switch (type) {
     case 'new_message':
@@ -82,10 +73,10 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState('activity');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deletingAll, setDeletingAll] = useState(false);
-  const [removingLikeId, setRemovingLikeId] = useState<string | null>(null);
+  const [_removingLikeId, setRemovingLikeId] = useState<string | null>(null);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const _isDark = theme === 'dark';
   const { data: likedProperties, isLoading: likedLoading } = useLikedProperties();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -128,6 +119,7 @@ export default function NotificationsPage() {
       channel.unsubscribe();
       supabase.removeChannel(channel);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const markAllAsReadSilently = async () => {
@@ -167,7 +159,7 @@ export default function NotificationsPage() {
       const { error } = await supabase.from('notifications').delete().eq('id', id);
       if (error) throw error;
       setNotifications(prev => prev.filter(n => n.id !== id));
-    } catch (e) { toast.error('Failed to delete'); }
+    } catch (_e) { toast.error('Failed to delete'); }
   };
 
   const deleteAllNotifications = async () => {
@@ -177,7 +169,7 @@ export default function NotificationsPage() {
       await supabase.from('notifications').delete().eq('user_id', user.id);
       setNotifications([]);
       toast.success('Clear!');
-    } catch (e) { toast.error('Failed to clear'); }
+    } catch (_e) { toast.error('Failed to clear'); }
     finally { setDeletingAll(false); setDeleteDialogOpen(false); }
   };
 
@@ -190,7 +182,7 @@ export default function NotificationsPage() {
       await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', listingId).eq('target_type', 'listing');
       queryClient.invalidateQueries({ queryKey: ['liked-properties'] });
       toast.success('Removed');
-    } catch (e) { toast.error('Failed'); }
+    } catch (_e) { toast.error('Failed'); }
     finally { setRemovingLikeId(null); }
   };
 

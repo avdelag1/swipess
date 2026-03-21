@@ -33,10 +33,10 @@ export function PushNotificationPrompt() {
           duration: 5000 
         });
       }
-    } catch (error) {
-      toast.error("Something went wrong", { 
-        description: "Please try again later.", 
-        duration: 4000 
+    } catch (_error) {
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+        duration: 4000
       });
     } finally {
       setIsLoading(false);

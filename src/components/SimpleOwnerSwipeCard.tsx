@@ -235,13 +235,13 @@ interface SimpleOwnerSwipeCardProps {
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
   onSwipe,
-  onTap,
+  onTap: _onTap,
   onDetails,
   onInsights,
-  onMessage,
-  onShare,
-  onUndo,
-  canUndo,
+  onMessage: _onMessage,
+  onShare: _onShare,
+  onUndo: _onUndo,
+  canUndo: _canUndo,
   isTop = true,
   fullScreen = false,
 }, ref) => {
@@ -277,7 +277,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [magnifierActive, setMagnifierActive] = useState(false);
+  const [_magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     // FIX: Add null check for profile
@@ -323,6 +323,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         x.set(0);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.user_id, x, y]);
 
 
@@ -445,7 +446,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [profile?.user_id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     if (!isDragging.current && onDetails) {
@@ -523,7 +524,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
     // SAFETY NET: If animation callback doesn't fire within 350ms, force it
     setTimeout(fireSwipe, 350);
-  }, [profile?.user_id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
   useImperativeHandle(ref, () => ({

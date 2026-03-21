@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Camera, Send, Loader2, CheckCircle2, Circle, Upload, MessageSquare, ArrowLeft, ArrowRight, Sparkles, X, Building2, Bike, Briefcase } from 'lucide-react';
+import { Camera, Send, Loader2, CheckCircle2, Upload, MessageSquare, ArrowLeft, ArrowRight, Sparkles, X, Building2, Bike, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -141,7 +141,7 @@ export function ConversationalListingCreator() {
         const imageUrl = await uploadImageToStorage(file, user.user.id);
         setImages(prev => [...prev, imageUrl]);
         uploadedCount++;
-      } catch (error) {
+      } catch (_error) {
         toast.error(`Failed to upload ${file.name}`);
       }
     }
@@ -177,7 +177,7 @@ export function ConversationalListingCreator() {
 
     try {
       await sendMessage(message);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Failed to send message');
     }
   };

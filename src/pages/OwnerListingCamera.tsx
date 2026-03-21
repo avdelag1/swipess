@@ -88,7 +88,7 @@ export default function OwnerListingCamera() {
           : `owners/${user.id}/listing_photos/${timestamp}_${i}.${fileExt}`;
 
         // Upload to Supabase Storage
-        const { data, error: uploadError } = await supabase.storage
+        const { data: _data, error: uploadError } = await supabase.storage
           .from('profile-images')
           .upload(fileName, blob, {
             contentType: `image/${fileExt}`,
@@ -148,7 +148,7 @@ export default function OwnerListingCamera() {
           },
         });
       }
-    } catch (error) {
+    } catch (_error) {
       // Clear timeout on error
       if (uploadTimeoutRef.current) {
         clearTimeout(uploadTimeoutRef.current);
@@ -167,6 +167,7 @@ export default function OwnerListingCamera() {
         setUploadProgress(0);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, navigate, returnPath, listingId, existingPhotos]);
 
   const handleCancel = useCallback(() => {

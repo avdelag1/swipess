@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, Calendar, DollarSign, Home, Users, Car } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, Home, Car } from 'lucide-react';
 import { ImageCarousel } from '@/components/ImageCarousel';
 
 interface PropertyPreviewDialogProps {

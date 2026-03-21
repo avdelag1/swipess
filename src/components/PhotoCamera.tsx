@@ -1,12 +1,11 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Camera, X, RotateCw, Maximize2 } from 'lucide-react';
+import { X, RotateCw, Maximize2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { applyFilter, FilterType } from '@/utils/photoFilters';
 import { triggerHaptic } from '@/utils/haptics';
 import { logger } from '@/utils/prodLogger';
 import PhotoCrop from './PhotoCrop';
-import UploadProgress from './UploadProgress';
 
 interface PhotoCameraProps {
   mode?: 'front' | 'rear';

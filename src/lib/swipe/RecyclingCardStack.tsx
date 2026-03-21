@@ -124,6 +124,7 @@ export const RecyclingCardStack = memo(forwardRef<
     return () => {
       engine.detach();
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [engineConfig]);
 
   // Get ref for current top card

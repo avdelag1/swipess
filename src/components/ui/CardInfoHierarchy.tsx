@@ -17,7 +17,7 @@
  */
 
 import { memo } from 'react';
-import { MapPin, DollarSign, Bed, Bath, Car, Bike, Briefcase, Anchor } from 'lucide-react';
+import { MapPin, DollarSign, Bed, Bath, Car, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge, RatingDisplay } from './TrustSignals';
 

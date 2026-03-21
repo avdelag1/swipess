@@ -45,7 +45,7 @@ export function useNotificationSystem() {
   const [pendingNotifications, setPendingNotifications] = useState<Notification[]>([]);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { getProfile } = useProfileCache();
+  const { getProfile: _getProfile } = useProfileCache();
 
   // OPTIMIZATION: Batch pending notifications every 100ms to reduce re-renders
   useEffect(() => {

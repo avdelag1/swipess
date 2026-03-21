@@ -16,7 +16,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useFilterStore } from '@/state/filterStore';
 import { logger } from '@/utils/prodLogger';
-import type { QuickFilterCategory, QuickFilterListingType } from '@/types/filters';
 
 const DEBOUNCE_MS = 1500;
 

@@ -14,7 +14,7 @@ import { memo, ReactNode } from 'react';
 import { Lock, Sparkles, Eye, Undo2, CheckCheck, Zap } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface FeaturePreviewProps {
   children: ReactNode;

@@ -86,7 +86,7 @@ export function MessageActivationPackages({
       const tokens = pkg.message_activations || pkg.tokens || 0;
       const pricePerToken = tokens > 0 ? pkg.price / tokens : 0;
 
-      const tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
+      const _tierMap: ('starter' | 'standard' | 'premium')[] = ['starter', 'standard', 'premium'];
       // If we have packages with specific tiers in DB, use them, otherwise map by index
       let tier: 'starter' | 'standard' | 'premium' = 'starter';
 

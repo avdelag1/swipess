@@ -26,7 +26,7 @@ export const APP_VERSION = `1.0.${BUILD_TIMESTAMP.slice(-6)}`;
 
 // Storage key for version tracking
 const VERSION_STORAGE_KEY = 'zwipes_app_version';
-const SW_REGISTRATION_KEY = 'zwipes_sw_registration';
+const _SW_REGISTRATION_KEY = 'zwipes_sw_registration';
 
 interface UpdateInfo {
   available: boolean;

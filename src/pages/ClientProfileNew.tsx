@@ -8,12 +8,11 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, Zap, MessageSquare
+  Flame, ThumbsUp, Settings, Radio, MessageSquare
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
 import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
-import { ExploreFeatureLinks } from "@/components/ExploreFeatureLinks";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";

@@ -7,7 +7,6 @@ import { logger } from '@/utils/prodLogger';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,9 +21,6 @@ import {
   Home,
   Bike,
   Wrench,
-  ChevronRight,
-  MessageSquare,
-  DollarSign,
   MapPin,
   Zap,
   CheckCircle2,
@@ -68,7 +64,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [location, setLocation] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [_isGenerating, setIsGenerating] = useState(false);
   const [generatedData, setGeneratedData] = useState<Record<string, unknown> | null>(null);
 
   const resetState = () => {
@@ -145,7 +141,7 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
           const imageUrl = await uploadImageToStorage(file, user.user.id);
           setImages(prev => [...prev, imageUrl]);
           uploadedCount++;
-        } catch (error) {
+        } catch (_error) {
           toast.error(`Failed to upload ${file.name}`);
         }
       }

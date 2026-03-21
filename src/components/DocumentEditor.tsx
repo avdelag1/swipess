@@ -1,14 +1,13 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   List, ListOrdered, Undo, Redo, Download, Printer, FileText,
-  Type, Minus, Plus
+  Minus, Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { sanitizeHTML, escapeHTML } from '@/utils/sanitizeHTML';

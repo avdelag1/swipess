@@ -23,7 +23,7 @@ export default function OwnerProfileCamera() {
         description: 'Your new photo has been saved as your profile photo.',
       });
       navigate(returnPath);
-    } catch (error) {
+    } catch (_error) {
       toast({
         title: 'Upload Failed',
         description: 'Failed to save your photo. Please try again.',

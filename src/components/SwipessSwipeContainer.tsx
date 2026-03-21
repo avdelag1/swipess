@@ -1,10 +1,9 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
+import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
@@ -23,17 +22,15 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession, getDeckFromSession } from '@/state/swipeDeckStore';
+import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigation, Users } from 'lucide-react';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
-import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
+import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -130,28 +127,6 @@ const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string 
     return categoryConfig.property;
   }
 };
-
-// Debounce utility for preventing rapid-fire actions
-function useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const callbackRef = useRef(callback);
-
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  return useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      callbackRef.current(...args);
-    }, delay);
-  }, [delay]) as T;
-}
 
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
@@ -253,6 +228,133 @@ const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting,
   );
 };
 
+// Module-level constant — no state dependencies, safe to share across sub-components
+const deckFadeVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
+  exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
+};
+
+// ── SwipeAllDashboard ────────────────────────────────────────────────────────
+// Shown when no category filter is selected so the user can pick a category.
+interface SwipeAllDashboardProps {
+  setCategories: (ids: any[]) => void;
+}
+
+const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
+  const allCategories = [
+    { id: 'property' as const, label: 'Properties', Icon: Home, color: 'text-primary', description: 'Houses, apartments & rooms' },
+    { id: 'motorcycle' as const, label: 'Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500', description: 'Mopeds, scooters & bikes' },
+    { id: 'bicycle' as const, label: 'Bicycles', Icon: Bike, color: 'text-emerald-500', description: 'City, mountain & road bikes' },
+    { id: 'services' as const, label: 'Workers', Icon: Briefcase, color: 'text-purple-500', description: 'Skilled freelancers & staff' },
+  ];
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="all-dashboard"
+        variants={deckFadeVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="relative w-full flex-1 flex flex-col items-center justify-center px-4 py-6 pb-32 overflow-y-auto"
+        style={{ minHeight: 'calc(100dvh - 140px)' }}
+      >
+        <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-gradient-to-br from-primary via-brand-accent-2 to-purple-500 blur-3xl" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-xs"
+        >
+          <div className="text-center mb-8">
+            <p className="text-sm text-muted-foreground">Choose one of these to start swiping</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {allCategories.map(({ id, label, Icon, color, description }, i) => (
+              <motion.button
+                key={id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
+                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                onClick={() => setCategories([id])}
+                className="relative flex flex-col items-center gap-3 p-5 rounded-2xl text-center transition-all active:brightness-95"
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
+                <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/20 flex items-center justify-center ${color} shadow-sm`}>
+                  <Icon className="w-7 h-7" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <div className="text-sm font-black text-foreground tracking-tight">{label}</div>
+                  <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{description}</div>
+                </div>
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+// ── SwipeLoadingSkeleton ─────────────────────────────────────────────────────
+// GPU-accelerated skeleton shown on first load before data hydration.
+const SwipeLoadingSkeleton = () => (
+  <AnimatePresence mode="wait">
+    <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
+      <div className="relative flex-1 w-full">
+        <div className="absolute inset-0 overflow-hidden" style={{ transform: 'translateZ(0)', contain: 'paint' }}>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)' }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
+              transform: 'translateZ(0)',
+            }}
+          />
+          <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
+            {[1, 2, 3, 4].map((num) => (
+              <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/30" />
+            ))}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 rounded-t-[24px] p-4 pt-6">
+            <div className="flex justify-center mb-2">
+              <div className="w-10 h-1.5 bg-white/30 rounded-full" />
+            </div>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-3/4 bg-white/20 rounded-lg" />
+                <div className="h-4 w-1/2 bg-white/15 rounded-lg" />
+              </div>
+              <div className="text-right space-y-1">
+                <div className="h-6 w-20 bg-white/20 rounded-lg" />
+                <div className="h-3 w-12 bg-white/15 rounded-lg ml-auto" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="h-4 w-12 bg-white/15 rounded-full" />
+              <div className="h-4 w-12 bg-white/15 rounded-full" />
+              <div className="h-4 w-16 bg-white/15 rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
+          <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
+          <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
+          <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
+        </div>
+      </div>
+    </motion.div>
+  </AnimatePresence>
+);
+
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
   onInsights?: (listingId: string) => void;
@@ -266,9 +368,9 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageClick, locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const [page, setPage] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [insightsModalOpen, setInsightsModalOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -326,7 +428,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // FIX: Track deck length in state to force re-render when listings are appended
   // Without this, appending to deckQueueRef doesn't trigger re-render and empty state persists
-  const [deckLength, setDeckLength] = useState(0);
+  const [_deckLength, setDeckLength] = useState(0);
 
   // Prevents skeleton flash when filters change — holds back skeleton for one render frame
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -358,7 +460,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const deckQueueRef = useRef<any[]>(getInitialDeck());
   const currentIndexRef = useRef(useSwipeDeckStore.getState().clientDeck.currentIndex);
   const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDeck.swipedIds));
-  const initializedRef = useRef(deckQueueRef.current.length > 0);
+  const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   // Ref to trigger swipe animations from the fixed action buttons
   const cardRef = useRef<SimpleSwipeCardRef>(null);
@@ -377,7 +479,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const isReturningRef = useRef(
     deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDeck.isReady
   );
-  const hasAnimatedOnceRef = useRef(isReturningRef.current);
+  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
@@ -448,7 +550,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { /* Ignore session storage errors */ }
   }, []);
 
   // PERF FIX: Removed competing filter hydration from client_filter_preferences.
@@ -459,20 +561,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // Cleanup on unmount
   useEffect(() => {
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, []);
 
   // Hooks for functionality
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
   const navigate = useNavigate();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const swipeMutation = useSwipe();
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
-  const { dismissedIds, dismissTarget, filterDismissed } = useSwipeDismissal('listing');
+  const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('listing');
 
   // FIX: Sync local state when undo completes successfully
   useEffect(() => {
@@ -653,8 +756,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       }, 300);
     }
 
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
 
   }, [currentIndex, prefetchListingDetails, isDashboard]); // currentIndex updates on each swipe, triggering reliable prefetch
@@ -709,6 +813,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
 
     isFetchingMore.current = false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   // Get current visible cards for 2-card stack (top + next)
@@ -717,7 +822,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
-  const nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
+  const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   // =============================================================================
   // FIX #1: SWIPE PHASE ISOLATION - Two-phase swipe for Tinder-level feel
@@ -864,6 +969,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
   // PHASE 1: Called when user swipes - ONLY updates refs and triggers animation
@@ -972,7 +1078,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       toast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, {
         description: `Showing ${refreshLabel} you passed on. Liked ones stay saved!`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast.error('Refresh Failed', {
         description: 'Please try again.',
       });
@@ -1122,13 +1228,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
   }, []);
 
-  const progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
-
-  const deckFadeVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
-    exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
-  };
+  const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
   // isReady means we've fully initialized at least once - skip loading UI on return
@@ -1136,145 +1236,13 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const hasHydratedData = (isClientHydrated() || isClientReady() || deckQueue.length > 0) && !isLoading;
 
   // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
-  // When the user has not chosen a specific category, show a category overview
-  // so they can pick what they want to browse instead of defaulting to properties.
   if (storeCategories.length === 0) {
-    const allCategories = [
-      { id: 'property' as const, label: 'Properties', Icon: Home, color: 'text-primary', description: 'Houses, apartments & rooms' },
-      { id: 'motorcycle' as const, label: 'Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500', description: 'Mopeds, scooters & bikes' },
-      { id: 'bicycle' as const, label: 'Bicycles', Icon: Bike, color: 'text-emerald-500', description: 'City, mountain & road bikes' },
-      { id: 'services' as const, label: 'Workers', Icon: Briefcase, color: 'text-purple-500', description: 'Skilled freelancers & staff' },
-    ];
-
-    return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="all-dashboard"
-          variants={deckFadeVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          className="relative w-full flex-1 flex flex-col items-center justify-center px-4 py-6 pb-32 overflow-y-auto"
-          style={{ minHeight: 'calc(100dvh - 140px)' }}
-        >
-          {/* Subtle background glow */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-gradient-to-br from-primary via-brand-accent-2 to-purple-500 blur-3xl" />
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-xs"
-          >
-            {/* Instruction */}
-            <div className="text-center mb-8">
-              <p className="text-sm text-muted-foreground">Choose one of these to start swiping</p>
-            </div>
-
-            {/* Category grid — 2×2 */}
-            <div className="grid grid-cols-2 gap-3">
-              {allCategories.map(({ id, label, Icon, color, description }, i) => (
-                <motion.button
-                  key={id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-                  whileTap={{ scale: 0.95 }}
-                  whileHover={{ scale: 1.02 }}
-                  onClick={() => setCategories([id])}
-                  className="relative flex flex-col items-center gap-3 p-5 rounded-2xl text-center transition-all active:brightness-95"
-                  style={{ WebkitTapHighlightColor: 'transparent' }}
-                >
-                  {/* Icon circle */}
-                  <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/20 flex items-center justify-center ${color} shadow-sm`}>
-                    <Icon className="w-7 h-7" strokeWidth={1.5} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-black text-foreground tracking-tight">{label}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{description}</div>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        </motion.div>
-      </AnimatePresence>
-    );
+    return <SwipeAllDashboard setCategories={setCategories} />;
   }
 
   // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
-  // Once hydrated or ready, never show full skeleton again (use placeholderData from query)
-  // PERF: GPU-accelerated skeleton to match card styling
   if (!hasHydratedData && isLoading && !isTransitioning) {
-    return (
-      <AnimatePresence mode="wait">
-      <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
-        <div className="relative flex-1 w-full">
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{
-              transform: 'translateZ(0)',
-              contain: 'paint',
-            }}
-          >
-            {/* Base gradient - matches TinderSwipeCard skeleton */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)',
-              }}
-            />
-            {/* Animated shimmer - GPU accelerated */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-                transform: 'translateZ(0)',
-              }}
-            />
-            {/* Story dots placeholder */}
-            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/30" />
-              ))}
-            </div>
-            {/* Bottom sheet skeleton */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 rounded-t-[24px] p-4 pt-6">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-              </div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 space-y-2">
-                  <div className="h-5 w-3/4 bg-white/20 rounded-lg" />
-                  <div className="h-4 w-1/2 bg-white/15 rounded-lg" />
-                </div>
-                <div className="text-right space-y-1">
-                  <div className="h-6 w-20 bg-white/20 rounded-lg" />
-                  <div className="h-3 w-12 bg-white/15 rounded-lg ml-auto" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="h-4 w-12 bg-white/15 rounded-full" />
-                <div className="h-4 w-12 bg-white/15 rounded-full" />
-                <div className="h-4 w-16 bg-white/15 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Action buttons skeleton */}
-        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-          </div>
-        </div>
-      </motion.div>
-      </AnimatePresence>
-    );
+    return <SwipeLoadingSkeleton />;
   }
 
   // CRITICAL FIX: Show "All Caught Up" when user has swiped through cards
@@ -1541,9 +1509,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // Get current category info for the page title
   const activeCategoryInfo = getActiveCategoryInfo(filters);
-  const activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
-  const ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
-  const activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
+  const _activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
+  const _ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
+  const _activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
 
   // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
   return (

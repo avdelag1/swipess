@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Users } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 interface ChatMessage {
@@ -34,7 +33,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(diff / 86400)}d`;
 }
 
-export function EventGroupChat({ eventId, eventTitle, onClose }: EventGroupChatProps) {
+export function EventGroupChat({ eventId: _eventId, eventTitle, onClose }: EventGroupChatProps) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>(MOCK_MESSAGES);
   const [input, setInput] = useState('');

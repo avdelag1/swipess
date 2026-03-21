@@ -1,11 +1,9 @@
-import React, { useState, useRef, useEffect, memo, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Send, AlertCircle, Zap, ChevronLeft, User, Home, Info, ChevronRight, ThumbsUp, Star, Smile } from 'lucide-react';
+import { Send, AlertCircle, Zap, ChevronLeft, Info, Star, Smile } from 'lucide-react';
 import { useConversationMessages, useSendMessage } from '@/hooks/useConversations';
 import { useRealtimeChat } from '@/hooks/useRealtimeChat';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
@@ -15,7 +13,6 @@ import { formatDistanceToNow } from '@/utils/timeFormatter';
 import { useQueryClient } from '@tanstack/react-query';
 import { MessageActivationPackages } from '@/components/MessageActivationPackages';
 import { MessageActivationBanner } from '@/components/MessageActivationBanner';
-import { SubscriptionPackages } from '@/components/SubscriptionPackages';
 import { ChatPreviewSheet } from '@/components/ChatPreviewSheet';
 import { logger } from '@/utils/prodLogger';
 import { VirtualizedMessageList } from '@/components/VirtualizedMessageList';
@@ -132,10 +129,10 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { data: messages = [], isLoading } = useConversationMessages(conversationId);
   const sendMessage = useSendMessage();
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousMessageCountRef = useRef(0);
@@ -143,7 +140,7 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
   const connectingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check monthly message limits
-  const { canSendMessage, messagesRemaining, isAtLimit, hasMonthlyLimit } = useMonthlyMessageLimits();
+  const { canSendMessage: _canSendMessage, messagesRemaining, isAtLimit, hasMonthlyLimit } = useMonthlyMessageLimits();
 
   // Enable realtime chat for live message updates
   const { startTyping, stopTyping, typingUsers, isConnected } = useRealtimeChat(conversationId);

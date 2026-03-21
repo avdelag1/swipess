@@ -1,6 +1,6 @@
 import { memo, useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Car, Bike, Ship, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Filter, X, Check } from 'lucide-react';
+import { Home, Bike, RotateCcw, Users, User, ChevronDown, Wrench, Filter, X, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
@@ -122,6 +122,7 @@ function CascadeFilterButtonComponent({ filters, onChange, userRole = 'client' }
     } else {
       onChange({ ...filters, categories: [...allCategoryIds] });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, onChange, allSelected]);
 
   const handleListingTypeChange = useCallback((type: QuickFilterListingType) => {

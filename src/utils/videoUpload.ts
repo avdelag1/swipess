@@ -11,7 +11,7 @@ export async function uploadListingVideo(userId: string, videoBlob: Blob): Promi
         const fileExt = videoBlob.type.includes('mp4') ? 'mp4' : 'webm';
         const filePath = `${userId}/${crypto.randomUUID()}.${fileExt}`;
 
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError, data: _data } = await supabase.storage
             .from('listing-videos')
             .upload(filePath, videoBlob, {
                 contentType: videoBlob.type,

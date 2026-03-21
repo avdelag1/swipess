@@ -62,7 +62,7 @@ export function SharedProfileSection({
   };
 
   const handleWhatsAppShare = () => shareViaWhatsApp(shareUrl, shareText);
-  const handleFacebookShare = () => shareViaFacebook(shareUrl);
+  const _handleFacebookShare = () => shareViaFacebook(shareUrl);
   const handleTwitterShare = () => shareViaTwitter(shareUrl, shareText);
 
   // Instagram share (copy link + open Instagram)

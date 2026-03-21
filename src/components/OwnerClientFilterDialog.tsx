@@ -103,7 +103,7 @@ function PillToggle({
 }
 
 // Segmented control matching client style
-function SegmentedControl({
+function _SegmentedControl({
   options,
   value,
   onChange,

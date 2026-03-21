@@ -1,4 +1,3 @@
-import { Card, CardContent } from '@/components/ui/card';
 import { Home, Eye, DollarSign, Activity, TrendingUp, Bike, Car } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { motion } from 'framer-motion';

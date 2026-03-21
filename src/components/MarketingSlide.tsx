@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Home, ShieldCheck, Scale, Bike, Wrench, Star, MessageCircle, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Scale, Bike, Wrench, Star, MessageCircle, AlertTriangle } from 'lucide-react';
 import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 
 interface MarketingSlideProps {
@@ -10,7 +10,7 @@ interface MarketingSlideProps {
 const slideData: Record<string, {
     title: string;
     subtitle: string;
-    icon: React.ComponentType<{ className?: string }>;
+    icon: React.ComponentType<any>;
     gradient: string;
     badge?: string;
 }> = {

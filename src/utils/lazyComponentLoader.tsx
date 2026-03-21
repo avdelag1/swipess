@@ -5,9 +5,9 @@
  */
 
 import { lazy, Suspense, ReactNode, ComponentType, LazyExoticComponent } from 'react';
+import { logger } from '@/utils/prodLogger';
 
- 
-type AnyProps = any;
+type AnyProps = Record<string, any>;
 
 /**
  * Create a lazy-loaded component with a fallback
@@ -45,14 +45,14 @@ export function preloadComponent(
 ): void {
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => {
-      importFn().catch(() => {
-        // Silently fail, component will still load when needed
+      importFn().catch((error: unknown) => {
+        logger.log('[lazyComponentLoader] Preload failed, will retry on demand', error);
       });
     });
   } else {
     setTimeout(() => {
-      importFn().catch(() => {
-        // Silently fail
+      importFn().catch((error: unknown) => {
+        logger.log('[lazyComponentLoader] Preload failed, will retry on demand', error);
       });
     }, 2000);
   }
@@ -67,16 +67,16 @@ export function preloadComponents(
   if ('requestIdleCallback' in window) {
     requestIdleCallback(() => {
       importFns.forEach(importFn => {
-        importFn().catch(() => {
-          // Silently fail
+        importFn().catch((error: unknown) => {
+          logger.log('[lazyComponentLoader] Batch preload failed, will retry on demand', error);
         });
       });
     });
   } else {
     setTimeout(() => {
       importFns.forEach(importFn => {
-        importFn().catch(() => {
-          // Silently fail
+        importFn().catch((error: unknown) => {
+          logger.log('[lazyComponentLoader] Batch preload failed, will retry on demand', error);
         });
       });
     }, 2000);
@@ -95,8 +95,8 @@ export function createHoverPreloader(
   return () => {
     if (!preloaded) {
       preloaded = true;
-      importFn().catch(() => {
-        // Silently fail
+      importFn().catch((error: unknown) => {
+        logger.log('[lazyComponentLoader] Hover preload failed, will retry on demand', error);
       });
     }
   };

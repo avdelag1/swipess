@@ -106,7 +106,7 @@ export function useScrollDirection({
     let animationFrameId: number | null = null;
     
     // Main scroll handler - runs on every scroll event
-    const handleScroll = (event: Event) => {
+    const handleScroll = (_event: Event) => {
       // Only process if not already processing
       if (ticking.current) return;
       

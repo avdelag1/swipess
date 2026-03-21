@@ -95,14 +95,14 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
-// Mini-game (disabled — re-enable when ready)
-// const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
+// Mini-game
+const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
 
 // Shared routes - lazy loaded
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
-const MyHub = lazy(() => import("./pages/MyHub"));
+const _MyHub = lazy(() => import("./pages/MyHub"));
 const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
 const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
@@ -111,6 +111,7 @@ const RadioFavorites = lazy(() => import("./pages/RadioFavorites"));
 // New feature pages - lazy loaded
 const EventosFeed = lazy(() => import("./pages/EventosFeed"));
 const EventoDetail = lazy(() => import("./pages/EventoDetail"));
+const PromotionRequest = lazy(() => import("./pages/PromotionRequest"));
 const AdminEventos = lazy(() => import("./pages/AdminEventos"));
 const PriceTracker = lazy(() => import("./pages/PriceTracker"));
 const VideoTours = lazy(() => import("./pages/VideoTours"));
@@ -317,6 +318,7 @@ const App = () => {
 
                                         {/* New feature routes */}
                                         <Route path="/explore/eventos" element={<EventosFeed />} />
+                                        <Route path="/explore/eventos/promote" element={<PromotionRequest />} />
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
                                         <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
@@ -326,8 +328,8 @@ const App = () => {
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
 
-                                        {/* Mini-game disabled — re-enable when ready */}
-                                        {/* <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} /> */}
+                                        {/* Mini-game */}
+                                        <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} />
                                       </Route>
 
                                       {/* Payment routes - outside layout */}

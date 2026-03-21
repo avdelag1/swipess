@@ -29,7 +29,7 @@ export function OwnerSettingsDialog({ open, onOpenChange }: OwnerSettingsDialogP
         return;
       }
 
-      const { data, error } = await supabase.functions.invoke('delete-user', {
+      const { data: _data, error } = await supabase.functions.invoke('delete-user', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },

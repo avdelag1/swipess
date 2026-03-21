@@ -99,7 +99,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   const parsedResult = propertyFormSchema.safeParse(initialData);
   const safeInitialData = parsedResult.success ? parsedResult.data : {};
 
-  const { register, control, watch, setValue, formState: { errors } } = useForm<PropertyFormData>({
+  const { register, control, watch, setValue } = useForm<PropertyFormData>({
     defaultValues: {
       amenities: [],
       services_included: [],

@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/sonner';
 
 // Feature flag for attachments
-const ATTACHMENTS_ENABLED = false;
+const _ATTACHMENTS_ENABLED = false;
 
 export interface MessageAttachment {
   id: string;
@@ -28,16 +27,16 @@ export const useMessageAttachments = (messageId: string) => {
 };
 
 export const useUploadAttachment = () => {
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ 
-      messageId, 
-      file, 
-      attachmentType 
-    }: { 
-      messageId: string; 
-      file: File; 
+    mutationFn: async ({
+      messageId: _messageId,
+      file: _file,
+      attachmentType: _attachmentType
+    }: {
+      messageId: string;
+      file: File;
       attachmentType: 'image' | 'document' | 'video';
     }) => {
       // Feature is disabled - return null gracefully
@@ -46,7 +45,7 @@ export const useUploadAttachment = () => {
     onSuccess: () => {
       // Don't show success toast when feature is disabled
     },
-    onError: (error: Error) => {
+    onError: (_error: Error) => {
       toast({
         title: 'Upload Failed',
         description: 'File attachments feature is not yet available.',
@@ -57,7 +56,7 @@ export const useUploadAttachment = () => {
 };
 
 export const useDeleteAttachment = () => {
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (_attachmentId: string) => {
@@ -67,7 +66,7 @@ export const useDeleteAttachment = () => {
     onSuccess: () => {
       // Don't show success toast when feature is disabled
     },
-    onError: (error: Error) => {
+    onError: (_error: Error) => {
       toast({
         title: 'Delete Failed',
         description: 'File attachments feature is not yet available.',
