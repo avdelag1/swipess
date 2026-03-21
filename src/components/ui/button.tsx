@@ -39,19 +39,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-background text-foreground shadow-[6px_6px_14px_rgba(0,0,0,0.1),-6px_-6px_14px_rgba(255,255,255,0.7)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.7)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.4),-4px_-4px_10px_rgba(255,255,255,0.05)] dark:hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-shadow duration-300',
+          'animal-print-fur shadow-[6px_6px_14px_rgba(0,0,0,0.3),-6px_-6px_14px_rgba(255,255,255,0.2)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.15)] transition-shadow duration-300',
         destructive:
-          'bg-red-50 text-red-600 shadow-[6px_6px_14px_rgba(220,38,38,0.15),-6px_-6px_14px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(220,38,38,0.15),inset_-4px_-4px_8px_rgba(255,255,255,0.8)] dark:bg-red-900/20 dark:text-red-400 dark:shadow-[6px_6px_14px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(220,38,38,0.05)] transition-shadow duration-300',
+          'animal-print-fur !text-red-100 shadow-[6px_6px_14px_rgba(220,38,38,0.4),-6px_-6px_14px_rgba(255,255,255,0.2)] hover:shadow-[inset_4px_4px_8px_rgba(220,38,38,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.15)] transition-shadow duration-300',
         outline:
-          'bg-background text-foreground shadow-[4px_4px_10px_rgba(0,0,0,0.08),-4px_-4px_10px_rgba(255,255,255,0.6)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.08),inset_-3px_-3px_6px_rgba(255,255,255,0.6)] dark:shadow-[4px_4px_10px_rgba(0,0,0,0.3),-3px_-3px_8px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(255,255,255,0.04)] transition-shadow duration-300',
+          'animal-print-fur opacity-90 hover:opacity-100 shadow-[4px_4px_10px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(255,255,255,0.2)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.4),inset_-3px_-3px_6px_rgba(255,255,255,0.15)] transition-all duration-300',
         secondary:
-          'bg-secondary/60 text-secondary-foreground shadow-[5px_5px_12px_rgba(0,0,0,0.08),-5px_-5px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.08),inset_-3px_-3px_8px_rgba(255,255,255,0.8)] dark:shadow-[5px_5px_12px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(255,255,255,0.05)] transition-shadow duration-300',
+          'animal-print-fur opacity-95 hover:opacity-100 shadow-[5px_5px_12px_rgba(0,0,0,0.3),-5px_-5px_12px_rgba(255,255,255,0.2)] hover:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.4),inset_-3px_-3px_8px_rgba(255,255,255,0.15)] transition-all duration-300',
         ghost: 'hover:bg-accent/50 hover:text-accent-foreground rounded-2xl',
         link: 'text-primary underline-offset-4 hover:underline shadow-none',
         premium:
-          'bg-gradient-premium text-white shadow-[0_8px_20px_rgba(147,51,234,0.3),inset_0_2px_4px_rgba(255,255,255,0.4)] hover:shadow-[0_4px_10px_rgba(147,51,234,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] hover:scale-[0.98] transition-all duration-300',
+          'animal-print-fur shadow-[0_8px_20px_rgba(0,0,0,0.5),inset_0_2px_4px_rgba(255,255,255,0.4)] hover:shadow-[0_4px_10px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.3)] hover:scale-[0.98] transition-all duration-300',
         tinder:
-          'bg-background text-foreground shadow-[8px_8px_16px_rgba(0,0,0,0.08),-8px_-8px_16px_rgba(255,255,255,0.7)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.4),-6px_-6px_14px_rgba(255,255,255,0.03)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.08),inset_-5px_-5px_10px_rgba(255,255,255,0.7)] transition-shadow duration-300',
+          'animal-print-fur shadow-[8px_8px_16px_rgba(0,0,0,0.4),-8px_-8px_16px_rgba(255,255,255,0.15)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(255,255,255,0.15)] transition-shadow duration-300',
         /**
          * LIQUID GLASS variants — 2026 flagship buttons
          *
@@ -80,9 +80,9 @@ const buttonVariants = cva(
          * PUSH BUTTON variant — dynamic neon gradient
          */
         gradient:
-          'bg-gradient-to-br from-pink-500 to-orange-500 text-white ' +
-          'shadow-[6px_6px_14px_rgba(236,72,153,0.3),-4px_-4px_10px_rgba(255,255,255,0.2),inset_2px_2px_4px_rgba(255,255,255,0.3)] ' +
-          'hover:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.15),inset_-4px_-4px_10px_rgba(255,255,255,0.2)] dark:shadow-[6px_6px_16px_rgba(236,72,153,0.4),-4px_-4px_12px_rgba(255,255,255,0.05)] transition-shadow duration-300',
+          'animal-print-fur ' +
+          'shadow-[6px_6px_14px_rgba(0,0,0,0.4),-4px_-4px_10px_rgba(255,255,255,0.2),inset_2px_2px_4px_rgba(255,255,255,0.3)] ' +
+          'hover:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.5),inset_-4px_-4px_10px_rgba(255,255,255,0.1)] transition-shadow duration-300',
       },
       size: {
         default: 'h-12 px-6 py-3',
