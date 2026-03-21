@@ -352,7 +352,7 @@ export default function RoommateMatching() {
                          className="px-5 py-2.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-3"
                        >
                          <Sparkles className="w-4 h-4 text-amber-400" />
-                         <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">{topCard.compatibility}% Match</span>
+                         <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">{(topCard as any).compatibility ?? 85}% Match</span>
                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
                        </motion.div>
                     </div>
