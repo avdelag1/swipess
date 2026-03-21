@@ -39,7 +39,7 @@ const VELOCITY_THRESHOLD = 400; // Velocity to trigger swipe
 const FALLBACK_PLACEHOLDER = ''; // Empty → CardImage renders branded PlaceholderImage
 
 // Max rotation angle (degrees) based on horizontal position
-const MAX_ROTATION = 18; // Increased from 12 for more dramatic swing
+const MAX_ROTATION = 28; // Increased for a more playful, dramatic swing
 
 // Calculate exit distance dynamically
 const getExitDistance = () => typeof window !== 'undefined' ? window.innerWidth * 1.5 : 800;
@@ -437,8 +437,6 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         drag
         dragControls={dragControls}
         dragListener={false}
-        dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-        dragElastic={0.9}
         dragMomentum={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
