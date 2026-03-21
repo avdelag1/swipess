@@ -279,10 +279,11 @@ const FAN_CARDS = [
 const CARD_W = 178;
 const CARD_H = 282;
 
-const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
+const FanPokerCard = memo(({ card, index, isHovered, isSelected, onTap, photoIdx }: {
   card: typeof FAN_CARDS[0];
   index: number;
   isHovered: boolean;
+  isSelected: boolean;
   onTap: () => void;
   photoIdx: number;
 }) => {
@@ -294,16 +295,23 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
       onClick={onTap}
       data-testid={`fan-filter-${card.id}`}
       initial={{ opacity: 0, scale: 0.72, rotate: card.rotate, x: card.tx, y: card.ty + 44 }}
-      animate={{
+      animate={isSelected ? {
         opacity: 1,
-        scale: isHovered ? 1.08 : 1,
+        scale: 1.18,
+        rotate: 0,
+        x: 0,
+        y: -28,
+        zIndex: 30,
+      } : {
+        opacity: 1,
+        scale: isHovered ? 1.07 : 1,
         rotate: card.rotate,
         x: card.tx,
-        y: isHovered ? card.ty - 18 : card.ty,
+        y: isHovered ? card.ty - 16 : card.ty,
         zIndex: isHovered ? 20 : index + 1,
       }}
-      transition={{ type: 'spring', stiffness: 280, damping: 26, mass: 0.85, delay: index * 0.065 }}
-      whileTap={{ scale: 0.95 }}
+      transition={{ type: 'spring', stiffness: 340, damping: 30, mass: 0.75, delay: isSelected ? 0 : index * 0.065 }}
+      whileTap={{ scale: isSelected ? 1.12 : 0.96 }}
       className="absolute"
       style={{
         width: CARD_W,
@@ -314,25 +322,28 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
         marginTop: -(CARD_H / 2),
         borderRadius: 22,
         overflow: 'hidden',
-        boxShadow: isHovered
+        boxShadow: isSelected
+          ? `0 32px 64px rgba(${card.accentRgb},0.55), 0 12px 32px rgba(0,0,0,0.6)`
+          : isHovered
           ? `0 26px 52px rgba(${card.accentRgb},0.42), 0 8px 24px rgba(0,0,0,0.5)`
           : `0 16px 40px rgba(0,0,0,0.48), 0 4px 12px rgba(0,0,0,0.28)`,
         transformOrigin: 'bottom center',
         WebkitTapHighlightColor: 'transparent',
-        border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.65 : 0.28})`,
+        border: `1.5px solid rgba(${card.accentRgb},${isSelected ? 0.85 : isHovered ? 0.55 : 0.28})`,
       }}
     >
       {/* Photo carousel — CSS crossfade, one card at a time */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-zinc-900">
         {photos.map((src, i) => (
           <img
             key={src}
             src={src}
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
             style={{
               opacity: i === activePhoto ? 1 : 0,
-              transition: 'opacity 2.2s cubic-bezier(0.4,0,0.2,1)',
+              transition: 'opacity 2.4s cubic-bezier(0.4,0,0.2,1)',
             }}
           />
         ))}
@@ -342,7 +353,7 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `linear-gradient(170deg, rgba(${card.accentRgb},0.07) 0%, rgba(0,0,0,0.12) 35%, rgba(0,0,0,0.76) 100%)`,
+          background: `linear-gradient(170deg, rgba(${card.accentRgb},0.06) 0%, rgba(0,0,0,0.10) 35%, rgba(0,0,0,0.78) 100%)`,
         }}
       />
 
@@ -351,7 +362,7 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
         className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{
           height: 56,
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.20) 0%, transparent 100%)',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
           borderRadius: '20px 20px 0 0',
         }}
       />
@@ -364,8 +375,8 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
             className="flex-1 rounded-full"
             style={{
               height: 2.5,
-              background: i === activePhoto ? `rgba(${card.accentRgb},1)` : 'rgba(255,255,255,0.30)',
-              transition: 'background 0.6s ease',
+              background: i === activePhoto ? `rgba(${card.accentRgb},1)` : 'rgba(255,255,255,0.28)',
+              transition: 'background 0.8s ease',
             }}
           />
         ))}
@@ -376,7 +387,7 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
         <div
           className="rounded-xl p-2.5"
           style={{
-            background: 'rgba(0,0,0,0.48)',
+            background: 'rgba(0,0,0,0.50)',
             backdropFilter: 'blur(14px)',
             border: '1px solid rgba(255,255,255,0.13)',
           }}
@@ -385,17 +396,20 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
             <span style={{ fontSize: 15 }}>{card.emoji}</span>
             <span className="text-white font-black text-[12px] tracking-tight leading-none">{card.label}</span>
           </div>
-          <p className="text-white/55 text-[10px] leading-tight">{card.description}</p>
+          <p className="text-white/55 text-[10px] leading-tight">
+            {isSelected ? 'Tap again to explore →' : card.description}
+          </p>
         </div>
       </div>
 
-      {/* Hover accent ring */}
-      {isHovered && (
+      {/* Selected: pulsing accent ring */}
+      {isSelected && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{ boxShadow: `inset 0 0 0 2px rgba(${card.accentRgb},0.65)`, borderRadius: 20 }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.85)`, borderRadius: 20 }}
         />
       )}
     </motion.button>
@@ -410,10 +424,12 @@ interface SwipeAllDashboardProps {
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  // Staggered photo cycling — one card changes at a time, sequentially
-  const [photoIndices, setPhotoIndices] = useState([0, 1, 2, 3]);
+  const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  // All cards start at photo 0 — guarantees first photo is always loaded
+  const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
   const cyclingCardRef = useRef(0);
 
+  // Staggered cycling: one card changes every 5 seconds, in sequence
   useEffect(() => {
     const interval = setInterval(() => {
       const cardTurn = cyclingCardRef.current;
@@ -423,14 +439,25 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         return next;
       });
       cyclingCardRef.current = (cardTurn + 1) % FAN_CARDS.length;
-    }, 1800); // one card changes every 1.8s — feels measured and cinematic
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
   const handleTap = useCallback((id: string) => {
     triggerHaptic('light');
-    setCategories([id]);
-  }, [setCategories]);
+    if (selectedCard === id) {
+      // Second tap on the same card — navigate
+      setCategories([id]);
+    } else {
+      // First tap — preview this card (bring to front)
+      setSelectedCard(id);
+    }
+  }, [selectedCard, setCategories]);
+
+  // Dismiss selection when tapping the backdrop
+  const handleBackdropTap = useCallback(() => {
+    if (selectedCard) setSelectedCard(null);
+  }, [selectedCard]);
 
   return (
     <AnimatePresence mode="wait">
@@ -442,28 +469,38 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         exit="exit"
         className="relative w-full flex-1 flex flex-col items-center justify-center"
         style={{ minHeight: 'calc(100dvh - 140px)' }}
+        onClick={handleBackdropTap}
       >
         {/* Subtle ambient glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full opacity-[0.07] blur-3xl bg-gradient-radial from-primary via-purple-500 to-transparent" />
         </div>
 
-        {/* Title */}
+        {/* Title — changes hint when a card is selected */}
         <motion.div
           className="text-center mb-10 z-10 relative"
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-            Tap a card to explore
-          </p>
+          <motion.p
+            key={selectedCard ?? 'default'}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground"
+          >
+            {selectedCard
+              ? `${FAN_CARDS.find(c => c.id === selectedCard)?.emoji} Tap again to explore`
+              : 'Tap a card to explore'}
+          </motion.p>
         </motion.div>
 
         {/* Fan of cards */}
         <div
           className="relative z-10"
           style={{ width: 340, height: 310 }}
+          onClick={e => e.stopPropagation()}
         >
           {FAN_CARDS.map((card, i) => (
             <FanPokerCard
@@ -471,6 +508,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
               card={card}
               index={i}
               isHovered={hoveredCard === card.id}
+              isSelected={selectedCard === card.id}
               onTap={() => handleTap(card.id)}
               photoIdx={photoIndices[i]}
             />
@@ -494,27 +532,6 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
             />
           ))}
         </div>
-
-        {/* Label strip below fan */}
-        <motion.div
-          className="flex gap-6 mt-6 z-10 relative"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.4 }}
-        >
-          {FAN_CARDS.map(card => (
-            <button
-              key={`label-${card.id}`}
-              onClick={() => handleTap(card.id)}
-              data-testid={`fan-label-${card.id}`}
-              className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity"
-              style={{ WebkitTapHighlightColor: 'transparent' }}
-            >
-              <span style={{ fontSize: 18 }}>{card.emoji}</span>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{card.label}</span>
-            </button>
-          ))}
-        </motion.div>
       </motion.div>
     </AnimatePresence>
   );
