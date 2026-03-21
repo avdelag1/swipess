@@ -300,15 +300,16 @@ const FAN_CARDS = [
 ];
 
 // Card dimensions — large enough to feel immersive, tight enough to fit the fan
-const CARD_W = 252;
-const CARD_H = 430;
+const CARD_W = 240;
+const CARD_H = 420;
 
-// Fan geometry — very slight tilt so cards feel almost upright
+// Fan geometry — gentle tilt with wide spread so each card edge is tappable
+// Each outer card has ~40px of exposed edge visible for touch targets
 const FAN_CARDS_WITH_POS = [
-  { ...FAN_CARDS[0], rotate: -4.5, tx: -16, ty: 8  },
-  { ...FAN_CARDS[1], rotate: -1.5, tx: -6,  ty: 2  },
-  { ...FAN_CARDS[2], rotate: 1.5,  tx: 6,   ty: 2  },
-  { ...FAN_CARDS[3], rotate: 4.5,  tx: 16,  ty: 8  },
+  { ...FAN_CARDS[0], rotate: -6,   tx: -58, ty: 14 },
+  { ...FAN_CARDS[1], rotate: -2,   tx: -20, ty: 3  },
+  { ...FAN_CARDS[2], rotate: 2,    tx: 20,  ty: 3  },
+  { ...FAN_CARDS[3], rotate: 6,    tx: 58,  ty: 14 },
 ];
 
 const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
@@ -331,7 +332,7 @@ const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
       } : {
         opacity: 1, scale: 1, rotate: card.rotate, x: card.tx, y: card.ty, zIndex: index + 1,
       }}
-      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isPreviewing ? 0 : index * 0.055 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isPreviewing ? 0 : index * 0.18 }}
       whileTap={{ scale: 0.97 }}
       className="absolute pointer-events-auto"
       style={{
@@ -488,7 +489,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan container — stop propagation so card taps don't hit the backdrop */}
         <div
           className="relative"
-          style={{ width: '100%', maxWidth: 420, height: CARD_H + 36, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 460, height: CARD_H + 50, zIndex: 10 }}
           onClick={e => e.stopPropagation()}
         >
           {FAN_CARDS_WITH_POS.map((card, i) => (
