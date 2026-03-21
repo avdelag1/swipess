@@ -154,6 +154,18 @@ html {
   --safe-right: env(safe-area-inset-right, 0px);
 }
 
+button,
+a,
+[role="button"],
+input,
+select,
+textarea,
+label,
+summary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   font-weight: 500;

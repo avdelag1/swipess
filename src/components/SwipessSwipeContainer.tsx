@@ -299,17 +299,14 @@ const FAN_CARDS = [
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-// Card dimensions — large enough to feel immersive, tight enough to fit the fan
-const CARD_W = 240;
-const CARD_H = 420;
+const CARD_W = 220;
+const CARD_H = 400;
 
-// Fan geometry — gentle tilt with wide spread so each card edge is tappable
-// Each outer card has ~40px of exposed edge visible for touch targets
 const FAN_CARDS_WITH_POS = [
-  { ...FAN_CARDS[0], rotate: -6,   tx: -58, ty: 14 },
-  { ...FAN_CARDS[1], rotate: -2,   tx: -20, ty: 3  },
-  { ...FAN_CARDS[2], rotate: 2,    tx: 20,  ty: 3  },
-  { ...FAN_CARDS[3], rotate: 6,    tx: 58,  ty: 14 },
+  { ...FAN_CARDS[0], rotate: -7,   tx: -78, ty: 16 },
+  { ...FAN_CARDS[1], rotate: -2.5, tx: -26, ty: 4  },
+  { ...FAN_CARDS[2], rotate: 2.5,  tx: 26,  ty: 4  },
+  { ...FAN_CARDS[3], rotate: 7,    tx: 78,  ty: 16 },
 ];
 
 const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
@@ -489,7 +486,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan container — stop propagation so card taps don't hit the backdrop */}
         <div
           className="relative"
-          style={{ width: '100%', maxWidth: 460, height: CARD_H + 50, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 480, height: CARD_H + 60, zIndex: 10 }}
           onClick={e => e.stopPropagation()}
         >
           {FAN_CARDS_WITH_POS.map((card, i) => (
