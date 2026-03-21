@@ -39,17 +39,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-
-// Custom motorcycle icon with configurable stroke
-const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5" cy="17" r="3" />
-    <circle cx="19" cy="17" r="3" />
-    <path d="M9 17h6" />
-    <path d="M19 17l-2-5h-4l-3-4H6l1 4" />
-    <path d="M14 7h3l2 5" />
-  </svg>
-);
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // Category configuration for dynamic empty states
 const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {

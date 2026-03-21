@@ -39,7 +39,6 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
