@@ -227,7 +227,7 @@ function LandingBackgroundEffects({ mode, isLightTheme = false, disableSounds = 
       window.removeEventListener('pointercancel', handlePointerUp);
       window.removeEventListener('pointerdown', handleCanvasPointerDown);
     };
-  }, [mode, isLightTheme, initStars, initOrbs]);
+  }, [mode, isLightTheme, initStars]);
 
   return (
     <canvas
