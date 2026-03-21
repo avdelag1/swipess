@@ -203,7 +203,7 @@ export function MessagingDashboard() {
           {otherUser ? (
             <MessagingInterface
               conversationId={selectedConversationId}
-              otherUser={otherUser}
+              otherUser={otherUser as any}
               listing={listing}
               currentUserRole={userRole}
               onBack={() => { setSelectedConversationId(null); setDirectlyFetchedConversation(null); }}
