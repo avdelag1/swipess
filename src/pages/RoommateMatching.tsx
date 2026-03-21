@@ -277,14 +277,11 @@ export default function RoommateMatching() {
              </motion.button>
 
              <motion.button
-               whileTap={{ scale: 0.9 }}
+               whileTap={{ scale: 0.88 }}
                onClick={() => setShowFilters(true)}
-               className={cn(
-                 "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
-                 isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
-               )}
+               className="w-11 h-11 rounded-[1.2rem] flex items-center justify-center border border-amber-900/40 animal-print-fur shadow-[0_4px_14px_rgba(0,0,0,0.4)] active:shadow-inner"
              >
-               <SlidersHorizontal className="w-4 h-4" />
+               <SlidersHorizontal className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" />
              </motion.button>
           </div>
         </div>
@@ -374,7 +371,7 @@ export default function RoommateMatching() {
         animate={{ y: uiVisible ? 0 : 150 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
         className="absolute bottom-0 left-0 right-0 z-[100]"
-        style={{ paddingBottom: 'calc(68px + var(--safe-bottom, 0px))' }}
+        style={{ paddingBottom: 'calc(1.5rem + var(--safe-bottom, 0px))' }}
       >
         {/* Gradient scrim so buttons are readable against any photo */}
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/75 via-black/35 to-transparent pointer-events-none" />

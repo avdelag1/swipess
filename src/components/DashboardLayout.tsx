@@ -721,9 +721,8 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
         </div>
       </main>
 
-      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and immersive feeds for fullscreen UX */}
-      {/* Roommates page keeps bottom nav visible even in immersive mode */}
-      {!isCameraRoute && !isRadioRoute && (!isImmersiveFeed || isRoommatesPage) && (
+      {/* Bottom Navigation - Fixed with safe-area-bottom. Hidden on camera, radio and all immersive feeds */}
+      {!isCameraRoute && !isRadioRoute && !isImmersiveFeed && (
         <BottomNavigation
           userRole={userRole}
           onFilterClick={handleFilterClick}

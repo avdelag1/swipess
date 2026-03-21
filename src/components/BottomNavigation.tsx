@@ -97,7 +97,7 @@ export function BottomNavigation({
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
@@ -108,7 +108,7 @@ export function BottomNavigation({
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
@@ -116,7 +116,7 @@ export function BottomNavigation({
   // Admin nav items — admin panel + messaging
   const adminNavItems: NavItem[] = [
     { id: 'admin-panel', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
-    { id: 'admin-messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'admin-messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
   ];
 
   const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;

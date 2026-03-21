@@ -375,6 +375,33 @@
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  ANIMAL PRINT FUR — Cheetah / Leopard Spot Texture                    */
+/*  Used on premium buttons and accent elements throughout the app.      */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.animal-print-fur {
+  background-color: #b8820a;
+  background-image:
+    /* Row 1 spots */
+    radial-gradient(ellipse 9px 6px at 12%  18%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 6px 9px at 38%   5%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 5px 8px at 62%  14%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 8px 5px at 88%  22%, #0d0500 0%, transparent 85%),
+    /* Row 2 spots */
+    radial-gradient(ellipse 5px 7px at  5%  48%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 8px 5px at 28%  42%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 6px 8px at 52%  55%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 9px 5px at 78%  46%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 5px 6px at 96%  60%, #0d0500 0%, transparent 85%),
+    /* Row 3 spots */
+    radial-gradient(ellipse 7px 5px at 18%  80%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 5px 8px at 44%  76%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 8px 6px at 70%  88%, #0d0500 0%, transparent 85%),
+    radial-gradient(ellipse 6px 5px at 92%  82%, #0d0500 0%, transparent 85%);
+  color: #fff;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  MEXICAN PINK PREMIUM — Accent CTA Button                             */
 /*  Vibrant pink gradient used for premium/conversion CTAs.              */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
