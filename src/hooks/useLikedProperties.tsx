@@ -27,15 +27,14 @@ export function useLikedProperties() {
     enabled: initialized && !!user?.id,
     queryFn: async () => {
       if (!user?.id) return [];
-
       try {
-        // Fetch likes where direction='right' and target_type='listing'
+        // Fetch likes where direction='right' and target_type is listing or event
         const { data: likes, error } = await supabase
           .from('likes')
-          .select('id, created_at, target_id')
+          .select('id, created_at, target_id, target_type')
           .eq('user_id', user.id)
-          .eq('target_type', 'listing')
           .eq('direction', 'right')
+          .in('target_type', ['listing', 'event'])
           .order('created_at', { ascending: false });
 
         if (error) {
@@ -43,48 +42,57 @@ export function useLikedProperties() {
           throw error;
         }
 
-        // If no likes found, return empty array
         if (!likes || likes.length === 0) {
           return [];
         }
 
-        // Get listing IDs from the likes (filter out nulls)
+        // Separate IDs by type
         const listingIds = likes
-          .map((like: any) => like.target_id)
-          .filter((id: any): id is string => id !== null && id !== undefined);
+          .filter(l => l.target_type === 'listing')
+          .map(l => l.target_id);
+        
+        const eventIds = likes
+          .filter(l => l.target_type === 'event')
+          .map(l => l.target_id);
 
-        if (listingIds.length === 0) {
-          return [];
+        let listings: any[] = [];
+        let events: any[] = [];
+
+        // Fetch Listings
+        if (listingIds.length > 0) {
+          const { data, error: err } = await supabase
+            .from('listings')
+            .select('*')
+            .in('id', listingIds)
+            .eq('status', 'active');
+          if (!err) listings = data || [];
         }
 
-        // Remove duplicates
-        const uniqueListingIds = [...new Set(listingIds)];
-
-        // Fetch the actual listings
-        const { data: listings, error: listingsError } = await supabase
-          .from('listings')
-          .select('*')
-          .in('id', uniqueListingIds)
-          .eq('status', 'active');
-
-        if (listingsError) {
-          logger.error('[useLikedProperties] Error fetching listings:', listingsError);
-          throw listingsError;
+        // Fetch Events
+        if (eventIds.length > 0) {
+          const { data, error: err } = await supabase
+            .from('events')
+            .select('*')
+            .in('id', eventIds);
+          if (!err) events = data || [];
         }
 
-        // Map listings to maintain the order of likes
-        const listingMap = new Map((listings || []).map((l: any) => [l.id, l]));
-        const orderedListings = listingIds
-          .map((id: string) => listingMap.get(id))
-          .filter((listing): listing is Listing => listing !== null && listing !== undefined);
+        // Create a unified map [id_type, data]
+        const dataMap = new Map();
+        listings.forEach(l => dataMap.set(`${l.id}_listing`, { ...l, target_type: 'listing' }));
+        events.forEach(e => dataMap.set(`${e.id}_event`, { ...e, target_type: 'event' }));
 
-        // PERFORMANCE: Preload images for ALL liked properties immediately
+        // Map back to the original order of likes
+        const orderedListings = likes
+          .map(like => dataMap.get(`${like.target_id}_${like.target_type}`))
+          .filter(item => !!item);
+
+        // PERFORMANCE: Preload images
         preloadLikedImages(orderedListings);
 
         return orderedListings;
       } catch (error) {
         logger.error('[useLikedProperties] Fatal error:', error);
-        // Return empty array instead of throwing to prevent UI crash
         return [];
       }
     },

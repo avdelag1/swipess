@@ -118,7 +118,9 @@ export function useSmartClientMatching(
                     .select(CLIENT_SWIPE_CARD_FIELDS)
                     .neq('user_id', userId)
                     .neq('role', 'admin')
-                    .eq('role', 'client');
+                    .eq('role', 'client')
+                    .eq('is_active', true)
+                    .eq('onboarding_completed', true);
 
                 if (swipedProfileIds.size > 0) {
                     const idsToExclude = Array.from(swipedProfileIds);

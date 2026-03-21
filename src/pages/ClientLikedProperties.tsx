@@ -32,6 +32,7 @@ const categories = [
   { id: "motorcycle", label: "Motos", icon: Car, title: "Power & Speed", subtitle: "Premium machines" },
   { id: "bicycle", label: "Bikes", icon: Bike, title: "Urban Flow", subtitle: "Sustainable precision" },
   { id: "worker", label: "Services", icon: Briefcase, title: "Elite Talent", subtitle: "The support you need" },
+  { id: "event", label: "Events", icon: Flame, title: "Social Pulse", subtitle: "Tulum's finest gatherings" },
 ];
 
 interface ClientLikedPropertiesProps {
@@ -87,9 +88,10 @@ const ClientLikedProperties = (_props: ClientLikedPropertiesProps) => {
 
   const filteredProperties = likedProperties.filter((property) => {
     if (selectedCategory === "all") return true;
-    const propertyCategory = property.category?.toLowerCase() || "";
+    const propertyCategory = (property.category || property.target_type || "").toLowerCase();
     const selectedCat = selectedCategory.toLowerCase();
     if (selectedCat === "property") return propertyCategory === "property" || !property.category;
+    if (selectedCat === "event") return property.target_type === "event" || propertyCategory === "event";
     return propertyCategory === selectedCat;
   });
 

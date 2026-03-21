@@ -34,7 +34,10 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
             )}
         >
             {/* Visual Header / Image */}
-            <div className="relative h-48 sm:h-56 overflow-hidden">
+            <div 
+                className="relative h-48 sm:h-56 overflow-hidden cursor-pointer"
+                onClick={() => onAction('view', data)}
+            >
                 {imageUrl ? (
                     <img
                         src={imageUrl}

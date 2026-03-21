@@ -451,11 +451,14 @@ export default function AdvertisePage() {
 
           <div className="space-y-3">
             {PACKAGES.map(pkg => (
-              <div key={pkg.id} className="relative p-4 rounded-2xl overflow-hidden"
-                style={{ background: `rgba(${pkg.colorRgb},0.08)`, border: `1.5px solid rgba(${pkg.colorRgb},0.25)` }}>
+              <div key={pkg.id} className="relative p-4 rounded-2xl overflow-hidden group transition-all"
+                style={{ background: `rgba(${pkg.colorRgb},0.10)`, border: `1px solid rgba(${pkg.colorRgb},0.2)` }}>
                 {pkg.popular && (
-                  <div className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full text-white"
-                    style={{ background: pkg.color }}>POPULAR</div>
+                  <div className="absolute top-0 right-0">
+                    <div className="bg-gradient-to-l from-orange-500 to-rose-500 text-[9px] font-black uppercase tracking-[0.15em] px-3 py-1 rounded-bl-xl text-white shadow-lg">
+                      POPULAR
+                    </div>
+                  </div>
                 )}
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -463,11 +466,11 @@ export default function AdvertisePage() {
                     {pkg.icon}
                   </div>
                   <div className="flex-1 min-w-0 pr-2">
-                    <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
+                    <div className="font-black text-sm" style={{ color: th.text }}>{pkg.name}</div>
                     <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="font-black" style={{ color: pkg.color }}>From ${pkg.prices.week}</div>
+                    <div className="font-black text-sm" style={{ color: pkg.color }}>From ${pkg.prices.week}</div>
                     <div className="text-[10px]" style={{ color: th.textDim }}>MXN / week</div>
                   </div>
                 </div>
@@ -717,9 +720,10 @@ export default function AdvertisePage() {
                         }}
                       >
                         {pkg.popular && (
-                          <div className="absolute top-2 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full text-white"
-                            style={{ background: pkg.color }}>
-                            Most Popular
+                          <div className="absolute top-0 right-0">
+                            <div className="bg-gradient-to-l from-orange-500 to-rose-500 text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-bl-xl text-white shadow-glow-sm">
+                              POPULAR
+                            </div>
                           </div>
                         )}
                         <div className="flex items-center gap-3 mb-3">
