@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { logger } from '@/utils/prodLogger';
 
-type Theme = 'dark' | 'light';
+type Theme = 'dark' | 'light' | 'cheers';
 
 export interface ThemeToggleCoords {
   x: number;
@@ -17,12 +17,13 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const _VALID_THEMES: Theme[] = ['dark', 'light'];
+const _VALID_THEMES: Theme[] = ['dark', 'light', 'cheers'];
 const DEFAULT_THEME: Theme = 'dark';
 
 /** Map legacy DB values to new theme names */
 function normalizeTheme(raw: string | null | undefined): Theme {
   if (raw === 'dark' || raw === 'black-matte' || raw === 'grey-matte' || raw === 'pure-black') return 'dark';
+  if (raw === 'cheers') return 'cheers';
   return 'light';
 }
 
@@ -36,12 +37,12 @@ function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
   
   // Mark transition start for smooth color shift
-  root.style.colorScheme = theme;
+  root.style.colorScheme = theme === 'cheers' ? 'dark' : theme;
   
   // Remove all old theme classes
   root.classList.remove(...ALL_THEME_CLASSES);
 
-  // Add the theme class — .dark or .light
+  // Add the theme class — .dark, .light, or .cheers
   root.classList.add(theme);
 
   // For dark theme, also add .black-matte so CSS variables are applied
@@ -58,7 +59,14 @@ function applyThemeToDOM(theme: Theme) {
   }
   
   // Smooth transition for status bar in PWA
-  const targetColor = theme === 'dark' ? '#000000' : '#ffffff';
+  let targetColor: string;
+  if (theme === 'dark') {
+    targetColor = '#000000';
+  } else if (theme === 'cheers') {
+    targetColor = '#180800'; // Dark leopard brown
+  } else {
+    targetColor = '#ffffff';
+  }
   meta.setAttribute('content', targetColor);
   
 }
@@ -101,25 +109,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
 
     // Store click origin for the CSS clip-path reveal animation
-    if (coords) {
-      root.style.setProperty('--theme-reveal-x', `${coords.x}px`);
-      root.style.setProperty('--theme-reveal-y', `${coords.y}px`);
-    } else {
-      root.style.setProperty('--theme-reveal-x', '50%');
-      root.style.setProperty('--theme-reveal-y', '50%');
-    }
+    root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
+    root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
+
+    // Freeze all element-level transitions so nothing "bleeds" during the view transition
+    root.classList.add('theme-switching');
 
     // Use View Transitions API for circular ripple reveal if supported
-    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
     if (doc.startViewTransition) {
-      doc.startViewTransition(() => {
+      const vt = doc.startViewTransition(() => {
         applyThemeToDOM(newTheme);
         setThemeState(newTheme);
       });
+      // Remove the freeze class only after the full animation is done
+      vt.finished.finally(() => {
+        root.classList.remove('theme-switching');
+      });
     } else {
-      // Fallback: apply immediately (CSS transition handles the rest)
+      // Fallback: apply immediately, remove freeze on next tick
       applyThemeToDOM(newTheme);
       setThemeState(newTheme);
+      requestAnimationFrame(() => root.classList.remove('theme-switching'));
     }
 
     if (user?.id) {

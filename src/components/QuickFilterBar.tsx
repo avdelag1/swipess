@@ -3,6 +3,7 @@ import { memo, useCallback, useState, useRef, useEffect } from 'react';
 import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Check, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 import { getCategoryColorClass } from '@/types/filters';
 
@@ -28,7 +29,7 @@ const _allCategories: QuickFilterCategory[] = ['property', 'motorcycle', 'bicycl
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
   { id: 'property', label: 'Properties', icon: <Home className="w-4 h-4" /> },
-  { id: 'motorcycle', label: 'Motorcycles', icon: <MotorcycleIcon /> },
+  { id: 'motorcycle', label: 'Motorcycles', icon: <MotorcycleIcon className="w-4 h-4" /> },
   { id: 'bicycle', label: 'Bicycles', icon: <Bike className="w-4 h-4" /> },
   { id: 'services', label: 'Workers', icon: <Wrench className="w-4 h-4" /> },
 ];
@@ -64,27 +65,6 @@ const clientTypeOptions: { id: OwnerClientType; label: string }[] = [
   { id: 'buy', label: 'Buying' },
 ];
 
-// Custom motorcycle icon since lucide doesn't have one
-function MotorcycleIcon() {
-  return (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="5" cy="17" r="3" />
-      <circle cx="19" cy="17" r="3" />
-      <path d="M9 17h6" />
-      <path d="M19 17l-2-7h-4l-1 4" />
-      <path d="M12 10l-1-3h-2l-1 3" />
-      <path d="M5 17l2-7h2" />
-    </svg>
-  );
-}
 
 // Smooth instant button class - works on all devices, NO transition delays
 const smoothButtonClass = cn(

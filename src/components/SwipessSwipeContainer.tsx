@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
+import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
 import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
@@ -39,17 +40,7 @@ import { MessageConfirmationDialog } from './MessageConfirmationDialog';
 import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
-
-// Custom motorcycle icon with configurable stroke
-const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5" cy="17" r="3" />
-    <circle cx="19" cy="17" r="3" />
-    <path d="M9 17h6" />
-    <path d="M19 17l-2-5h-4l-3-4H6l1 4" />
-    <path d="M14 7h3l2 5" />
-  </svg>
-);
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // Category configuration for dynamic empty states
 const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
@@ -269,11 +260,43 @@ const FAN_CARD_PHOTOS: Record<string, string[]> = {
   ],
 };
 
+// Minimal single-weight SVG line icons — no color, no fill, no cartoonish detail
+const IconProperty = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10.5z"/>
+    <path d="M9 21V13h6v8"/>
+  </svg>
+);
+const IconMoto = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="5.5" cy="17" r="2.5"/>
+    <circle cx="18.5" cy="17" r="2.5"/>
+    <path d="M8 17h7"/>
+    <path d="M18.5 17 16 9h-4.5L10 13 5.5 17"/>
+    <path d="M15 9l1-3h3"/>
+  </svg>
+);
+const IconBicycle = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="5.5" cy="17" r="3"/>
+    <circle cx="18.5" cy="17" r="3"/>
+    <path d="M5.5 17 10 9h5l3.5 8"/>
+    <path d="M5.5 17 9 11"/>
+    <circle cx="12" cy="7" r="1"/>
+    <path d="M12 8v1"/>
+  </svg>
+);
+const IconWorker = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+  </svg>
+);
+
 const FAN_CARDS = [
-  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
-  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
-  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
-  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
+  { id: 'property' as const, label: 'Properties', Icon: IconProperty, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
+  { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
+  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
+  { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
 // Card dimensions — large enough to feel immersive, tight enough to fit the fan
@@ -328,8 +351,8 @@ const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
         border: `1.5px solid rgba(${card.accentRgb},${isPreviewing ? 0.75 : 0.22})`,
       }}
     >
-      {/* Photos — CSS crossfade, silky 3s ease */}
-      <div className="absolute inset-0 bg-zinc-900">
+      {/* Photos — cinematic scale+opacity crossfade (Ken Burns breath) */}
+      <div className="absolute inset-0 bg-zinc-900 overflow-hidden">
         {photos.map((src, i) => (
           <img
             key={src}
@@ -339,7 +362,9 @@ const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
             loading="eager"
             style={{
               opacity: i === activePhoto ? 1 : 0,
-              transition: 'opacity 3s ease-in-out',
+              transform: i === activePhoto ? 'scale(1.0)' : 'scale(1.07)',
+              transition: 'opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1), transform 2.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              willChange: 'opacity, transform',
             }}
           />
         ))}
@@ -372,11 +397,21 @@ const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
 
       {/* Bottom label */}
       <div className="absolute bottom-0 left-0 right-0 p-4">
-        <div className="flex items-center gap-2">
-          <span style={{ fontSize: 20 }}>{card.emoji}</span>
+        <div className="flex items-center gap-2.5">
+          <div
+            className="flex-shrink-0 flex items-center justify-center rounded-lg"
+            style={{
+              width: 36, height: 36,
+              background: `rgba(${card.accentRgb}, 0.18)`,
+              border: `1px solid rgba(${card.accentRgb}, 0.35)`,
+              color: `rgba(${card.accentRgb}, 1)`,
+            }}
+          >
+            <card.Icon />
+          </div>
           <div>
             <p className="text-white font-black text-[14px] tracking-tight leading-tight">{card.label}</p>
-            <p className="text-white/60 text-[11px] leading-tight">{card.description}</p>
+            <p className="text-white/55 text-[11px] leading-tight">{card.description}</p>
           </div>
         </div>
       </div>

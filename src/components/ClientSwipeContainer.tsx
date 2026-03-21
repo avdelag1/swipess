@@ -39,7 +39,6 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
@@ -799,6 +798,10 @@ const ClientSwipeContainerComponent = ({
   const hasHydratedData = isOwnerHydrated(category) || isOwnerReady(category) || deckQueue.length > 0;
 
   const showLoadingSkeleton = !hasHydratedData && isLoading;
+
+  // "All Caught Up" — user has swiped through every card in the current deck
+  // Only true once past initial load and topCard is exhausted
+  const isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
 
   // ========================================
   // 🔥 SINGLE RETURN BLOCK - SAFE ORDER

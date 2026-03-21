@@ -5,7 +5,7 @@ import {
   Sparkles, X, MapPin,
   Briefcase, MessageCircle, Undo2,
   ShieldCheck, Info, Clock,
-  ThumbsDown, Flame
+  ThumbsDown, Flame, Eye, EyeOff
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -259,14 +259,17 @@ export default function RoommateMatching() {
                whileTap={{ scale: 0.95 }}
                onClick={() => { triggerHaptic('light'); setRoommateVisible(!roommateVisible); }}
                className={cn(
-                 "px-4 h-11 rounded-[1.2rem] border backdrop-blur-3xl flex items-center gap-2.5 transition-all shadow-sm",
+                 "px-3.5 h-11 rounded-[1.2rem] border backdrop-blur-3xl flex items-center gap-2 transition-all shadow-sm",
                  roommateVisible
                    ? isLight ? "bg-emerald-50/90 border-emerald-300 text-emerald-700" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
                    : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
                )}
              >
-               <div className={cn("w-2 h-2 rounded-full", roommateVisible ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
-               <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
+               {roommateVisible
+                 ? <Eye className="w-4 h-4 shrink-0" />
+                 : <EyeOff className="w-4 h-4 shrink-0" />
+               }
+               <span className="text-[10px] font-black uppercase tracking-widest">
                  {roommateVisible ? 'Visible' : 'Hidden'}
                </span>
              </motion.button>
@@ -344,15 +347,15 @@ export default function RoommateMatching() {
                       fullScreen={true}
                     />
 
-                    {/* OVERLAY: COMPATIBILITY BADGE (Positioned lower as requested) */}
-                    <div className="absolute top-[calc(var(--safe-top)+100px)] left-0 right-0 flex justify-center z-30 pointer-events-none">
+                    {/* OVERLAY: COMPATIBILITY BADGE — top-right, below header */}
+                    <div className="absolute top-[calc(var(--safe-top)+72px)] right-4 z-30 pointer-events-none">
                        <motion.div 
-                         initial={{ opacity: 0, y: -20 }}
-                         animate={{ opacity: 1, y: 0 }}
-                         className="px-5 py-2.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-3"
+                         initial={{ opacity: 0, x: 20 }}
+                         animate={{ opacity: 1, x: 0 }}
+                         className="px-4 py-2 rounded-2xl bg-black/50 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-2"
                        >
-                         <Sparkles className="w-4 h-4 text-amber-400" />
-                         <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">{(topCard as any).compatibility ?? 85}% Match</span>
+                         <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                         <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">{(topCard as any).compatibility ?? 85}%</span>
                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
                        </motion.div>
                     </div>
@@ -368,8 +371,11 @@ export default function RoommateMatching() {
       <motion.div 
         animate={{ y: uiVisible ? 0 : 150 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-        className="absolute bottom-0 left-0 right-0 z-[100] pb-[calc(1.5rem+var(--safe-bottom))] px-4"
+        className="absolute bottom-0 left-0 right-0 z-[100] px-4"
+        style={{ paddingBottom: 'calc(68px + 1rem + var(--safe-bottom, 0px))' }}
       >
+        {/* Gradient scrim so buttons are readable against any photo */}
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
         <div className="max-w-md mx-auto relative h-20">
           <div className="absolute inset-0 flex items-center justify-center gap-6">
             {/* DISLIKE */}
