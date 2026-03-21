@@ -490,7 +490,7 @@ export default function RoommateMatching() {
                <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Manifesto</h3>
                   <p className={cn("text-lg font-bold leading-snug", isLight ? "text-slate-900" : "text-white/90")}>
-                    {topCard.bio}
+                    {(topCard as any).bio}
                   </p>
                </div>
 
