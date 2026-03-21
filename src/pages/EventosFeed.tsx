@@ -35,6 +35,7 @@ interface EventItem {
   discount_tag: string | null;
   is_free: boolean;
   price_text: string | null;
+  is_promo?: boolean;
 }
 
 type SortOrder = 'upcoming' | 'newest';
