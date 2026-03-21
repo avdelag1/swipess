@@ -170,55 +170,54 @@ body {
 /*  CHEERS / ANIMAL PRINT THEME — full cheetah skin across the app     */
 /*  Repeating tile (180×130 px) of golden spot clusters on dark brown  */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
-html.cheers body {
-  background-color: #1c0b01;
+/* Cheetah skin: repeating 220×160 tile so the pattern covers every scroll position */
+html.cheers body,
+html.cheers #root {
+  background-color: #1e0d02;
   background-image:
-    /* Cluster A */
-    radial-gradient(ellipse 20px 13px at  9%  12%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
-    radial-gradient(ellipse 13px 20px at 17%  28%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
-    radial-gradient(ellipse 16px 10px at  4%  38%, rgba(195,140,6,0.64) 0%, rgba(155,100,4,0.30) 55%, transparent 85%),
-    /* Cluster B */
-    radial-gradient(ellipse 18px 11px at 43%   7%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
-    radial-gradient(ellipse 10px 17px at 51%  20%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
-    radial-gradient(ellipse 14px  9px at 36%  29%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
-    /* Cluster C */
-    radial-gradient(ellipse 20px 13px at 77%   9%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
-    radial-gradient(ellipse 13px 20px at 85%  23%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
-    radial-gradient(ellipse 16px 10px at 69%  32%, rgba(195,140,6,0.62) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
-    /* Cluster D — far right */
-    radial-gradient(ellipse 18px 11px at 97%   6%, rgba(210,152,8,0.78) 0%, rgba(170,110,4,0.36) 55%, transparent 85%),
-    radial-gradient(ellipse 10px 16px at 95%  22%, rgba(195,140,6,0.66) 0%, rgba(155,100,4,0.30) 55%, transparent 85%),
+    /* Cluster A — top-left of tile */
+    radial-gradient(ellipse 22px 14px at  9%  11%, rgba(218,158,8,0.88) 0%, rgba(180,118,4,0.45) 50%, transparent 82%),
+    radial-gradient(ellipse 14px 22px at 17%  27%, rgba(218,158,8,0.80) 0%, rgba(180,118,4,0.38) 50%, transparent 82%),
+    radial-gradient(ellipse 17px 11px at  5%  38%, rgba(200,142,6,0.68) 0%, rgba(160,104,4,0.32) 50%, transparent 82%),
+    /* Cluster B — top-center */
+    radial-gradient(ellipse 20px 12px at 40%   7%, rgba(218,158,8,0.86) 0%, rgba(180,118,4,0.42) 50%, transparent 82%),
+    radial-gradient(ellipse 11px 19px at 49%  21%, rgba(218,158,8,0.78) 0%, rgba(180,118,4,0.36) 50%, transparent 82%),
+    radial-gradient(ellipse 15px 10px at 33%  31%, rgba(200,142,6,0.65) 0%, rgba(160,104,4,0.30) 50%, transparent 82%),
+    /* Cluster C — top-right */
+    radial-gradient(ellipse 22px 14px at 74%   8%, rgba(218,158,8,0.88) 0%, rgba(180,118,4,0.45) 50%, transparent 82%),
+    radial-gradient(ellipse 14px 22px at 83%  24%, rgba(218,158,8,0.80) 0%, rgba(180,118,4,0.38) 50%, transparent 82%),
+    radial-gradient(ellipse 17px 11px at 67%  33%, rgba(200,142,6,0.66) 0%, rgba(160,104,4,0.30) 50%, transparent 82%),
+    /* Cluster D — far-right edge */
+    radial-gradient(ellipse 20px 12px at 96%   5%, rgba(218,158,8,0.84) 0%, rgba(180,118,4,0.40) 50%, transparent 82%),
+    radial-gradient(ellipse 11px 18px at 94%  21%, rgba(200,142,6,0.70) 0%, rgba(160,104,4,0.32) 50%, transparent 82%),
     /* Cluster E — mid-left */
-    radial-gradient(ellipse 20px 13px at 11%  54%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
-    radial-gradient(ellipse 13px 20px at 20%  68%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
-    radial-gradient(ellipse 16px 10px at  5%  76%, rgba(195,140,6,0.62) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
+    radial-gradient(ellipse 22px 14px at 10%  53%, rgba(218,158,8,0.88) 0%, rgba(180,118,4,0.45) 50%, transparent 82%),
+    radial-gradient(ellipse 14px 22px at 19%  67%, rgba(218,158,8,0.80) 0%, rgba(180,118,4,0.38) 50%, transparent 82%),
+    radial-gradient(ellipse 17px 11px at  4%  76%, rgba(200,142,6,0.66) 0%, rgba(160,104,4,0.30) 50%, transparent 82%),
     /* Cluster F — mid-center */
-    radial-gradient(ellipse 18px 11px at 52%  50%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
-    radial-gradient(ellipse 10px 17px at 60%  63%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
-    radial-gradient(ellipse 14px  9px at 44%  71%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%),
+    radial-gradient(ellipse 20px 12px at 51%  49%, rgba(218,158,8,0.86) 0%, rgba(180,118,4,0.42) 50%, transparent 82%),
+    radial-gradient(ellipse 11px 19px at 59%  63%, rgba(218,158,8,0.78) 0%, rgba(180,118,4,0.36) 50%, transparent 82%),
+    radial-gradient(ellipse 15px 10px at 43%  72%, rgba(200,142,6,0.64) 0%, rgba(160,104,4,0.28) 50%, transparent 82%),
     /* Cluster G — mid-right */
-    radial-gradient(ellipse 20px 13px at 82%  52%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
-    radial-gradient(ellipse 13px 20px at 90%  65%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
-    radial-gradient(ellipse 15px  9px at 74%  74%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%),
+    radial-gradient(ellipse 22px 14px at 81%  51%, rgba(218,158,8,0.88) 0%, rgba(180,118,4,0.45) 50%, transparent 82%),
+    radial-gradient(ellipse 14px 22px at 89%  65%, rgba(218,158,8,0.80) 0%, rgba(180,118,4,0.38) 50%, transparent 82%),
+    radial-gradient(ellipse 16px 10px at 73%  74%, rgba(200,142,6,0.64) 0%, rgba(160,104,4,0.28) 50%, transparent 82%),
     /* Cluster H — bottom-left */
-    radial-gradient(ellipse 18px 11px at 14%  84%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
-    radial-gradient(ellipse 10px 16px at 23%  96%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
-    radial-gradient(ellipse 14px  9px at  7%  94%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%),
+    radial-gradient(ellipse 20px 12px at 14%  84%, rgba(218,158,8,0.86) 0%, rgba(180,118,4,0.42) 50%, transparent 82%),
+    radial-gradient(ellipse 11px 18px at 22%  96%, rgba(218,158,8,0.78) 0%, rgba(180,118,4,0.36) 50%, transparent 82%),
+    radial-gradient(ellipse 15px 10px at  7%  93%, rgba(200,142,6,0.64) 0%, rgba(160,104,4,0.28) 50%, transparent 82%),
     /* Cluster I — bottom-center */
-    radial-gradient(ellipse 20px 13px at 54%  82%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
-    radial-gradient(ellipse 13px 20px at 62%  95%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
-    radial-gradient(ellipse 16px 10px at 46%  98%, rgba(195,140,6,0.62) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
+    radial-gradient(ellipse 22px 14px at 53%  81%, rgba(218,158,8,0.88) 0%, rgba(180,118,4,0.45) 50%, transparent 82%),
+    radial-gradient(ellipse 14px 22px at 61%  95%, rgba(218,158,8,0.80) 0%, rgba(180,118,4,0.38) 50%, transparent 82%),
+    radial-gradient(ellipse 17px 11px at 45%  97%, rgba(200,142,6,0.66) 0%, rgba(160,104,4,0.30) 50%, transparent 82%),
     /* Cluster J — bottom-right */
-    radial-gradient(ellipse 18px 11px at 84%  86%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
-    radial-gradient(ellipse 10px 16px at 92%  97%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
-    radial-gradient(ellipse 14px  9px at 76%  93%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%);
+    radial-gradient(ellipse 20px 12px at 83%  85%, rgba(218,158,8,0.86) 0%, rgba(180,118,4,0.42) 50%, transparent 82%),
+    radial-gradient(ellipse 11px 18px at 91%  97%, rgba(218,158,8,0.78) 0%, rgba(180,118,4,0.36) 50%, transparent 82%),
+    radial-gradient(ellipse 15px 10px at 75%  92%, rgba(200,142,6,0.64) 0%, rgba(160,104,4,0.28) 50%, transparent 82%);
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-attachment: fixed;
-}
-
-html.cheers #root {
-  background: transparent;
+  background-attachment: scroll;
+  min-height: 100dvh;
 }
 
 #root {

@@ -78,14 +78,17 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         }}
         aria-label={`Switch to ${activeMode === 'client' ? 'Business Side' : 'Client Side'} mode`}
       >
-        {/* Sliding indicator pill */}
+        {/* Sliding indicator pill — solid fill for the active half */}
         <motion.div
-          className="absolute top-1 bottom-1 rounded-full"
+          className="absolute top-[3px] bottom-[3px] rounded-full"
           initial={false}
           animate={{
-            left: activeMode === 'client' ? 4 : 'calc(50% + 2px)',
-            width: 'calc(50% - 6px)',
-            backgroundColor: activeMode === 'client' ? 'rgba(45,212,191,0.22)' : 'rgba(251,146,60,0.22)',
+            left: activeMode === 'client' ? 3 : 'calc(50% + 1px)',
+            width: 'calc(50% - 4px)',
+            backgroundColor: activeMode === 'client' ? 'rgba(20,184,166,0.90)' : 'rgba(249,115,22,0.90)',
+            boxShadow: activeMode === 'client'
+              ? '0 0 8px rgba(20,184,166,0.50), inset 0 1px 0 rgba(255,255,255,0.20)'
+              : '0 0 8px rgba(249,115,22,0.50), inset 0 1px 0 rgba(255,255,255,0.20)',
           }}
           transition={{ type: 'spring', stiffness: 480, damping: 32 }}
         />
@@ -105,7 +108,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               className={cn(
                 'transition-all duration-200',
                 size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4',
-                activeMode === 'client' ? 'text-teal-400 scale-110' : isLight ? 'text-foreground/30' : 'text-white/25'
+                activeMode === 'client' ? 'text-white scale-110' : isLight ? 'text-foreground/35' : 'text-white/28'
               )}
             />
           )}
@@ -127,7 +130,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
               className={cn(
                 'transition-all duration-200',
                 size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4',
-                activeMode === 'owner' ? 'text-orange-400 scale-110' : isLight ? 'text-foreground/30' : 'text-white/25'
+                activeMode === 'owner' ? 'text-white scale-110' : isLight ? 'text-foreground/35' : 'text-white/28'
               )}
             />
           )}
