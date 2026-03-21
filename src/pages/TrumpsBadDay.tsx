@@ -14,6 +14,26 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Share2 } from 'lucide-react';
 
+const lockOrientation = async () => {
+  if (screen.orientation && 'lock' in screen.orientation) {
+    try {
+      await (screen.orientation as any).lock('landscape');
+    } catch (err) {
+      console.warn('Orientation lock failed:', err);
+    }
+  }
+};
+
+const unlockOrientation = () => {
+  if (screen.orientation && 'unlock' in screen.orientation) {
+    try {
+      screen.orientation.unlock();
+    } catch (err) {
+      console.warn('Orientation unlock failed:', err);
+    }
+  }
+};
+
 // ─── Canvas size ─────────────────────────────────────────────────────────────
 const CW = 1280;
 const CH = 720;
@@ -771,6 +791,12 @@ export default function TrumpsBadDay() {
         .order('score', { ascending: false }).limit(5);
       if (data) setLeaderboard(data as any);
     } catch { /* ignore */ }
+  }, []);
+
+  // ── Lock landscape orientation when component mounts
+  useEffect(() => {
+    lockOrientation();
+    return () => unlockOrientation();
   }, []);
 
   // ── Main game loop
