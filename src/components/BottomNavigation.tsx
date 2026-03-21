@@ -19,7 +19,8 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
-  Search, Compass, Users, Sparkles, ShieldCheck
+  Search, Compass, Users, Sparkles, ShieldCheck,
+  PartyPopper, Megaphone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -51,6 +52,7 @@ interface NavItem {
   onClick?: () => void;
   badge?: number;
   isCenter?: boolean;
+  isSpecial?: boolean;
 }
 
 // ── SPRING CONFIGS ────────────────────────────────────────────────────────────
@@ -91,24 +93,26 @@ export function BottomNavigation({
     targetSelector: '#dashboard-scroll-container',
   });
 
-  // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Roommates, Filters
+  // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Events, Roommates, Filters
   const clientNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'eventos', icon: PartyPopper, label: "What's Up", path: '/explore/eventos', isSpecial: true },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
-  // Owner nav items — order: Dashboard, Profile, Likes, AI, Messages, Listings, Filters
+  // Owner nav items — order: Dashboard, Profile, Likes, AI, Messages, Promote, Listings, Filters
   const ownerNavItems: NavItem[] = [
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
+    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise', isSpecial: true },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
@@ -350,6 +354,21 @@ export function BottomNavigation({
                   </div>
                 )}
 
+                {/* Special item: animated glow halo */}
+                {item.isSpecial && !active && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                    <motion.div
+                      className="absolute rounded-full"
+                      style={{
+                        width: 30, height: 30,
+                        background: 'radial-gradient(circle, rgba(249,115,22,0.28) 0%, transparent 70%)',
+                      }}
+                      animate={{ scale: [1, 1.6, 1], opacity: [0.5, 0, 0.5] }}
+                      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                  </div>
+                )}
+
                 {/* Icon */}
                 <div className="relative" style={{ zIndex: 1 }}>
                   {/* Notification badge — anchored to the icon, not the full tap target */}
@@ -370,14 +389,14 @@ export function BottomNavigation({
                     style={{
                       width: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
                       height: isNarrow ? ICON_SIZE_COMPACT : ICON_SIZE,
-                      color: active ? 'transparent' : iconColorInactive,
-                      stroke: active ? 'url(#nav-active-gradient)' : 'currentColor',
-                      fill: active ? 'url(#nav-active-gradient)' : 'none',
-                      filter: active && !isLight
-                        ? 'drop-shadow(0 2px 6px rgba(249,115,22,0.45))'
+                      color: (active || item.isSpecial) ? 'transparent' : iconColorInactive,
+                      stroke: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'currentColor',
+                      fill: (active || item.isSpecial) ? 'url(#nav-active-gradient)' : 'none',
+                      filter: (active || item.isSpecial) && !isLight
+                        ? 'drop-shadow(0 2px 8px rgba(249,115,22,0.5))'
                         : 'none',
                     }}
-                    strokeWidth={active ? 3.5 : 2.8}
+                    strokeWidth={(active || item.isSpecial) ? 3.5 : 2.8}
                   />
                 </div>
 
@@ -386,11 +405,11 @@ export function BottomNavigation({
                   <span
                     className={cn(
                       'text-[10px] tracking-wide transition-all duration-250 relative',
-                      active ? 'font-black' : 'font-bold',
+                      (active || item.isSpecial) ? 'font-black' : 'font-bold',
                     )}
                     style={{
-                      color: active ? activeColor : iconColorInactive,
-                      opacity: active ? 1 : (isLight ? 0.75 : 0.65),
+                      color: (active || item.isSpecial) ? activeColor : iconColorInactive,
+                      opacity: (active || item.isSpecial) ? 1 : (isLight ? 0.75 : 0.65),
                       zIndex: 1,
                     }}
                   >
