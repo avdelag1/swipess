@@ -326,6 +326,30 @@ export function BottomNavigation({
                 }}
               >
 
+                {/* Activity Pulse Halo — radiates when badge is active */}
+                {item.badge && item.badge > 0 && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+                    <motion.div
+                      className="absolute rounded-full"
+                      style={{
+                        width: 32, height: 32,
+                        background: 'radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%)',
+                      }}
+                      animate={{ scale: [1, 1.8, 1], opacity: [0.6, 0, 0.6] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                    <motion.div
+                      className="absolute rounded-full"
+                      style={{
+                        width: 28, height: 28,
+                        background: 'radial-gradient(circle, rgba(249,115,22,0.20) 0%, transparent 70%)',
+                      }}
+                      animate={{ scale: [1, 2.2, 1], opacity: [0.4, 0, 0.4] }}
+                      transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                    />
+                  </div>
+                )}
+
                 {/* Notification badge */}
                 <AnimatePresence>
                   {item.badge && item.badge > 0 && (

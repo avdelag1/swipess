@@ -25,6 +25,7 @@ import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
 
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
+import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 
 // Exposed interface for parent to trigger swipe animations
 export interface SimpleSwipeCardRef {
@@ -547,8 +548,17 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           className="absolute left-0 right-0 p-4 z-20 pointer-events-none"
           style={{ bottom: 'clamp(130px, 22vh, 180px)' }}
         >
-          {/* Rating Display - Glass-pill tactile badge */}
-          <div className="mb-3">
+          {/* Match Meter + Rating badges row */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {/* Match Percentage — only shown when smart matching has scored this listing */}
+            {'matchPercentage' in listing && (listing as MatchedListing).matchPercentage > 0 && (
+              <SwipeMatchMeter
+                percentage={(listing as MatchedListing).matchPercentage}
+                reasons={(listing as MatchedListing).matchReasons}
+                compact
+              />
+            )}
+            {/* Rating Display - Glass-pill tactile badge */}
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{

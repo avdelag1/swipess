@@ -21,6 +21,7 @@ import { useMagnifier } from '@/hooks/useMagnifier';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
+import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -693,8 +694,17 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           )}
           style={!fullScreen ? { bottom: 'clamp(120px, 20vh, 180px)' } : undefined}
         >
-          {/* Rating Display - Glass-pill tactile badge */}
-          <div className="mb-3">
+          {/* Match Meter + Rating badges row */}
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            {/* Match Percentage — only shown when smart matching has scored this profile */}
+            {'matchPercentage' in profile && (profile as any).matchPercentage > 0 && (
+              <SwipeMatchMeter
+                percentage={(profile as any).matchPercentage}
+                reasons={(profile as any).matchReasons}
+                compact
+              />
+            )}
+            {/* Rating Display - Glass-pill tactile badge */}
             <div
               className="inline-flex rounded-full px-3 py-1.5"
               style={{
