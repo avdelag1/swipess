@@ -144,33 +144,33 @@ export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMa
         <motion.div
           key={current.id}
           className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
-          // Enter: slide down from above + fade in — crisp, no bounce
-          initial={{ y: -72, opacity: 0 }}
-          animate={{ y: 0,   opacity: 1 }}
-          // Exit: slide straight back up fast — no spring wobble
-          exit={{ y: -72, opacity: 0 }}
+          // Enter: slide in from left — fast "boom" entry
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0,   opacity: 1 }}
+          // Exit: slide out to the right — keep going further
+          exit={{ x: '100vw', opacity: 0 }}
           transition={{
-            y:       { type: 'tween', duration: 0.22, ease: [0.22, 1, 0.36, 1] },
-            opacity: { type: 'tween', duration: 0.18, ease: 'easeOut' },
+            x:       { type: 'spring', stiffness: 500, damping: 35, mass: 1 },
+            opacity: { type: 'tween', duration: 0.2, ease: 'easeOut' },
           }}
         >
           <motion.div
-            // ── SWIPE-UP-TO-DISMISS ────────────────────────────────────────
-            // Drag is tracked in real-time so the finger controls the card
-            // directly. Dismiss triggers the moment the card crosses -30 px
-            // upward — no need to lift the finger first.
-            drag="y"
+            // ── SWIPE-RIGHT-TO-DISMISS ─────────────────────────────────────
+            // Following user's request: notification appears from left,
+            // stays in middle, then disappears going further to the right.
+            drag="x"
             dragDirectionLock
-            dragConstraints={{ top: -120, bottom: 8 }}
-            dragElastic={{ top: 0.25, bottom: 0.05 }}
+            dragConstraints={{ left: -10, right: 400 }}
+            dragElastic={{ left: 0.05, right: 0.3 }}
             onDrag={(_, info) => {
-              if (info.offset.y < -30 && !isExiting.current) {
+              // Swipe right trigger (positive offset)
+              if (info.offset.x > 60 && !isExiting.current) {
                 startDismiss();
               }
             }}
-            // Tap or release without a big drag — if not triggered already
+            // If released mid-swipe but passed threshold
             onDragEnd={(_, info) => {
-              if (info.offset.y < -20 && !isExiting.current) startDismiss();
+              if (info.offset.x > 30 && !isExiting.current) startDismiss();
             }}
             whileTap={{ scale: 0.985 }}
             className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer"
