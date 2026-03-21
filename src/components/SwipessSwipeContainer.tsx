@@ -235,19 +235,188 @@ const deckFadeVariants = {
   exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
 };
 
-// ── SwipeAllDashboard ────────────────────────────────────────────────────────
-// Shown when no category filter is selected so the user can pick a category.
+// ── FAN POKER CARD QUICK FILTER ───────────────────────────────────────────────
+// 5 carousel photos per category, glassmorphic cards fanned like a poker hand
+
+const FAN_CARD_PHOTOS: Record<string, string[]> = {
+  property: [
+    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=320&q=75&auto=format',
+  ],
+  motorcycle: [
+    'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1568772585407-9f217f7b5f5e?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=320&q=75&auto=format',
+  ],
+  bicycle: [
+    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=320&q=75&auto=format',
+  ],
+  services: [
+    'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=320&q=75&auto=format',
+  ],
+};
+
+const FAN_CARDS = [
+  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -22, tx: -115, ty: 22 },
+  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -7, tx: -38, ty: 6 },
+  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 7, tx: 38, ty: 6 },
+  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 22, tx: 115, ty: 22 },
+];
+
+const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
+  card: typeof FAN_CARDS[0];
+  index: number;
+  isHovered: boolean;
+  onTap: () => void;
+}) => {
+  const photos = FAN_CARD_PHOTOS[card.id];
+  const [photoIdx, setPhotoIdx] = useState(index); // offset so all cards start on different photos
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhotoIdx(i => (i + 1) % photos.length);
+    }, 2500 + index * 400); // stagger intervals so cards don't all switch simultaneously
+    return () => clearInterval(interval);
+  }, [photos.length, index]);
+
+  return (
+    <motion.button
+      onClick={onTap}
+      data-testid={`fan-filter-${card.id}`}
+      initial={{ opacity: 0, scale: 0.7, rotate: card.rotate, x: card.tx, y: card.ty + 40 }}
+      animate={{
+        opacity: 1,
+        scale: isHovered ? 1.12 : 1,
+        rotate: card.rotate,
+        x: card.tx,
+        y: isHovered ? card.ty - 24 : card.ty,
+        zIndex: isHovered ? 20 : 10 - Math.abs(card.rotate),
+      }}
+      transition={{ type: 'spring', stiffness: 300, damping: 28, mass: 0.8, delay: index * 0.07 }}
+      whileTap={{ scale: 0.95 }}
+      className="absolute"
+      style={{
+        width: 138,
+        height: 210,
+        borderRadius: 18,
+        overflow: 'hidden',
+        boxShadow: isHovered
+          ? `0 24px 48px rgba(${card.accentRgb},0.35), 0 8px 24px rgba(0,0,0,0.4)`
+          : `0 12px 32px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25)`,
+        transformOrigin: 'bottom center',
+        WebkitTapHighlightColor: 'transparent',
+        border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.5 : 0.2})`,
+      }}
+    >
+      {/* Live photo carousel background */}
+      <div className="absolute inset-0">
+        <AnimatePresence mode="sync">
+          <motion.img
+            key={photoIdx}
+            src={photos[photoIdx]}
+            alt={card.label}
+            className="absolute inset-0 w-full h-full object-cover"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.9 }}
+          />
+        </AnimatePresence>
+      </div>
+
+      {/* Glassmorphic gradient overlay */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(160deg, rgba(${card.accentRgb},0.08) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.72) 100%)`,
+          backdropFilter: isHovered ? 'none' : 'none',
+        }}
+      />
+
+      {/* Glass shine top edge */}
+      <div
+        className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
+        style={{
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
+          borderRadius: '18px 18px 0 0',
+        }}
+      />
+
+      {/* Photo dots indicator */}
+      <div className="absolute top-2.5 left-0 right-0 flex justify-center gap-1 px-3">
+        {photos.map((_, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-full transition-all duration-300"
+            style={{
+              height: 2.5,
+              background: i === (photoIdx % photos.length) ? `rgba(${card.accentRgb},0.9)` : 'rgba(255,255,255,0.35)',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Bottom content */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        {/* Glass pill background */}
+        <div
+          className="rounded-xl p-2.5"
+          style={{
+            background: 'rgba(0,0,0,0.45)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(255,255,255,0.12)',
+          }}
+        >
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span style={{ fontSize: 14 }}>{card.emoji}</span>
+            <span className="text-white font-black text-[11px] tracking-tight leading-none">{card.label}</span>
+          </div>
+          <p className="text-white/60 text-[9px] leading-tight">{card.description}</p>
+        </div>
+      </div>
+
+      {/* Accent glow on hover */}
+      {isHovered && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{
+            boxShadow: `inset 0 0 0 2px rgba(${card.accentRgb},0.6)`,
+            borderRadius: 18,
+          }}
+        />
+      )}
+    </motion.button>
+  );
+});
+
+FanPokerCard.displayName = 'FanPokerCard';
+
 interface SwipeAllDashboardProps {
   setCategories: (ids: any[]) => void;
 }
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
-  const allCategories = [
-    { id: 'property' as const, label: 'Properties', Icon: Home, color: 'text-primary', description: 'Houses, apartments & rooms' },
-    { id: 'motorcycle' as const, label: 'Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500', description: 'Mopeds, scooters & bikes' },
-    { id: 'bicycle' as const, label: 'Bicycles', Icon: Bike, color: 'text-emerald-500', description: 'City, mountain & road bikes' },
-    { id: 'services' as const, label: 'Workers', Icon: Briefcase, color: 'text-purple-500', description: 'Skilled freelancers & staff' },
-  ];
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
+  const handleTap = useCallback((id: string) => {
+    triggerHaptic('light');
+    setCategories([id]);
+  }, [setCategories]);
 
   return (
     <AnimatePresence mode="wait">
@@ -257,42 +426,79 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         initial="initial"
         animate="animate"
         exit="exit"
-        className="relative w-full flex-1 flex flex-col items-center justify-center px-4 py-6 pb-32 overflow-y-auto"
+        className="relative w-full flex-1 flex flex-col items-center justify-center"
         style={{ minHeight: 'calc(100dvh - 140px)' }}
       >
-        <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-gradient-to-br from-primary via-brand-accent-2 to-purple-500 blur-3xl" />
+        {/* Subtle ambient glow */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full opacity-[0.07] blur-3xl bg-gradient-radial from-primary via-purple-500 to-transparent" />
+        </div>
+
+        {/* Title */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          className="text-center mb-10 z-10 relative"
+          initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-xs"
+          transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <div className="text-center mb-8">
-            <p className="text-sm text-muted-foreground">Choose one of these to start swiping</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {allCategories.map(({ id, label, Icon, color, description }, i) => (
-              <motion.button
-                key={id}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.02 }}
-                onClick={() => setCategories([id])}
-                className="relative flex flex-col items-center gap-3 p-5 rounded-2xl text-center transition-all active:brightness-95"
-                style={{ WebkitTapHighlightColor: 'transparent' }}
-              >
-                <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/20 flex items-center justify-center ${color} shadow-sm`}>
-                  <Icon className="w-7 h-7" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <div className="text-sm font-black text-foreground tracking-tight">{label}</div>
-                  <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{description}</div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+            Tap a card to explore
+          </p>
+        </motion.div>
+
+        {/* Fan of cards */}
+        <div
+          className="relative z-10"
+          style={{ width: 320, height: 260 }}
+        >
+          {FAN_CARDS.map((card, i) => (
+            <FanPokerCard
+              key={card.id}
+              card={card}
+              index={i}
+              isHovered={hoveredCard === card.id}
+              onTap={() => handleTap(card.id)}
+            />
+          ))}
+          {/* Invisible hover zones positioned over each card for desktop */}
+          {FAN_CARDS.map((card) => (
+            <div
+              key={`hover-${card.id}`}
+              className="absolute"
+              style={{
+                width: 138,
+                height: 210,
+                left: '50%',
+                top: '50%',
+                transform: `translate(-50%, -50%) translateX(${card.tx}px) translateY(${card.ty}px) rotate(${card.rotate}deg)`,
+                transformOrigin: 'bottom center',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={() => setHoveredCard(card.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+            />
+          ))}
+        </div>
+
+        {/* Label strip below fan */}
+        <motion.div
+          className="flex gap-6 mt-6 z-10 relative"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.4 }}
+        >
+          {FAN_CARDS.map(card => (
+            <button
+              key={`label-${card.id}`}
+              onClick={() => handleTap(card.id)}
+              data-testid={`fan-label-${card.id}`}
+              className="flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+            >
+              <span style={{ fontSize: 18 }}>{card.emoji}</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{card.label}</span>
+            </button>
+          ))}
         </motion.div>
       </motion.div>
     </AnimatePresence>
