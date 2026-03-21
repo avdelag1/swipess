@@ -1,7 +1,8 @@
 {
   "nav": {
     "home": "Home",
-    "explore": "Events",
+    "explore": "Dashboard",
+    "events": "Events",
     "messages": "Messages",
     "profile": "Profile",
     "settings": "Settings",

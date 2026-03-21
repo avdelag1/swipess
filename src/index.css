@@ -138,7 +138,6 @@ html {
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
   width: 100%;
-  scrollbar-gutter: stable;
   touch-action: manipulation;
   -webkit-touch-callout: none;
 
@@ -163,7 +162,11 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  scrollbar-gutter: stable;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+body::-webkit-scrollbar {
+  display: none;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -593,8 +596,8 @@ html {
   -webkit-tap-highlight-color: transparent;
   overflow-x: hidden;
   width: 100%;
-  /* Prevent page shift when scrollbar appears/disappears */
-  scrollbar-gutter: stable;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
   /* INSTANT TOUCH - Disable all browser touch delays */
   touch-action: manipulation;
@@ -624,7 +627,6 @@ body {
   margin: 0;
   padding: 0;
   /* Prevent page shift when scrollbar appears/disappears */
-  scrollbar-gutter: stable;
   /* DO NOT add safe area padding here - let components handle it */
 }
 
@@ -1955,32 +1957,6 @@ body {
   transition-duration: 0.1s;
 }
 
-/* ===== ENHANCED SCROLL EXPERIENCE ===== */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-
-*::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 3px;
-}
-
-
-
-*::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
-}
 
 /* Hide scrollbar on touch devices */
 @media (hover: none) {
