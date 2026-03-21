@@ -39,7 +39,7 @@ const CW = 1280;
 const CH = 720;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
-type WeaponKey = 'rock' | 'arrow' | 'grenade' | 'bomb' | 'bazooka';
+type WeaponKey = 'rock' | 'arrow' | 'grenade' | 'bomb' | 'bazooka' | 'laser';
 type BgKey = 'whitehouse' | 'mexican' | 'epstein' | 'mara_lago' | 'prison';
 
 interface Projectile {
@@ -69,6 +69,8 @@ interface G {
   tDancing: boolean; tDanceF: number;
   tPhrase: string; tPhraseT: number;
   tVelX: number;
+  tVelY: number;
+  jailing: boolean;
   // Shooter
   spPhrase: string; spTimer: number;
   // Arrays
@@ -96,16 +98,17 @@ const WEAPONS: { key: WeaponKey; icon: string; label: string }[] = [
   { key: 'grenade', icon: '💣', label: 'Grenade' },
   { key: 'bomb',    icon: '💥', label: 'Bomb'    },
   { key: 'bazooka', icon: '🚀', label: 'Bazooka' },
+  { key: 'laser',   icon: '🔫', label: 'Laser'   },
 ];
 
 const HIT_PHRASES   = ["You're FIRED!", "FAKE NEWS!", "WITCH HUNT!", "TREMENDOUS hit!", "Believe me!", "Nobody does it worse!", "I'm very stable!", "SAD!"];
 const MISS_PHRASES  = ["You're a DISGRACE!", "LOSER!", "You should be ASHAMED!", "Very Sad!", "Total DISASTER!", "WRONG!", "You can't hit me!"];
 const SHOOT_PHRASES = ["¡Ándale!", "¡Órale!", "¡Arriba!", "¡Híjole!", "¡Vámonos!"];
 
-const WEAPON_GRAVITY: Record<WeaponKey, number> = { rock: 0.4, arrow: 0.2, grenade: 0.35, bomb: 0.5, bazooka: 0.1 };
-const WEAPON_BOUNCE:  Record<WeaponKey, number> = { rock: 0.3, arrow: 0.05, grenade: 0.72, bomb: 0.2, bazooka: 0 };
-const WEAPON_RADIUS:  Record<WeaponKey, number> = { rock: 12, arrow: 6, grenade: 10, bomb: 15, bazooka: 8 };
-const WEAPON_SPEED:   Record<WeaponKey, number> = { rock: 1.0, arrow: 1.2, grenade: 0.9, bomb: 0.8, bazooka: 1.5 };
+const WEAPON_GRAVITY: Record<WeaponKey, number> = { rock: 0.4, arrow: 0.2, grenade: 0.35, bomb: 0.5, bazooka: 0.1, laser: 0.0 };
+const WEAPON_BOUNCE:  Record<WeaponKey, number> = { rock: 0.3, arrow: 0.05, grenade: 0.72, bomb: 0.2, bazooka: 0, laser: 0.0 };
+const WEAPON_RADIUS:  Record<WeaponKey, number> = { rock: 12, arrow: 6, grenade: 10, bomb: 15, bazooka: 8, laser: 3 };
+const WEAPON_SPEED:   Record<WeaponKey, number> = { rock: 1.0, arrow: 1.2, grenade: 0.9, bomb: 0.8, bazooka: 1.5, laser: 6.0 };
 const CATAPULT_X = 100;
 
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
@@ -531,17 +534,34 @@ function drawTrump(ctx: CanvasRenderingContext2D, g: G, _frame: number) {
     ctx.textAlign = 'left';
   }
 
-  // Speech bubble
+  // Speech bubble (Cartoon Cloud)
   if (tPhraseT > 0 && tPhrase) {
     ctx.globalAlpha = Math.min(1, tPhraseT / 18);
     const bx = dx + tw / 2; const by = dy - 55;
-    const bw = tPhrase.length * 8.5 + 22;
-    ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.beginPath(); (ctx as any).roundRect(bx - bw / 2, by - 24, bw, 33, 8); ctx.fill();
-    ctx.strokeStyle = '#FF3333'; ctx.lineWidth = 2;
-    ctx.beginPath(); (ctx as any).roundRect(bx - bw / 2, by - 24, bw, 33, 8); ctx.stroke();
-    ctx.fillStyle = '#CC0000'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
-    ctx.fillText(tPhrase, bx, by - 2);
+    const bw = tPhrase.length * 8.5 + 40;
+    const bh = 45;
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#333333';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // Cloud bubble shape
+    ctx.arc(bx - bw * 0.35, by, bh * 0.4, Math.PI * 0.5, Math.PI * 1.5, false);
+    ctx.arc(bx - bw * 0.1, by - bh * 0.35, bh * 0.5, Math.PI, Math.PI * 2, false);
+    ctx.arc(bx + bw * 0.2, by - bh * 0.25, bh * 0.45, Math.PI * 1.25, Math.PI * 0.25, false);
+    ctx.arc(bx + bw * 0.4, by + bh * 0.1, bh * 0.35, Math.PI * 1.5, Math.PI * 0.5, false);
+    ctx.arc(bx + bw * 0.1, by + bh * 0.3, bh * 0.35, 0, Math.PI, false);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+
+    // Little tail to mouth
+    ctx.beginPath();
+    ctx.arc(bx - 10, by + bh * 0.7, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(bx - 18, by + bh * 1.1, 3, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    
+    ctx.fillStyle = '#111111'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(tPhrase, bx + 5, by + 4);
     ctx.textAlign = 'left'; ctx.globalAlpha = 1;
   }
 
@@ -598,6 +618,14 @@ function drawProjectile(ctx: CanvasRenderingContext2D, p: Projectile) {
       ctx.fillStyle = '#CC4400'; ctx.beginPath(); ctx.moveTo(19, -5); ctx.lineTo(33, 0); ctx.lineTo(19, 5); ctx.closePath(); ctx.fill();
       ctx.fillStyle = '#666'; ctx.fillRect(-18, -12, 11, 7); ctx.fillRect(-18, 5, 11, 7);
       ctx.fillStyle = '#FF6600'; ctx.beginPath(); ctx.arc(-22, 0, 5 + Math.random() * 3, 0, Math.PI * 2); ctx.fill();
+      break;
+    case 'laser':
+      ctx.rotate(ang);
+      ctx.fillStyle = '#FF0000';
+      ctx.shadowBlur = 10; ctx.shadowColor = '#FF0000';
+      ctx.fillRect(-20, -2, 40, 4);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(-15, -1, 30, 2);
+      ctx.shadowBlur = 0;
       break;
   }
   ctx.restore();
@@ -763,7 +791,8 @@ export default function TrumpsBadDay() {
       tHit: false, tHitF: 0, tHairOff: false,
       tDancing: false, tDanceF: 0,
       tPhrase: '', tPhraseT: 0,
-      tVelX: 0,
+      tVelX: 0, tVelY: 0,
+      jailing: false,
       spPhrase: '', spTimer: 0,
       projectiles: [], explosions: [], confetti: [],
       heights,
@@ -870,13 +899,52 @@ export default function TrumpsBadDay() {
       if (g.tDancing) { g.tDanceF++; if (g.tDanceF > 85) { g.tDancing = false; g.tDanceF = 0; } }
       if (g.spTimer > 0) g.spTimer--;
 
-      // Speed ramp
-      const lvl = Math.floor(g.hits / 10);
-      if (lvl > 0 && !g.tHit) {
-        g.tVelX = Math.sin(F * 0.022) * lvl * 0.9;
-        g.tx += g.tVelX;
-        g.tx = Math.max(CW * 0.58, Math.min(CW - g.tw - 18, g.tx));
-        g.ty = terrainY(g.heights, g.tx + g.tw / 2) - g.th;
+      // Speed ramp & Approaching logic
+      const lvl = Math.floor(g.hits / 5);
+      if (!g.tHit && !g.jailing) {
+        // Trump slowly walks left to catch the Mexican guy
+        const advanceSpeed = 0.5 + Math.min(lvl * 0.3, 3);
+        const groundY = terrainY(g.heights, g.tx + g.tw / 2) - g.th;
+        
+        g.tx -= advanceSpeed;
+        
+        // Random Jumps like Mario Bros to dodge and attack
+        if (g.ty >= groundY - 2) {
+          // On ground
+          if (Math.random() < 0.015 + (lvl * 0.005)) {
+            g.tVelY = -14 - Math.random() * 6; // Big Mario jump!
+            if (Math.random() > 0.5) {
+              g.tPhrase = pick(["I'm coming!", "Tremendous jump!", "MEXICO WILL PAY!", "You can't hide!", "I'm the best jumper!"]);
+              g.tPhraseT = 80;
+            }
+          } else {
+            g.tVelY = 0;
+            g.ty = groundY;
+          }
+        }
+        
+        // Apply Gravity to Trump
+        g.tVelY += 0.85; // Gravity pull
+        g.ty += g.tVelY;
+        if (g.ty > groundY) {
+          g.ty = groundY;
+          g.tVelY = 0;
+        }
+
+        // Check if Trump reached the catapult (JAILED condition)
+        if (g.tx <= CATAPULT_X + 22) {
+          g.jailing = true;
+          g.tPhrase = "GOT YOU! TO JAIL!";
+          g.tPhraseT = 150;
+          g.spPhrase = "¡Ay caramba!";
+          g.spTimer = 150;
+          beep(200, 1.0, 'sawtooth');
+          g.phase = 'gameover';
+          saveScore(g);
+          setTimeout(() => {
+            setPhase('gameover'); setUiScore(g.score); setUiHighScore(g.highScore); setIsNewHS(g.isNewHighScore);
+          }, 1500); // 1.5 second delay to let the user see Trump's victory
+        }
       }
 
       // Projectiles
@@ -922,6 +990,8 @@ export default function TrumpsBadDay() {
               boom();
               const dx = p.x - (g.tx + g.tw / 2), dy = tY - (g.ty + g.th / 2);
               if (Math.sqrt(dx * dx + dy * dy) < 170) onHit(g, p.x, tY);
+            } else if (p.weapon === 'laser') {
+              g.explosions.push({ x: p.x, y: tY, radius: 15, frame: 0, maxFrame: 10, big: false });
             } else {
               g.explosions.push({ x: p.x, y: tY, radius: 28, frame: 0, maxFrame: 18, big: false });
             }
@@ -943,6 +1013,8 @@ export default function TrumpsBadDay() {
           if (p.weapon === 'bomb' || p.weapon === 'bazooka') {
             g.explosions.push({ x: p.x, y: p.y, radius: p.weapon === 'bomb' ? 125 : 62, frame: 0, maxFrame: p.weapon === 'bomb' ? 38 : 26, big: p.weapon === 'bomb' });
             boom();
+          } else if (p.weapon === 'laser') {
+            g.explosions.push({ x: p.x, y: p.y, radius: 20, frame: 0, maxFrame: 12, big: false });
           }
         }
       }
