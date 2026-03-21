@@ -756,7 +756,7 @@ export default function TrumpsBadDay() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      await supabase.from('trump_game_scores').insert({
+      await (supabase as any).from('trump_game_scores').insert({
         user_id: session.user.id, score: g.score, combo: g.combo,
         weapon_used: g.weapon, background: BACKGROUNDS[g.bgIndex].key,
       });
