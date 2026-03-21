@@ -300,15 +300,15 @@ const FAN_CARDS = [
 ];
 
 // Card dimensions — large enough to feel immersive, tight enough to fit the fan
-const CARD_W = 215;
-const CARD_H = 355;
+const CARD_W = 252;
+const CARD_H = 430;
 
 // Fan geometry — very slight tilt so cards feel almost upright
 const FAN_CARDS_WITH_POS = [
-  { ...FAN_CARDS[0], rotate: -7,  tx: -26, ty: 10  },
-  { ...FAN_CARDS[1], rotate: -2.2,tx: -9,  ty: 2   },
-  { ...FAN_CARDS[2], rotate: 2.2, tx: 9,   ty: 2   },
-  { ...FAN_CARDS[3], rotate: 7,   tx: 26,  ty: 10  },
+  { ...FAN_CARDS[0], rotate: -4.5, tx: -16, ty: 8  },
+  { ...FAN_CARDS[1], rotate: -1.5, tx: -6,  ty: 2  },
+  { ...FAN_CARDS[2], rotate: 1.5,  tx: 6,   ty: 2  },
+  { ...FAN_CARDS[3], rotate: 4.5,  tx: 16,  ty: 8  },
 ];
 
 const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
@@ -477,7 +477,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         animate="animate"
         exit="exit"
         className="relative w-full flex-1 flex flex-col items-center justify-center"
-        style={{ minHeight: 'calc(100dvh - 140px)' }}
+        style={{ minHeight: 'calc(100dvh - 148px)' }}
         onClick={() => previewCard && setPreviewCard(null)}
       >
         {/* Ambient glow */}
@@ -488,7 +488,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan container — stop propagation so card taps don't hit the backdrop */}
         <div
           className="relative"
-          style={{ width: '100%', maxWidth: 380, height: CARD_H + 60, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 420, height: CARD_H + 36, zIndex: 10 }}
           onClick={e => e.stopPropagation()}
         >
           {FAN_CARDS_WITH_POS.map((card, i) => (
