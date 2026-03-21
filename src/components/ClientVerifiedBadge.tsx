@@ -26,12 +26,12 @@ export const ClientVerifiedBadge = memo(({
     <div className={cn(
       'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full backdrop-blur-sm',
       isVerified
-        ? 'bg-emerald-500/15 border border-emerald-500/30'
+        ? 'bg-rose-500/15 border border-rose-500/30'
         : 'bg-muted/50 border border-border/50',
       className
     )}>
       {isVerified ? (
-        <ShieldCheck className={cn(sizeClasses[size], 'text-emerald-500')} />
+        <ShieldCheck className={cn(sizeClasses[size], 'text-rose-500')} />
       ) : (
         <Clock className={cn(sizeClasses[size], 'text-muted-foreground')} />
       )}
@@ -39,7 +39,7 @@ export const ClientVerifiedBadge = memo(({
         <span className={cn(
           labelSize[size],
           'font-semibold',
-          isVerified ? 'text-emerald-500' : 'text-muted-foreground'
+          isVerified ? 'text-rose-500' : 'text-muted-foreground'
         )}>
           {isVerified ? 'Verified Identity' : 'Verification Pending'}
         </span>

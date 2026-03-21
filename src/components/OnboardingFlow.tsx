@@ -402,7 +402,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
             className="text-center space-y-6 py-8"
           >
             <div className="flex justify-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-rose-500 flex items-center justify-center">
                 <CheckCircle2 className="w-10 h-10 text-white" />
               </div>
             </div>
@@ -419,7 +419,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
             </div>
             <div className="pt-4">
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 rounded-full">
-                <CheckCircle2 className="w-5 h-5 text-green-400" />
+                <CheckCircle2 className="w-5 h-5 text-rose-400" />
                 <span className="text-white font-medium">{profileImages.length} Photos</span>
                 <span className="text-white/50">•</span>
                 <span className="text-white font-medium">{languages.length} Languages</span>
@@ -514,7 +514,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
             <Button
               onClick={handleComplete}
               disabled={isLoading}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
+              className="bg-gradient-to-r from-rose-500 to-rose-500 hover:from-rose-600 hover:to-rose-600"
             >
               {isLoading ? 'Completing...' : 'Start Swiping!'}
             </Button>

@@ -266,7 +266,7 @@ export default function RoommateMatching() {
                className={cn(
                  "px-3.5 h-11 rounded-[1.2rem] border backdrop-blur-3xl flex items-center gap-2 transition-all shadow-sm",
                  roommateVisible
-                   ? isLight ? "bg-emerald-50/90 border-emerald-300 text-emerald-700" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                   ? isLight ? "bg-rose-50/90 border-rose-300 text-rose-700" : "bg-rose-500/10 border-rose-500/30 text-rose-400"
                    : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
                )}
              >
@@ -358,7 +358,7 @@ export default function RoommateMatching() {
                        >
                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                          <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">{(topCard as any).compatibility ?? 85}%</span>
-                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                         <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e]" />
                        </motion.div>
                     </div>
                   </div>
@@ -426,9 +426,9 @@ export default function RoommateMatching() {
                        <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">{topCard.name}</h2>
                        <span className="text-3xl font-bold text-white/40">{topCard.age}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 w-fit">
-                       <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                       <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Verified Human</span>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 w-fit">
+                       <ShieldCheck className="w-3 h-3 text-rose-400" />
+                       <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Verified Human</span>
                     </div>
                   </motion.div>
                </div>

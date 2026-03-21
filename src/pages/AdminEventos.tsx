@@ -303,7 +303,7 @@ export default function AdminEventos() {
                 <p className="text-sm font-semibold text-foreground truncate">{ev.title}</p>
                 <p className="text-xs text-muted-foreground">{ev.location || 'No location'}</p>
                 <div className="flex gap-1 mt-1">
-                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", ev.is_published ? "bg-emerald-500/15 text-emerald-400" : "bg-muted text-muted-foreground")}>
+                  <span className={cn("text-[10px] px-1.5 py-0.5 rounded-full", ev.is_published ? "bg-rose-500/15 text-rose-400" : "bg-muted text-muted-foreground")}>
                     {ev.is_published ? 'Published' : 'Draft'}
                   </span>
                 </div>

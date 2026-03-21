@@ -331,7 +331,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
                                 className="text-white/70 hover:text-white"
                               >
                                 {search.alerts_enabled ? (
-                                  <Bell className="w-4 h-4 text-green-400" />
+                                  <Bell className="w-4 h-4 text-rose-400" />
                                 ) : (
                                   <BellOff className="w-4 h-4 text-white/40" />
                                 )}

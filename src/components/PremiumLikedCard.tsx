@@ -98,7 +98,7 @@ export function PremiumLikedCard({ type, data, onAction, isLight }: PremiumLiked
                         </>
                     )}
                     {type === 'profile' && data.verified && (
-                        <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-black flex items-center gap-1.5">
+                        <div className="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[10px] font-black flex items-center gap-1.5">
                             <Zap className="w-3 h-3 fill-current" />
                             VERIFIED
                         </div>

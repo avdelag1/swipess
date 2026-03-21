@@ -136,7 +136,7 @@ const AITestPage = () => {
 
           <div className="flex items-center gap-3 mb-1">
             {status === "ok" && (
-              <div className="bg-emerald-500/10 text-emerald-500 border-none font-black text-[9px] uppercase tracking-widest px-2 py-1 rounded-md">
+              <div className="bg-rose-500/10 text-rose-500 border-none font-black text-[9px] uppercase tracking-widest px-2 py-1 rounded-md">
                 {providerUsed} ONLINE
               </div>
             )}
@@ -227,7 +227,7 @@ const AITestPage = () => {
             />
             <div className="px-4 pb-4 flex justify-between items-center">
               <div className="flex items-center gap-2 pl-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                 <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">Ready</span>
               </div>
               <motion.button

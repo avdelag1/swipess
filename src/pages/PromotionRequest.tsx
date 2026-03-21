@@ -18,7 +18,7 @@ import { toast } from '@/components/ui/sonner';
 const CATEGORIES = [
   { id: 'nightlife', label: 'Nightlife', emoji: '🎶', gradient: 'from-purple-600 to-indigo-600' },
   { id: 'dining', label: 'Dining', emoji: '🍷', gradient: 'from-rose-600 to-pink-600' },
-  { id: 'jungle', label: 'Jungle', emoji: '🌿', gradient: 'from-emerald-600 to-green-600' },
+  { id: 'jungle', label: 'Jungle', emoji: '🌿', gradient: 'from-rose-600 to-rose-600' },
   { id: 'wellness', label: 'Wellness', emoji: '🧘', gradient: 'from-cyan-600 to-blue-600' },
   { id: 'beach', label: 'Beach', emoji: '🏖️', gradient: 'from-amber-500 to-orange-500' },
   { id: 'art', label: 'Art & Culture', emoji: '🎨', gradient: 'from-fuchsia-600 to-pink-600' },
@@ -29,7 +29,7 @@ const CATEGORIES = [
 
 // ── STATS CARDS ─────────────────────────────────────────────────────────────
 const STATS = [
-  { icon: Users, value: '15k+', label: 'Monthly Users', color: 'text-emerald-400' },
+  { icon: Users, value: '15k+', label: 'Monthly Users', color: 'text-rose-400' },
   { icon: Eye, value: '120k+', label: 'Monthly Views', color: 'text-blue-400' },
   { icon: TrendingUp, value: '89%', label: 'Engagement Rate', color: 'text-amber-400' },
   { icon: Star, value: '4.9', label: 'Avg Rating', color: 'text-purple-400' },
@@ -192,7 +192,7 @@ export default function PromotionRequest() {
           transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           className="flex flex-col items-center gap-8 max-w-sm"
         >
-          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30">
+          <div className="w-28 h-28 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30">
             <CheckCircle2 className="w-14 h-14 text-white" />
           </div>
           
@@ -571,7 +571,7 @@ export default function PromotionRequest() {
                       className={cn(
                         "flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold border transition-all",
                         form.isFree 
-                          ? "bg-emerald-500 text-white border-emerald-400" 
+                          ? "bg-rose-500 text-white border-rose-400" 
                           : isLight 
                             ? "bg-white border-slate-200 text-slate-600" 
                             : "bg-zinc-900 border-white/10 text-white/60"
@@ -752,7 +752,7 @@ export default function PromotionRequest() {
                         </span>
                       )}
                       {form.isFree && (
-                        <span className="px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest">
+                        <span className="px-3 py-1.5 rounded-full bg-rose-500/10 text-rose-500 text-[10px] font-black uppercase tracking-widest">
                           ✓ Free
                         </span>
                       )}
@@ -783,7 +783,7 @@ export default function PromotionRequest() {
                       )}
                       {form.location && (
                         <div className="flex items-center gap-3">
-                          <MapPin className={cn("w-4 h-4", isLight ? "text-emerald-500" : "text-emerald-400")} />
+                          <MapPin className={cn("w-4 h-4", isLight ? "text-rose-500" : "text-rose-400")} />
                           <span className={cn("text-xs font-bold", isLight ? "text-slate-600" : "text-white/60")}>
                             {form.location}{form.locationDetail ? ` · ${form.locationDetail}` : ''}
                           </span>
@@ -791,7 +791,7 @@ export default function PromotionRequest() {
                       )}
                       {form.whatsapp && (
                         <div className="flex items-center gap-3">
-                          <MessageCircle className={cn("w-4 h-4", isLight ? "text-green-500" : "text-green-400")} />
+                          <MessageCircle className={cn("w-4 h-4", isLight ? "text-rose-500" : "text-rose-400")} />
                           <span className={cn("text-xs font-bold", isLight ? "text-slate-600" : "text-white/60")}>
                             {form.whatsapp}
                           </span>
@@ -868,7 +868,7 @@ export default function PromotionRequest() {
               whileTap={{ scale: 0.97 }}
               onClick={handleSubmit}
               disabled={submitting}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 text-white text-sm font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-600 text-white text-sm font-black uppercase tracking-widest shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2"
             >
               {submitting ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

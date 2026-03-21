@@ -21,7 +21,7 @@ type CategoryType = 'property' | 'moto' | 'bicycle' | 'services';
 const categories: { id: CategoryType; name: string; icon: React.ElementType; gradient: string; borderColor: string }[] = [
   { id: 'property', name: 'Property', icon: Home, gradient: 'from-blue-500/20 to-cyan-500/20', borderColor: 'border-blue-500/30' },
   { id: 'moto', name: 'Motos', icon: MotorcycleIcon, gradient: 'from-orange-500/20 to-amber-500/20', borderColor: 'border-orange-500/30' },
-  { id: 'bicycle', name: 'Bikes', icon: Bike, gradient: 'from-emerald-500/20 to-teal-500/20', borderColor: 'border-emerald-500/30' },
+  { id: 'bicycle', name: 'Bikes', icon: Bike, gradient: 'from-rose-500/20 to-teal-500/20', borderColor: 'border-rose-500/30' },
   { id: 'services', name: 'Jobs', icon: Briefcase, gradient: 'from-purple-500/20 to-pink-500/20', borderColor: 'border-purple-500/30' },
 ];
 

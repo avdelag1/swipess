@@ -361,8 +361,8 @@ export function MessageActivationPackages({
         className={cn("flex flex-wrap items-center justify-center gap-8 pt-8 relative z-10 border-t", isDark ? "border-white/5" : "border-gray-200")}
       >
         <div className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
-            <Shield className="w-4 h-4 text-emerald-500" />
+          <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform">
+            <Shield className="w-4 h-4 text-rose-500" />
           </div>
           <span className={cn("text-xs font-bold uppercase tracking-widest", isDark ? "text-white/50" : "text-gray-500")}>Bank-Level Security</span>
         </div>
@@ -426,9 +426,9 @@ function Feature({ text, isPremium }: { text: string; isPremium?: boolean }) {
     <div className="flex items-center gap-3 text-xs group">
       <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors ${isPremium
         ? 'bg-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]'
-        : 'bg-emerald-500/10'
+        : 'bg-rose-500/10'
         }`}>
-        <Check className={`w-3 h-3 ${isPremium ? 'text-amber-500' : 'text-emerald-500'}`} />
+        <Check className={`w-3 h-3 ${isPremium ? 'text-amber-500' : 'text-rose-500'}`} />
       </div>
       <span className={cn("font-bold transition-colors", isDark ? "text-white/70 group-hover:text-white" : "text-gray-600 group-hover:text-gray-900")}>{text}</span>
     </div>

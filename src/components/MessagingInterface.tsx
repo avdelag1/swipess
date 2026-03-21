@@ -330,13 +330,13 @@ export const MessagingInterface = memo(({ conversationId, otherUser, listing, cu
                     </AvatarFallback>
                   </Avatar>
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background" />
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-background" />
               </div>
               <div className="flex flex-col items-start min-w-0">
                 <h3 className="font-semibold text-[14px] text-foreground truncate max-w-[160px] sm:max-w-[220px]">
                   {otherUser.full_name}
                 </h3>
-                <span className="text-[10px] text-emerald-500 font-medium">Online</span>
+                <span className="text-[10px] text-rose-500 font-medium">Online</span>
               </div>
             </button>
 

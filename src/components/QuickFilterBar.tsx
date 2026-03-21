@@ -331,7 +331,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   // Per-category accent colors (active state)
   const categoryColors: Record<string, { bg: string; shadow: string; border: string }> = {
-    property:   { bg: 'rgba(34,197,94,0.90)',   shadow: '0 4px 14px rgba(34,197,94,0.45)',   border: 'transparent' },
+    property:   { bg: 'rgba(244,63,94,0.90)',   shadow: '0 4px 14px rgba(244,63,94,0.45)',   border: 'transparent' },
     motorcycle: { bg: 'rgba(99,102,241,0.90)',   shadow: '0 4px 14px rgba(99,102,241,0.45)',  border: 'transparent' },
     bicycle:    { bg: 'rgba(20,184,166,0.90)',   shadow: '0 4px 14px rgba(20,184,166,0.45)',  border: 'transparent' },
     services:   { bg: 'rgba(245,158,11,0.90)',   shadow: '0 4px 14px rgba(245,158,11,0.45)',  border: 'transparent' },

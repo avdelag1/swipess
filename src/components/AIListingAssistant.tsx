@@ -436,8 +436,8 @@ export function AIListingAssistant({ isOpen, onClose, onComplete }: AIListingAss
                   className="space-y-6"
                 >
                   <div className="space-y-2 text-center">
-                    <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-2">
-                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                    <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-2">
+                      <CheckCircle2 className="w-8 h-8 text-rose-500" />
                     </div>
                     <h3 className="text-2xl font-black">Listing Preview</h3>
                     <p className="text-sm text-muted-foreground">Here's what AI generated. You can edit further in the next step.</p>

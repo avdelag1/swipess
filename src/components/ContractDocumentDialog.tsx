@@ -345,8 +345,8 @@ export const ContractDocumentDialog: React.FC<ContractDocumentDialogProps> = ({
                 />
 
                 {signatureData && (
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <p className="text-green-800 font-medium text-center">
+                  <div className="p-4 bg-rose-50 rounded-lg border border-rose-200">
+                    <p className="text-rose-800 font-medium text-center">
                       Signature captured successfully!
                     </p>
                   </div>

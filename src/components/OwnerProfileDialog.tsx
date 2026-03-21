@@ -269,8 +269,8 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
             {/* Contact Info Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-                  <Mail className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <div className="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center">
+                  <Mail className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                 </div>
                 <Label className="text-foreground text-base font-semibold">Contact Information</Label>
               </div>

@@ -43,8 +43,8 @@ export function DirectMessageDialog({
   const isBicycle = category?.toLowerCase() === 'bicycle';
   const CategoryIcon = isBicycle ? Bike : MotorcycleIcon;
   const categoryLabel = isBicycle ? 'Bicycle' : 'Motorcycle';
-  const categoryColor = isBicycle ? 'text-emerald-500' : 'text-slate-500';
-  const categoryBgColor = isBicycle ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-slate-500/10 border-slate-500/20';
+  const categoryColor = isBicycle ? 'text-rose-500' : 'text-slate-500';
+  const categoryBgColor = isBicycle ? 'bg-rose-500/10 border-rose-500/20' : 'bg-slate-500/10 border-slate-500/20';
 
   const handleConfirm = () => {
     if (!message.trim()) {

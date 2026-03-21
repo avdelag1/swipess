@@ -311,7 +311,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="text-lg sm:text-xl font-bold break-words">{profile.name}</h3>
                     {profile.verified && (
-                      <Badge className="bg-green-500/20 text-green-600 border-green-500/30">
+                      <Badge className="bg-rose-500/20 text-rose-600 border-rose-500/30">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         Verified
                       </Badge>
@@ -347,13 +347,13 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 {/* Match Potential Badge */}
                 {renterInsights && (
                   <div className={`text-center p-2.5 rounded-xl border ${
-                    renterInsights.matchPotential >= 80 ? 'bg-green-500/10 border-green-500/30' :
+                    renterInsights.matchPotential >= 80 ? 'bg-rose-500/10 border-rose-500/30' :
                     renterInsights.matchPotential >= 60 ? 'bg-blue-500/10 border-blue-500/30' :
                     renterInsights.matchPotential >= 40 ? 'bg-yellow-500/10 border-yellow-500/30' :
                     'bg-gray-500/10 border-gray-500/30'
                   }`}>
                     <div className={`text-xl font-bold ${
-                      renterInsights.matchPotential >= 80 ? 'text-green-600 dark:text-green-400' :
+                      renterInsights.matchPotential >= 80 ? 'text-rose-600 dark:text-rose-400' :
                       renterInsights.matchPotential >= 60 ? 'text-blue-600 dark:text-blue-400' :
                       renterInsights.matchPotential >= 40 ? 'text-yellow-600 dark:text-yellow-400' :
                       'text-gray-600 dark:text-gray-400'
@@ -417,10 +417,10 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="bg-gradient-to-br from-green-500/15 to-emerald-500/5 p-2 sm:p-4 rounded-lg text-center border border-green-500/30 shadow-md hover:shadow-lg transition-all backdrop-blur-sm hover:scale-105"
+                  className="bg-gradient-to-br from-rose-500/15 to-rose-500/5 p-2 sm:p-4 rounded-lg text-center border border-rose-500/30 shadow-md hover:shadow-lg transition-all backdrop-blur-sm hover:scale-105"
                 >
-                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-green-600 dark:text-green-400 mb-1 sm:mb-2 drop-shadow-md" />
-                  <div className="text-lg sm:text-2xl font-bold text-green-600 dark:text-green-400">{clientStats.responseRate}%</div>
+                  <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 mx-auto text-rose-600 dark:text-rose-400 mb-1 sm:mb-2 drop-shadow-md" />
+                  <div className="text-lg sm:text-2xl font-bold text-rose-600 dark:text-rose-400">{clientStats.responseRate}%</div>
                   <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">Response Rate</div>
                 </motion.div>
 
@@ -452,7 +452,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-sm font-semibold">Readiness Score</span>
                   <Badge className={`${
-                    renterInsights.readinessScore >= 80 ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/20 text-green-700 dark:text-green-400 border-green-500/40' :
+                    renterInsights.readinessScore >= 80 ? 'bg-gradient-to-r from-rose-500/30 to-rose-500/20 text-rose-700 dark:text-rose-400 border-rose-500/40' :
                     renterInsights.readinessScore >= 60 ? 'bg-gradient-to-r from-blue-500/30 to-cyan-500/20 text-blue-700 dark:text-blue-400 border-blue-500/40' :
                     renterInsights.readinessScore >= 40 ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/40' :
                     'bg-gradient-to-r from-gray-500/30 to-gray-400/20 text-gray-700 dark:text-gray-400 border-gray-500/40'
@@ -466,7 +466,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                     animate={{ width: `${renterInsights.readinessScore}%` }}
                     transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
                     className={`h-3 rounded-full transition-all duration-500 shadow-md ${
-                      renterInsights.readinessScore >= 80 ? 'bg-gradient-to-r from-green-500 via-green-400 to-emerald-500' :
+                      renterInsights.readinessScore >= 80 ? 'bg-gradient-to-r from-rose-500 via-green-400 to-rose-500' :
                       renterInsights.readinessScore >= 60 ? 'bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-500' :
                       renterInsights.readinessScore >= 40 ? 'bg-gradient-to-r from-yellow-500 via-yellow-400 to-amber-500' :
                       'bg-gradient-to-r from-gray-400 via-gray-300 to-gray-500'
@@ -493,7 +493,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
               </h4>
               <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg">
                 <div className={`w-3 h-3 rounded-full ${
-                  renterInsights.activityLevel === 'very_active' ? 'bg-green-500 animate-pulse' :
+                  renterInsights.activityLevel === 'very_active' ? 'bg-rose-500 animate-pulse' :
                   renterInsights.activityLevel === 'active' ? 'bg-blue-500' :
                   renterInsights.activityLevel === 'moderate' ? 'bg-yellow-500' : 'bg-gray-400'
                 }`} />
@@ -524,8 +524,8 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
               </h4>
               <div className="grid grid-cols-2 gap-2">
                 {renterInsights.wantsLongTerm && (
-                  <div className="flex items-center gap-2 p-2.5 bg-green-500/10 rounded-lg border border-green-500/20">
-                    <CheckCircle className="w-4 h-4 text-green-500" />
+                  <div className="flex items-center gap-2 p-2.5 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                    <CheckCircle className="w-4 h-4 text-rose-500" />
                     <span className="text-sm font-medium">Long-term Rental</span>
                   </div>
                 )}
@@ -590,7 +590,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                   </div>
                 )}
                 {renterInsights.isEcoConscious && (
-                  <div className="flex items-center gap-2 p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <div className="flex items-center gap-2 p-2.5 bg-rose-500/10 rounded-lg border border-rose-500/20">
                     <span className="text-base">🌱</span>
                     <span className="text-sm font-medium">Eco-Conscious</span>
                   </div>
@@ -613,8 +613,8 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                     </div>
                   )}
                   {renterInsights.needsBicycle && (
-                    <div className="flex items-center gap-2 p-2.5 bg-green-500/10 rounded-lg border border-green-500/20">
-                      <Bike className="w-4 h-4 text-green-600" />
+                    <div className="flex items-center gap-2 p-2.5 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                      <Bike className="w-4 h-4 text-rose-600" />
                       <span className="text-sm font-medium">Bicycle Rental</span>
                     </div>
                   )}
@@ -631,16 +631,16 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
             {/* Verification Status */}
             <div>
               <h4 className="font-semibold mb-3 flex items-center gap-2">
-                <Shield className="w-5 h-5 text-green-500" />
+                <Shield className="w-5 h-5 text-rose-500" />
                 Verification Status
               </h4>
               <div className="grid grid-cols-2 gap-3">
                 <div className={`flex items-center gap-2 p-3 rounded-lg border ${
                   profile.verified
-                    ? 'bg-green-500/10 border-green-500/30'
+                    ? 'bg-rose-500/10 border-rose-500/30'
                     : 'bg-muted/30 border-muted'
                 }`}>
-                  <CheckCircle className={`w-4 h-4 ${profile.verified ? 'text-green-500' : 'text-muted-foreground'}`} />
+                  <CheckCircle className={`w-4 h-4 ${profile.verified ? 'text-rose-500' : 'text-muted-foreground'}`} />
                   <div>
                     <span className="text-sm font-medium">ID Verified</span>
                     <p className="text-xs text-muted-foreground">{profile.verified ? 'Confirmed' : 'Pending'}</p>
@@ -648,10 +648,10 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 </div>
                 <div className={`flex items-center gap-2 p-3 rounded-lg border ${
                   renterInsights.photoCount >= 2
-                    ? 'bg-green-500/10 border-green-500/30'
+                    ? 'bg-rose-500/10 border-rose-500/30'
                     : 'bg-muted/30 border-muted'
                 }`}>
-                  <Eye className={`w-4 h-4 ${renterInsights.photoCount >= 2 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                  <Eye className={`w-4 h-4 ${renterInsights.photoCount >= 2 ? 'text-rose-500' : 'text-muted-foreground'}`} />
                   <div>
                     <span className="text-sm font-medium">Photo Verified</span>
                     <p className="text-xs text-muted-foreground">{renterInsights.photoCount} photos</p>
@@ -659,10 +659,10 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 </div>
                 <div className={`flex items-center gap-2 p-3 rounded-lg border ${
                   profile.location
-                    ? 'bg-green-500/10 border-green-500/30'
+                    ? 'bg-rose-500/10 border-rose-500/30'
                     : 'bg-muted/30 border-muted'
                 }`}>
-                  <MapPin className={`w-4 h-4 ${profile.location ? 'text-green-500' : 'text-muted-foreground'}`} />
+                  <MapPin className={`w-4 h-4 ${profile.location ? 'text-rose-500' : 'text-muted-foreground'}`} />
                   <div>
                     <span className="text-sm font-medium">Location</span>
                     <p className="text-xs text-muted-foreground">{profile.location ? 'Provided' : 'Not set'}</p>
@@ -670,10 +670,10 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 </div>
                 <div className={`flex items-center gap-2 p-3 rounded-lg border ${
                   renterInsights.interestCount >= 3
-                    ? 'bg-green-500/10 border-green-500/30'
+                    ? 'bg-rose-500/10 border-rose-500/30'
                     : 'bg-muted/30 border-muted'
                 }`}>
-                  <Star className={`w-4 h-4 ${renterInsights.interestCount >= 3 ? 'text-green-500' : 'text-muted-foreground'}`} />
+                  <Star className={`w-4 h-4 ${renterInsights.interestCount >= 3 ? 'text-rose-500' : 'text-muted-foreground'}`} />
                   <div>
                     <span className="text-sm font-medium">Interests</span>
                     <p className="text-xs text-muted-foreground">{renterInsights.interestCount} selected</p>
@@ -685,55 +685,55 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
             {/* Why This Renter - Key selling points for owner */}
             <div>
               <h4 className="font-semibold mb-3 flex items-center gap-2">
-                <ThumbsUp className="w-5 h-5 text-green-500" />
+                <ThumbsUp className="w-5 h-5 text-rose-500" />
                 Why This Renter
               </h4>
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}
-                className="p-4 bg-gradient-to-r from-green-500/15 to-emerald-500/10 rounded-xl border border-green-500/30 shadow-lg backdrop-blur-sm"
+                className="p-4 bg-gradient-to-r from-rose-500/15 to-rose-500/10 rounded-xl border border-rose-500/30 shadow-lg backdrop-blur-sm"
               >
                 <div className="space-y-2">
                   {profile.verified && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Identity verified - Trustworthy renter</span>
                     </div>
                   )}
                   {renterInsights.photoCount >= 2 && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Multiple photos uploaded ({renterInsights.photoCount})</span>
                     </div>
                   )}
                   {renterInsights.interestCount >= 5 && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Clear preferences defined ({renterInsights.interestCount} interests)</span>
                     </div>
                   )}
                   {renterInsights.readinessScore >= 60 && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Complete profile - Serious about renting</span>
                     </div>
                   )}
                   {renterInsights.activityLevel === 'very_active' && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Very active - Quick response expected</span>
                     </div>
                   )}
                   {renterInsights.wantsLongTerm && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">Looking for long-term - Stable tenancy</span>
                     </div>
                   )}
                   {clientStats && clientStats.responseRate >= 80 && (
                     <div className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                       <span className="text-sm">High response rate ({clientStats.responseRate}%)</span>
                     </div>
                   )}
@@ -766,7 +766,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                 )}
                 {(profile.profile_images?.length || 0) > 2 && (
                   <div className="flex items-start gap-2">
-                    <Eye className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                    <Eye className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
                     <p className="text-sm">
                       <span className="font-semibold">Photo Verified:</span> Multiple profile photos uploaded
                     </p>
@@ -845,7 +845,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                     <h5 className="text-sm font-medium text-muted-foreground mb-2">Financial & Verification</h5>
                     <div className="flex flex-wrap gap-2">
                       {filterTagsByCategory([...(profile.interests || []), ...(profile.preferred_activities || [])], FINANCIAL_TAGS).map((tag) => (
-                        <Badge key={`financial-${tag}`} className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20">
+                        <Badge key={`financial-${tag}`} className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20">
                           {tag}
                         </Badge>
                       ))}
@@ -883,7 +883,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
                   <span className="text-sm">Profile: {getProfileType(profile)}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-green-500" />
+                  <MapPin className="w-4 h-4 text-rose-500" />
                   <span className="text-sm">Location: {profile.location ? 'Specified' : 'Not set'}</span>
                 </div>
               </div>

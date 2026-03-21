@@ -206,8 +206,8 @@ function EventCard({
                   </span>
                 )}
                 {event.is_free && (
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-300"
-                    style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)' }}>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-rose-300"
+                    style={{ background: 'rgba(244,63,94,0.2)', border: '1px solid rgba(244,63,94,0.4)' }}>
                     FREE
                   </span>
                 )}

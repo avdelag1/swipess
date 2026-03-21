@@ -24,7 +24,7 @@ const UploadProgress: React.FC<UploadProgressProps> = ({
           <Loader2 className="h-5 w-5 text-primary animate-spin flex-shrink-0" />
         )}
         {status === 'success' && (
-          <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
+          <CheckCircle2 className="h-5 w-5 text-rose-500 flex-shrink-0" />
         )}
         {status === 'error' && (
           <XCircle className="h-5 w-5 text-red-500 flex-shrink-0" />

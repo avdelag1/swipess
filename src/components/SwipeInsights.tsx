@@ -32,7 +32,7 @@ export function SwipeInsights({ userRole, isOpen, onClose }: SwipeInsightsProps)
 
   const getInsightIcon = (type: string) => {
     switch (type) {
-      case 'success': return <CheckCircle className="w-5 h-5 text-green-400" />;
+      case 'success': return <CheckCircle className="w-5 h-5 text-rose-400" />;
       case 'warning': return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
       case 'tip': return <Target className="w-5 h-5 text-blue-400" />;
       default: return <Info className="w-5 h-5 text-muted-foreground" />;
@@ -82,10 +82,10 @@ export function SwipeInsights({ userRole, isOpen, onClose }: SwipeInsightsProps)
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-green-500/15 to-emerald-600/10 backdrop-blur-sm border-green-500/30 hover:border-green-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20">
+            <Card className="bg-gradient-to-br from-rose-500/15 to-rose-600/10 backdrop-blur-sm border-rose-500/30 hover:border-rose-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20">
               <CardContent className="p-5 text-center">
-                <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-green-500/30 to-emerald-600/20 flex items-center justify-center ring-2 ring-green-500/30">
-                  <TrendingUp className="w-6 h-6 text-green-400" />
+                <div className="w-12 h-12 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-rose-500/30 to-rose-600/20 flex items-center justify-center ring-2 ring-green-500/30">
+                  <TrendingUp className="w-6 h-6 text-rose-400" />
                 </div>
                 <div className="text-3xl font-bold text-foreground mb-1">{metrics?.matchRate || 0}%</div>
                 <div className="text-muted-foreground text-sm font-medium">Match Rate</div>
@@ -167,8 +167,8 @@ export function SwipeInsights({ userRole, isOpen, onClose }: SwipeInsightsProps)
                         <span className="text-red-400">{day.likes}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                        <span className="text-green-400">{day.matches}</span>
+                        <div className="w-2 h-2 rounded-full bg-rose-400"></div>
+                        <span className="text-rose-400">{day.matches}</span>
                       </div>
                     </div>
                   </div>

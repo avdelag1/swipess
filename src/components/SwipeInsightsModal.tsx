@@ -246,7 +246,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                           <div className="flex items-center gap-2">
                             <h3 className="text-base sm:text-xl font-bold truncate">{profile.name}</h3>
                             {profile.verified && (
-                              <CheckCircle className="w-5 h-5 text-green-500" />
+                              <CheckCircle className="w-5 h-5 text-rose-500" />
                             )}
                           </div>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
@@ -263,10 +263,10 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                           initial={{ scale: 0.9, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ delay: 0.2 }}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500/30 to-emerald-500/20 rounded-full border border-green-500/30 backdrop-blur-sm shadow-md"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-500/30 to-rose-500/20 rounded-full border border-rose-500/30 backdrop-blur-sm shadow-md"
                         >
-                          <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-                          <span className="font-bold text-green-600 dark:text-green-400">
+                          <DollarSign className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                          <span className="font-bold text-rose-600 dark:text-rose-400">
                             ${profile.budget_max.toLocaleString()}/mo
                           </span>
                           <span className="text-xs text-muted-foreground">budget</span>
@@ -288,7 +288,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                         Renter Readiness
                       </span>
                       <Badge className={`${
-                        insights.readinessScore >= 80 ? 'bg-gradient-to-r from-green-500/30 to-emerald-500/20 text-green-700 dark:text-green-400 border-green-500/40' :
+                        insights.readinessScore >= 80 ? 'bg-gradient-to-r from-rose-500/30 to-rose-500/20 text-rose-700 dark:text-rose-400 border-rose-500/40' :
                         insights.readinessScore >= 60 ? 'bg-gradient-to-r from-blue-500/30 to-cyan-500/20 text-blue-700 dark:text-blue-400 border-blue-500/40' :
                         insights.readinessScore >= 40 ? 'bg-gradient-to-r from-yellow-500/30 to-amber-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/40' :
                         'bg-gradient-to-r from-gray-500/30 to-gray-400/20 text-gray-700 dark:text-gray-400 border-gray-500/40'
@@ -302,7 +302,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                         animate={{ width: `${insights.readinessScore}%` }}
                         transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
                         className={`h-3 rounded-full transition-all duration-500 shadow-md ${
-                          insights.readinessScore >= 80 ? 'bg-gradient-to-r from-green-500 via-green-400 to-emerald-500' :
+                          insights.readinessScore >= 80 ? 'bg-gradient-to-r from-rose-500 via-rose-400 to-rose-500' :
                           insights.readinessScore >= 60 ? 'bg-gradient-to-r from-blue-500 via-blue-400 to-cyan-500' :
                           insights.readinessScore >= 40 ? 'bg-gradient-to-r from-yellow-500 via-yellow-400 to-amber-500' :
                           'bg-gradient-to-r from-gray-400 via-gray-300 to-gray-500'
@@ -346,10 +346,10 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.25 }}
-                      className="text-center p-2 sm:p-3 bg-gradient-to-br from-green-500/15 to-emerald-500/10 rounded-lg sm:rounded-xl border border-green-500/30 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm"
+                      className="text-center p-2 sm:p-3 bg-gradient-to-br from-rose-500/15 to-rose-500/10 rounded-lg sm:rounded-xl border border-rose-500/30 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm"
                     >
-                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-green-600 mb-0.5 sm:mb-1 drop-shadow-md" />
-                      <div className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400">{insights.photoCount}</div>
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-rose-600 mb-0.5 sm:mb-1 drop-shadow-md" />
+                      <div className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400">{insights.photoCount}</div>
                       <div className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">Photos</div>
                     </motion.div>
                     <motion.div
@@ -372,8 +372,8 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     </h4>
                     <div className="grid grid-cols-1 xs:grid-cols-2 gap-1.5 sm:gap-2">
                       {profile.interests?.some(i => i.toLowerCase().includes('long-term') || i.toLowerCase().includes('rent')) && (
-                        <div className="flex items-center gap-2 p-2.5 bg-green-500/10 rounded-lg border border-green-500/20">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
+                        <div className="flex items-center gap-2 p-2.5 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                          <CheckCircle className="w-4 h-4 text-rose-500" />
                           <span className="text-sm">Long-term Rental</span>
                         </div>
                       )}
@@ -434,17 +434,17 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                   {/* Verification Badges */}
                   <div className="space-y-3">
                     <h4 className="font-semibold text-sm flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-green-500" />
+                      <Shield className="w-4 h-4 text-rose-500" />
                       Verification Status
                     </h4>
                     <div className="flex flex-wrap gap-2">
                       <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
                         profile.verified
-                          ? 'bg-green-500/15 border-green-500/30'
+                          ? 'bg-rose-500/15 border-rose-500/30'
                           : 'bg-muted/30 border-muted'
                       }`}>
-                        <CheckCircle className={`w-3.5 h-3.5 ${profile.verified ? 'text-green-500' : 'text-muted-foreground'}`} />
-                        <span className={`text-xs font-medium ${profile.verified ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}>
+                        <CheckCircle className={`w-3.5 h-3.5 ${profile.verified ? 'text-rose-500' : 'text-muted-foreground'}`} />
+                        <span className={`text-xs font-medium ${profile.verified ? 'text-rose-600 dark:text-rose-400' : 'text-muted-foreground'}`}>
                           ID {profile.verified ? 'Verified' : 'Pending'}
                         </span>
                       </div>
@@ -469,15 +469,15 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
 
                   {/* Match Reasons - Compact */}
                   {profile.matchReasons && profile.matchReasons.length > 0 && (
-                    <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/5 rounded-xl border border-green-500/20">
+                    <div className="p-4 bg-gradient-to-r from-rose-500/10 to-rose-500/5 rounded-xl border border-rose-500/20">
                       <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
-                        <ThumbsUp className="w-4 h-4 text-green-500" />
+                        <ThumbsUp className="w-4 h-4 text-rose-500" />
                         Why They're a Great Match
                       </h4>
                       <div className="space-y-2">
                         {profile.matchReasons.slice(0, 4).map((reason) => (
                           <div key={`reason-${reason}`} className="flex items-start gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                             <span className="text-sm">{reason}</span>
                           </div>
                         ))}
@@ -499,31 +499,31 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     <div className="space-y-2">
                       {insights.photoCount >= 3 && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Multiple photos uploaded ({insights.photoCount})</span>
                         </div>
                       )}
                       {insights.interestCount >= 5 && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Clear preferences defined ({insights.interestCount} interests)</span>
                         </div>
                       )}
                       {profile.verified && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Identity verified - Trustworthy renter</span>
                         </div>
                       )}
                       {insights.readinessScore >= 60 && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Complete profile - Ready to rent</span>
                         </div>
                       )}
                       {profile.budget_max && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Budget clearly defined: ${profile.budget_max.toLocaleString()}/mo</span>
                         </div>
                       )}
@@ -591,10 +591,10 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="text-center p-2 sm:p-3 bg-gradient-to-br from-green-500/15 to-emerald-500/10 rounded-xl border border-green-500/30 shadow-md hover:shadow-lg transition-all backdrop-blur-sm hover:scale-105"
+                      className="text-center p-2 sm:p-3 bg-gradient-to-br from-rose-500/15 to-rose-500/10 rounded-xl border border-rose-500/30 shadow-md hover:shadow-lg transition-all backdrop-blur-sm hover:scale-105"
                     >
-                      <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-green-600 mb-1 drop-shadow-md" />
-                      <div className="text-xs sm:text-sm font-bold text-green-600 dark:text-green-400 break-all">${listing.price?.toLocaleString()}</div>
+                      <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-rose-600 mb-1 drop-shadow-md" />
+                      <div className="text-xs sm:text-sm font-bold text-rose-600 dark:text-rose-400 break-all">${listing.price?.toLocaleString()}</div>
                       <div className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">{listing.listing_type === 'buy' ? 'price' : '/month'}</div>
                     </motion.div>
                     <motion.div
@@ -732,7 +732,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       <>
                         {listing.frame_size && (
                           <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-muted/30 rounded-lg">
-                            <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" />
+                            <Ruler className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 shrink-0" />
                             <div className="min-w-0">
                               <div className="text-base sm:text-lg font-bold truncate">{listing.frame_size}</div>
                               <div className="text-[10px] sm:text-xs text-muted-foreground">Frame</div>
@@ -750,7 +750,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                         )}
                         {listing.battery_range && (
                           <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-muted/30 rounded-lg">
-                            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 shrink-0" />
+                            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 shrink-0" />
                             <div className="min-w-0">
                               <div className="text-base sm:text-lg font-bold truncate">{listing.battery_range}km</div>
                               <div className="text-[10px] sm:text-xs text-muted-foreground">Range</div>
@@ -807,7 +807,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {[...(listing.amenities || []), ...(listing.equipment || [])].slice(0, 8).map((item) => (
                           <div key={`amenity-${item}`} className="flex items-start gap-2 p-2 bg-muted/30 rounded-lg">
-                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                            <CheckCircle className="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5" />
                             <span className="text-xs sm:text-sm capitalize break-words">{item}</span>
                           </div>
                         ))}
@@ -866,7 +866,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     </h4>
                     <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-xl">
                       <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${listing.status === 'available' ? 'bg-green-500 animate-pulse' : listing.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
+                        <div className={`w-3 h-3 rounded-full ${listing.status === 'available' ? 'bg-rose-500 animate-pulse' : listing.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'}`} />
                         <div className="flex-1">
                           <p className="text-sm font-medium">
                             {listing.status === 'available' ? 'Currently Available' :
@@ -882,7 +882,7 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                           </p>
                         </div>
                         {listing.status === 'available' && (
-                          <Badge className="bg-green-500/20 text-green-600 border-green-500/30">Ready</Badge>
+                          <Badge className="bg-rose-500/20 text-rose-600 border-rose-500/30">Ready</Badge>
                         )}
                       </div>
                     </div>
@@ -897,25 +897,25 @@ export function SwipeInsightsModal({ open, onOpenChange, listing, profile }: Swi
                     <div className="space-y-2">
                       {listing.images && listing.images.length >= 3 && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Well-documented with {listing.images.length} photos</span>
                         </div>
                       )}
                       {((listing.amenities?.length || 0) + (listing.equipment?.length || 0)) >= 5 && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Feature-rich with {(listing.amenities?.length || 0) + (listing.equipment?.length || 0)}+ amenities</span>
                         </div>
                       )}
                       {listing.status === 'available' && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Available now - Ready for viewing</span>
                         </div>
                       )}
                       {listing.furnished && (
                         <div className="flex items-start gap-2">
-                          <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CheckCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
                           <span className="text-sm">Move-in ready - Fully furnished</span>
                         </div>
                       )}

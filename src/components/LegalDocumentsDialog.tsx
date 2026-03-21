@@ -189,7 +189,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'verified':
-        return <Badge className="bg-green-500/20 text-green-400 border-green-500/50"><CheckCircle className="w-3 h-3 mr-1" />Verified</Badge>;
+        return <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/50"><CheckCircle className="w-3 h-3 mr-1" />Verified</Badge>;
       case 'rejected':
         return <Badge className="bg-red-500/20 text-red-400 border-red-500/50"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
       default:
@@ -250,7 +250,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
                     <Button
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isUploading || !selectedDocumentType}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-rose-600 hover:bg-rose-700 text-white"
                     >
                       <Upload className="w-4 h-4" />
                     </Button>

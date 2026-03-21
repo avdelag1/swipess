@@ -306,7 +306,7 @@ export default function PublicListingPreview() {
                 {mode === 'sale' ? 'For Sale' : mode === 'both' ? 'Rent / Sale' : 'For Rent'}
               </Badge>
               {(listing as any).verified && (
-                <Badge className="bg-emerald-500/15 text-emerald-600 border border-emerald-500/25 text-xs font-medium py-0.5">
+                <Badge className="bg-rose-500/15 text-rose-600 border border-rose-500/25 text-xs font-medium py-0.5">
                   Verified
                 </Badge>
               )}

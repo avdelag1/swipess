@@ -699,7 +699,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                 disabled={createListingMutation.isPending}
                 className={cn(
                   "px-10 rounded-2xl h-12 font-black shadow-2xl transition-all flex items-center gap-3 text-white disabled:opacity-50 relative z-10",
-                  selectedCategory === 'property' && "bg-emerald-600 shadow-emerald-500/20",
+                  selectedCategory === 'property' && "bg-rose-600 shadow-emerald-500/20",
                   selectedCategory === 'motorcycle' && "bg-orange-600 shadow-orange-500/20",
                   selectedCategory === 'bicycle' && "bg-purple-600 shadow-purple-500/20",
                   selectedCategory === 'worker' && "bg-amber-600 shadow-amber-500/20"
@@ -715,7 +715,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
                     <span className="tracking-tight">{editingId ? 'Update Listing' : 'Publish Listing'}</span>
                     <ChevronRight className={cn(
                       "w-4 h-4 transition-transform group-hover:translate-x-1",
-                      selectedCategory === 'property' && "text-emerald-100",
+                      selectedCategory === 'property' && "text-rose-100",
                       selectedCategory === 'motorcycle' && "text-orange-100",
                       selectedCategory === 'bicycle' && "text-purple-100",
                       selectedCategory === 'worker' && "text-amber-100"

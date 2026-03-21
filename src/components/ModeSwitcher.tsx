@@ -87,10 +87,10 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             left: activeMode === 'client' ? 0 : '50%',
             width: '50%',
             backgroundColor: activeMode === 'client'
-              ? 'rgba(13,181,163,1)'
+              ? 'rgba(244,63,94,1)'
               : 'rgba(249,115,22,1)',
             boxShadow: activeMode === 'client'
-              ? '0 0 10px rgba(13,181,163,0.55), inset 0 1px 0 rgba(255,255,255,0.18)'
+              ? '0 0 10px rgba(244,63,94,0.55), inset 0 1px 0 rgba(255,255,255,0.18)'
               : '0 0 10px rgba(249,115,22,0.55), inset 0 1px 0 rgba(255,255,255,0.18)',
           }}
           transition={{ type: 'spring', stiffness: 480, damping: 34 }}
@@ -102,7 +102,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           style={{ width: iconW, height: btnH }}
         >
           {isSwitching && activeMode === 'owner' ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-teal-300" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-rose-300" />
           ) : (
             <User
               strokeWidth={activeMode === 'client' ? 3.5 : 2}
@@ -162,7 +162,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
           animate={{
             left: activeMode === 'client' ? '3px' : '50%',
             right: activeMode === 'client' ? '50%' : '3px',
-            backgroundColor: activeMode === 'client' ? 'rgba(45, 212, 191, 0.2)' : 'rgba(251, 146, 60, 0.2)',
+            backgroundColor: activeMode === 'client' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(251, 146, 60, 0.2)',
             boxShadow: 'none'
           }}
           transition={{ type: 'spring', stiffness: 450, damping: 30 }}
@@ -172,7 +172,7 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
         {/* HIGH CONTRAST: Clear active state distinction */}
         <div className={cn(
           'relative z-10 flex items-center justify-center w-full gap-1 px-2 py-0.5 rounded-full transition-all duration-300',
-          activeMode === 'client' ? 'text-teal-400 font-black scale-105' : (isLight ? 'text-foreground/50 hover:text-foreground/80' : 'text-white/50 hover:text-white/80')
+          activeMode === 'client' ? 'text-rose-400 font-black scale-105' : (isLight ? 'text-foreground/50 hover:text-foreground/80' : 'text-white/50 hover:text-white/80')
         )}>
           <User strokeWidth={4} className="h-3 w-3" />
           <span className="text-[10px] uppercase tracking-wider font-extrabold line-clamp-1">Client</span>
@@ -237,8 +237,8 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
             <Loader2 className={cn("h-3.5 w-3.5 animate-spin", isLight ? "text-foreground" : "text-white")} />
           ) : activeMode === 'client' ? (
             <>
-              <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
-              <span className="font-black text-teal-400 uppercase tracking-tight">Client Side</span>
+              <User strokeWidth={4} className="h-3.5 w-3.5 text-rose-400" />
+              <span className="font-black text-rose-400 uppercase tracking-tight">Client Side</span>
             </>
           ) : (
             <>

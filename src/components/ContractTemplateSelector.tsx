@@ -31,8 +31,8 @@ const categoryIcons: Record<string, React.ReactNode> = {
 
 const categoryColors: Record<string, string> = {
   lease: 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
-  rental: 'bg-green-500/10 text-green-700 dark:text-green-300',
-  rental_agreement: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+  rental: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
+  rental_agreement: 'bg-rose-500/10 text-rose-700 dark:text-rose-300',
   purchase: 'bg-purple-500/10 text-purple-700 dark:text-purple-300',
   service: 'bg-orange-500/10 text-orange-700 dark:text-orange-300',
   bicycle: 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-300',

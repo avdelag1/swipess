@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { haptics } from "@/utils/microPolish";
 import { toast } from "@/components/ui/sonner";
 
@@ -18,8 +19,8 @@ const PACKAGES = [
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
     emoji: "⚡",
-    color: "#22c55e",
-    colorRgb: "34,197,94",
+    color: "#ef4444",
+    colorRgb: "239,68,68",
     prices: { week: 50, month: 150, quarter: 350 },
     perks: ["Basic listing", "1 photo", "Standard placement", "Email support"],
     tagline: "Perfect to get started",
@@ -67,7 +68,7 @@ const DURATIONS = [
 ];
 
 const STATS = [
-  { icon: Users, value: "15k+", label: "Monthly Users", color: "#22c55e" },
+  { icon: Users, value: "15k+", label: "Monthly Users", color: "#ef4444" },
   { icon: Eye, value: "120k+", label: "Monthly Views", color: "#3b82f6" },
   { icon: TrendingUp, value: "89%", label: "Engagement", color: "#f97316" },
   { icon: Star, value: "4.9★", label: "Avg Rating", color: "#a855f7" },
@@ -119,7 +120,7 @@ const SAMPLE_CARDS = [
     title: "Food Market",
     venue: "La Veleta",
     price: "Free",
-    color: "#22c55e",
+    color: "#ef4444",
   },
   {
     bg: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80&auto=format",
@@ -131,9 +132,44 @@ const SAMPLE_CARDS = [
   },
 ];
 
+// ── Feature items (WhatsApp Leads icon changed from green to red) ──────────────
+const FEATURES = [
+  {
+    icon: <Eye className="w-5 h-5" />,
+    color: "#3b82f6",
+    colorRgb: "59,130,246",
+    title: "Massive Reach",
+    desc: "Your event shown to 15,000+ active users browsing Tulum daily",
+  },
+  {
+    icon: <Instagram className="w-5 h-5" />,
+    color: "#f97316",
+    colorRgb: "249,115,22",
+    title: "TikTok-Style Feed",
+    desc: "Full-screen immersive cards that stop the scroll and drive action",
+  },
+  {
+    icon: <Phone className="w-5 h-5" />,
+    color: "#ef4444",
+    colorRgb: "239,68,68",
+    title: "Direct WhatsApp Leads",
+    desc: "Customers reach you directly through the app with one tap",
+  },
+  {
+    icon: <Crown className="w-5 h-5" />,
+    color: "#a855f7",
+    colorRgb: "168,85,247",
+    title: "Priority Placement",
+    desc: "Featured at the top of category feeds for maximum visibility",
+  },
+];
+
 export default function AdvertisePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   const [view, setView] = useState<View>("landing");
   const [step, setStep] = useState<Step>("type");
   const [dir, setDir] = useState(1);
@@ -145,6 +181,29 @@ export default function AdvertisePage() {
   const steps: Step[] = ["type", "details", "package", "confirm"];
   const stepIdx = steps.indexOf(step);
   const progress = ((stepIdx + 1) / steps.length) * 100;
+
+  // ── Theme-aware style helpers ─────────────────────────────────────────────
+  const th = {
+    pageBg:       isLight ? "#f8f8f8"                        : "#000000",
+    card:         isLight ? "rgba(0,0,0,0.04)"               : "rgba(255,255,255,0.05)",
+    cardBorder:   isLight ? "rgba(0,0,0,0.08)"               : "rgba(255,255,255,0.08)",
+    inputBg:      isLight ? "rgba(0,0,0,0.04)"               : "rgba(255,255,255,0.05)",
+    inputBorder:  isLight ? "rgba(0,0,0,0.12)"               : "rgba(255,255,255,0.10)",
+    inputText:    isLight ? "#111"                            : "#fff",
+    inputPlaceholder: isLight ? "rgba(0,0,0,0.3)"            : "rgba(255,255,255,0.25)",
+    headerBg:     isLight ? "rgba(248,248,248,0.92)"          : "rgba(0,0,0,0.85)",
+    headerBorder: isLight ? "rgba(0,0,0,0.07)"               : "rgba(255,255,255,0.06)",
+    backBtn:      isLight ? "rgba(0,0,0,0.07)"               : "rgba(255,255,255,0.10)",
+    backBtnBorder:isLight ? "rgba(0,0,0,0.12)"               : "rgba(255,255,255,0.15)",
+    text:         isLight ? "#0a0a0a"                        : "#ffffff",
+    textMuted:    isLight ? "rgba(0,0,0,0.50)"               : "rgba(255,255,255,0.50)",
+    textDim:      isLight ? "rgba(0,0,0,0.35)"               : "rgba(255,255,255,0.35)",
+    textFaint:    isLight ? "rgba(0,0,0,0.25)"               : "rgba(255,255,255,0.25)",
+    divider:      isLight ? "rgba(0,0,0,0.08)"               : "rgba(255,255,255,0.10)",
+    progressBg:   isLight ? "rgba(0,0,0,0.06)"               : "rgba(255,255,255,0.06)",
+    backFormBtn:  isLight ? "rgba(0,0,0,0.05)"               : "rgba(255,255,255,0.05)",
+    backFormBorder:isLight ? "rgba(0,0,0,0.10)"              : "rgba(255,255,255,0.10)",
+  };
 
   const goTo = (s: Step) => {
     setDir(steps.indexOf(s) > stepIdx ? 1 : -1);
@@ -198,7 +257,8 @@ export default function AdvertisePage() {
   // ── SUCCESS SCREEN ──────────────────────────────────────────────────────────
   if (done) {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 text-center gap-6 bg-black">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 text-center gap-6"
+        style={{ background: th.pageBg }}>
         <motion.div
           initial={{ scale: 0, rotate: -10 }}
           animate={{ scale: 1, rotate: 0 }}
@@ -213,8 +273,8 @@ export default function AdvertisePage() {
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           className="space-y-3">
-          <h2 className="text-3xl font-black text-white">You're on the list! 🎉</h2>
-          <p className="text-white/60 max-w-xs leading-relaxed">
+          <h2 className="text-3xl font-black" style={{ color: th.text }}>You're on the list! 🎉</h2>
+          <p className="max-w-xs leading-relaxed" style={{ color: th.textMuted }}>
             Our team will review your submission and contact you via WhatsApp within 24 hours.
           </p>
         </motion.div>
@@ -233,15 +293,15 @@ export default function AdvertisePage() {
   // ── LANDING PAGE ────────────────────────────────────────────────────────────
   if (view === "landing") {
     return (
-      <div className="min-h-[100dvh] bg-black overflow-y-auto">
+      <div className="min-h-[100dvh] overflow-y-auto" style={{ background: th.pageBg }}>
         {/* Back button */}
         <div className="absolute top-0 left-0 right-0 z-50 pt-safe px-4 pt-4">
           <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.15)" }}
+            style={{ background: th.backBtn, backdropFilter: "blur(16px)", border: `1px solid ${th.backBtnBorder}` }}
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5" style={{ color: th.text }} />
           </button>
         </div>
 
@@ -249,10 +309,10 @@ export default function AdvertisePage() {
         <div className="relative min-h-[100dvh] flex flex-col items-center justify-center px-6 text-center pb-12 pt-24">
           {/* Background gradient blobs */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full opacity-20 blur-[100px]"
-              style={{ background: "radial-gradient(circle, #f97316, transparent)" }} />
-            <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full opacity-20 blur-[100px]"
-              style={{ background: "radial-gradient(circle, #a855f7, transparent)" }} />
+            <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full blur-[100px]"
+              style={{ background: "radial-gradient(circle, #f97316, transparent)", opacity: isLight ? 0.1 : 0.2 }} />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full blur-[100px]"
+              style={{ background: "radial-gradient(circle, #a855f7, transparent)", opacity: isLight ? 0.1 : 0.2 }} />
           </div>
 
           {/* Badge */}
@@ -271,8 +331,8 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl font-black text-white leading-[0.95] tracking-tighter mb-4"
-            style={{ textShadow: "0 0 80px rgba(249,115,22,0.3)" }}
+            className="text-5xl font-black leading-[0.95] tracking-tighter mb-4"
+            style={{ color: th.text, textShadow: "0 0 80px rgba(249,115,22,0.2)" }}
           >
             Promote<br />
             <span style={{ background: "linear-gradient(135deg,#f97316,#fb923c,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
@@ -285,7 +345,8 @@ export default function AdvertisePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-white/60 text-base max-w-xs leading-relaxed mb-8"
+            className="text-base max-w-xs leading-relaxed mb-8"
+            style={{ color: th.textMuted }}
           >
             Reach thousands of expats, digital nomads & tourists actively looking for what you offer
           </motion.p>
@@ -304,7 +365,7 @@ export default function AdvertisePage() {
                 style={{
                   transform: `rotate(${(i - 1) * 6}deg) translateY(${(i - 1) * -8}px)`,
                   zIndex: SAMPLE_CARDS.length - i,
-                  boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
                 }}
                 animate={{ rotate: [(i - 1) * 6, (i - 1) * 6 + 1, (i - 1) * 6] }}
                 transition={{ duration: 3 + i, repeat: Infinity, ease: "easeInOut" }}
@@ -337,10 +398,10 @@ export default function AdvertisePage() {
               const Icon = stat.icon;
               return (
                 <div key={stat.label} className="flex flex-col items-center gap-1 p-3 rounded-2xl"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                  style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
                   <Icon className="w-4 h-4 mb-0.5" style={{ color: stat.color }} />
-                  <div className="text-white font-black text-sm">{stat.value}</div>
-                  <div className="text-white/40 text-[9px] text-center leading-tight">{stat.label}</div>
+                  <div className="font-black text-sm" style={{ color: th.text }}>{stat.value}</div>
+                  <div className="text-[9px] text-center leading-tight" style={{ color: th.textDim }}>{stat.label}</div>
                 </div>
               );
             })}
@@ -360,58 +421,33 @@ export default function AdvertisePage() {
             Start Promoting — From $50 MXN
           </motion.button>
 
-          <p className="text-white/30 text-[11px] mt-4">No upfront payment · We contact you to confirm</p>
+          <p className="text-[11px] mt-4" style={{ color: th.textFaint }}>No upfront payment · We contact you to confirm</p>
         </div>
 
         {/* ── WHAT YOU GET ── */}
         <div className="px-6 pb-16">
-          <h2 className="text-2xl font-black text-white text-center mb-2">Everything you need</h2>
-          <p className="text-white/50 text-sm text-center mb-8">to get noticed in Tulum</p>
+          <h2 className="text-2xl font-black text-center mb-2" style={{ color: th.text }}>Everything you need</h2>
+          <p className="text-sm text-center mb-8" style={{ color: th.textMuted }}>to get noticed in Tulum</p>
 
           <div className="space-y-4">
-            {[
-              {
-                icon: <Eye className="w-5 h-5" />,
-                color: "#3b82f6",
-                title: "Massive Reach",
-                desc: "Your event shown to 15,000+ active users browsing Tulum daily",
-              },
-              {
-                icon: <Instagram className="w-5 h-5" />,
-                color: "#f97316",
-                title: "TikTok-Style Feed",
-                desc: "Full-screen immersive cards that stop the scroll and drive action",
-              },
-              {
-                icon: <Phone className="w-5 h-5" />,
-                color: "#22c55e",
-                title: "Direct WhatsApp Leads",
-                desc: "Customers reach you directly through the app with one tap",
-              },
-              {
-                icon: <Crown className="w-5 h-5" />,
-                color: "#a855f7",
-                title: "Priority Placement",
-                desc: "Featured at the top of category feeds for maximum visibility",
-              },
-            ].map(item => (
+            {FEATURES.map(item => (
               <div key={item.title} className="flex items-start gap-4 p-4 rounded-2xl"
-                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}>
+                style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: `rgba(${item.color === "#3b82f6" ? "59,130,246" : item.color === "#f97316" ? "249,115,22" : item.color === "#22c55e" ? "34,197,94" : "168,85,247"},0.2)`, color: item.color }}>
+                  style={{ background: `rgba(${item.colorRgb},0.18)`, color: item.color }}>
                   {item.icon}
                 </div>
                 <div>
-                  <div className="text-white font-black text-sm">{item.title}</div>
-                  <div className="text-white/50 text-xs mt-0.5 leading-relaxed">{item.desc}</div>
+                  <div className="font-black text-sm" style={{ color: th.text }}>{item.title}</div>
+                  <div className="text-xs mt-0.5 leading-relaxed" style={{ color: th.textMuted }}>{item.desc}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Pricing preview */}
-          <h2 className="text-2xl font-black text-white text-center mt-12 mb-2">Simple pricing</h2>
-          <p className="text-white/50 text-sm text-center mb-6">Choose what fits your budget</p>
+          <h2 className="text-2xl font-black text-center mt-12 mb-2" style={{ color: th.text }}>Simple pricing</h2>
+          <p className="text-sm text-center mb-6" style={{ color: th.textMuted }}>Choose what fits your budget</p>
 
           <div className="space-y-3">
             {PACKAGES.map(pkg => (
@@ -422,17 +458,17 @@ export default function AdvertisePage() {
                     style={{ background: pkg.color }}>POPULAR</div>
                 )}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
                     {pkg.icon}
                   </div>
-                  <div className="flex-1">
-                    <div className="text-white font-black">{pkg.name}</div>
-                    <div className="text-white/40 text-[10px]">{pkg.tagline}</div>
+                  <div className="flex-1 min-w-0 pr-2">
+                    <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
+                    <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex-shrink-0">
                     <div className="font-black" style={{ color: pkg.color }}>From ${pkg.prices.week}</div>
-                    <div className="text-white/40 text-[10px]">MXN / week</div>
+                    <div className="text-[10px]" style={{ color: th.textDim }}>MXN / week</div>
                   </div>
                 </div>
               </div>
@@ -454,20 +490,20 @@ export default function AdvertisePage() {
 
   // ── FORM ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-black pb-10">
+    <div className="min-h-[100dvh] flex flex-col pb-10" style={{ background: th.pageBg }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-safe pt-4 pb-3 sticky top-0 z-10"
-        style={{ background: "rgba(0,0,0,0.85)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ background: th.headerBg, backdropFilter: "blur(20px)", borderBottom: `1px solid ${th.headerBorder}` }}>
         <button
           onClick={() => stepIdx === 0 ? setView("landing") : back()}
           className="w-10 h-10 rounded-full flex items-center justify-center"
-          style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+          style={{ background: th.backBtn, border: `1px solid ${th.backBtnBorder}` }}
         >
-          <ArrowLeft className="w-5 h-5 text-white" />
+          <ArrowLeft className="w-5 h-5" style={{ color: th.text }} />
         </button>
         <div className="flex-1">
-          <h1 className="text-sm font-black text-white">Promote Your Event</h1>
-          <p className="text-[11px] text-white/40">Step {stepIdx + 1} of {steps.length}</p>
+          <h1 className="text-sm font-black" style={{ color: th.text }}>Promote Your Event</h1>
+          <p className="text-[11px]" style={{ color: th.textDim }}>Step {stepIdx + 1} of {steps.length}</p>
         </div>
         <div className="w-9 h-9 rounded-full flex items-center justify-center"
           style={{ background: "linear-gradient(135deg,rgba(249,115,22,0.2),rgba(168,85,247,0.2))", border: "1px solid rgba(249,115,22,0.3)" }}>
@@ -476,7 +512,7 @@ export default function AdvertisePage() {
       </div>
 
       {/* Progress bar */}
-      <div className="h-[2px] mx-0" style={{ background: "rgba(255,255,255,0.06)" }}>
+      <div className="h-[2px]" style={{ background: th.progressBg }}>
         <motion.div
           className="h-full"
           style={{ background: "linear-gradient(90deg,#f97316,#a855f7)" }}
@@ -508,8 +544,8 @@ export default function AdvertisePage() {
             {step === "type" && (
               <div className="space-y-5">
                 <div>
-                  <h2 className="text-2xl font-black text-white mb-1">What are you<br />promoting?</h2>
-                  <p className="text-white/50 text-sm">Choose the category that fits your business</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>What are you<br />promoting?</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Choose the category that fits your business</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {EVENT_TYPES.map(et => {
@@ -520,12 +556,12 @@ export default function AdvertisePage() {
                         onClick={() => { haptics.tap(); set("eventType", et.id); }}
                         className="flex flex-col items-start gap-2 p-4 rounded-2xl text-left transition-all active:scale-95"
                         style={{
-                          background: selected ? "rgba(249,115,22,0.15)" : "rgba(255,255,255,0.04)",
-                          border: `1.5px solid ${selected ? "rgba(249,115,22,0.6)" : "rgba(255,255,255,0.08)"}`,
+                          background: selected ? "rgba(249,115,22,0.15)" : th.card,
+                          border: `1.5px solid ${selected ? "rgba(249,115,22,0.6)" : th.cardBorder}`,
                         }}
                       >
                         <span className="text-2xl">{et.emoji}</span>
-                        <span className="text-sm font-bold text-white">{et.label}</span>
+                        <span className="text-sm font-bold" style={{ color: th.text }}>{et.label}</span>
                       </button>
                     );
                   })}
@@ -545,17 +581,17 @@ export default function AdvertisePage() {
             {step === "details" && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-black text-white mb-1">Tell us the details</h2>
-                  <p className="text-white/50 text-sm">Fill in as much as you can — more info = better results</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Tell us the details</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Fill in as much as you can — more info = better results</p>
                 </div>
 
                 {/* Photo upload */}
                 <div>
-                  <label className="text-xs font-bold text-white/50 mb-2 block uppercase tracking-widest">Event Photo</label>
+                  <label className="text-xs font-bold mb-2 block uppercase tracking-widest" style={{ color: th.textDim }}>Event Photo</label>
                   <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
                   {form.photoUrl ? (
                     <div className="relative w-full aspect-video rounded-2xl overflow-hidden">
-                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="Preview" />
+                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
                       <button
                         onClick={() => set("photoUrl", "")}
                         className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
@@ -568,11 +604,11 @@ export default function AdvertisePage() {
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full aspect-video rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-98"
-                      style={{ background: "rgba(255,255,255,0.04)", border: "2px dashed rgba(255,255,255,0.15)" }}
+                      style={{ background: th.card, border: `2px dashed ${th.inputBorder}` }}
                     >
-                      <Camera className="w-8 h-8 text-white/30" />
-                      <span className="text-white/40 text-sm font-bold">Tap to add a photo</span>
-                      <span className="text-white/25 text-[11px]">JPG, PNG · Recommended 1:1</span>
+                      <Camera className="w-8 h-8" style={{ color: th.textDim }} />
+                      <span className="text-sm font-bold" style={{ color: th.textDim }}>Tap to add a photo</span>
+                      <span className="text-[11px]" style={{ color: th.textFaint }}>JPG, PNG · Recommended 1:1</span>
                     </button>
                   )}
                 </div>
@@ -586,31 +622,42 @@ export default function AdvertisePage() {
                   { key: "website", label: "Instagram or Website", placeholder: "@handle or https://..." },
                 ].map(f => (
                   <div key={f.key}>
-                    <label className="text-[11px] font-bold text-white/40 mb-1.5 block uppercase tracking-widest">{f.label}</label>
+                    <label className="text-[11px] font-bold mb-1.5 block uppercase tracking-widest" style={{ color: th.textDim }}>{f.label}</label>
                     <input
                       type="text"
                       value={(form as any)[f.key]}
                       onChange={e => set(f.key as keyof FormData, e.target.value)}
                       placeholder={f.placeholder}
-                      className="w-full h-12 px-4 rounded-xl text-sm text-white bg-white/5 border border-white/10 focus:outline-none focus:border-orange-400/50 transition-colors placeholder:text-white/25"
+                      className="w-full h-12 px-4 rounded-xl text-sm focus:outline-none focus:border-orange-400/50 transition-colors"
+                      style={{
+                        background: th.inputBg,
+                        border: `1px solid ${th.inputBorder}`,
+                        color: th.inputText,
+                      }}
                     />
                   </div>
                 ))}
 
                 <div>
-                  <label className="text-[11px] font-bold text-white/40 mb-1.5 block uppercase tracking-widest">Description *</label>
+                  <label className="text-[11px] font-bold mb-1.5 block uppercase tracking-widest" style={{ color: th.textDim }}>Description *</label>
                   <textarea
                     value={form.description}
                     onChange={e => set("description", e.target.value)}
                     placeholder="Describe your event or service in a few sentences..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl text-sm text-white bg-white/5 border border-white/10 focus:outline-none focus:border-orange-400/50 transition-colors resize-none placeholder:text-white/25"
+                    className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-orange-400/50 transition-colors resize-none"
+                    style={{
+                      background: th.inputBg,
+                      border: `1px solid ${th.inputBorder}`,
+                      color: th.inputText,
+                    }}
                   />
                 </div>
 
                 <div className="flex gap-3">
                   <button onClick={back}
-                    className="h-14 px-5 rounded-2xl font-bold text-white border border-white/10 active:scale-[0.97] bg-white/5">
+                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
+                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
                     Back
                   </button>
                   <button
@@ -629,12 +676,12 @@ export default function AdvertisePage() {
             {step === "package" && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-black text-white mb-1">Choose your package</h2>
-                  <p className="text-white/50 text-sm">All prices in MXN. Cancel anytime.</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Choose your package</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>All prices in MXN. Cancel anytime.</p>
                 </div>
 
                 {/* Duration selector */}
-                <div className="flex gap-1 p-1 rounded-xl" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="flex gap-1 p-1 rounded-xl" style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
                   {DURATIONS.map(d => (
                     <button
                       key={d.id}
@@ -642,7 +689,7 @@ export default function AdvertisePage() {
                       className="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5"
                       style={{
                         background: form.duration === d.id ? "linear-gradient(135deg,#f97316,#a855f7)" : "transparent",
-                        color: form.duration === d.id ? "white" : "rgba(255,255,255,0.4)",
+                        color: form.duration === d.id ? "white" : th.textDim,
                       }}
                     >
                       <span>{d.label}</span>
@@ -665,8 +712,8 @@ export default function AdvertisePage() {
                         style={{
                           background: selected
                             ? `linear-gradient(135deg, rgba(${pkg.colorRgb},0.2), rgba(${pkg.colorRgb},0.1))`
-                            : "rgba(255,255,255,0.04)",
-                          border: `2px solid ${selected ? pkg.color : "rgba(255,255,255,0.08)"}`,
+                            : th.card,
+                          border: `2px solid ${selected ? pkg.color : th.cardBorder}`,
                         }}
                       >
                         {pkg.popular && (
@@ -676,22 +723,22 @@ export default function AdvertisePage() {
                           </div>
                         )}
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                             style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
                             {pkg.icon}
                           </div>
-                          <div>
-                            <div className="font-black text-white">{pkg.name}</div>
-                            <div className="text-[10px] text-white/40">{pkg.tagline}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
+                            <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
                           </div>
-                          <div className="ml-auto text-right">
+                          <div className="ml-auto text-right flex-shrink-0">
                             <div className="font-black" style={{ color: pkg.color }}>${p.toLocaleString()}</div>
-                            <div className="text-[10px] text-white/30">MXN · ≈${usd} USD</div>
+                            <div className="text-[10px]" style={{ color: th.textDim }}>MXN · ≈${usd} USD</div>
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                           {pkg.perks.map(perk => (
-                            <div key={perk} className="flex items-center gap-1.5 text-xs text-white/50">
+                            <div key={perk} className="flex items-center gap-1.5 text-xs" style={{ color: th.textMuted }}>
                               <Check className="w-3 h-3 flex-shrink-0" style={{ color: pkg.color }} />
                               {perk}
                             </div>
@@ -704,7 +751,8 @@ export default function AdvertisePage() {
 
                 <div className="flex gap-3">
                   <button onClick={back}
-                    className="h-14 px-5 rounded-2xl font-bold text-white border border-white/10 active:scale-[0.97] bg-white/5">
+                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
+                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
                     Back
                   </button>
                   <button
@@ -722,13 +770,13 @@ export default function AdvertisePage() {
             {step === "confirm" && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-black text-white mb-1">Review & Submit</h2>
-                  <p className="text-white/50 text-sm">Our team will contact you to confirm payment and publishing.</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Review & Submit</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Our team will contact you to confirm payment and publishing.</p>
                 </div>
 
                 {/* Summary */}
                 <div className="rounded-2xl p-4 space-y-3"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                  style={{ background: th.card, border: `1px solid ${th.divider}` }}>
                   {form.photoUrl && (
                     <div className="w-full aspect-video rounded-xl overflow-hidden mb-3">
                       <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
@@ -743,16 +791,17 @@ export default function AdvertisePage() {
                     form.website ? { label: "Website / IG", value: form.website } : null,
                   ].filter(Boolean).map((row: any) => (
                     <div key={row.label} className="flex justify-between text-sm gap-4">
-                      <span className="text-white/40">{row.label}</span>
-                      <span className="font-bold text-white text-right flex-1 truncate">{row.value}</span>
+                      <span style={{ color: th.textDim }}>{row.label}</span>
+                      <span className="font-bold text-right flex-1 truncate" style={{ color: th.text }}>{row.value}</span>
                     </div>
                   ))}
-                  <div className="border-t border-white/10 pt-3 flex justify-between items-center mt-1">
+                  <div className="pt-3 flex justify-between items-center mt-1"
+                    style={{ borderTop: `1px solid ${th.divider}` }}>
                     <div>
-                      <div className="text-xs text-white/40">{selectedPkg?.name} · {DURATIONS.find(d => d.id === form.duration)?.label}</div>
-                      <div className="font-black text-lg text-white">
-                        ${price?.toLocaleString()} <span className="text-sm text-white/40">MXN</span>
-                        <span className="text-sm text-white/30 ml-2">≈${priceUsd} USD</span>
+                      <div className="text-xs" style={{ color: th.textDim }}>{selectedPkg?.name} · {DURATIONS.find(d => d.id === form.duration)?.label}</div>
+                      <div className="font-black text-lg" style={{ color: th.text }}>
+                        ${price?.toLocaleString()} <span className="text-sm" style={{ color: th.textDim }}>MXN</span>
+                        <span className="text-sm ml-2" style={{ color: th.textFaint }}>≈${priceUsd} USD</span>
                       </div>
                     </div>
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -762,13 +811,14 @@ export default function AdvertisePage() {
                   </div>
                 </div>
 
-                <p className="text-[11px] text-white/30 text-center px-4">
+                <p className="text-[11px] text-center px-4" style={{ color: th.textFaint }}>
                   By submitting, you agree our team will reach out via WhatsApp to finalize payment before publishing.
                 </p>
 
                 <div className="flex gap-3">
                   <button onClick={back}
-                    className="h-14 px-5 rounded-2xl font-bold text-white border border-white/10 active:scale-[0.97] bg-white/5">
+                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
+                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
                     Back
                   </button>
                   <button

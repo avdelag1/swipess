@@ -25,7 +25,7 @@ const categories = [
 ];
 
 const priorities = [
-  { value: 'low', label: 'Low', color: 'bg-green-500/20 text-green-400 border-green-500/30' },
+  { value: 'low', label: 'Low', color: 'bg-rose-500/20 text-rose-400 border-rose-500/30' },
   { value: 'medium', label: 'Medium', color: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
   { value: 'high', label: 'High', color: 'bg-orange-500/20 text-orange-400 border-orange-500/30' },
   { value: 'urgent', label: 'Urgent', color: 'bg-red-500/20 text-red-400 border-red-500/30' },

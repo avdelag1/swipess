@@ -24,7 +24,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: ComponentType<{ cla
   infrastructure: { label: 'Urban', icon: Building, color: 'text-blue-400', bg: 'bg-blue-500/10' },
   events: { label: 'Social', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
   coworking: { label: 'Work', icon: Coffee, color: 'text-amber-400', bg: 'bg-amber-500/10' },
-  dining: { label: 'Gastro', icon: Utensils, color: 'text-green-400', bg: 'bg-green-500/10' },
+  dining: { label: 'Gastro', icon: Utensils, color: 'text-rose-400', bg: 'bg-rose-500/10' },
   safety: { label: 'Safety', icon: Shield, color: 'text-red-400', bg: 'bg-red-500/10' },
   general: { label: 'General', icon: Zap, color: 'text-slate-400', bg: 'bg-slate-500/10' },
 };
@@ -170,7 +170,7 @@ export default function LocalIntel() {
 
                     <div className="flex items-center justify-between pt-2 border-t border-slate-50 dark:border-white/5">
                       <div className="flex items-center gap-2">
-                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                         <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
                             {formatDistanceToNow(new Date(post.published_at), { addSuffix: true })}
                          </span>

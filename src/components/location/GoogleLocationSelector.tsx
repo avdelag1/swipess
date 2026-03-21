@@ -719,9 +719,9 @@ export function GoogleLocationSelector({
             {title}
           </CardTitle>
           {showPrivacyNotice && (
-            <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950 px-3 py-2 rounded-lg">
-              <AlertCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-              <p className="text-sm text-green-700 dark:text-green-300">
+            <div className="flex items-center gap-2 bg-rose-50 dark:bg-rose-950 px-3 py-2 rounded-lg">
+              <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+              <p className="text-sm text-rose-700 dark:text-rose-300">
                 {userType === 'client' ? 'Exact location shared only with matches' : 'General area shown to clients'}
               </p>
             </div>

@@ -18,8 +18,8 @@ const springTap = { type: "spring" as const, stiffness: 500, damping: 30 };
 
 const categoryStyles: Record<Category, { active: string; glow: string }> = {
   property: {
-    active: 'bg-gradient-to-r from-emerald-600 to-emerald-500 text-white border-emerald-500/50 shadow-lg shadow-emerald-500/25',
-    glow: 'hover:border-emerald-500/40',
+    active: 'bg-gradient-to-r from-rose-600 to-rose-500 text-white border-rose-500/50 shadow-lg shadow-emerald-500/25',
+    glow: 'hover:border-rose-500/40',
   },
   motorcycle: {
     active: 'bg-gradient-to-r from-orange-600 to-orange-500 text-white border-orange-500/50 shadow-lg shadow-orange-500/25',

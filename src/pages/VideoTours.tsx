@@ -212,8 +212,8 @@ export default function VideoTours() {
                     <span className="text-xs font-bold text-white/80">{listing.location}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                      <DollarSign className="w-4 h-4 text-emerald-400" />
+                    <div className="w-8 h-8 rounded-xl bg-rose-500/20 flex items-center justify-center">
+                      <DollarSign className="w-4 h-4 text-rose-400" />
                     </div>
                     <span className="text-sm font-black text-white tracking-tight">${listing.price.toLocaleString()} {listing.currency || 'USD'}</span>
                   </div>

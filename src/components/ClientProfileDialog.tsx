@@ -787,8 +787,8 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                       key={diet}
                       variant={dietaryPreferences.includes(diet) ? 'default' : 'outline'}
                       className={`cursor-pointer transition-all ${dietaryPreferences.includes(diet)
-                        ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-transparent'
-                        : 'bg-white/5 border-white/20 text-white/70 hover:border-green-400 hover:bg-white/10'
+                        ? 'bg-gradient-to-r from-rose-500 to-rose-500 hover:from-rose-600 hover:to-rose-600 text-white border-transparent'
+                        : 'bg-white/5 border-white/20 text-white/70 hover:border-rose-400 hover:bg-white/10'
                         }`}
                       onClick={() => toggleDietaryPref(diet)}
                     >
@@ -934,7 +934,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
 
               {/* Financial & Verification Tags */}
               <div className="space-y-3">
-                <h4 className="text-sm sm:text-base font-semibold text-green-400 flex items-center gap-2">
+                <h4 className="text-sm sm:text-base font-semibold text-rose-400 flex items-center gap-2">
                   💰 Financial & Verification
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
@@ -944,13 +944,13 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                       className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-xl cursor-pointer transition-all ${activities.includes(tag)
-                        ? 'bg-green-500/20 border-green-400 text-white shadow-lg shadow-green-500/20'
+                        ? 'bg-rose-500/20 border-rose-400 text-white shadow-lg shadow-green-500/20'
                         : 'bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30'
                         }`}
                       onClick={() => toggleTag(tag, false)}
                     >
                       <div className={`flex items-center justify-center w-5 h-5 rounded border-2 transition-all ${activities.includes(tag)
-                        ? 'bg-green-500 border-green-500'
+                        ? 'bg-rose-500 border-rose-500'
                         : 'border-white/40 bg-transparent'
                         }`}>
                         {activities.includes(tag) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}

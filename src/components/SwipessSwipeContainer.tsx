@@ -47,7 +47,7 @@ const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: s
   property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
   moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-emerald-500' },
+  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
   services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
   worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
 };
@@ -295,7 +295,7 @@ const IconWorker = () => (
 const FAN_CARDS = [
   { id: 'property' as const, label: 'Properties', Icon: IconProperty, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
   { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
-  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
+  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#f43f5e', accentRgb: '244,63,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 

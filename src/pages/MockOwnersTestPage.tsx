@@ -14,7 +14,7 @@ const PLACEHOLDER_BASE = 'https://images.unsplash.com';
 function ListingBadge({ type }: { type: MockListing['type'] }) {
   const config = {
     motorcycle: { icon: Bike, color: 'text-orange-400', bg: 'bg-orange-500/20', label: 'Motocicleta' },
-    bicycle: { icon: Bike, color: 'text-green-400', bg: 'bg-green-500/20', label: 'Bicicleta' },
+    bicycle: { icon: Bike, color: 'text-rose-400', bg: 'bg-rose-500/20', label: 'Bicicleta' },
     worker: { icon: Wrench, color: 'text-blue-400', bg: 'bg-blue-500/20', label: 'Servicio' },
     job: { icon: Briefcase, color: 'text-purple-400', bg: 'bg-purple-500/20', label: 'Empleo' },
   };
@@ -230,10 +230,10 @@ export default function MockOwnersTestPage() {
             
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1">
-                <DollarSign className="w-5 h-5 text-green-400" />
-                <span className="text-green-400 font-bold text-xl">
+                <DollarSign className="w-5 h-5 text-rose-400" />
+                <span className="text-rose-400 font-bold text-xl">
                   {listing.price.toLocaleString('es-MX')}
-                  <span className="text-sm text-green-400/70 ml-1">
+                  <span className="text-sm text-rose-400/70 ml-1">
                     {listing.priceType === 'month' ? '/mes' : 
                      listing.priceType === 'hour' ? '/hora' : ''}
                   </span>
@@ -291,12 +291,12 @@ export default function MockOwnersTestPage() {
             onClick={handleLike}
             className={`w-14 h-14 rounded-full border-2 flex items-center justify-center transition-all active:scale-95 ${
               likedOwners.has(owner.user_id)
-                ? 'bg-green-500/20 border-green-500'
-                : 'bg-green-500/20 border-green-500 hover:bg-green-500/30'
+                ? 'bg-rose-500/20 border-rose-500'
+                : 'bg-rose-500/20 border-rose-500 hover:bg-rose-500/30'
             }`}
           >
             <Heart 
-              className={`w-8 h-8 ${likedOwners.has(owner.user_id) ? 'text-green-500 fill-green-500' : 'text-green-500'}`} 
+              className={`w-8 h-8 ${likedOwners.has(owner.user_id) ? 'text-rose-500 fill-green-500' : 'text-rose-500'}`} 
             />
           </button>
         </div>

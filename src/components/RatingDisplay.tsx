@@ -35,7 +35,7 @@ export const TrustBadge = memo<TrustBadgeProps>(({ trustLevel, className }) => {
       label: 'Trusted',
       icon: ShieldCheck,
       variant: 'default' as const,
-      className: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300',
+      className: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300',
     },
     needs_attention: {
       label: 'Needs Attention',
@@ -122,7 +122,7 @@ export const CompactRatingDisplay = memo<CompactRatingDisplayPropsWithLoading>(
         {showReviews && (best_review || worst_review) && (
           <div className="space-y-1 text-xs">
             {best_review?.review_title && (
-              <div className="flex items-start gap-1 text-green-700 dark:text-green-300">
+              <div className="flex items-start gap-1 text-rose-700 dark:text-rose-300">
                 <span className="font-medium">+</span>
                 <p className="line-clamp-1 italic">"{best_review.review_title}"</p>
               </div>

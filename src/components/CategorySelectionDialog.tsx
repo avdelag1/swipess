@@ -36,9 +36,9 @@ const categories: Category[] = [
     name: 'Property',
     description: 'Apartments, houses, condos, villas',
     icon: <Building2 className="w-6 h-6" />,
-    gradient: 'from-emerald-500/10 to-transparent',
-    iconColor: 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/15',
-    glowColor: 'hover:border-emerald-300 dark:hover:border-emerald-500/30',
+    gradient: 'from-rose-500/10 to-transparent',
+    iconColor: 'text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-500/15',
+    glowColor: 'hover:border-rose-300 dark:hover:border-rose-500/30',
     popular: true,
   },
   {
@@ -238,7 +238,7 @@ export function CategorySelectionDialog({
                       )}
                     >
                       {category.popular && (
-                        <Badge className="absolute -top-2 right-3 bg-emerald-500 text-white text-[10px] px-2 py-0.5 z-10 font-medium">
+                        <Badge className="absolute -top-2 right-3 bg-rose-500 text-white text-[10px] px-2 py-0.5 z-10 font-medium">
                           Popular
                         </Badge>
                       )}

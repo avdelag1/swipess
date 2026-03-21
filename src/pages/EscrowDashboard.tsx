@@ -25,7 +25,7 @@ interface EscrowDeposit {
 const STATUS_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
   pending: { label: 'Pending', icon: Clock, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   held: { label: 'Held in Escrow', icon: Shield, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-  released: { label: 'Released', icon: CheckCircle2, color: 'text-green-400', bg: 'bg-green-500/10' },
+  released: { label: 'Released', icon: CheckCircle2, color: 'text-rose-400', bg: 'bg-rose-500/10' },
   disputed: { label: 'Disputed', icon: AlertTriangle, color: 'text-red-400', bg: 'bg-red-500/10' },
 };
 
@@ -115,11 +115,11 @@ export default function EscrowDashboard() {
                 {/* Timeline */}
                 <div className="px-4 pb-4">
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className={deposit.status !== 'pending' ? 'text-green-400 font-medium' : ''}>Created</span>
+                    <span className={deposit.status !== 'pending' ? 'text-rose-400 font-medium' : ''}>Created</span>
                     <ArrowRight className="w-3 h-3" />
                     <span className={deposit.status === 'held' || deposit.status === 'released' ? 'text-blue-400 font-medium' : ''}>Held</span>
                     <ArrowRight className="w-3 h-3" />
-                    <span className={deposit.status === 'released' ? 'text-green-400 font-medium' : ''}>Released</span>
+                    <span className={deposit.status === 'released' ? 'text-rose-400 font-medium' : ''}>Released</span>
                   </div>
                 </div>
 

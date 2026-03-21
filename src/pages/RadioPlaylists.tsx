@@ -146,7 +146,7 @@ export default function RadioPlaylistsPage() {
                     <button
                       onClick={() => handleShufflePlay(playlist.station_ids)}
                       disabled={playlist.station_ids.length === 0}
-                      className="w-10 h-10 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center disabled:opacity-30"
+                      className="w-10 h-10 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center disabled:opacity-30"
                     >
                       <Shuffle className="w-4 h-4" />
                     </button>

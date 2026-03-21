@@ -121,7 +121,7 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
           {categoryInfo?.icon} {categoryInfo?.label || worker.service_category}
         </Badge>
         {pricingInfo && (
-          <Badge className="absolute top-2 right-2 bg-emerald-500/90 text-white backdrop-blur-sm">
+          <Badge className="absolute top-2 right-2 bg-rose-500/90 text-white backdrop-blur-sm">
             {pricingInfo.label}
           </Badge>
         )}
@@ -175,7 +175,7 @@ function WorkerCard({ worker, onContact }: { worker: WorkerListing; onContact: (
         {/* Price and Action */}
         <div className="flex items-center justify-between pt-2 border-t border-border/50">
           <div className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4 text-emerald-500" />
+            <DollarSign className="w-4 h-4 text-rose-500" />
             <span className="font-bold text-lg">
               {(worker.price ?? 0) > 0 ? `$${worker.price}` : 'Quote'}
             </span>

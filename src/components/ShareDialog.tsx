@@ -180,7 +180,7 @@ export function ShareDialog({
                 <AnimatePresence mode="wait">
                   {copied ? (
                     <motion.div key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} className="flex items-center gap-1.5">
-                      <Check className="w-4 h-4 text-green-500" />
+                      <Check className="w-4 h-4 text-rose-500" />
                       <span className="text-xs font-semibold">Copied!</span>
                     </motion.div>
                   ) : (
@@ -209,8 +209,8 @@ export function ShareDialog({
                 </Button>
               )}
               <Button onClick={handleWhatsAppShare} variant="outline"
-                className="w-full justify-start gap-2.5 rounded-xl hover:bg-green-50 dark:hover:bg-green-950/25 border-border/60 font-medium">
-                <MessageCircle className="w-4 h-4 text-green-500" />
+                className="w-full justify-start gap-2.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/25 border-border/60 font-medium">
+                <MessageCircle className="w-4 h-4 text-rose-500" />
                 WhatsApp
               </Button>
               <Button onClick={handleFacebookShare} variant="outline"

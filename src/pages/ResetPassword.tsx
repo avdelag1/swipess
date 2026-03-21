@@ -23,7 +23,7 @@ const checkPasswordStrength = (password: string) => {
     checks,
     score,
     label: score <= 1 ? 'Weak' : score === 2 ? 'Fair' : score === 3 ? 'Good' : 'Strong',
-    color: score <= 1 ? 'bg-red-500' : score === 2 ? 'bg-orange-500' : score === 3 ? 'bg-yellow-500' : 'bg-green-500',
+    color: score <= 1 ? 'bg-red-500' : score === 2 ? 'bg-orange-500' : score === 3 ? 'bg-yellow-500' : 'bg-rose-500',
   };
 };
 
@@ -247,7 +247,7 @@ const ResetPassword = () => {
                     </div>
                     <span className={`text-xs font-medium ${passwordStrength.score <= 1 ? 'text-red-400' :
                         passwordStrength.score === 2 ? 'text-orange-400' :
-                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-green-400'
+                          passwordStrength.score === 3 ? 'text-yellow-400' : 'text-rose-400'
                       }`}>
                       {passwordStrength.label}
                     </span>
@@ -264,7 +264,7 @@ const ResetPassword = () => {
                       <div
                         key={key}
                         className={`flex items-center gap-2 text-xs ${passwordStrength.checks[key as keyof typeof passwordStrength.checks]
-                            ? 'text-green-400'
+                            ? 'text-rose-400'
                             : 'text-muted-foreground'
                           }`}
                       >
@@ -304,7 +304,7 @@ const ResetPassword = () => {
                   required
                   minLength={8}
                   disabled={loading}
-                  className={`pl-12 pr-12 h-14 text-base ${confirmPassword && (passwordsMatch ? 'border-green-500/50' : 'border-red-500/50')
+                  className={`pl-12 pr-12 h-14 text-base ${confirmPassword && (passwordsMatch ? 'border-rose-500/50' : 'border-red-500/50')
                     }`}
                 />
                 <button
@@ -319,7 +319,7 @@ const ResetPassword = () => {
               {/* Password match indicator */}
               {confirmPassword && (
                 <motion.div
-                  className={`flex items-center gap-2 text-xs ${passwordsMatch ? 'text-green-400' : 'text-red-400'}`}
+                  className={`flex items-center gap-2 text-xs ${passwordsMatch ? 'text-rose-400' : 'text-red-400'}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >

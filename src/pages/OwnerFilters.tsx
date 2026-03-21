@@ -71,7 +71,7 @@ const clientTypeOptions: {
   accentClass: string;
 }[] = [
     { id: 'all', label: 'All Types', description: 'Show everyone', icon: <Users className="w-5 h-5" />, accentClass: 'text-orange-500' },
-    { id: 'hire', label: 'Hiring', description: 'Need workers', icon: <Briefcase className="w-5 h-5" />, accentClass: 'text-emerald-500' },
+    { id: 'hire', label: 'Hiring', description: 'Need workers', icon: <Briefcase className="w-5 h-5" />, accentClass: 'text-rose-500' },
     { id: 'rent', label: 'Renting', description: 'Looking to rent', icon: <ShoppingBag className="w-5 h-5" />, accentClass: 'text-blue-500' },
     { id: 'buy', label: 'Buying', description: 'Looking to buy', icon: <Building2 className="w-5 h-5" />, accentClass: 'text-amber-500' },
     { id: 'individual', label: 'Individual', description: 'Single person', icon: <UserCircle className="w-5 h-5" />, accentClass: 'text-pink-500' },
@@ -299,7 +299,7 @@ export default function OwnerFilters() {
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary border border-border/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <div className="w-1.5 h-1.5 rounded-full bg-rose-500" />
                 <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">
                   Age Range
                 </span>

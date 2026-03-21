@@ -25,7 +25,7 @@ export const categoryConfig: Record<string, CategoryDisplayInfo> = {
   property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
   moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-emerald-500' },
+  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
   services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
   worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
 };

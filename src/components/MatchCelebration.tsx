@@ -199,7 +199,7 @@ export function MatchCelebration({ isOpen, onClose, onMessage, matchedUser }: Ma
                         className="text-center"
                       >
                         <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-orange-400 shadow-lg">
-                          <div className="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl">
+                          <div className="w-full h-full bg-gradient-to-br from-rose-400 to-blue-500 flex items-center justify-center text-white font-bold text-xl">
                             You
                           </div>
                         </div>
