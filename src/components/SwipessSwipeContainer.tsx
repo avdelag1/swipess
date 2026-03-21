@@ -1287,12 +1287,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   };
 
   const handleInsights = () => {
-    const listing = deckQueueRef.current[currentIndexRef.current];
-    if (listing?.id) {
-      navigate(`/listing/${listing.id}`);
-    } else {
-      setInsightsModalOpen(true);
-    }
+    // ALWAYS open the "cool window" (insights modal) instead of full page navigation
+    setInsightsModalOpen(true);
     triggerHaptic('light');
   };
 

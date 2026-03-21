@@ -12,6 +12,8 @@ import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
 import { toast } from '@/components/ui/sonner';
+import { useAuth } from '@/hooks/useAuth';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 interface EventItem {
@@ -110,16 +112,94 @@ function formatDate(str: string | null): string {
   return `In ${diff} days`;
 }
 
-async function shareEvent(event: EventItem) {
-  const text = `${event.title}${event.location ? ` · ${event.location}` : ''}${event.price_text ? ` · ${event.price_text}` : ''}`;
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: event.title, text, url: window.location.href });
-    } catch {}
-  } else {
-    await navigator.clipboard.writeText(`${event.title} – ${text}`);
-    toast.success('Copied to clipboard!');
-  }
+// ── SHARE MODAL ──────────────────────────────────────────────────────────────
+function ShareModal({
+  event, open, onClose
+}: {
+  event: EventItem; open: boolean; onClose: () => void;
+}) {
+  const url = `${window.location.origin}/explore/eventos/${event.id}`;
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(url);
+    toast.success("Link copied to clipboard!");
+    onClose();
+  };
+
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: event.title,
+          text: `Check out ${event.title} in Tulum!`,
+          url: url
+        });
+        onClose();
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') handleCopy();
+      }
+    } else {
+      handleCopy();
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md"
+          />
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed inset-x-0 bottom-0 z-[110] bg-zinc-900 border-t border-white/10 rounded-t-[2.5rem] px-6 pt-8 pb-[calc(2rem+env(safe-area-inset-bottom))] text-center"
+          >
+            <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-8" />
+            <div className="w-20 h-20 rounded-[2rem] mx-auto mb-4 overflow-hidden shadow-2xl">
+              <img src={event.image_url || ''} className="w-full h-full object-cover" alt="" />
+            </div>
+            <h3 className="text-xl font-black text-white mb-2">Share this Event</h3>
+            <p className="text-white/50 text-sm mb-8">Let your friends know what's happening in Tulum.</p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={handleNativeShare}
+                className="flex flex-col items-center gap-3 p-5 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
+              >
+                <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                  <Share2 className="w-6 h-6 text-orange-400" />
+                </div>
+                <span className="text-xs font-black text-white uppercase tracking-widest">Send To...</span>
+              </button>
+              <button
+                onClick={handleCopy}
+                className="flex flex-col items-center gap-3 p-5 rounded-3xl bg-white/5 border border-white/10 active:scale-95 transition-all"
+              >
+                <div className="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
+                  <ExternalLink className="w-6 h-6 text-rose-400" />
+                </div>
+                <span className="text-xs font-black text-white uppercase tracking-widest">Copy Link</span>
+              </button>
+            </div>
+            
+            <button
+              onClick={onClose}
+              className="w-full py-4 mt-8 rounded-2xl bg-white/5 text-white/40 font-black text-xs uppercase tracking-widest"
+            >
+              Close
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 }
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
@@ -498,12 +578,57 @@ function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
 // ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 export default function EventosFeed() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
-  const [likedIds, setLikedIds] = useState<Set<string>>(loadLiked());
   const [showGroupChat, setShowGroupChat] = useState(false);
   const [chatEvent, setChatEvent] = useState<EventItem | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareEventData, setShareEventData] = useState<EventItem | null>(null);
+
+  const { data: likedIds = new Set<string>() } = useQuery({
+    queryKey: ['event-likes', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return new Set<string>();
+      const { data } = await supabase
+        .from('likes')
+        .select('target_id')
+        .eq('user_id', user.id)
+        .eq('target_type', 'event');
+      return new Set((data || []).map(l => l.target_id));
+    },
+    enabled: !!user?.id,
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: async ({ id, isLiked }: { id: string; isLiked: boolean }) => {
+      if (!user?.id) throw new Error("Not logged in");
+      if (isLiked) {
+        await supabase.from('likes').delete().eq('user_id', user.id).eq('target_id', id).eq('target_type', 'event');
+      } else {
+        await supabase.from('likes').insert({ user_id: user.id, target_id: id, target_type: 'event' });
+      }
+    },
+    onMutate: async ({ id, isLiked }) => {
+      await queryClient.cancelQueries({ queryKey: ['event-likes', user?.id] });
+      const previous = queryClient.getQueryData<Set<string>>(['event-likes', user?.id]);
+      queryClient.setQueryData<Set<string>>(['event-likes', user?.id], (prev) => {
+        const next = new Set(prev);
+        if (isLiked) next.delete(id); else next.add(id);
+        return next;
+      });
+      return { previous };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previous) queryClient.setQueryData(['event-likes', user?.id], context.previous);
+      toast.error("Could not update like");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['event-likes', user?.id] });
+    }
+  });
 
   const { data: rawEvents } = useQuery({
     queryKey: ['eventos', 'v4'],
@@ -565,19 +690,16 @@ export default function EventosFeed() {
     }
   }, [activeCategory]);
 
-  const handleLike = useCallback((id: string) => {
-    setLikedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      saveLiked(next);
-      return next;
-    });
-  }, []);
-
   const handleOpenChat = useCallback((event: EventItem) => {
     triggerHaptic('light');
     setChatEvent(event);
     setShowGroupChat(true);
+  }, []);
+
+  const handleShare = useCallback((event: EventItem) => {
+    triggerHaptic('light');
+    setShareEventData(event);
+    setShowShareModal(true);
   }, []);
 
   const totalCards = filteredEvents.length + 1; // +1 for promote CTA
@@ -680,9 +802,9 @@ export default function EventosFeed() {
                 event={event}
                 isActive={i === activeIdx}
                 liked={likedIds.has(event.id)}
-                onLike={() => handleLike(event.id)}
+                onLike={() => likeMutation.mutate({ id: event.id, isLiked: likedIds.has(event.id) })}
                 onChat={() => handleOpenChat(event)}
-                onShare={() => shareEvent(event)}
+                onShare={() => handleShare(event)}
               />
             ))}
             {/* Promote CTA card at the end */}
@@ -690,6 +812,15 @@ export default function EventosFeed() {
           </>
         )}
       </div>
+
+      {/* ── SHARE OVERLAY ── */}
+      {showShareModal && shareEventData && (
+        <ShareModal
+          event={shareEventData}
+          open={showShareModal}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
 
       {/* ── GROUP CHAT OVERLAY ── */}
       {showGroupChat && chatEvent && (
