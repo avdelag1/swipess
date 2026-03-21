@@ -184,7 +184,7 @@ export const PulseGlow = forwardRef<HTMLDivElement, PulseGlowProps>(
             glowColor === "primary" && "bg-primary",
             glowColor === "purple" && "bg-purple-500",
             glowColor === "blue" && "bg-blue-500",
-            glowColor === "green" && "bg-green-500",
+            glowColor === "green" && "bg-rose-500",
             glowColor === "red" && "bg-red-500"
           )}
           animate={{ opacity: getOpacityRange() }}

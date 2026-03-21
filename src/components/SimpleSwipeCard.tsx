@@ -508,7 +508,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           }}
         >
           <div
-            className="px-6 py-3 rounded-xl border-4 border-green-500 text-green-500 font-black text-3xl tracking-wider"
+            className="px-6 py-3 rounded-xl border-4 border-rose-500 text-rose-500 font-black text-3xl tracking-wider"
             style={{
               transform: 'rotate(-12deg) translateZ(0)',
               backfaceVisibility: 'hidden',

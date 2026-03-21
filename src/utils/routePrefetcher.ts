@@ -41,6 +41,7 @@ const routeImports: Record<string, RouteImport> = {
   '/subscription-packages': () => import('@/pages/SubscriptionPackagesPage'),
   '/explore/eventos': () => import('@/pages/EventosFeed'),
   '/explore/roommates': () => import('@/pages/RoommateMatching'),
+  '/client/advertise': () => import('@/pages/AdvertisePage'),
   '/explore/prices': () => import('@/pages/PriceTracker'),
   '/explore/intel': () => import('@/pages/LocalIntel'),
   '/explore/tours': () => import('@/pages/VideoTours'),
@@ -126,6 +127,7 @@ export function prefetchRoleRoutes(role: 'client' | 'owner'): void {
         '/notifications',
         '/client/filters',
         '/explore/eventos',
+        '/client/advertise',
         '/explore/roommates',
         '/client/settings',
       ]);

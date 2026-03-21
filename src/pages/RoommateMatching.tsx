@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, MapPin,
-  Briefcase, MessageCircle, Undo2,
+  Briefcase, MessageCircle,
   ShieldCheck, Info, Clock,
-  ThumbsDown, Flame, Eye, EyeOff
+  Eye, EyeOff
 } from 'lucide-react';
+import { SwipeActionButtonBar } from '@/components/SwipeActionButtonBar';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
@@ -15,6 +16,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
+import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -165,6 +167,8 @@ export default function RoommateMatching() {
   const [showFilters, setShowFilters] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [roommateVisible, setRoommateVisible] = useState(true);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
@@ -224,6 +228,7 @@ export default function RoommateMatching() {
 
   return (
     <div
+      data-no-swipe-nav
       className={cn(
         "relative w-full h-[100dvh] overflow-hidden flex flex-col transition-colors duration-500",
         isLight ? "bg-slate-50" : "bg-[#0A0A0B]"
@@ -239,7 +244,7 @@ export default function RoommateMatching() {
           <div className="flex items-center gap-4">
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/client/dashboard')}
               className={cn(
                 "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
                 isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
@@ -261,7 +266,7 @@ export default function RoommateMatching() {
                className={cn(
                  "px-3.5 h-11 rounded-[1.2rem] border backdrop-blur-3xl flex items-center gap-2 transition-all shadow-sm",
                  roommateVisible
-                   ? isLight ? "bg-emerald-50/90 border-emerald-300 text-emerald-700" : "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
+                   ? isLight ? "bg-rose-50/90 border-rose-300 text-rose-700" : "bg-rose-500/10 border-rose-500/30 text-rose-400"
                    : isLight ? "bg-white/80 border-slate-200 text-slate-400" : "bg-white/5 border-white/10 text-white/40"
                )}
              >
@@ -275,14 +280,11 @@ export default function RoommateMatching() {
              </motion.button>
 
              <motion.button
-               whileTap={{ scale: 0.9 }}
+               whileTap={{ scale: 0.88 }}
                onClick={() => setShowFilters(true)}
-               className={cn(
-                 "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
-                 isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"
-               )}
+               className="w-11 h-11 rounded-[1.2rem] flex items-center justify-center bg-white/10 dark:bg-white/10 border border-white/20 backdrop-blur-md shadow-[0_4px_14px_rgba(0,0,0,0.4)] active:shadow-inner"
              >
-               <SlidersHorizontal className="w-4 h-4" />
+               <SlidersHorizontal className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" />
              </motion.button>
           </div>
         </div>
@@ -356,7 +358,7 @@ export default function RoommateMatching() {
                        >
                          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                          <span className="text-[11px] font-black text-white uppercase tracking-[0.15em]">{(topCard as any).compatibility ?? 85}%</span>
-                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
+                         <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_#f43f5e]" />
                        </motion.div>
                     </div>
                   </div>
@@ -367,74 +369,24 @@ export default function RoommateMatching() {
         </div>
       </div>
 
-      {/* ── ACTION OVERLAY (Liquid Glass) ── */}
+      {/* ── ACTION OVERLAY ── */}
       <motion.div 
         animate={{ y: uiVisible ? 0 : 150 }}
         transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-        className="absolute bottom-0 left-0 right-0 z-[100] px-4"
-        style={{ paddingBottom: 'calc(68px + 1rem + var(--safe-bottom, 0px))' }}
+        className="absolute bottom-0 left-0 right-0 z-[100]"
+        style={{ paddingBottom: 'calc(1.5rem + var(--safe-bottom, 0px))' }}
       >
         {/* Gradient scrim so buttons are readable against any photo */}
-        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
-        <div className="max-w-md mx-auto relative h-20">
-          <div className="absolute inset-0 flex items-center justify-center gap-6">
-            {/* DISLIKE */}
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={handleDislike}
-              className={cn(
-                "w-14 h-14 rounded-full border backdrop-blur-3xl flex items-center justify-center transition-all bg-black/20 border-white/10 group",
-                "hover:bg-rose-500/20 hover:border-rose-500/40"
-              )}
-            >
-              <ThumbsDown className="w-6 h-6 text-white group-hover:text-rose-400" />
-            </motion.button>
-
-            {/* MESSAGE */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={() => { triggerHaptic('light'); navigate('/messages'); }}
-              className="w-12 h-12 rounded-full border backdrop-blur-3xl flex items-center justify-center bg-black/20 border-white/10"
-            >
-              <MessageCircle className="w-5 h-5 text-white/60" />
-            </motion.button>
-
-            {/* LIKE */}
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={handleLike}
-              className={cn(
-                "w-18 h-18 rounded-full border-2 backdrop-blur-3xl flex items-center justify-center transition-all bg-primary/20 border-primary/40 group",
-                "shadow-[0_0_30px_rgba(var(--primary-rgb),0.2)]"
-              )}
-              style={{ width: '72px', height: '72px' }}
-            >
-              <Flame className="w-9 h-9 text-primary animate-pulse" />
-            </motion.button>
-
-            {/* UNDO */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              disabled={!canUndo}
-              onClick={handleUndo}
-              className={cn(
-                "w-12 h-12 rounded-full border backdrop-blur-3xl flex items-center justify-center bg-black/20 border-white/10 transition-opacity",
-                !canUndo ? "opacity-20 grayscale" : "opacity-100"
-              )}
-            >
-              <Undo2 className="w-5 h-5 text-white/60" />
-            </motion.button>
-
-            {/* DETAILS / INFO (Repositioned Filter-like accessible button) */}
-            <motion.button
-              whileTap={{ scale: 0.8 }}
-              onClick={() => setShowDetails(true)}
-              className="w-14 h-14 rounded-full border backdrop-blur-3xl flex items-center justify-center bg-black/20 border-white/10 text-white"
-            >
-              <Info className="w-6 h-6" />
-            </motion.button>
-          </div>
-        </div>
+        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/75 via-black/35 to-transparent pointer-events-none" />
+        <SwipeActionButtonBar
+          onLike={handleLike}
+          onDislike={handleDislike}
+          onShare={() => triggerHaptic('light')}
+          onUndo={handleUndo}
+          onMessage={() => { triggerHaptic('light'); setMessageDialogOpen(true); }}
+          canUndo={canUndo}
+          className="relative"
+        />
       </motion.div>
 
       {/* ── PROFILE DETAILS OVERLAY (MODERN FULL-PAGE TRANSITION) ── */}
@@ -474,9 +426,9 @@ export default function RoommateMatching() {
                        <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">{topCard.name}</h2>
                        <span className="text-3xl font-bold text-white/40">{topCard.age}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 w-fit">
-                       <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                       <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Verified Human</span>
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 w-fit">
+                       <ShieldCheck className="w-3 h-3 text-rose-400" />
+                       <span className="text-[9px] font-black text-rose-400 uppercase tracking-widest">Verified Human</span>
                     </div>
                   </motion.div>
                </div>
@@ -588,6 +540,21 @@ export default function RoommateMatching() {
           </>
         )}
       </AnimatePresence>
+
+      <MessageConfirmationDialog
+        open={messageDialogOpen}
+        onOpenChange={setMessageDialogOpen}
+        recipientName={topCard?.name ?? 'this person'}
+        isLoading={messageSending}
+        onConfirm={(message) => {
+          setMessageSending(true);
+          setTimeout(() => {
+            setMessageSending(false);
+            setMessageDialogOpen(false);
+            navigate('/messages');
+          }, 800);
+        }}
+      />
     </div>
   );
 }

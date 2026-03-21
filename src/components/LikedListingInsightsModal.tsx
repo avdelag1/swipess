@@ -373,9 +373,9 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-4 gap-2">
-                  <div className="flex flex-col items-center p-3 bg-green-500/10 rounded-xl">
-                    <DollarSign className="w-5 h-5 text-green-500 mb-1" />
-                    <span className="text-lg font-bold text-green-500">${listing.price?.toLocaleString()}</span>
+                  <div className="flex flex-col items-center p-3 bg-rose-500/10 rounded-xl">
+                    <DollarSign className="w-5 h-5 text-rose-500 mb-1" />
+                    <span className="text-lg font-bold text-rose-500">${listing.price?.toLocaleString()}</span>
                     <span className="text-[10px] text-muted-foreground uppercase">per month</span>
                   </div>
                   {listing.beds && (
@@ -424,13 +424,13 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
                       </Badge>
                     )}
                     {listing.pet_friendly && (
-                      <Badge variant="secondary" className="bg-green-500/10 text-green-600 dark:text-green-400 border-0">
+                      <Badge variant="secondary" className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-0">
                         Pet Friendly
                       </Badge>
                     )}
                     <Badge variant="secondary" className={`border-0 ${
                       listing.status === 'available'
-                        ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                        ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                         : 'bg-muted text-muted-foreground'
                     }`}>
                       {listing.status}
@@ -477,7 +477,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
               <Button
                 onClick={handleMessage}
                 disabled={isCreatingConversation || !listing}
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold text-base rounded-xl shadow-lg shadow-blue-500/25"
+                className="w-full h-12 mexican-pink-premium font-semibold text-base rounded-xl"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 {isCreatingConversation ? 'Starting...' : 'Message Owner'}

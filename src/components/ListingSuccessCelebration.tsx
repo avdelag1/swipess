@@ -12,7 +12,7 @@ interface ListingSuccessCelebrationProps {
 
 const CATEGORY_CONFIG = {
   property: {
-    color: 'from-emerald-500 to-teal-600',
+    color: 'from-rose-500 to-teal-600',
     glow: 'rgba(16, 185, 129, 0.5)',
     icon: Home,
     label: 'Property Materialized'
@@ -106,7 +106,7 @@ export function ListingSuccessCelebration({ isOpen, category, onComplete }: List
                 transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
               />
               
-              <Icon className={cn("w-10 h-10", category === 'property' ? 'text-emerald-500' : category === 'motorcycle' ? 'text-orange-500' : category === 'bicycle' ? 'text-purple-500' : 'text-amber-500')} />
+              <Icon className={cn("w-10 h-10", category === 'property' ? 'text-rose-500' : category === 'motorcycle' ? 'text-orange-500' : category === 'bicycle' ? 'text-purple-500' : 'text-amber-500')} />
               
               <motion.div 
                 initial={{ scale: 0 }}

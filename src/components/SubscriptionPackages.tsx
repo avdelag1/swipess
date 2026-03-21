@@ -220,7 +220,7 @@ export function SubscriptionPackages({ isOpen = true, onClose, reason, userRole 
         {/* Trust Footer */}
         <div className="flex items-center justify-center gap-5 px-4 pb-4 pt-1">
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
-            <Shield className="w-3 h-3 text-green-500" />
+            <Shield className="w-3 h-3 text-rose-500" />
             <span>Secure</span>
           </div>
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">

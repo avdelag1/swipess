@@ -32,7 +32,7 @@ const OwnerContracts = () => {
       case 'pending': return 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30';
       case 'signed_by_owner': return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30';
       case 'signed_by_client': return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30';
-      case 'completed': return 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+      case 'completed': return 'bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/30';
       case 'cancelled': return 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/30';
       case 'disputed': return 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/30';
       default: return 'bg-muted text-muted-foreground border-border/30';
@@ -131,7 +131,7 @@ const OwnerContracts = () => {
                 <Badge className="bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/25 border text-[10px] font-bold">Property Sale</Badge>
                 <Badge className="bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/25 border text-[10px] font-bold">Bicycle Rental</Badge>
                 <Badge className="bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/25 border text-[10px] font-bold">Moto Rental</Badge>
-                <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 border text-[10px] font-bold">Service Contract</Badge>
+                <Badge className="bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/25 border text-[10px] font-bold">Service Contract</Badge>
               </div>
             </div>
           </div>

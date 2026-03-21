@@ -22,7 +22,7 @@ export default function LegalPage() {
       icon: Shield,
       label: 'Privacy Policy',
       description: 'How we collect, use, and protect your data',
-      color: 'text-green-500',
+      color: 'text-rose-500',
       action: () => navigate('/privacy-policy')
     },
     {

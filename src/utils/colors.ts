@@ -21,20 +21,20 @@ export function getSemanticColor(
   const colors: Record<SemanticColorType, Record<ColorVariant, Record<'dark' | 'light', string>>> = {
     success: {
       bg: {
-        dark: 'bg-emerald-600',
-        light: 'bg-emerald-500',
+        dark: 'bg-rose-600',
+        light: 'bg-rose-500',
       },
       bgLight: {
-        dark: 'bg-emerald-500/20',
-        light: 'bg-emerald-50',
+        dark: 'bg-rose-500/20',
+        light: 'bg-rose-50',
       },
       text: {
-        dark: 'text-emerald-400',
-        light: 'text-emerald-600',
+        dark: 'text-rose-400',
+        light: 'text-rose-600',
       },
       border: {
-        dark: 'border-emerald-500/40',
-        light: 'border-emerald-300',
+        dark: 'border-rose-500/40',
+        light: 'border-rose-300',
       },
     },
     warning: {

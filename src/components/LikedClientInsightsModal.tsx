@@ -340,7 +340,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                         Liked
                       </Badge>
                       {client.verified && (
-                        <Badge className="bg-green-500/90 text-white border-0 px-3 py-1">
+                        <Badge className="bg-rose-500/90 text-white border-0 px-3 py-1">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Verified
                         </Badge>
@@ -391,7 +391,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                   <h2 className="text-xl sm:text-2xl font-bold leading-tight flex items-center gap-2">
                     {client.name}
                     {client.verified && (
-                      <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-rose-500 flex-shrink-0" />
                     )}
                   </h2>
 
@@ -461,10 +461,10 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
                 <div className="grid grid-cols-2 gap-3">
                   <div className={`flex items-center gap-3 p-3 rounded-xl border ${
                     client.verified
-                      ? 'bg-green-500/10 border-green-500/30'
+                      ? 'bg-rose-500/10 border-rose-500/30'
                       : 'bg-muted/30 border-muted'
                   }`}>
-                    <CheckCircle className={`w-5 h-5 ${client.verified ? 'text-green-500' : 'text-muted-foreground'}`} />
+                    <CheckCircle className={`w-5 h-5 ${client.verified ? 'text-rose-500' : 'text-muted-foreground'}`} />
                     <div>
                       <p className="text-sm font-medium">ID Verified</p>
                       <p className="text-xs text-muted-foreground">{client.verified ? 'Confirmed' : 'Pending'}</p>
@@ -509,7 +509,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
               <Button
                 onClick={handleMessage}
                 disabled={isCreatingConversation || !client}
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold text-base rounded-xl shadow-lg shadow-blue-500/25"
+                className="w-full h-12 mexican-pink-premium font-semibold text-base rounded-xl"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 {isCreatingConversation ? 'Starting...' : 'Send Message'}

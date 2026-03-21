@@ -52,10 +52,10 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
       title: 'Avg. Price',
       value: `$${avgPrice.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
       icon: DollarSign,
-      gradient: 'from-emerald-500 to-emerald-600',
-      bgGradient: 'from-emerald-500/20 to-emerald-600/10',
-      iconBg: 'bg-emerald-500/20',
-      iconColor: 'text-emerald-400',
+      gradient: 'from-rose-500 to-rose-600',
+      bgGradient: 'from-rose-500/20 to-rose-600/10',
+      iconBg: 'bg-rose-500/20',
+      iconColor: 'text-rose-400',
       description: 'Per listing',
       trend: ''
     },
@@ -74,7 +74,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
 
   // Category breakdown for mini-chart
   const categoryBreakdown = [
-    { name: 'Properties', count: propertiesCount, icon: Home, color: 'bg-emerald-500' },
+    { name: 'Properties', count: propertiesCount, icon: Home, color: 'bg-rose-500' },
     { name: 'Motorcycles', count: motorcyclesCount, icon: MotorcycleIcon, color: 'bg-orange-500' },
     { name: 'Bicycles', count: bicyclesCount, icon: Bike, color: 'bg-purple-500' },
     { name: 'Services', count: workersCount, icon: Activity, color: 'bg-blue-500' },
@@ -115,7 +115,7 @@ export function OwnerListingsStats({ listings, isLight = false }: OwnerListingsS
                         {stat.value}
                       </h3>
                       {stat.trend && (
-                        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-emerald-400" />
+                        <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-rose-400" />
                       )}
                     </div>
                     <p className={cn("text-[10px] sm:text-xs mt-0.5 sm:mt-1", isLight ? 'text-muted-foreground' : 'text-white/40')}>

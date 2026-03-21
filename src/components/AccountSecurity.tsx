@@ -260,7 +260,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
+    if (score >= 80) return 'text-rose-500';
     if (score >= 60) return 'text-yellow-500';
     return 'text-red-500';
   };
@@ -289,7 +289,7 @@ export function AccountSecurity({ userRole }: AccountSecurityProps) {
           </div>
           <div className="w-full bg-gray-600/50 rounded-full h-2">
             <div
-              className={`h-2 rounded-full ${securityScore() >= 80 ? 'bg-green-500' :
+              className={`h-2 rounded-full ${securityScore() >= 80 ? 'bg-rose-500' :
                 securityScore() >= 60 ? 'bg-yellow-500' : 'bg-red-500'
                 }`}
               style={{ width: `${securityScore()}%` }}

@@ -78,7 +78,7 @@ const CATEGORY_CONFIG: Record<string, { icon: React.ReactNode; label: string; co
   worker: { icon: <Briefcase className="w-4 h-4" />, label: 'Service', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20' },
   services: { icon: <Briefcase className="w-4 h-4" />, label: 'Service', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20' },
   motorcycle: { icon: <Car className="w-4 h-4" />, label: 'Motorcycle', color: 'bg-orange-500/10 text-orange-600 border-orange-500/20' },
-  bicycle: { icon: <Bike className="w-4 h-4" />, label: 'Bicycle', color: 'bg-green-500/10 text-green-600 border-green-500/20' },
+  bicycle: { icon: <Bike className="w-4 h-4" />, label: 'Bicycle', color: 'bg-rose-500/10 text-rose-600 border-rose-500/20' },
 };
 
 interface PropertyInsightsDialogProps {
@@ -331,7 +331,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
             {/* Price & Key Details - Adaptive for category */}
             <div className="grid grid-cols-1 xs:grid-cols-2 gap-2 sm:gap-4 text-sm sm:text-base">
               <div className="flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-green-600" />
+                <DollarSign className="w-4 h-4 text-rose-600" />
                 <span className="font-semibold">
                   ${listing.price?.toLocaleString()}
                   {listing.listing_type !== 'buy' && '/month'}
@@ -509,7 +509,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                 {listing.furnished && <Badge variant="secondary">Furnished</Badge>}
                 {listing.pet_friendly && <Badge variant="secondary">Pet Friendly</Badge>}
                 {listing.electric_assist && <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">Electric</Badge>}
-                <Badge variant="outline" className={listing.status === 'available' ? 'bg-green-500/10 text-green-600 border-green-500/20' : ''}>{listing.status}</Badge>
+                <Badge variant="outline" className={listing.status === 'available' ? 'bg-rose-500/10 text-rose-600 border-rose-500/20' : ''}>{listing.status}</Badge>
               </div>
             </div>
 
@@ -529,31 +529,31 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
             {listing.rental_rates && (
               <div>
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-green-500" />
+                  <DollarSign className="w-5 h-5 text-rose-500" />
                   Service Rates
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
                   {listing.rental_rates.hourly && (
-                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.hourly}</div>
+                    <div className="p-3 bg-rose-500/10 rounded-lg border border-rose-500/20 text-center">
+                      <div className="text-lg font-bold text-rose-600 dark:text-rose-400">${listing.rental_rates.hourly}</div>
                       <div className="text-xs text-muted-foreground">per hour</div>
                     </div>
                   )}
                   {listing.rental_rates.daily && (
-                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.daily}</div>
+                    <div className="p-3 bg-rose-500/10 rounded-lg border border-rose-500/20 text-center">
+                      <div className="text-lg font-bold text-rose-600 dark:text-rose-400">${listing.rental_rates.daily}</div>
                       <div className="text-xs text-muted-foreground">per day</div>
                     </div>
                   )}
                   {listing.rental_rates.weekly && (
-                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.weekly}</div>
+                    <div className="p-3 bg-rose-500/10 rounded-lg border border-rose-500/20 text-center">
+                      <div className="text-lg font-bold text-rose-600 dark:text-rose-400">${listing.rental_rates.weekly}</div>
                       <div className="text-xs text-muted-foreground">per week</div>
                     </div>
                   )}
                   {listing.rental_rates.monthly && (
-                    <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20 text-center">
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">${listing.rental_rates.monthly}</div>
+                    <div className="p-3 bg-rose-500/10 rounded-lg border border-rose-500/20 text-center">
+                      <div className="text-lg font-bold text-rose-600 dark:text-rose-400">${listing.rental_rates.monthly}</div>
                       <div className="text-xs text-muted-foreground">per month</div>
                     </div>
                   )}
@@ -577,7 +577,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                   <p className="text-sm">
                     📈 Demand: <span className={`font-medium ${
                       propertyInsights.demandLevel === 'high' ? 'text-red-500' :
-                      propertyInsights.demandLevel === 'medium' ? 'text-yellow-500' : 'text-green-500'
+                      propertyInsights.demandLevel === 'medium' ? 'text-yellow-500' : 'text-rose-500'
                     }`}>
                       {propertyInsights.demandLevel === 'high' ? 'High demand' :
                        propertyInsights.demandLevel === 'medium' ? 'Moderate demand' : 'Low competition'}
@@ -594,12 +594,12 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                 About the {propertyInsights?.isVehicle ? 'Provider' : 'Owner'}
               </h4>
               <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-gradient-to-br from-green-500/10 to-emerald-500/5 rounded-lg border border-green-500/20">
+                <div className="p-3 bg-gradient-to-br from-rose-500/10 to-rose-500/5 rounded-lg border border-rose-500/20">
                   <div className="flex items-center gap-2 mb-1">
-                    <MessageCircle className="w-4 h-4 text-green-600" />
+                    <MessageCircle className="w-4 h-4 text-rose-600" />
                     <span className="text-xs text-muted-foreground">Response Rate</span>
                   </div>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">{propertyInsights?.responseRate || 85}%</div>
+                  <div className="text-lg font-bold text-rose-600 dark:text-rose-400">{propertyInsights?.responseRate || 85}%</div>
                 </div>
                 <div className="p-3 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 rounded-lg border border-blue-500/20">
                   <div className="flex items-center gap-2 mb-1">
@@ -634,9 +634,9 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {propertyInsights.pricePerSqft && (
-                    <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/5 p-3 rounded-lg text-center border border-green-500/20">
-                      <DollarSign className="w-5 h-5 mx-auto text-green-600 dark:text-green-400 mb-1" />
-                      <div className="text-xl font-bold text-green-600 dark:text-green-400">${propertyInsights.pricePerSqft}</div>
+                    <div className="bg-gradient-to-br from-rose-500/10 to-rose-500/5 p-3 rounded-lg text-center border border-rose-500/20">
+                      <DollarSign className="w-5 h-5 mx-auto text-rose-600 dark:text-rose-400 mb-1" />
+                      <div className="text-xl font-bold text-rose-600 dark:text-rose-400">${propertyInsights.pricePerSqft}</div>
                       <div className="text-xs text-muted-foreground">per sqft</div>
                     </div>
                   )}
@@ -667,14 +667,14 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                   Value Assessment
                 </h4>
                 <div className={`p-4 rounded-lg border ${
-                  propertyInsights.valueRating === 'excellent' ? 'bg-green-500/10 border-green-500/30' :
+                  propertyInsights.valueRating === 'excellent' ? 'bg-rose-500/10 border-rose-500/30' :
                   propertyInsights.valueRating === 'good' ? 'bg-blue-500/10 border-blue-500/30' :
                   propertyInsights.valueRating === 'fair' ? 'bg-yellow-500/10 border-yellow-500/30' :
                   'bg-red-500/10 border-red-500/30'
                 }`}>
                   <div className="flex items-center gap-3 mb-2">
                     <Badge className={`${
-                      propertyInsights.valueRating === 'excellent' ? 'bg-green-500/20 text-green-700 dark:text-green-400' :
+                      propertyInsights.valueRating === 'excellent' ? 'bg-rose-500/20 text-rose-700 dark:text-rose-400' :
                       propertyInsights.valueRating === 'good' ? 'bg-blue-500/20 text-blue-700 dark:text-blue-400' :
                       propertyInsights.valueRating === 'fair' ? 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400' :
                       'bg-red-500/20 text-red-700 dark:text-red-400'
@@ -701,7 +701,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
             {/* Property Highlights */}
             <div>
               <h4 className="font-semibold mb-3 flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-rose-500" />
                 Property Highlights
               </h4>
               <div className="grid grid-cols-2 gap-3">
@@ -736,7 +736,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
                   </div>
                 )}
                 <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
-                  <Shield className="w-4 h-4 text-green-500" />
+                  <Shield className="w-4 h-4 text-rose-500" />
                   <span className="text-sm">Verified Listing</span>
                 </div>
               </div>
@@ -751,7 +751,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
               <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${
-                    listing.status === 'available' ? 'bg-green-500 animate-pulse' :
+                    listing.status === 'available' ? 'bg-rose-500 animate-pulse' :
                     listing.status === 'pending' ? 'bg-yellow-500' : 'bg-gray-400'
                   }`} />
                   <div>
@@ -799,7 +799,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
           <Button
             onClick={handleMessage}
             disabled={isCreatingConversation || !listing}
-            className="w-full"
+            className="w-full mexican-pink-premium"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             {isCreatingConversation ? 'Starting conversation...' : 'Contact Owner'}

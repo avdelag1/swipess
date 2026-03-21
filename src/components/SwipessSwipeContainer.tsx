@@ -47,7 +47,7 @@ const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: s
   property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
   moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
   motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-emerald-500' },
+  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-rose-500' },
   services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
   worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
 };
@@ -295,20 +295,20 @@ const IconWorker = () => (
 const FAN_CARDS = [
   { id: 'property' as const, label: 'Properties', Icon: IconProperty, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
   { id: 'motorcycle' as const, label: 'Motorcycles', Icon: IconMoto, accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
-  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
+  { id: 'bicycle' as const, label: 'Bicycles', Icon: IconBicycle, accent: '#f43f5e', accentRgb: '244,63,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
 // Card dimensions — large enough to feel immersive, tight enough to fit the fan
-const CARD_W = 215;
-const CARD_H = 355;
+const CARD_W = 252;
+const CARD_H = 430;
 
 // Fan geometry — very slight tilt so cards feel almost upright
 const FAN_CARDS_WITH_POS = [
-  { ...FAN_CARDS[0], rotate: -7,  tx: -26, ty: 10  },
-  { ...FAN_CARDS[1], rotate: -2.2,tx: -9,  ty: 2   },
-  { ...FAN_CARDS[2], rotate: 2.2, tx: 9,   ty: 2   },
-  { ...FAN_CARDS[3], rotate: 7,   tx: 26,  ty: 10  },
+  { ...FAN_CARDS[0], rotate: -4.5, tx: -16, ty: 8  },
+  { ...FAN_CARDS[1], rotate: -1.5, tx: -6,  ty: 2  },
+  { ...FAN_CARDS[2], rotate: 1.5,  tx: 6,   ty: 2  },
+  { ...FAN_CARDS[3], rotate: 4.5,  tx: 16,  ty: 8  },
 ];
 
 const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
@@ -477,7 +477,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         animate="animate"
         exit="exit"
         className="relative w-full flex-1 flex flex-col items-center justify-center"
-        style={{ minHeight: 'calc(100dvh - 140px)' }}
+        style={{ minHeight: 'calc(100dvh - 148px)' }}
         onClick={() => previewCard && setPreviewCard(null)}
       >
         {/* Ambient glow */}
@@ -488,7 +488,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan container — stop propagation so card taps don't hit the backdrop */}
         <div
           className="relative"
-          style={{ width: '100%', maxWidth: 380, height: CARD_H + 60, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 420, height: CARD_H + 36, zIndex: 10 }}
           onClick={e => e.stopPropagation()}
         >
           {FAN_CARDS_WITH_POS.map((card, i) => (

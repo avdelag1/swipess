@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar, Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, ChevronDown } from "lucide-react";
+import {
+  ArrowLeft, ArrowRight, Check, Megaphone, Sparkles, Star, Zap, Calendar,
+  Music, Utensils, Dumbbell, Palette, ShoppingBag, Globe, Camera,
+  Users, Eye, TrendingUp, Instagram, Phone, Flame, Crown
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/hooks/useTheme";
 import { haptics } from "@/utils/microPolish";
 import { toast } from "@/components/ui/sonner";
 
@@ -13,49 +18,63 @@ const PACKAGES = [
     id: "starter",
     name: "Starter",
     icon: <Zap className="w-5 h-5" />,
-    color: "#22c55e",
-    colorRgb: "34,197,94",
+    emoji: "⚡",
+    color: "#ef4444",
+    colorRgb: "239,68,68",
     prices: { week: 50, month: 150, quarter: 350 },
     perks: ["Basic listing", "1 photo", "Standard placement", "Email support"],
+    tagline: "Perfect to get started",
   },
   {
     id: "growth",
     name: "Growth",
     icon: <Star className="w-5 h-5" />,
+    emoji: "🔥",
     color: "#f97316",
     colorRgb: "249,115,22",
     prices: { week: 99, month: 250, quarter: 580 },
     perks: ["Featured badge", "Up to 5 photos", "Priority placement", "Chat support"],
     popular: true,
+    tagline: "Most chosen by Tulum brands",
   },
   {
     id: "premium",
     name: "Premium",
-    icon: <Sparkles className="w-5 h-5" />,
+    icon: <Crown className="w-5 h-5" />,
+    emoji: "👑",
     color: "#a855f7",
     colorRgb: "168,85,247",
     prices: { week: 199, month: 499, quarter: 1150 },
     perks: ["Top of feed", "Unlimited photos", "Push notification blast", "Dedicated manager"],
+    tagline: "Maximum reach & visibility",
   },
 ];
 
-const MXN_TO_USD = 0.052; // approx
+const MXN_TO_USD = 0.052;
 
 const EVENT_TYPES = [
-  { id: "music", label: "Music / DJ Night", icon: <Music className="w-4 h-4" /> },
-  { id: "food", label: "Food & Drinks", icon: <Utensils className="w-4 h-4" /> },
-  { id: "fitness", label: "Fitness / Wellness", icon: <Dumbbell className="w-4 h-4" /> },
-  { id: "art", label: "Art / Culture", icon: <Palette className="w-4 h-4" /> },
-  { id: "market", label: "Market / Pop-up", icon: <ShoppingBag className="w-4 h-4" /> },
-  { id: "other", label: "Other / Service", icon: <Globe className="w-4 h-4" /> },
+  { id: "music", label: "Music / DJ Night", icon: <Music className="w-5 h-5" />, emoji: "🎶" },
+  { id: "food", label: "Food & Drinks", icon: <Utensils className="w-5 h-5" />, emoji: "🍷" },
+  { id: "fitness", label: "Fitness / Wellness", icon: <Dumbbell className="w-5 h-5" />, emoji: "🧘" },
+  { id: "art", label: "Art / Culture", icon: <Palette className="w-5 h-5" />, emoji: "🎨" },
+  { id: "market", label: "Market / Pop-up", icon: <ShoppingBag className="w-5 h-5" />, emoji: "🛍️" },
+  { id: "other", label: "Other / Service", icon: <Globe className="w-5 h-5" />, emoji: "✨" },
 ];
 
 const DURATIONS = [
-  { id: "week", label: "1 Week" },
-  { id: "month", label: "1 Month" },
-  { id: "quarter", label: "3 Months" },
+  { id: "week", label: "1 Week", sublabel: "Try it out" },
+  { id: "month", label: "1 Month", sublabel: "Best value" },
+  { id: "quarter", label: "3 Months", sublabel: "Maximum ROI" },
 ];
 
+const STATS = [
+  { icon: Users, value: "15k+", label: "Monthly Users", color: "#ef4444" },
+  { icon: Eye, value: "120k+", label: "Monthly Views", color: "#3b82f6" },
+  { icon: TrendingUp, value: "89%", label: "Engagement", color: "#f97316" },
+  { icon: Star, value: "4.9★", label: "Avg Rating", color: "#a855f7" },
+];
+
+type View = "landing" | "form";
 type Step = "type" | "details" | "package" | "confirm";
 
 interface FormData {
@@ -69,6 +88,7 @@ interface FormData {
   website: string;
   packageId: string;
   duration: "week" | "month" | "quarter";
+  photoUrl: string;
 }
 
 const INITIAL: FormData = {
@@ -82,26 +102,108 @@ const INITIAL: FormData = {
   website: "",
   packageId: "growth",
   duration: "month",
+  photoUrl: "",
 };
 
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? 60 : -60, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir < 0 ? 60 : -60, opacity: 0 }),
-};
+const SAMPLE_CARDS = [
+  {
+    bg: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=400&q=80&auto=format",
+    tag: "TONIGHT",
+    title: "Cenote Rave",
+    venue: "Zamna Tulum",
+    price: "$800 MXN",
+    color: "#a855f7",
+  },
+  {
+    bg: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&q=80&auto=format",
+    tag: "FREE ENTRY",
+    title: "Food Market",
+    venue: "La Veleta",
+    price: "Free",
+    color: "#ef4444",
+  },
+  {
+    bg: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80&auto=format",
+    tag: "EARLY BIRD",
+    title: "Cacao Ceremony",
+    venue: "Playa Paraíso",
+    price: "$350 MXN",
+    color: "#f97316",
+  },
+];
+
+// ── Feature items (WhatsApp Leads icon changed from green to red) ──────────────
+const FEATURES = [
+  {
+    icon: <Eye className="w-5 h-5" />,
+    color: "#3b82f6",
+    colorRgb: "59,130,246",
+    title: "Massive Reach",
+    desc: "Your event shown to 15,000+ active users browsing Tulum daily",
+  },
+  {
+    icon: <Instagram className="w-5 h-5" />,
+    color: "#f97316",
+    colorRgb: "249,115,22",
+    title: "TikTok-Style Feed",
+    desc: "Full-screen immersive cards that stop the scroll and drive action",
+  },
+  {
+    icon: <Phone className="w-5 h-5" />,
+    color: "#ef4444",
+    colorRgb: "239,68,68",
+    title: "Direct WhatsApp Leads",
+    desc: "Customers reach you directly through the app with one tap",
+  },
+  {
+    icon: <Crown className="w-5 h-5" />,
+    color: "#a855f7",
+    colorRgb: "168,85,247",
+    title: "Priority Placement",
+    desc: "Featured at the top of category feeds for maximum visibility",
+  },
+];
 
 export default function AdvertisePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
+  const [view, setView] = useState<View>("landing");
   const [step, setStep] = useState<Step>("type");
   const [dir, setDir] = useState(1);
   const [form, setForm] = useState<FormData>(INITIAL);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const steps: Step[] = ["type", "details", "package", "confirm"];
   const stepIdx = steps.indexOf(step);
   const progress = ((stepIdx + 1) / steps.length) * 100;
+
+  // ── Theme-aware style helpers ─────────────────────────────────────────────
+  const th = {
+    pageBg:       isLight ? "#f8f8f8"                        : "#000000",
+    card:         isLight ? "rgba(0,0,0,0.04)"               : "rgba(255,255,255,0.05)",
+    cardBorder:   isLight ? "rgba(0,0,0,0.08)"               : "rgba(255,255,255,0.08)",
+    inputBg:      isLight ? "rgba(0,0,0,0.04)"               : "rgba(255,255,255,0.05)",
+    inputBorder:  isLight ? "rgba(0,0,0,0.12)"               : "rgba(255,255,255,0.10)",
+    inputText:    isLight ? "#111"                            : "#fff",
+    inputPlaceholder: isLight ? "rgba(0,0,0,0.3)"            : "rgba(255,255,255,0.25)",
+    headerBg:     isLight ? "rgba(248,248,248,0.92)"          : "rgba(0,0,0,0.85)",
+    headerBorder: isLight ? "rgba(0,0,0,0.07)"               : "rgba(255,255,255,0.06)",
+    backBtn:      isLight ? "rgba(0,0,0,0.07)"               : "rgba(255,255,255,0.10)",
+    backBtnBorder:isLight ? "rgba(0,0,0,0.12)"               : "rgba(255,255,255,0.15)",
+    text:         isLight ? "#0a0a0a"                        : "#ffffff",
+    textMuted:    isLight ? "rgba(0,0,0,0.50)"               : "rgba(255,255,255,0.50)",
+    textDim:      isLight ? "rgba(0,0,0,0.35)"               : "rgba(255,255,255,0.35)",
+    textFaint:    isLight ? "rgba(0,0,0,0.25)"               : "rgba(255,255,255,0.25)",
+    divider:      isLight ? "rgba(0,0,0,0.08)"               : "rgba(255,255,255,0.10)",
+    progressBg:   isLight ? "rgba(0,0,0,0.06)"               : "rgba(255,255,255,0.06)",
+    backFormBtn:  isLight ? "rgba(0,0,0,0.05)"               : "rgba(255,255,255,0.05)",
+    backFormBorder:isLight ? "rgba(0,0,0,0.10)"              : "rgba(255,255,255,0.10)",
+  };
 
   const goTo = (s: Step) => {
     setDir(steps.indexOf(s) > stepIdx ? 1 : -1);
@@ -109,12 +211,19 @@ export default function AdvertisePage() {
   };
   const next = () => { haptics.tap(); goTo(steps[stepIdx + 1]); };
   const back = () => { haptics.tap(); goTo(steps[stepIdx - 1]); };
-
   const set = (field: keyof FormData, val: string) => setForm(f => ({ ...f, [field]: val }));
 
   const selectedPkg = PACKAGES.find(p => p.id === form.packageId)!;
   const price = selectedPkg?.prices[form.duration];
   const priceUsd = (price * MXN_TO_USD).toFixed(0);
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => set("photoUrl", ev.target?.result as string);
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async () => {
     if (submitting) return;
@@ -138,115 +247,329 @@ export default function AdvertisePage() {
       });
       if (error) throw error;
       setDone(true);
-    } catch (err: any) {
+    } catch {
       toast.error("Could not submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  // ── SUCCESS SCREEN ──────────────────────────────────────────────────────────
   if (done) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-6">
+      <div className="min-h-[100dvh] flex flex-col items-center justify-center px-6 text-center gap-6"
+        style={{ background: th.pageBg }}>
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 260, damping: 18 }}
-          className="w-24 h-24 rounded-full flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
+          initial={{ scale: 0, rotate: -10 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
+          className="relative"
         >
-          <Check className="w-12 h-12 text-white" />
+          <div className="absolute inset-0 bg-orange-500/30 blur-[60px] rounded-full scale-150 animate-pulse" />
+          <div className="w-28 h-28 rounded-[2.5rem] flex items-center justify-center relative z-10"
+            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 20px 60px rgba(249,115,22,0.4)" }}>
+            <Check className="w-14 h-14 text-white" strokeWidth={3} />
+          </div>
         </motion.div>
-        <h2 className="text-2xl font-black">You're on the list! 🎉</h2>
-        <p className="text-muted-foreground max-w-xs">
-          Our team will review your submission and contact you within 24 hours to confirm your promotion.
-        </p>
-        <button
-          onClick={() => navigate("/client/profile")}
-          className="mt-4 px-8 py-3 rounded-2xl font-bold text-white"
-          style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="space-y-3">
+          <h2 className="text-3xl font-black" style={{ color: th.text }}>You're on the list! 🎉</h2>
+          <p className="max-w-xs leading-relaxed" style={{ color: th.textMuted }}>
+            Our team will review your submission and contact you via WhatsApp within 24 hours.
+          </p>
+        </motion.div>
+        <motion.button
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+          onClick={() => navigate(-1)}
+          className="px-10 py-4 rounded-[2rem] font-black text-white text-sm uppercase tracking-widest"
+          style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 12px 40px rgba(249,115,22,0.35)" }}
         >
-          Back to Profile
-        </button>
+          Back to App
+        </motion.button>
       </div>
     );
   }
 
+  // ── LANDING PAGE ────────────────────────────────────────────────────────────
+  if (view === "landing") {
+    return (
+      <div className="min-h-[100dvh] overflow-y-auto" style={{ background: th.pageBg }}>
+        {/* Back button */}
+        <div className="absolute top-0 left-0 right-0 z-50 pt-safe px-4 pt-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ background: th.backBtn, backdropFilter: "blur(16px)", border: `1px solid ${th.backBtnBorder}` }}
+          >
+            <ArrowLeft className="w-5 h-5" style={{ color: th.text }} />
+          </button>
+        </div>
+
+        {/* ── HERO ── */}
+        <div className="relative min-h-[100dvh] flex flex-col items-center justify-center px-6 text-center pb-12 pt-24">
+          {/* Background gradient blobs */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full blur-[100px]"
+              style={{ background: "radial-gradient(circle, #f97316, transparent)", opacity: isLight ? 0.1 : 0.2 }} />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] rounded-full blur-[100px]"
+              style={{ background: "radial-gradient(circle, #a855f7, transparent)", opacity: isLight ? 0.1 : 0.2 }} />
+          </div>
+
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
+            style={{ background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)" }}
+          >
+            <Flame className="w-4 h-4 text-orange-400" />
+            <span className="text-[11px] font-black text-orange-400 uppercase tracking-[0.2em]">Tulum's #1 Discovery App</span>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-5xl font-black leading-[0.95] tracking-tighter mb-4"
+            style={{ color: th.text, textShadow: "0 0 80px rgba(249,115,22,0.2)" }}
+          >
+            Promote<br />
+            <span style={{ background: "linear-gradient(135deg,#f97316,#fb923c,#a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Your Brand
+            </span><br />
+            in Tulum
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-base max-w-xs leading-relaxed mb-8"
+            style={{ color: th.textMuted }}
+          >
+            Reach thousands of expats, digital nomads & tourists actively looking for what you offer
+          </motion.p>
+
+          {/* Sample cards stack */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            className="relative w-full max-w-[280px] h-[200px] mb-8"
+          >
+            {SAMPLE_CARDS.map((card, i) => (
+              <motion.div
+                key={i}
+                className="absolute inset-0 rounded-[2rem] overflow-hidden"
+                style={{
+                  transform: `rotate(${(i - 1) * 6}deg) translateY(${(i - 1) * -8}px)`,
+                  zIndex: SAMPLE_CARDS.length - i,
+                  boxShadow: "0 20px 50px rgba(0,0,0,0.4)",
+                }}
+                animate={{ rotate: [(i - 1) * 6, (i - 1) * 6 + 1, (i - 1) * 6] }}
+                transition={{ duration: 3 + i, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <img src={card.bg} className="w-full h-full object-cover" alt="" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-x-3 bottom-3">
+                  <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full text-white"
+                    style={{ background: card.color }}>
+                    {card.tag}
+                  </span>
+                  <div className="text-white font-black text-sm mt-1">{card.title}</div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white/60 text-[10px]">{card.venue}</span>
+                    <span className="font-bold text-[10px]" style={{ color: card.color }}>{card.price}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="grid grid-cols-4 gap-3 w-full max-w-sm mb-10"
+          >
+            {STATS.map(stat => {
+              const Icon = stat.icon;
+              return (
+                <div key={stat.label} className="flex flex-col items-center gap-1 p-3 rounded-2xl"
+                  style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
+                  <Icon className="w-4 h-4 mb-0.5" style={{ color: stat.color }} />
+                  <div className="font-black text-sm" style={{ color: th.text }}>{stat.value}</div>
+                  <div className="text-[9px] text-center leading-tight" style={{ color: th.textDim }}>{stat.label}</div>
+                </div>
+              );
+            })}
+          </motion.div>
+
+          {/* CTA */}
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => { haptics.tap(); setView("form"); }}
+            className="w-full max-w-sm py-5 rounded-[2rem] font-black text-white text-base flex items-center justify-center gap-3"
+            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 16px 50px rgba(249,115,22,0.4)" }}
+          >
+            <Megaphone className="w-5 h-5" />
+            Start Promoting — From $50 MXN
+          </motion.button>
+
+          <p className="text-[11px] mt-4" style={{ color: th.textFaint }}>No upfront payment · We contact you to confirm</p>
+        </div>
+
+        {/* ── WHAT YOU GET ── */}
+        <div className="px-6 pb-16">
+          <h2 className="text-2xl font-black text-center mb-2" style={{ color: th.text }}>Everything you need</h2>
+          <p className="text-sm text-center mb-8" style={{ color: th.textMuted }}>to get noticed in Tulum</p>
+
+          <div className="space-y-4">
+            {FEATURES.map(item => (
+              <div key={item.title} className="flex items-start gap-4 p-4 rounded-2xl"
+                style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: `rgba(${item.colorRgb},0.18)`, color: item.color }}>
+                  {item.icon}
+                </div>
+                <div>
+                  <div className="font-black text-sm" style={{ color: th.text }}>{item.title}</div>
+                  <div className="text-xs mt-0.5 leading-relaxed" style={{ color: th.textMuted }}>{item.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pricing preview */}
+          <h2 className="text-2xl font-black text-center mt-12 mb-2" style={{ color: th.text }}>Simple pricing</h2>
+          <p className="text-sm text-center mb-6" style={{ color: th.textMuted }}>Choose what fits your budget</p>
+
+          <div className="space-y-3">
+            {PACKAGES.map(pkg => (
+              <div key={pkg.id} className="relative p-4 rounded-2xl overflow-hidden"
+                style={{ background: `rgba(${pkg.colorRgb},0.08)`, border: `1.5px solid rgba(${pkg.colorRgb},0.25)` }}>
+                {pkg.popular && (
+                  <div className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full text-white"
+                    style={{ background: pkg.color }}>POPULAR</div>
+                )}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
+                    {pkg.icon}
+                  </div>
+                  <div className="flex-1 min-w-0 pr-2">
+                    <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
+                    <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="font-black" style={{ color: pkg.color }}>From ${pkg.prices.week}</div>
+                    <div className="text-[10px]" style={{ color: th.textDim }}>MXN / week</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => { haptics.tap(); setView("form"); }}
+            className="w-full py-5 rounded-[2rem] font-black text-white mt-8 flex items-center justify-center gap-3"
+            style={{ background: "linear-gradient(135deg,#f97316,#a855f7)", boxShadow: "0 12px 40px rgba(249,115,22,0.35)" }}
+          >
+            Get Started Now <ArrowRight className="w-5 h-5" />
+          </motion.button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FORM ────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col pb-10">
+    <div className="min-h-[100dvh] flex flex-col pb-10" style={{ background: th.pageBg }}>
       {/* Header */}
       <div className="flex items-center gap-3 px-4 pt-safe pt-4 pb-3 sticky top-0 z-10"
-        style={{ background: "var(--background)", backdropFilter: "blur(16px)" }}>
+        style={{ background: th.headerBg, backdropFilter: "blur(20px)", borderBottom: `1px solid ${th.headerBorder}` }}>
         <button
-          onClick={() => stepIdx === 0 ? navigate("/client/profile") : back()}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-foreground/5 active:scale-95 transition-transform"
+          onClick={() => stepIdx === 0 ? setView("landing") : back()}
+          className="w-10 h-10 rounded-full flex items-center justify-center"
+          style={{ background: th.backBtn, border: `1px solid ${th.backBtnBorder}` }}
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ArrowLeft className="w-5 h-5" style={{ color: th.text }} />
         </button>
         <div className="flex-1">
-          <h1 className="text-base font-black">Promote Your Event</h1>
-          <p className="text-[11px] text-muted-foreground">Step {stepIdx + 1} of {steps.length}</p>
+          <h1 className="text-sm font-black" style={{ color: th.text }}>Promote Your Event</h1>
+          <p className="text-[11px]" style={{ color: th.textDim }}>Step {stepIdx + 1} of {steps.length}</p>
         </div>
-        <div className="w-10 h-10 rounded-full flex items-center justify-center"
-          style={{ background: "linear-gradient(135deg,rgba(249,115,22,0.15),rgba(168,85,247,0.15))", border: "1px solid rgba(249,115,22,0.3)" }}>
-          <Megaphone className="w-5 h-5 text-orange-400" />
+        <div className="w-9 h-9 rounded-full flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg,rgba(249,115,22,0.2),rgba(168,85,247,0.2))", border: "1px solid rgba(249,115,22,0.3)" }}>
+          <Megaphone className="w-4 h-4 text-orange-400" />
         </div>
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 mx-4 rounded-full bg-foreground/10 overflow-hidden">
+      <div className="h-[2px]" style={{ background: th.progressBg }}>
         <motion.div
-          className="h-full rounded-full"
+          className="h-full"
           style={{ background: "linear-gradient(90deg,#f97316,#a855f7)" }}
           animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
         />
       </div>
 
-      {/* Steps */}
+      {/* Step content */}
       <div className="flex-1 overflow-hidden">
         <AnimatePresence mode="wait" custom={dir}>
           <motion.div
             key={step}
             custom={dir}
-            variants={slideVariants}
+            variants={{
+              enter: (d: number) => ({ x: d > 0 ? 60 : -60, opacity: 0 }),
+              center: { x: 0, opacity: 1 },
+              exit: (d: number) => ({ x: d < 0 ? 60 : -60, opacity: 0 }),
+            }}
             initial="enter"
             animate="center"
             exit="exit"
-            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="px-4 pt-6 pb-4"
+            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="px-5 pt-6 pb-4 overflow-y-auto"
+            style={{ maxHeight: "calc(100dvh - 96px)" }}
           >
 
-            {/* ── Step 1: Event Type ─────────────────────────────────────────── */}
+            {/* ── Step 1: Event Type ── */}
             {step === "type" && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div>
-                  <h2 className="text-xl font-black mb-1">What are you promoting?</h2>
-                  <p className="text-sm text-muted-foreground">Select the category that best fits your event or service.</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>What are you<br />promoting?</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Choose the category that fits your business</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  {EVENT_TYPES.map(et => (
-                    <button
-                      key={et.id}
-                      onClick={() => { haptics.tap(); set("eventType", et.id); }}
-                      className="flex items-center gap-3 p-4 rounded-2xl text-left transition-all active:scale-95"
-                      style={{
-                        background: form.eventType === et.id
-                          ? "linear-gradient(135deg,rgba(249,115,22,0.2),rgba(168,85,247,0.2))"
-                          : "rgba(255,255,255,0.04)",
-                        border: `1.5px solid ${form.eventType === et.id ? "rgba(249,115,22,0.5)" : "rgba(255,255,255,0.08)"}`,
-                        backdropFilter: "blur(10px)",
-                      }}
-                    >
-                      <span className="text-orange-400">{et.icon}</span>
-                      <span className="text-sm font-bold">{et.label}</span>
-                    </button>
-                  ))}
+                  {EVENT_TYPES.map(et => {
+                    const selected = form.eventType === et.id;
+                    return (
+                      <button
+                        key={et.id}
+                        onClick={() => { haptics.tap(); set("eventType", et.id); }}
+                        className="flex flex-col items-start gap-2 p-4 rounded-2xl text-left transition-all active:scale-95"
+                        style={{
+                          background: selected ? "rgba(249,115,22,0.15)" : th.card,
+                          border: `1.5px solid ${selected ? "rgba(249,115,22,0.6)" : th.cardBorder}`,
+                        }}
+                      >
+                        <span className="text-2xl">{et.emoji}</span>
+                        <span className="text-sm font-bold" style={{ color: th.text }}>{et.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
                 <button
                   onClick={next}
                   disabled={!form.eventType}
-                  className="w-full h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-40 transition-opacity active:scale-[0.97]"
+                  className="w-full h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-30 transition-opacity active:scale-[0.97]"
                   style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
                 >
                   Continue <ArrowRight className="w-5 h-5" />
@@ -254,56 +577,93 @@ export default function AdvertisePage() {
               </div>
             )}
 
-            {/* ── Step 2: Details ────────────────────────────────────────────── */}
+            {/* ── Step 2: Details ── */}
             {step === "details" && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-black mb-1">Tell us the details</h2>
-                  <p className="text-sm text-muted-foreground">Fill in as much as you can — the more detail, the better.</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Tell us the details</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Fill in as much as you can — more info = better results</p>
+                </div>
+
+                {/* Photo upload */}
+                <div>
+                  <label className="text-xs font-bold mb-2 block uppercase tracking-widest" style={{ color: th.textDim }}>Event Photo</label>
+                  <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+                  {form.photoUrl ? (
+                    <div className="relative w-full aspect-video rounded-2xl overflow-hidden">
+                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
+                      <button
+                        onClick={() => set("photoUrl", "")}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                        style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)" }}
+                      >
+                        <ArrowLeft className="w-4 h-4 text-white rotate-45" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full aspect-video rounded-2xl flex flex-col items-center justify-center gap-2 transition-all active:scale-98"
+                      style={{ background: th.card, border: `2px dashed ${th.inputBorder}` }}
+                    >
+                      <Camera className="w-8 h-8" style={{ color: th.textDim }} />
+                      <span className="text-sm font-bold" style={{ color: th.textDim }}>Tap to add a photo</span>
+                      <span className="text-[11px]" style={{ color: th.textFaint }}>JPG, PNG · Recommended 1:1</span>
+                    </button>
+                  )}
                 </div>
 
                 {[
-                  { key: "title", label: "Event / Service Name *", placeholder: "e.g. Sunset Beach Party", required: true },
-                  { key: "location", label: "Location / Venue *", placeholder: "e.g. La Veleta, Tulum", required: true },
-                  { key: "date", label: "Date or Time Period", placeholder: "e.g. Every Friday, Apr 5–7", required: false, type: "text" },
-                  { key: "contactName", label: "Your Name / Brand *", placeholder: "Contact or business name", required: true },
-                  { key: "contactPhone", label: "WhatsApp / Phone *", placeholder: "+52 984...", required: true },
-                  { key: "website", label: "Instagram or Website", placeholder: "@handle or https://...", required: false },
+                  { key: "title", label: "Event / Service Name *", placeholder: "e.g. Sunset Beach Party" },
+                  { key: "location", label: "Location / Venue *", placeholder: "e.g. La Veleta, Tulum" },
+                  { key: "date", label: "Date or Time Period", placeholder: "e.g. Every Friday, Apr 5–7" },
+                  { key: "contactName", label: "Your Name / Brand *", placeholder: "Contact or business name" },
+                  { key: "contactPhone", label: "WhatsApp / Phone *", placeholder: "+52 984..." },
+                  { key: "website", label: "Instagram or Website", placeholder: "@handle or https://..." },
                 ].map(f => (
                   <div key={f.key}>
-                    <label className="text-xs font-bold text-muted-foreground mb-1 block">{f.label}</label>
+                    <label className="text-[11px] font-bold mb-1.5 block uppercase tracking-widest" style={{ color: th.textDim }}>{f.label}</label>
                     <input
-                      type={f.type || "text"}
+                      type="text"
                       value={(form as any)[f.key]}
                       onChange={e => set(f.key as keyof FormData, e.target.value)}
                       placeholder={f.placeholder}
-                      className="w-full h-12 px-4 rounded-xl text-sm bg-foreground/5 border border-foreground/10 focus:outline-none focus:border-orange-400/50 transition-colors"
+                      className="w-full h-12 px-4 rounded-xl text-sm focus:outline-none focus:border-orange-400/50 transition-colors"
+                      style={{
+                        background: th.inputBg,
+                        border: `1px solid ${th.inputBorder}`,
+                        color: th.inputText,
+                      }}
                     />
                   </div>
                 ))}
 
                 <div>
-                  <label className="text-xs font-bold text-muted-foreground mb-1 block">Description *</label>
+                  <label className="text-[11px] font-bold mb-1.5 block uppercase tracking-widest" style={{ color: th.textDim }}>Description *</label>
                   <textarea
                     value={form.description}
                     onChange={e => set("description", e.target.value)}
                     placeholder="Describe your event or service in a few sentences..."
                     rows={3}
-                    className="w-full px-4 py-3 rounded-xl text-sm bg-foreground/5 border border-foreground/10 focus:outline-none focus:border-orange-400/50 transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl text-sm focus:outline-none focus:border-orange-400/50 transition-colors resize-none"
+                    style={{
+                      background: th.inputBg,
+                      border: `1px solid ${th.inputBorder}`,
+                      color: th.inputText,
+                    }}
                   />
                 </div>
 
                 <div className="flex gap-3">
-                  <button
-                    onClick={back}
-                    className="h-14 px-5 rounded-2xl font-bold border border-foreground/10 active:scale-[0.97]"
-                  >
+                  <button onClick={back}
+                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
+                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
                     Back
                   </button>
                   <button
                     onClick={next}
                     disabled={!form.title || !form.location || !form.contactName || !form.contactPhone || !form.description}
-                    className="flex-1 h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-40 active:scale-[0.97]"
+                    className="flex-1 h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-30 active:scale-[0.97]"
                     style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
                   >
                     Choose Package <ArrowRight className="w-5 h-5" />
@@ -312,27 +672,28 @@ export default function AdvertisePage() {
               </div>
             )}
 
-            {/* ── Step 3: Package ────────────────────────────────────────────── */}
+            {/* ── Step 3: Package ── */}
             {step === "package" && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-black mb-1">Choose your package</h2>
-                  <p className="text-sm text-muted-foreground">All prices in MXN. USD shown for reference.</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Choose your package</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>All prices in MXN. Cancel anytime.</p>
                 </div>
 
                 {/* Duration selector */}
-                <div className="flex gap-2 p-1 rounded-xl bg-foreground/5 border border-foreground/10">
+                <div className="flex gap-1 p-1 rounded-xl" style={{ background: th.card, border: `1px solid ${th.cardBorder}` }}>
                   {DURATIONS.map(d => (
                     <button
                       key={d.id}
-                      onClick={() => set("duration", d.id as any)}
-                      className="flex-1 py-2 rounded-lg text-xs font-bold transition-all"
+                      onClick={() => { haptics.tap(); set("duration", d.id as any); }}
+                      className="flex-1 py-2.5 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-0.5"
                       style={{
                         background: form.duration === d.id ? "linear-gradient(135deg,#f97316,#a855f7)" : "transparent",
-                        color: form.duration === d.id ? "white" : undefined,
+                        color: form.duration === d.id ? "white" : th.textDim,
                       }}
                     >
-                      {d.label}
+                      <span>{d.label}</span>
+                      <span style={{ fontSize: "9px", opacity: 0.7 }}>{d.sublabel}</span>
                     </button>
                   ))}
                 </div>
@@ -351,9 +712,8 @@ export default function AdvertisePage() {
                         style={{
                           background: selected
                             ? `linear-gradient(135deg, rgba(${pkg.colorRgb},0.2), rgba(${pkg.colorRgb},0.1))`
-                            : "rgba(255,255,255,0.04)",
-                          border: `2px solid ${selected ? pkg.color : "rgba(255,255,255,0.08)"}`,
-                          backdropFilter: "blur(10px)",
+                            : th.card,
+                          border: `2px solid ${selected ? pkg.color : th.cardBorder}`,
                         }}
                       >
                         {pkg.popular && (
@@ -363,24 +723,23 @@ export default function AdvertisePage() {
                           </div>
                         )}
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                            style={{ background: `rgba(${pkg.colorRgb},0.3)`, color: pkg.color }}>
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style={{ background: `rgba(${pkg.colorRgb},0.2)`, color: pkg.color }}>
                             {pkg.icon}
                           </div>
-                          <div>
-                            <div className="font-black text-base">{pkg.name}</div>
-                            <div className="text-xs text-muted-foreground">${usd} USD / period</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-black" style={{ color: th.text }}>{pkg.name}</div>
+                            <div className="text-[10px] truncate" style={{ color: th.textDim }}>{pkg.tagline}</div>
                           </div>
-                          <div className="ml-auto text-right">
-                            <div className="font-black text-lg" style={{ color: pkg.color }}>
-                              ${p.toLocaleString()} <span className="text-xs font-bold text-muted-foreground">MXN</span>
-                            </div>
+                          <div className="ml-auto text-right flex-shrink-0">
+                            <div className="font-black" style={{ color: pkg.color }}>${p.toLocaleString()}</div>
+                            <div className="text-[10px]" style={{ color: th.textDim }}>MXN · ≈${usd} USD</div>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-x-4 gap-y-1">
+                        <div className="flex flex-wrap gap-x-3 gap-y-1.5">
                           {pkg.perks.map(perk => (
-                            <div key={perk} className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Check className="w-3 h-3" style={{ color: pkg.color }} />
+                            <div key={perk} className="flex items-center gap-1.5 text-xs" style={{ color: th.textMuted }}>
+                              <Check className="w-3 h-3 flex-shrink-0" style={{ color: pkg.color }} />
                               {perk}
                             </div>
                           ))}
@@ -391,7 +750,9 @@ export default function AdvertisePage() {
                 </div>
 
                 <div className="flex gap-3">
-                  <button onClick={back} className="h-14 px-5 rounded-2xl font-bold border border-foreground/10 active:scale-[0.97]">
+                  <button onClick={back}
+                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
+                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
                     Back
                   </button>
                   <button
@@ -405,60 +766,76 @@ export default function AdvertisePage() {
               </div>
             )}
 
-            {/* ── Step 4: Confirm ────────────────────────────────────────────── */}
+            {/* ── Step 4: Confirm ── */}
             {step === "confirm" && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-xl font-black mb-1">Review & Submit</h2>
-                  <p className="text-sm text-muted-foreground">Our team will contact you to confirm payment and publishing.</p>
+                  <h2 className="text-2xl font-black mb-1" style={{ color: th.text }}>Review & Submit</h2>
+                  <p className="text-sm" style={{ color: th.textMuted }}>Our team will contact you to confirm payment and publishing.</p>
                 </div>
 
-                {/* Summary card */}
+                {/* Summary */}
                 <div className="rounded-2xl p-4 space-y-3"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1.5px solid rgba(255,255,255,0.1)", backdropFilter: "blur(12px)" }}>
+                  style={{ background: th.card, border: `1px solid ${th.divider}` }}>
+                  {form.photoUrl && (
+                    <div className="w-full aspect-video rounded-xl overflow-hidden mb-3">
+                      <img src={form.photoUrl} className="w-full h-full object-cover" alt="" />
+                    </div>
+                  )}
                   {[
                     { label: "Event / Service", value: form.title },
                     { label: "Type", value: EVENT_TYPES.find(e => e.id === form.eventType)?.label },
                     { label: "Location", value: form.location },
                     { label: "Contact", value: `${form.contactName} · ${form.contactPhone}` },
-                    form.date && { label: "Date", value: form.date },
-                    form.website && { label: "Website / IG", value: form.website },
+                    form.date ? { label: "Date", value: form.date } : null,
+                    form.website ? { label: "Website / IG", value: form.website } : null,
                   ].filter(Boolean).map((row: any) => (
-                    <div key={row.label} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{row.label}</span>
-                      <span className="font-bold text-right max-w-[55%]">{row.value}</span>
+                    <div key={row.label} className="flex justify-between text-sm gap-4">
+                      <span style={{ color: th.textDim }}>{row.label}</span>
+                      <span className="font-bold text-right flex-1 truncate" style={{ color: th.text }}>{row.value}</span>
                     </div>
                   ))}
-                  <div className="border-t border-foreground/10 pt-3 flex justify-between items-center">
+                  <div className="pt-3 flex justify-between items-center mt-1"
+                    style={{ borderTop: `1px solid ${th.divider}` }}>
                     <div>
-                      <div className="text-xs text-muted-foreground">{selectedPkg?.name} · {DURATIONS.find(d => d.id === form.duration)?.label}</div>
-                      <div className="font-black text-lg" style={{ color: selectedPkg?.color }}>
-                        ${price?.toLocaleString()} MXN <span className="text-xs text-muted-foreground">≈ ${priceUsd} USD</span>
+                      <div className="text-xs" style={{ color: th.textDim }}>{selectedPkg?.name} · {DURATIONS.find(d => d.id === form.duration)?.label}</div>
+                      <div className="font-black text-lg" style={{ color: th.text }}>
+                        ${price?.toLocaleString()} <span className="text-sm" style={{ color: th.textDim }}>MXN</span>
+                        <span className="text-sm ml-2" style={{ color: th.textFaint }}>≈${priceUsd} USD</span>
                       </div>
                     </div>
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white"
-                      style={{ background: `rgba(${selectedPkg?.colorRgb},0.3)`, color: selectedPkg?.color }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{ background: `rgba(${selectedPkg?.colorRgb},0.2)`, color: selectedPkg?.color }}>
                       {selectedPkg?.icon}
                     </div>
                   </div>
                 </div>
 
-                <p className="text-[11px] text-muted-foreground text-center px-4">
+                <p className="text-[11px] text-center px-4" style={{ color: th.textFaint }}>
                   By submitting, you agree our team will reach out via WhatsApp to finalize payment before publishing.
                 </p>
 
                 <div className="flex gap-3">
-                  <button onClick={back} className="h-14 px-5 rounded-2xl font-bold border border-foreground/10 active:scale-[0.97]">
+                  <button onClick={back}
+                    className="h-14 px-5 rounded-2xl font-bold active:scale-[0.97]"
+                    style={{ background: th.backFormBtn, border: `1px solid ${th.backFormBorder}`, color: th.text }}>
                     Back
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="flex-1 h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-60 active:scale-[0.97]"
+                    className="flex-1 h-14 rounded-2xl font-black text-white flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.97]"
                     style={{ background: "linear-gradient(135deg,#f97316,#a855f7)" }}
                     data-testid="button-submit-promo"
                   >
-                    {submitting ? "Submitting..." : "Submit & Get Promoted 🚀"}
+                    {submitting ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>Submit & Get Promoted 🚀</>
+                    )}
                   </button>
                 </div>
               </div>

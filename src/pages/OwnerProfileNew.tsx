@@ -214,7 +214,7 @@ const OwnerProfileNew = () => {
                 : "bg-white/[0.04] border-white/[0.06] text-foreground"
             )}
           >
-            <Radio className="w-5 h-5 text-emerald-400" />
+            <Radio className="w-5 h-5 text-rose-400" />
             Radio Station
           </button>
 

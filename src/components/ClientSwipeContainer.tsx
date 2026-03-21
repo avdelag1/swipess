@@ -147,7 +147,7 @@ const ClientSwipeContainerComponent = ({
   const getCategoryLabel = () => {
     switch (category) {
       case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', Icon: MapPin, color: 'text-primary' };
-      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', Icon: Bike, color: 'text-emerald-500' };
+      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', Icon: Bike, color: 'text-rose-500' };
       case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500' };
       case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', Icon: Wrench, color: 'text-purple-500' };
       default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Clients', Icon: Users, color: 'text-pink-500' };

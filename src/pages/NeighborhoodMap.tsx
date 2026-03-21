@@ -117,7 +117,7 @@ export default function NeighborhoodMap() {
                     <h3 className="font-bold text-sm text-foreground leading-tight">{zone.name}</h3>
                     <span className={cn(
                       'text-[10px] font-semibold px-1.5 py-0.5 rounded-full',
-                      zone.density_score >= 7 ? 'bg-red-500/15 text-red-400' : 'bg-green-500/15 text-green-400'
+                      zone.density_score >= 7 ? 'bg-red-500/15 text-red-400' : 'bg-rose-500/15 text-rose-400'
                     )}>
                       {getDensityLabel(zone.density_score)}
                     </span>

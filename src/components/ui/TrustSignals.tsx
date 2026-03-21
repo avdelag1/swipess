@@ -79,7 +79,7 @@ export const ActivityIndicator = memo(({ lastActiveAt, className }: ActivityIndi
     <div className={cn('inline-flex items-center gap-1.5', className)}>
       <div className={cn(
         'w-2 h-2 rounded-full',
-        isOnline ? 'bg-green-500 animate-pulse' : 'bg-muted-foreground/50'
+        isOnline ? 'bg-rose-500 animate-pulse' : 'bg-muted-foreground/50'
       )} />
       <span className="text-xs text-muted-foreground">{label}</span>
     </div>
@@ -203,11 +203,11 @@ export const ResponseTimeBadge = memo(({ avgResponseMinutes, className }: Respon
     <div className={cn('inline-flex items-center gap-1', className)}>
       <Clock className={cn(
         'w-3.5 h-3.5',
-        isFast ? 'text-green-500' : 'text-muted-foreground'
+        isFast ? 'text-rose-500' : 'text-muted-foreground'
       )} />
       <span className={cn(
         'text-xs',
-        isFast ? 'text-green-600' : 'text-muted-foreground'
+        isFast ? 'text-rose-600' : 'text-muted-foreground'
       )}>
         {getLabel()}
       </span>

@@ -26,7 +26,7 @@ const slideData: Record<string, {
         title: 'Legal Protection',
         subtitle: 'Access our verified legal services to ensure your rental agreement is safe and secure.',
         icon: Scale,
-        gradient: 'from-emerald-600/80 to-teal-900/80',
+        gradient: 'from-rose-600/80 to-teal-900/80',
         badge: 'Secure Renting'
     },
     'marketing:property:slide3': {
@@ -65,7 +65,7 @@ const slideData: Record<string, {
         title: 'Perfect Match',
         subtitle: 'Discover road, mountain, and e-bikes tailored to your exact riding style.',
         icon: Bike,
-        gradient: 'from-teal-600/80 to-emerald-900/80',
+        gradient: 'from-teal-600/80 to-rose-900/80',
         badge: 'Cycle Smarter'
     },
     'marketing:bicycle:slide2': {

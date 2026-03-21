@@ -3,10 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, MapPin, Calendar, Sparkles, Waves, Trees, Music, Utensils, Ticket, ArrowLeft, MessageCircle, Share2 } from 'lucide-react';
+import {
+  Heart, MapPin, Calendar, Sparkles, Waves, Trees, Music,
+  Utensils, Ticket, ArrowLeft, MessageCircle, Share2,
+  Megaphone, ChevronUp, ExternalLink, Info
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
 import { EventGroupChat } from '@/components/EventGroupChat';
+import { toast } from '@/components/ui/sonner';
 
 // ── TYPES ─────────────────────────────────────────────────────────────────────
 interface EventItem {
@@ -54,7 +59,7 @@ const MOCK_EVENTS: EventItem[] = [
     id: 'm3', title: 'Jungle Yoga & Brunch', category: 'jungle',
     image_url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600&q=80&auto=format',
     description: 'Immersive yoga flow surrounded by ancient jungle. Followed by organic vegan brunch.',
-    event_date: '2026-04-07T08:00:00', location: 'Sian Ka\'an Reserve', location_detail: 'Jungle clearing',
+    event_date: '2026-04-07T08:00:00', location: "Sian Ka'an Reserve", location_detail: 'Jungle clearing',
     organizer_name: 'Ahau Tulum', promo_text: 'All levels welcome', discount_tag: null, is_free: false, price_text: '$450 MXN',
   },
   {
@@ -78,6 +83,13 @@ const MOCK_EVENTS: EventItem[] = [
     event_date: '2026-04-10T20:00:00', location: 'Zona Hotelera, Tulum', location_detail: 'El Arco Bar',
     organizer_name: 'El Arco', promo_text: '2x1 all night', discount_tag: '2×1 MEZCAL', is_free: false, price_text: 'From $120 MXN',
   },
+  {
+    id: 'm7', title: 'Cenote Swim at Dawn', category: 'beach',
+    image_url: 'https://images.unsplash.com/photo-1518182170546-07661fd94144?w=600&q=80&auto=format',
+    description: 'Guided sunrise swim in a private cenote. Crystal clear turquoise water, no crowds.',
+    event_date: '2026-04-12T06:00:00', location: 'Secret Cenote, Tulum', location_detail: 'Private access',
+    organizer_name: 'Tulum Dive', promo_text: 'Max 8 people', discount_tag: 'EXCLUSIVE', is_free: false, price_text: '$600 MXN',
+  },
 ];
 
 const LIKED_KEY = 'eventos_liked_ids';
@@ -98,13 +110,36 @@ function formatDate(str: string | null): string {
   return `In ${diff} days`;
 }
 
-// ── SINGLE EVENT CARD (full-screen portrait) ──────────────────────────────────
+async function shareEvent(event: EventItem) {
+  const text = `${event.title}${event.location ? ` · ${event.location}` : ''}${event.price_text ? ` · ${event.price_text}` : ''}`;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: event.title, text, url: window.location.href });
+    } catch {}
+  } else {
+    await navigator.clipboard.writeText(`${event.title} – ${text}`);
+    toast.success('Copied to clipboard!');
+  }
+}
+
+// ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 function EventCard({
-  event, isActive, onLike, liked, onChat,
+  event, isActive, onLike, liked, onChat, onShare,
 }: {
-  event: EventItem; isActive: boolean; onLike: () => void; liked: boolean; onChat: () => void;
+  event: EventItem; isActive: boolean; onLike: () => void; liked: boolean;
+  onChat: () => void; onShare: () => void;
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const [likeAnim, setLikeAnim] = useState(false);
+
+  const handleLike = () => {
+    onLike();
+    if (!liked) {
+      setLikeAnim(true);
+      setTimeout(() => setLikeAnim(false), 600);
+    }
+  };
 
   return (
     <div
@@ -112,7 +147,7 @@ function EventCard({
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Background photo with slow Ken Burns zoom */}
+      {/* Background photo */}
       <motion.div
         className="absolute inset-0"
         animate={isActive ? { scale: 1.06 } : { scale: 1 }}
@@ -123,26 +158,42 @@ function EventCard({
           alt={event.title}
           className="w-full h-full object-cover"
           onLoad={() => setImgLoaded(true)}
-          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.6s ease' }}
+          loading="lazy"
+          style={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.5s ease' }}
         />
+        {!imgLoaded && <div className="absolute inset-0 bg-zinc-900 animate-pulse" />}
       </motion.div>
 
-      {/* Gradient overlays — bottom-heavy for text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30" />
-      <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/50 to-transparent" />
+      {/* Gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
+
+      {/* Double-tap to like overlay */}
+      <AnimatePresence>
+        {likeAnim && (
+          <motion.div
+            initial={{ scale: 0.5, opacity: 1 }}
+            animate={{ scale: 1.5, opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-50"
+          >
+            <Heart className="w-24 h-24 fill-white text-white drop-shadow-2xl" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Bottom content */}
-      <div className="absolute inset-x-0 bottom-0 px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
         <AnimatePresence>
           {isActive && (
             <motion.div
-              initial={{ opacity: 0, y: 28 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 14 }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="space-y-3"
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="space-y-3 pr-16"
             >
-              {/* Tags row */}
+              {/* Tags */}
               <div className="flex flex-wrap gap-2">
                 <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white/80"
                   style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}>
@@ -155,8 +206,8 @@ function EventCard({
                   </span>
                 )}
                 {event.is_free && (
-                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-emerald-300"
-                    style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)' }}>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-rose-300"
+                    style={{ background: 'rgba(244,63,94,0.2)', border: '1px solid rgba(244,63,94,0.4)' }}>
                     FREE
                   </span>
                 )}
@@ -174,7 +225,7 @@ function EventCard({
                 </p>
               )}
 
-              {/* Meta row */}
+              {/* Meta */}
               <div className="flex flex-wrap gap-x-4 gap-y-1.5">
                 {event.event_date && (
                   <div className="flex items-center gap-1.5 text-xs text-white/70">
@@ -195,8 +246,32 @@ function EventCard({
 
               {/* Organizer */}
               {event.organizer_name && (
-                <p className="text-[11px] text-white/50 font-medium">by {event.organizer_name}</p>
+                <p className="text-[11px] text-white/40 font-medium">by {event.organizer_name}</p>
               )}
+
+              {/* CTA row */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); setShowDetails(true); }}
+                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] text-xs font-black uppercase tracking-widest text-white"
+                  style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}
+                  data-testid={`btn-info-${event.id}`}
+                >
+                  <Info className="w-3.5 h-3.5" />
+                  More Info
+                </button>
+                {!event.is_free && event.price_text && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); triggerHaptic('medium'); onChat(); }}
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-[1.25rem] text-xs font-black uppercase tracking-widest text-white"
+                    style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)', boxShadow: '0 4px 14px rgba(249,115,22,0.4)' }}
+                    data-testid={`btn-tickets-${event.id}`}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Get Tickets
+                  </button>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -204,34 +279,218 @@ function EventCard({
 
       {/* Right side action buttons */}
       <div className="absolute right-4 flex flex-col gap-5 items-center"
-        style={{ bottom: 'calc(5rem + env(safe-area-inset-bottom,0px))' }}>
+        style={{ bottom: 'calc(5.5rem + env(safe-area-inset-bottom,0px))' }}>
         {/* Like */}
         <button
-          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onLike(); }}
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); handleLike(); }}
           className="flex flex-col items-center gap-1"
           data-testid={`like-event-${event.id}`}
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <motion.div animate={liked ? { scale: [1, 1.4, 1] } : {}} transition={{ duration: 0.3 }}>
-              <Heart className={cn('w-6 h-6', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
-            </motion.div>
-          </div>
-          <span className="text-[10px] text-white/70 font-bold">Like</span>
+          <motion.div
+            whileTap={{ scale: 0.85 }}
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ background: liked ? 'rgba(239,68,68,0.3)' : 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: `1px solid ${liked ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.15)'}`, transition: 'all 0.2s ease' }}>
+            <Heart className={cn('w-6 h-6 transition-colors', liked ? 'fill-red-500 text-red-500' : 'text-white')} />
+          </motion.div>
+          <span className="text-[10px] text-white/60 font-bold">Like</span>
         </button>
 
         {/* Chat */}
         <button
           onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onChat(); }}
           className="flex flex-col items-center gap-1"
+          data-testid={`chat-event-${event.id}`}
         >
-          <div className="w-12 h-12 rounded-full flex items-center justify-center"
+          <motion.div
+            whileTap={{ scale: 0.85 }}
+            className="w-12 h-12 rounded-full flex items-center justify-center"
             style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
             <MessageCircle className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-[10px] text-white/70 font-bold">Chat</span>
+          </motion.div>
+          <span className="text-[10px] text-white/60 font-bold">Chat</span>
+        </button>
+
+        {/* Share */}
+        <button
+          onClick={(e) => { e.stopPropagation(); triggerHaptic('light'); onShare(); }}
+          className="flex flex-col items-center gap-1"
+          data-testid={`share-event-${event.id}`}
+        >
+          <motion.div
+            whileTap={{ scale: 0.85 }}
+            className="w-12 h-12 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <Share2 className="w-5 h-5 text-white" />
+          </motion.div>
+          <span className="text-[10px] text-white/60 font-bold">Share</span>
         </button>
       </div>
+
+      {/* Details overlay */}
+      <AnimatePresence>
+        {showDetails && (
+          <motion.div
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '100%' }}
+            transition={{ type: 'spring', damping: 32, stiffness: 280 }}
+            className="absolute inset-0 z-50 overflow-y-auto"
+            style={{ background: 'rgba(0,0,0,0.96)', backdropFilter: 'blur(20px)' }}
+          >
+            <div className="relative h-[45dvh]">
+              {event.image_url && (
+                <img src={event.image_url} className="w-full h-full object-cover opacity-60" alt="" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              <button
+                onClick={() => setShowDetails(false)}
+                className="absolute top-safe top-4 left-4 w-10 h-10 rounded-full flex items-center justify-center z-10"
+                style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.2)' }}
+              >
+                <ChevronUp className="w-5 h-5 text-white" />
+              </button>
+              <div className="absolute bottom-6 left-5 right-5">
+                <h3 className="text-3xl font-black text-white leading-tight">{event.title}</h3>
+                {event.organizer_name && <p className="text-white/50 text-sm mt-1">by {event.organizer_name}</p>}
+              </div>
+            </div>
+            <div className="p-5 space-y-5">
+              {event.description && (
+                <p className="text-white/80 text-sm leading-relaxed">{event.description}</p>
+              )}
+              <div className="grid grid-cols-2 gap-3">
+                {event.event_date && (
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <Calendar className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Date</div>
+                      <div className="text-sm font-bold text-white">{formatDate(event.event_date)}</div>
+                    </div>
+                  </div>
+                )}
+                {event.location && (
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <MapPin className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Location</div>
+                      <div className="text-sm font-bold text-white">{event.location}</div>
+                    </div>
+                  </div>
+                )}
+                {event.price_text && (
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <Ticket className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Price</div>
+                      <div className="text-sm font-bold text-orange-300">{event.price_text}</div>
+                    </div>
+                  </div>
+                )}
+                {event.location_detail && (
+                  <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                    <MapPin className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <div className="text-[10px] text-white/40 uppercase tracking-widest">Venue</div>
+                      <div className="text-sm font-bold text-white">{event.location_detail}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              {event.promo_text && (
+                <div className="flex items-center gap-2 px-4 py-3 rounded-2xl"
+                  style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.25)' }}>
+                  <Sparkles className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                  <span className="text-sm text-orange-300 font-bold">{event.promo_text}</span>
+                </div>
+              )}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => { triggerHaptic('light'); onChat(); setShowDetails(false); }}
+                  className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
+                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}
+                >
+                  <MessageCircle className="w-4 h-4" /> Join Chat
+                </button>
+                <button
+                  onClick={() => { triggerHaptic('medium'); onShare(); }}
+                  className="flex-1 py-4 rounded-2xl font-black text-white text-sm flex items-center justify-center gap-2"
+                  style={{ background: 'linear-gradient(135deg,#f97316,#a855f7)' }}
+                >
+                  <Share2 className="w-4 h-4" /> Share Event
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── PROMOTE CTA CARD (appears at end of feed) ─────────────────────────────────
+function PromoteCTACard({ onPromote }: { onPromote: () => void }) {
+  return (
+    <div
+      className="relative w-full shrink-0 overflow-hidden flex flex-col items-center justify-center px-8"
+      style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always', background: '#0a0a0b' }}
+    >
+      {/* Glow blobs */}
+      <div className="absolute top-1/4 left-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none"
+        style={{ background: 'radial-gradient(circle, #f97316, transparent)' }} />
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 rounded-full opacity-20 blur-[80px] pointer-events-none"
+        style={{ background: 'radial-gradient(circle, #a855f7, transparent)' }} />
+
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="text-center space-y-6 relative z-10"
+      >
+        {/* Icon */}
+        <div className="w-20 h-20 rounded-[2rem] mx-auto flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg,rgba(249,115,22,0.2),rgba(168,85,247,0.2))', border: '1.5px solid rgba(249,115,22,0.4)', boxShadow: '0 0 40px rgba(249,115,22,0.15)' }}>
+          <Megaphone className="w-9 h-9 text-orange-400" />
+        </div>
+
+        {/* Text */}
+        <div>
+          <div className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-400/80 mb-3">For Businesses</div>
+          <h2 className="text-4xl font-black text-white leading-[1] tracking-tighter mb-3">
+            Want to<br />
+            <span style={{ background: 'linear-gradient(135deg,#f97316,#a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Promote here?
+            </span>
+          </h2>
+          <p className="text-white/50 text-sm leading-relaxed max-w-[260px] mx-auto">
+            Reach 15,000+ Tulum locals, expats & tourists with your event, restaurant, or brand
+          </p>
+        </div>
+
+        {/* Stats */}
+        <div className="flex justify-center gap-6">
+          {[['15k+', 'Users'], ['120k+', 'Views/mo'], ['89%', 'Engagement']].map(([val, label]) => (
+            <div key={label} className="text-center">
+              <div className="text-white font-black text-lg">{val}</div>
+              <div className="text-white/40 text-[10px]">{label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => { triggerHaptic('medium'); onPromote(); }}
+          className="w-full max-w-[280px] py-5 rounded-[2rem] font-black text-white flex items-center justify-center gap-3"
+          style={{ background: 'linear-gradient(135deg,#f97316,#a855f7)', boxShadow: '0 12px 40px rgba(249,115,22,0.35)' }}
+          data-testid="btn-promote-event"
+        >
+          <Megaphone className="w-5 h-5" />
+          Promote My Event
+        </motion.button>
+
+        <p className="text-white/25 text-[11px]">Starting from $50 MXN/week</p>
+      </motion.div>
     </div>
   );
 }
@@ -301,7 +560,7 @@ export default function EventosFeed() {
   // Reset scroll when category changes
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
+      scrollRef.current.scrollTo({ top: 0, behavior: 'instant' as any });
       setActiveIdx(0);
     }
   }, [activeCategory]);
@@ -321,12 +580,14 @@ export default function EventosFeed() {
     setShowGroupChat(true);
   }, []);
 
+  const totalCards = filteredEvents.length + 1; // +1 for promote CTA
+
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
-      {/* ── TOP HUD ──────────────────────────────────────────────────────────── */}
+      {/* ── TOP HUD ── */}
       <div className="absolute top-0 left-0 right-0 z-30 pt-safe">
-        {/* Back button + title */}
+        {/* Back button + title + promote */}
         <div className="flex items-center gap-3 px-4 pt-3 pb-2">
           <button
             onClick={() => navigate(-1)}
@@ -339,12 +600,23 @@ export default function EventosFeed() {
             <h1 className="text-white font-black text-lg tracking-tight">Tulum Events</h1>
             <p className="text-white/50 text-[10px]">{filteredEvents.length} events near you</p>
           </div>
-          <div className="text-[11px] text-white/60 font-bold">{activeIdx + 1}/{filteredEvents.length}</div>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-white/50 font-bold">{Math.min(activeIdx + 1, filteredEvents.length)}/{filteredEvents.length}</span>
+            <button
+              onClick={() => navigate('/client/advertise')}
+              className="flex items-center gap-1.5 px-3 h-8 rounded-full text-[11px] font-black uppercase tracking-wide text-white"
+              style={{ background: 'linear-gradient(135deg,rgba(249,115,22,0.8),rgba(168,85,247,0.8))', backdropFilter: 'blur(8px)' }}
+              data-testid="btn-promote-header"
+            >
+              <Megaphone className="w-3 h-3" />
+              Promote
+            </button>
+          </div>
         </div>
 
-        {/* Progress bar dots */}
+        {/* Progress dots */}
         <div className="flex gap-1 px-4 pb-2">
-          {filteredEvents.slice(0, 8).map((_, i) => (
+          {filteredEvents.slice(0, 10).map((_, i) => (
             <div
               key={i}
               className="flex-1 rounded-full transition-all duration-500"
@@ -354,7 +626,7 @@ export default function EventosFeed() {
                   ? 'rgba(255,255,255,0.95)'
                   : i < activeIdx
                     ? 'rgba(255,255,255,0.4)'
-                    : 'rgba(255,255,255,0.2)',
+                    : 'rgba(255,255,255,0.15)',
               }}
             />
           ))}
@@ -385,7 +657,7 @@ export default function EventosFeed() {
         </div>
       </div>
 
-      {/* ── VERTICAL SNAP SCROLL FEED ─────────────────────────────────────────── */}
+      {/* ── VERTICAL SNAP SCROLL FEED ── */}
       <div
         ref={scrollRef}
         className="w-full h-full overflow-y-scroll"
@@ -396,24 +668,30 @@ export default function EventosFeed() {
         }}
       >
         {filteredEvents.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-white/50 text-sm">
-            No events in this category yet
+          <div className="flex flex-col items-center justify-center h-full text-white/50 gap-3">
+            <Sparkles className="w-8 h-8 text-white/20" />
+            <span className="text-sm">No events in this category yet</span>
           </div>
         ) : (
-          filteredEvents.map((event, i) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              isActive={i === activeIdx}
-              liked={likedIds.has(event.id)}
-              onLike={() => handleLike(event.id)}
-              onChat={() => handleOpenChat(event)}
-            />
-          ))
+          <>
+            {filteredEvents.map((event, i) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                isActive={i === activeIdx}
+                liked={likedIds.has(event.id)}
+                onLike={() => handleLike(event.id)}
+                onChat={() => handleOpenChat(event)}
+                onShare={() => shareEvent(event)}
+              />
+            ))}
+            {/* Promote CTA card at the end */}
+            <PromoteCTACard onPromote={() => navigate('/client/advertise')} />
+          </>
         )}
       </div>
 
-      {/* ── GROUP CHAT OVERLAY ────────────────────────────────────────────────── */}
+      {/* ── GROUP CHAT OVERLAY ── */}
       {showGroupChat && chatEvent && (
         <EventGroupChat
           eventId={chatEvent.id}

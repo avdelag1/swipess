@@ -285,9 +285,9 @@ function SwipeCard({ stackIndex, children, onSwipe }: {
         <>
           <motion.div style={{ opacity: likeOpacity }}
             className="absolute top-7 left-5 z-30 pointer-events-none">
-            <div className="border-[3px] border-green-400 rounded-xl px-3 py-1 -rotate-12"
+            <div className="border-[3px] border-rose-400 rounded-xl px-3 py-1 -rotate-12"
               style={{ background: 'rgba(0,200,80,0.18)' }}>
-              <span className="text-green-400 font-black text-xl tracking-widest drop-shadow-lg">LIKE</span>
+              <span className="text-rose-400 font-black text-xl tracking-widest drop-shadow-lg">LIKE</span>
             </div>
           </motion.div>
           <motion.div style={{ opacity: passOpacity }}
@@ -407,7 +407,7 @@ function ListingCardContent({ listing, onInsights, imgIdx, setImgIdx }: {
                 border: '1px solid rgba(74,222,128,0.30)',
                 backdropFilter: 'none',
               }}>
-              <span className="text-green-400 font-black text-sm">{fmt(listing.price, listing.priceUnit)}</span>
+              <span className="text-rose-400 font-black text-sm">{fmt(listing.price, listing.priceUnit)}</span>
             </div>
           </div>
 
@@ -524,7 +524,7 @@ function ClientCardContent({ profile, onInsights, imgIdx, setImgIdx }: {
                 background: 'rgba(74,222,128,0.12)',
                 border: '1px solid rgba(74,222,128,0.28)',
               }}>
-              <span className="text-green-400 text-[10px] font-black">✓ Budget</span>
+              <span className="text-rose-400 text-[10px] font-black">✓ Budget</span>
             </div>
           </div>
 
@@ -542,7 +542,7 @@ function ClientCardContent({ profile, onInsights, imgIdx, setImgIdx }: {
               background: 'rgba(255,255,255,0.05)',
               border: '1px solid rgba(255,255,255,0.08)',
             }}>
-            <DollarSign className="w-4 h-4 text-green-400" />
+            <DollarSign className="w-4 h-4 text-rose-400" />
             <span className="text-white/75 text-[11px] font-black">
               ${profile.budget_min.toLocaleString()} – ${profile.budget_max.toLocaleString()} MXN
             </span>
@@ -837,7 +837,7 @@ export default function TutorialSwipePage() {
               }}>
               <div className="px-3 py-1.5 rounded-xl text-center min-w-[48px]"
                 style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.22)' }}>
-                <p className="text-green-400 font-black text-sm leading-none">{likes}</p>
+                <p className="text-rose-400 font-black text-sm leading-none">{likes}</p>
                 <p className="text-[8px] font-black uppercase tracking-tighter text-white/35 mt-1">Likes</p>
               </div>
               <div className="px-3 py-1.5 rounded-xl text-center min-w-[48px]"
@@ -977,7 +977,7 @@ export default function TutorialSwipePage() {
                   <Sparkles className="w-4 h-4 text-amber-400" />
                 </div>
                 <p className="text-[11px] font-bold leading-tight text-amber-200/80">
-                  Drag <span className="text-green-400 font-black">right</span> to like ·{' '}
+                  Drag <span className="text-rose-400 font-black">right</span> to like ·{' '}
                   <span className="text-red-400 font-black">left</span> to pass ·{' '}
                   tap <span className="text-amber-300 font-black">Pro Insights</span> to learn more
                 </p>

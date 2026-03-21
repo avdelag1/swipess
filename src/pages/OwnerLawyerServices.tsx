@@ -185,17 +185,17 @@ const OwnerLawyerServices = () => {
         <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-start gap-4">
-              <Building2 className="w-5 h-5 text-green-400 shrink-0 mt-1" />
+              <Building2 className="w-5 h-5 text-rose-400 shrink-0 mt-1" />
               <div>
                 <h3 className="text-foreground font-semibold mb-1">Property Owner Legal Support</h3>
                 <p className="text-muted-foreground text-sm mb-3">
                   Get specialized legal assistance designed for landlords and property owners. From tenant disputes to contract creation.
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-green-500/20 text-green-300">Eviction Assistance</Badge>
-                  <Badge className="bg-green-500/20 text-green-300">Lease Drafting</Badge>
-                  <Badge className="bg-green-500/20 text-green-300">Tenant Disputes</Badge>
-                  <Badge className="bg-green-500/20 text-green-300">Property Protection</Badge>
+                  <Badge className="bg-rose-500/20 text-rose-300">Eviction Assistance</Badge>
+                  <Badge className="bg-rose-500/20 text-rose-300">Lease Drafting</Badge>
+                  <Badge className="bg-rose-500/20 text-rose-300">Tenant Disputes</Badge>
+                  <Badge className="bg-rose-500/20 text-rose-300">Property Protection</Badge>
                 </div>
               </div>
             </div>
@@ -238,10 +238,10 @@ const OwnerLawyerServices = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="bg-green-900/30 border-green-700/50">
+            <Card className="bg-rose-900/30 border-rose-700/50">
               <CardContent className="p-6 sm:p-8 text-center">
-                <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle2 className="w-8 h-8 text-green-400" />
+                <div className="w-16 h-16 bg-rose-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-8 h-8 text-rose-400" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-2">Request Submitted!</h3>
                 <p className="text-muted-foreground mb-6">
@@ -251,7 +251,7 @@ const OwnerLawyerServices = () => {
                   <Button variant="outline" onClick={handleReset} className="border-border">
                     Submit Another Request
                   </Button>
-                  <Button onClick={() => navigate('/owner/settings')} className="bg-green-600 hover:bg-green-700">
+                  <Button onClick={() => navigate('/owner/settings')} className="bg-rose-600 hover:bg-rose-700">
                     Back to Profile
                   </Button>
                 </div>
@@ -342,7 +342,7 @@ const OwnerLawyerServices = () => {
                 <Card className="mb-6 bg-card/50 backdrop-blur-sm border-border/50">
                   <CardHeader>
                     <CardTitle className="text-foreground flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-green-400" />
+                      <MessageSquare className="w-5 h-5 text-rose-400" />
                       Describe Your Situation
                     </CardTitle>
                     <CardDescription>
@@ -425,7 +425,7 @@ const OwnerLawyerServices = () => {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <div className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center shrink-0 text-green-400 font-semibold">4</div>
+                <div className="w-8 h-8 bg-rose-500/20 rounded-full flex items-center justify-center shrink-0 text-rose-400 font-semibold">4</div>
                 <div>
                   <h4 className="font-medium text-foreground">Get Your Solution</h4>
                   <p className="text-sm text-muted-foreground">Purchase a package and receive professional legal assistance</p>

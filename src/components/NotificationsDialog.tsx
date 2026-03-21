@@ -55,7 +55,7 @@ const NotificationIconBg = ({ type, role = 'neutral' }: { type: string; role?: '
       case 'premium_purchase':
         return { bg: 'bg-purple-500/10', icon: <Crown className="w-5 h-5 text-purple-500" /> };
       case 'activation_purchase':
-        return { bg: 'bg-green-500/10', icon: <MessageCircle className="w-5 h-5 text-green-500" /> };
+        return { bg: 'bg-rose-500/10', icon: <MessageCircle className="w-5 h-5 text-rose-500" /> };
       default:
         return { bg: 'bg-muted', icon: <Bell className="w-5 h-5 text-muted-foreground" /> };
     }

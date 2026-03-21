@@ -1,13 +1,14 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useState, useRef } from 'react';
 import { getCardImageUrl } from '@/utils/imageOptimization';
 import PlaceholderImage from './PlaceholderImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
-// [NEW] Import MarketingSlide
 import { MarketingSlide } from './MarketingSlide';
 
 function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
+
+const CROSSFADE_MS = 500;
 
 const CardImage = memo(({ 
   src, 
@@ -22,36 +23,33 @@ const CardImage = memo(({
   direction?: 'left' | 'right';
   fullScreen?: boolean;
 }) => {
-  // [NEW] Check if the src is a marketing slide identifier instead of a URL
   const isMarketingSlide = useMemo(() => src?.startsWith('marketing:'), [src]);
 
   const optimizedSrc = isMarketingSlide ? src : getCardImageUrl(src ?? '');
-  // CRITICAL: re-check cache whenever `src` changes
   const wasInCache = useMemo(() => (src && !isMarketingSlide ? imageCache.has(src) : false), [src, isMarketingSlide]);
 
   const [loaded, setLoaded] = useState<boolean>(() => !!(src && (isMarketingSlide || imageCache.has(src))));
   const [error, setError] = useState<boolean>(false);
 
+  const prevSrcRef = useRef<string | null | undefined>(null);
+  const prevOptimizedRef = useRef<string | null>(null);
+  const [showPrev, setShowPrev] = useState(false);
+
   useEffect(() => {
-    // reset error whenever src changes
     setError(false);
 
-    // nothing to do for empty source
     if (!src) {
       setLoaded(false);
       return;
     }
 
-    // [NEW] Marketing slides don't need to load an image from the network
     if (isMarketingSlide) {
       setLoaded(true);
       return;
     }
 
-    // don't run client image preloading during SSR
     if (!isBrowser()) return;
 
-    // if cached, mark loaded immediately
     if (imageCache.has(src)) {
       setLoaded(true);
       return;
@@ -64,9 +62,7 @@ const CardImage = memo(({
       if (!mounted) return;
       try {
         if ((img as any).decode) await (img as any).decode();
-      } catch (_e) {
-        // ignore decode errors
-      }
+      } catch (_e) {}
       imageCache.set(src, true);
       setLoaded(true);
     };
@@ -85,16 +81,26 @@ const CardImage = memo(({
     };
   }, [src, optimizedSrc, isMarketingSlide]);
 
+  useEffect(() => {
+    if (prevSrcRef.current && prevSrcRef.current !== src && wasInCache) {
+      prevOptimizedRef.current = getCardImageUrl(prevSrcRef.current ?? '');
+      setShowPrev(true);
+      const timer = setTimeout(() => setShowPrev(false), CROSSFADE_MS + 50);
+      prevSrcRef.current = src;
+      return () => clearTimeout(timer);
+    }
+    prevSrcRef.current = src;
+  }, [src, wasInCache]);
+
   if (!src || error) {
     return <PlaceholderImage name={name} />;
   }
 
-  // [NEW] Render the MarketingSlide component if identified
   if (isMarketingSlide) {
     return <MarketingSlide slideId={src} />;
   }
 
-  const transition = wasInCache ? 'none' : 'opacity 220ms ease';
+  const br = fullScreen ? '0px' : '24px';
 
   return (
     <div
@@ -104,11 +110,10 @@ const CardImage = memo(({
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        borderRadius: fullScreen ? '0px' : '24px',
+        borderRadius: br,
         zIndex: 1,
       }}
     >
-      {/* Skeleton - shows while image is loading */}
       {!loaded && (
         <div
           style={{
@@ -116,14 +121,31 @@ const CardImage = memo(({
             inset: 0,
             background: 'linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted-foreground) / 0.2) 100%)',
             opacity: 1,
-            transition: wasInCache ? 'none' : 'opacity 220ms ease',
+            transition: wasInCache ? 'none' : 'opacity 400ms ease',
+          }}
+        />
+      )}
+
+      {showPrev && prevOptimizedRef.current && (
+        <img
+          src={prevOptimizedRef.current}
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            borderRadius: br,
+            opacity: 0,
+            animation: `photo-crossfade-out ${CROSSFADE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`,
+            zIndex: 2,
           }}
         />
       )}
 
       <img
-        // key={src} forces React to remount the img on photo change,
-        // re-triggering the CSS animation even for already-cached images.
         key={src}
         src={optimizedSrc || src}
         alt={alt ?? ''}
@@ -134,13 +156,12 @@ const CardImage = memo(({
           height: '100%',
           objectFit: 'cover',
           opacity: loaded ? 1 : 0,
-          transition,
-          borderRadius: fullScreen ? '0px' : '24px',
-          // Slide in on photo switch — only plays for cached images
-          // (instant display). Network-loaded images use the opacity transition instead.
+          transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+          borderRadius: br,
           animation: wasInCache
-            ? `${direction === 'left' ? 'photo-slide-from-left' : 'photo-slide-from-right'} 200ms ease-out forwards`
+            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`
             : 'none',
+          zIndex: 3,
         }}
         onLoad={() => {
           if (src) imageCache.set(src, true);

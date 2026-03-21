@@ -169,9 +169,9 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
               />
               
               {signatureData && (
-                <div className="mt-6 p-4 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                  <p className="text-emerald-600 dark:text-emerald-400 font-medium mb-2">Signature Captured!</p>
-                  <p className="text-sm text-emerald-700 dark:text-emerald-300">
+                <div className="mt-6 p-4 bg-rose-500/10 rounded-lg border border-rose-500/20">
+                  <p className="text-rose-600 dark:text-rose-400 font-medium mb-2">Signature Captured!</p>
+                  <p className="text-sm text-rose-700 dark:text-rose-300">
                     Your {signatureType} signature has been captured successfully.
                   </p>
                 </div>
@@ -195,7 +195,7 @@ export const ContractSigningDialog: React.FC<ContractSigningDialogProps> = ({
               <Button 
                 onClick={handleSign}
                 disabled={signContract.isPending}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-rose-600 hover:bg-rose-700"
               >
                 {signContract.isPending ? 'Signing...' : 'Sign Contract'}
               </Button>

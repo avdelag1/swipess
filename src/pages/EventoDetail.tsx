@@ -372,7 +372,7 @@ export default function EventoDetail() {
             initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             className="flex items-center gap-5 p-6 rounded-[2.5rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 shadow-xl shadow-black/5 backdrop-blur-md"
           >
-            <div className="w-16 h-16 rounded-[1.5rem] bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+            <div className="w-16 h-16 rounded-[1.5rem] bg-rose-500/10 flex items-center justify-center text-rose-500">
               <MapPin className="w-8 h-8" />
             </div>
             <div className="flex-1">
@@ -410,7 +410,7 @@ export default function EventoDetail() {
                 <p className="text-[10px] font-bold text-primary uppercase tracking-[0.3em] mt-3">Verified Booking Required</p>
               </div>
               <div className="w-16 h-16 rounded-[1.5rem] bg-white/10 flex items-center justify-center shadow-inner border border-white/5">
-                <ShieldCheck className="w-8 h-8 text-emerald-400" />
+                <ShieldCheck className="w-8 h-8 text-rose-400" />
               </div>
            </div>
         </div>
@@ -440,7 +440,7 @@ export default function EventoDetail() {
             </div>
             
             <div className="px-5 py-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-white/10 shadow-xl shadow-black/5">
-                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Verified Host</span>
+                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Verified Host</span>
             </div>
           </div>
         )}

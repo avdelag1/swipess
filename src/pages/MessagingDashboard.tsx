@@ -283,7 +283,7 @@ export function MessagingDashboard() {
                             <AvatarImage src={conversation.other_user?.avatar_url} />
                             <AvatarFallback className="bg-primary text-white font-black">{conversation.other_user?.full_name?.charAt(0)}</AvatarFallback>
                           </Avatar>
-                        <div className={cn("absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background", isUnread ? "bg-orange-500 animate-pulse" : "bg-emerald-500")} />
+                        <div className={cn("absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full border-2 border-background", isUnread ? "bg-orange-500 animate-pulse" : "bg-rose-500")} />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">

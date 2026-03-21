@@ -32,7 +32,7 @@ const getCategoryColor = (category: string) => {
     case 'services': return 'bg-blue-500 text-white';
     case 'motorcycle': return 'bg-orange-500 text-white';
     case 'bicycle': return 'bg-purple-500 text-white';
-    default: return 'bg-emerald-500 text-white';
+    default: return 'bg-rose-500 text-white';
   }
 };
 
@@ -201,8 +201,8 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-      active: { bg: 'bg-emerald-500', text: 'text-white', label: 'Active' },
-      available: { bg: 'bg-emerald-500', text: 'text-white', label: 'Available' },
+      active: { bg: 'bg-rose-500', text: 'text-white', label: 'Active' },
+      available: { bg: 'bg-rose-500', text: 'text-white', label: 'Available' },
       rented: { bg: 'bg-blue-500', text: 'text-white', label: 'Rented' },
       sold: { bg: 'bg-purple-500', text: 'text-white', label: 'Sold' },
       maintenance: { bg: 'bg-yellow-500', text: 'text-white', label: 'Maintenance' },
@@ -502,7 +502,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
                           whileTap={{ scale: 0.92 }}
                           className={cn(
                             "flex items-center justify-center h-10 rounded-xl text-xs transition-all",
-                            isLight ? "bg-emerald-50 text-emerald-600 border border-emerald-200/60 hover:bg-emerald-100" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                            isLight ? "bg-rose-50 text-rose-600 border border-rose-200/60 hover:bg-rose-100" : "bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20"
                           )}
                           onClick={() => handleEditProperty(listing)}
                         >

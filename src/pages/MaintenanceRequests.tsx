@@ -23,12 +23,12 @@ const categoryIcons: Record<string, ComponentType<{ className?: string }>> = {
 const statusConfig: Record<string, { label: string; color: string; icon: ComponentType<{ className?: string }> }> = {
   submitted: { label: 'Submitted', color: 'bg-blue-500/15 text-blue-400 border-blue-500/25', icon: Clock },
   in_progress: { label: 'In Progress', color: 'bg-amber-500/15 text-amber-400 border-amber-500/25', icon: Wrench },
-  resolved: { label: 'Resolved', color: 'bg-green-500/15 text-green-400 border-green-500/25', icon: CheckCircle2 },
+  resolved: { label: 'Resolved', color: 'bg-rose-500/15 text-rose-400 border-rose-500/25', icon: CheckCircle2 },
   closed: { label: 'Closed', color: 'bg-muted text-muted-foreground border-border', icon: CheckCircle2 },
 };
 
 const priorityColors: Record<string, string> = {
-  low: 'text-green-400',
+  low: 'text-rose-400',
   medium: 'text-amber-400',
   high: 'text-orange-400',
   urgent: 'text-red-400',

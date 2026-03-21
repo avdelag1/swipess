@@ -9,7 +9,7 @@ interface MatchPercentageBadgeProps {
 
 export function MatchPercentageBadge({ percentage, reasons, className }: MatchPercentageBadgeProps) {
   const getMatchColor = (percentage: number) => {
-    if (percentage >= 90) return 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-400';
+    if (percentage >= 90) return 'bg-gradient-to-r from-rose-500 to-rose-500 text-white border-rose-400';
     if (percentage >= 70) return 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-blue-400';
     if (percentage >= 50) return 'bg-gradient-to-r from-red-600 to-yellow-500 text-white border-red-400';
     if (percentage >= 30) return 'bg-gradient-to-r from-amber-500 to-red-500 text-white border-amber-400';

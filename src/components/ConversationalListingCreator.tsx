@@ -28,7 +28,7 @@ const CATEGORY_ICONS: Record<Category, React.ElementType> = {
 };
 
 const CATEGORY_COLORS: Record<Category, string> = {
-  property: 'text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10',
+  property: 'text-rose-600 bg-rose-50 dark:text-rose-400 dark:bg-rose-500/10',
   motorcycle: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-500/10',
   bicycle: 'text-violet-600 bg-violet-50 dark:text-violet-400 dark:bg-violet-500/10',
   worker: 'text-amber-600 bg-amber-50 dark:text-amber-400 dark:bg-amber-500/10',
