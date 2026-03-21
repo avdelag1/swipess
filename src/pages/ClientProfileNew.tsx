@@ -8,7 +8,7 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, CalendarDays
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
@@ -302,23 +302,36 @@ const ClientProfileNew = () => {
             Radio Station
           </button>
 
-          {/* Promote / Advertise */}
-          <button
-            onClick={() => { haptics.tap(); navigate('/client/advertise'); }}
-            data-testid="button-advertise"
-            className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(168,85,247,0.15) 100%)',
-              border: '1.5px solid rgba(251,146,60,0.35)',
-              backdropFilter: 'blur(12px)',
-            }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-purple-500/5" />
-            <Megaphone className="w-5 h-5 text-orange-400 relative z-10" />
-            <span className="relative z-10 bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">
-              Promote Your Event or Service
-            </span>
-          </button>
+          {/* Events + Promote — side by side */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => { haptics.tap(); navigate('/explore/eventos'); }}
+              data-testid="button-events"
+              className="flex-1 h-14 flex items-center justify-center gap-2 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(249,115,22,0.15) 100%)',
+                border: '1.5px solid rgba(239,68,68,0.35)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <CalendarDays className="w-5 h-5 text-red-400" />
+              <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">Events</span>
+            </button>
+
+            <button
+              onClick={() => { haptics.tap(); navigate('/client/advertise'); }}
+              data-testid="button-advertise"
+              className="flex-1 h-14 flex items-center justify-center gap-2 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(168,85,247,0.15) 100%)',
+                border: '1.5px solid rgba(251,146,60,0.35)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <Megaphone className="w-5 h-5 text-orange-400" />
+              <span className="bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">Promote</span>
+            </button>
+          </div>
 
           {/* Settings */}
           <button

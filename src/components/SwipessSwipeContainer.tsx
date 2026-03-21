@@ -288,7 +288,7 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
   useEffect(() => {
     const interval = setInterval(() => {
       setPhotoIdx(i => (i + 1) % photos.length);
-    }, 2500 + index * 400); // stagger intervals so cards don't all switch simultaneously
+    }, 4000 + index * 600); // stagger intervals — slow smooth cycling
     return () => clearInterval(interval);
   }, [photos.length, index]);
 
@@ -299,26 +299,30 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
       initial={{ opacity: 0, scale: 0.7, rotate: card.rotate, x: card.tx, y: card.ty + 40 }}
       animate={{
         opacity: 1,
-        scale: isHovered ? 1.12 : 1,
+        scale: isHovered ? 1.1 : 1,
         rotate: card.rotate,
         x: card.tx,
-        y: isHovered ? card.ty - 24 : card.ty,
-        zIndex: isHovered ? 20 : 10 - Math.abs(card.rotate),
+        y: isHovered ? card.ty - 20 : card.ty,
+        zIndex: isHovered ? 20 : index + 1,
       }}
       transition={{ type: 'spring', stiffness: 300, damping: 28, mass: 0.8, delay: index * 0.07 }}
       whileTap={{ scale: 0.95 }}
       className="absolute"
       style={{
-        width: 160,
-        height: 240,
-        borderRadius: 20,
+        width: 162,
+        height: 258,
+        left: '50%',
+        top: '50%',
+        marginLeft: -81,  /* center: half of 162 */
+        marginTop: -129,  /* center: half of 258 */
+        borderRadius: 22,
         overflow: 'hidden',
         boxShadow: isHovered
-          ? `0 24px 48px rgba(${card.accentRgb},0.35), 0 8px 24px rgba(0,0,0,0.4)`
-          : `0 12px 32px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25)`,
+          ? `0 24px 48px rgba(${card.accentRgb},0.4), 0 8px 24px rgba(0,0,0,0.5)`
+          : `0 14px 36px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.3)`,
         transformOrigin: 'bottom center',
         WebkitTapHighlightColor: 'transparent',
-        border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.5 : 0.2})`,
+        border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.6 : 0.25})`,
       }}
     >
       {/* Live photo carousel background — CSS crossfade, no flicker */}
@@ -331,7 +335,7 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               opacity: i === (photoIdx % photos.length) ? 1 : 0,
-              transition: 'opacity 1.1s ease-in-out',
+              transition: 'opacity 1.8s ease-in-out',
             }}
           />
         ))}
@@ -449,7 +453,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan of cards */}
         <div
           className="relative z-10"
-          style={{ width: 300, height: 280 }}
+          style={{ width: 320, height: 290 }}
         >
           {FAN_CARDS.map((card, i) => (
             <FanPokerCard
@@ -460,14 +464,14 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
               onTap={() => handleTap(card.id)}
             />
           ))}
-          {/* Invisible hover zones positioned over each card for desktop */}
+          {/* Invisible hover zones for desktop mouse hover */}
           {FAN_CARDS.map((card) => (
             <div
               key={`hover-${card.id}`}
               className="absolute"
               style={{
-                width: 160,
-                height: 240,
+                width: 162,
+                height: 258,
                 left: '50%',
                 top: '50%',
                 transform: `translate(-50%, -50%) translateX(${card.tx}px) translateY(${card.ty}px) rotate(${card.rotate}deg)`,
