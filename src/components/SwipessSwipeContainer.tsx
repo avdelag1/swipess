@@ -443,16 +443,18 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         exit="exit"
         className="relative w-full flex-1 flex flex-col items-center justify-center"
         style={{ minHeight: 'calc(100dvh - 140px)' }}
+        onClick={() => previewCard && setPreviewCard(null)}
       >
         {/* Ambient glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full opacity-[0.06] blur-3xl bg-gradient-radial from-primary via-purple-500 to-transparent" />
         </div>
 
-        {/* Fan container — sized to hold the larger cards */}
+        {/* Fan container — stop propagation so card taps don't hit the backdrop */}
         <div
           className="relative"
           style={{ width: '100%', maxWidth: 380, height: CARD_H + 60, zIndex: 10 }}
+          onClick={e => e.stopPropagation()}
         >
           {FAN_CARDS_WITH_POS.map((card, i) => (
             <FanPokerCard
@@ -465,22 +467,6 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
             />
           ))}
         </div>
-
-        {/* "Tap again" hint — fades in when a card is previewing */}
-        <AnimatePresence>
-          {previewCard && (
-            <motion.p
-              key="tap-again-hint"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.22 }}
-              className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-5 z-10"
-            >
-              {FAN_CARDS_WITH_POS.find(c => c.id === previewCard)?.emoji} Tap again to apply filter
-            </motion.p>
-          )}
-        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
