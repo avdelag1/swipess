@@ -108,19 +108,27 @@ export function useProfileAutoSync() {
     };
   }, [user?.id, refreshAllProfiles]);
 
-  // Refresh profiles when app regains visibility (tab switch, phone unlock, app resume)
+  // Refresh profiles when app regains visibility — with 90s cooldown to prevent hammering
   useEffect(() => {
     if (!user?.id) return;
 
+    let lastSync = 0;
+    const COOLDOWN_MS = 90 * 1000; // 90 seconds minimum between visibility-triggered syncs
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
+        const now = Date.now();
+        if (now - lastSync < COOLDOWN_MS) return;
+        lastSync = now;
         logger.log('[ProfileAutoSync] App became visible, refreshing profiles');
         refreshAllProfiles();
       }
     };
 
-    // Also handle Capacitor/mobile app resume
     const handleAppResume = () => {
+      const now = Date.now();
+      if (now - lastSync < COOLDOWN_MS) return;
+      lastSync = now;
       logger.log('[ProfileAutoSync] App resumed, refreshing profiles');
       refreshAllProfiles();
     };
@@ -134,14 +142,14 @@ export function useProfileAutoSync() {
     };
   }, [user?.id, refreshAllProfiles]);
 
-  // Periodic sync check every 3 minutes for long-running sessions
+  // Periodic sync check every 10 minutes for long-running sessions
   useEffect(() => {
     if (!user?.id) return;
 
     const interval = setInterval(() => {
       logger.log('[ProfileAutoSync] Periodic sync check');
       refreshAllProfiles();
-    }, 3 * 60 * 1000); // 3 minutes
+    }, 10 * 60 * 1000); // 10 minutes
 
     return () => clearInterval(interval);
   }, [user?.id, refreshAllProfiles]);

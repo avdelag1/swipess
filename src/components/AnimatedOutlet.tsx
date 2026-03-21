@@ -5,35 +5,30 @@ import { motion, AnimatePresence } from 'framer-motion';
 /**
  * ANIMATED OUTLET
  *
- * Provides the signature "slide-up + fade" transition used across the app.
- * Every top-level navigation (Bottom Nav switches) triggers this transition.
+ * Smooth fade + subtle horizontal slide — matches the landing page transition style.
+ * Every top-level navigation triggers this transition.
  */
 export function AnimatedOutlet() {
     const location = useLocation();
     const outlet = useOutlet();
 
     return (
-        <AnimatePresence mode="wait" initial={true}>
+        <AnimatePresence mode="wait" initial={false}>
             <motion.div
                 key={location.key}
-                initial={{ y: 24, opacity: 0 }}
-                animate={{ 
-                    y: 0, 
-                    opacity: 1, 
-                    transition: { 
-                        duration: 0.3, 
-                        ease: [0.25, 0.46, 0.45, 0.94]
-                    } 
+                initial={{ opacity: 0, x: -16 }}
+                animate={{
+                    opacity: 1,
+                    x: 0,
+                    transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] },
                 }}
-                exit={{ 
-                    y: 16, 
-                    opacity: 0, 
-                    transition: { 
-                        duration: 0.15, 
-                        ease: [0.4, 0, 1, 1] 
-                    } 
+                exit={{
+                    opacity: 0,
+                    scale: 0.97,
+                    transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
                 }}
                 className="h-full w-full flex flex-col flex-1"
+                style={{ willChange: 'opacity, transform' }}
             >
                 {outlet}
             </motion.div>
