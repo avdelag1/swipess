@@ -10,6 +10,7 @@ import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
 import { useFilterStore } from '@/state/filterStore'
+import { useShallow } from 'zustand/react/shallow'
 import { useSwipeNavigation } from '@/hooks/useSwipeNavigation'
 
 import { cn } from '@/lib/utils'
@@ -161,12 +162,14 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     };
   }, []);
 
-  // ========== UNIFIED FILTER STATE FROM ZUSTAND STORE ==========
-  // Single source of truth - no more local quickFilters state
-  const categories = useFilterStore((state) => state.categories);
-  const listingType = useFilterStore((state) => state.listingType);
-  const clientGender = useFilterStore((state) => state.clientGender);
-  const clientType = useFilterStore((state) => state.clientType);
+  const { categories, listingType, clientGender, clientType } = useFilterStore(
+    useShallow((state) => ({
+      categories: state.categories,
+      listingType: state.listingType,
+      clientGender: state.clientGender,
+      clientType: state.clientType,
+    }))
+  );
 
   const { navigate } = useAppNavigate();
   const location = useLocation()

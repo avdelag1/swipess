@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Home, Bike, Wrench, X, Users, User, Briefcase, Search, SlidersHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useTheme } from '@/hooks/useTheme';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, ClientGender, ClientType } from '@/types/filters';
@@ -80,17 +81,25 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     ? 'inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3)'
     : '0 4px 12px rgba(0,0,0,0.05)';
 
-  const categories = useFilterStore((state) => state.categories);
-  const listingType = useFilterStore((state) => state.listingType);
-  const clientGender = useFilterStore((state) => state.clientGender);
-  const clientType = useFilterStore((state) => state.clientType);
+  const { categories, listingType, clientGender, clientType } = useFilterStore(
+    useShallow((state) => ({
+      categories: state.categories,
+      listingType: state.listingType,
+      clientGender: state.clientGender,
+      clientType: state.clientType,
+    }))
+  );
 
-  const setCategories = useFilterStore((state) => state.setCategories);
-  const setListingType = useFilterStore((state) => state.setListingType);
-  const setClientGender = useFilterStore((state) => state.setClientGender);
-  const setClientType = useFilterStore((state) => state.setClientType);
-  const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
-  const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
+  const { setCategories, setListingType, setClientGender, setClientType, resetClientFilters, resetOwnerFilters } = useFilterStore(
+    useShallow((state) => ({
+      setCategories: state.setCategories,
+      setListingType: state.setListingType,
+      setClientGender: state.setClientGender,
+      setClientType: state.setClientType,
+      resetClientFilters: state.resetClientFilters,
+      resetOwnerFilters: state.resetOwnerFilters,
+    }))
+  );
 
   const activeFilterCount = (() => {
     let count = 0;

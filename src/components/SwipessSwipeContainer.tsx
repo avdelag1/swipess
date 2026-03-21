@@ -1167,14 +1167,27 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
       setPage(p => p + 1);
     }
 
-    // Eagerly preload next card's image using both preloaders
     const nextNextCard = deckQueueRef.current[newIndex + 1];
     if (nextNextCard?.images?.[0]) {
       preloadImageToCache(nextNextCard.images[0]);
-      // FIX: Also add to simple imageCache so CardImage.tsx detects cached images
       imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
+
+    prefetchSchedulerRef.current.schedule(() => {
+      const batch: string[] = [];
+      for (let offset = 2; offset <= 5; offset++) {
+        const card = deckQueueRef.current[newIndex + offset];
+        if (card?.images?.[0]) {
+          batch.push(card.images[0]);
+          imageCache.set(card.images[0], true);
+        }
+      }
+      if (batch.length > 0) {
+        batch.forEach(url => preloadImageToCache(url));
+        imagePreloadController.preloadBatch(batch);
+      }
+    }, 200);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
