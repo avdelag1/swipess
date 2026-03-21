@@ -32,8 +32,8 @@ export function AnimatedOutlet() {
             <motion.div
                 key={location.pathname}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1, transition: { duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] } }}
-                exit={{ opacity: 0, transition: { duration: 0.08, ease: [0.4, 0, 1, 1] } }}
+                animate={{ opacity: 1, transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] } }}
+                exit={{ opacity: 0, transition: { duration: 0.12, ease: [0.4, 0, 1, 1] } }}
                 className="h-full w-full flex flex-col flex-1"
                 style={{ willChange: 'opacity' }}
             >

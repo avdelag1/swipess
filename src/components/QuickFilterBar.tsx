@@ -359,16 +359,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px] transition-all duration-200')}
-            style={clientIsAllSelected ? {
-              backgroundColor: '#FF9500',
-              color: '#fff',
-              border: '1px solid transparent',
-              boxShadow: '0 4px 16px rgba(255,149,0,0.55)',
-            } : {
-              backgroundColor: inactiveBg,
-              color: inactiveText,
-              border: inactiveBorder,
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px]')}
+            style={{
+              backgroundColor: clientIsAllSelected ? '#FF9500' : inactiveBg,
+              color: clientIsAllSelected ? '#fff' : inactiveText,
+              border: clientIsAllSelected ? '1px solid transparent' : inactiveBorder,
+              boxShadow: clientIsAllSelected ? '0 4px 16px rgba(255,149,0,0.55)' : 'none',
+              transition: 'background-color 320ms ease, color 280ms ease, border-color 280ms ease, box-shadow 350ms ease',
             }}
           >
             <Globe className="w-3.5 h-3.5" />
@@ -384,16 +381,13 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px] transition-all duration-200')}
-                style={isActive && accent ? {
-                  backgroundColor: accent.bg,
-                  color: '#fff',
-                  border: `1px solid ${accent.border}`,
-                  boxShadow: accent.shadow,
-                } : {
-                  backgroundColor: inactiveBg,
-                  color: inactiveText,
-                  border: inactiveBorder,
+                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px]')}
+                style={{
+                  backgroundColor: isActive && accent ? accent.bg : inactiveBg,
+                  color: isActive ? '#fff' : inactiveText,
+                  border: isActive && accent ? `1px solid ${accent.border}` : inactiveBorder,
+                  boxShadow: isActive && accent ? accent.shadow : 'none',
+                  transition: 'background-color 320ms ease, color 280ms ease, border-color 280ms ease, box-shadow 350ms ease',
                 }}
               >
                 {category.icon}
