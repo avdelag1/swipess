@@ -8,6 +8,7 @@ import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
 
 interface EnhancedOwnerDashboardProps {
@@ -28,11 +29,15 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
 
   // Hydrate owner filter store from DB on mount
   const { preferences: ownerPrefs } = useOwnerClientPreferences();
-  const setClientGender = useFilterStore((s) => s.setClientGender);
-  const setClientAgeRange = useFilterStore((s) => s.setClientAgeRange);
-  const setClientBudgetRange = useFilterStore((s) => s.setClientBudgetRange);
-  const setClientNationalities = useFilterStore((s) => s.setClientNationalities);
-  const storeGender = useFilterStore((s) => s.clientGender);
+  const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender } = useFilterStore(
+    useShallow((s) => ({
+      setClientGender: s.setClientGender,
+      setClientAgeRange: s.setClientAgeRange,
+      setClientBudgetRange: s.setClientBudgetRange,
+      setClientNationalities: s.setClientNationalities,
+      storeGender: s.clientGender,
+    }))
+  );
   const hydratedRef = useRef(false);
 
   useEffect(() => {

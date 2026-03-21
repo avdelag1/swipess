@@ -26,6 +26,7 @@ import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Button } from '@/components/ui/button';
@@ -195,12 +196,16 @@ const ClientSwipeContainerComponent = ({
   // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
   // Only subscribe to actions (stable references) - NOT to ownerDecks object
   // This is the key fix for "double render" feeling when navigating back to dashboard
-  const setOwnerDeck = useSwipeDeckStore((state) => state.setOwnerDeck);
-  const markOwnerSwiped = useSwipeDeckStore((state) => state.markOwnerSwiped);
-  const resetOwnerDeck = useSwipeDeckStore((state) => state.resetOwnerDeck);
-  const isOwnerHydrated = useSwipeDeckStore((state) => state.isOwnerHydrated);
-  const isOwnerReady = useSwipeDeckStore((state) => state.isOwnerReady);
-  const markOwnerReady = useSwipeDeckStore((state) => state.markOwnerReady);
+  const { setOwnerDeck, markOwnerSwiped, resetOwnerDeck, isOwnerHydrated, isOwnerReady, markOwnerReady } = useSwipeDeckStore(
+    useShallow((state) => ({
+      setOwnerDeck: state.setOwnerDeck,
+      markOwnerSwiped: state.markOwnerSwiped,
+      resetOwnerDeck: state.resetOwnerDeck,
+      isOwnerHydrated: state.isOwnerHydrated,
+      isOwnerReady: state.isOwnerReady,
+      markOwnerReady: state.markOwnerReady,
+    }))
+  );
 
   // Local state for immediate UI updates - drives the swipe animation
   const [currentIndex, setCurrentIndex] = useState(0);

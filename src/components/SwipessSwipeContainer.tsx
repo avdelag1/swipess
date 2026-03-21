@@ -25,6 +25,7 @@ import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
 import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
+import { useShallow } from 'zustand/react/shallow';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { Button } from '@/components/ui/button';
@@ -617,12 +618,16 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
   // PERF: Use selective subscriptions to prevent re-renders on unrelated store changes
   // Only subscribe to actions (stable references) - NOT to clientDeck object
   // This is the key fix for "double render" feeling when navigating back to dashboard
-  const setClientDeck = useSwipeDeckStore((state) => state.setClientDeck);
-  const markClientSwiped = useSwipeDeckStore((state) => state.markClientSwiped);
-  const resetClientDeck = useSwipeDeckStore((state) => state.resetClientDeck);
-  const isClientHydrated = useSwipeDeckStore((state) => state.isClientHydrated);
-  const isClientReady = useSwipeDeckStore((state) => state.isClientReady);
-  const markClientReady = useSwipeDeckStore((state) => state.markClientReady);
+  const { setClientDeck, markClientSwiped, resetClientDeck, isClientHydrated, isClientReady, markClientReady } = useSwipeDeckStore(
+    useShallow((state) => ({
+      setClientDeck: state.setClientDeck,
+      markClientSwiped: state.markClientSwiped,
+      resetClientDeck: state.resetClientDeck,
+      isClientHydrated: state.isClientHydrated,
+      isClientReady: state.isClientReady,
+      markClientReady: state.markClientReady,
+    }))
+  );
 
   // Read active category directly from filter store for guaranteed sync with quick filter UI
   // This ensures empty state messages update instantly when user clicks a quick filter
