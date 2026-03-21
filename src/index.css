@@ -2353,3 +2353,41 @@ html[data-navigation-direction="back"] {
 /*  FILTER-BASED LIGHT THEME -> REPLACED WITH NATIVE VARIABLES      */
 /*  (Removed global invert in favor of native light mode variables)    */
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+@layer utilities {
+  .animal-print-fur {
+    /* Deep rich tan background */
+    background-color: #d18d45;
+    background-image: 
+      /* Procedural realistic fur noise */
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.33' mix-blend-mode='color-burn'/%3E%3C/svg%3E"),
+      
+      /* Organic rosette spots (Cheetah/Leopard shapes) */
+      radial-gradient(ellipse at 15% 15%, #8f4d1e 3%, transparent 4%),
+      radial-gradient(ellipse at 17% 13%, #18120d 15%, transparent 17%),
+      
+      radial-gradient(circle at 45% 45%, #8f4d1e 4%, transparent 5%),
+      radial-gradient(circle at 43% 48%, #18120d 14%, transparent 16%),
+      
+      radial-gradient(ellipse at 85% 25%, #8f4d1e 5%, transparent 6%),
+      radial-gradient(ellipse at 88% 22%, #18120d 16%, transparent 18%),
+      
+      radial-gradient(ellipse at 25% 85%, #8f4d1e 6%, transparent 7%),
+      radial-gradient(ellipse at 23% 87%, #18120d 17%, transparent 19%),
+      
+      radial-gradient(circle at 75% 75%, #8f4d1e 4%, transparent 5%),
+      radial-gradient(circle at 78% 72%, #18120d 14%, transparent 16%),
+      
+      /* Solid black 'freckle' spots between rosettes */
+      radial-gradient(circle at 55% 10%, #18120d 4%, transparent 5%),
+      radial-gradient(circle at 10% 55%, #18120d 5%, transparent 6%),
+      radial-gradient(circle at 65% 90%, #18120d 4%, transparent 5%),
+      radial-gradient(circle at 95% 50%, #18120d 6%, transparent 7%);
+    
+    background-size: 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px, 150px 150px;
+    background-position: center;
+    background-blend-mode: color-burn, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal, normal;
+    color: white; /* Ensure text is visible */
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+}
