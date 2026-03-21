@@ -94,7 +94,7 @@ const CardImage = memo(({
     return <MarketingSlide slideId={src} />;
   }
 
-  const transition = wasInCache ? 'none' : 'opacity 220ms ease';
+  const transition = wasInCache ? 'none' : 'opacity 550ms cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
   return (
     <div
@@ -139,7 +139,7 @@ const CardImage = memo(({
           // Slide in on photo switch — only plays for cached images
           // (instant display). Network-loaded images use the opacity transition instead.
           animation: wasInCache
-            ? `${direction === 'left' ? 'photo-slide-from-left' : 'photo-slide-from-right'} 200ms ease-out forwards`
+            ? `${direction === 'left' ? 'photo-slide-from-left' : 'photo-slide-from-right'} 550ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`
             : 'none',
         }}
         onLoad={() => {

@@ -326,57 +326,75 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   }
 
   // Client Quick Filters (default)
-  // "All" = no category filter active (categories.length === 0)
   const clientIsAllSelected = filters.categories.length === 0;
   const activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
+
+  // Per-category accent colors (active state)
+  const categoryColors: Record<string, { bg: string; shadow: string; border: string }> = {
+    property:   { bg: 'rgba(34,197,94,0.90)',   shadow: '0 4px 14px rgba(34,197,94,0.45)',   border: 'transparent' },
+    motorcycle: { bg: 'rgba(99,102,241,0.90)',   shadow: '0 4px 14px rgba(99,102,241,0.45)',  border: 'transparent' },
+    bicycle:    { bg: 'rgba(20,184,166,0.90)',   shadow: '0 4px 14px rgba(20,184,166,0.45)',  border: 'transparent' },
+    services:   { bg: 'rgba(245,158,11,0.90)',   shadow: '0 4px 14px rgba(245,158,11,0.45)',  border: 'transparent' },
+  };
+
+  const inactiveBg    = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)';
+  const inactiveBorder = isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(0,0,0,0.08)';
+  const inactiveText  = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(0,0,0,0.60)';
 
   return (
     <div
       data-no-swipe-nav
       className={cn(
-        isDark ? 'bg-background/50' : 'bg-white/80',
+        isDark ? 'bg-background/60' : 'bg-white/85',
         'backdrop-blur-xl border-b border-border px-3 pt-2 pb-1',
         className
       )}
     >
       <div className="max-w-screen-xl mx-auto">
-        {/* Main filter row — 5 pill buttons, single-select, scrollable on mobile */}
+        {/* Main filter row — scrollable pill buttons */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {/* ALL button — first, default selected, brighter orange glow */}
+          {/* ALL button */}
           <button
             onClick={() => {
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(
-              smoothButtonClass,
-              'flex items-center gap-1.5 px-5 rounded-full text-xs font-bold flex-shrink-0 min-h-[48px]',
-              'border transition-all duration-200',
-              clientIsAllSelected
-                ? 'bg-[#FF9500] text-white border-transparent shadow-[0_4px_14px_rgba(255,149,0,0.5)]'
-                : 'bg-[#f1f1f1] text-[#333] border-gray-200 hover:bg-gray-200'
-            )}
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px] transition-all duration-200')}
+            style={clientIsAllSelected ? {
+              backgroundColor: '#FF9500',
+              color: '#fff',
+              border: '1px solid transparent',
+              boxShadow: '0 4px 16px rgba(255,149,0,0.55)',
+            } : {
+              backgroundColor: inactiveBg,
+              color: inactiveText,
+              border: inactiveBorder,
+            }}
           >
             <Globe className="w-3.5 h-3.5" />
             <span>ALL</span>
             {clientIsAllSelected && <Check className="w-3 h-3" />}
           </button>
 
-          {/* Category chips — single-select, all use orange when active */}
+          {/* Category chips — each with its own accent color */}
           {categories.map((category) => {
             const isActive = filters.categories.includes(category.id);
+            const accent = categoryColors[category.id];
             return (
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(
-                  smoothButtonClass,
-                  'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[48px]',
-                  'border transition-all duration-200',
-                  isActive
-                    ? 'bg-[#FF9500] text-white border-transparent shadow-[0_4px_12px_rgba(255,149,0,0.4)]'
-                    : 'bg-[#f1f1f1] text-[#333] border-gray-200 hover:bg-gray-200'
-                )}
+                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px] transition-all duration-200')}
+                style={isActive && accent ? {
+                  backgroundColor: accent.bg,
+                  color: '#fff',
+                  border: `1px solid ${accent.border}`,
+                  boxShadow: accent.shadow,
+                } : {
+                  backgroundColor: inactiveBg,
+                  color: inactiveText,
+                  border: inactiveBorder,
+                }}
               >
                 {category.icon}
                 <span>{category.label}</span>
@@ -387,10 +405,9 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
         {/* Dynamic section title */}
         <div className="px-1 pb-1 pt-0.5">
-          <p className={cn(
-            'font-semibold text-[#FF9500] transition-all duration-200',
-            clientIsAllSelected ? 'text-sm' : 'text-xs'
-          )}>
+          <p className={cn('font-semibold transition-all duration-300', clientIsAllSelected ? 'text-sm' : 'text-xs')}
+            style={{ color: '#FF9500' }}
+          >
             {clientIsAllSelected
               ? 'Showing ALL Listings Near You'
               : `Showing ${activeCategoryLabel} Near You`}

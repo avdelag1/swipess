@@ -12,22 +12,22 @@
 @keyframes photo-slide-from-right {
   from {
     opacity: 0;
-    transform: translateX(6%);
+    transform: translateX(4%) scale(1.015);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
 }
 
 @keyframes photo-slide-from-left {
   from {
     opacity: 0;
-    transform: translateX(-6%);
+    transform: translateX(-4%) scale(1.015);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scale(1);
   }
 }
 

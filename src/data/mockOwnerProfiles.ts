@@ -66,7 +66,7 @@ export const mockOwnerProfiles: MockOwnerProfile[] = [
         images: [
           `${PLACEHOLDER_BASE}/photo-1568772585407-9361f9bf3a87?w=800&h=600&fit=crop`,
           `${PLACEHOLDER_BASE}/photo-1558981806-ec527fa84c3d?w=800&h=600&fit=crop`,
-          `${PLACEHOLDER_BASE}/photo-1449426468159-d96dbf08f19f?w=800&h=600&fit=crop`,
+          `${PLACEHOLDER_BASE}/photo-1609630875171-b1321377ee65?w=800&h=600&fit=crop`,
         ],
         location: 'Cancún, Quintana Roo',
         specifications: {
