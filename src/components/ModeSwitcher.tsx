@@ -56,80 +56,84 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
   if (variant === 'icon') {
     const btnH = size === 'sm' ? 28 : size === 'md' ? 32 : 36;
-    const iconCls = size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4';
+    const iconW = Math.round(btnH * 1.1); // each half width
 
     return (
-      <div
+      <button
+        onClick={(e) => handleToggle(e)}
+        disabled={isSwitching || !canSwitchMode}
         className={cn(
-          'relative flex items-stretch rounded-full overflow-hidden flex-shrink-0',
-          'disabled:opacity-50',
+          'relative flex items-center rounded-full overflow-hidden',
+          'transition-all duration-150 ease-out',
+          'active:scale-[0.92]',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
+          'touch-manipulation select-none',
           className
         )}
         style={{
           height: btnH,
+          width: iconW * 2,
+          backgroundColor: glassBg,
           border: glassBorder,
           boxShadow: floatingShadow,
         }}
-        aria-label="Switch mode"
+        aria-label={`Switch to ${activeMode === 'client' ? 'Business Side' : 'Client Side'} mode`}
       >
-        {/* Client half — teal when active */}
-        <button
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleModeSwitch('client'); }}
-          disabled={isSwitching || !canSwitchMode}
-          className="flex items-center justify-center touch-manipulation transition-colors duration-200 active:brightness-90"
-          style={{
-            width: btnH + 2,
+        {/* Sliding indicator — fills exactly 50% with no gaps */}
+        <motion.div
+          className="absolute inset-y-0 rounded-full"
+          initial={false}
+          animate={{
+            left: activeMode === 'client' ? 0 : '50%',
+            width: '50%',
             backgroundColor: activeMode === 'client'
               ? 'rgba(13,181,163,1)'
-              : isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.07)',
+              : 'rgba(249,115,22,1)',
+            boxShadow: activeMode === 'client'
+              ? '0 0 10px rgba(13,181,163,0.55), inset 0 1px 0 rgba(255,255,255,0.18)'
+              : '0 0 10px rgba(249,115,22,0.55), inset 0 1px 0 rgba(255,255,255,0.18)',
           }}
-          aria-label="Switch to Client mode"
-        >
-          {isSwitching && activeMode === 'owner' ? (
-            <Loader2 className={cn(iconCls, 'animate-spin text-teal-400')} />
-          ) : (
-            <User
-              strokeWidth={activeMode === 'client' ? 3 : 2}
-              className={cn(
-                iconCls, 'transition-all duration-150',
-                activeMode === 'client' ? 'text-white' : isLight ? 'text-foreground/40' : 'text-white/35'
-              )}
-            />
-          )}
-        </button>
-
-        {/* Hairline divider */}
-        <div
-          className="w-px shrink-0 self-stretch"
-          style={{ backgroundColor: isLight ? 'rgba(0,0,0,0.10)' : 'rgba(255,255,255,0.12)' }}
+          transition={{ type: 'spring', stiffness: 480, damping: 34 }}
         />
 
-        {/* Owner half — orange when active */}
-        <button
-          onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleModeSwitch('owner'); }}
-          disabled={isSwitching || !canSwitchMode}
-          className="flex items-center justify-center touch-manipulation transition-colors duration-200 active:brightness-90"
-          style={{
-            width: btnH + 2,
-            backgroundColor: activeMode === 'owner'
-              ? 'rgba(249,115,22,1)'
-              : isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.07)',
-          }}
-          aria-label="Switch to Business mode"
+        {/* Client icon */}
+        <div
+          className="relative z-10 flex items-center justify-center transition-all duration-200"
+          style={{ width: iconW, height: btnH }}
         >
-          {isSwitching && activeMode === 'client' ? (
-            <Loader2 className={cn(iconCls, 'animate-spin text-orange-400')} />
+          {isSwitching && activeMode === 'owner' ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-teal-300" />
           ) : (
-            <UserCog
-              strokeWidth={activeMode === 'owner' ? 3 : 2}
+            <User
+              strokeWidth={activeMode === 'client' ? 3.5 : 2}
               className={cn(
-                iconCls, 'transition-all duration-150',
-                activeMode === 'owner' ? 'text-white' : isLight ? 'text-foreground/40' : 'text-white/35'
+                'transition-all duration-200',
+                size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4',
+                activeMode === 'client' ? 'text-white scale-110' : isLight ? 'text-foreground/35' : 'text-white/30'
               )}
             />
           )}
-        </button>
-      </div>
+        </div>
+
+        {/* Owner icon */}
+        <div
+          className="relative z-10 flex items-center justify-center transition-all duration-200"
+          style={{ width: iconW, height: btnH }}
+        >
+          {isSwitching && activeMode === 'client' ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-orange-300" />
+          ) : (
+            <UserCog
+              strokeWidth={activeMode === 'owner' ? 3.5 : 2}
+              className={cn(
+                'transition-all duration-200',
+                size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4',
+                activeMode === 'owner' ? 'text-white scale-110' : isLight ? 'text-foreground/35' : 'text-white/30'
+              )}
+            />
+          )}
+        </div>
+      </button>
     );
   }
 
