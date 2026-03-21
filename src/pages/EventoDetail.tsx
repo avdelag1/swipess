@@ -4,7 +4,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, Zap, Info, ShieldCheck } from 'lucide-react';
+import { Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, Users, ChevronLeft, Zap, Info, ShieldCheck, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,7 @@ interface EventDetail {
  * Shows benefits for brands to advertise in Swipess.
  */
 function BrandBenefitsSection() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   return (
     <motion.div 
       initial={{ opacity: 0, y: 30 }}

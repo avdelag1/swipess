@@ -98,11 +98,11 @@ export function LikeNotificationPreview({
           setLikerInfo({
             id: likerId,
             type: 'owner',
-            locationCity: profile?.city || firstListing?.city,
-            neighborhood: firstListing?.neighborhood,
+            locationCity: profile?.city ?? firstListing?.city ?? undefined,
+            neighborhood: firstListing?.neighborhood ?? undefined,
             listingCount: count || 0,
-            listingType: firstListing?.property_type,
-            previewImage: firstListing?.images?.[0],
+            listingType: firstListing?.property_type ?? undefined,
+            previewImage: (firstListing?.images as string[] | null)?.[0],
           });
         }
       } catch (err) {

@@ -106,16 +106,18 @@ export function useCreateContract() {
         .from('digital_contracts')
         .insert({
           title: contractData.title,
-          contract_type: contractData.contract_type,
-          file_path: filePath,
-          file_name: contractData.file.name,
-          file_size: contractData.file.size,
-          mime_type: contractData.file.type,
-          created_by: user.id,
+          template_type: contractData.contract_type,
+          content: contractData.terms_and_conditions,
           owner_id: user.id,
-          client_id: contractData.client_id,
+          client_id: contractData.client_id || user.id,
           listing_id: contractData.listing_id,
-          terms_and_conditions: contractData.terms_and_conditions
+          status: 'draft',
+          metadata: {
+            file_path: filePath,
+            file_name: contractData.file.name,
+            file_size: contractData.file.size,
+            mime_type: contractData.file.type,
+          }
         })
         .select()
         .single();

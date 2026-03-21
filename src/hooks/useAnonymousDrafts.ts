@@ -163,7 +163,7 @@ export function useAnonymousDrafts() {
         const { error } = await supabase
           .from('profiles')
           .upsert({
-            id: user.id,
+            user_id: user.id,
             ...profileDraft.data,
             onboarding_completed: true,
           });

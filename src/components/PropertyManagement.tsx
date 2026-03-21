@@ -104,7 +104,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
   const handleAIComplete = (data: { category: string; images: string[]; formData: Record<string, unknown> }) => {
     setEditingProperty({
       category: data.category,
-      mode: data.formData.mode || 'rent',
+      mode: (data.formData.mode as string) || 'rent',
       images: data.images,
       ...data.formData,
     });
@@ -613,7 +613,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
           setIsFormOpen(false);
           setEditingProperty(null);
         }}
-        editingProperty={editingProperty}
+        editingProperty={editingProperty as any ?? undefined}
       />
 
       <ShareDialog

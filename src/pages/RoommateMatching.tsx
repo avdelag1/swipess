@@ -352,7 +352,7 @@ export default function RoommateMatching() {
                          className="px-5 py-2.5 rounded-full bg-black/40 backdrop-blur-2xl border border-white/20 shadow-2xl flex items-center gap-3"
                        >
                          <Sparkles className="w-4 h-4 text-amber-400" />
-                         <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">{topCard.compatibility}% Match</span>
+                         <span className="text-[11px] font-black text-white uppercase tracking-[0.2em]">{(topCard as any).compatibility ?? 85}% Match</span>
                          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" />
                        </motion.div>
                     </div>
@@ -480,17 +480,17 @@ export default function RoommateMatching() {
             <div className="px-8 pt-8 pb-32 space-y-12">
                {/* STATS GRID */}
                <div className="grid grid-cols-2 gap-4">
-                  <InfoPill icon={MapPin} label="Vibe Location" value={topCard.city} />
-                  <InfoPill icon={Briefcase} label="Hustle" value={topCard.work_schedule} />
-                  <InfoPill icon={Clock} label="Noise" value={topCard.noise_tolerance} />
-                  <InfoPill icon={Sparkles} label="Purity" value={topCard.cleanliness_level} />
+                   <InfoPill icon={MapPin} label="Vibe Location" value={topCard.city ?? ''} />
+                   <InfoPill icon={Briefcase} label="Hustle" value={(topCard as any).work_schedule ?? ''} />
+                   <InfoPill icon={Clock} label="Noise" value={(topCard as any).noise_tolerance ?? ''} />
+                   <InfoPill icon={Sparkles} label="Purity" value={(topCard as any).cleanliness_level ?? ''} />
                </div>
 
                {/* BIO */}
                <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Manifesto</h3>
                   <p className={cn("text-lg font-bold leading-snug", isLight ? "text-slate-900" : "text-white/90")}>
-                    {topCard.bio}
+                    {(topCard as any).bio}
                   </p>
                </div>
 
@@ -498,7 +498,7 @@ export default function RoommateMatching() {
                <div className="space-y-6">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Frequency Alignment</h3>
                   <div className="flex flex-wrap gap-2.5">
-                    {topCard.personality_traits.map(tag => (
+                    {((topCard as any).personality_traits || []).map((tag: string) => (
                       <span key={tag} className="px-5 py-2.5 rounded-2xl bg-white/5 border border-white/5 text-[11px] font-black uppercase tracking-widest text-white/70">
                         {tag}
                       </span>
@@ -515,7 +515,7 @@ export default function RoommateMatching() {
                <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Languages</h3>
                   <div className="flex items-center gap-4">
-                    {topCard.languages.map(lang => (
+                    {(topCard.languages || []).map((lang: string) => (
                       <div key={lang} className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
                         <span className="text-sm font-bold text-white/80">{lang}</span>

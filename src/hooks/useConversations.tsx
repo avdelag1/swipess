@@ -224,17 +224,17 @@ export function useConversations() {
 
       return {
         id: data.id,
-        client_id: data.client_id,
-        owner_id: data.owner_id,
-        listing_id: data.listing_id,
-        last_message_at: data.last_message_at,
-        status: data.status,
+        client_id: data.client_id ?? '',
+        owner_id: data.owner_id ?? '',
+        listing_id: data.listing_id ?? undefined,
+        last_message_at: data.last_message_at ?? undefined,
+        status: data.status ?? 'active',
         created_at: data.created_at,
         updated_at: data.updated_at,
         other_user: otherUserProfile ? {
-          id: otherUserId,
-          full_name: otherUserProfile.full_name,
-          avatar_url: otherUserProfile.avatar_url,
+          id: otherUserId ?? '',
+          full_name: otherUserProfile.full_name ?? '',
+          avatar_url: otherUserProfile.avatar_url ?? undefined,
           role: otherUserRole
         } : undefined,
         last_message: (messagesResult as any).data?.[0],
