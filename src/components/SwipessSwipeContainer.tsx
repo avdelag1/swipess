@@ -288,10 +288,10 @@ const FAN_CARDS_WITH_POS = [
   { ...FAN_CARDS[3], rotate: 7,   tx: 26,  ty: 10  },
 ];
 
-const FanPokerCard = memo(({ card, index, isTapped, onTap, photoIdx }: {
+const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
   card: typeof FAN_CARDS_WITH_POS[0];
   index: number;
-  isTapped: boolean;
+  isPreviewing: boolean;
   onTap: () => void;
   photoIdx: number;
 }) => {
@@ -303,12 +303,12 @@ const FanPokerCard = memo(({ card, index, isTapped, onTap, photoIdx }: {
       onClick={onTap}
       data-testid={`fan-filter-${card.id}`}
       initial={{ opacity: 0, scale: 0.78, rotate: card.rotate, x: card.tx, y: card.ty + 50 }}
-      animate={isTapped ? {
+      animate={isPreviewing ? {
         opacity: 1, scale: 1.06, rotate: 0, x: 0, y: -24, zIndex: 30,
       } : {
         opacity: 1, scale: 1, rotate: card.rotate, x: card.tx, y: card.ty, zIndex: index + 1,
       }}
-      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isTapped ? 0 : index * 0.055 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isPreviewing ? 0 : index * 0.055 }}
       whileTap={{ scale: 0.97 }}
       className="absolute pointer-events-auto"
       style={{
@@ -320,12 +320,12 @@ const FanPokerCard = memo(({ card, index, isTapped, onTap, photoIdx }: {
         marginTop: -(CARD_H / 2),
         borderRadius: 24,
         overflow: 'hidden',
-        boxShadow: isTapped
+        boxShadow: isPreviewing
           ? `0 30px 60px rgba(${card.accentRgb},0.5), 0 10px 30px rgba(0,0,0,0.55)`
           : `0 14px 36px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25)`,
         transformOrigin: 'bottom center',
         WebkitTapHighlightColor: 'transparent',
-        border: `1.5px solid rgba(${card.accentRgb},${isTapped ? 0.75 : 0.22})`,
+        border: `1.5px solid rgba(${card.accentRgb},${isPreviewing ? 0.75 : 0.22})`,
       }}
     >
       {/* Photos — CSS crossfade, silky 3s ease */}
@@ -381,13 +381,14 @@ const FanPokerCard = memo(({ card, index, isTapped, onTap, photoIdx }: {
         </div>
       </div>
 
-      {/* Tapped: accent glow ring */}
-      {isTapped && (
+      {/* Previewing: pulsing accent ring */}
+      {isPreviewing && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.8)`, borderRadius: 22 }}
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.85)`, borderRadius: 22 }}
         />
       )}
     </motion.button>
@@ -401,10 +402,10 @@ interface SwipeAllDashboardProps {
 }
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
-  const [tappedCard, setTappedCard] = useState<string | null>(null);
+  // null = no card selected; string = that card is previewing (lifted)
+  const [previewCard, setPreviewCard] = useState<string | null>(null);
   const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
   const cyclingCardRef = useRef(0);
-  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Staggered cycling: one card's photo changes every 5 seconds
   useEffect(() => {
@@ -420,17 +421,17 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Cleanup nav timer on unmount
-  useEffect(() => () => { if (navTimerRef.current) clearTimeout(navTimerRef.current); }, []);
-
   const handleTap = useCallback((id: string) => {
     triggerHaptic('light');
-    setTappedCard(id);
-    // Brief lift animation (380ms), then navigate
-    navTimerRef.current = setTimeout(() => {
+    if (previewCard === id) {
+      // Second tap on the same previewing card → apply the filter and navigate
+      triggerHaptic('medium');
       setCategories([id]);
-    }, 380);
-  }, [setCategories]);
+    } else {
+      // First tap (or switching to a different card) → preview it
+      setPreviewCard(id);
+    }
+  }, [previewCard, setCategories]);
 
   return (
     <AnimatePresence mode="wait">
@@ -458,12 +459,28 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
               key={card.id}
               card={card}
               index={i}
-              isTapped={tappedCard === card.id}
+              isPreviewing={previewCard === card.id}
               onTap={() => handleTap(card.id)}
               photoIdx={photoIndices[i]}
             />
           ))}
         </div>
+
+        {/* "Tap again" hint — fades in when a card is previewing */}
+        <AnimatePresence>
+          {previewCard && (
+            <motion.p
+              key="tap-again-hint"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.22 }}
+              className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-5 z-10"
+            >
+              {FAN_CARDS_WITH_POS.find(c => c.id === previewCard)?.emoji} Tap again to apply filter
+            </motion.p>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useActiveMode, ActiveMode } from '@/hooks/useActiveMode';
 import { triggerHaptic } from '@/utils/haptics';
 import { useTheme } from '@/hooks/useTheme';
+import { useFilterStore } from '@/state/filterStore';
 
 interface ModeSwitcherProps {
   className?: string;
@@ -17,6 +18,8 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const lastClickTime = useRef(0);
+  const resetClientFilters = useFilterStore((state) => state.resetClientFilters);
+  const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
 
   const glassBg = isDark ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
   const glassBorder = isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(0, 0, 0, 0.08)';
@@ -31,8 +34,11 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
 
     if (isSwitching || newMode === activeMode || !canSwitchMode) return;
     triggerHaptic('medium');
+    // Reset filters for the side you are leaving so they never bleed across
+    if (newMode === 'owner') resetClientFilters();
+    else resetOwnerFilters();
     await switchMode(newMode);
-  }, [isSwitching, activeMode, canSwitchMode, switchMode]);
+  }, [isSwitching, activeMode, canSwitchMode, switchMode, resetClientFilters, resetOwnerFilters]);
 
   const handleToggle = useCallback((event: React.MouseEvent) => {
     event.stopPropagation();
