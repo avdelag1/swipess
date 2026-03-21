@@ -110,7 +110,16 @@
   box-shadow: var(--shadow-soft-lg);
 }
 
-/* Hide scrollbar for horizontal scrolling action buttons */
+/* Hide ALL scrollbars — this is a native app, not a website */
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Keep the utility class for explicit usage */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

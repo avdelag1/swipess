@@ -50,6 +50,12 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('black-matte');
   }
 
+  // For cheers theme, also add .dark so Tailwind dark: variants activate
+  // (cheers is a dark-variant theme — warm leopard colors on a dark background)
+  if (theme === 'cheers') {
+    root.classList.add('dark');
+  }
+
   // Update status bar color for PWA (respects safe-area)
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {

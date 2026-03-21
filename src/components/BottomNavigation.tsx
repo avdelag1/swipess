@@ -350,22 +350,21 @@ export function BottomNavigation({
                   </div>
                 )}
 
-                {/* Notification badge */}
-                <AnimatePresence>
-                  {item.badge && item.badge > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                      className="absolute top-1 right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border-2 border-background"
-                      style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
-                    />
-                  )}
-                </AnimatePresence>
-
                 {/* Icon */}
                 <div className="relative" style={{ zIndex: 1 }}>
+                  {/* Notification badge — anchored to the icon, not the full tap target */}
+                  <AnimatePresence>
+                    {item.badge && item.badge > 0 && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        exit={{ scale: 0 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                        className="absolute -top-1 -right-1 rounded-full w-[9px] h-[9px] z-20 shadow-md border border-background"
+                        style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
+                      />
+                    )}
+                  </AnimatePresence>
                   <Icon
                     className="transition-all duration-250 ease-out"
                     style={{
