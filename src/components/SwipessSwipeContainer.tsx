@@ -270,62 +270,59 @@ const FAN_CARD_PHOTOS: Record<string, string[]> = {
 };
 
 const FAN_CARDS = [
-  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -18, tx: -90, ty: 18 },
-  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -6, tx: -30, ty: 4 },
-  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 6, tx: 30, ty: 4 },
-  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 18, tx: 90, ty: 18 },
+  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
+  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
+  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
+  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
+const CARD_W = 178;
+const CARD_H = 282;
+
+const FanPokerCard = memo(({ card, index, isHovered, onTap, photoIdx }: {
   card: typeof FAN_CARDS[0];
   index: number;
   isHovered: boolean;
   onTap: () => void;
+  photoIdx: number;
 }) => {
   const photos = FAN_CARD_PHOTOS[card.id];
-  const [photoIdx, setPhotoIdx] = useState(index); // offset so all cards start on different photos
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPhotoIdx(i => (i + 1) % photos.length);
-    }, 4000 + index * 600); // stagger intervals — slow smooth cycling
-    return () => clearInterval(interval);
-  }, [photos.length, index]);
+  const activePhoto = photoIdx % photos.length;
 
   return (
     <motion.button
       onClick={onTap}
       data-testid={`fan-filter-${card.id}`}
-      initial={{ opacity: 0, scale: 0.7, rotate: card.rotate, x: card.tx, y: card.ty + 40 }}
+      initial={{ opacity: 0, scale: 0.72, rotate: card.rotate, x: card.tx, y: card.ty + 44 }}
       animate={{
         opacity: 1,
-        scale: isHovered ? 1.1 : 1,
+        scale: isHovered ? 1.08 : 1,
         rotate: card.rotate,
         x: card.tx,
-        y: isHovered ? card.ty - 20 : card.ty,
+        y: isHovered ? card.ty - 18 : card.ty,
         zIndex: isHovered ? 20 : index + 1,
       }}
-      transition={{ type: 'spring', stiffness: 300, damping: 28, mass: 0.8, delay: index * 0.07 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 26, mass: 0.85, delay: index * 0.065 }}
       whileTap={{ scale: 0.95 }}
       className="absolute"
       style={{
-        width: 162,
-        height: 258,
+        width: CARD_W,
+        height: CARD_H,
         left: '50%',
         top: '50%',
-        marginLeft: -81,  /* center: half of 162 */
-        marginTop: -129,  /* center: half of 258 */
+        marginLeft: -(CARD_W / 2),
+        marginTop: -(CARD_H / 2),
         borderRadius: 22,
         overflow: 'hidden',
         boxShadow: isHovered
-          ? `0 24px 48px rgba(${card.accentRgb},0.4), 0 8px 24px rgba(0,0,0,0.5)`
-          : `0 14px 36px rgba(0,0,0,0.45), 0 4px 12px rgba(0,0,0,0.3)`,
+          ? `0 26px 52px rgba(${card.accentRgb},0.42), 0 8px 24px rgba(0,0,0,0.5)`
+          : `0 16px 40px rgba(0,0,0,0.48), 0 4px 12px rgba(0,0,0,0.28)`,
         transformOrigin: 'bottom center',
         WebkitTapHighlightColor: 'transparent',
-        border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.6 : 0.25})`,
+        border: `1.5px solid rgba(${card.accentRgb},${isHovered ? 0.65 : 0.28})`,
       }}
     >
-      {/* Live photo carousel background — CSS crossfade, no flicker */}
+      {/* Photo carousel — CSS crossfade, one card at a time */}
       <div className="absolute inset-0">
         {photos.map((src, i) => (
           <img
@@ -334,74 +331,71 @@ const FanPokerCard = memo(({ card, index, isHovered, onTap }: {
             alt=""
             className="absolute inset-0 w-full h-full object-cover"
             style={{
-              opacity: i === (photoIdx % photos.length) ? 1 : 0,
-              transition: 'opacity 1.8s ease-in-out',
+              opacity: i === activePhoto ? 1 : 0,
+              transition: 'opacity 2.2s cubic-bezier(0.4,0,0.2,1)',
             }}
           />
         ))}
       </div>
 
-      {/* Glassmorphic gradient overlay */}
+      {/* Dark gradient overlay */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background: `linear-gradient(160deg, rgba(${card.accentRgb},0.08) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.72) 100%)`,
-          backdropFilter: isHovered ? 'none' : 'none',
+          background: `linear-gradient(170deg, rgba(${card.accentRgb},0.07) 0%, rgba(0,0,0,0.12) 35%, rgba(0,0,0,0.76) 100%)`,
         }}
       />
 
-      {/* Glass shine top edge */}
+      {/* Glossy shine — top edge */}
       <div
-        className="absolute top-0 left-0 right-0 h-16 pointer-events-none"
+        className="absolute top-0 left-0 right-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
-          borderRadius: '18px 18px 0 0',
+          height: 56,
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.20) 0%, transparent 100%)',
+          borderRadius: '20px 20px 0 0',
         }}
       />
 
-      {/* Photo dots indicator */}
+      {/* Progress dots */}
       <div className="absolute top-2.5 left-0 right-0 flex justify-center gap-1 px-3">
         {photos.map((_, i) => (
           <div
             key={i}
-            className="flex-1 rounded-full transition-all duration-300"
+            className="flex-1 rounded-full"
             style={{
               height: 2.5,
-              background: i === (photoIdx % photos.length) ? `rgba(${card.accentRgb},0.9)` : 'rgba(255,255,255,0.35)',
+              background: i === activePhoto ? `rgba(${card.accentRgb},1)` : 'rgba(255,255,255,0.30)',
+              transition: 'background 0.6s ease',
             }}
           />
         ))}
       </div>
 
-      {/* Bottom content */}
+      {/* Bottom label */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
-        {/* Glass pill background */}
         <div
           className="rounded-xl p-2.5"
           style={{
-            background: 'rgba(0,0,0,0.45)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'rgba(0,0,0,0.48)',
+            backdropFilter: 'blur(14px)',
+            border: '1px solid rgba(255,255,255,0.13)',
           }}
         >
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span style={{ fontSize: 14 }}>{card.emoji}</span>
-            <span className="text-white font-black text-[11px] tracking-tight leading-none">{card.label}</span>
+            <span style={{ fontSize: 15 }}>{card.emoji}</span>
+            <span className="text-white font-black text-[12px] tracking-tight leading-none">{card.label}</span>
           </div>
-          <p className="text-white/60 text-[9px] leading-tight">{card.description}</p>
+          <p className="text-white/55 text-[10px] leading-tight">{card.description}</p>
         </div>
       </div>
 
-      {/* Accent glow on hover */}
+      {/* Hover accent ring */}
       {isHovered && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          style={{
-            boxShadow: `inset 0 0 0 2px rgba(${card.accentRgb},0.6)`,
-            borderRadius: 18,
-          }}
+          style={{ boxShadow: `inset 0 0 0 2px rgba(${card.accentRgb},0.65)`, borderRadius: 20 }}
         />
       )}
     </motion.button>
@@ -416,6 +410,22 @@ interface SwipeAllDashboardProps {
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  // Staggered photo cycling — one card changes at a time, sequentially
+  const [photoIndices, setPhotoIndices] = useState([0, 1, 2, 3]);
+  const cyclingCardRef = useRef(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const cardTurn = cyclingCardRef.current;
+      setPhotoIndices(prev => {
+        const next = [...prev];
+        next[cardTurn] = (next[cardTurn] + 1) % 5;
+        return next;
+      });
+      cyclingCardRef.current = (cardTurn + 1) % FAN_CARDS.length;
+    }, 1800); // one card changes every 1.8s — feels measured and cinematic
+    return () => clearInterval(interval);
+  }, []);
 
   const handleTap = useCallback((id: string) => {
     triggerHaptic('light');
@@ -453,7 +463,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         {/* Fan of cards */}
         <div
           className="relative z-10"
-          style={{ width: 320, height: 290 }}
+          style={{ width: 340, height: 310 }}
         >
           {FAN_CARDS.map((card, i) => (
             <FanPokerCard
@@ -462,16 +472,17 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
               index={i}
               isHovered={hoveredCard === card.id}
               onTap={() => handleTap(card.id)}
+              photoIdx={photoIndices[i]}
             />
           ))}
-          {/* Invisible hover zones for desktop mouse hover */}
+          {/* Invisible hover zones for desktop */}
           {FAN_CARDS.map((card) => (
             <div
               key={`hover-${card.id}`}
               className="absolute"
               style={{
-                width: 162,
-                height: 258,
+                width: CARD_W,
+                height: CARD_H,
                 left: '50%',
                 top: '50%',
                 transform: `translate(-50%, -50%) translateX(${card.tx}px) translateY(${card.ty}px) rotate(${card.rotate}deg)`,
