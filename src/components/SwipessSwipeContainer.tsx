@@ -232,32 +232,32 @@ const deckFadeVariants = {
 
 const FAN_CARD_PHOTOS: Record<string, string[]> = {
   property: [
-    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=640&q=85&auto=format',
   ],
   motorcycle: [
-    'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1568772585407-9f217f7b5f5e?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1568772585407-9f217f7b5f5e?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&q=85&auto=format',
   ],
   bicycle: [
-    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=640&q=85&auto=format',
   ],
   services: [
-    'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=320&q=75&auto=format',
-    'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=640&q=85&auto=format',
+    'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=640&q=85&auto=format',
   ],
 };
 
@@ -300,8 +300,8 @@ const FAN_CARDS = [
   { id: 'services' as const, label: 'Workers', Icon: IconWorker, accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-const CARD_W = 180;
-const CARD_H = 440;
+const CARD_W = 200;
+const CARD_H = 500;
 
 const FAN_CARDS_WITH_POS = [
   { ...FAN_CARDS[0], rotate: -6,  tx: -72, ty: 10 },
