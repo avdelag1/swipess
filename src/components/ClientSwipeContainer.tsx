@@ -803,6 +803,12 @@ const ClientSwipeContainerComponent = ({
   // Only true once past initial load and topCard is exhausted
   const isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
 
+  // showInitialError: Only show if we have NO cards and a hard error occurred during initial load
+  const showInitialError = !hasHydratedData && error && deckQueue.length === 0;
+
+  // showEmptyState: Only show if loading is DONE and we still have no cards
+  const showEmptyState = !isLoading && deckQueue.length === 0 && !error;
+
   // ========================================
   // 🔥 SINGLE RETURN BLOCK - SAFE ORDER
   // ========================================
