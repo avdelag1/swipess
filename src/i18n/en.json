@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "explore": "Explore",
+    "explore": "Events",
     "messages": "Messages",
     "profile": "Profile",
     "settings": "Settings",
@@ -240,7 +240,7 @@
     "today": "Today",
     "title": "Events & Experiences",
     "subtitle": "Discover the best in Quintana Roo",
-    "searchPlaceholder": "Search events, locations...",
+    "searchPlaceholder": "Search events...",
     "noEvents": "No events yet",
     "noEventsDesc": "Events will appear here once published. Check back soon!",
     "freeEntry": "Free Entry",
@@ -267,9 +267,6 @@
     "sortBy": "Sort by",
     "price": "Price",
     "apply": "Apply",
-    "ticketInfo": "Tickets",
-    "today": "Today",
-    "searchPlaceholder": "Search events...",
     "likedEvents": "Liked Events",
     "noLikedEvents": "No liked events yet",
     "freeOnly": "Free Events Only",

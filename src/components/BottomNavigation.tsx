@@ -95,7 +95,7 @@ export function BottomNavigation({
 
   // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Events, Roommates, Filters
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'browse', icon: Ticket, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
@@ -107,7 +107,7 @@ export function BottomNavigation({
 
   // Owner nav items — order: Dashboard, Profile, Likes, AI, Messages, Promote, Listings, Filters
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
+    { id: 'browse', icon: Ticket, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
