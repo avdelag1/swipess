@@ -967,14 +967,10 @@ function StoryCard({
   };
 
   return (
-<<<<<<< HEAD
-    <div className="relative h-full w-full overflow-hidden bg-black">
-=======
     <div
       className="relative h-full w-full snap-start snap-always shrink-0 overflow-hidden bg-black"
       onClick={handleCardTap}
     >
->>>>>>> 90b07471 (fix: events Stories view crash and navigation)
       <motion.div 
         className="absolute inset-0"
         animate={isActive ? { scale: 1 } : { scale: 1.1 }}
