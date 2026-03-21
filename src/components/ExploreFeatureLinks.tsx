@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PartyPopper, Megaphone } from 'lucide-react';
+import { PartyPopper, Megaphone, Ticket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { haptics } from '@/utils/microPolish';
 
@@ -17,7 +17,7 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
         Explore Tulum
       </h3>
 
-      {/* What's Up Tulum — events feed */}
+      {/* Events feed */}
       <motion.button
         whileTap={{ scale: 0.97 }}
         onClick={() => { haptics.select(); navigate('/explore/eventos'); }}
@@ -27,9 +27,9 @@ export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatu
         )}
       >
         <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/20 shadow-inner">
-          <PartyPopper className="w-5 h-5 text-white" strokeWidth={2.5} />
+          <Ticket className="w-5 h-5 text-white" strokeWidth={2.5} />
         </div>
-        <span className="text-sm font-black uppercase tracking-widest">What's Up Tulum</span>
+        <span className="text-sm font-black uppercase tracking-widest">Events</span>
       </motion.button>
 
       {/* Promote Your Event — advertise form */}

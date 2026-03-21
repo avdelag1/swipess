@@ -19,7 +19,7 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
-  Search, Compass, Users, Sparkles, ShieldCheck
+  Search, Ticket, Users, Sparkles, ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -93,7 +93,7 @@ export function BottomNavigation({
 
   // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Roommates, Filters
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'browse', icon: Ticket, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
@@ -104,7 +104,7 @@ export function BottomNavigation({
 
   // Owner nav items — order: Dashboard, Profile, Likes, AI, Messages, Listings, Filters
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
+    { id: 'browse', icon: Ticket, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
