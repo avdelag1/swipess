@@ -7,6 +7,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Cheers (Animal Print) Theme Override ─────────────────────────── */
+/* The .dark class is added alongside .cheers to enable Tailwind dark: variants.
+   But .dark's base-layer variables would override .cheers variables due to cascade order.
+   This .dark.cheers selector has higher specificity (0,2,0 vs 0,1,0) so cheers wins. */
+.dark.cheers {
+  --background: 25 60% 6%;
+  --foreground: 42 85% 88%;
+  --card: 25 55% 10%;
+  --card-foreground: 42 85% 88%;
+  --primary: 38 90% 52%;
+  --primary-foreground: 25 60% 6%;
+  --secondary: 25 50% 15%;
+  --secondary-foreground: 42 85% 88%;
+  --muted: 25 50% 15%;
+  --muted-foreground: 35 55% 60%;
+  --accent: 38 90% 52%;
+  --accent-foreground: 25 60% 6%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 30 45% 18%;
+  --input: 30 45% 18%;
+  --ring: 38 90% 52%;
+  --bg-primary: 25 60% 6%;
+  --bg-secondary: 25 55% 10%;
+  --bg-tertiary: 25 50% 15%;
+  --text-primary: 42 85% 88%;
+  --text-secondary: 35 55% 60%;
+  --text-tertiary: 30 40% 40%;
+  --border-primary: 30 45% 18%;
+  --border-secondary: 30 45% 24%;
+  --accent-primary: 38 90% 52%;
+  --accent-secondary: 40 85% 62%;
+}
+
 /* ─── View Transitions: circular ripple reveal from toggle button ─── */
 ::view-transition-old(root),
 ::view-transition-new(root) {
