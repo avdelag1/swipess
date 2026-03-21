@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ChevronLeft, Sparkles, Zap, Calendar, MapPin, MessageCircle, 
-  Image as ImageIcon, Send, CheckCircle2, Upload, X, Star, 
-  Users, TrendingUp, Eye, ArrowUpRight, FileText, Phone,
-  Globe, Tag, DollarSign, Clock
+  ChevronLeft, Sparkles, Zap, Calendar, MapPin, 
+  Image as ImageIcon, Send, CheckCircle2, Upload, Star, 
+  Users, TrendingUp, Eye, FileText, Phone, Building,
+  Rocket, Crown, ShieldCheck, HeartHandshake
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
