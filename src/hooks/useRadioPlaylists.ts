@@ -37,7 +37,7 @@ export function useRadioPlaylists() {
         return;
       }
 
-      setPlaylists(data || []);
+      setPlaylists((data || []).map(d => ({ ...d, description: d.description ?? undefined, station_ids: (d.station_ids as string[]) || [] })));
     } catch (err) {
       logger.error('[RadioPlaylists] Error loading playlists:', err);
       setError('Failed to load playlists');
