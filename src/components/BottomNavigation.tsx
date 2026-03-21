@@ -357,11 +357,9 @@ export function BottomNavigation({
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                      className="absolute top-0.5 right-0.5 rounded-full min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold text-white px-1 z-20"
-                      style={{ background: 'linear-gradient(135deg,#ec4899,#f97316)' }}
-                    >
-                      {item.badge > 99 ? '99+' : item.badge}
-                    </motion.span>
+                      className="absolute top-1 right-1 rounded-full w-[10px] h-[10px] z-20 shadow-md border-2 border-background"
+                      style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)' }}
+                    />
                   )}
                 </AnimatePresence>
 
