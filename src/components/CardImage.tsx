@@ -8,7 +8,8 @@ function isBrowser() {
   return typeof window !== 'undefined' && typeof document !== 'undefined';
 }
 
-const CROSSFADE_MS = 500;
+const CROSSFADE_MS = 650;
+const CROSSFADE_EASE = [0.4, 0, 0.2, 1]; // Smooth soft-start cubic bezier
 
 const CardImage = memo(({ 
   src, 
@@ -139,7 +140,7 @@ const CardImage = memo(({
             objectFit: 'cover',
             borderRadius: br,
             opacity: 0,
-            animation: `photo-crossfade-out ${CROSSFADE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`,
+            animation: `photo-crossfade-out ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`,
             zIndex: 2,
           }}
         />
@@ -156,10 +157,10 @@ const CardImage = memo(({
           height: '100%',
           objectFit: 'cover',
           opacity: loaded ? 1 : 0,
-          transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
+          transition: wasInCache ? 'none' : `opacity ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1)`,
           borderRadius: br,
           animation: wasInCache
-            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`
+            ? `photo-crossfade-in ${CROSSFADE_MS}ms cubic-bezier(0.4, 0, 0.2, 1) forwards`
             : 'none',
           zIndex: 3,
         }}
