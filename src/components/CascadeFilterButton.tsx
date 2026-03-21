@@ -4,6 +4,7 @@ import { Home, Bike, RotateCcw, Users, User, ChevronDown, Wrench, Filter, X, Che
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 import { getCategoryColorClass } from '@/types/filters';
 
@@ -19,28 +20,6 @@ interface CascadeFilterButtonProps {
   filters: QuickFilters;
   onChange: (filters: QuickFilters) => void;
   userRole?: 'client' | 'owner';
-}
-
-// Custom motorcycle icon
-function MotorcycleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="5" cy="17" r="3" />
-      <circle cx="19" cy="17" r="3" />
-      <path d="M9 17h6" />
-      <path d="M19 17l-2-7h-4l-1 4" />
-      <path d="M12 10l-1-3h-2l-1 3" />
-      <path d="M5 17l2-7h2" />
-    </svg>
-  );
 }
 
 const categories: { id: QuickFilterCategory; label: string; icon: React.ReactNode }[] = [
