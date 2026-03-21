@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useGuidedTour, TourStep } from '@/hooks/useGuidedTour';
+import { useGuidedTour } from '@/hooks/useGuidedTour';
 import { Button } from '@/components/ui/button';
 import { X, ChevronRight, ChevronLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';

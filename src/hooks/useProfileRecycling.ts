@@ -2,15 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 
-interface ProfileView {
-  id: string;
-  user_id: string;
-  viewed_profile_id: string;
-  view_type: 'profile' | 'listing';
-  action: 'like' | 'pass' | 'view';
-  created_at: string;
-}
-
 // Record a profile view for smart recycling
 export function useRecordProfileView() {
   const queryClient = useQueryClient();
@@ -29,7 +20,7 @@ export function useRecordProfileView() {
       if (!user.user) throw new Error('Not authenticated');
 
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('profile_views')
         .upsert({
           user_id: user.user.id,
@@ -64,7 +55,7 @@ export function usePermanentlyExcludedProfiles(viewType: 'profile' | 'listing' =
       // Get passed/disliked cards from last 1 day (reset after next day)
       const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
-      const { data: passedCards, error } = await (supabase as any)
+      const { data: passedCards, error } = await supabase
         .from('profile_views')
         .select('viewed_profile_id, created_at')
         .eq('user_id', user.user.id)
@@ -132,7 +123,7 @@ export function useTemporarilyExcludedProfiles(viewType: 'profile' | 'listing' =
       const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
 
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('profile_views')
         .select('viewed_profile_id')
         .eq('user_id', user.user.id)
@@ -171,7 +162,7 @@ export function useUserSwipePatterns(viewType: 'profile' | 'listing' = 'profile'
       if (!user.user) return { liked: [], disliked: [] };
 
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('profile_views')
         .select('viewed_profile_id, action')
         .eq('user_id', user.user.id)
@@ -203,7 +194,7 @@ export function useRecycledProfiles(viewType: 'profile' | 'listing' = 'profile')
       const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString();
 
       // NOTE: Using 'as any' because profile_views table is not in auto-generated types
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('profile_views')
         .select('viewed_profile_id, action, created_at')
         .eq('user_id', user.user.id)

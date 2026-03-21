@@ -37,7 +37,7 @@ const OwnerInterestedClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [clientToDelete, setClientToDelete] = useState<any>(null);
+  const [clientToDelete, setClientToDelete] = useState<{ user_id: string } | null>(null);
   const queryClient = useQueryClient();
   const startConversation = useStartConversation();
 
@@ -249,14 +249,33 @@ const OwnerInterestedClients = () => {
               ))}
           </Reorder.Group>
         ) : (
-          <motion.div className="flex flex-col items-center justify-center py-32 text-center bg-muted/20 rounded-[3rem] border border-border/10">
-            <ThumbsUp className="w-12 h-12 text-[var(--color-brand-accent-2)]/40 mb-6" />
-            <h3 className="text-foreground font-black text-2xl tracking-tighter">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={cn(
+              "flex flex-col items-center justify-center py-32 text-center rounded-[3rem] border",
+              isLight ? "bg-muted/30 border-border/40" : "bg-muted/20 border-white/[0.06]"
+            )}
+          >
+            <div className={cn(
+              "w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl border",
+              isLight ? "bg-muted border-border/30" : "bg-white/[0.04] border-white/[0.08]"
+            )}>
+              <ThumbsUp className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
+            </div>
+            <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">
               Attraction Imminent.
             </h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10">
               When someone likes your listings, they'll appear here for you to connect.
             </p>
+            <button
+              onClick={() => navigate("/owner/dashboard")}
+              className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+            >
+              GO TO DASHBOARD
+            </button>
           </motion.div>
         )}
       </div>

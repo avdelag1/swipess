@@ -87,7 +87,20 @@ deferredInit(async () => {
 
 // Service Worker with AGGRESSIVE update handling for PWA
 if ("serviceWorker" in navigator) {
+  // In dev mode: unregister all service workers and clear all caches
+  // so we never serve a stale/broken cached bundle during development
+  if (import.meta.env.DEV) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((r) => r.unregister());
+    });
+    caches.keys().then((keys) => {
+      keys.forEach((k) => caches.delete(k));
+    });
+  }
+
   window.addEventListener("load", () => {
+    if (import.meta.env.DEV) return; // Skip SW in dev mode
+
     navigator.serviceWorker
       .register("/sw.js", { updateViaCache: 'none' }) // Never use HTTP cache for SW
       .then((registration) => {
@@ -111,7 +124,7 @@ if ("serviceWorker" in navigator) {
           }
         });
       })
-      .catch((err) => console.error('[SW] Registration failed:', err));
+      .catch((err) => logger.error('[SW] Registration failed:', err));
 
     // Graceful update handling instead of forced reload
     navigator.serviceWorker.addEventListener("controllerchange", () => {

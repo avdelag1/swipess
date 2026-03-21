@@ -29,7 +29,7 @@ interface SwipeActionButtonBarProps {
 }
 
 // ── SPRING CONFIGS ────────────────────────────────────────────────────────────
-const TAP_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 } as const;
+const _TAP_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 } as const;
 const ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as const;
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 
@@ -165,11 +165,6 @@ const ActionButton = memo(({
       style={{
         width: btnSizeCss,
         height: btnSizeCss,
-        // Light colored tint background — visible on both light and dark card backgrounds
-        backgroundColor: cfg.circleBg,
-        border: `1.5px solid ${cfg.circleBorder}`,
-        borderRadius: '50%',
-        boxShadow: `0 4px 15px rgba(0,0,0,0.4)`,
         transform: 'translateZ(0)',
         opacity: disabled ? 0.35 : 1,
         cursor: disabled ? 'not-allowed' : 'pointer',

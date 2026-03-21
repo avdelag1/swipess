@@ -1,11 +1,9 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
 import { AccountSecurity } from "@/components/AccountSecurity";
-import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const OwnerSecurity = () => {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   return (
     <div className="w-full">
 

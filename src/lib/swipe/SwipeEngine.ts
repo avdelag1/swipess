@@ -254,7 +254,7 @@ export class SwipeEngine {
     e.preventDefault(); // Prevent scroll during drag
 
     // Update gesture predictor
-    const gestureState = this.predictor.update(e.clientX, e.clientY);
+    const _gestureState = this.predictor.update(e.clientX, e.clientY);
 
     // Calculate drag offset with elasticity
     const elastic = this.config.dragElastic;

@@ -62,7 +62,7 @@ export function useSecuritySettings() {
         }
 
         return data;
-      } catch (err) {
+      } catch (_err) {
         return {
           ...DEFAULT_SETTINGS,
           id: '',

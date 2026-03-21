@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,12 +6,12 @@ import { PageHeader } from '@/components/PageHeader';
 import { MaintenanceRequestForm } from '@/components/MaintenanceRequestForm';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal, Clock, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Plus, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal, Clock, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
-const categoryIcons: Record<string, any> = {
+const categoryIcons: Record<string, ComponentType<{ className?: string }>> = {
   plumbing: Wrench,
   electrical: Zap,
   ac: Wind,
@@ -20,7 +20,7 @@ const categoryIcons: Record<string, any> = {
   other: MoreHorizontal,
 };
 
-const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<string, { label: string; color: string; icon: ComponentType<{ className?: string }> }> = {
   submitted: { label: 'Submitted', color: 'bg-blue-500/15 text-blue-400 border-blue-500/25', icon: Clock },
   in_progress: { label: 'In Progress', color: 'bg-amber-500/15 text-amber-400 border-amber-500/25', icon: Wrench },
   resolved: { label: 'Resolved', color: 'bg-green-500/15 text-green-400 border-green-500/25', icon: CheckCircle2 },
@@ -61,7 +61,7 @@ const MaintenanceRequests = () => {
     <div className="w-full min-h-full px-4 pt-4 pb-32 scrollbar-hide bg-background">
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <PageHeader title="Maintenance" subtitle="Report and track issues" showBack />
+          <PageHeader title="Maintenance" subtitle="Report and track issues" showBack backTo="/client/settings" />
           {!showForm && (
             <Button
               onClick={() => setShowForm(true)}

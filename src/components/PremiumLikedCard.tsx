@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { ThumbsUp, MessageCircle, MapPin, Trash2, Eye, Bed, Bath, Square, User, Home, Bike, Briefcase, Zap } from "lucide-react";
+import { MessageCircle, MapPin, Trash2, Eye, Bed, User, Home, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 interface PremiumLikedCardProps {
     type: 'listing' | 'profile';

@@ -45,7 +45,7 @@ export function useNotificationSystem() {
   const [pendingNotifications, setPendingNotifications] = useState<Notification[]>([]);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { getProfile } = useProfileCache();
+  const { getProfile: _getProfile } = useProfileCache();
 
   // OPTIMIZATION: Batch pending notifications every 100ms to reduce re-renders
   useEffect(() => {
@@ -237,7 +237,7 @@ export function useNotificationSystem() {
     // Persist to DB so the bell badge (useUnreadNotifications) clears via realtime
     if (user?.id) {
       Promise.resolve(
-        (supabase as any)
+        supabase
           .from('notifications')
           .update({ is_read: true })
           .eq('user_id', user.id)

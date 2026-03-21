@@ -1,12 +1,12 @@
-import { memo, useState, useRef, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { memo, useState, useRef, useMemo, useEffect, lazy, Suspense } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import {
-  Shield, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X
+  Eye, EyeOff, Mail, Lock, User,
+  ArrowLeft, Loader, Check, Gamepad2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -14,13 +14,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
 
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
-import { EffectMode } from './LandingBackgroundEffects';
 
 const swipessLogo = '/icons/fire-s-logo.png';
 
@@ -45,12 +43,9 @@ const checkPasswordStrength = (password: string) => {
 
 /* ─── Landing view ───────────────────────────────────────── */
 const LandingView = memo(({
-  onEnterAuth, effectMode, cycleEffect, effectLabel,
+  onEnterAuth,
 }: {
   onEnterAuth: () => void;
-  effectMode: EffectMode;
-  cycleEffect: () => void;
-  effectLabel: string;
 }) => {
   const navigate = useNavigate();
   const x = useMotionValue(0);
@@ -112,47 +107,30 @@ const LandingView = memo(({
         </div>
       </motion.div>
 
-      <motion.button
-        onClick={cycleEffect}
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 left-6 z-50 w-11 h-11 rounded-full flex items-center justify-center bg-card border border-border shadow-sm text-foreground/80 text-xl font-bold active:bg-muted transition-colors"
-        aria-label="Toggle background effect"
+      {/* Game button — bottom-left corner */}
+      <button
+        onClick={(e) => { e.stopPropagation(); navigate('/game/trumps-bad-day'); }}
+        data-testid="button-game"
+        className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
+        style={{
+          background: 'rgba(255,255,255,0.07)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(10px)',
+        }}
+        title="Mini Game"
       >
-        {effectLabel}
-      </motion.button>
+        <Gamepad2 className="w-5 h-5 text-white/50" />
+      </button>
+
     </motion.div>
   );
 });
 
 const GlowingField = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.005 }}
-      whileTap={{ scale: 0.995 }}
-      className={cn("relative group transition-all duration-300", className)}
-    >
-      <motion.div
-        className="absolute -inset-[1.5px] rounded-[17px] opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 overflow-hidden pointer-events-none"
-        initial={false}
-      >
-        {/* The "Car" energy racing line */}
-        <motion.div
-          className="absolute inset-[-100%] bg-[conic-gradient(from_0deg,transparent_0%,transparent_30%,#f97316_50%,#ec4899_70%,transparent_100%)]"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-        />
-        <div className="absolute inset-[1.5px] bg-card rounded-[15.5px]" />
-      </motion.div>
-
-      {/* Outer Neon Glow */}
-      <div className="absolute -inset-1 bg-gradient-to-r from-orange-500/20 to-pink-500/20 rounded-[18px] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
+    <div className={cn("relative", className)}>
       {children}
-
-      <motion.div
-        className="absolute inset-0 rounded-[16px] pointer-events-none border border-white/5 group-focus-within:border-orange-500/30 transition-all duration-500"
-      />
-    </motion.div>
+    </div>
   );
 };
 
@@ -167,11 +145,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
+  const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [errorDetails, setErrorDetails] = useState<any>(null);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
-  const { signIn, signUp, signInWithOAuth } = useAuth();
+  const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
@@ -194,14 +172,14 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       toast({ title: 'Check your email', description: "We've sent you a password reset link." });
       setIsForgotPassword(false);
       setEmail('');
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to send reset email.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to send reset email.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleResendConfirmation = async () => {
+  const _handleResendConfirmation = async () => {
     if (!email) { toast({ title: 'Email Required', description: 'Please enter your email address.', variant: 'destructive' }); return; }
     setIsLoading(true);
     try {
@@ -209,8 +187,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
       if (error) throw error;
       toast({ title: 'Confirmation Email Sent', description: 'Please check your inbox and verify your email.' });
       setShowResendConfirmation(false);
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message || 'Failed to resend.', variant: 'destructive' });
+    } catch (error: unknown) {
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to resend.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -441,34 +419,13 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
 /* ─── Root component ─────────────────────────────────────── */
 function LegendaryLandingPage() {
   const [view, setView] = useState<View>('landing');
-  const [effectMode, setEffectMode] = useState<EffectMode>('stars');
   const { theme } = useTheme();
   const isLightTheme = theme === 'light';
 
-  const cycleEffect = () => setEffectMode((p) => {
-    if (p === 'stars') return 'orbs';
-    return 'stars';
-  });
-
-  const effectLabel = useMemo(() => {
-    switch (effectMode) {
-      case 'stars': return '✦';
-      case 'orbs': return '◉';
-      default: return '◼';
-    }
-  }, [effectMode]);
-
-  const bgColor = useMemo(() => {
-    switch (effectMode) {
-      case 'orbs': return '#080510';
-      default: return '#050505';
-    }
-  }, [effectMode]);
-
   return (
-    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: bgColor, transition: 'background 1s ease' }}>
+    <div className="h-screen h-dvh relative overflow-hidden" style={{ background: '#050505' }}>
       <Suspense fallback={null}>
-        <LandingBackgroundEffects mode={view === 'auth' ? 'off' : effectMode} isLightTheme={isLightTheme} />
+        <LandingBackgroundEffects mode={view === 'auth' ? 'off' : 'stars'} isLightTheme={isLightTheme} />
       </Suspense>
 
       <AnimatePresence mode="wait">
@@ -476,9 +433,6 @@ function LegendaryLandingPage() {
           <LandingView
             key="landing"
             onEnterAuth={() => setView('auth')}
-            effectMode={effectMode}
-            cycleEffect={cycleEffect}
-            effectLabel={effectLabel}
           />
         ) : (
           <AuthView key="auth" onBack={() => setView('landing')} />

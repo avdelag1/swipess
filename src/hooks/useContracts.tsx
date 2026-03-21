@@ -102,20 +102,22 @@ export function useCreateContract() {
       if (uploadError) throw uploadError;
 
       // Create contract record
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('digital_contracts')
         .insert({
           title: contractData.title,
-          contract_type: contractData.contract_type,
-          file_path: filePath,
-          file_name: contractData.file.name,
-          file_size: contractData.file.size,
-          mime_type: contractData.file.type,
-          created_by: user.id,
+          template_type: contractData.contract_type,
+          content: contractData.terms_and_conditions,
           owner_id: user.id,
-          client_id: contractData.client_id,
+          client_id: contractData.client_id || user.id,
           listing_id: contractData.listing_id,
-          terms_and_conditions: contractData.terms_and_conditions
+          status: 'draft',
+          metadata: {
+            file_path: filePath,
+            file_name: contractData.file.name,
+            file_size: contractData.file.size,
+            mime_type: contractData.file.type,
+          }
         })
         .select()
         .single();
@@ -124,7 +126,7 @@ export function useCreateContract() {
 
       // Create deal status record
       if (contractData.client_id) {
-        await (supabase as any)
+        await supabase
           .from('deal_status_tracking')
           .insert({
             contract_id: data.id,
@@ -165,7 +167,7 @@ export function useSignContract() {
       if (!user?.id) throw new Error('User not authenticated');
 
       // Create signature record
-      const { data: signature, error: signatureError } = await (supabase as any)
+      const { data: signature, error: signatureError } = await supabase
         .from('contract_signatures')
         .insert({
           contract_id: contractId,
@@ -201,7 +203,7 @@ export function useSignContract() {
         updateData.signed_by_owner_at = new Date().toISOString();
       } else if (isClient) {
         // Check if owner already signed
-        const { data: ownerSignature } = await (supabase as any)
+        const { data: ownerSignature } = await supabase
           .from('contract_signatures')
           .select('*')
           .eq('contract_id', contractId)
@@ -222,7 +224,7 @@ export function useSignContract() {
       updateData.status = newStatus as 'pending' | 'signed_by_owner' | 'signed_by_client' | 'completed' | 'cancelled' | 'disputed';
 
       // Update deal status
-      await (supabase as any)
+      await supabase
         .from('deal_status_tracking')
         .update(updateData)
         .eq('contract_id', contractId);
@@ -254,7 +256,7 @@ export function useActiveDeals() {
     queryFn: async () => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('deal_status_tracking')
         .select(`
           *,
@@ -289,7 +291,7 @@ export function useCreateDisputeReport() {
     }) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('dispute_reports')
         .insert({
           contract_id: contractId,

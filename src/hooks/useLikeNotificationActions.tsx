@@ -110,7 +110,7 @@ export function useLikeNotificationActions() {
 
       return { conversationId, matchId };
     },
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       toast({
         title: "It's a Match!",
         description: "You can now chat with them. Opening conversation...",

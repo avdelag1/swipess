@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ComponentType } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Newspaper, Zap, Coffee, Shield, Utensils, Building, Calendar, ExternalLink, ChevronLeft, MapPin, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
+import { logger } from '@/utils/prodLogger';
 
 interface IntelPost {
   id: string;
@@ -18,7 +19,7 @@ interface IntelPost {
   published_at: string;
 }
 
-const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string; bg: string }> = {
+const CATEGORY_CONFIG: Record<string, { label: string; icon: ComponentType<{ className?: string }>; color: string; bg: string }> = {
   all: { label: 'Latest', icon: Newspaper, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
   infrastructure: { label: 'Urban', icon: Building, color: 'text-blue-400', bg: 'bg-blue-500/10' },
   events: { label: 'Social', icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
@@ -47,7 +48,7 @@ export default function LocalIntel() {
         .order('published_at', { ascending: false });
       setPosts((data as IntelPost[]) || []);
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setIsLoading(false);
     }

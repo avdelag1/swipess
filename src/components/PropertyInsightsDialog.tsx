@@ -4,7 +4,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MapPin, Bed, Bath, Square, Calendar, DollarSign, MessageCircle, TrendingUp, Clock, Shield, Star, CheckCircle, Home, Sparkles, Briefcase, Bike, Car, Zap, Fuel, Gauge, Users, Ruler, Settings, AlertCircle, ThumbsUp, Eye, Phone, Mail } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, DollarSign, MessageCircle, TrendingUp, Clock, Shield, Star, CheckCircle, Home, Sparkles, Briefcase, Bike, Car, Zap, Fuel, Gauge, Users, Ruler, Settings, ThumbsUp, Eye } from 'lucide-react';
 import { Listing } from '@/hooks/useListings';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';

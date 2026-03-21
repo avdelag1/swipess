@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { Camera, FileCheck, Upload, ShieldCheck, ChevronRight, Check } from 'lucide-react';
+import { Camera, FileCheck, ShieldCheck, ChevronRight, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
@@ -56,7 +56,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
     if (!file) return;
     setUploading(true);
     try {
-      const path = await uploadFile(file, type);
+      const _path = await uploadFile(file, type);
       // Create a local preview
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -69,7 +69,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
         }
       };
       reader.readAsDataURL(file);
-    } catch (err) {
+    } catch (_err) {
       toast.error(`Failed to upload ${type === 'selfie' ? 'selfie' : 'document'}`);
     } finally {
       setUploading(false);
@@ -101,7 +101,7 @@ export function ClientVerificationFlow({ onComplete }: ClientVerificationFlowPro
 
       toast.success('Verification submitted! We\'ll review it shortly.');
       onComplete?.();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to submit verification');
     } finally {
       setSubmitting(false);

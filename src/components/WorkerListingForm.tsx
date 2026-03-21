@@ -2,14 +2,13 @@ import { useForm, Controller } from 'react-hook-form';
 import { useEffect, useState, KeyboardEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { SERVICE_CATEGORIES, SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import { SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
 
 // Re-export from shared data for backward compat
 export { SERVICE_CATEGORIES } from '@/data/serviceCategories';
@@ -301,10 +300,6 @@ export function WorkerListingForm({ onDataChange, initialData = {} }: WorkerList
         <div>
           <FormLabel>Service Title</FormLabel>
           <Input {...register('title')} placeholder="e.g., Experienced Yoga Instructor" />
-        </div>
-        <div>
-          <FormLabel>About This Service</FormLabel>
-          <Textarea {...register('description')} placeholder="Describe your service, what makes you stand out, and what clients can expect..." rows={4} />
         </div>
       </Section>
 

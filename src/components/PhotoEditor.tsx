@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -9,7 +9,6 @@ import {
   RotateCw,
   FlipHorizontal,
   FlipVertical,
-  Crop,
   Sun,
   Contrast,
   Droplets,
@@ -28,7 +27,6 @@ import {
   PhotoAdjustments,
   DEFAULT_ADJUSTMENTS,
   adjustmentsToCssFilter,
-  applyAllEdits,
   CropArea,
   DEFAULT_CROP_AREA,
 } from '@/utils/cameraFilters';
@@ -70,7 +68,7 @@ export function PhotoEditor({ imageDataUrl, onSave, onCancel }: PhotoEditorProps
   const [activeTab, setActiveTab] = useState<EditorTab>('filters');
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('none');
   const [adjustments, setAdjustments] = useState<PhotoAdjustments>(DEFAULT_ADJUSTMENTS);
-  const [cropArea, setCropArea] = useState<CropArea>(DEFAULT_CROP_AREA);
+  const [_cropArea, setCropArea] = useState<CropArea>(DEFAULT_CROP_AREA);
   const [rotation, setRotation] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);

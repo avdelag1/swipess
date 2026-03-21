@@ -11,7 +11,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/sonner";
 import { useTheme } from "@/hooks/useTheme";
 import { useStartConversation } from "@/hooks/useConversations";
-import { logger } from "@/utils/prodLogger";
 import { PremiumLikedCard } from "@/components/PremiumLikedCard";
 import { LikedClientInsightsModal } from "@/components/LikedClientInsightsModal";
 
@@ -50,7 +49,7 @@ export function LikedClients() {
   const [filterSafeOnly, setFilterSafeOnly] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [clientToDelete, setClientToDelete] = useState<any>(null);
+  const [clientToDelete, setClientToDelete] = useState<{ user_id: string; full_name?: string } | null>(null);
   const [showInsightsModal, setShowInsightsModal] = useState(false);
   const [selectedClientForView, setSelectedClientForView] = useState<any>(null);
 
@@ -296,11 +295,14 @@ export function LikedClients() {
             data-no-swipe-nav
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-              {filteredClients.map((client) => (
+              {filteredClients.map((client, index) => (
                 <Reorder.Item
                   key={client.id}
                   value={client}
                   className="list-none"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.06, type: 'spring', stiffness: 400, damping: 28 }}
                   whileDrag={{ scale: 1.03, zIndex: 50, boxShadow: "0 20px 60px rgba(228,0,124,0.25)" }}
                 >
                   <PremiumLikedCard
@@ -315,17 +317,24 @@ export function LikedClients() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border"
+            className="flex flex-col items-center justify-center py-32 text-center bg-muted/30 rounded-[3rem] border border-border/40"
           >
             <div className="w-24 h-24 rounded-[2.5rem] bg-secondary flex items-center justify-center mb-8 shadow-2xl border border-border">
-              <Users className="w-12 h-12 text-[var(--color-brand-accent-2)]/40" />
+              <Users className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
             </div>
             <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">
               Discovery Awaits.
             </h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold">
+            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10">
               Your liked clients will appear here. Start swiping to grow your network.
             </p>
+            <button
+              onClick={() => window.history.back()}
+              className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
+              style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+            >
+              START SWIPING
+            </button>
           </motion.div>
         )}
       </div>

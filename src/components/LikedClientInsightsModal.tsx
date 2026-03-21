@@ -123,7 +123,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error: blockError } = await (supabase as any)
+      const { error: blockError } = await supabase
         .from('user_blocks')
         .insert({
           blocker_id: user.user.id,
@@ -171,7 +171,7 @@ function LikedClientInsightsModalComponent({ open, onOpenChange, client }: Liked
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !client) throw new Error('Not authenticated');
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_reports')
         .insert({
           reporter_id: user.user.id,

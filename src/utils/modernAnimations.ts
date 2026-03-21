@@ -1,6 +1,6 @@
 // Modern animation utilities for butter-smooth 60fps performance
 
-import { Variants, Transition } from 'framer-motion';
+import { Variants } from 'framer-motion';
 
 // Spring configurations for different use cases
 export const springConfigs = {

@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, memo, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, memo, useMemo, lazy } from 'react';
 import { ClientSwipeContainer } from '@/components/ClientSwipeContainer';
 // Lazy-load: 50kb dialog only needed post-tap, not on initial dashboard render
-const ClientInsightsDialog = lazy(() =>
+const _ClientInsightsDialog = lazy(() =>
   import('@/components/ClientInsightsDialog').then(m => ({ default: m.ClientInsightsDialog }))
 );
-import { CategorySelectionDialog } from '@/components/CategorySelectionDialog';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
@@ -18,12 +17,12 @@ interface EnhancedOwnerDashboardProps {
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [insightsOpen, setInsightsOpen] = useState(false);
+  const [_selectedClientId, _setSelectedClientId] = useState<string | null>(null);
+  const [_insightsOpen, _setInsightsOpen] = useState(false);
 
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
+  const [_showCategoryDialog, _setShowCategoryDialog] = useState(false);
 
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
 

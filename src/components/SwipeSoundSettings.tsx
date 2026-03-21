@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Volume2, VolumeX } from "lucide-react";
+import { logger } from '@/utils/prodLogger';
 
 export function SwipeSoundSettings() {
   const [theme, setTheme] = useState<SwipeTheme>('none');
@@ -31,7 +32,7 @@ export function SwipeSoundSettings() {
         .single();
 
       if (error) {
-        console.error('Failed to fetch swipe sound theme:', error);
+        logger.error('Failed to fetch swipe sound theme:', error);
         toast.error('Failed to load sound preferences');
         setInitialLoading(false);
         return;
@@ -41,7 +42,7 @@ export function SwipeSoundSettings() {
       setTheme(userTheme);
       setInitialLoading(false);
     } catch (error) {
-      console.error('Error loading swipe sound theme:', error);
+      logger.error('Error loading swipe sound theme:', error);
       setInitialLoading(false);
     }
   };
@@ -64,7 +65,7 @@ export function SwipeSoundSettings() {
         .eq('user_id', user.id);
 
       if (error) {
-        console.error('Failed to update swipe sound theme:', error);
+        logger.error('Failed to update swipe sound theme:', error);
         toast.error('Failed to save sound preference');
         // Revert to previous theme on error
         loadUserTheme();
@@ -72,7 +73,7 @@ export function SwipeSoundSettings() {
         toast.success(`Sound theme changed to ${themeDisplayNames[newTheme]}`);
       }
     } catch (error) {
-      console.error('Error updating swipe sound theme:', error);
+      logger.error('Error updating swipe sound theme:', error);
       toast.error('Failed to save sound preference');
       loadUserTheme();
     } finally {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * Draft storage keys
@@ -40,7 +41,7 @@ export interface AnonymousProfileDraft {
  */
 export function useAnonymousDrafts() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [hasListingDraft, setHasListingDraft] = useState(false);
   const [hasProfileDraft, setHasProfileDraft] = useState(false);
 
@@ -72,7 +73,7 @@ export function useAnonymousDrafts() {
       localStorage.setItem(DRAFT_STORAGE_KEYS.LISTING, JSON.stringify(draft));
       setHasListingDraft(true);
     } catch (error) {
-      console.error('Failed to save listing draft:', error);
+      logger.error('Failed to save listing draft:', error);
     }
   }, []);
 
@@ -87,7 +88,7 @@ export function useAnonymousDrafts() {
       localStorage.setItem(DRAFT_STORAGE_KEYS.PROFILE, JSON.stringify(draft));
       setHasProfileDraft(true);
     } catch (error) {
-      console.error('Failed to save profile draft:', error);
+      logger.error('Failed to save profile draft:', error);
     }
   }, []);
 
@@ -152,17 +153,17 @@ export function useAnonymousDrafts() {
           clearListingDraft();
         }
       } catch (error) {
-        console.error('Failed to restore listing draft:', error);
+        logger.error('Failed to restore listing draft:', error);
       }
     }
 
     // Restore profile draft
     if (profileDraft) {
       try {
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from('profiles')
           .upsert({
-            id: user.id,
+            user_id: user.id,
             ...profileDraft.data,
             onboarding_completed: true,
           });
@@ -172,7 +173,7 @@ export function useAnonymousDrafts() {
           clearProfileDraft();
         }
       } catch (error) {
-        console.error('Failed to restore profile draft:', error);
+        logger.error('Failed to restore profile draft:', error);
       }
     }
 

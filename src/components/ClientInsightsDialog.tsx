@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, User, Calendar, Flame, Star, MessageCircle, Eye, Award, TrendingUp, ThumbsUp, Shield, CheckCircle, Clock, Sparkles, Home, Zap, DollarSign, Users, AlertCircle, Target, Briefcase, Coffee, Bike, Car, Anchor, PawPrint } from 'lucide-react';
+import { MapPin, User, Calendar, Flame, Star, MessageCircle, Eye, Award, TrendingUp, ThumbsUp, Shield, CheckCircle, Clock, Sparkles, Home, Zap, Users, Target, Briefcase, Coffee, Bike, Car, Anchor, PawPrint } from 'lucide-react';
 import { ClientProfile } from '@/hooks/useClientProfiles';
 import { PropertyImageGallery } from './PropertyImageGallery';
 import { useNavigate } from 'react-router-dom';
@@ -14,7 +14,7 @@ import { logger } from '@/utils/prodLogger';
 import { motion } from 'framer-motion';
 
 // Interest category icons for visual display
-const INTEREST_ICONS: Record<string, React.ReactNode> = {
+const _INTEREST_ICONS: Record<string, React.ReactNode> = {
   'pet': <PawPrint className="w-3.5 h-3.5" />,
   'digital nomad': <Zap className="w-3.5 h-3.5" />,
   'remote': <Zap className="w-3.5 h-3.5" />,

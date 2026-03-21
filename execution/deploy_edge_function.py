@@ -12,9 +12,9 @@ import json
 import urllib.request
 import urllib.error
 
-PROJECT_REF = "vplgtcguxujxwrgguxqq"
-FUNCTION_SLUG = "ai-orchestrator"
-FUNCTION_PATH = "supabase/functions/ai-orchestrator/index.ts"
+PROJECT_REF = os.environ.get("SUPABASE_PROJECT_REF", "")
+FUNCTION_SLUG = os.environ.get("SUPABASE_FUNCTION_SLUG", "ai-orchestrator")
+FUNCTION_PATH = os.environ.get("SUPABASE_FUNCTION_PATH", "supabase/functions/ai-orchestrator/index.ts")
 
 def deploy(token: str):
     # Read the function source
@@ -95,5 +95,8 @@ if __name__ == "__main__":
     )
     if not token:
         print("ERROR: provide token as argument or SUPABASE_ACCESS_TOKEN env var")
+        sys.exit(1)
+    if not PROJECT_REF:
+        print("ERROR: set SUPABASE_PROJECT_REF env var to your Supabase project reference ID")
         sys.exit(1)
     deploy(token)

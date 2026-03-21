@@ -29,7 +29,7 @@ export function useOwnerStats() {
         listingsResult,
         likedClientsResult,
       ] = await Promise.all([
-        (supabase as any)
+        supabase
           .from('listings')
           .select('*', { count: 'exact', head: true })
           .eq('owner_id', user.id)

@@ -19,6 +19,24 @@ const getDOMPurify = (): typeof DOMPurify => {
  * Sanitize an HTML string using DOMPurify.
  * Preserves safe formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
  */
+/**
+ * Escape a plain-text string for safe embedding in HTML.
+ * Converts &, <, >, ", and ' to their HTML entity equivalents.
+ */
+export function escapeHTML(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * Sanitize an HTML string using DOMPurify.
+ * Preserves safe formatting tags (b, i, u, p, div, span, table, etc.) for rich text editing.
+ */
 export function sanitizeHTML(html: string): string {
   if (!html) return '';
 

@@ -14,6 +14,7 @@ export function useRadioPlaylists() {
   // Load user playlists
   useEffect(() => {
     loadPlaylists();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const loadPlaylists = async () => {
@@ -23,7 +24,7 @@ export function useRadioPlaylists() {
     }
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('user_radio_playlists')
         .select('*')
         .eq('user_id', user.id)
@@ -36,7 +37,7 @@ export function useRadioPlaylists() {
         return;
       }
 
-      setPlaylists(data || []);
+      setPlaylists((data || []).map(d => ({ ...d, description: d.description ?? undefined, station_ids: (d.station_ids as string[]) || [] })));
     } catch (err) {
       logger.error('[RadioPlaylists] Error loading playlists:', err);
       setError('Failed to load playlists');
@@ -52,7 +53,7 @@ export function useRadioPlaylists() {
     }
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('user_radio_playlists')
         .insert({
           user_id: user.id,
@@ -69,7 +70,7 @@ export function useRadioPlaylists() {
         return null;
       }
 
-      setPlaylists(prev => [data, ...prev]);
+      setPlaylists(prev => [{ ...data, description: data.description ?? undefined, station_ids: (data.station_ids as string[]) || [] }, ...prev]);
       toast.success(`Playlist "${name}" created`);
       return data;
     } catch (err) {
@@ -83,7 +84,7 @@ export function useRadioPlaylists() {
     if (!user?.id) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_radio_playlists')
         .delete()
         .eq('id', playlistId)
@@ -118,7 +119,7 @@ export function useRadioPlaylists() {
 
       const updatedStationIds = [...playlist.station_ids, stationId];
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_radio_playlists')
         .update({ station_ids: updatedStationIds })
         .eq('id', playlistId)
@@ -151,7 +152,7 @@ export function useRadioPlaylists() {
 
       const updatedStationIds = playlist.station_ids.filter(id => id !== stationId);
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_radio_playlists')
         .update({ station_ids: updatedStationIds })
         .eq('id', playlistId)
@@ -179,7 +180,7 @@ export function useRadioPlaylists() {
     if (!user?.id) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_radio_playlists')
         .update(updates)
         .eq('id', playlistId)

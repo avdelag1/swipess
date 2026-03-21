@@ -52,7 +52,7 @@ export function useOwnerClientPreferences() {
         .maybeSingle();
 
       if (error) {
-        if (import.meta.env.DEV) {
+        if (import.meta.env.DEV && error.code !== '42P01') {
           logger.error('Error fetching owner client preferences:', error);
         }
         return null;

@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Save } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useSaveClientFilterPreferences } from '@/hooks/useClientFilterPreferences';
 import { toast } from 'sonner';
@@ -121,7 +120,7 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
   ];
   const featureOptions = ['GPS Navigation', 'Heated Grips', 'Cruise Control', 'Traction Control', 'Quick Shifter', 'Riding Modes'];
 
-  const handleApply = async () => {
+  const _handleApply = async () => {
     const budgetValues = getBudgetValues();
     
     // Save to database
@@ -143,7 +142,7 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
         moto_is_electric: isElectricOnly || null,
       });
       toast.success('Filters applied!', { description: 'Your motorcycle preferences have been saved.' });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error', { description: 'Failed to save preferences.' });
     }
 
@@ -204,7 +203,7 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interestType, motoTypes, selectedBudgetRange, engineRange, yearRange, transmission, condition, hasABS, locationCountries, locationCities, locationNeighborhoods]);
 
-  const handleClear = () => {
+  const _handleClear = () => {
     setInterestType('both');
     setMotoTypes([]);
     setEngineRange([50, 1000]);
@@ -239,7 +238,7 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
     onApply({});
   };
 
-  const handleSavePreferences = async () => {
+  const _handleSavePreferences = async () => {
     try {
       const budgetValues = getBudgetValues();
       await savePreferencesMutation.mutateAsync({
@@ -263,7 +262,7 @@ export function MotoClientFilters({ onApply, initialFilters = {}, activeCount }:
         moto_battery_capacity_min: batteryCapacity > 0 ? batteryCapacity : null,
       });
       toast.success('Preferences saved!', { description: 'Your motorcycle filter preferences have been saved successfully.' });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error', { description: 'Failed to save preferences. Please try again.' });
     }
   };

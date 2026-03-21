@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 import { logger } from '@/utils/prodLogger';
 
 export type ShareMethod =
@@ -52,7 +51,7 @@ export function useCreateShare() {
       }
 
       // Track the share in database
-      const { data, error } = await supabase
+      const { data: _data, error } = await supabase
         .from('content_shares' as any)
         .insert({
           sharer_id: user.id,
@@ -69,7 +68,7 @@ export function useCreateShare() {
       if (error) throw error;
       return { shareUrl };
     },
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: ['content-shares'] });
       // Silently track share success
     },
@@ -155,7 +154,7 @@ export async function shareViaNavigator(params: {
         url: params.url,
       });
       return true;
-    } catch (error) {
+    } catch (_error) {
       // User cancelled or error occurred
       return false;
     }

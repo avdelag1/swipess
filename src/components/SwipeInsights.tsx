@@ -150,7 +150,7 @@ export function SwipeInsights({ userRole, isOpen, onClose }: SwipeInsightsProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {dailyData.map((day, index) => (
+                {dailyData.map((day, _index) => (
                   <div key={`day-${day.date}`} className="flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 rounded-xl border border-border/50 hover:border-border transition-all duration-200">
                     <div className="flex-1">
                       <div className="font-semibold text-foreground text-sm">
@@ -224,7 +224,7 @@ export function SwipeInsights({ userRole, isOpen, onClose }: SwipeInsightsProps)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {insights.map((insight, index) => (
+                {insights.map((insight, _index) => (
                   <div key={`insight-${insight.title}`} className="flex items-start gap-4 p-5 bg-muted/30 hover:bg-muted/50 rounded-xl border border-border transition-all duration-200">
                     <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
                       {getInsightIcon(insight.type)}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, HelpCircle, X, Send, Bug, DollarSign, User, Home, Info } from 'lucide-react';
+import { MessageCircle, X, Send, Bug, DollarSign, User, Home, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -36,7 +36,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_tickets')
         .select('*')
         .eq('user_id', user.id)
@@ -54,7 +54,7 @@ export function SupportDialog({ isOpen, onClose, userRole }: SupportDialogProps)
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('support_tickets')
         .insert({
           user_id: user.id,

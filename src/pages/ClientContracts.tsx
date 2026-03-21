@@ -1,6 +1,4 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useContracts, useActiveDeals } from "@/hooks/useContracts";
 import { FileText, Clock, CheckCircle, AlertTriangle, Eye, FileEdit, Plus, ArrowLeft } from "lucide-react";
@@ -12,9 +10,14 @@ import { ContractDocumentDialog } from "@/components/ContractDocumentDialog";
 import { ContractTemplate } from "@/data/contractTemplates";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ClientContracts = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const { data: contracts, isLoading: contractsLoading } = useContracts();
   const { data: activeDeals, isLoading: dealsLoading } = useActiveDeals();
   const [selectedContract, setSelectedContract] = useState<string | null>(null);
@@ -22,24 +25,24 @@ const ClientContracts = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<ContractTemplate | null>(null);
   const [showDocumentEditor, setShowDocumentEditor] = useState(false);
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadgeClass = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'signed_by_owner': return 'bg-blue-100 text-blue-800';
-      case 'signed_by_client': return 'bg-purple-100 text-purple-800';
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'disputed': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending': return 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/30';
+      case 'signed_by_owner': return 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/30';
+      case 'signed_by_client': return 'bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30';
+      case 'completed': return 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+      case 'cancelled': return 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/30';
+      case 'disputed': return 'bg-red-500/20 text-red-600 dark:text-red-400 border-red-500/30';
+      default: return 'bg-muted text-muted-foreground border-border/30';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="w-4 h-4" />;
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
-      case 'disputed': return <AlertTriangle className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      case 'pending': return <Clock className="w-3.5 h-3.5" />;
+      case 'completed': return <CheckCircle className="w-3.5 h-3.5" />;
+      case 'disputed': return <AlertTriangle className="w-3.5 h-3.5" />;
+      default: return <FileText className="w-3.5 h-3.5" />;
     }
   };
 
@@ -57,174 +60,192 @@ const ClientContracts = () => {
 
   if (contractsLoading || dealsLoading) {
     return (
-      <div className="w-full overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-24 sm:pb-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground text-sm sm:text-base">Loading contracts...</p>
+      <div className="w-full p-4 pb-32 bg-background min-h-full">
+        <div className="max-w-3xl mx-auto space-y-4">
+          <Skeleton className="h-10 w-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
         </div>
       </div>
     );
   }
 
+  const cardClass = cn(
+    "rounded-2xl border shadow-sm",
+    isLight ? "bg-card border-border/40" : "bg-white/[0.04] border-white/[0.06]"
+  );
+
   return (
     <>
-      <div className="w-full overflow-x-hidden p-4 pt-4 sm:p-6 lg:p-8 pb-24 sm:pb-8 bg-background min-h-full">
-        <div className="max-w-6xl mx-auto">
+      <div className="w-full p-4 pt-4 pb-32 bg-background min-h-full">
+        <div className="max-w-3xl mx-auto space-y-6">
+
+          {/* Back nav */}
           <motion.button
             onClick={() => navigate('/client/settings')}
-            whileTap={{ scale: 0.8, transition: { type: "spring", stiffness: 400, damping: 17 } }}
-            className="flex items-center gap-1.5 text-sm font-medium text-white/60 hover:text-white transition-colors duration-150 mb-4 px-1"
+            whileTap={{ scale: 0.9, transition: { type: "spring", stiffness: 400, damping: 17 } }}
+            className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors duration-150"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4" strokeWidth={2.5} />
             Settings
           </motion.button>
-          <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2 sm:mb-4">My Contracts</h1>
-            <p className="text-white/80 text-sm sm:text-base">Manage your rental agreements and contracts</p>
+
+          {/* Section header */}
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 rounded-full bg-[var(--color-brand-accent-2)] shadow-[0_0_8px_var(--color-brand-accent-2)]" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">My Contracts</span>
+            <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
           </div>
 
-          {/* Create Document Section */}
-          <div className="mb-6 sm:mb-8">
-            <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-              <CardContent className="p-4 sm:p-6">
-                <h3 className="text-white font-semibold mb-4">Create Documents</h3>
-                <Button
-                  onClick={() => setShowTemplateSelector(true)}
-                  className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto h-auto py-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileEdit className="w-5 h-5" />
-                    <div className="text-left">
-                      <div className="font-semibold">Use Template</div>
-                      <div className="text-xs opacity-80">Promise to purchase, rental application, letter of intent</div>
-                    </div>
-                  </div>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Template Categories Info */}
-          <div className="mb-6">
-            <Card className="bg-gradient-to-r from-green-900/50 to-blue-900/50 backdrop-blur-sm border-green-700/50">
-              <CardContent className="p-4">
-                <p className="text-white/90 text-sm text-center mb-3">Available document templates:</p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  <Badge className="bg-amber-500/20 text-amber-300">Promise to Purchase</Badge>
-                  <Badge className="bg-green-500/20 text-green-300">Rental Application</Badge>
-                  <Badge className="bg-blue-500/20 text-blue-300">Letter of Intent</Badge>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Create Document Card */}
+          <div className={cardClass}>
+            <div className="p-5 space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-muted-foreground">Create Documents</span>
+              </div>
+              <button
+                onClick={() => setShowTemplateSelector(true)}
+                className="w-full h-14 flex items-center justify-center gap-3 rounded-2xl font-black text-sm text-white shadow-lg transition-all active:scale-[0.97]"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+              >
+                <FileEdit className="w-5 h-5" />
+                Use Template
+              </button>
+              <div className="flex flex-wrap gap-2 pt-1">
+                <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/25 border text-[10px] font-bold">Promise to Purchase</Badge>
+                <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 border text-[10px] font-bold">Rental Application</Badge>
+                <Badge className="bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/25 border text-[10px] font-bold">Letter of Intent</Badge>
+              </div>
+            </div>
           </div>
 
           {/* Active Deals Section */}
           {activeDeals && activeDeals.length > 0 && (
-            <div className="mb-6 sm:mb-8">
-              <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">Pending Signatures</h2>
-              <div className="grid gap-3 sm:gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 px-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Pending Signatures</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
+              </div>
+              <div className="space-y-3">
                 {activeDeals.map((deal: any) => (
-                  <Card key={deal.id} className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-                    <CardContent className="p-4 sm:p-6">
+                  <div key={deal.id} className={cardClass}>
+                    <div className="p-4">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 p-2 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 flex-shrink-0">
+                            <FileText className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="font-semibold text-white text-sm sm:text-base truncate">{deal.contract?.title}</h3>
-                            <p className="text-gray-400 text-xs sm:text-sm">
+                            <h3 className="font-bold text-foreground text-sm truncate">{deal.contract?.title}</h3>
+                            <p className="text-muted-foreground text-xs font-medium mt-0.5">
                               {deal.contract?.contract_type.replace('_', ' ').toUpperCase()}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 sm:gap-3 ml-12 sm:ml-0">
-                          <Badge className={getStatusColor(deal.status)}>
+                        <div className="flex items-center gap-2 sm:ml-0">
+                          <Badge className={cn("text-[10px] font-bold border flex items-center gap-1", getStatusBadgeClass(deal.status))}>
                             {getStatusIcon(deal.status)}
-                            <span className="ml-1 text-xs">{deal.status.replace('_', ' ')}</span>
+                            {deal.status.replace('_', ' ')}
                           </Badge>
                           {deal.status === 'signed_by_owner' && (
-                            <Button
+                            <button
                               onClick={() => setSelectedContract(deal.contract_id)}
-                              className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
-                              size="sm"
+                              className="px-4 py-2 rounded-xl text-xs font-black text-white transition-all active:scale-95"
+                              style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                             >
                               Sign Now
-                            </Button>
+                            </button>
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
           )}
 
           {/* All Contracts Section */}
-          <div>
-            <h2 className="text-lg sm:text-xl font-semibold text-white mb-4">All Contracts</h2>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 px-1">
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">All Contracts</span>
+              <div className="h-px flex-1 bg-gradient-to-r from-muted-foreground/20 to-transparent" />
+            </div>
 
             {!contracts || contracts.length === 0 ? (
-              <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-                <CardContent className="p-6 sm:p-8 text-center">
-                  <FileText className="w-10 h-10 sm:w-12 sm:h-12 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-base sm:text-lg font-semibold text-white mb-2">No Contracts Yet</h3>
-                  <p className="text-gray-400 text-sm sm:text-base mb-4">
-                    When property owners send you contracts, they will appear here.
-                  </p>
-                  <p className="text-gray-500 text-xs sm:text-sm">
-                    You can also create your own documents using our templates.
-                  </p>
-                  <Button
-                    onClick={() => setShowTemplateSelector(true)}
-                    className="mt-4 bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className={cn(
+                  "flex flex-col items-center justify-center py-16 text-center rounded-[2rem] border",
+                  isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.05]"
+                )}
+              >
+                <div className={cn(
+                  "w-20 h-20 rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl border",
+                  isLight ? "bg-muted border-border/30" : "bg-white/[0.05] border-white/[0.08]"
+                )}>
+                  <FileText className="w-10 h-10 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
+                </div>
+                <h3 className="text-foreground font-black text-xl tracking-tight mb-3">No Contracts Yet</h3>
+                <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-medium mb-8">
+                  When property owners send you contracts, they'll appear here. You can also create your own using templates.
+                </p>
+                <button
+                  onClick={() => setShowTemplateSelector(true)}
+                  className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                >
+                  <span className="flex items-center gap-2">
+                    <Plus className="w-4 h-4" />
                     Create Document
-                  </Button>
-                </CardContent>
-              </Card>
+                  </span>
+                </button>
+              </motion.div>
             ) : (
-              <div className="grid gap-3 sm:gap-4">
+              <div className="space-y-3">
                 {contracts.map((contract) => (
-                  <Card key={contract.id} className="bg-gray-800/50 backdrop-blur-sm border-gray-700/50">
-                    <CardContent className="p-4 sm:p-6">
+                  <div key={contract.id} className={cardClass}>
+                    <div className="p-4">
                       <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-                        <div className="flex items-center gap-3 sm:gap-4">
-                          <div className="w-9 h-9 sm:w-10 sm:h-10 p-2 bg-blue-500/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--color-brand-accent-2)]/10 border border-[var(--color-brand-accent-2)]/20 flex-shrink-0">
+                            <FileText className="w-5 h-5 text-[var(--color-brand-accent-2)]" />
                           </div>
                           <div className="min-w-0 flex-1">
-                            <h3 className="font-semibold text-white text-sm sm:text-base truncate">{contract.title}</h3>
-                            <p className="text-gray-400 text-xs sm:text-sm">
-                              {contract.contract_type.replace('_', ' ').toUpperCase()} •
-                              Created {formatDistanceToNow(new Date(contract.created_at))} ago
+                            <h3 className="font-bold text-foreground text-sm truncate">{contract.title}</h3>
+                            <p className="text-muted-foreground text-xs font-medium mt-0.5">
+                              {contract.contract_type.replace('_', ' ').toUpperCase()} •{' '}
+                              {formatDistanceToNow(new Date(contract.created_at))} ago
                             </p>
                           </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 ml-12 sm:ml-0">
-                          <Badge className={getStatusColor(contract.status)}>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge className={cn("text-[10px] font-bold border flex items-center gap-1", getStatusBadgeClass(contract.status))}>
                             {getStatusIcon(contract.status)}
-                            <span className="ml-1 text-xs">{contract.status.replace('_', ' ')}</span>
+                            {contract.status.replace('_', ' ')}
                           </Badge>
-                          <Button variant="outline" size="sm" className="text-xs sm:text-sm border-gray-600 hover:bg-gray-700">
-                            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
+                          <button className={cn(
+                            "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all",
+                            isLight ? "border-border/40 text-foreground hover:bg-muted" : "border-white/[0.08] text-foreground hover:bg-white/[0.06]"
+                          )}>
+                            <Eye className="w-3.5 h-3.5" />
                             View
-                          </Button>
+                          </button>
                           {contract.status === 'signed_by_owner' && (
-                            <Button
+                            <button
                               onClick={() => setSelectedContract(contract.id)}
-                              size="sm"
-                              className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
+                              className="px-4 py-1.5 rounded-xl text-xs font-black text-white transition-all active:scale-95"
+                              style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
                             >
                               Sign
-                            </Button>
+                            </button>
                           )}
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
