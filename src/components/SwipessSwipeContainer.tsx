@@ -1455,265 +1455,63 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     return <SwipeLoadingSkeleton />;
   }
 
-  // CRITICAL FIX: Show "All Caught Up" when user has swiped through cards
-  // This must come BEFORE error check to prevent errors from showing when deck exhausted
-  // Check if currentIndex > 0 (user has swiped at least once) regardless of deck state
+  // Exhausted/Empty state - dynamic based on category
   if (currentIndex > 0 && currentIndex >= deckQueue.length) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    const categoryLabel = String(categoryInfo?.plural || 'Listings');
-    const categoryLower = categoryLabel.toLowerCase();
-    const CategoryIcon = categoryInfo?.icon || Home;
-    const iconColor = categoryInfo?.color || 'text-primary';
-
-    // Generate specific message based on category
-    const getCaughtUpMessage = () => {
-      if (categoryLower === 'properties') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all available properties. Check back later for new opportunities!",
-          cta: 'Discover More Properties'
-        };
-      }
-      if (categoryLower === 'motorcycles') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all motorcycles. Check back later for new listings!",
-          cta: 'Discover More Motorcycles'
-        };
-      }
-      if (categoryLower === 'bicycles') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all bicycles. New bikes are added regularly!",
-          cta: 'Discover More Bicycles'
-        };
-      }
-      if (categoryLower === 'workers' || categoryLower === 'services') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all available workers. Check back later for new service providers!",
-          cta: 'Discover More Workers'
-        };
-      }
-      // Generic fallback
-      return {
-        title: 'All Caught Up!',
-        description: `You've seen all available ${categoryLower}. Check back later for new ${categoryLower}!`,
-        cta: `Discover More ${categoryLabel}`
-      };
-    };
-
-    const { title, description, cta } = getCaughtUpMessage();
-
     return (
-      <AnimatePresence mode="wait">
-      <motion.div key="caught-up" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Subtle ambient glow behind the card */}
-        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center space-y-8 p-8 max-w-xs w-full"
-        >
-          {/* Icon with slow, graceful float animation */}
-          <div className="flex justify-center">
-            <div className="relative">
-              {/* Outer glow ring */}
-              <motion.div
-                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
-              />
-              {/* Icon container */}
-              <motion.div
-                animate={isRefreshing
-                  ? { rotate: 360 }
-                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
-                }
-                transition={isRefreshing
-                  ? { duration: 1, repeat: Infinity, ease: "linear" }
-                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
-                }
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
-              >
-                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
-              </motion.div>
-            </div>
-          </div>
-
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-              {description}
-            </p>
-          </div>
-          <div className="flex flex-col gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-                {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
-              </Button>
-            </motion.div>
-
-
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">New {categoryLower} are added daily</p>
-
-            {/* Distance filter slider */}
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-      </AnimatePresence>
+      <SwipeExhaustedState
+        categoryLabel={String(categoryInfo?.plural || 'listings')}
+        CategoryIcon={categoryInfo?.icon || Home}
+        iconColor={categoryInfo?.color || 'text-primary'}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+      />
     );
   }
 
+
   // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
-  // FIX: Only show error on initial load (currentIndex === 0), never after swipe exhaustion
   if (error && currentIndex === 0 && deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    // FIX: Ensure categoryLabel is always a string, never an object
-    const categoryLabel = String(categoryInfo?.plural || 'listings');
     return (
-      <AnimatePresence mode="wait">
-      <motion.div key="error" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
-          <div className="text-6xl mb-4">:(</div>
-          <h3 className="text-xl font-bold mb-2">Oops! Something went wrong</h3>
-          <p className="text-muted-foreground mb-4">Let's try again to find some {categoryLabel.toLowerCase()}.</p>
-          <Button onClick={handleRefresh} variant="outline" className="gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Try Again
-          </Button>
-        </Card>
-      </motion.div>
-      </AnimatePresence>
+      <SwipeExhaustedState
+        categoryLabel={String(categoryInfo?.plural || 'listings')}
+        CategoryIcon={categoryInfo?.icon || Home}
+        iconColor={categoryInfo?.color || 'text-primary'}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+        error={error}
+        isInitialLoad={true}
+      />
     );
   }
 
   // Empty state - dynamic based on category (no cards fetched yet)
   if (deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    const categoryLabel = String(categoryInfo?.plural || 'Listings');
-    const categoryLower = categoryLabel.toLowerCase();
-    const CategoryIcon = categoryInfo?.icon || Home;
-    const iconColor = categoryInfo?.color || 'text-primary';
-
-    // Generate specific empty message based on category - Action-oriented titles
-    const getEmptyMessage = () => {
-      if (categoryLower === 'properties') {
-        return {
-          title: 'Refresh to discover more Properties',
-          description: 'New opportunities appear every day. Keep swiping!'
-        };
-      }
-      if (categoryLower === 'motorcycles') {
-        return {
-          title: 'Refresh to find more Motorcycles',
-          description: 'New bikes listed daily. Stay tuned!'
-        };
-      }
-      if (categoryLower === 'bicycles') {
-        return {
-          title: 'Refresh to discover more Bicycles',
-          description: 'Fresh rides added regularly. Keep checking!'
-        };
-      }
-      if (categoryLower === 'workers' || categoryLower === 'services') {
-        return {
-          title: 'Refresh to find more Workers',
-          description: 'New professionals join every day.'
-        };
-      }
-      // Generic fallback
-      return {
-        title: `Refresh to discover more ${categoryLabel}`,
-        description: `New ${categoryLabel.toLowerCase()} added regularly.`
-      };
-    };
-
-    const { title, description } = getEmptyMessage();
-
     return (
-      <AnimatePresence mode="wait">
-      <motion.div key="empty" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Subtle ambient glow */}
-        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center space-y-8 p-8 max-w-xs w-full"
-        >
-          {/* Icon with slow, graceful float animation */}
-          <div className="flex justify-center">
-            <div className="relative">
-              {/* Outer glow ring */}
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.25, 0.12] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
-              />
-              {/* Icon container */}
-              <motion.div
-                animate={{ scale: [1, 1.06, 1], y: [0, -4, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
-              >
-                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
-              </motion.div>
-            </div>
-          </div>
-
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-              {description}
-            </p>
-          </div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-            <Button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="gap-2.5 rounded-full px-8 py-5 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
-            >
-              {isRefreshing ? (
-                <RadarSearchIcon size={18} isActive={true} />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
-            </Button>
-          </motion.div>
-
-          {/* Distance filter slider */}
-          <DistanceSlider
-            radiusKm={radiusKm}
-            onRadiusChange={setRadiusKm}
-            onDetectLocation={detectLocation}
-            detecting={locationDetecting}
-            detected={locationDetected}
-          />
-
-        </motion.div>
-      </motion.div>
-      </AnimatePresence>
+      <SwipeExhaustedState
+        categoryLabel={String(categoryInfo?.plural || 'listings')}
+        CategoryIcon={categoryInfo?.icon || Home}
+        iconColor={categoryInfo?.color || 'text-primary'}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+      />
     );
   }
 

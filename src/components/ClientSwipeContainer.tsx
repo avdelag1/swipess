@@ -39,6 +39,7 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
@@ -797,10 +798,6 @@ const ClientSwipeContainerComponent = ({
   // isReady means we've fully initialized at least once - skip loading UI on return
   const hasHydratedData = isOwnerHydrated(category) || isOwnerReady(category) || deckQueue.length > 0;
 
-  // UI state flags - determine what to render
-  const isDeckFinished = currentIndex >= deckQueue.length && deckQueue.length > 0;
-  const showInitialError = error && currentIndex === 0 && deckQueue.length === 0;
-  const showEmptyState = deckQueue.length === 0 && !isLoading && !hasHydratedData;
   const showLoadingSkeleton = !hasHydratedData && isLoading;
 
   // ========================================

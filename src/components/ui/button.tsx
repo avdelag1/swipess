@@ -39,19 +39,19 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow-xl hover:bg-primary/90 border-b-2 border-primary/80',
+          'bg-background text-foreground shadow-[6px_6px_14px_rgba(0,0,0,0.1),-6px_-6px_14px_rgba(255,255,255,0.7)] hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.1),inset_-4px_-4px_8px_rgba(255,255,255,0.7)] dark:shadow-[6px_6px_14px_rgba(0,0,0,0.4),-4px_-4px_10px_rgba(255,255,255,0.05)] dark:hover:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.05)] transition-shadow duration-300',
         destructive:
-          'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg rounded-3xl border-b-2 border-destructive/80',
+          'bg-red-50 text-red-600 shadow-[6px_6px_14px_rgba(220,38,38,0.15),-6px_-6px_14px_rgba(255,255,255,0.8)] hover:shadow-[inset_4px_4px_8px_rgba(220,38,38,0.15),inset_-4px_-4px_8px_rgba(255,255,255,0.8)] dark:bg-red-900/20 dark:text-red-400 dark:shadow-[6px_6px_14px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(220,38,38,0.05)] transition-shadow duration-300',
         outline:
-          'border-2 border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground rounded-3xl shadow-sm',
+          'bg-background text-foreground shadow-[4px_4px_10px_rgba(0,0,0,0.08),-4px_-4px_10px_rgba(255,255,255,0.6)] hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.08),inset_-3px_-3px_6px_rgba(255,255,255,0.6)] dark:shadow-[4px_4px_10px_rgba(0,0,0,0.3),-3px_-3px_8px_rgba(255,255,255,0.04)] dark:hover:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.3),inset_-3px_-3px_6px_rgba(255,255,255,0.04)] transition-shadow duration-300',
         secondary:
-          'bg-secondary text-secondary-foreground shadow-md hover:bg-secondary/80 rounded-3xl border-b-2 border-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground rounded-2xl',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'bg-secondary/60 text-secondary-foreground shadow-[5px_5px_12px_rgba(0,0,0,0.08),-5px_-5px_12px_rgba(255,255,255,0.8)] hover:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.08),inset_-3px_-3px_8px_rgba(255,255,255,0.8)] dark:shadow-[5px_5px_12px_rgba(0,0,0,0.3),-4px_-4px_10px_rgba(255,255,255,0.05)] transition-shadow duration-300',
+        ghost: 'hover:bg-accent/50 hover:text-accent-foreground rounded-2xl',
+        link: 'text-primary underline-offset-4 hover:underline shadow-none',
         premium:
-          'bg-gradient-premium text-white shadow-premium premium-glow hover:shadow-glow rounded-3xl border-b-2 border-purple-800',
+          'bg-gradient-premium text-white shadow-[0_8px_20px_rgba(147,51,234,0.3),inset_0_2px_4px_rgba(255,255,255,0.4)] hover:shadow-[0_4px_10px_rgba(147,51,234,0.4),inset_0_1px_2px_rgba(255,255,255,0.3)] hover:scale-[0.98] transition-all duration-300',
         tinder:
-          'bg-background text-foreground hover:bg-accent shadow-xl rounded-3xl border border-border',
+          'bg-background text-foreground shadow-[8px_8px_16px_rgba(0,0,0,0.08),-8px_-8px_16px_rgba(255,255,255,0.7)] dark:shadow-[8px_8px_16px_rgba(0,0,0,0.4),-6px_-6px_14px_rgba(255,255,255,0.03)] hover:shadow-[inset_5px_5px_10px_rgba(0,0,0,0.08),inset_-5px_-5px_10px_rgba(255,255,255,0.7)] transition-shadow duration-300',
         /**
          * LIQUID GLASS variants — 2026 flagship buttons
          *
@@ -61,28 +61,28 @@ const buttonVariants = cva(
          * 'glassStrong': heavier frosting + brighter rim. Use for CTAs.
          */
         glass:
-          // Semi-transparent base + strong backdrop blur + bright rim
-          'text-white border border-white/20 ' +
-          'bg-white/8 backdrop-blur-2xl ' +
+          // Neumorphic Glass hybrid: No hard borders.
+          'text-white bg-white/10 backdrop-blur-2xl ' +
+          'shadow-[4px_4px_12px_rgba(0,0,0,0.15),-2px_-2px_8px_rgba(255,255,255,0.08),inset_1px_1px_2px_rgba(255,255,255,0.15)] ' +
+          'hover:shadow-[inset_3px_3px_8px_rgba(0,0,0,0.15),inset_-2px_-2px_6px_rgba(255,255,255,0.1)] transition-shadow duration-300' +
           // Inner top rim highlight (the glass edge catch-light)
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.20),0_4px_16px_rgba(0,0,0,0.25)]',
+          ' shadow-[inset_0_1px_0_rgba(255,255,255,0.20),0_4px_16px_rgba(0,0,0,0.25)]',
         glassStrong:
-          'text-white border border-white/28 ' +
-          'bg-white/12 backdrop-blur-[32px] ' +
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.30),0_8px_24px_rgba(0,0,0,0.30)]',
+          'text-white bg-white/15 backdrop-blur-[32px] ' +
+          'shadow-[6px_6px_16px_rgba(0,0,0,0.2),-4px_-4px_12px_rgba(255,255,255,0.12),inset_1px_1px_3px_rgba(255,255,255,0.25)] ' +
+          'hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.2),inset_-3px_-3px_8px_rgba(255,255,255,0.15)] transition-shadow duration-300',
         glassLight:
           // For light / white-matte themes
-          'text-foreground border border-border ' +
-          'bg-card/75 backdrop-blur-2xl ' +
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.90),0_2px_8px_rgba(0,0,0,0.08)]',
+          'text-foreground bg-white/70 backdrop-blur-2xl ' +
+          'shadow-[5px_5px_15px_rgba(0,0,0,0.05),-5px_-5px_15px_rgba(255,255,255,0.8),inset_1px_1px_2px_rgba(255,255,255,0.4)] ' +
+          'hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.05),inset_-4px_-4px_10px_rgba(255,255,255,0.6)] transition-shadow duration-300',
         /**
-         * GRADIENT variant — bold pink→orange CTA
-         * Use for "Apply Filters", "Save", "Subscribe" — primary conversion actions.
+         * PUSH BUTTON variant — dynamic neon gradient
          */
         gradient:
-          'bg-gradient-to-r from-pink-500 to-orange-500 text-white ' +
-          'shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 ' +
-          'rounded-2xl border-b-2 border-pink-700/50',
+          'bg-gradient-to-br from-pink-500 to-orange-500 text-white ' +
+          'shadow-[6px_6px_14px_rgba(236,72,153,0.3),-4px_-4px_10px_rgba(255,255,255,0.2),inset_2px_2px_4px_rgba(255,255,255,0.3)] ' +
+          'hover:shadow-[inset_6px_6px_12px_rgba(0,0,0,0.15),inset_-4px_-4px_10px_rgba(255,255,255,0.2)] dark:shadow-[6px_6px_16px_rgba(236,72,153,0.4),-4px_-4px_12px_rgba(255,255,255,0.05)] transition-shadow duration-300',
       },
       size: {
         default: 'h-12 px-6 py-3',

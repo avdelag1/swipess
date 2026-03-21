@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useLocation, useOutlet } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * ANIMATED OUTLET
+ * ANIMATED OUTLET — Flagship Transition Protocol
  *
  * Provides the signature "slide-up + fade" transition used across the app.
  * Every top-level navigation (Bottom Nav switches) triggers this transition.
  */
+
+// Spring config — organic, snappy, no overshirt
+const ENTER_SPRING = {
+  type: 'spring' as const,
+  stiffness: 320,
+  damping: 26,
+  mass: 0.8,
+};
+
+const EXIT_FAST = {
+  duration: 0.14,
+  ease: [0.4, 0, 1, 1] as const,
+};
+
 export function AnimatedOutlet() {
     const location = useLocation();
     const outlet = useOutlet();
