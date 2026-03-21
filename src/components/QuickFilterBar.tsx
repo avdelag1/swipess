@@ -1,5 +1,5 @@
 import { memo, useCallback, useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+
 import { Home, Bike, RotateCcw, Briefcase, Users, User, ChevronDown, Wrench, Check, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';

@@ -128,28 +128,6 @@ const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string 
   }
 };
 
-// Debounce utility for preventing rapid-fire actions
-function _useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const callbackRef = useRef(callback);
-
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  return useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      callbackRef.current(...args);
-    }, delay);
-  }, [delay]) as T;
-}
-
 // Navigation guard to prevent double-taps
 function useNavigationGuard() {
   const isNavigatingRef = useRef(false);

@@ -17,7 +17,8 @@ export interface ValidationResult {
 /** Strip zero-width characters and normalize text for detection */
 function sanitize(text: string): string {
   return text
-    // Remove zero-width chars
+    // Remove zero-width chars (eslint flags \u200D as a "joining" char but each is matched individually here)
+    // eslint-disable-next-line no-misleading-character-class
     .replace(/[\u200B\u200C\u200D\uFEFF\u00AD]/gu, '')
     // Normalize whitespace
     .replace(/\s+/g, ' ')

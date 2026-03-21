@@ -48,7 +48,7 @@ interface Notification {
   };
 }
 
-const NotificationIcon = ({ type, role = 'neutral' }: { type: string; role?: 'client' | 'owner' | 'neutral' }) => {
+const NotificationIcon = ({ type, role: _role = 'neutral' }: { type: string; role?: 'client' | 'owner' | 'neutral' }) => {
   const baseClass = "w-5 h-5 transition-transform group-hover:scale-110";
   switch (type) {
     case 'new_message':

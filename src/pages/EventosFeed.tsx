@@ -9,7 +9,7 @@ import {
   ChevronLeft, Heart,
   Waves, Trees, Music, Utensils, Ticket,
   ArrowUpRight, Check, ChevronRight,
-  Eye, Users, MessageSquare,
+  Users, MessageSquare,
   LayoutGrid, PanelsTopLeft,
   TrendingUp, Compass, Clock
 } from 'lucide-react';

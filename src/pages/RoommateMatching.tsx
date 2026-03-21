@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronLeft, Users, SlidersHorizontal,
   Sparkles, X, MapPin,
-  Briefcase, Heart, MessageCircle, Undo2,
+  Briefcase, MessageCircle, Undo2,
   ShieldCheck, Info, Clock,
   ThumbsDown, Flame
 } from 'lucide-react';

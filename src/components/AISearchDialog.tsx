@@ -28,7 +28,7 @@ interface Message {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-export function AISearchDialog({ isOpen, onClose, userRole = 'client' }: AISearchDialogProps) {
+export function AISearchDialog({ isOpen, onClose, userRole: _userRole = 'client' }: AISearchDialogProps) {
   const { user } = useAuth();
   const { navigate } = useAppNavigate();
   const [query, setQuery] = useState('');
