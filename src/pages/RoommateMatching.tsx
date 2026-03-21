@@ -16,6 +16,7 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useAuth } from '@/hooks/useAuth';
 import { useSmartClientMatching } from '@/hooks/useSmartMatching';
 import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from '@/components/SimpleOwnerSwipeCard';
+import { MessageConfirmationDialog } from '@/components/MessageConfirmationDialog';
 
 // ── TYPES ────────────────────────────────────────────────────────────────────
 
@@ -166,6 +167,8 @@ export default function RoommateMatching() {
   const [showFilters, setShowFilters] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [roommateVisible, setRoommateVisible] = useState(true);
+  const [messageDialogOpen, setMessageDialogOpen] = useState(false);
+  const [messageSending, setMessageSending] = useState(false);
   const cardRef = useRef<SimpleOwnerSwipeCardRef>(null);
 
   const { isVisible: uiVisible, onScroll: handleScroll } = useHideOnScroll();
@@ -380,7 +383,7 @@ export default function RoommateMatching() {
           onDislike={handleDislike}
           onShare={() => triggerHaptic('light')}
           onUndo={handleUndo}
-          onMessage={() => { triggerHaptic('light'); navigate('/messages'); }}
+          onMessage={() => { triggerHaptic('light'); setMessageDialogOpen(true); }}
           canUndo={canUndo}
           className="relative"
         />
@@ -537,6 +540,21 @@ export default function RoommateMatching() {
           </>
         )}
       </AnimatePresence>
+
+      <MessageConfirmationDialog
+        open={messageDialogOpen}
+        onOpenChange={setMessageDialogOpen}
+        recipientName={topCard?.name ?? 'this person'}
+        isLoading={messageSending}
+        onConfirm={(message) => {
+          setMessageSending(true);
+          setTimeout(() => {
+            setMessageSending(false);
+            setMessageDialogOpen(false);
+            navigate('/messages');
+          }, 800);
+        }}
+      />
     </div>
   );
 }
