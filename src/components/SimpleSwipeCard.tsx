@@ -22,6 +22,7 @@ import { PropertyCardInfo, VehicleCardInfo, ServiceCardInfo } from '@/components
 import { VerifiedBadge } from '@/components/ui/TrustSignals';
 import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useListingRatingAggregate } from '@/hooks/useRatingSystem';
+import { useTheme } from '@/hooks/useTheme';
 
 import CardImage from '@/components/CardImage';
 import { imageCache } from '@/lib/swipe/cardImageCache';
@@ -84,6 +85,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   const dragStartY = useRef(0);
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
 
   // Motion values for BOTH X and Y - enables diagonal movement
@@ -444,6 +447,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
         onPointerMove={handleUnifiedPointerMove}
         onPointerUp={handleUnifiedPointerUp}
         onPointerCancel={handleUnifiedPointerCancel}
+        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[32px] overflow-hidden shadow-2xl glass-nano-texture overflow-hidden"
         style={{
           x,
           y,
@@ -456,8 +460,8 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
           touchAction: 'none',
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
+          border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
         } as any}
-        className="flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative rounded-[24px] overflow-hidden shadow-lg liquid-glass-card refraction-edge glass-nano-texture"
       >
         {/* Image area - FULL VIEWPORT with magnifier support */}
         <div

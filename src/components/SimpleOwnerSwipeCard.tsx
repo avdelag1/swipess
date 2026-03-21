@@ -22,6 +22,7 @@ import { CompactRatingDisplay } from '@/components/RatingDisplay';
 import { useUserRatingAggregateEnhanced } from '@/hooks/useRatingSystem';
 import { getWorkScheduleLabel } from '@/constants/profileConstants';
 import { SwipeMatchMeter } from '@/components/swipe/SwipeMatchMeter';
+import { useTheme } from '@/hooks/useTheme';
 
 
 // Exposed interface for parent to trigger swipe animations
@@ -254,6 +255,8 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
   const dragControls = useDragControls();
   const dragStartedRef = useRef(false);
   const storedPointerEventRef = useRef<React.PointerEvent | null>(null);
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   // Motion values for BOTH X and Y - enables diagonal movement
   const x = useMotionValue(0);
@@ -591,8 +594,9 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
           WebkitTapHighlightColor: 'transparent',
           WebkitTouchCallout: 'none',
           transform: 'translateZ(0)', // Force compositor layer
-          borderRadius: fullScreen ? '0px' : '24px',
-          boxShadow: fullScreen ? 'none' : undefined,
+          borderRadius: fullScreen ? '0px' : '32px',
+          boxShadow: fullScreen ? 'none' : '0 10px 40px -10px rgba(0,0,0,0.5)',
+          border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.05)',
         } as any}
         className={cn(
           "flex-1 cursor-grab active:cursor-grabbing select-none touch-none relative overflow-hidden",

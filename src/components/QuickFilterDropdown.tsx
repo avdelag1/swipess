@@ -54,16 +54,14 @@ const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.React
 ];
 
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
-  <>
-    <span className={cn(
-      "font-black text-sm sm:text-base tracking-tight whitespace-nowrap uppercase",
-      hasActiveFilters
-        ? "text-pink-600"
-        : isDark ? "text-white" : "text-slate-700"
-    )}>
-      Quick Filter
-    </span>
-  </>
+  <span className={cn(
+    "font-black text-sm sm:text-base tracking-tight whitespace-nowrap uppercase italic",
+    hasActiveFilters
+      ? "bg-gradient-to-r from-pink-500 via-rose-600 to-orange-500 bg-clip-text text-transparent"
+      : isDark ? "text-white/90" : "text-slate-800"
+  )}>
+    Quick Filter
+  </span>
 );
 
 function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdownProps) {
@@ -381,36 +379,49 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
     <div className={cn('relative', className)}>
       <motion.button
         ref={buttonRef}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.04, y: -1 }}
+        whileTap={{ scale: 0.94 }}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 h-9 sm:h-10 rounded-xl transition-all duration-200 touch-manipulation',
-          hasActiveFilters && 'ring-1 ring-pink-500/30'
+          'relative flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 h-10 sm:h-11 rounded-2xl transition-all duration-300 touch-manipulation group overflow-hidden',
+          hasActiveFilters && 'shadow-lg shadow-rose-500/20'
         )}
         style={{
-          backgroundColor: hasActiveFilters
-            ? (isDark ? 'rgba(236, 72, 153, 0.15)' : '#ffffff')
+          background: hasActiveFilters
+            ? (isDark 
+                ? 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)' 
+                : 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)')
             : glassBg,
           border: hasActiveFilters
-            ? (isDark ? '1px solid rgba(236, 72, 153, 0.3)' : '1.5px solid #ec4899')
+            ? (isDark ? '1px solid rgba(255, 255, 255, 0.2)' : '2px solid transparent')
             : glassBorder,
           boxShadow: floatingShadow,
         }}
       >
+        {hasActiveFilters && !isDark && (
+          <div className="absolute inset-0 p-[2px] rounded-2xl bg-gradient-to-r from-pink-500 via-rose-600 to-orange-500 -z-10" />
+        )}
+        
         <QuickFilterText hasActiveFilters={hasActiveFilters} isDark={isDark} />
+        
         <AnimatePresence>
           {hasActiveFilters && (
             <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              className="bg-gradient-to-br from-orange-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center"
+              initial={{ scale: 0, rotate: -45 }}
+              animate={{ scale: 1, rotate: 0 }}
+              exit={{ scale: 0, rotate: 45 }}
+              className="bg-gradient-to-br from-orange-500 to-pink-600 text-white text-[10px] sm:text-xs font-black rounded-lg w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-md shadow-pink-500/40"
             >
               {activeFilterCount}
             </motion.span>
           )}
         </AnimatePresence>
+        
+        <ChevronRight className={cn(
+          "w-4 h-4 transition-transform duration-300",
+          isOpen ? "rotate-90" : "rotate-0",
+          hasActiveFilters ? "text-rose-500" : "text-muted-foreground"
+        )} strokeWidth={3} />
       </motion.button>
 
       <AnimatePresence>
@@ -423,12 +434,16 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                 setClickedCategory(null);
               }}
             />
-            <div
+            <motion.div
               ref={dropdownRef}
-              className="fixed left-3 top-16 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
+              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="fixed left-3 top-20 z-[10002] sm:left-1/2 sm:-translate-x-1/2"
             >
               {userRole === 'owner' ? renderOwnerFilters() : renderClientFilters()}
-            </div>
+            </motion.div>
           </>
         )}
       </AnimatePresence>
