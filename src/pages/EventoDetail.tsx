@@ -36,7 +36,7 @@ interface EventDetail {
  * Shows benefits for brands to advertise in Swipess.
  */
 function BrandBenefitsSection() {
-  const navigate = useNavigate();
+  const { navigate } = useAppNavigate();
   return (
     <motion.div 
       initial={{ opacity: 0, y: 30 }}

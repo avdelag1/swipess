@@ -70,7 +70,7 @@ export function useRadioPlaylists() {
         return null;
       }
 
-      setPlaylists(prev => [data, ...prev]);
+      setPlaylists(prev => [{ ...data, description: data.description ?? undefined, station_ids: (data.station_ids as string[]) || [] }, ...prev]);
       toast.success(`Playlist "${name}" created`);
       return data;
     } catch (err) {

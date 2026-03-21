@@ -238,7 +238,7 @@ const deckFadeVariants = {
 // ── SwipeAllDashboard ────────────────────────────────────────────────────────
 // Shown when no category filter is selected so the user can pick a category.
 interface SwipeAllDashboardProps {
-  setCategories: (ids: string[]) => void;
+  setCategories: (ids: any[]) => void;
 }
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {

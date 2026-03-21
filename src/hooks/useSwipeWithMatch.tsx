@@ -558,7 +558,7 @@ async function detectAndCreateMatch({
           supabase
             .from('profiles')
             .select('*')
-            .eq('user_id', match.client_id ?? match.user_id)
+            .eq('user_id', match.user_id)
             .maybeSingle(),
           supabase
             .from('profiles')

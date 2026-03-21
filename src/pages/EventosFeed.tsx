@@ -951,6 +951,7 @@ function StoryCard({
   const { navigate } = useAppNavigate();
   const _isPoster = event.id.startsWith('poster');
   const isPromo = event.is_promo;
+  const baseEventId = event.id;
 
   const handleDetailsClick = (e: React.MouseEvent) => {
     e.stopPropagation();

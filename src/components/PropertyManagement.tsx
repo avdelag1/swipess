@@ -613,7 +613,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
           setIsFormOpen(false);
           setEditingProperty(null);
         }}
-        editingProperty={editingProperty}
+        editingProperty={editingProperty ?? undefined}
       />
 
       <ShareDialog
