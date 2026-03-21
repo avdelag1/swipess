@@ -55,55 +55,83 @@ function ModeSwitcherComponent({ className, size = 'sm', variant = 'pill' }: Mod
   };
 
   if (variant === 'icon') {
+    const btnH = size === 'sm' ? 28 : size === 'md' ? 32 : 36;
     return (
       <button
         onClick={(e) => handleToggle(e)}
         disabled={isSwitching || !canSwitchMode}
         className={cn(
-          'relative flex items-center justify-center rounded-lg',
-          'transition-all duration-100 ease-out',
-          'active:scale-[0.9]',
+          'relative flex items-center rounded-full overflow-hidden',
+          'transition-all duration-150 ease-out',
+          'active:scale-[0.92]',
           'disabled:opacity-50 disabled:cursor-not-allowed',
-          'touch-manipulation',
-          '-webkit-tap-highlight-color-transparent',
-          size === 'sm' ? 'h-7 w-7' : size === 'md' ? 'h-8 w-8' : 'h-9 w-9',
+          'touch-manipulation select-none',
           className
         )}
         style={{
+          height: btnH,
+          padding: '0 5px',
+          gap: 2,
           backgroundColor: glassBg,
           border: glassBorder,
           boxShadow: floatingShadow,
         }}
-        aria-label={`Switch to ${activeMode === 'client' ? 'Client Side' : 'Business Side'} mode`}
+        aria-label={`Switch to ${activeMode === 'client' ? 'Business Side' : 'Client Side'} mode`}
       >
-        <AnimatePresence mode="wait">
-          {isSwitching ? (
-            <motion.div
-              key="loader"
-              initial={{ opacity: 0, rotate: 0 }}
-              animate={{ opacity: 1, rotate: 360 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key={activeMode}
-              initial={{ opacity: 0, scale: 0.8, rotate: -180 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.8, rotate: 180 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-            >
-              {/* HIGH CONTRAST: Clear icon colors */}
-              {activeMode === 'client' ? (
-                <User strokeWidth={4} className="h-3.5 w-3.5 text-teal-400" />
-              ) : (
-                <UserCog strokeWidth={4} className="h-3.5 w-3.5 text-orange-400" />
-              )}
-            </motion.div>
+        {/* Sliding indicator pill */}
+        <motion.div
+          className="absolute top-1 bottom-1 rounded-full"
+          initial={false}
+          animate={{
+            left: activeMode === 'client' ? 4 : 'calc(50% + 2px)',
+            width: 'calc(50% - 6px)',
+            backgroundColor: activeMode === 'client' ? 'rgba(45,212,191,0.22)' : 'rgba(251,146,60,0.22)',
+          }}
+          transition={{ type: 'spring', stiffness: 480, damping: 32 }}
+        />
+
+        {/* Client icon */}
+        <div
+          className={cn(
+            'relative z-10 flex items-center justify-center transition-all duration-200',
           )}
-        </AnimatePresence>
+          style={{ width: btnH - 10, height: btnH - 4 }}
+        >
+          {isSwitching && activeMode === 'owner' ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-teal-400" />
+          ) : (
+            <User
+              strokeWidth={activeMode === 'client' ? 3.5 : 2}
+              className={cn(
+                'transition-all duration-200',
+                size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4',
+                activeMode === 'client' ? 'text-teal-400 scale-110' : isLight ? 'text-foreground/30' : 'text-white/25'
+              )}
+            />
+          )}
+        </div>
+
+        {/* Divider */}
+        <div className={cn('w-px shrink-0 self-stretch my-1.5', isLight ? 'bg-black/10' : 'bg-white/10')} />
+
+        {/* Owner icon */}
+        <div
+          className="relative z-10 flex items-center justify-center transition-all duration-200"
+          style={{ width: btnH - 10, height: btnH - 4 }}
+        >
+          {isSwitching && activeMode === 'client' ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-orange-400" />
+          ) : (
+            <UserCog
+              strokeWidth={activeMode === 'owner' ? 3.5 : 2}
+              className={cn(
+                'transition-all duration-200',
+                size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4',
+                activeMode === 'owner' ? 'text-orange-400 scale-110' : isLight ? 'text-foreground/30' : 'text-white/25'
+              )}
+            />
+          )}
+        </div>
       </button>
     );
   }

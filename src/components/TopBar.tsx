@@ -236,8 +236,7 @@ function TopBarComponent({
 
             <div className="flex items-center gap-1.5 flex-shrink-0 ml-1">
               
-              <ModeSwitcher variant="pill" size="lg" className="md:hidden" />
-              <ModeSwitcher variant="pill" size="lg" className="hidden md:flex" />
+              <ModeSwitcher variant="icon" size="sm" />
             </div>
 
             {showFilters && userRole && (
