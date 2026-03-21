@@ -14,6 +14,7 @@ export function useRadioPlaylists() {
   // Load user playlists
   useEffect(() => {
     loadPlaylists();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const loadPlaylists = async () => {

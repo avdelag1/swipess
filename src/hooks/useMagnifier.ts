@@ -118,7 +118,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     if (target && pointerIdRef.current !== null) {
       try {
         (target as HTMLElement).setPointerCapture(pointerIdRef.current);
-      } catch (_) { /* ignore if already captured */ }
+      } catch (_err) { /* ignore if already captured */ }
     }
 
     // FIX: Walk up from <img> past container AND its parent (motion.div with overflow-hidden)
@@ -147,6 +147,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
         imageRef.current.style.transition = 'none';
       }
     }, 200);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applyZoomPan, findImage]);
 
   const deactivateMagnifier = useCallback(() => {
@@ -168,7 +169,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     if (containerRef.current && pointerIdRef.current !== null) {
       try {
         containerRef.current.releasePointerCapture(pointerIdRef.current);
-      } catch (_) { /* ignore */ }
+      } catch (_err) { /* ignore */ }
     }
     pointerIdRef.current = null;
 
@@ -189,6 +190,7 @@ export function useMagnifier(config: MagnifierConfig = {}): UseMagnifierReturn {
     }
 
     startPosRef.current = null;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateMagnifier = useCallback((x: number, y: number) => {

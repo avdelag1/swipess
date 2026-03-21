@@ -16,7 +16,6 @@ import {
   IOS_PHYSICS,
   applyFrictionDecay,
   calculateSpringForce,
-  predictEndPosition,
   FrameTimer,
 } from './PhysicsEngine';
 
@@ -187,7 +186,7 @@ export class InertialAnimator {
    * Inertia mode - pure friction decay
    */
   private tickInertia(dt: number): boolean {
-    const { decelerationRate, isExitAnimation, exitDistance = 500 } = this.config;
+    const { decelerationRate, isExitAnimation: _isExitAnimation, exitDistance: _exitDistance = 500 } = this.config;
 
     // Apply friction decay to X
     const resultX = applyFrictionDecay(
@@ -349,7 +348,7 @@ export class InertialAnimator {
   /**
    * Enforce bounds with rubber-band effect
    */
-  private enforceBounds(dt: number): void {
+  private enforceBounds(_dt: number): void {
     const { bounds } = this.config;
     if (!bounds) return;
 
@@ -412,16 +411,16 @@ export function createExitAnimator(
   // Boost velocity significantly for smooth, fast exit that doesn't pull back
   // Higher minimum velocity prevents the "hesitation" feeling
   const minExitVelocity = 1200;
-  let boostedVelocityX = velocityX;
+  let _boostedVelocityX = velocityX;
 
   // Ensure velocity is always in the swipe direction and fast enough
   if (Math.abs(velocityX) < minExitVelocity || Math.sign(velocityX) !== Math.sign(targetX)) {
-    boostedVelocityX = Math.sign(targetX) * minExitVelocity;
+    _boostedVelocityX = Math.sign(targetX) * minExitVelocity;
   }
 
   // If user had good momentum, preserve it but ensure minimum
   if (Math.sign(velocityX) === Math.sign(targetX)) {
-    boostedVelocityX = Math.sign(targetX) * Math.max(Math.abs(velocityX), minExitVelocity);
+    _boostedVelocityX = Math.sign(targetX) * Math.max(Math.abs(velocityX), minExitVelocity);
   }
 
   return new InertialAnimator(

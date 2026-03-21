@@ -1,24 +1,18 @@
 /** SPEED OF LIGHT: DashboardLayout is now rendered at route level */
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import {
-  ArrowLeft, MessageCircle, Search, Plus, Home, Bike, Ship, Car,
-  MoreVertical, Archive, Trash, Check, Filter, Inbox, CircleDot,
-  Ghost, FolderArchive
+  MessageCircle, Search,
+  MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useActiveMode } from '@/hooks/useActiveMode';
 import {
   useConversations,
-  useConversationStats,
   useStartConversation,
   useDeleteConversation,
   useUpdateConversationStatus,
@@ -61,14 +55,14 @@ async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
 }
 
 export function MessagingDashboard() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
-  const [directConversationId, setDirectConversationId] = useState<string | null>(null);
+  const [_directConversationId, _setDirectConversationId] = useState<string | null>(null);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
 
@@ -150,7 +144,7 @@ export function MessagingDashboard() {
           setSearchParams({});
         }
       }
-    } catch (e) {
+    } catch (_e) {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
@@ -184,7 +178,7 @@ export function MessagingDashboard() {
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       }
-    } catch (e) {
+    } catch (_e) {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
@@ -277,7 +271,7 @@ export function MessagingDashboard() {
               <div className="flex flex-col items-center justify-center py-20"><MessageCircle className="w-10 h-10 text-primary animate-pulse mb-3" /></div>
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation, index) => {
-                const isOwner = conversation.other_user?.role === 'owner';
+                const _isOwner = conversation.other_user?.role === 'owner';
                 const isUnread = conversation.last_message?.sender_id !== user?.id && conversation.last_message?.is_read === false;
                 const lastAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
 

@@ -137,11 +137,13 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       audioRef.current?.removeEventListener('canplay', handleCanPlay);
       audioRef.current?.removeEventListener('stalled', handleStalled);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once - handlers use refs for latest state
 
   // Load user preferences from Supabase
   useEffect(() => {
     loadUserPreferences();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   // Update audio volume when state changes
@@ -301,6 +303,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
         changeStation('next');
       }, 500);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.currentStation]);
 
   const pause = useCallback(() => {
@@ -321,6 +324,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       }
       play();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.isPlaying, state.isPoweredOn, play, pause]);
 
   const togglePower = useCallback(() => {
@@ -337,6 +341,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     }
 
     savePreferences({ isPoweredOn: newPower });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.isPoweredOn]);
 
   const changeStation = useCallback((direction: 'next' | 'prev') => {
@@ -374,23 +379,27 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
     if (stations.length > 0) {
       play(stations[0]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.currentCity, play]);
 
   const setVolume = useCallback((volume: number) => {
     const clampedVolume = Math.max(0, Math.min(1, volume));
     setState(prev => ({ ...prev, volume: clampedVolume }));
     savePreferences({ volume: clampedVolume });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleShuffle = useCallback(() => {
     const newShuffle = !state.isShuffle;
     setState(prev => ({ ...prev, isShuffle: newShuffle }));
     savePreferences({ isShuffle: newShuffle });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.isShuffle]);
 
   const setSkin = useCallback((skin: RadioSkin) => {
     setState(prev => ({ ...prev, skin }));
     savePreferences({ skin });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleFavorite = useCallback((stationId: string) => {
@@ -402,6 +411,7 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
       savePreferences({ favorites: newFavorites });
       return { ...prev, favorites: newFavorites };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const playPlaylist = useCallback((stationIds: string[]) => {

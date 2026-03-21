@@ -96,6 +96,7 @@ export function ActiveModeProvider({ children }: { children: ReactNode }) {
       setLocalMode('client');
       queryClient.removeQueries({ queryKey: ['active-mode'] });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   // Fetch from database in background (only for initial sync)

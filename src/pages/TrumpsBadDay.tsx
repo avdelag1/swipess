@@ -417,7 +417,7 @@ function drawCatapult(
   for (let i = 0; i < 4; i++) { ctx.beginPath(); ctx.arc(cx - 13 + i * 9, cy - 84, 2.5, 0, Math.PI * 2); ctx.fill(); }
 }
 
-function drawTrump(ctx: CanvasRenderingContext2D, g: G, frame: number) {
+function drawTrump(ctx: CanvasRenderingContext2D, g: G, _frame: number) {
   const { tx, ty, tw, th, tHit, tHitF, tHairOff, tDancing, tDanceF, tPhrase, tPhraseT } = g;
 
   let ox = 0, oy = 0, rot = 0;
@@ -636,7 +636,7 @@ function drawConfetti(ctx: CanvasRenderingContext2D, confetti: Confetti[]) {
   }
 }
 
-function drawHUD(ctx: CanvasRenderingContext2D, g: G, frame: number) {
+function drawHUD(ctx: CanvasRenderingContext2D, g: G, _frame: number) {
   // Top bar
   ctx.fillStyle = 'rgba(0,0,0,0.68)'; ctx.fillRect(0, 0, CW, 58);
   ctx.fillStyle = '#FFD700'; ctx.font = 'bold 25px Arial'; ctx.fillText("🎯 Trump's Bad Day", 18, 36);
@@ -708,8 +708,8 @@ export default function TrumpsBadDay() {
   const frameRef   = useRef(0);
   const [phase,         setPhase]         = useState<'playing' | 'gameover'>('playing');
   const [uiScore,       setUiScore]       = useState(0);
-  const [uiHighScore,   setUiHighScore]   = useState(0);
-  const [isNewHS,       setIsNewHS]       = useState(false);
+  const [_uiHighScore,  setUiHighScore]   = useState(0);
+  const [_isNewHS,      setIsNewHS]       = useState(false);
   const [bgLabel,       setBgLabel]       = useState(BACKGROUNDS[0].label);
   const [leaderboard,   setLeaderboard]   = useState<{ score: number; created_at: string }[]>([]);
   const [showLB,        setShowLB]        = useState(false);

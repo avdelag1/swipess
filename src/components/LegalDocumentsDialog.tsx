@@ -61,7 +61,7 @@ export function LegalDocumentsDialog({ open, onOpenChange }: LegalDocumentsDialo
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const queryClient = useQueryClient();
+  const _queryClient = useQueryClient();
 
   // Fetch user's legal documents
   const { data: documents = [], isLoading, refetch } = useQuery({

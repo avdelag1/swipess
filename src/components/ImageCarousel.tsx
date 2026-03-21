@@ -169,7 +169,7 @@ const ImageCarouselComponent = ({
   const [displayedSrc, setDisplayedSrc] = useState<string | null>(initialState.displayedSrc);
   const [previousSrc, setPreviousSrc] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [_hasError, setHasError] = useState(false);
   // PERF FIX: Track if we started with a cached image to skip fade animation
   const [showImage, setShowImage] = useState(initialState.showImage);
   const startedCachedRef = useRef(initialState.showImage);

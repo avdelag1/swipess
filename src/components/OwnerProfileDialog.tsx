@@ -5,14 +5,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
 import { PhotoUploadManager } from '@/components/PhotoUploadManager';
 import { useOwnerProfile, useSaveOwnerProfile } from '@/hooks/useOwnerProfile';
 import { toast } from '@/components/ui/sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 import { validateContent } from '@/utils/contactInfoValidation';
-import { Building2, Bike, Briefcase, Check, Camera, MapPin, Mail } from 'lucide-react';
+import { Building2, Bike, Briefcase, Check, Camera, Mail } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +23,7 @@ type Props = {
 };
 
 function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
-  const { data, isLoading } = useOwnerProfile();
+  const { data, isLoading: _isLoading } = useOwnerProfile();
   const saveMutation = useSaveOwnerProfile();
 
   const [businessName, setBusinessName] = useState<string>('');
@@ -52,7 +51,7 @@ function OwnerProfileDialogComponent({ open, onOpenChange }: Props) {
       const fileName = `${uniqueId}.${fileExt}`;
       const filePath = `${user.data.user.id}/${fileName}`;
 
-      const { data, error } = await supabase.storage
+      const { data: _data, error } = await supabase.storage
         .from('profile-images')
         .upload(filePath, file);
 

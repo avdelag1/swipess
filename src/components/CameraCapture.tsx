@@ -33,7 +33,6 @@ import {
   NightModeConfig,
   DEFAULT_NIGHT_CONFIG,
   getNightModeCssFilter,
-  adjustmentsToCssFilter,
   QUALITY_SETTINGS,
 } from '@/utils/cameraFilters';
 
@@ -91,7 +90,7 @@ export function CameraCapture({
     addPhoto,
     updatePhoto,
     removePhoto,
-    clearPhotos,
+    clearPhotos: _clearPhotos,
     cleanup,
   } = useCamera({
     mode,

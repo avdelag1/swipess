@@ -141,12 +141,12 @@ interface ProfileStrengthProps {
   className?: string;
 }
 
-export const ProfileStrength = memo(({ 
-  hasPhotos, 
-  hasBio, 
-  isVerified, 
-  hasResponded,
-  className 
+export const ProfileStrength = memo(({
+  hasPhotos,
+  hasBio,
+  isVerified,
+  hasResponded: _hasResponded,
+  className
 }: ProfileStrengthProps) => {
   const indicators = [
     { active: hasPhotos, icon: Camera, label: 'Photos' },

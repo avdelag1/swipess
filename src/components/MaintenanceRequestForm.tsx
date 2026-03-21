@@ -2,11 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { Camera, Upload, X, AlertTriangle, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal } from 'lucide-react';
+import { Camera, X, Wrench, Zap, Wind, Cpu, Building2, MoreHorizontal } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import browserImageCompression from 'browser-image-compression';
@@ -64,7 +63,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
         const { data: urlData } = supabase.storage.from('listing-images').getPublicUrl(fileName);
         setPhotos(prev => [...prev, urlData.publicUrl]);
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to upload photo');
     } finally {
       setUploading(false);
@@ -110,7 +109,7 @@ export function MaintenanceRequestForm({ onSuccess, onCancel }: MaintenanceReque
 
       toast.success('Maintenance request submitted!');
       onSuccess();
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to submit request');
     } finally {
       setSubmitting(false);

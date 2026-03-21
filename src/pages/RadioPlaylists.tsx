@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRadioPlaylists } from '@/hooks/useRadioPlaylists';
 import { useRadio } from '@/contexts/RadioContext';
-import { getStationById, getStationsByCity } from '@/data/radioStations';
+import { getStationById } from '@/data/radioStations';
 import { ArrowLeft, Plus, Music, Trash2, Play, Shuffle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 export default function RadioPlaylistsPage() {
   const navigate = useNavigate();
   const { state, play, toggleShuffle } = useRadio();
-  const { playlists, loading, createPlaylist, deletePlaylist, removeStationFromPlaylist } = useRadioPlaylists();
+  const { playlists, loading, createPlaylist, deletePlaylist, removeStationFromPlaylist: _removeStationFromPlaylist } = useRadioPlaylists();
 
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);

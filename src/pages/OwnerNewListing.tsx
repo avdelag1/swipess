@@ -3,8 +3,6 @@ import { UnifiedListingForm } from "@/components/UnifiedListingForm";
 import { useEffect, useState } from "react";
 import { CategorySelectionDialog } from "@/components/CategorySelectionDialog";
 import { AIListingAssistant } from "@/components/AIListingAssistant";
-import { Sparkles, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -20,7 +18,7 @@ const OwnerNewListing = () => {
     category: 'property' | 'motorcycle' | 'bicycle' | 'worker';
     mode: 'rent' | 'sale';
   } | null>(null);
-  const [aiGeneratedData, setAIGeneratedData] = useState<Record<string, unknown> | null>(null);
+  const [_aiGeneratedData, _setAIGeneratedData] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     if (userRole && userRole !== 'owner' && userRole !== 'admin') {

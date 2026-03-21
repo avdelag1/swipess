@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Sparkles, Home, Bike, Briefcase, RotateCcw, Check, Filter } from 'lucide-react';
+import { Sparkles, Home, Bike, Briefcase, RotateCcw, Filter } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { PropertyClientFilters } from '@/components/filters/PropertyClientFilters';
 import { MotoClientFilters } from '@/components/filters/MotoClientFilters';
@@ -26,16 +26,16 @@ const categories: { id: CategoryType; name: string; icon: React.ElementType; gra
 ];
 
 // Gradient button style
-const gradientButtonClass = "bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/30";
+const _gradientButtonClass = "bg-gradient-to-r from-primary via-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground shadow-lg shadow-primary/30";
 
 export default function OwnerFiltersExplore() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   // Connect to filter store
-  const storeCategories = useFilterStore((state) => state.categories);
-  const storeClientGender = useFilterStore((state) => state.clientGender);
-  const storeClientType = useFilterStore((state) => state.clientType);
+  const _storeCategories = useFilterStore((state) => state.categories);
+  const _storeClientGender = useFilterStore((state) => state.clientGender);
+  const _storeClientType = useFilterStore((state) => state.clientType);
   const setClientGender = useFilterStore((state) => state.setClientGender);
   const setClientType = useFilterStore((state) => state.setClientType);
   const resetOwnerFilters = useFilterStore((state) => state.resetOwnerFilters);
@@ -70,7 +70,7 @@ export default function OwnerFiltersExplore() {
 
   const handleFilterApply = useCallback((category: CategoryType, filters: any) => {
     // Count active filters
-    const count = Object.entries(filters).filter(([key, value]) => {
+    const count = Object.entries(filters).filter(([_key, value]) => {
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === 'boolean') return value;
       if (typeof value === 'string') return value !== '' && value !== 'any';

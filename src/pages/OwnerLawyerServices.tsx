@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Scale, Clock, MessageSquare, ChevronRight, ChevronDown,
-  ArrowLeft, Shield, AlertTriangle, FileText, Home, DollarSign,
-  Users, Gavel, Lock, Send, CheckCircle2, Building2, UserX, Briefcase
+  ArrowLeft, Shield, AlertTriangle, FileText, DollarSign,
+  Lock, Send, CheckCircle2, Building2, UserX, Briefcase
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";

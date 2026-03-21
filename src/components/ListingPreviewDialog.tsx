@@ -3,10 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Bed, Bath, Square, DollarSign, Home, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, X, Building2, Briefcase } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, DollarSign, Users, Car, Anchor, Bike, Bike as Motorcycle, Eye, Flame, MessageSquare, Building2, Briefcase } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { ImageCarousel } from '@/components/ImageCarousel';
-import { cn } from '@/lib/utils';
 
 interface ListingPreviewDialogProps {
   isOpen: boolean;

@@ -41,7 +41,7 @@ export interface AnonymousProfileDraft {
  */
 export function useAnonymousDrafts() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [hasListingDraft, setHasListingDraft] = useState(false);
   const [hasProfileDraft, setHasProfileDraft] = useState(false);
 

@@ -9,7 +9,7 @@ import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function MyHub() {
-    const { user } = useAuth();
+    const { user: _user } = useAuth();
     const { activeMode } = useActiveMode();
 
     return (

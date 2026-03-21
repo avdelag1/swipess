@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { useMessagingQuota } from '@/hooks/useMessagingQuota';
 import { logger } from '@/utils/prodLogger';
 
 export interface Conversation {
@@ -330,15 +329,15 @@ export function useStartConversation() {
 
       if (!conversationId) {
         let myRole = 'client';
-        let otherRole = 'client';
+        let _otherRole = 'client';
 
         try {
           const { data: myRoleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).maybeSingle();
           const { data: otherRoleData } = await supabase.from('user_roles').select('role').eq('user_id', otherUserId).maybeSingle();
           myRole = myRoleData?.role || 'client';
-          otherRole = otherRoleData?.role || 'client';
-        } catch (e) {
-          myRole = 'client'; otherRole = 'owner';
+          _otherRole = otherRoleData?.role || 'client';
+        } catch (_e) {
+          myRole = 'client'; _otherRole = 'owner';
         }
 
         const clientId = myRole === 'client' ? user.id : otherUserId;

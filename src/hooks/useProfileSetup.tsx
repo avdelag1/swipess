@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { User } from '@supabase/supabase-js';
@@ -442,7 +441,7 @@ export function useProfileSetup() {
                   }
                 }
               }
-            } catch (parseError) {
+            } catch (_parseError) {
               // Invalid JSON, ignore
             }
           }

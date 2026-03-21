@@ -1,10 +1,10 @@
-import { memo, useState, useRef, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
+import { memo, useState, useRef, useMemo, useEffect, lazy, Suspense } from 'react';
 import {
   motion, useMotionValue, useTransform, AnimatePresence, PanInfo, animate
 } from 'framer-motion';
 import {
-  Shield, Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check, X
+  Eye, EyeOff, Mail, Lock, User,
+  ArrowLeft, Loader, Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
-import { Capacitor } from '@capacitor/core';
 import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
 
@@ -129,11 +128,11 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [showResendConfirmation, setShowResendConfirmation] = useState(false);
+  const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
   const [errorDetails, setErrorDetails] = useState<any>(null);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
-  const { signIn, signUp, signInWithOAuth } = useAuth();
+  const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
 
   useEffect(() => {
@@ -163,7 +162,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     }
   };
 
-  const handleResendConfirmation = async () => {
+  const _handleResendConfirmation = async () => {
     if (!email) { toast({ title: 'Email Required', description: 'Please enter your email address.', variant: 'destructive' }); return; }
     setIsLoading(true);
     try {

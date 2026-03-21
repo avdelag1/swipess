@@ -241,7 +241,7 @@ export const useMarkRatingHelpful = useMarkReviewHelpful;
 
 /** Check if user has rated (alias for useHasReviewedListing) */
 export function useHasRated(targetId: string | undefined, targetType: 'listing' | 'user') {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   return useHasReviewedListing(targetType === 'listing' ? targetId : undefined);
 }
 

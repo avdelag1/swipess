@@ -47,7 +47,7 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
         diagnostics.errors.push('localStorage is not working properly. Session persistence will fail.');
         diagnostics.recommendations.push('Check browser settings: Private/Incognito mode may disable localStorage. Clear browser cache and cookies.');
       }
-    } catch (e) {
+    } catch (_e) {
       diagnostics.localStorageAvailable = false;
       diagnostics.errors.push('localStorage is not accessible. This will prevent session persistence.');
       diagnostics.recommendations.push('Enable localStorage in browser settings or check if you\'re in private/incognito mode.');
@@ -58,7 +58,7 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
       const testValue = sessionStorage.getItem('__test__');
       diagnostics.sessionStorageAvailable = testValue === 'test';
       sessionStorage.removeItem('__test__');
-    } catch (e) {
+    } catch (_e) {
       diagnostics.sessionStorageAvailable = false;
       diagnostics.warnings.push('sessionStorage is not accessible.');
     }

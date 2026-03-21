@@ -1,6 +1,6 @@
 import { memo, useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Filter, X, Home, Car, Anchor, Bike, Wrench, Users, User, Briefcase, RotateCcw } from 'lucide-react';
+import { Filter, X, Home, Bike, Wrench, Users, User, Briefcase, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { QuickFilterCategory, QuickFilters, ClientGender, ClientType } from '@/types/filters';
 

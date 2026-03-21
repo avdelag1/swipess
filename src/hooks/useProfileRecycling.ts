@@ -2,15 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/prodLogger';
 
-interface ProfileView {
-  id: string;
-  user_id: string;
-  viewed_profile_id: string;
-  view_type: 'profile' | 'listing';
-  action: 'like' | 'pass' | 'view';
-  created_at: string;
-}
-
 // Record a profile view for smart recycling
 export function useRecordProfileView() {
   const queryClient = useQueryClient();

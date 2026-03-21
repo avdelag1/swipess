@@ -20,7 +20,7 @@ export default function PaymentSuccess() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const [processing, setProcessing] = useState(true);
+  const [_processing, _setProcessing] = useState(true);
   const processedRef = useRef(false);
 
   useEffect(() => {

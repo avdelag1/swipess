@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Flame, MapPin, Bed, Bath, Square, X, Camera } from 'lucide-react';
@@ -21,8 +21,8 @@ interface LikedPropertiesDialogProps {
   onPropertySelect?: (listingId: string) => void;
 }
 
-export function LikedPropertiesDialog({ isOpen, onClose, onPropertySelect }: LikedPropertiesDialogProps) {
-  const { data: likedProperties = [], isLoading, refetch } = useLikedProperties();
+export function LikedPropertiesDialog({ isOpen, onClose, onPropertySelect: _onPropertySelect }: LikedPropertiesDialogProps) {
+  const { data: likedProperties = [], isLoading, refetch: _refetch } = useLikedProperties();
   const queryClient = useQueryClient();
   const [galleryState, setGalleryState] = useState<{
     isOpen: boolean;

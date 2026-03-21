@@ -6,10 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import {
   Scale, Clock, MessageSquare, ChevronRight, ChevronDown,
-  ArrowLeft, Shield, AlertTriangle, FileText, Home, DollarSign,
+  ArrowLeft, AlertTriangle, FileText, Home, DollarSign,
   Users, Gavel, Lock, Send, CheckCircle2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

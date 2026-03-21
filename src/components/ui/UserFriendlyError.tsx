@@ -11,14 +11,12 @@
 
 import { memo, ReactNode } from 'react';
 import { 
-  WifiOff, 
-  ThumbsUp, 
-  CreditCard, 
-  ShieldX, 
+  WifiOff,
+  ThumbsUp,
+  CreditCard,
+  ShieldX,
   Upload,
-  RefreshCw,
   Home,
-  MessageCircle,
   AlertTriangle,
   Clock
 } from 'lucide-react';

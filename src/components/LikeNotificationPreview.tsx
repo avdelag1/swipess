@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Home, Flame, Loader2 } from 'lucide-react';
+import { MapPin, Home, Flame } from 'lucide-react';
 import { logger } from '@/utils/prodLogger';
 
 interface LikeNotificationPreviewProps {
@@ -28,8 +28,8 @@ interface LikerInfo {
 export function LikeNotificationPreview({
   likerId,
   targetType,
-  targetId,
-  userRole,
+  targetId: _targetId,
+  userRole: _userRole,
 }: LikeNotificationPreviewProps) {
   const [likerInfo, setLikerInfo] = useState<LikerInfo | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { PremiumButton } from '@/visual/PremiumButton';
 import { Scissors, Play, Pause, Loader2 } from 'lucide-react';

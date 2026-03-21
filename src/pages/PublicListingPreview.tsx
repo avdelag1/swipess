@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DirectMessageDialog } from '@/components/DirectMessageDialog';
 import {
-  Home, MapPin, Bed, Bath, Square, DollarSign, Lock, LogIn, UserPlus,
-  Sparkles, Anchor, Bike, Car, Eye, Flame, MessageCircle, Send,
-  ArrowLeft, Users, ChevronLeft, ChevronRight, Calendar
+  Home, MapPin, Bed, Bath, Square, LogIn, UserPlus,
+  Sparkles, Anchor, Bike, Car, Eye, Flame, MessageCircle,
+  ArrowLeft, Users, Calendar
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
@@ -159,7 +159,7 @@ export default function PublicListingPreview() {
   const hasImages = images.length > 0;
   const currentImage = hasImages ? images[currentImageIndex] : null;
   const isFreeMessagingCategory = FREE_MESSAGING_CATEGORIES.includes(category);
-  const canDirectMessage = user && isFreeMessagingCategory && user.id !== listing.owner_id;
+  const _canDirectMessage = user && isFreeMessagingCategory && user.id !== listing.owner_id;
 
   const locationStr = [
     listing.address,

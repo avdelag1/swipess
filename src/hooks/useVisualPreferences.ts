@@ -45,7 +45,7 @@ function saveToStorage(prefs: VisualPreferences) {
 
 export function useVisualPreferences() {
   const [preferences, setPreferences] = useState<VisualPreferences>(loadFromStorage);
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const { toast } = useToast();
 
   // Check for system-level reduced motion preference

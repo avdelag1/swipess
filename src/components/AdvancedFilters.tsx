@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -56,7 +56,7 @@ export function AdvancedFilters({ isOpen, onClose, userRole, onApplyFilters, cur
 
   const handleApplyFilters = (category: CategoryType, filters: any) => {
     // Count active filters
-    const count = Object.entries(filters).filter(([key, value]) => {
+    const count = Object.entries(filters).filter(([_key, value]) => {
       if (Array.isArray(value)) return value.length > 0;
       if (typeof value === 'boolean') return value;
       if (typeof value === 'string') return value !== '' && value !== 'any';

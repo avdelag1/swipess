@@ -82,7 +82,7 @@ function preloadPool(paths: string[], vol: number): HTMLAudioElement[] {
     const a = new Audio(p);
     a.preload = 'auto';
     a.volume = vol;
-    try { a.load(); } catch (_) { /* ignore */ }
+    try { a.load(); } catch { /* ignore */ }
     return a;
   });
 }
@@ -138,7 +138,7 @@ export function createAudio(src: string | null, volume = 0.5): HTMLAudioElement 
   const audio = new Audio(src);
   audio.preload = 'auto';
   audio.volume = volume;
-  try { audio.load(); } catch (_) { /* ignore */ }
+  try { audio.load(); } catch { /* ignore */ }
   return audio;
 }
 
@@ -147,7 +147,7 @@ export function playSound(audio: HTMLAudioElement | null): void {
   try {
     audio.currentTime = 0;
     audio.play().catch(() => {});
-  } catch (_) { /* ignore */ }
+  } catch { /* ignore */ }
 }
 
 export function getSoundForTheme(

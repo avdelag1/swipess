@@ -58,7 +58,7 @@ describe('SimpleSwipeCard Component', () => {
     });
 
     it('displays the correct listing details (price, location, type)', () => {
-        const { getByText, getAllByText } = render(
+        const { getByText, getAllByText: _getAllByText } = render(
             <SimpleSwipeCard
                 listing={mockListing}
                 onSwipe={vi.fn()}

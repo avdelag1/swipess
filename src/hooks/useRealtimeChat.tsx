@@ -25,7 +25,7 @@ export function useRealtimeChat(conversationId: string) {
   const { getProfile } = useProfileCache();
   const [isTyping, setIsTyping] = useState(false);
   const [typingUsers, setTypingUsers] = useState<TypingUser[]>([]);
-  const [onlineUsers, setOnlineUsers] = useState<UserPresence[]>([]);
+  const [onlineUsers, _setOnlineUsers] = useState<UserPresence[]>([]);
   const [isConnected, setIsConnected] = useState(true); // Start as true to avoid initial flicker
 
   // Track typing with debounce - use ref to avoid circular dependencies
@@ -188,7 +188,7 @@ export function useRealtimeChat(conversationId: string) {
         }
       )
       .on('presence', { event: 'sync' }, () => {
-        const newState = messagesChannel.presenceState();
+        const _newState = messagesChannel.presenceState();
         // Clear any pending connection timeout
         if (connectionTimeoutRef.current) {
           clearTimeout(connectionTimeoutRef.current);
@@ -196,10 +196,10 @@ export function useRealtimeChat(conversationId: string) {
         }
         setIsConnected(true);
       })
-      .on('presence', { event: 'join' }, ({ key, newPresences }) => {
+      .on('presence', { event: 'join' }, ({ key: _key, newPresences: _newPresences }) => {
         // User joined
       })
-      .on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+      .on('presence', { event: 'leave' }, ({ key: _key2, leftPresences: _leftPresences }) => {
         // User left
       })
       .subscribe(async (status) => {
@@ -248,10 +248,10 @@ export function useRealtimeChat(conversationId: string) {
 
         setTypingUsers(currentTyping);
       })
-      .on('presence', { event: 'join' }, ({ newPresences }) => {
+      .on('presence', { event: 'join' }, ({ newPresences: _newPresences }) => {
         // New typing presence
       })
-      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+      .on('presence', { event: 'leave' }, ({ leftPresences: _leftPresences }) => {
         // Left typing presence
       })
       .subscribe(async (status) => {
@@ -290,6 +290,7 @@ export function useRealtimeChat(conversationId: string) {
       setIsConnected(true); // Reset to true to avoid flicker on next mount
       typingChannelRef.current = null;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, user?.id, queryClient]);
 
   // Cleanup typing on unmount

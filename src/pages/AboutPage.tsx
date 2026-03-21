@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/PageHeader";
 const fastSpring = { type: "spring" as const, stiffness: 500, damping: 30, mass: 0.8 };
 
 export default function AboutPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const ownerBenefits = [
     {

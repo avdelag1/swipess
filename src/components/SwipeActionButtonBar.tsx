@@ -29,7 +29,7 @@ interface SwipeActionButtonBarProps {
 }
 
 // ── SPRING CONFIGS ────────────────────────────────────────────────────────────
-const TAP_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 } as const;
+const _TAP_SPRING = { type: 'spring' as const, stiffness: 460, damping: 26, mass: 0.55 } as const;
 const ICON_SPRING = { type: 'spring' as const, stiffness: 520, damping: 28 } as const;
 const ENTRY_SPRING = { type: 'spring' as const, stiffness: 340, damping: 26, mass: 0.7 } as const;
 

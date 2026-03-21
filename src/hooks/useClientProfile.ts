@@ -231,7 +231,7 @@ export function useSaveClientProfile() {
       const realSyncKeys = Object.keys(syncPayload).filter(k => k !== 'updated_at');
       if (realSyncKeys.length > 0) {
         try {
-          const { data: syncData, error: syncError } = await supabase
+          const { data: _syncData, error: syncError } = await supabase
             .from('profiles')
             .update(syncPayload)
             .eq('user_id', uid)

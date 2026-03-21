@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { SERVICE_CATEGORIES, SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
+import { SERVICE_SUBSPECIALTIES, SERVICE_GROUPS, getGroupedCategories } from '@/data/serviceCategories';
 
 // Re-export from shared data for backward compat
 export { SERVICE_CATEGORIES } from '@/data/serviceCategories';

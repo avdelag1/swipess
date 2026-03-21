@@ -121,6 +121,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     if (user && didNavigateRef.current) {
       didNavigateRef.current = false;
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   // SPEED OF LIGHT: If we've shown content before, keep showing children
