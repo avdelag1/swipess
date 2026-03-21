@@ -19,8 +19,8 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
-  Search, Ticket, Users, Sparkles, ShieldCheck,
-  PartyPopper, Megaphone, Compass
+  Search, Users, Sparkles, ShieldCheck,
+  Megaphone, Compass
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
