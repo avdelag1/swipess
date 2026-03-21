@@ -766,10 +766,10 @@ export default function TrumpsBadDay() {
   // ── Fetch leaderboard
   const fetchLB = useCallback(async () => {
     try {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from('trump_game_scores').select('score, created_at')
         .order('score', { ascending: false }).limit(5);
-      if (data) setLeaderboard(data);
+      if (data) setLeaderboard(data as any);
     } catch { /* ignore */ }
   }, []);
 

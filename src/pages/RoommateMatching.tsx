@@ -515,7 +515,7 @@ export default function RoommateMatching() {
                <div className="space-y-4">
                   <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Languages</h3>
                   <div className="flex items-center gap-4">
-                    {topCard.languages.map(lang => (
+                    {(topCard.languages || []).map((lang: string) => (
                       <div key={lang} className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
                         <span className="text-sm font-bold text-white/80">{lang}</span>

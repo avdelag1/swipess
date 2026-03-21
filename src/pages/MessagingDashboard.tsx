@@ -315,7 +315,7 @@ export function MessagingDashboard() {
               })
             ) : (
               <div className="flex flex-col items-center justify-center py-24 text-center">
-                <Ghost className="w-12 h-12 text-muted-foreground/20 mb-4" />
+                <MessageCircle className="w-12 h-12 text-muted-foreground/20 mb-4" />
                 <h3 className="font-black">No messages found</h3>
                 <p className="text-sm text-muted-foreground">Try clearing filters or starting a new chat.</p>
               </div>

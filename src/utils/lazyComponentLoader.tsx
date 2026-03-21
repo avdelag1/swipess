@@ -7,7 +7,7 @@
 import { lazy, Suspense, ReactNode, ComponentType, LazyExoticComponent } from 'react';
 import { logger } from '@/utils/prodLogger';
 
-type AnyProps = unknown;
+type AnyProps = Record<string, any>;
 
 /**
  * Create a lazy-loaded component with a fallback
