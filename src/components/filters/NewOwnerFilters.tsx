@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  X, SlidersHorizontal, DollarSign, Calendar, Heart, Users, User, Check,
-  ChevronDown, Shield, Activity, Briefcase, UserCircle, Sparkles, Home,
-  Bike, Wrench, Target, Clock, Filter
+  X, DollarSign, Heart, Users, User, Check,
+  ChevronDown, Activity, Briefcase, Sparkles,
+  Target, Clock, Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -299,7 +299,7 @@ function ToggleSwitch({
 export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }: NewOwnerFiltersProps) {
   const [filters, setFilters] = useState<OwnerFilters>(currentFilters);
   const activeLifestyleTags = new Set(filters.lifestyleTags || []);
-  const activeLanguages = new Set(filters.languages || []);
+  const _activeLanguages = new Set(filters.languages || []);
 
   const handleLifestyleToggle = (tag: string) => {
     setFilters(prev => {
@@ -309,7 +309,7 @@ export function NewOwnerFilters({ open, onClose, onApply, currentFilters = {} }:
     });
   };
 
-  const handleLanguageToggle = (lang: string) => {
+  const _handleLanguageToggle = (lang: string) => {
     setFilters(prev => {
       const set = new Set(prev.languages || []);
       if (set.has(lang)) set.delete(lang); else set.add(lang);

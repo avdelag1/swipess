@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, ChevronRight, Zap, Info, ShieldCheck, Star, Users, ArrowUpRight } from 'lucide-react';
+import { Heart, Share2, MapPin, Calendar, MessageCircle, Sparkles, User, ChevronLeft, Zap, Info, ShieldCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from 'react-i18next';
@@ -98,6 +98,8 @@ function BrandBenefitsSection() {
 
 export default function EventoDetail() {
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const stateEventData = (location.state as any)?.eventData as EventDetail | undefined;
   const { navigate } = useAppNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -105,7 +107,11 @@ export default function EventoDetail() {
   const queryClient = useQueryClient();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [userRating, setUserRating] = useState<number>(0);
+
+  useEffect(() => {
+    // Scroll to top on mount
+    window.scrollTo(0, 0);
+  }, [id]);
 
   // 🚀 SPEED OF LIGHT: Unified Event Data Query
   const { data: event, isLoading } = useQuery({
@@ -116,11 +122,15 @@ export default function EventoDetail() {
         .select('*')
         .eq('id', id!)
         .single();
-      if (error) throw error;
+      if (error || !data) {
+        if (stateEventData) return stateEventData;
+        throw error ?? new Error('Event not found');
+      }
       return data as EventDetail;
     },
     enabled: !!id,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    initialData: stateEventData,
+    staleTime: 1000 * 60 * 5,
   });
 
   // 🚀 SPEED OF LIGHT: Favorite Status Query
@@ -386,57 +396,6 @@ export default function EventoDetail() {
           <p className="text-lg font-medium text-slate-600 dark:text-white/70 leading-relaxed italic pr-4">
             {event.description || 'Join us for an unforgettable experience in the heart of the Riviera Maya.'}
           </p>
-        </div>
-
-        {/* ── INSIGHTS SECTION ── */}
-        <div className="space-y-6">
-           <div className="flex items-center gap-4">
-              <h3 className="text-[10px] font-black text-slate-400 dark:text-white/30 uppercase tracking-[0.3em] whitespace-nowrap">Insights & Community</h3>
-              <div className="h-px flex-1 bg-slate-200 dark:bg-white/10" />
-           </div>
-           
-           <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-[2rem] bg-emerald-500/5 border border-emerald-500/10 shadow-inner">
-                 <div className="flex items-center justify-between mb-3">
-                    <Users className="w-5 h-5 text-emerald-500" />
-                    <span className="text-[10px] font-black text-emerald-500/50 uppercase tracking-widest">Trending</span>
-                 </div>
-                 <p className="text-2xl font-black text-slate-900 dark:text-white italic leading-none">84+ GOING</p>
-                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-2 uppercase tracking-wide">Verified Members</p>
-              </div>
-
-              <div className="p-6 rounded-[2rem] bg-indigo-500/5 border border-indigo-500/10 shadow-inner">
-                 <div className="flex items-center justify-between mb-3">
-                    <Sparkles className="w-5 h-5 text-indigo-500" />
-                    <span className="text-[10px] font-black text-indigo-500/50 uppercase tracking-widest">Premium</span>
-                 </div>
-                 <p className="text-2xl font-black text-slate-900 dark:text-white italic leading-none">GOLDEN</p>
-                 <p className="text-[9px] font-bold text-slate-400 dark:text-white/30 mt-2 uppercase tracking-wide">Best Performance</p>
-              </div>
-           </div>
-
-           {/* User's Star Rating */}
-           <div className="p-6 rounded-[2rem] bg-white dark:bg-zinc-900/50 border border-slate-100 dark:border-white/5 flex items-center justify-between shadow-xl shadow-black/5">
-              <div>
-                 <p className="text-[9px] font-black text-slate-400 dark:text-white/40 uppercase tracking-[0.2em] mb-2">Member Rating</p>
-                 <div className="flex gap-1.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => { setUserRating(star); triggerHaptic('medium'); }}
-                        title={`${star} Stars`}
-                        className="transition-transform active:scale-90 hover:scale-110"
-                      >
-                        <Star className={cn("w-6 h-6 transition-all", star <= userRating ? "fill-amber-400 text-amber-400" : "text-slate-200 dark:text-white/10")} />
-                      </button>
-                    ))}
-                 </div>
-              </div>
-              <div className="text-right">
-                 <p className="text-3xl font-black text-slate-900 dark:text-white italic leading-none">{userRating || '4'}.0</p>
-                 <p className="text-[9px] font-bold text-amber-500 uppercase tracking-widest mt-1">Prime Choice</p>
-              </div>
-           </div>
         </div>
 
         {/* Admission / Ticket Info */}

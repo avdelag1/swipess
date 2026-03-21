@@ -120,7 +120,7 @@ export const perfMonitor = {
         performance.measure(name, startMark, endMark);
         const measure = performance.getEntriesByName(name)[0];
         logger.info(`⏱️ ${name}: ${measure.duration.toFixed(2)}ms`);
-      } catch (error) {
+      } catch (_error) {
         // Silently fail if marks don't exist
       }
     }

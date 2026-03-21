@@ -148,7 +148,7 @@ export function ClientPreferencesDialog({ open, onOpenChange }: ClientPreference
       await updatePreferences(formData)
       toast.success('Preferences Updated', { description: 'Your filter preferences have been saved successfully.' })
       onOpenChange(false)
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error', { description: 'Failed to update preferences. Please try again.' })
     }
   }

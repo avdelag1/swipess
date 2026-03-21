@@ -100,7 +100,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       if (!user.user || !listing?.owner_id) throw new Error('Not authenticated or no owner');
 
       // Insert block record
-      const { error: blockError } = await (supabase as any)
+      const { error: blockError } = await supabase
         .from('user_blocks')
         .insert({
           blocker_id: user.user.id,
@@ -144,7 +144,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
       const { data: user } = await supabase.auth.getUser();
       if (!user.user || !listing?.owner_id) throw new Error('Not authenticated');
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('user_reports')
         .insert({
           reporter_id: user.user.id,

@@ -130,6 +130,7 @@ export function EmbeddedLocationFilter({
         }
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country, selectedRegion, regions]);
 
   // Handle region change - clear dependent fields

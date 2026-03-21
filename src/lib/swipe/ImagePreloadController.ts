@@ -136,8 +136,8 @@ class ImagePreloadController {
    * Wait for specific image to be ready (with timeout)
    */
   async waitForReady(rawUrl: string, timeout = 3000): Promise<boolean> {
-    const start = Date.now();
-    const optimizedUrl = this.getOptimizedUrl(rawUrl);
+    const _start = Date.now();
+    const _optimizedUrl = this.getOptimizedUrl(rawUrl);
 
     // Already ready
     if (this.isReady(rawUrl)) return true;

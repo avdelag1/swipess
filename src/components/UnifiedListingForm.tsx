@@ -9,11 +9,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from '@/components/ui/sonner';
-import { Upload, X, Bike, ChevronRight, Sparkles, Shield } from 'lucide-react';
+import { logger } from '@/utils/prodLogger';
+import { Upload, X, Bike, ChevronRight, Shield } from 'lucide-react';
 import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -287,7 +286,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
               
               if (missingColumn && listingData[missingColumn] !== undefined) {
-                console.warn(`Removing problematic column "${missingColumn}" from update and retrying...`);
+                logger.warn(`Removing problematic column "${missingColumn}" from update and retrying...`);
                 const { [missingColumn]: _, ...safeData } = listingData;
                 const { data: fallbackData, error: fallbackError } = await supabase
                   .from('listings').update(safeData as any).eq('id', editingId).select().single();
@@ -311,7 +310,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             .single();
 
           if (error) {
-            console.error('Insert error details:', error);
+            logger.error('Insert error details:', error);
             const errorMsg = error.message?.toLowerCase() || '';
             const isSchemaError = errorMsg.includes('could not find the') || errorMsg.includes('schema cache') || errorMsg.includes('column');
 
@@ -321,7 +320,7 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
               const missingColumn = columnMatch ? (columnMatch[1] || columnMatch[2]) : null;
 
               if (missingColumn && listingData[missingColumn] !== undefined) {
-                console.warn(`Schema cache missing column "${missingColumn}" — retrying without it...`);
+                logger.warn(`Schema cache missing column "${missingColumn}" — retrying without it...`);
                 const { [missingColumn]: _, ...safeData } = listingData;
                 const { data: fallbackData, error: fallbackError } = await supabase
                   .from('listings')
@@ -340,8 +339,8 @@ export function UnifiedListingForm({ isOpen, onClose, editingProperty }: Unified
             listingResult = data;
           }
         }
-      } catch (err: any) {
-        console.error('Listing mutation failed:', err);
+      } catch (err: unknown) {
+        logger.error('Listing mutation failed:', err);
         throw err;
       }
 

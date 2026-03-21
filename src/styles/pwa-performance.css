@@ -12,6 +12,8 @@ html.pwa-mode {
     overflow: hidden;
     position: fixed;
     width: 100%;
+    /* Smooth theme transitions in PWA */
+    transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html.pwa-mode body {
@@ -34,6 +36,8 @@ html.pwa-mode .animate-ping {
 html.pwa-ios {
     /* iOS-specific PWA optimizations */
     --animation-speed-multiplier: 0.75;
+    /* Smooth theme transitions on iOS PWA */
+    transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html.pwa-ios .swipe-card {

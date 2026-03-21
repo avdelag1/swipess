@@ -14,12 +14,12 @@
  *   - The glass bar clearly shows blurred content behind it (no opaque bg)
  */
 
-import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
-  Home, Flame, MessageCircle, User, Building2, Heart, Filter,
-  Search, Compass, LayoutGrid, Briefcase, Users, List, Sparkles, ShieldCheck, Zap
+  Flame, MessageCircle, User, Building2,
+  Search, Compass, Users, Sparkles, ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -64,9 +64,9 @@ const TAP_SPRING = {
 
 export function BottomNavigation({
   userRole,
-  onFilterClick,
-  onAddListingClick,
-  onListingsClick,
+  onFilterClick: _onFilterClick,
+  onAddListingClick: _onAddListingClick,
+  onListingsClick: _onListingsClick,
   onAISearchClick,
 }: BottomNavigationProps) {
   const { navigate } = useAppNavigate();
@@ -113,14 +113,14 @@ export function BottomNavigation({
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
-  // Admin nav items — admin panel only
+  // Admin nav items — admin panel + messaging
   const adminNavItems: NavItem[] = [
-    { id: 'admin', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
-    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
+    { id: 'admin-panel', icon: ShieldCheck, label: 'Admin', path: '/admin/eventos' },
+    { id: 'admin-messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages', badge: unreadCount },
   ];
 
   const navItems = userRole === 'admin' ? adminNavItems : userRole === 'client' ? clientNavItems : ownerNavItems;
-  const isScrollable = true; // Always scrollable for both roles
+  const _isScrollable = true; // Always scrollable for both roles
 
   // Auto-scroll active item into view
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -223,7 +223,7 @@ export function BottomNavigation({
 
   // ── Nav bar glass surface ────────────────────────────────────────────────
   // Heavy blur shows the swipe card and content behind the navigation bar.
-  const barBg = isLight ? '#ffffff' : 'rgba(12,12,14,0.68)';
+  const _barBg = isLight ? '#ffffff' : 'rgba(12,12,14,0.68)';
   const barBorder = isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.10)';
   const barShadow = isLight
     ? '0 -2px 12px rgba(0,0,0,0.06)'
@@ -231,7 +231,7 @@ export function BottomNavigation({
 
 
   return (
-    <nav className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
+    <nav role="navigation" aria-label="Main navigation" className={cn('app-bottom-bar pointer-events-none px-3 pb-1', !isVisible && 'nav-hidden')}>
       {/* ── Liquid Glass bar surface ────────────────────────────────────────
           The bar itself is a glass layer so the swipe card content shows
           through, reinforcing the "floating above" feeling. */}
@@ -274,6 +274,7 @@ export function BottomNavigation({
         />
 
         {/* Nav items row */}
+        <LayoutGroup id="bottom-nav">
         <div
           ref={scrollRef}
           data-no-swipe-nav
@@ -375,10 +376,28 @@ export function BottomNavigation({
                     {item.label}
                   </span>
                 )}
+
+                {/* Sliding active pill — springs between tabs */}
+                {active && (
+                  <motion.span
+                    layoutId="nav-active-dot"
+                    aria-hidden="true"
+                    className="absolute bottom-0 left-1/2 -translate-x-1/2"
+                    style={{
+                      width: 20,
+                      height: 2.5,
+                      borderRadius: 2,
+                      background: 'linear-gradient(90deg, #ec4899, #f97316)',
+                      boxShadow: '0 0 8px rgba(249,115,22,0.65), 0 0 16px rgba(249,115,22,0.3)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 480, damping: 30, mass: 0.5 }}
+                  />
+                )}
               </motion.button>
             );
           })}
         </div>
+        </LayoutGroup>
 
         {/* ── Edge fade indicators ──────────────────────────────────────── */}
         <div

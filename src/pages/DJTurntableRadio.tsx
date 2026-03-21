@@ -20,7 +20,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   ArrowLeft, ListMusic, Heart, Shuffle,
-  SkipBack, SkipForward, Play, Pause, Disc3
+  SkipBack, SkipForward, Play, Pause
 } from 'lucide-react';
 
 // ── Font injection ──────────────────────────────────────────────────────────
@@ -392,7 +392,7 @@ export default function DJTurntableRadio() {
                 onDrag={(_, info) => {
                   // Map drag position to volume (inverted: up = louder)
                   const parentHeight = 112; // h-28 = 7rem = 112px
-                  const normalizedY = info.point.y;
+                  const _normalizedY = info.point.y;
                   // Use offset to calculate relative volume change
                   const delta = -info.delta.y / parentHeight;
                   setVolume(Math.max(0, Math.min(1, state.volume + delta)));

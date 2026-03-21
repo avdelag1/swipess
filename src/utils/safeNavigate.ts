@@ -1,6 +1,7 @@
 import { NavigateFunction } from 'react-router-dom';
 import { User } from '@supabase/supabase-js';
 import { toast } from '@/components/ui/sonner';
+import { logger } from '@/utils/prodLogger';
 
 interface SafeNavigateOptions {
   requiresAuth?: boolean;
@@ -63,7 +64,7 @@ export function createSafeNavigate(
       navigate(path, { replace, state });
       return true;
     } catch (error) {
-      console.error('[SafeNavigate] Navigation error:', error);
+      logger.error('[SafeNavigate] Navigation error:', error);
       toast({
         title: 'Navigation Failed',
         description: 'Unable to navigate. Please try again.',

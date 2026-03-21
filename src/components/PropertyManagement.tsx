@@ -1,10 +1,9 @@
 import { useState, useEffect, memo } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useOwnerListings } from '@/hooks/useListings';
+import { useOwnerListings, type Listing } from '@/hooks/useListings';
 import { useOwnerListingLikes } from '@/hooks/useOwnerListingLikes';
 import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
@@ -38,20 +37,20 @@ const getCategoryColor = (category: string) => {
 };
 
 export const PropertyManagement = memo(({ initialCategory, initialMode }: PropertyManagementProps) => {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const { theme } = useTheme();
   const isLight = theme === 'light';
   const { data: listings = [], isLoading, error } = useOwnerListings();
   const { data: listingsWithLikes = [] } = useOwnerListingLikes();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState(initialCategory || 'all');
-  const [viewingProperty, setViewingProperty] = useState<any>(null);
+  const [viewingProperty, setViewingProperty] = useState<Listing | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<any>(null);
+  const [editingProperty, setEditingProperty] = useState<Partial<Listing> | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const [sharingListing, setSharingListing] = useState<any>(null);
+  const [sharingListing, setSharingListing] = useState<Listing | null>(null);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [availabilityStatus, setAvailabilityStatus] = useState<Record<string, string>>({});
   const queryClient = useQueryClient();
@@ -168,13 +167,13 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
-    } catch (error: any) {
+    } catch (_error: unknown) {
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       toast.error('Error', { description: 'Failed to delete property' });
     }
   };
 
-  const handleAvailabilityChange = async (listing: any, newStatus: string) => {
+  const handleAvailabilityChange = async (listing: Listing, newStatus: string) => {
     try {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: newStatus }));
 
@@ -194,7 +193,7 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
       queryClient.invalidateQueries({ queryKey: ['owner-listings'] });
       queryClient.invalidateQueries({ queryKey: ['listings'] });
 
-    } catch (error: any) {
+    } catch (_error: unknown) {
       setAvailabilityStatus(prev => ({ ...prev, [listing.id]: listing.status }));
       toast.error('Error', { description: 'Failed to update availability' });
     }
@@ -553,36 +552,41 @@ export const PropertyManagement = memo(({ initialCategory, initialMode }: Proper
               key="empty"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-16"
+              className={cn(
+                "flex flex-col items-center justify-center py-24 text-center rounded-[3rem] border",
+                isLight ? "bg-muted/30 border-border/40" : "bg-white/[0.02] border-white/[0.06]"
+              )}
             >
-              <Card className={cn("border-dashed", isLight ? 'bg-white/60 border-gray-300' : 'bg-gray-800/30 border-gray-700/30')}>
-                <CardContent className="flex flex-col items-center justify-center py-12">
-                  <div className={cn("p-4 rounded-2xl mb-4", isLight ? 'bg-gray-100' : 'bg-gray-700/30')}>
-                    {searchTerm ? (
-                      <Search className={cn("w-12 h-12", isLight ? 'text-gray-400' : 'text-gray-500')} />
-                    ) : (
-                      <Sparkles className={cn("w-12 h-12", isLight ? 'text-gray-400' : 'text-gray-500')} />
-                    )}
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {searchTerm ? 'No Results Found' : 'No Listings Yet'}
-                  </h3>
-                  <p className="text-muted-foreground mb-6 text-center max-w-md">
-                    {searchTerm
-                      ? 'Try adjusting your search terms.'
-                      : 'Start by adding your first listing.'}
-                  </p>
-                  {!searchTerm && (
-                    <Button
-                      className="gap-2 bg-primary hover:bg-primary/90 text-white"
-                      onClick={handleAddProperty}
-                    >
-                      <Plus className="w-4 h-4" />
-                      Add Your First Listing
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+              <div className={cn(
+                "w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 shadow-xl border",
+                isLight ? "bg-muted border-border/30" : "bg-white/[0.04] border-white/[0.08]"
+              )}>
+                {searchTerm ? (
+                  <Search className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
+                ) : (
+                  <Sparkles className="w-12 h-12 text-[var(--color-brand-accent-2)]/60 animate-pulse" />
+                )}
+              </div>
+              <h3 className="text-foreground font-black text-2xl tracking-tighter mb-4">
+                {searchTerm ? 'No Results Found' : 'No Listings Yet'}
+              </h3>
+              <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed font-bold mb-10">
+                {searchTerm
+                  ? 'Try adjusting your search terms.'
+                  : 'Start by adding your first listing to attract clients.'}
+              </p>
+              {!searchTerm && (
+                <button
+                  onClick={handleAddProperty}
+                  className="px-8 py-4 rounded-2xl text-sm font-black text-white transition-all active:scale-95 shadow-lg"
+                  style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)' }}
+                >
+                  <span className="flex items-center gap-2">
+                    <Plus className="w-4 h-4" />
+                    Add Your First Listing
+                  </span>
+                </button>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

@@ -115,7 +115,7 @@ export function useWelcomeState(userId: string | undefined) {
 async function saveWelcomeNotification(userId: string) {
   try {
     // Check if welcome notification already exists
-    const { data: existing } = await (supabase as any)
+    const { data: existing } = await supabase
       .from('notifications')
       .select('id')
       .eq('user_id', userId)
@@ -136,7 +136,7 @@ async function saveWelcomeNotification(userId: string) {
       is_read: false
     };
 
-    await (supabase as any).from('notifications').insert([notificationData]);
+    await supabase.from('notifications').insert([notificationData]);
 
     logger.log('[Welcome] Saved welcome notification to database');
   } catch (error) {

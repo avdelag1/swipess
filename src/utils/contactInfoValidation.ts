@@ -17,8 +17,9 @@ export interface ValidationResult {
 /** Strip zero-width characters and normalize text for detection */
 function sanitize(text: string): string {
   return text
-    // Remove zero-width chars
-    .replace(/[\u200B\u200C\u200D\uFEFF\u00AD]/g, '')
+    // Remove zero-width chars (eslint flags \u200D as a "joining" char but each is matched individually here)
+    // eslint-disable-next-line no-misleading-character-class
+    .replace(/[\u200B\u200C\u200D\uFEFF\u00AD]/gu, '')
     // Normalize whitespace
     .replace(/\s+/g, ' ')
     .trim();
@@ -64,7 +65,7 @@ export function validateContent(text: string): ValidationResult {
   }
 
   // === EMAIL PATTERNS ===
-  const emailPattern = /[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}/i;
+  const emailPattern = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i;
   if (emailPattern.test(normalized)) {
     return { isClean: false, reason: 'email', severity: 'block', message: BLOCK_MESSAGE };
   }

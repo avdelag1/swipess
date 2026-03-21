@@ -56,7 +56,7 @@ export function formatDistanceToNow(date: Date | string, options?: { addSuffix?:
     }
 
     return formatted;
-  } catch (error) {
+  } catch (_error) {
     // Fallback for older browsers
     return `${value} ${unit}s ago`;
   }

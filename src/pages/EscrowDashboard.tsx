@@ -37,6 +37,7 @@ export default function EscrowDashboard() {
   useEffect(() => {
     if (!user) return;
     fetchDeposits();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const fetchDeposits = async () => {

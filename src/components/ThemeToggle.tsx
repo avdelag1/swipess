@@ -23,7 +23,7 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         e.preventDefault();
         e.stopPropagation();
         triggerHaptic('light');
-        setTheme(isDark ? 'light' : 'dark');
+        setTheme(isDark ? 'light' : 'dark', { x: e.clientX, y: e.clientY });
     };
 
     return (

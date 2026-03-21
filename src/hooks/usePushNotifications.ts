@@ -161,7 +161,7 @@ export function usePushNotifications() {
 
       // 5. Save to database (upsert so re-subscribing updates the record)
        
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('push_subscriptions')
         .upsert(
           {
@@ -208,7 +208,7 @@ export function usePushNotifications() {
 
           // Remove from DB
            
-          await (supabase as any)
+          await supabase
             .from('push_subscriptions')
             .delete()
             .eq('user_id', user.id)

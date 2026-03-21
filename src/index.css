@@ -8,11 +8,57 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition-property: background-color, color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 body, html {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── View Transitions: circular ripple reveal from toggle button ─── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Old theme snapshot: freeze in place, let the new one slide over it */
+::view-transition-old(root) {
+  animation: none;
+  z-index: 1;
+}
+
+/* New theme snapshot: expand as a circle from the toggle button origin */
+::view-transition-new(root) {
+  animation: theme-circle-reveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  z-index: 2;
+}
+
+@keyframes theme-circle-reveal {
+  from {
+    clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
+    opacity: 0.92;
+  }
+  to {
+    clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -2348,6 +2394,31 @@ html[data-navigation-direction="back"] {
     }
   }
 }
+
+/* ── PAGE SECTION STAGGER ─────────────────────────────────────────── */
+/* Add .stagger-children to any container whose direct children       */
+/* should appear one-by-one on page mount (up to 12 items).           */
+@keyframes stagger-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.stagger-children > * {
+  opacity: 0;
+  animation: stagger-up 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+.stagger-children > *:nth-child(1)   { animation-delay: 0.04s; }
+.stagger-children > *:nth-child(2)   { animation-delay: 0.10s; }
+.stagger-children > *:nth-child(3)   { animation-delay: 0.16s; }
+.stagger-children > *:nth-child(4)   { animation-delay: 0.22s; }
+.stagger-children > *:nth-child(5)   { animation-delay: 0.27s; }
+.stagger-children > *:nth-child(6)   { animation-delay: 0.31s; }
+.stagger-children > *:nth-child(7)   { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8)   { animation-delay: 0.38s; }
+.stagger-children > *:nth-child(9)   { animation-delay: 0.41s; }
+.stagger-children > *:nth-child(10)  { animation-delay: 0.43s; }
+.stagger-children > *:nth-child(11)  { animation-delay: 0.45s; }
+.stagger-children > *:nth-child(n+12){ animation-delay: 0.46s; }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /*  FILTER-BASED LIGHT THEME -> REPLACED WITH NATIVE VARIABLES      */

@@ -328,7 +328,8 @@ export const priorityImageProps = {
 export class PWAImagePreloader {
   private decodedCache = new Map<string, HTMLImageElement>();
   private decoding = new Set<string>();
-  private maxCached = 10; // Keep last 10 images decoded in memory
+  // Scale cache based on device memory: 25 images on 4GB+ devices, 10 on lower-end
+  private maxCached = (navigator as Navigator & { deviceMemory?: number }).deviceMemory && (navigator as Navigator & { deviceMemory?: number }).deviceMemory! >= 4 ? 25 : 10;
 
   /**
    * Aggressively preload and decode image for PWA mode

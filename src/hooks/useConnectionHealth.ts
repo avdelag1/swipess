@@ -22,6 +22,10 @@ interface ConnectionHealth {
 const CHECK_TIMEOUT_MS = 8000; // 8s — if Supabase doesn't respond, it's unreachable
 const MAX_RETRIES = 3;
 
+function isErrorWithMessage(err: unknown): err is { message: string; name?: string } {
+  return typeof err === 'object' && err !== null && 'message' in err && typeof (err as Record<string, unknown>).message === 'string';
+}
+
 async function pingSupabase(): Promise<boolean> {
   try {
     const controller = new AbortController();
@@ -29,7 +33,7 @@ async function pingSupabase(): Promise<boolean> {
 
     // Use a lightweight query to verify the connection is alive
     const { error } = await supabase
-      .from('profiles' as any)
+      .from('profiles')
       .select('id')
       .limit(1)
       .abortSignal(controller.signal);
@@ -45,18 +49,23 @@ async function pingSupabase(): Promise<boolean> {
     }
 
     return true;
-  } catch (err: any) {
-    if (err?.name === 'AbortError' || err?.message?.includes('abort')) {
+  } catch (err: unknown) {
+    if (!isErrorWithMessage(err)) {
+      logger.log('[ConnectionHealth] Supabase reachable (unknown error type)');
+      return true;
+    }
+
+    if (err.name === 'AbortError' || err.message.includes('abort')) {
       logger.error('[ConnectionHealth] Ping aborted (timeout)');
       return false;
     }
     // Network error (fetch failed, CORS, etc.)
-    if (err?.message?.includes('fetch') || err?.message?.includes('network') || err?.message?.includes('Failed')) {
+    if (err.message.includes('fetch') || err.message.includes('network') || err.message.includes('Failed')) {
       logger.error('[ConnectionHealth] Network error:', err.message);
       return false;
     }
     // Any other Supabase error means the server IS reachable (project not paused)
-    logger.log('[ConnectionHealth] Supabase reachable (non-critical error):', err?.message);
+    logger.log('[ConnectionHealth] Supabase reachable (non-critical error):', err.message);
     return true;
   }
 }

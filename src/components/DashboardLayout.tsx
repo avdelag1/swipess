@@ -1,12 +1,11 @@
 
 import React, { ReactNode, useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from "@/hooks/useAuth"
 import { useAnonymousDrafts } from "@/hooks/useAnonymousDrafts"
 import { supabase } from '@/integrations/supabase/client'
 import { toast } from '@/hooks/use-toast'
 import { useAppNavigate } from "@/hooks/useAppNavigate";
-import { Link, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useResponsiveContext } from '@/contexts/ResponsiveContext'
 import { prefetchRoleRoutes } from '@/utils/routePrefetcher'
 import { logger } from '@/utils/prodLogger'
@@ -20,7 +19,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { TopBar } from '@/components/TopBar'
 import { BottomNavigation } from '@/components/BottomNavigation'
 import { AdvancedFilters } from '@/components/AdvancedFilters'
-import { RadioMiniPlayer } from '@/components/RadioMiniPlayer'
 import { AISearchDialog } from './AISearchDialog';
 
 // Lazy-loaded Dialogs (improves bundle size and initial load)
@@ -139,7 +137,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   const [showMessageActivations, setShowMessageActivations] = useState(false)
   const [isAISearchOpen, setIsAISearchOpen] = useState(false);
 
-  const [appliedFilters, setAppliedFilters] = useState<any>(null);
+  const [appliedFilters, setAppliedFilters] = useState<Record<string, unknown> | null>(null);
 
   // NEXT-GEN DESIGN: Mouse tracking for liquid glass effects (throttled to ~30fps)
   // PERF: Disabled on PWA/touch devices to save CPU and battery
@@ -195,10 +193,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
   useEffect(() => {
     if (userRole === 'client' || userRole === 'owner') {
       if ('requestIdleCallback' in window) {
-        const idleId = (window as any).requestIdleCallback(() => prefetchRoleRoutes(userRole), { timeout: 2000 });
+        const idleId = (window as any).requestIdleCallback(() => prefetchRoleRoutes(userRole), { timeout: 800 });
         return () => (window as any).cancelIdleCallback(idleId);
       } else {
-        const timeoutId = setTimeout(() => prefetchRoleRoutes(userRole), 1000);
+        const timeoutId = setTimeout(() => prefetchRoleRoutes(userRole), 300);
         return () => clearTimeout(timeoutId);
       }
     }
@@ -393,10 +391,11 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     '/messages',
     '/owner/filters',
   ];
+  const isDashboardSwipePage = location.pathname === '/client/dashboard' || location.pathname === '/owner/dashboard';
   useSwipeNavigation({
     paths: userRole === 'client' ? clientSwipePaths : userRole === 'owner' ? ownerSwipePaths : [],
     containerSelector: '#dashboard-scroll-container',
-    enabled: userRole !== 'admin',
+    enabled: userRole !== 'admin' && !isDashboardSwipePage,
   });
 
   // PERFORMANCE FIX: Welcome check now handled by useWelcomeState hook
@@ -418,12 +417,12 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowSubscriptionPackages(true)
   }, [userRole])
 
-  const handlePropertyInsights = useCallback((listingId: string) => {
+  const _handlePropertyInsights = useCallback((listingId: string) => {
     setSelectedListingId(listingId)
     setShowPropertyInsights(true)
   }, [])
 
-  const handleClientInsights = useCallback((profileId: string) => {
+  const _handleClientInsights = useCallback((profileId: string) => {
     setSelectedProfileId(profileId)
     setShowClientInsights(true)
   }, [])
@@ -452,7 +451,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     setShowMessageActivations(true)
   }, [])
 
-  const handleMenuItemClick = useCallback((action: string) => {
+  const _handleMenuItemClick = useCallback((action: string) => {
     switch (action) {
       case 'add-listing':
         setShowCategoryDialog(true)
@@ -563,7 +562,7 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
 
   // Combine quick filters with applied filters - MEMOIZED to prevent identity changes
   // Now reads directly from Zustand store values instead of local state
-  const combinedFilters = useMemo(() => {
+  const _combinedFilters = useMemo(() => {
     const base = appliedFilters || {};
 
     // Check if any quick filters are active (from store)
@@ -638,7 +637,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
       '/client/services',
       '/messages',
       '/notifications',
-      '/settings'
     ];
 
     const isMatch = immersiveRoutes.some(route => path === route || path === route + '/' || path.startsWith(route + '/')) ||
@@ -666,9 +664,6 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
            location.pathname.includes('/owner/filters') ||
            isEventoDetail || isEventsMain || isRoommatesPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
-
-  // Get page title based on location for TopBar display
-  const activeCategory = useFilterStore((s) => s.activeCategory);
 
   // Round 8: Page titles removed — bottom nav is sufficient indicator
   const pageTitle = '';
@@ -704,10 +699,10 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
           isFullScreenRoute ? "overflow-y-hidden" : "overflow-y-auto"
         )}
         style={{
-          paddingTop: isFullScreenRoute
+          paddingTop: (isFullScreenRoute || isDashboardSwipePage)
             ? '0px'
             : `calc(${topBarHeight}px + var(--safe-top))`,
-          paddingBottom: isFullScreenRoute ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
+          paddingBottom: (isFullScreenRoute || isDashboardSwipePage) ? '0px' : `calc(${bottomNavHeight}px + var(--safe-bottom))`,
           paddingLeft: 'max(var(--safe-left), 0px)',
           paddingRight: 'max(var(--safe-right), 0px)',
           width: '100%',

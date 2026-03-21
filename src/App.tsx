@@ -1,6 +1,5 @@
 import { lazy, Suspense, useState } from "react";
 import { QueryClient, QueryClientProvider, QueryCache } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SuspenseFallback } from "@/components/ui/suspense-fallback";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -12,6 +11,7 @@ import { RadioProvider } from "@/contexts/RadioContext";
 import { useNotifications } from "@/hooks/useNotifications";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { AdminProtectedRoute } from "@/components/AdminProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import SignupErrorBoundary from "@/components/SignupErrorBoundary";
@@ -95,14 +95,14 @@ const OwnerLawyerServices = lazy(() => import("./pages/OwnerLawyerServices"));
 const ClientFilters = lazy(() => import("./pages/ClientFilters"));
 const OwnerFilters = lazy(() => import("./pages/OwnerFilters"));
 
-// Mini-game (disabled — re-enable when ready)
-// const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
+// Mini-game
+const TrumpsBadDay = lazy(() => import("./pages/TrumpsBadDay"));
 
 // Shared routes - lazy loaded
 const MessagingDashboard = lazy(() => import("./pages/MessagingDashboard").then(m => ({ default: m.MessagingDashboard })));
 const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const SubscriptionPackagesPage = lazy(() => import("./pages/SubscriptionPackagesPage"));
-const MyHub = lazy(() => import("./pages/MyHub"));
+const _MyHub = lazy(() => import("./pages/MyHub"));
 const RetroRadioStation = lazy(() => import("./pages/RetroRadioStation"));
 const DJTurntableRadio = lazy(() => import("./pages/DJTurntableRadio"));
 const RadioPlaylists = lazy(() => import("./pages/RadioPlaylists"));
@@ -219,7 +219,6 @@ const App = () => {
     <GlobalErrorBoundary>
       <ConnectionGuard>
       <QueryClientProvider client={queryClient}>
-        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         <BrowserRouter
           future={{
             v7_startTransition: true,
@@ -321,7 +320,7 @@ const App = () => {
                                         <Route path="/explore/eventos" element={<EventosFeed />} />
                                         <Route path="/explore/eventos/promote" element={<PromotionRequest />} />
                                         <Route path="/explore/eventos/:id" element={<EventoDetail />} />
-                                        <Route path="/admin/eventos" element={<AdminEventos />} />
+                                        <Route path="/admin/eventos" element={<AdminProtectedRoute><AdminEventos /></AdminProtectedRoute>} />
                                         <Route path="/explore/prices" element={<PriceTracker />} />
                                         <Route path="/explore/tours" element={<VideoTours />} />
                                         <Route path="/explore/intel" element={<LocalIntel />} />
@@ -329,13 +328,13 @@ const App = () => {
                                         <Route path="/documents" element={<DocumentVault />} />
                                         <Route path="/escrow" element={<EscrowDashboard />} />
 
-                                        {/* Mini-game disabled — re-enable when ready */}
-                                        {/* <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} /> */}
+                                        {/* Mini-game */}
+                                        <Route path="/game/trumps-bad-day" element={<TrumpsBadDay />} />
                                       </Route>
 
                                       {/* Payment routes - outside layout */}
-                                      <Route path="/payment/success" element={<PaymentSuccess />} />
-                                      <Route path="/payment/cancel" element={<PaymentCancel />} />
+                                      <Route path="/payment/success" element={<Suspense fallback={<SuspenseFallback />}><PaymentSuccess /></Suspense>} />
+                                      <Route path="/payment/cancel" element={<Suspense fallback={<SuspenseFallback />}><PaymentCancel /></Suspense>} />
 
                                       {/* Legal Pages - Public Access */}
                                       <Route path="/privacy-policy" element={<PrivacyPolicy />} />

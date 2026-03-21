@@ -10,6 +10,7 @@ import {
   getSoundForTheme
 } from '@/utils/sounds';
 import { setNotificationSoundTheme } from '@/utils/notificationSounds';
+import { logger } from '@/utils/prodLogger';
 
 /**
  * Custom hook for managing swipe sound effects
@@ -37,7 +38,7 @@ export function useSwipeSounds() {
           .maybeSingle();
 
         if (error) {
-          console.warn('Failed to load swipe sound theme:', error);
+          logger.warn('Failed to load swipe sound theme:', error);
           return;
         }
 
@@ -49,7 +50,7 @@ export function useSwipeSounds() {
         // Keep notification sounds in sync with the user's chosen swipe theme
         setNotificationSoundTheme(userTheme);
       } catch (error) {
-        console.warn('Error loading swipe sound theme:', error);
+        logger.warn('Error loading swipe sound theme:', error);
       }
     };
 
@@ -119,7 +120,7 @@ export function useSwipeSounds() {
         playSound(rightAudioRef.current);
       }
     } catch (error) {
-      console.warn('Error playing swipe sound:', error);
+      logger.warn('Error playing swipe sound:', error);
     }
   };
 

@@ -8,7 +8,7 @@ interface ExploreFeatureLinksProps {
   isClient?: boolean;
 }
 
-export function ExploreFeatureLinks({ isClient = true }: ExploreFeatureLinksProps) {
+export function ExploreFeatureLinks({ isClient: _isClient = true }: ExploreFeatureLinksProps) {
   const navigate = useNavigate();
 
   return (

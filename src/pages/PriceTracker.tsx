@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
+import { logger } from '@/utils/prodLogger';
 
 interface PricePoint {
   neighborhood: string;
@@ -36,7 +37,7 @@ export default function PriceTracker() {
         const { data: prices } = await supabase.from('price_history').select('*').order('year').order('month');
         setData((prices as any[]) || []);
       } catch (e) {
-        console.error('Failed to fetch prices', e);
+        logger.error('Failed to fetch prices', e);
       } finally {
         setIsLoading(false);
       }

@@ -32,7 +32,7 @@ export function useProfileAutoSync() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const lastSyncRef = useRef<number>(0);
-  const channelRef = useRef<any>(null);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   // Invalidate all profile-related queries
   const refreshAllProfiles = useCallback(() => {

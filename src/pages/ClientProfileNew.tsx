@@ -8,12 +8,11 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, Zap, MessageSquare
+  Flame, ThumbsUp, Settings, Radio, MessageSquare
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
 import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
-import { ExploreFeatureLinks } from "@/components/ExploreFeatureLinks";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -74,7 +73,7 @@ const ClientProfileNew = () => {
 
   return (
     <>
-      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
+      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full stagger-children">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -124,7 +123,10 @@ const ClientProfileNew = () => {
               )}
             >
               <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
-              <div className="text-lg font-semibold text-foreground leading-none mb-1">{stat.value}</div>
+              <div
+                className="text-lg font-black leading-none mb-1"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+              >{stat.value}</div>
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}

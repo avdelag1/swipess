@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/useToast";
-import { Loader2, Lock, Eye, EyeOff, Flame, Check, X, Shield, KeyRound, ArrowLeft } from "lucide-react";
+import { Loader2, Lock, Eye, EyeOff, Check, X, Shield, KeyRound, ArrowLeft } from "lucide-react";
 
 // Password strength checker
 const checkPasswordStrength = (password: string) => {
@@ -78,10 +78,10 @@ const ResetPassword = () => {
       setTimeout(() => {
         navigate("/");
       }, 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error updating password",
-        description: error.message || "Please try again or request a new reset link.",
+        description: error instanceof Error ? error.message : "Please try again or request a new reset link.",
         variant: "destructive",
       });
     } finally {
