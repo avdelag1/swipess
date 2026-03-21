@@ -65,11 +65,11 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                     exit={{ opacity: 0, scale: 0.8, rotate: 180 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
-                    {theme === 'light' && (
-                        <Moon strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
+                            {theme === 'light' && (
+                        <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-500" />
                     )}
                     {theme === 'dark' && (
-                        <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                        <Moon strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
                     )}
                     {theme === 'cheers' && (
                         <Sparkles strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
