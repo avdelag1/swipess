@@ -8,7 +8,6 @@ import { GradientMaskTop, GradientMaskBottom, GlobalVignette } from '@/component
 import { RadioMiniPlayer } from '@/components/RadioMiniPlayer';
 import { NotificationSystem } from '@/components/NotificationSystem';
 import { useTheme } from '@/hooks/useTheme';
-import { SkinSwitcher } from '@/components/SkinSwitcher';
 
 // Lazy-load VisualEngine so framer-motion is NOT on the critical path
 const VisualEngine = lazy(() =>
@@ -60,8 +59,6 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Global Radio Mini Player - skip on full-screen public preview pages */}
       {!isPublicPreview && <RadioMiniPlayer />}
       
-      {/* Global Skin Switcher for Animal Print & B/W Filters */}
-      <SkinSwitcher />
     </div>
   );
 }

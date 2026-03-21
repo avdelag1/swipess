@@ -279,7 +279,7 @@ export default function RoommateMatching() {
              <motion.button
                whileTap={{ scale: 0.88 }}
                onClick={() => setShowFilters(true)}
-               className="w-11 h-11 rounded-[1.2rem] flex items-center justify-center border border-amber-900/40 animal-print-fur shadow-[0_4px_14px_rgba(0,0,0,0.4)] active:shadow-inner"
+               className="w-11 h-11 rounded-[1.2rem] flex items-center justify-center bg-white/10 dark:bg-white/10 border border-white/20 backdrop-blur-md shadow-[0_4px_14px_rgba(0,0,0,0.4)] active:shadow-inner"
              >
                <SlidersHorizontal className="w-4 h-4 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]" />
              </motion.button>

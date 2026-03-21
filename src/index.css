@@ -166,6 +166,61 @@ body {
   scrollbar-gutter: stable;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/*  CHEERS / ANIMAL PRINT THEME — full cheetah skin across the app     */
+/*  Repeating tile (180×130 px) of golden spot clusters on dark brown  */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+html.cheers body {
+  background-color: #1c0b01;
+  background-image:
+    /* Cluster A */
+    radial-gradient(ellipse 20px 13px at  9%  12%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
+    radial-gradient(ellipse 13px 20px at 17%  28%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
+    radial-gradient(ellipse 16px 10px at  4%  38%, rgba(195,140,6,0.64) 0%, rgba(155,100,4,0.30) 55%, transparent 85%),
+    /* Cluster B */
+    radial-gradient(ellipse 18px 11px at 43%   7%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
+    radial-gradient(ellipse 10px 17px at 51%  20%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
+    radial-gradient(ellipse 14px  9px at 36%  29%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
+    /* Cluster C */
+    radial-gradient(ellipse 20px 13px at 77%   9%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
+    radial-gradient(ellipse 13px 20px at 85%  23%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
+    radial-gradient(ellipse 16px 10px at 69%  32%, rgba(195,140,6,0.62) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
+    /* Cluster D — far right */
+    radial-gradient(ellipse 18px 11px at 97%   6%, rgba(210,152,8,0.78) 0%, rgba(170,110,4,0.36) 55%, transparent 85%),
+    radial-gradient(ellipse 10px 16px at 95%  22%, rgba(195,140,6,0.66) 0%, rgba(155,100,4,0.30) 55%, transparent 85%),
+    /* Cluster E — mid-left */
+    radial-gradient(ellipse 20px 13px at 11%  54%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
+    radial-gradient(ellipse 13px 20px at 20%  68%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
+    radial-gradient(ellipse 16px 10px at  5%  76%, rgba(195,140,6,0.62) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
+    /* Cluster F — mid-center */
+    radial-gradient(ellipse 18px 11px at 52%  50%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
+    radial-gradient(ellipse 10px 17px at 60%  63%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
+    radial-gradient(ellipse 14px  9px at 44%  71%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%),
+    /* Cluster G — mid-right */
+    radial-gradient(ellipse 20px 13px at 82%  52%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
+    radial-gradient(ellipse 13px 20px at 90%  65%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
+    radial-gradient(ellipse 15px  9px at 74%  74%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%),
+    /* Cluster H — bottom-left */
+    radial-gradient(ellipse 18px 11px at 14%  84%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
+    radial-gradient(ellipse 10px 16px at 23%  96%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
+    radial-gradient(ellipse 14px  9px at  7%  94%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%),
+    /* Cluster I — bottom-center */
+    radial-gradient(ellipse 20px 13px at 54%  82%, rgba(210,152,8,0.82) 0%, rgba(170,110,4,0.40) 55%, transparent 85%),
+    radial-gradient(ellipse 13px 20px at 62%  95%, rgba(210,152,8,0.74) 0%, rgba(170,110,4,0.35) 55%, transparent 85%),
+    radial-gradient(ellipse 16px 10px at 46%  98%, rgba(195,140,6,0.62) 0%, rgba(155,100,4,0.28) 55%, transparent 85%),
+    /* Cluster J — bottom-right */
+    radial-gradient(ellipse 18px 11px at 84%  86%, rgba(210,152,8,0.80) 0%, rgba(170,110,4,0.38) 55%, transparent 85%),
+    radial-gradient(ellipse 10px 16px at 92%  97%, rgba(210,152,8,0.72) 0%, rgba(170,110,4,0.32) 55%, transparent 85%),
+    radial-gradient(ellipse 14px  9px at 76%  93%, rgba(195,140,6,0.60) 0%, rgba(155,100,4,0.26) 55%, transparent 85%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+html.cheers #root {
+  background: transparent;
+}
+
 #root {
   width: 100%;
   max-width: 100vw;
