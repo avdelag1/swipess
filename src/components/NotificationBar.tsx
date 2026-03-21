@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle, ThumbsUp, Star, UserPlus, Zap, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -29,14 +29,14 @@ interface NotificationBarProps {
   onNotificationClick: (notification: Notification) => void;
 }
 
-const typeConfigs: Record<NotificationType, { icon: any; accentColor: string; glowColor: string }> = {
-  like:                { icon: ThumbsUp,    accentColor: '#ec4899', glowColor: 'rgba(236,72,153,0.35)' },
-  match:               { icon: SparklesIcon, accentColor: 'var(--color-brand-accent-2)', glowColor: 'rgba(228,0,124,0.35)' },
-  super_like:          { icon: Star,         accentColor: '#fbbf24', glowColor: 'rgba(251,191,36,0.35)' },
-  message:             { icon: MessageCircle,accentColor: '#60a5fa', glowColor: 'rgba(96,165,250,0.35)' },
-  new_user:            { icon: UserPlus,     accentColor: '#34d399', glowColor: 'rgba(52,211,153,0.35)' },
-  premium_purchase:    { icon: Crown,        accentColor: '#a78bfa', glowColor: 'rgba(167,139,250,0.35)' },
-  activation_purchase: { icon: Zap,          accentColor: '#fb923c', glowColor: 'rgba(251,146,60,0.35)' },
+const typeConfigs: Record<NotificationType, { icon: any; accentColor: string }> = {
+  like:                { icon: ThumbsUp,     accentColor: '#ec4899' },
+  match:               { icon: SparklesIcon, accentColor: 'var(--color-brand-accent-2)' },
+  super_like:          { icon: Star,         accentColor: '#fbbf24' },
+  message:             { icon: MessageCircle,accentColor: '#60a5fa' },
+  new_user:            { icon: UserPlus,     accentColor: '#34d399' },
+  premium_purchase:    { icon: Crown,        accentColor: '#a78bfa' },
+  activation_purchase: { icon: Zap,          accentColor: '#fb923c' },
 };
 
 function SparklesIcon(props: any) {
@@ -49,120 +49,174 @@ function SparklesIcon(props: any) {
 }
 
 export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMarkAllRead, onNotificationClick }: NotificationBarProps) {
-  const [visible, setVisible] = useState(false);
-  const [isCoolingDown, setIsCoolingDown] = useState(false);
-  const dismissedRef = useRef(false);
-  const prevUnreadCountRef = useRef(0);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  const unreadNotifications = useMemo(() => notifications.filter(n => !n.read), [notifications]);
-  const unreadCount = unreadNotifications.length;
+  // ─── SNAPSHOT PATTERN ───────────────────────────────────────────────────────
+  // "current" is the notification we are CURRENTLY displaying.
+  // It is set once when we decide to show it and never changed until after the
+  // exit animation fully completes.  This prevents the card content from
+  // switching mid-animation (which caused the "two notifications at once" bug).
+  const [current, setCurrent] = useState<Notification | null>(null);
+  const [visible, setVisible] = useState(false);
 
+  // Refs — no re-renders needed for these
+  const timerRef   = useRef<ReturnType<typeof setTimeout>>();
+  const isExiting  = useRef(false);   // true while the exit animation is running
+  const pendingRef = useRef<Notification | null>(null); // queued next notification
+
+  const unread = useMemo(
+    () => notifications.filter(n => !n.read),
+    [notifications],
+  );
+
+  // ─── TRIGGER: show when a new unread arrives ─────────────────────────────
   useEffect(() => {
-    if (unreadCount > 0 && !isCoolingDown) {
-      if (!dismissedRef.current || unreadCount > prevUnreadCountRef.current) {
-        setVisible(true);
-        dismissedRef.current = false;
-        prevUnreadCountRef.current = unreadCount;
+    const next = unread[0];
 
-        const timer = setTimeout(() => {
-          setVisible(false);
-          dismissedRef.current = true;
-        }, 5000);
-        return () => clearTimeout(timer);
-      }
-    } else if (unreadCount === 0) {
-      setVisible(false);
-      dismissedRef.current = false;
-      prevUnreadCountRef.current = 0;
+    if (!next) {
+      // Nothing left — start dismissal if still visible
+      if (visible) startDismiss();
+      return;
     }
-  }, [unreadCount, isCoolingDown]);
 
-  const handleDismiss = () => {
+    // Already showing this exact notification — do nothing
+    if (current?.id === next.id && visible) return;
+
+    // Mid-exit — remember the next one for after the animation
+    if (isExiting.current) {
+      pendingRef.current = next;
+      return;
+    }
+
+    // Show the new notification
+    showNotification(next);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unread.map(n => n.id).join(',')]);
+
+  const showNotification = useCallback((notif: Notification) => {
+    clearTimeout(timerRef.current);
+    setCurrent(notif);
+    setVisible(true);
+    // Auto-dismiss after 5 s
+    timerRef.current = setTimeout(() => startDismiss(), 5000);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startDismiss = useCallback(() => {
+    if (isExiting.current) return; // already dismissing
+    isExiting.current = true;
+    clearTimeout(timerRef.current);
     setVisible(false);
-    dismissedRef.current = true;
-    // Cooldown prevents the next notification from immediately overlapping
-    setIsCoolingDown(true);
-    setTimeout(() => setIsCoolingDown(false), 700);
-    if (unreadNotifications[0]) {
-      onDismiss(unreadNotifications[0].id);
-    }
-  };
+    // NOTE: we do NOT call onDismiss here — we wait for the exit animation
+    //       to finish so the card content stays frozen during the slide-out.
+  }, []);
 
-  const currentNotification = unreadNotifications[0];
-  const config = currentNotification ? typeConfigs[currentNotification.type] : typeConfigs.like;
-  const Icon = config.icon;
+  // Called by AnimatePresence once the exit animation is 100% done
+  const handleExitComplete = useCallback(() => {
+    isExiting.current = false;
+
+    // NOW tell the parent to mark this notification read
+    if (current) onDismiss(current.id);
+
+    const pending = pendingRef.current;
+    pendingRef.current = null;
+
+    if (pending) {
+      // Show the queued notification after a brief breath
+      setTimeout(() => showNotification(pending), 200);
+    } else {
+      setCurrent(null);
+    }
+  }, [current, onDismiss, showNotification]);
+
+  // ─── UI ─────────────────────────────────────────────────────────────────────
+  if (!current) return null;
+
+  const config = typeConfigs[current.type] ?? typeConfigs.like;
+  const Icon   = config.icon;
+
+  const unreadCount = unread.length;
 
   return (
-    <AnimatePresence>
-      {visible && currentNotification && (
+    <AnimatePresence onExitComplete={handleExitComplete}>
+      {visible && (
         <motion.div
-          initial={{ y: -60, opacity: 0, scale: 0.9 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: -60, opacity: 0, scale: 0.9 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          key={current.id}
           className="fixed top-14 left-0 right-0 z-[100] px-4 flex justify-center pointer-events-none"
+          // Enter: slide down from above + fade in — crisp, no bounce
+          initial={{ y: -72, opacity: 0 }}
+          animate={{ y: 0,   opacity: 1 }}
+          // Exit: slide straight back up fast — no spring wobble
+          exit={{ y: -72, opacity: 0 }}
+          transition={{
+            y:       { type: 'tween', duration: 0.22, ease: [0.22, 1, 0.36, 1] },
+            opacity: { type: 'tween', duration: 0.18, ease: 'easeOut' },
+          }}
         >
           <motion.div
+            // ── SWIPE-UP-TO-DISMISS ────────────────────────────────────────
+            // Drag is tracked in real-time so the finger controls the card
+            // directly. Dismiss triggers the moment the card crosses -30 px
+            // upward — no need to lift the finger first.
             drag="y"
-            dragConstraints={{ top: -80, bottom: 0 }}
-            dragElastic={{ top: 0.4, bottom: 0 }}
-            onDragEnd={(_, info) => { if (info.offset.y < -30) handleDismiss(); }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer group backdrop-blur-xl"
+            dragDirectionLock
+            dragConstraints={{ top: -120, bottom: 8 }}
+            dragElastic={{ top: 0.25, bottom: 0.05 }}
+            onDrag={(_, info) => {
+              if (info.offset.y < -30 && !isExiting.current) {
+                startDismiss();
+              }
+            }}
+            // Tap or release without a big drag — if not triggered already
+            onDragEnd={(_, info) => {
+              if (info.offset.y < -20 && !isExiting.current) startDismiss();
+            }}
+            whileTap={{ scale: 0.985 }}
+            className="pointer-events-auto flex items-stretch min-w-[300px] max-w-[92vw] rounded-2xl overflow-hidden cursor-pointer"
             style={{
-              background: isDark
-                ? 'rgba(24,24,28,0.95)'
-                : '#ffffff',
-              border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+              background: isDark ? 'rgba(20,20,24,0.97)' : '#ffffff',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}`,
               boxShadow: isDark
-                ? '0 8px 32px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.3)'
-                : '0 4px 12px rgba(0,0,0,0.05)',
+                ? '0 8px 28px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)'
+                : '0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
             }}
             onClick={() => {
-              onNotificationClick(currentNotification);
-              handleDismiss();
+              onNotificationClick(current);
+              startDismiss();
             }}
           >
-            {/* Left accent bar — type-specific color */}
-            <div
-              className="w-1 flex-shrink-0"
-              style={{ background: config.accentColor }}
-            />
+            {/* Left accent stripe */}
+            <div className="w-[3px] flex-shrink-0" style={{ background: config.accentColor }} />
 
-            {/* Content area */}
+            {/* Content */}
             <div className="flex items-center gap-3 px-4 py-3 flex-1 min-w-0">
-              {/* Icon circle */}
+              {/* Icon chip */}
               <div
-                className="relative flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{
-                  background: isDark
-                    ? `${config.accentColor}15`
-                    : `${config.accentColor}10`,
-                }}
+                className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
+                style={{ background: `${config.accentColor}18` }}
               >
-                <Icon
-                  className="w-4.5 h-4.5"
-                  style={{ color: config.accentColor, width: 17, height: 17 }}
-                />
+                <Icon style={{ color: config.accentColor, width: 17, height: 17 }} />
               </div>
 
-              <div className="flex-1 min-w-0 pr-2">
-                <h4 className="text-[13px] font-semibold leading-tight mb-0.5 truncate text-foreground">
-                  {unreadCount > 1 ? `${unreadCount} New Notifications` : currentNotification.title}
-                </h4>
-                <p className="text-[12px] font-normal truncate leading-snug text-muted-foreground">
-                  {unreadCount > 1 ? 'Tap to view your notifications' : currentNotification.message}
+              {/* Text */}
+              <div className="flex-1 min-w-0 pr-1">
+                <p className="text-[13px] font-semibold leading-tight mb-0.5 truncate text-foreground">
+                  {unreadCount > 1 ? `${unreadCount} new notifications` : current.title}
+                </p>
+                <p className="text-[12px] truncate leading-snug text-muted-foreground">
+                  {unreadCount > 1 ? 'Tap to see all' : current.message}
                 </p>
               </div>
 
+              {/* Close button */}
               <button
-                onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
+                onClick={(e) => { e.stopPropagation(); startDismiss(); }}
                 className={cn(
-                  "flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center transition-colors",
-                  isDark ? "hover:bg-white/10" : "hover:bg-black/5"
+                  "flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center",
+                  isDark ? "hover:bg-white/10 active:bg-white/15" : "hover:bg-black/5 active:bg-black/10",
                 )}
                 aria-label="Dismiss"
               >

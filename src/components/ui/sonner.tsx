@@ -11,7 +11,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme === 'dark' ? 'dark' : 'light'}
       className="toaster group"
       position="top-center"
+      // Only show 1 toast at a time — no stack-up
+      visibleToasts={1}
+      // Swipe direction matches our custom banner (up to dismiss)
+      swipeDirections={['up']}
+      // Close immediately on swipe — no threshold delay
+      closeButton={false}
       toastOptions={{
+        duration: 4000,
         classNames: {
           toast:
             "group toast group-[.toaster]:bg-zinc-900/95 group-[.toaster]:backdrop-blur-xl group-[.toaster]:text-white group-[.toaster]:border-white/10 group-[.toaster]:shadow-[0_4px_20px_rgba(0,0,0,0.35)] group-[.toaster]:rounded-2xl group-[.toaster]:px-4 group-[.toaster]:py-3.5 group-[.toaster]:border-l-[3px] group-[.toaster]:border-l-white/20",
