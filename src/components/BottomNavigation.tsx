@@ -100,8 +100,8 @@ export function BottomNavigation({
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'eventos', icon: Megaphone, label: t('nav.events'), path: '/explore/eventos', isSpecial: true },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
+    { id: 'eventos', icon: Megaphone, label: t('nav.events'), path: '/explore/eventos', isSpecial: true },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
@@ -110,10 +110,10 @@ export function BottomNavigation({
     { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
+    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
     { id: 'promote', icon: Megaphone, label: t('nav.events'), path: '/client/advertise', isSpecial: true },
-    { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
 
