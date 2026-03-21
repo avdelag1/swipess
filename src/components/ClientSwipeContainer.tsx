@@ -799,6 +799,10 @@ const ClientSwipeContainerComponent = ({
 
   const showLoadingSkeleton = !hasHydratedData && isLoading;
 
+  // "All Caught Up" — user has swiped through every card in the current deck
+  // Only true once past initial load and topCard is exhausted
+  const isDeckFinished = !showLoadingSkeleton && topCard === null && (hasHydratedData || !isLoading);
+
   // ========================================
   // 🔥 SINGLE RETURN BLOCK - SAFE ORDER
   // ========================================

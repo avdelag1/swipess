@@ -246,7 +246,7 @@ export function ConversationalListingCreator() {
       }
 
       toast.success('Listing created successfully!');
-      navigate('/owner-dashboard');
+      navigate('/owner/dashboard');
     } catch (error) {
       logger.error('Failed to create listing:', error);
       toast.error('Failed to create listing');
