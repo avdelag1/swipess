@@ -20,7 +20,7 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import {
   Flame, MessageCircle, User, Building2,
   Search, Ticket, Users, Sparkles, ShieldCheck,
-  PartyPopper, Megaphone
+  PartyPopper, Megaphone, Compass
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessageCount } from '@/hooks/useUnreadMessageCount';
@@ -95,24 +95,24 @@ export function BottomNavigation({
 
   // Client nav items — order: Dashboard, Profile, Likes, AI, Messages, Events, Roommates, Filters
   const clientNavItems: NavItem[] = [
-    { id: 'browse', icon: Ticket, label: t('nav.explore'), path: '/client/dashboard' },
+    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/client/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/client/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/client/liked-properties' },
     { id: 'ai-search', icon: Sparkles, label: 'AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'eventos', icon: PartyPopper, label: "What's Up", path: '/explore/eventos', isSpecial: true },
+    { id: 'eventos', icon: Megaphone, label: t('nav.events'), path: '/explore/eventos', isSpecial: true },
     { id: 'roommates', icon: Users, label: 'Roommates', path: '/explore/roommates' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/client/filters' },
   ];
 
   // Owner nav items — order: Dashboard, Profile, Likes, AI, Messages, Promote, Listings, Filters
   const ownerNavItems: NavItem[] = [
-    { id: 'browse', icon: Ticket, label: t('nav.explore'), path: '/owner/dashboard' },
+    { id: 'browse', icon: Compass, label: t('nav.explore'), path: '/owner/dashboard' },
     { id: 'profile', icon: User, label: t('nav.profile'), path: '/owner/profile' },
     { id: 'likes', icon: Flame, label: t('nav.liked'), path: '/owner/liked-clients' },
     { id: 'ai-search', icon: Sparkles, label: 'Listing AI', onClick: onAISearchClick },
     { id: 'messages', icon: MessageCircle, label: t('nav.messages'), path: '/messages' },
-    { id: 'promote', icon: Megaphone, label: 'Promote', path: '/client/advertise', isSpecial: true },
+    { id: 'promote', icon: Megaphone, label: t('nav.events'), path: '/client/advertise', isSpecial: true },
     { id: 'listings', icon: Building2, label: t('nav.listings'), path: '/owner/properties' },
     { id: 'filter', icon: Search, label: t('actions.filter'), path: '/owner/filters' },
   ];
