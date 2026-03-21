@@ -226,6 +226,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
     const ownerHasActiveFilters = !ownerIsAllSelected;
     return (
       <div
+        data-no-swipe-nav
         className={cn(
           isDark ? 'bg-background/50' : 'bg-white/80',
           'backdrop-blur-xl border-b border-border px-3 py-2',
@@ -331,6 +332,7 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
   return (
     <div
+      data-no-swipe-nav
       className={cn(
         isDark ? 'bg-background/50' : 'bg-white/80',
         'backdrop-blur-xl border-b border-border px-3 pt-2 pb-1',

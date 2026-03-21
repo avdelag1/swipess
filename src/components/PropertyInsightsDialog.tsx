@@ -799,7 +799,7 @@ function PropertyInsightsDialogComponent({ open, onOpenChange, listing }: Proper
           <Button
             onClick={handleMessage}
             disabled={isCreatingConversation || !listing}
-            className="w-full"
+            className="w-full mexican-pink-premium"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             {isCreatingConversation ? 'Starting conversation...' : 'Contact Owner'}

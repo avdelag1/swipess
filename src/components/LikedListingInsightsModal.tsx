@@ -477,7 +477,7 @@ function LikedListingInsightsModalComponent({ open, onOpenChange, listing }: Lik
               <Button
                 onClick={handleMessage}
                 disabled={isCreatingConversation || !listing}
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold text-base rounded-xl shadow-lg shadow-blue-500/25"
+                className="w-full h-12 mexican-pink-premium font-semibold text-base rounded-xl"
               >
                 <MessageCircle className="w-5 h-5 mr-2" />
                 {isCreatingConversation ? 'Starting...' : 'Message Owner'}

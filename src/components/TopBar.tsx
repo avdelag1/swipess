@@ -160,7 +160,7 @@ function TopBarComponent({
     e.preventDefault();
     e.stopPropagation();
     haptics.tap();
-    navigate(-1);
+    navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
   };
 
   return (

@@ -895,7 +895,7 @@ export function ClientInsightsDialog({ open, onOpenChange, profile }: ClientInsi
           <Button
             onClick={handleMessage}
             disabled={isCreatingConversation}
-            className="w-full"
+            className="w-full mexican-pink-premium"
           >
             <MessageCircle className="w-4 h-4 mr-2" />
             {isCreatingConversation ? 'Starting conversation...' : 'Send Message'}

@@ -141,8 +141,7 @@ export function MessageConfirmationDialog({
             <Button
               onClick={handleConfirm}
               disabled={!canStartNewConversation || isLoading || !message.trim()}
-              className="flex-1 rounded-2xl font-semibold text-white shadow-lg shadow-cyan-500/20"
-              style={{ background: 'linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)' }}
+              className="flex-1 rounded-2xl mexican-pink-premium font-semibold"
             >
               {isLoading ? (
                 <>
