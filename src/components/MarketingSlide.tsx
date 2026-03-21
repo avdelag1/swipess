@@ -10,7 +10,7 @@ interface MarketingSlideProps {
 const slideData: Record<string, {
     title: string;
     subtitle: string;
-    icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+    icon: React.ComponentType<any>;
     gradient: string;
     badge?: string;
 }> = {
