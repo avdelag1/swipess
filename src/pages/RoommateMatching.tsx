@@ -480,10 +480,10 @@ export default function RoommateMatching() {
             <div className="px-8 pt-8 pb-32 space-y-12">
                {/* STATS GRID */}
                <div className="grid grid-cols-2 gap-4">
-                  <InfoPill icon={MapPin} label="Vibe Location" value={topCard.city} />
-                  <InfoPill icon={Briefcase} label="Hustle" value={topCard.work_schedule} />
-                  <InfoPill icon={Clock} label="Noise" value={topCard.noise_tolerance} />
-                  <InfoPill icon={Sparkles} label="Purity" value={topCard.cleanliness_level} />
+                   <InfoPill icon={MapPin} label="Vibe Location" value={topCard.city ?? ''} />
+                   <InfoPill icon={Briefcase} label="Hustle" value={(topCard as any).work_schedule ?? ''} />
+                   <InfoPill icon={Clock} label="Noise" value={(topCard as any).noise_tolerance ?? ''} />
+                   <InfoPill icon={Sparkles} label="Purity" value={(topCard as any).cleanliness_level ?? ''} />
                </div>
 
                {/* BIO */}
