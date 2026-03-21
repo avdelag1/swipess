@@ -28,11 +28,11 @@ type CategoryOption = {
   hasSubOptions: boolean;
 };
 
-const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string })[] = [
-  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-400' },
-  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-400' },
-  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-rose-600 to-rose-500', inactiveColor: 'text-rose-400' },
-  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-400' },
+const categoryOptionBase: (CategoryOption & { color: string; inactiveColor: string; bgTint: string })[] = [
+  { id: 'property', label: 'Property', icon: <Home strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-blue-600 to-cyan-500', inactiveColor: 'text-blue-500', bgTint: 'bg-blue-500/10' },
+  { id: 'motorcycle', label: 'Motorcycle', icon: <MotorcycleIcon className="w-4 h-4" />, hasSubOptions: true, color: 'from-orange-600 to-amber-500', inactiveColor: 'text-orange-500', bgTint: 'bg-orange-500/10' },
+  { id: 'bicycle', label: 'Bicycle', icon: <Bike strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-rose-600 to-rose-500', inactiveColor: 'text-rose-500', bgTint: 'bg-rose-500/10' },
+  { id: 'services', label: 'Workers', icon: <Wrench strokeWidth={4} className="w-4 h-4" />, hasSubOptions: true, color: 'from-purple-600 to-violet-500', inactiveColor: 'text-purple-500', bgTint: 'bg-purple-500/10' },
 ];
 
 const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
@@ -41,17 +41,17 @@ const listingTypeOptions: { id: QuickFilterListingType; label: string }[] = [
   { id: 'sale', label: 'Buy' },
 ];
 
-const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500' },
-  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500' },
+const genderOptions: { id: OwnerClientGender; label: string; icon: React.ReactNode; color: string; inactiveColor: string; bgTint: string }[] = [
+  { id: 'any', label: 'All Genders', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500', inactiveColor: 'text-gray-500', bgTint: 'bg-gray-500/10' },
+  { id: 'female', label: 'Women', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-pink-500 to-rose-500', inactiveColor: 'text-pink-500', bgTint: 'bg-pink-500/10' },
+  { id: 'male', label: 'Men', icon: <User strokeWidth={4} className="w-4 h-4" />, color: 'from-blue-500 to-indigo-500', inactiveColor: 'text-blue-500', bgTint: 'bg-blue-500/10' },
 ];
 
-const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string }[] = [
-  { id: 'all', label: 'All Types', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500' },
-  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500' },
-  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500' },
-  { id: 'buy', label: 'Buying', icon: <Search strokeWidth={4} className="w-4 h-4" />, color: 'from-rose-500 to-rose-500' },
+const clientTypeOptions: { id: OwnerClientType; label: string; icon: React.ReactNode; color: string; inactiveColor: string; bgTint: string }[] = [
+  { id: 'all', label: 'All Types', icon: <Users strokeWidth={4} className="w-4 h-4" />, color: 'from-gray-500 to-slate-500', inactiveColor: 'text-gray-500', bgTint: 'bg-gray-500/10' },
+  { id: 'hire', label: 'Hiring', icon: <Briefcase strokeWidth={4} className="w-4 h-4" />, color: 'from-purple-500 to-violet-500', inactiveColor: 'text-purple-500', bgTint: 'bg-purple-500/10' },
+  { id: 'rent', label: 'Renting', icon: <Home strokeWidth={4} className="w-4 h-4" />, color: 'from-orange-500 to-amber-500', inactiveColor: 'text-orange-500', bgTint: 'bg-orange-500/10' },
+  { id: 'buy', label: 'Buying', icon: <Search strokeWidth={4} className="w-4 h-4" />, color: 'from-rose-500 to-rose-500', inactiveColor: 'text-rose-500', bgTint: 'bg-rose-500/10' },
 ];
 
 const QuickFilterText = ({ hasActiveFilters, isDark }: { hasActiveFilters: boolean; isDark: boolean }) => (
@@ -202,7 +202,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
-                        : 'text-muted-foreground bg-muted/50 border-border hover:border-border/80'
+                        : cn('border-border hover:border-border/80 transition-all duration-200', option.inactiveColor, option.bgTint)
                     )}
                   >
                     {option.icon}
@@ -228,7 +228,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                       isActive
                         ? cn('bg-gradient-to-br text-white border-transparent ring-2 ring-offset-1', option.color,
                             isDark ? 'ring-white/20' : 'ring-black/10')
-                        : 'text-muted-foreground bg-muted/50 border-border hover:border-border/80'
+                        : cn('border-border hover:border-border/80 transition-all duration-200', option.inactiveColor, option.bgTint)
                     )}
                   >
                     {option.icon}
@@ -286,7 +286,7 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
               <div className="flex items-center gap-2 sm:gap-3">
                 <span className={cn(
                   'p-1.5 sm:p-2 rounded-lg',
-                  isAllActive ? 'bg-white/20 text-white' : isDark ? 'bg-white/10 text-muted-foreground' : 'bg-black/5 text-gray-500'
+                  isAllActive ? 'bg-gradient-to-br from-pink-500 to-orange-500 text-white shadow-md' : 'bg-pink-500/10 text-pink-500'
                 )}>
                   <Search strokeWidth={4} className="w-4 h-4" />
                 </span>
@@ -322,8 +322,8 @@ function QuickFilterDropdownComponent({ userRole, className }: QuickFilterDropdo
                     <span className={cn(
                       'p-1.5 sm:p-2 rounded-lg',
                       isActive
-                        ? isDark ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-600'
-                        : isDark ? 'bg-white/10 text-muted-foreground' : 'bg-black/5 text-gray-400'
+                        ? cn('bg-gradient-to-br text-white shadow-md', category.color)
+                        : cn(category.bgTint, category.inactiveColor)
                     )}>
                       {category.icon}
                     </span>
