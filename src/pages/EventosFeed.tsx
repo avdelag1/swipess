@@ -601,6 +601,7 @@ function DiscoverContent({
   const { t } = useTranslation();
   const { theme } = useTheme();
   const isLight = theme === 'light';
+  const { navigate } = useAppNavigate();
 
   const spotlightEvents = useMemo(() => events.filter(e => e.discount_tag).slice(0, 5), [events]);
   const trendingEvents = useMemo(() => events.slice(5, 11), [events]);
@@ -704,7 +705,10 @@ function DiscoverContent({
             <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest opacity-80 mb-6 max-w-[200px]">
               Promote your brand to the elite Swipess community.
             </p>
-            <button className="px-6 py-2.5 rounded-full bg-white text-indigo-600 text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
+            <button 
+              onClick={() => navigate('/explore/eventos/promote')}
+              className="px-6 py-2.5 rounded-full bg-white text-indigo-600 text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
+            >
               Apply now
             </button>
           </div>
@@ -1131,9 +1135,7 @@ function StoryCard({
     e.stopPropagation();
     triggerHaptic('medium');
     if (isPromo) {
-      const phone = '529841234567';
-      const msg = encodeURIComponent("Hey Swipess! I want to promote my event/brand in the app.");
-      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+      navigate('/explore/eventos/promote');
       return;
     }
     navigate(`/explore/eventos/${baseEventId}`, { state: { eventData: event } });
