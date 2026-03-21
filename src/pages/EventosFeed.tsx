@@ -664,7 +664,7 @@ function DiscoverContent({
                   <Icon className="w-5 h-5" style={{ color: isActive ? '#fff' : cat.color }} />
                 </div>
                 <span className="text-[9px] font-black uppercase tracking-widest text-center truncate w-full">
-                  {t('eventos.' + cat.label, cat.label)}
+                  {String(t('eventos.' + cat.label, cat.label))}
                 </span>
               </motion.button>
             );
