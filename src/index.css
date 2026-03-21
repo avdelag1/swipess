@@ -162,11 +162,20 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 body::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+}
+
+/* Universal override to ensure NO element shows a scrollbar anywhere */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+*::-webkit-scrollbar {
+  display: none !important;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
