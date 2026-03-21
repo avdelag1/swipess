@@ -32,87 +32,19 @@ import { cn } from '@/lib/utils';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, Users, MapPin, Bike, Wrench, User, Sparkles, Navigation } from 'lucide-react';
-import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
-import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
+import { RefreshCw, MapPin, Bike, Wrench, User, Navigation } from 'lucide-react';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { logger } from '@/utils/prodLogger';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
-// ── Distance Slider Component ─────────────────────────────────────────────────
-interface DistanceSliderProps {
-  radiusKm: number;
-  onRadiusChange: (km: number) => void;
-  onDetectLocation: () => void;
-  detecting: boolean;
-  detected: boolean;
-}
-
-const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
-  const maxKm = 100;
-  return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-2">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-black text-primary">{radiusKm} km</span>
-          <button
-            onClick={onDetectLocation}
-            disabled={detecting}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
-            style={{
-              background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
-              borderColor: detected ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.15)',
-              color: detected ? '#f97316' : 'rgba(255,255,255,0.6)',
-            }}
-          >
-            <Navigation className="w-2.5 h-2.5" />
-            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
-          </button>
-        </div>
-      </div>
-      <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-          <div
-            className="h-full rounded-full"
-            style={{
-              width: `${(radiusKm / maxKm) * 100}%`,
-              background: 'linear-gradient(90deg, #ec4899, #f97316)',
-            }}
-          />
-        </div>
-        <input
-          type="range"
-          min={1}
-          max={maxKm}
-          step={1}
-          value={radiusKm}
-          onChange={(e) => onRadiusChange(Number(e.target.value))}
-          className="absolute w-full opacity-0 h-6 cursor-pointer"
-          style={{ touchAction: 'none' }}
-        />
-        <div
-          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg pointer-events-none"
-          style={{
-            left: `calc(${(radiusKm / maxKm) * 100}% - 10px)`,
-            background: 'linear-gradient(135deg, #ec4899, #f97316)',
-          }}
-        />
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-muted-foreground font-bold">1 km</span>
-        <span className="text-[10px] text-muted-foreground font-bold">100 km</span>
-      </div>
-    </div>
-  );
-};
+import { SwipeDistanceSlider } from './swipe/SwipeDistanceSlider';
+import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeSkeletonState } from './swipe/SwipeSkeletonState';
 
 interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
@@ -799,10 +731,6 @@ const ClientSwipeContainerComponent = ({
   // isReady means we've fully initialized at least once - skip loading UI on return
   const hasHydratedData = isOwnerHydrated(category) || isOwnerReady(category) || deckQueue.length > 0;
 
-  // UI state flags - determine what to render
-  const isDeckFinished = currentIndex >= deckQueue.length && deckQueue.length > 0;
-  const showInitialError = error && currentIndex === 0 && deckQueue.length === 0;
-  const showEmptyState = deckQueue.length === 0 && !isLoading && !hasHydratedData;
   const showLoadingSkeleton = !hasHydratedData && isLoading;
 
   // ========================================
@@ -812,212 +740,25 @@ const ClientSwipeContainerComponent = ({
 
   // Loading skeleton - initial load only
   if (showLoadingSkeleton) {
-    return (
-      <div className="relative w-full h-full flex-1 flex flex-col">
-        <div className="relative flex-1 w-full">
-          <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
-            <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
-                style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
-            </div>
-            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/20" />
-              ))}
-            </div>
-            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl rounded-t-[24px] p-4 pt-6">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-              </div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-3/4 bg-white/20" />
-                  <Skeleton className="h-4 w-1/2 bg-white/15" />
-                </div>
-                <div className="text-right space-y-1">
-                  <Skeleton className="h-6 w-20 bg-white/20" />
-                  <Skeleton className="h-3 w-12 bg-white/15 ml-auto" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Skeleton className="h-4 w-12 bg-white/15" />
-                <Skeleton className="h-4 w-12 bg-white/15" />
-                <Skeleton className="h-4 w-16 bg-white/15" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-          <div className="flex items-center gap-3">
-            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
-            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
-            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
-            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
-          </div>
-        </div>
-      </div>
-    );
+    return <SwipeSkeletonState />;
   }
 
-  // "All Caught Up" - finished swiping through all cards
-  if (isDeckFinished) {
+  // Exhausted / Empty / Error States
+  if (!topCard || error) {
     return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04] bg-brand-accent-2 blur-3xl" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
-        >
-          {/* RadarSearchEffect with gentle motion wrapper */}
-          <motion.div
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
-          >
-            <RadarSearchEffect
-              size={120}
-              color="var(--color-brand-accent-2)"
-              isActive={isRefreshing}
-              icon={labels.icon}
-            />
-          </motion.div>
-
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">
-              All Caught Up!
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed px-4">
-              You've seen all available {labels.plural.toLowerCase()}. Check back soon for fresh opportunities.
-            </p>
-          </div>
-
-          <div className="flex flex-col w-full gap-3">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} color="white" />
-                ) : (
-                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-                )}
-                <span>{isRefreshing ? 'Scanning...' : 'Discover More'}</span>
-              </Button>
-            </motion.div>
-
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
-              New {labels.plural.toLowerCase()} are added daily
-            </p>
-
-            {/* Distance filter slider */}
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
-  if (showInitialError) {
-    return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
-        <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
-          <div className="text-6xl mb-4">😞</div>
-          <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
-          <Button
-            onClick={handleRefresh}
-            variant="outline"
-            className="gap-2"
-            size="lg"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Empty state (no cards fetched yet)
-  if (showEmptyState || !topCard) {
-    return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Ambient glow */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.04] bg-brand-accent-2 blur-3xl" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
-        >
-          {/* RadarSearchEffect with gentle motion wrapper */}
-          <motion.div
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-            className="relative"
-          >
-            <RadarSearchEffect
-              size={120}
-              color="var(--color-brand-accent-2)"
-              isActive={isRefreshing}
-              icon={labels.icon}
-            />
-          </motion.div>
-
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">
-              No {labels.plural} Found
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed px-4">
-              Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()} in your area.
-            </p>
-          </div>
-
-          <div className="flex flex-col w-full gap-3">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full h-14 rounded-full bg-gradient-to-br from-orange-500 to-pink-600 text-white shadow-lg transition-all duration-300 font-black uppercase tracking-widest text-xs"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} color="white" />
-                ) : (
-                  <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin")} />
-                )}
-                <span>{isRefreshing ? 'Scanning...' : `Refresh ${labels.plural}`}</span>
-              </Button>
-            </motion.div>
-
-
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
-              Fresh listings arrive every hour
-            </p>
-
-            {/* Distance filter slider */}
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </motion.div>
-      </div>
+      <SwipeExhaustedState
+        categoryLabel={labels.plural}
+        CategoryIcon={labels.icon}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+        error={error}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+        isInitialLoad={currentIndex === 0}
+      />
     );
   }
 

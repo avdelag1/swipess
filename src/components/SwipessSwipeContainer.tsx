@@ -30,9 +30,6 @@ import { useSwipeSounds } from '@/hooks/useSwipeSounds';
 import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { RotateCcw, RefreshCw, Home, Bike, Briefcase, Sparkles, MapPin, Navigation } from 'lucide-react';
-import { RadarSearchEffect, RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -42,213 +39,11 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 
-// Custom motorcycle icon with configurable stroke
-const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="5" cy="17" r="3" />
-    <circle cx="19" cy="17" r="3" />
-    <path d="M9 17h6" />
-    <path d="M19 17l-2-5h-4l-3-4H6l1 4" />
-    <path d="M14 7h3l2 5" />
-  </svg>
-);
-
-// Category configuration for dynamic empty states
-const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
-  property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
-  moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
-  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-emerald-500' },
-  services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
-  worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
-};
-
-// Helper to get the active category display info from filters
-// Accepts optional storeCategory (directly from Zustand) for guaranteed sync with quick filters
-const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string | null) => {
-  try {
-    // PRIORITY 1: Direct store category (most reliable - always in sync with quick filter UI)
-    if (storeCategory && typeof storeCategory === 'string' && categoryConfig[storeCategory]) {
-      return categoryConfig[storeCategory];
-    }
-
-    // Safety: Handle null/undefined filters
-    if (!filters) return categoryConfig.property;
-
-    // Check for activeUiCategory first (original UI category before DB mapping)
-    const activeUiCategory = (filters as any).activeUiCategory;
-    if (activeUiCategory && typeof activeUiCategory === 'string' && categoryConfig[activeUiCategory]) {
-      return categoryConfig[activeUiCategory];
-    }
-
-    // Check for activeCategory string first (from AdvancedFilters)
-    const activeCategory = (filters as any).activeCategory;
-    if (activeCategory && typeof activeCategory === 'string' && categoryConfig[activeCategory]) {
-      return categoryConfig[activeCategory];
-    }
-
-    // Check for categories array (from quick filters) - may be DB-mapped names
-    const categories = filters?.categories;
-    if (Array.isArray(categories) && categories.length > 0) {
-      const cat = categories[0] as any;
-      if (typeof cat === 'string') {
-        // Direct match
-        if (categoryConfig[cat]) {
-          return categoryConfig[cat];
-        }
-        // Handle DB-mapped names back to UI names
-        if (cat === 'worker' && categoryConfig['services']) {
-          return categoryConfig['services'];
-        }
-        // Handle common variations/misspellings
-        const normalized = cat.toLowerCase().replace(/s$/, ''); // Remove trailing 's'
-        if (categoryConfig[normalized]) {
-          return categoryConfig[normalized];
-        }
-        // Map 'services' -> 'worker' (common mapping)
-        if (cat === 'services' && categoryConfig['worker']) {
-          return categoryConfig['worker'];
-        }
-        // Map 'moto' <-> 'motorcycle'
-        if ((cat === 'moto' || cat === 'motorcycle')) {
-          return categoryConfig['motorcycle'];
-        }
-      }
-    }
-
-    // Check for single category
-    const category = filters?.category;
-    if (category && typeof category === 'string' && categoryConfig[category]) {
-      return categoryConfig[category];
-    }
-
-    // Default to properties (no category filter selected)
-    return categoryConfig.property;
-  } catch (error) {
-    logger.error('[SwipessSwipeContainer] Error in getActiveCategoryInfo:', error);
-    return categoryConfig.property;
-  }
-};
-
-// Debounce utility for preventing rapid-fire actions
-function useDebounce<T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-): T {
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const callbackRef = useRef(callback);
-
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  return useCallback((...args: Parameters<T>) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      callbackRef.current(...args);
-    }, delay);
-  }, [delay]) as T;
-}
-
-// Navigation guard to prevent double-taps
-function useNavigationGuard() {
-  const isNavigatingRef = useRef(false);
-  const lastNavigationRef = useRef(0);
-
-  const canNavigate = useCallback(() => {
-    const now = Date.now();
-    if (isNavigatingRef.current || now - lastNavigationRef.current < 300) {
-      return false;
-    }
-    return true;
-  }, []);
-
-  const startNavigation = useCallback(() => {
-    isNavigatingRef.current = true;
-    lastNavigationRef.current = Date.now();
-  }, []);
-
-  const endNavigation = useCallback(() => {
-    isNavigatingRef.current = false;
-  }, []);
-
-  return { canNavigate, startNavigation, endNavigation };
-}
-
-// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
-
-// ── Distance Slider Component ─────────────────────────────────────────────────
-interface DistanceSliderProps {
-  radiusKm: number;
-  onRadiusChange: (km: number) => void;
-  onDetectLocation: () => void;
-  detecting: boolean;
-  detected: boolean;
-}
-
-const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
-  const maxKm = 100;
-  return (
-    <div className="w-full max-w-xs mx-auto mt-2 px-2">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-primary" />
-          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs font-black text-primary">{radiusKm} km</span>
-          <button
-            onClick={onDetectLocation}
-            disabled={detecting}
-            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
-            style={{
-              background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
-              borderColor: detected ? 'rgba(249,115,22,0.4)' : 'rgba(255,255,255,0.15)',
-              color: detected ? '#f97316' : 'rgba(255,255,255,0.6)',
-            }}
-          >
-            <Navigation className="w-2.5 h-2.5" />
-            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
-          </button>
-        </div>
-      </div>
-      <div className="relative h-6 flex items-center">
-        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.1)' }}>
-          <div
-            className="h-full rounded-full"
-            style={{
-              width: `${(radiusKm / maxKm) * 100}%`,
-              background: 'linear-gradient(90deg, #ec4899, #f97316)',
-            }}
-          />
-        </div>
-        <input
-          type="range"
-          min={1}
-          max={maxKm}
-          step={1}
-          value={radiusKm}
-          onChange={(e) => onRadiusChange(Number(e.target.value))}
-          className="absolute w-full opacity-0 h-6 cursor-pointer"
-          style={{ touchAction: 'none' }}
-        />
-        <div
-          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg pointer-events-none"
-          style={{
-            left: `calc(${(radiusKm / maxKm) * 100}% - 10px)`,
-            background: 'linear-gradient(135deg, #ec4899, #f97316)',
-          }}
-        />
-      </div>
-      <div className="flex justify-between mt-1">
-        <span className="text-[10px] text-muted-foreground font-bold">1 km</span>
-        <span className="text-[10px] text-muted-foreground font-bold">100 km</span>
-      </div>
-    </div>
-  );
-};
+import { getActiveCategoryInfo } from '@/utils/categoryHelpers';
+import { useNavigationGuard } from '@/hooks/useNavigationGuard';
+import { SwipeDistanceSlider } from './swipe/SwipeDistanceSlider';
+import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
+import { SwipeSkeletonState } from './swipe/SwipeSkeletonState';
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
@@ -444,7 +239,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch { /* Ignore session storage errors */ }
   }, []);
 
   // PERF FIX: Removed competing filter hydration from client_filter_preferences.
@@ -1130,336 +925,66 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // Once hydrated or ready, never show full skeleton again (use placeholderData from query)
   // PERF: GPU-accelerated skeleton to match card styling
   if (!hasHydratedData && isLoading && !isTransitioning) {
-    return (
-      <AnimatePresence mode="wait">
-      <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
-        <div className="relative flex-1 w-full">
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{
-              transform: 'translateZ(0)',
-              contain: 'paint',
-            }}
-          >
-            {/* Base gradient - matches TinderSwipeCard skeleton */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)',
-              }}
-            />
-            {/* Animated shimmer - GPU accelerated */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
-                transform: 'translateZ(0)',
-              }}
-            />
-            {/* Story dots placeholder */}
-            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
-              {[1, 2, 3, 4].map((num) => (
-                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/30" />
-              ))}
-            </div>
-            {/* Bottom sheet skeleton */}
-            <div className="absolute bottom-0 left-0 right-0 bg-black/70 rounded-t-[24px] p-4 pt-6">
-              <div className="flex justify-center mb-2">
-                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
-              </div>
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 space-y-2">
-                  <div className="h-5 w-3/4 bg-white/20 rounded-lg" />
-                  <div className="h-4 w-1/2 bg-white/15 rounded-lg" />
-                </div>
-                <div className="text-right space-y-1">
-                  <div className="h-6 w-20 bg-white/20 rounded-lg" />
-                  <div className="h-3 w-12 bg-white/15 rounded-lg ml-auto" />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <div className="h-4 w-12 bg-white/15 rounded-full" />
-                <div className="h-4 w-12 bg-white/15 rounded-full" />
-                <div className="h-4 w-16 bg-white/15 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-        {/* Action buttons skeleton */}
-        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
-            <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
-          </div>
-        </div>
-      </motion.div>
-      </AnimatePresence>
-    );
+    return <SwipeSkeletonState />;
   }
 
-  // CRITICAL FIX: Show "All Caught Up" when user has swiped through cards
-  // This must come BEFORE error check to prevent errors from showing when deck exhausted
-  // Check if currentIndex > 0 (user has swiped at least once) regardless of deck state
+  // Exhausted/Empty state - dynamic based on category
   if (currentIndex > 0 && currentIndex >= deckQueue.length) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    const categoryLabel = String(categoryInfo?.plural || 'Listings');
-    const categoryLower = categoryLabel.toLowerCase();
-    const CategoryIcon = categoryInfo?.icon || Home;
-    const iconColor = categoryInfo?.color || 'text-primary';
-
-    // Generate specific message based on category
-    const getCaughtUpMessage = () => {
-      if (categoryLower === 'properties') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all available properties. Check back later for new opportunities!",
-          cta: 'Discover More Properties'
-        };
-      }
-      if (categoryLower === 'motorcycles') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all motorcycles. Check back later for new listings!",
-          cta: 'Discover More Motorcycles'
-        };
-      }
-      if (categoryLower === 'bicycles') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all bicycles. New bikes are added regularly!",
-          cta: 'Discover More Bicycles'
-        };
-      }
-      if (categoryLower === 'workers' || categoryLower === 'services') {
-        return {
-          title: 'All Caught Up!',
-          description: "You've seen all available workers. Check back later for new service providers!",
-          cta: 'Discover More Workers'
-        };
-      }
-      // Generic fallback
-      return {
-        title: 'All Caught Up!',
-        description: `You've seen all available ${categoryLower}. Check back later for new ${categoryLower}!`,
-        cta: `Discover More ${categoryLabel}`
-      };
-    };
-
-    const { title, description, cta } = getCaughtUpMessage();
-
     return (
-      <AnimatePresence mode="wait">
-      <motion.div key="caught-up" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Subtle ambient glow behind the card */}
-        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center space-y-8 p-8 max-w-xs w-full"
-        >
-          {/* Icon with slow, graceful float animation */}
-          <div className="flex justify-center">
-            <div className="relative">
-              {/* Outer glow ring */}
-              <motion.div
-                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
-              />
-              {/* Icon container */}
-              <motion.div
-                animate={isRefreshing
-                  ? { rotate: 360 }
-                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
-                }
-                transition={isRefreshing
-                  ? { duration: 1, repeat: Infinity, ease: "linear" }
-                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
-                }
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
-              >
-                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
-              </motion.div>
-            </div>
-          </div>
-
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-              {description}
-            </p>
-          </div>
-          <div className="flex flex-col gap-4">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-                {isRefreshing ? `Scanning for ${categoryLabel}...` : cta}
-              </Button>
-            </motion.div>
-
-
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">New {categoryLower} are added daily</p>
-
-            {/* Distance filter slider */}
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-      </AnimatePresence>
+      <SwipeExhaustedState
+        categoryLabel={String(categoryInfo?.plural || 'listings')}
+        CategoryIcon={categoryInfo?.icon || Home}
+        iconColor={categoryInfo?.color || 'text-primary'}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+      />
     );
   }
 
+
   // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
-  // FIX: Only show error on initial load (currentIndex === 0), never after swipe exhaustion
   if (error && currentIndex === 0 && deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    // FIX: Ensure categoryLabel is always a string, never an object
-    const categoryLabel = String(categoryInfo?.plural || 'listings');
     return (
-      <AnimatePresence mode="wait">
-      <motion.div key="error" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        <Card className="text-center bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20 p-8">
-          <div className="text-6xl mb-4">:(</div>
-          <h3 className="text-xl font-bold mb-2">Oops! Something went wrong</h3>
-          <p className="text-muted-foreground mb-4">Let's try again to find some {categoryLabel.toLowerCase()}.</p>
-          <Button onClick={handleRefresh} variant="outline" className="gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Try Again
-          </Button>
-        </Card>
-      </motion.div>
-      </AnimatePresence>
+      <SwipeExhaustedState
+        categoryLabel={String(categoryInfo?.plural || 'listings')}
+        CategoryIcon={categoryInfo?.icon || Home}
+        iconColor={categoryInfo?.color || 'text-primary'}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+        error={error}
+        isInitialLoad={true}
+      />
     );
   }
 
   // Empty state - dynamic based on category (no cards fetched yet)
   if (deckQueue.length === 0) {
     const categoryInfo = getActiveCategoryInfo(filters, storeActiveCategory);
-    const categoryLabel = String(categoryInfo?.plural || 'Listings');
-    const categoryLower = categoryLabel.toLowerCase();
-    const CategoryIcon = categoryInfo?.icon || Home;
-    const iconColor = categoryInfo?.color || 'text-primary';
-
-    // Generate specific empty message based on category - Action-oriented titles
-    const getEmptyMessage = () => {
-      if (categoryLower === 'properties') {
-        return {
-          title: 'Refresh to discover more Properties',
-          description: 'New opportunities appear every day. Keep swiping!'
-        };
-      }
-      if (categoryLower === 'motorcycles') {
-        return {
-          title: 'Refresh to find more Motorcycles',
-          description: 'New bikes listed daily. Stay tuned!'
-        };
-      }
-      if (categoryLower === 'bicycles') {
-        return {
-          title: 'Refresh to discover more Bicycles',
-          description: 'Fresh rides added regularly. Keep checking!'
-        };
-      }
-      if (categoryLower === 'workers' || categoryLower === 'services') {
-        return {
-          title: 'Refresh to find more Workers',
-          description: 'New professionals join every day.'
-        };
-      }
-      // Generic fallback
-      return {
-        title: `Refresh to discover more ${categoryLabel}`,
-        description: `New ${categoryLabel.toLowerCase()} added regularly.`
-      };
-    };
-
-    const { title, description } = getEmptyMessage();
-
     return (
-      <AnimatePresence mode="wait">
-      <motion.div key="empty" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full flex-1 flex items-center justify-center px-4" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Subtle ambient glow */}
-        <div className={`absolute inset-0 pointer-events-none ${iconColor} opacity-[0.03] blur-3xl`} />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center space-y-8 p-8 max-w-xs w-full"
-        >
-          {/* Icon with slow, graceful float animation */}
-          <div className="flex justify-center">
-            <div className="relative">
-              {/* Outer glow ring */}
-              <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.25, 0.12] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute inset-0 rounded-full ${iconColor} blur-lg`}
-              />
-              {/* Icon container */}
-              <motion.div
-                animate={{ scale: [1, 1.06, 1], y: [0, -4, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${iconColor} shadow-lg`}
-              >
-                <CategoryIcon className="w-11 h-11" strokeWidth={1.5} />
-              </motion.div>
-            </div>
-          </div>
-
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">{title}</h3>
-            <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
-              {description}
-            </p>
-          </div>
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-            <Button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="gap-2.5 rounded-full px-8 py-5 bg-primary text-white hover:bg-primary/90 shadow-lg font-black uppercase tracking-widest text-xs"
-            >
-              {isRefreshing ? (
-                <RadarSearchIcon size={18} isActive={true} />
-              ) : (
-                <RefreshCw className="w-4 h-4" />
-              )}
-              {isRefreshing ? 'Scanning...' : `Refresh ${categoryLabel}`}
-            </Button>
-          </motion.div>
-
-          {/* Distance filter slider */}
-          <DistanceSlider
-            radiusKm={radiusKm}
-            onRadiusChange={setRadiusKm}
-            onDetectLocation={detectLocation}
-            detecting={locationDetecting}
-            detected={locationDetected}
-          />
-
-        </motion.div>
-      </motion.div>
-      </AnimatePresence>
+      <SwipeExhaustedState
+        categoryLabel={String(categoryInfo?.plural || 'listings')}
+        CategoryIcon={categoryInfo?.icon || Home}
+        iconColor={categoryInfo?.color || 'text-primary'}
+        isRefreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        onRadiusChange={setRadiusKm}
+        onDetectLocation={detectLocation}
+        detecting={locationDetecting}
+        detected={locationDetected}
+      />
     );
   }
 

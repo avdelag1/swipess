@@ -44,6 +44,22 @@ type ViewMode = 'discover' | 'stories';
 // ── MOCK DATA ─────────────────────────────────────────────────────────────────
 
 const MOCK_EVENTS: EventItem[] = [
+  {
+    id: 'swipess-promo-1',
+    title: 'PROMOTE YOUR BRAND HERE',
+    description: 'Reach high-end clients in Tulum and beyond. Swipess puts your events and business in front of the elite community of owners and explorers.',
+    category: 'promo',
+    image_url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=90',
+    event_date: null,
+    location: 'Global Placement',
+    location_detail: 'Everywhere in App',
+    organizer_name: 'Swipess Ads',
+    promo_text: 'Contact for Pricing',
+    discount_tag: 'BECOME A SPONSOR',
+    is_free: false,
+    price_text: 'ADVERTISE',
+    is_promo: true
+  },
   // --- POSTERS (MIXED CATEGORIES) ---
   {
     id: 'poster-1',
@@ -119,22 +135,6 @@ const MOCK_EVENTS: EventItem[] = [
     discount_tag: 'COLLECTOR POSTER',
     is_free: false,
     price_text: 'INVITE ONLY'
-  },
-  {
-    id: 'swipess-promo-1',
-    title: 'PROMOTE YOUR BRAND HERE',
-    description: 'Reach high-end clients in Tulum and beyond. Swipess puts your events and business in front of the elite community of owners and explorers.',
-    category: 'promo',
-    image_url: 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=90',
-    event_date: null,
-    location: 'Global Placement',
-    location_detail: 'Everywhere in App',
-    organizer_name: 'Swipess Ads',
-    promo_text: 'Contact for Pricing',
-    discount_tag: 'BECOME A SPONSOR',
-    is_free: false,
-    price_text: 'ADVERTISE',
-    is_promo: true
   },
   // --- JUNGLE (5) ---
   {
