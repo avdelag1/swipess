@@ -240,22 +240,21 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               onClick={handleReset}
               className={cn(
                 smoothButtonClass,
-                'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
-                'border',
+                'flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold flex-shrink-0 transition-all duration-300',
                 ownerIsAllSelected
                   ? isDark
-                    ? 'bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 text-white border-transparent'
-                    : 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white border-transparent'
-                  : 'bg-muted text-foreground border-border hover:bg-muted/80'
+                    ? 'bg-gradient-to-r from-orange-500 via-pink-500 to-purple-600 text-white shadow-[0_0_15px_rgba(249,115,22,0.5)] border-transparent'
+                    : 'bg-gradient-to-r from-orange-400 via-fuchsia-500 to-indigo-500 text-white shadow-[0_4px_12px_rgba(249,115,22,0.4)] border-transparent'
+                  : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
               )}
             >
               <Globe className="w-3.5 h-3.5" />
               <span>All</span>
-              {ownerIsAllSelected && <Check className="w-3 h-3" />}
+              {ownerIsAllSelected && <Check className="w-3 h-3 text-white" />}
             </button>
 
             {/* Divider */}
-            <div className="w-px h-6 bg-border flex-shrink-0" />
+            <div className="w-[2px] h-6 bg-border/50 rounded-full flex-shrink-0" />
 
             {/* Gender dropdown */}
             <FilterDropdown
@@ -278,24 +277,32 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
             />
 
             {/* Divider */}
-            <div className="w-px h-6 bg-border flex-shrink-0" />
+            <div className="w-[2px] h-6 bg-border/50 rounded-full flex-shrink-0" />
 
             {/* Category chips */}
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               {categories.map((category) => {
                 const isActive = filters.categories.includes(category.id);
-                const colorClass = getCategoryColorClass(category.id, isDark);
+                
+                // Specific gradients per category
+                const catGradients: Record<string, { dark: string, light: string }> = {
+                  property: { dark: 'from-emerald-500 to-teal-600 shadow-[0_0_12px_rgba(16,185,129,0.4)]', light: 'from-emerald-400 to-teal-500 shadow-[0_4px_10px_rgba(16,185,129,0.3)]' },
+                  motorcycle: { dark: 'from-orange-500 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.4)]', light: 'from-orange-400 to-red-500 shadow-[0_4px_10px_rgba(249,115,22,0.3)]' },
+                  bicycle: { dark: 'from-purple-500 to-indigo-600 shadow-[0_0_12px_rgba(168,85,247,0.4)]', light: 'from-purple-400 to-indigo-500 shadow-[0_4px_10px_rgba(168,85,247,0.3)]' },
+                  services: { dark: 'from-amber-500 to-yellow-600 shadow-[0_0_12px_rgba(245,158,11,0.4)]', light: 'from-amber-400 to-yellow-500 shadow-[0_4px_10px_rgba(245,158,11,0.3)]' },
+                };
+                const gradStr = catGradients[category.id] ? catGradients[category.id][isDark ? 'dark' : 'light'] : 'from-gray-500 to-gray-600';
+
                 return (
                   <button
                     key={category.id}
                     onClick={() => handleCategoryToggle(category.id)}
                     className={cn(
                       smoothButtonClass,
-                      'flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-bold',
-                      'border',
+                      'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-300',
                       isActive
-                        ? cn(colorClass, 'text-white border-current')
-                        : 'bg-muted text-foreground border-border hover:bg-muted/80'
+                        ? `bg-gradient-to-r ${gradStr} text-white border-transparent`
+                        : 'bg-muted/50 text-foreground border border-border/50 hover:bg-muted/80 backdrop-blur-md'
                     )}
                   >
                     {category.icon}
@@ -312,10 +319,10 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
                 className={cn(
                   smoothButtonClass,
                   'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold flex-shrink-0',
-                  'bg-red-500/20 text-red-400 border border-red-500/40 hover:bg-red-500/30'
+                  'bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 shadow-[0_0_10px_rgba(239,68,68,0.15)] transition-all'
                 )}
               >
-                <RotateCcw className="w-3 h-3" />
+                <RotateCcw className="w-3.5 h-3.5" />
                 <span>Clear</span>
               </button>
             )}
@@ -329,17 +336,20 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
   const clientIsAllSelected = filters.categories.length === 0;
   const activeCategoryLabel = categories.find(c => filters.categories[0] === c.id)?.label ?? '';
 
-  // Per-category accent colors (active state)
+  // Per-category accent colors (active state) - Ultra Premium Gradients
   const categoryColors: Record<string, { bg: string; shadow: string; border: string }> = {
-    property:   { bg: 'rgba(244,63,94,0.90)',   shadow: '0 4px 14px rgba(244,63,94,0.45)',   border: 'transparent' },
-    motorcycle: { bg: 'rgba(99,102,241,0.90)',   shadow: '0 4px 14px rgba(99,102,241,0.45)',  border: 'transparent' },
-    bicycle:    { bg: 'rgba(20,184,166,0.90)',   shadow: '0 4px 14px rgba(20,184,166,0.45)',  border: 'transparent' },
-    services:   { bg: 'rgba(245,158,11,0.90)',   shadow: '0 4px 14px rgba(245,158,11,0.45)',  border: 'transparent' },
+    property:   { bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',   shadow: '0 4px 16px rgba(16,185,129,0.5)',   border: 'rgba(16,185,129,0.8)' },
+    motorcycle: { bg: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',   shadow: '0 4px 16px rgba(249,115,22,0.5)',   border: 'rgba(249,115,22,0.8)' },
+    bicycle:    { bg: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',   shadow: '0 4px 16px rgba(168,85,247,0.5)',   border: 'rgba(168,85,247,0.8)' },
+    services:   { bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',   shadow: '0 4px 16px rgba(245,158,11,0.5)',   border: 'rgba(245,158,11,0.8)' },
   };
 
-  const inactiveBg    = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.05)';
-  const inactiveBorder = isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(0,0,0,0.08)';
-  const inactiveText  = isDark ? 'rgba(255,255,255,0.70)' : 'rgba(0,0,0,0.60)';
+  const allSelectedBg = 'linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%)';
+  const allSelectedShadow = '0 4px 16px rgba(236,72,153,0.45)';
+
+  const inactiveBg    = isDark ? 'rgba(20,20,30,0.5)' : 'rgba(255,255,255,0.7)';
+  const inactiveBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+  const inactiveText  = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.75)';
 
   return (
     <div
@@ -359,18 +369,21 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               saveQuickFilter([]);
               onChange({ ...filters, categories: [], listingType: 'both' });
             }}
-            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px]')}
+            className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-5 rounded-full text-[13px] font-black tracking-wide flex-shrink-0 min-h-[44px] overflow-hidden relative')}
             style={{
-              backgroundColor: clientIsAllSelected ? '#FF9500' : inactiveBg,
+              background: clientIsAllSelected ? allSelectedBg : inactiveBg,
               color: clientIsAllSelected ? '#fff' : inactiveText,
               border: clientIsAllSelected ? '1px solid transparent' : inactiveBorder,
-              boxShadow: clientIsAllSelected ? '0 4px 16px rgba(255,149,0,0.55)' : 'none',
-              transition: 'background-color 320ms ease, color 280ms ease, border-color 280ms ease, box-shadow 350ms ease',
+              boxShadow: clientIsAllSelected ? allSelectedShadow : 'none',
+              transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
-            <Globe className="w-3.5 h-3.5" />
+            {clientIsAllSelected && (
+              <div className="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            )}
+            <Globe className="w-4 h-4" />
             <span>ALL</span>
-            {clientIsAllSelected && <Check className="w-3 h-3" />}
+            {clientIsAllSelected && <Check className="w-3.5 h-3.5 ml-0.5 text-white/90" />}
           </button>
 
           {/* Category chips — each with its own accent color */}
@@ -381,17 +394,22 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
               <button
                 key={category.id}
                 onClick={() => handleCategorySelect(category.id)}
-                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px]')}
+                className={cn(smoothButtonClass, 'flex items-center gap-1.5 px-4 rounded-full text-xs font-bold flex-shrink-0 min-h-[44px] overflow-hidden relative')}
                 style={{
-                  backgroundColor: isActive && accent ? accent.bg : inactiveBg,
+                  background: isActive && accent ? accent.bg : inactiveBg,
                   color: isActive ? '#fff' : inactiveText,
                   border: isActive && accent ? `1px solid ${accent.border}` : inactiveBorder,
                   boxShadow: isActive && accent ? accent.shadow : 'none',
-                  transition: 'background-color 320ms ease, color 280ms ease, border-color 280ms ease, box-shadow 350ms ease',
+                  transition: 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               >
-                {category.icon}
-                <span>{category.label}</span>
+                {isActive && (
+                  <div className="absolute inset-0 bg-white/10 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                )}
+                <div className={cn("transition-transform duration-300", isActive && "scale-110")}>
+                  {category.icon}
+                </div>
+                <span className="tracking-tight">{category.label}</span>
               </button>
             );
           })}
@@ -399,11 +417,15 @@ function QuickFilterBarComponent({ filters, onChange, className, userRole = 'cli
 
         {/* Dynamic section title */}
         <div className="px-1 pb-1 pt-0.5">
-          <p className={cn('font-semibold transition-all duration-300', clientIsAllSelected ? 'text-sm' : 'text-xs')}
-            style={{ color: '#FF9500' }}
+          <p className={cn(
+              'font-bold transition-all duration-300 bg-clip-text text-transparent bg-gradient-to-r',
+              clientIsAllSelected 
+                ? 'from-orange-500 to-pink-500 text-sm' 
+                : 'from-muted-foreground to-foreground text-xs opacity-80'
+            )}
           >
             {clientIsAllSelected
-              ? 'Showing ALL Listings Near You'
+              ? '✨ Showing ALL Premium Vehicles & Properties ✨'
               : `Showing ${activeCategoryLabel} Near You`}
           </p>
         </div>
