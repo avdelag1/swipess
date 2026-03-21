@@ -99,7 +99,7 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
   const parsedResult = propertyFormSchema.safeParse(initialData);
   const safeInitialData = parsedResult.success ? parsedResult.data : {};
 
-  const { register, control, watch, setValue, formState: { errors } } = useForm<PropertyFormData>({
+  const { register, control, watch, setValue } = useForm<PropertyFormData>({
     defaultValues: {
       amenities: [],
       services_included: [],
@@ -129,10 +129,6 @@ export function PropertyListingForm({ onDataChange, initialData = {} }: Property
         <div>
           <FormLabel>Title</FormLabel>
           <Input {...register('title')} placeholder="Beautiful 2BR Apartment" />
-        </div>
-        <div>
-          <FormLabel>Description</FormLabel>
-          <Textarea {...register('description')} placeholder="Describe the property, its location, and what makes it special..." rows={4} />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>

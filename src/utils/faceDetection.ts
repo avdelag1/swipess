@@ -25,7 +25,7 @@ export const detectFaceCenter = async (image: HTMLImageElement): Promise<FaceCen
         y: box.y + box.height / 2,
       };
     }
-  } catch (error) {
+  } catch (_error) {
     // Face detection error - silently fail and use default crop
   }
 

@@ -15,6 +15,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/sonner';
+import { logger } from '@/utils/prodLogger';
 
 // Get build timestamp from Vite injected environment variable
 // This changes EVERY deployment, ensuring all users get updates
@@ -25,7 +26,7 @@ export const APP_VERSION = `1.0.${BUILD_TIMESTAMP.slice(-6)}`;
 
 // Storage key for version tracking
 const VERSION_STORAGE_KEY = 'zwipes_app_version';
-const SW_REGISTRATION_KEY = 'zwipes_sw_registration';
+const _SW_REGISTRATION_KEY = 'zwipes_sw_registration';
 
 interface UpdateInfo {
   available: boolean;
@@ -39,6 +40,13 @@ interface UpdateInfo {
  */
 export function checkForUpdates(): UpdateInfo {
   if (typeof window === 'undefined') {
+    return { available: false, needsRefresh: false };
+  }
+
+  // In dev mode, BUILD_TIMESTAMP is Date.now() on every load — always different.
+  // Suppress update notifications entirely so they don't block the preview.
+  if (import.meta.env.DEV) {
+    markVersionAsInstalled();
     return { available: false, needsRefresh: false };
   }
 
@@ -117,7 +125,7 @@ export async function forceAppUpdate(): Promise<void> {
     // Reload the page
     window.location.reload();
   } catch (error) {
-    console.error('Failed to update app:', error);
+    logger.error('Failed to update app:', error);
     toast({
       title: 'Update Failed',
       description: 'Please try clearing your browser cache manually.',
@@ -156,7 +164,7 @@ export function useAutomaticUpdates() {
     
     setIsUpdating(true);
     try {
-      console.info('[AutoUpdate] Performing manual update...');
+      logger.info('[AutoUpdate] Performing manual update...');
       
       // Clear React Query cache
       queryClient.clear();
@@ -173,7 +181,7 @@ export function useAutomaticUpdates() {
       // Reload
       window.location.reload();
     } catch (error) {
-      console.error('Update failed:', error);
+      logger.error('Update failed:', error);
       setIsUpdating(false);
       toast({
         title: 'Update Failed',
@@ -296,6 +304,12 @@ function checkHtmlVersionMismatch(): boolean {
  */
 export function useForceUpdateOnVersionChange() {
   useEffect(() => {
+    // In dev mode, skip forced updates — version changes every load
+    if (import.meta.env.DEV) {
+      markVersionAsInstalled();
+      return;
+    }
+
     // GUARD 1: Session-level cooldown — only trigger one reload per session
     const alreadyReloaded = sessionStorage.getItem('swipes_reload_triggered');
     if (alreadyReloaded) return;

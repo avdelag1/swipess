@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/prodLogger';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -108,7 +109,7 @@ export function useConversationalAI({ category, imageCount, initialMessage }: Us
       const initialPrompt = initialMessage || `Hi! I'd like to create a ${category} listing. I've uploaded ${imageCount} photo${imageCount !== 1 ? 's' : ''}.`;
       await sendMessage(initialPrompt);
     } catch (err) {
-      console.error('Failed to initialize conversation:', err);
+      logger.error('Failed to initialize conversation:', err);
       setError('Failed to start conversation with AI');
     } finally {
       setIsLoading(false);

@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { cn } from '@/lib/utils';
-import flameSLogo from '../../public/icons/fire-s-logo.png';
+
+const flameSLogo = '/icons/fire-s-logo.png';
 
 interface SwipessLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';

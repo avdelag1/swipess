@@ -32,7 +32,7 @@ declare global {
 export function ClientLocationSelector({
   latitude,
   longitude,
-  address,
+  address: _address,
   locationType = 'home',
   onLocationChange,
 }: ClientLocationSelectorProps) {
@@ -134,6 +134,7 @@ export function ClientLocationSelector({
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedTab, onLocationChange]);
 
   // Handle real-time location

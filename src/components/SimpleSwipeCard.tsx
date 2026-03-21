@@ -71,7 +71,7 @@ interface SimpleSwipeCardProps {
 const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardProps>(({
   listing,
   onSwipe,
-  onTap,
+  onTap: _onTap,
   onInsights,
   isTop = true,
   externalX,
@@ -116,7 +116,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [photoDirection, setPhotoDirection] = useState<'left' | 'right'>('right');
-  const [magnifierActive, setMagnifierActive] = useState(false);
+  const [_magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     let result: string[] = [];
@@ -249,7 +249,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const offsetX = info.offset.x;
     const offsetY = info.offset.y;
     const velocityX = info.velocity.x;
-    const velocityY = info.velocity.y;
+    const _velocityY = info.velocity.y;
 
     // Swipe threshold based on X distance or velocity
     const shouldSwipe = Math.abs(offsetX) > SWIPE_THRESHOLD || Math.abs(velocityX) > VELOCITY_THRESHOLD;
@@ -307,7 +307,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [listing.id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     // Card tap does nothing by default - image taps handle photo navigation
@@ -324,20 +324,26 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
     const clickX = e.clientX - rect.left;
     const width = rect.width;
 
-    // Left third - previous image (only if multiple images)
-    if (clickX < width * 0.33 && imageCount > 1) {
-      setPhotoDirection('left');
-      setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
-      triggerHaptic('light');
-    }
-    // Right third - next image (only if multiple images)
-    else if (clickX > width * 0.67 && imageCount > 1) {
-      setPhotoDirection('right');
-      setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
-      triggerHaptic('light');
-    }
-    // Middle area - open insights (only if not magnifier and user tapped middle)
-    else if (onInsights && clickX >= width * 0.33 && clickX <= width * 0.67) {
+    if (imageCount > 1) {
+      // Left third - previous image
+      if (clickX < width * 0.33) {
+        setPhotoDirection('left');
+        setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
+        triggerHaptic('light');
+      }
+      // Right third - next image
+      else if (clickX > width * 0.67) {
+        setPhotoDirection('right');
+        setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
+        triggerHaptic('light');
+      }
+      // Middle area - open inside page
+      else if (onInsights) {
+        triggerHaptic('light');
+        onInsights();
+      }
+    } else if (onInsights) {
+      // Single image: any tap opens the inside page
       triggerHaptic('light');
       onInsights();
     }
@@ -378,7 +384,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
 
     // SAFETY NET: tighter timeout matching tween duration
     setTimeout(fireSwipe, 300);
-  }, [listing.id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
   useImperativeHandle(ref, () => ({
@@ -388,7 +394,7 @@ const SimpleSwipeCardComponent = forwardRef<SimpleSwipeCardRef, SimpleSwipeCardP
   // Format price
   // Format price - moved before conditional render to avoid hook order issues
   const rentalType = listing.rental_duration_type;
-  const formattedPrice = listing.price
+  const _formattedPrice = listing.price
     ? `$${listing.price.toLocaleString()}${rentalType === 'monthly' ? '/mo' : rentalType === 'daily' ? '/day' : ''}`
     : null;
 

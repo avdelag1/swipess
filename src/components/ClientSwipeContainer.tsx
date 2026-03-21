@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { triggerHaptic } from '@/utils/haptics';
 
-import { preloadClientImageToCache, isClientImageDecodedInCache } from '@/lib/swipe/imageCache';
+import { preloadClientImageToCache } from '@/lib/swipe/imageCache';
 import { imagePreloadController } from '@/lib/swipe/ImagePreloadController';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { swipeQueue } from '@/lib/swipe/SwipeQueue';
@@ -24,15 +24,16 @@ import { SimpleOwnerSwipeCard, SimpleOwnerSwipeCardRef } from './SimpleOwnerSwip
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { usePrefetchManager, useSwipePrefetch } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession, getDeckFromSession } from '@/state/swipeDeckStore';
+import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { cn } from '@/lib/utils';
-import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { RefreshCw, MapPin, Bike, Wrench, User, Navigation } from 'lucide-react';
+import { RefreshCw, Users, MapPin, Bike, Wrench, Navigation } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
+import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast as sonnerToast } from 'sonner';
 import { useStartConversation } from '@/hooks/useConversations';
 import { useNavigate } from 'react-router-dom';
@@ -42,9 +43,78 @@ import { MotorcycleIcon } from '@/components/icons/MotorcycleIcon';
 
 // PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
 
-import { SwipeDistanceSlider } from './swipe/SwipeDistanceSlider';
-import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { SwipeSkeletonState } from './swipe/SwipeSkeletonState';
+// ── Distance Slider Component ─────────────────────────────────────────────────
+interface DistanceSliderProps {
+  radiusKm: number;
+  onRadiusChange: (km: number) => void;
+  onDetectLocation: () => void;
+  detecting: boolean;
+  detected: boolean;
+}
+
+const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+  const maxKm = 100;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <div className="w-full max-w-xs mx-auto mt-2 px-2">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-black text-primary">{radiusKm} km</span>
+          <button
+            onClick={onDetectLocation}
+            disabled={detecting}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
+            style={{
+              background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
+              borderColor: detected ? 'rgba(249,115,22,0.4)' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+              color: detected ? '#f97316' : isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)',
+            }}
+          >
+            <Navigation className="w-2.5 h-2.5" />
+            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
+          </button>
+        </div>
+      </div>
+      <div className="relative h-6 flex items-center">
+        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${(radiusKm / maxKm) * 100}%`,
+              background: 'linear-gradient(90deg, #ec4899, #f97316)',
+            }}
+          />
+        </div>
+        <input
+          type="range"
+          min={1}
+          max={maxKm}
+          step={1}
+          value={radiusKm}
+          onChange={(e) => onRadiusChange(Number(e.target.value))}
+          className="absolute w-full opacity-0 h-6 cursor-pointer"
+          style={{ touchAction: 'none' }}
+        />
+        <div
+          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg pointer-events-none"
+          style={{
+            left: `calc(${(radiusKm / maxKm) * 100}% - 10px)`,
+            background: 'linear-gradient(135deg, #ec4899, #f97316)',
+          }}
+        />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-[10px] text-muted-foreground font-bold">1 km</span>
+        <span className="text-[10px] text-muted-foreground font-bold">100 km</span>
+      </div>
+    </div>
+  );
+};
 
 interface ClientSwipeContainerProps {
   onClientTap: (clientId: string) => void;
@@ -60,8 +130,8 @@ interface ClientSwipeContainerProps {
 
 const ClientSwipeContainerComponent = ({
   onClientTap,
-  onInsights,
-  onMessageClick,
+  onInsights: _onInsights,
+  onMessageClick: _onMessageClick,
   profiles: externalProfiles,
   isLoading: externalIsLoading,
   error: externalError,
@@ -77,11 +147,11 @@ const ClientSwipeContainerComponent = ({
   // Dynamic labels based on category
   const getCategoryLabel = () => {
     switch (category) {
-      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', icon: <MapPin className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', icon: <Bike className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', icon: <MotorcycleIcon className="w-10 h-10 opacity-80" /> };
-      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', icon: <Wrench className="w-10 h-10 opacity-80" strokeWidth={3} /> };
-      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Listings', icon: <User className="w-10 h-10 opacity-80" strokeWidth={3} /> };
+      case 'property': return { singular: 'Property', plural: 'Properties', searchText: 'Searching for Properties', Icon: MapPin, color: 'text-primary' };
+      case 'bicycle': return { singular: 'Bicycle', plural: 'Bicycles', searchText: 'Searching for Bicycles', Icon: Bike, color: 'text-emerald-500' };
+      case 'motorcycle': return { singular: 'Motorcycle', plural: 'Motorcycles', searchText: 'Searching for Motorcycles', Icon: MotorcycleIcon, color: 'text-orange-500' };
+      case 'worker': return { singular: 'Job', plural: 'Jobs', searchText: 'Searching for Jobs', Icon: Wrench, color: 'text-purple-500' };
+      default: return { singular: 'Client', plural: 'Clients', searchText: 'Searching for Clients', Icon: Users, color: 'text-pink-500' };
     }
   };
 
@@ -112,7 +182,7 @@ const ClientSwipeContainerComponent = ({
 
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [messageDialogOpen, setMessageDialogOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -139,12 +209,12 @@ const ClientSwipeContainerComponent = ({
   // FIX: Track deck length in state to force re-render when profiles are appended
   // Without this, the "No Clients Found" empty state persists because
   // appending to deckQueueRef alone doesn't trigger a React re-render
-  const [deckLength, setDeckLength] = useState(0);
+  const [_deckLength, setDeckLength] = useState(0);
 
   // PERF: Get initial state ONCE using getState() - no subscription
   // This is synchronous and doesn't cause re-renders when store updates
   // CRITICAL: Filter out own profile from cached deck items
-  const filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
+  const _filterOwnProfile = useCallback((items: any[], userId: string | undefined) => {
     if (!userId) return items;
     return items.filter(p => {
       const profileId = p.user_id || p.id;
@@ -170,7 +240,7 @@ const ClientSwipeContainerComponent = ({
   const currentDeckState = useSwipeDeckStore.getState().ownerDecks[category];
   const currentIndexRef = useRef(currentDeckState?.currentIndex || 0);
   const swipedIdsRef = useRef<Set<string>>(new Set(currentDeckState?.swipedIds || []));
-  const initializedRef = useRef(deckQueueRef.current.length > 0);
+  const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   // Sync state with ref on mount
   useEffect(() => {
@@ -229,7 +299,7 @@ const ClientSwipeContainerComponent = ({
   const isReturningRef = useRef(
     deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().ownerDecks[category]?.isReady
   );
-  const hasAnimatedOnceRef = useRef(isReturningRef.current);
+  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
@@ -277,7 +347,7 @@ const ClientSwipeContainerComponent = ({
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-items'); } catch (err) { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-items'); } catch (_err) { /* Ignore session storage errors */ }
   }, [category]);
 
   // ========================================
@@ -289,21 +359,21 @@ const ClientSwipeContainerComponent = ({
   // PERF: pass userId to avoid getUser() inside queryFn
   // Extract category from filters if available (for filtering client profiles by their interests)
   const filterCategory = filters?.categories?.[0] || filters?.category || undefined;
-  const { data: internalProfiles = [], isLoading: internalIsLoading, refetch, isRefetching, error: internalError } = useSmartClientMatching(user?.id, filterCategory, page, 50, isRefreshMode, filters);
+  const { data: internalProfiles = [], isLoading: internalIsLoading, refetch, isRefetching: _isRefetching, error: internalError } = useSmartClientMatching(user?.id, filterCategory, page, 50, isRefreshMode, filters);
 
   const clientProfiles = externalProfiles || internalProfiles;
   const isLoading = externalIsLoading !== undefined ? externalIsLoading : internalIsLoading;
   const error = externalError !== undefined ? externalError : internalError;
 
   const swipeMutation = useSwipe();
-  const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { canAccess: _hasPremiumMessaging, needsUpgrade: _needsUpgrade } = useCanAccessMessaging();
+  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const startConversation = useStartConversation();
   const recordProfileView = useRecordProfileView();
   const { playSwipeSound } = useSwipeSounds();
 
   // Swipe dismissal tracking for client profiles
-  const { dismissedIds, dismissTarget, filterDismissed } = useSwipeDismissal('client');
+  const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('client');
 
   // Prefetch manager for client profile details
   const { prefetchClientProfileDetails } = usePrefetchManager();
@@ -357,8 +427,9 @@ const ClientSwipeContainerComponent = ({
 
   // Cleanup prefetch scheduler on unmount
   useEffect(() => {
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, []);
 
@@ -373,8 +444,9 @@ const ClientSwipeContainerComponent = ({
       }, 300);
     }
 
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, [currentIndex, prefetchClientProfileDetails]);
 
@@ -581,6 +653,7 @@ const ClientSwipeContainerComponent = ({
     }
 
     // Note: Image preloading is handled in handleSwipe (next 5 cards)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swipeMutation, recordSwipe, recordProfileView, markOwnerSwiped, category, dismissTarget]);
 
   const handleSwipe = useCallback((direction: 'left' | 'right') => {
@@ -647,7 +720,7 @@ const ClientSwipeContainerComponent = ({
 
     try {
       await refetch();
-    } catch (err) {
+    } catch (_err) {
       sonnerToast.error('Refresh failed', { description: 'Please try again.' });
     } finally {
       setIsRefreshing(false);
@@ -655,14 +728,8 @@ const ClientSwipeContainerComponent = ({
   }, [refetch, resetOwnerDeck, category]);
 
   const handleInsights = useCallback((clientId: string) => {
-    if (onInsights) {
-      onInsights(clientId);
-    } else {
-      sonnerToast.success('Client Insights', {
-        description: 'Viewing detailed insights for this client.',
-      });
-    }
-  }, [onInsights]);
+    navigate(`/owner/view-client/${clientId}`);
+  }, [navigate]);
 
   const handleShare = useCallback(() => {
     setShareDialogOpen(true);
@@ -740,25 +807,233 @@ const ClientSwipeContainerComponent = ({
 
   // Loading skeleton - initial load only
   if (showLoadingSkeleton) {
-    return <SwipeSkeletonState />;
+    return (
+      <div className="relative w-full h-full flex-1 flex flex-col">
+        <div className="relative flex-1 w-full">
+          <div className="absolute inset-0 rounded-3xl overflow-hidden bg-muted/30 animate-pulse">
+            <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-muted/30 to-muted/50">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
+                style={{ animationDuration: '1.5s', backgroundSize: '200% 100%' }} />
+            </div>
+            <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
+              {[1, 2, 3, 4].map((num) => (
+                <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/20" />
+              ))}
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl rounded-t-[24px] p-4 pt-6">
+              <div className="flex justify-center mb-2">
+                <div className="w-10 h-1.5 bg-white/30 rounded-full" />
+              </div>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-5 w-3/4 bg-white/20" />
+                  <Skeleton className="h-4 w-1/2 bg-white/15" />
+                </div>
+                <div className="text-right space-y-1">
+                  <Skeleton className="h-6 w-20 bg-white/20" />
+                  <Skeleton className="h-3 w-12 bg-white/15 ml-auto" />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Skeleton className="h-4 w-12 bg-white/15" />
+                <Skeleton className="h-4 w-12 bg-white/15" />
+                <Skeleton className="h-4 w-16 bg-white/15" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
+            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
+            <Skeleton className="w-11 h-11 rounded-full bg-muted/30" />
+            <Skeleton className="w-14 h-14 rounded-full bg-muted/40" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
-  // Exhausted / Empty / Error States
-  if (!topCard || error) {
+  // "All Caught Up" - finished swiping through all cards
+  if (isDeckFinished) {
+    const { Icon: CaughtUpIcon, color: caughtUpColor } = labels;
     return (
-      <SwipeExhaustedState
-        categoryLabel={labels.plural}
-        CategoryIcon={labels.icon}
-        onRefresh={handleRefresh}
-        isRefreshing={isRefreshing}
-        error={error}
-        radiusKm={radiusKm}
-        onRadiusChange={setRadiusKm}
-        onDetectLocation={detectLocation}
-        detecting={locationDetecting}
-        detected={locationDetected}
-        isInitialLoad={currentIndex === 0}
-      />
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+        {/* Ambient glow */}
+        <div className={`absolute inset-0 pointer-events-none ${caughtUpColor} opacity-[0.03] blur-3xl`} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
+        >
+          {/* Animated circle with category icon — matching client swipe style */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <motion.div
+                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${caughtUpColor} blur-lg`}
+              />
+              <motion.div
+                animate={isRefreshing
+                  ? { rotate: 360 }
+                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
+                }
+                transition={isRefreshing
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${caughtUpColor} shadow-lg`}
+              >
+                <CaughtUpIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">
+              All Caught Up!
+            </h3>
+            <p className="text-muted-foreground text-sm leading-relaxed px-4">
+              You've seen all available {labels.plural.toLowerCase()}. Check back soon for fresh opportunities.
+            </p>
+          </div>
+
+          <div className="flex flex-col w-full gap-3">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
+              >
+                {isRefreshing ? (
+                  <RadarSearchIcon size={20} isActive={true} />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                {isRefreshing ? `Scanning for ${labels.plural}...` : `Discover More ${labels.plural}`}
+              </Button>
+            </motion.div>
+
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
+              New {labels.plural.toLowerCase()} are added daily
+            </p>
+
+            {/* Distance filter slider */}
+            <DistanceSlider
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+            />
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
+  if (showInitialError) {
+    return (
+      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
+        <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
+          <div className="text-6xl mb-4">😞</div>
+          <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            className="gap-2"
+            size="lg"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state (no cards fetched yet)
+  if (showEmptyState || !topCard) {
+    const { Icon: EmptyIcon, color: emptyColor } = labels;
+    return (
+      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+        {/* Ambient glow */}
+        <div className={`absolute inset-0 pointer-events-none ${emptyColor} opacity-[0.03] blur-3xl`} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
+        >
+          {/* Animated circle with category icon — matching client swipe style */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <motion.div
+                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className={`absolute inset-0 rounded-full ${emptyColor} blur-lg`}
+              />
+              <motion.div
+                animate={isRefreshing
+                  ? { rotate: 360 }
+                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
+                }
+                transition={isRefreshing
+                  ? { duration: 1, repeat: Infinity, ease: "linear" }
+                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                }
+                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${emptyColor} shadow-lg`}
+              >
+                <EmptyIcon className="w-11 h-11" strokeWidth={1.5} />
+              </motion.div>
+            </div>
+          </div>
+
+          <div className="space-y-2.5">
+            <h3 className="text-lg font-black text-foreground tracking-tight">
+              No {labels.plural} Found
+            </h3>
+            <p className="text-muted-foreground text-sm leading-relaxed px-4">
+              Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()} in your area.
+            </p>
+          </div>
+
+          <div className="flex flex-col w-full gap-3">
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
+              <Button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
+              >
+                {isRefreshing ? (
+                  <RadarSearchIcon size={20} isActive={true} />
+                ) : (
+                  <RefreshCw className="w-4 h-4" />
+                )}
+                {isRefreshing ? `Scanning for ${labels.plural}...` : `Refresh ${labels.plural}`}
+              </Button>
+            </motion.div>
+
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
+              Fresh listings arrive every hour
+            </p>
+
+            {/* Distance filter slider */}
+            <DistanceSlider
+              radiusKm={radiusKm}
+              onRadiusChange={setRadiusKm}
+              onDetectLocation={detectLocation}
+              detecting={locationDetecting}
+              detected={locationDetected}
+            />
+          </div>
+        </motion.div>
+      </div>
     );
   }
 

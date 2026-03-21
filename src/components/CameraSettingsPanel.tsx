@@ -16,7 +16,6 @@ import {
 import {
   CameraSettings,
   DEFAULT_CAMERA_SETTINGS,
-  QUALITY_SETTINGS,
 } from '@/utils/cameraFilters';
 
 interface CameraSettingsPanelProps {

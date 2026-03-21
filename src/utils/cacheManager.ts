@@ -31,7 +31,7 @@ export function clearAppData(): void {
 
     logger.info('[CacheManager] App data cleared (auth preserved)');
   } catch (e) {
-    console.error('[CacheManager] Failed to clear app data:', e);
+    logger.error('[CacheManager] Failed to clear app data:', e);
   }
 }
 

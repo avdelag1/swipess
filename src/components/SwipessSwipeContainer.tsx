@@ -1,10 +1,9 @@
 import { useState, useCallback, useEffect, memo, useRef, useMemo, lazy, Suspense } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { createPortal } from 'react-dom';
 import { triggerHaptic } from '@/utils/haptics';
 import { SimpleSwipeCard, SimpleSwipeCardRef } from './SimpleSwipeCard';
 import { SwipeActionButtonBar } from './SwipeActionButtonBar';
-import { preloadImageToCache, isImageDecodedInCache } from '@/lib/swipe/imageCache';
+import { preloadImageToCache } from '@/lib/swipe/imageCache';
 import { imageCache } from '@/lib/swipe/cardImageCache';
 import { PrefetchScheduler } from '@/lib/swipe/PrefetchScheduler';
 
@@ -23,13 +22,15 @@ import { useStartConversation } from '@/hooks/useConversations';
 import { useRecordProfileView } from '@/hooks/useProfileRecycling';
 import { usePrefetchImages } from '@/hooks/usePrefetchImages';
 import { useSwipePrefetch, usePrefetchManager } from '@/hooks/usePrefetchManager';
-import { useSwipeDeckStore, persistDeckToSession, getDeckFromSession } from '@/state/swipeDeckStore';
+import { useSwipeDeckStore, persistDeckToSession } from '@/state/swipeDeckStore';
 import { useFilterStore } from '@/state/filterStore';
 import { useSwipeDismissal } from '@/hooks/useSwipeDismissal';
 import { useSwipeSounds } from '@/hooks/useSwipeSounds';
-import { shallow } from 'zustand/shallow';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { RotateCcw, RefreshCw, Home, Bike, Briefcase, MapPin, Navigation } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { RadarSearchIcon } from '@/components/ui/RadarSearchEffect';
 import { toast } from '@/components/ui/sonner';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
@@ -39,11 +40,493 @@ import { DirectMessageDialog } from './DirectMessageDialog';
 import { isDirectMessagingListing } from '@/utils/directMessaging';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { getActiveCategoryInfo } from '@/utils/categoryHelpers';
-import { useNavigationGuard } from '@/hooks/useNavigationGuard';
-import { SwipeDistanceSlider } from './swipe/SwipeDistanceSlider';
-import { SwipeExhaustedState } from './swipe/SwipeExhaustedState';
-import { SwipeSkeletonState } from './swipe/SwipeSkeletonState';
+// Custom motorcycle icon with configurable stroke
+const MotorcycleIcon = ({ className, strokeWidth = 2 }: { className?: string; strokeWidth?: number | string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="5" cy="17" r="3" />
+    <circle cx="19" cy="17" r="3" />
+    <path d="M9 17h6" />
+    <path d="M19 17l-2-5h-4l-3-4H6l1 4" />
+    <path d="M14 7h3l2 5" />
+  </svg>
+);
+
+// Category configuration for dynamic empty states
+const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string; strokeWidth?: number | string }>; label: string; plural: string; color: string }> = {
+  property: { icon: Home, label: 'Property', plural: 'Properties', color: 'text-primary' },
+  moto: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
+  motorcycle: { icon: MotorcycleIcon, label: 'Motorcycle', plural: 'Motorcycles', color: 'text-slate-500' },
+  bicycle: { icon: Bike, label: 'Bicycle', plural: 'Bicycles', color: 'text-emerald-500' },
+  services: { icon: Briefcase, label: 'Service', plural: 'Services', color: 'text-purple-500' },
+  worker: { icon: Briefcase, label: 'Worker', plural: 'Workers', color: 'text-purple-500' },
+};
+
+// Helper to get the active category display info from filters
+// Accepts optional storeCategory (directly from Zustand) for guaranteed sync with quick filters
+const getActiveCategoryInfo = (filters?: ListingFilters, storeCategory?: string | null) => {
+  try {
+    // PRIORITY 1: Direct store category (most reliable - always in sync with quick filter UI)
+    if (storeCategory && typeof storeCategory === 'string' && categoryConfig[storeCategory]) {
+      return categoryConfig[storeCategory];
+    }
+
+    // Safety: Handle null/undefined filters
+    if (!filters) return categoryConfig.property;
+
+    // Check for activeUiCategory first (original UI category before DB mapping)
+    const activeUiCategory = (filters as any).activeUiCategory;
+    if (activeUiCategory && typeof activeUiCategory === 'string' && categoryConfig[activeUiCategory]) {
+      return categoryConfig[activeUiCategory];
+    }
+
+    // Check for activeCategory string first (from AdvancedFilters)
+    const activeCategory = (filters as any).activeCategory;
+    if (activeCategory && typeof activeCategory === 'string' && categoryConfig[activeCategory]) {
+      return categoryConfig[activeCategory];
+    }
+
+    // Check for categories array (from quick filters) - may be DB-mapped names
+    const categories = filters?.categories;
+    if (Array.isArray(categories) && categories.length > 0) {
+      const cat = categories[0] as any;
+      if (typeof cat === 'string') {
+        // Direct match
+        if (categoryConfig[cat]) {
+          return categoryConfig[cat];
+        }
+        // Handle DB-mapped names back to UI names
+        if (cat === 'worker' && categoryConfig['services']) {
+          return categoryConfig['services'];
+        }
+        // Handle common variations/misspellings
+        const normalized = cat.toLowerCase().replace(/s$/, ''); // Remove trailing 's'
+        if (categoryConfig[normalized]) {
+          return categoryConfig[normalized];
+        }
+        // Map 'services' -> 'worker' (common mapping)
+        if (cat === 'services' && categoryConfig['worker']) {
+          return categoryConfig['worker'];
+        }
+        // Map 'moto' <-> 'motorcycle'
+        if ((cat === 'moto' || cat === 'motorcycle')) {
+          return categoryConfig['motorcycle'];
+        }
+      }
+    }
+
+    // Check for single category
+    const category = filters?.category;
+    if (category && typeof category === 'string' && categoryConfig[category]) {
+      return categoryConfig[category];
+    }
+
+    // Default to properties (no category filter selected)
+    return categoryConfig.property;
+  } catch (error) {
+    logger.error('[SwipessSwipeContainer] Error in getActiveCategoryInfo:', error);
+    return categoryConfig.property;
+  }
+};
+
+// Navigation guard to prevent double-taps
+function useNavigationGuard() {
+  const isNavigatingRef = useRef(false);
+  const lastNavigationRef = useRef(0);
+
+  const canNavigate = useCallback(() => {
+    const now = Date.now();
+    if (isNavigatingRef.current || now - lastNavigationRef.current < 300) {
+      return false;
+    }
+    return true;
+  }, []);
+
+  const startNavigation = useCallback(() => {
+    isNavigatingRef.current = true;
+    lastNavigationRef.current = Date.now();
+  }, []);
+
+  const endNavigation = useCallback(() => {
+    isNavigatingRef.current = false;
+  }, []);
+
+  return { canNavigate, startNavigation, endNavigation };
+}
+
+// PrefetchScheduler imported from '@/lib/swipe/PrefetchScheduler'
+
+// ── Distance Slider Component ─────────────────────────────────────────────────
+interface DistanceSliderProps {
+  radiusKm: number;
+  onRadiusChange: (km: number) => void;
+  onDetectLocation: () => void;
+  detecting: boolean;
+  detected: boolean;
+}
+
+const DistanceSlider = ({ radiusKm, onRadiusChange, onDetectLocation, detecting, detected }: DistanceSliderProps) => {
+  const maxKm = 100;
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <div className="w-full max-w-xs mx-auto mt-2 px-2">
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-primary" />
+          <span className="text-xs font-bold text-foreground uppercase tracking-wider">Distance</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs font-black text-primary">{radiusKm} km</span>
+          <button
+            onClick={onDetectLocation}
+            disabled={detecting}
+            className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition-all"
+            style={{
+              background: detected ? 'rgba(249,115,22,0.12)' : 'transparent',
+              borderColor: detected ? 'rgba(249,115,22,0.4)' : isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+              color: detected ? '#f97316' : isDark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.55)',
+            }}
+          >
+            <Navigation className="w-2.5 h-2.5" />
+            {detecting ? '...' : detected ? 'GPS' : 'Detect'}
+          </button>
+        </div>
+      </div>
+      <div className="relative h-6 flex items-center">
+        <div className="absolute w-full h-1.5 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+          <div
+            className="h-full rounded-full"
+            style={{
+              width: `${(radiusKm / maxKm) * 100}%`,
+              background: 'linear-gradient(90deg, #ec4899, #f97316)',
+            }}
+          />
+        </div>
+        <input
+          type="range"
+          min={1}
+          max={maxKm}
+          step={1}
+          value={radiusKm}
+          onChange={(e) => onRadiusChange(Number(e.target.value))}
+          className="absolute w-full opacity-0 h-6 cursor-pointer"
+          style={{ touchAction: 'none' }}
+        />
+        <div
+          className="absolute w-5 h-5 rounded-full border-2 border-white shadow-lg pointer-events-none"
+          style={{
+            left: `calc(${(radiusKm / maxKm) * 100}% - 10px)`,
+            background: 'linear-gradient(135deg, #ec4899, #f97316)',
+          }}
+        />
+      </div>
+      <div className="flex justify-between mt-1">
+        <span className="text-[10px] text-muted-foreground font-bold">1 km</span>
+        <span className="text-[10px] text-muted-foreground font-bold">100 km</span>
+      </div>
+    </div>
+  );
+};
+
+// Module-level constant — no state dependencies, safe to share across sub-components
+const deckFadeVariants = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
+  exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
+};
+
+// ── FAN POKER CARD QUICK FILTER ───────────────────────────────────────────────
+// 5 carousel photos per category, glassmorphic cards fanned like a poker hand
+
+const FAN_CARD_PHOTOS: Record<string, string[]> = {
+  property: [
+    'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=320&q=75&auto=format',
+  ],
+  motorcycle: [
+    'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1568772585407-9f217f7b5f5e?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1449426468159-d96dbf08f19f?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=320&q=75&auto=format',
+  ],
+  bicycle: [
+    'https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1502744688674-c619d1586c9e?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1511994298241-608e28f14fde?w=320&q=75&auto=format',
+  ],
+  services: [
+    'https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=320&q=75&auto=format',
+    'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=320&q=75&auto=format',
+  ],
+};
+
+const FAN_CARDS = [
+  { id: 'property' as const, label: 'Properties', emoji: '🏠', accent: '#3b82f6', accentRgb: '59,130,246', description: 'Houses & apts', rotate: -11, tx: -56, ty: 14 },
+  { id: 'motorcycle' as const, label: 'Motorcycles', emoji: '🏍️', accent: '#f97316', accentRgb: '249,115,22', description: 'Bikes & scooters', rotate: -3.5, tx: -19, ty: 3 },
+  { id: 'bicycle' as const, label: 'Bicycles', emoji: '🚴', accent: '#22c55e', accentRgb: '34,197,94', description: 'City & mountain', rotate: 3.5, tx: 19, ty: 3 },
+  { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
+];
+
+// Card dimensions — large enough to feel immersive, tight enough to fit the fan
+const CARD_W = 215;
+const CARD_H = 355;
+
+// Fan geometry — very slight tilt so cards feel almost upright
+const FAN_CARDS_WITH_POS = [
+  { ...FAN_CARDS[0], rotate: -7,  tx: -26, ty: 10  },
+  { ...FAN_CARDS[1], rotate: -2.2,tx: -9,  ty: 2   },
+  { ...FAN_CARDS[2], rotate: 2.2, tx: 9,   ty: 2   },
+  { ...FAN_CARDS[3], rotate: 7,   tx: 26,  ty: 10  },
+];
+
+const FanPokerCard = memo(({ card, index, isPreviewing, onTap, photoIdx }: {
+  card: typeof FAN_CARDS_WITH_POS[0];
+  index: number;
+  isPreviewing: boolean;
+  onTap: () => void;
+  photoIdx: number;
+}) => {
+  const photos = FAN_CARD_PHOTOS[card.id];
+  const activePhoto = photoIdx % photos.length;
+
+  return (
+    <motion.button
+      onClick={onTap}
+      data-testid={`fan-filter-${card.id}`}
+      initial={{ opacity: 0, scale: 0.78, rotate: card.rotate, x: card.tx, y: card.ty + 50 }}
+      animate={isPreviewing ? {
+        opacity: 1, scale: 1.06, rotate: 0, x: 0, y: -24, zIndex: 30,
+      } : {
+        opacity: 1, scale: 1, rotate: card.rotate, x: card.tx, y: card.ty, zIndex: index + 1,
+      }}
+      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isPreviewing ? 0 : index * 0.055 }}
+      whileTap={{ scale: 0.97 }}
+      className="absolute pointer-events-auto"
+      style={{
+        width: CARD_W,
+        height: CARD_H,
+        left: '50%',
+        top: '50%',
+        marginLeft: -(CARD_W / 2),
+        marginTop: -(CARD_H / 2),
+        borderRadius: 24,
+        overflow: 'hidden',
+        boxShadow: isPreviewing
+          ? `0 30px 60px rgba(${card.accentRgb},0.5), 0 10px 30px rgba(0,0,0,0.55)`
+          : `0 14px 36px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25)`,
+        transformOrigin: 'bottom center',
+        WebkitTapHighlightColor: 'transparent',
+        border: `1.5px solid rgba(${card.accentRgb},${isPreviewing ? 0.75 : 0.22})`,
+      }}
+    >
+      {/* Photos — CSS crossfade, silky 3s ease */}
+      <div className="absolute inset-0 bg-zinc-900">
+        {photos.map((src, i) => (
+          <img
+            key={src}
+            src={src}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            style={{
+              opacity: i === activePhoto ? 1 : 0,
+              transition: 'opacity 3s ease-in-out',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Gradient vignette — dark at bottom for label readability */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.82) 100%)`,
+        }}
+      />
+
+      {/* Top progress dots */}
+      <div className="absolute top-3 left-0 right-0 flex justify-center gap-[3px] px-4">
+        {photos.map((_, i) => (
+          <div
+            key={i}
+            className="flex-1 rounded-full"
+            style={{
+              height: 2.5,
+              background: i === activePhoto
+                ? `rgba(${card.accentRgb},1)`
+                : 'rgba(255,255,255,0.25)',
+              transition: 'background 1s ease',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Bottom label */}
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 20 }}>{card.emoji}</span>
+          <div>
+            <p className="text-white font-black text-[14px] tracking-tight leading-tight">{card.label}</p>
+            <p className="text-white/60 text-[11px] leading-tight">{card.description}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Previewing: pulsing accent ring */}
+      {isPreviewing && (
+        <motion.div
+          className="absolute inset-0 pointer-events-none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.85)`, borderRadius: 22 }}
+        />
+      )}
+    </motion.button>
+  );
+});
+
+FanPokerCard.displayName = 'FanPokerCard';
+
+interface SwipeAllDashboardProps {
+  setCategories: (ids: any[]) => void;
+}
+
+const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
+  // null = no card selected; string = that card is previewing (lifted)
+  const [previewCard, setPreviewCard] = useState<string | null>(null);
+  const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
+  const cyclingCardRef = useRef(0);
+
+  // Staggered cycling: one card's photo changes every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const cardTurn = cyclingCardRef.current;
+      setPhotoIndices(prev => {
+        const next = [...prev];
+        next[cardTurn] = (next[cardTurn] + 1) % 5;
+        return next;
+      });
+      cyclingCardRef.current = (cardTurn + 1) % FAN_CARDS.length;
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleTap = useCallback((id: string) => {
+    triggerHaptic('light');
+    if (previewCard === id) {
+      // Second tap on the same previewing card → apply the filter and navigate
+      triggerHaptic('medium');
+      setCategories([id]);
+    } else {
+      // First tap (or switching to a different card) → preview it
+      setPreviewCard(id);
+    }
+  }, [previewCard, setCategories]);
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="all-dashboard"
+        variants={deckFadeVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="relative w-full flex-1 flex flex-col items-center justify-center"
+        style={{ minHeight: 'calc(100dvh - 140px)' }}
+        onClick={() => previewCard && setPreviewCard(null)}
+      >
+        {/* Ambient glow */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full opacity-[0.06] blur-3xl bg-gradient-radial from-primary via-purple-500 to-transparent" />
+        </div>
+
+        {/* Fan container — stop propagation so card taps don't hit the backdrop */}
+        <div
+          className="relative"
+          style={{ width: '100%', maxWidth: 380, height: CARD_H + 60, zIndex: 10 }}
+          onClick={e => e.stopPropagation()}
+        >
+          {FAN_CARDS_WITH_POS.map((card, i) => (
+            <FanPokerCard
+              key={card.id}
+              card={card}
+              index={i}
+              isPreviewing={previewCard === card.id}
+              onTap={() => handleTap(card.id)}
+              photoIdx={photoIndices[i]}
+            />
+          ))}
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+// ── SwipeLoadingSkeleton ─────────────────────────────────────────────────────
+// GPU-accelerated skeleton shown on first load before data hydration.
+const SwipeLoadingSkeleton = () => (
+  <AnimatePresence mode="wait">
+    <motion.div key="skeleton" variants={deckFadeVariants} initial="initial" animate="animate" exit="exit" className="relative w-full h-full flex-1 max-w-lg mx-auto flex flex-col px-3 bg-background">
+      <div className="relative flex-1 w-full">
+        <div className="absolute inset-0 overflow-hidden" style={{ transform: 'translateZ(0)', contain: 'paint' }}>
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 35%, #cbd5e1 65%, #94a3b8 100%)' }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 25%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 75%, transparent 100%)',
+              backgroundSize: '200% 100%',
+              animation: 'skeleton-shimmer 1.2s ease-in-out infinite',
+              transform: 'translateZ(0)',
+            }}
+          />
+          <div className="absolute top-3 left-0 right-0 z-30 flex justify-center gap-1 px-4">
+            {[1, 2, 3, 4].map((num) => (
+              <div key={`skeleton-dot-${num}`} className="flex-1 h-1 rounded-full bg-white/30" />
+            ))}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 rounded-t-[24px] p-4 pt-6">
+            <div className="flex justify-center mb-2">
+              <div className="w-10 h-1.5 bg-white/30 rounded-full" />
+            </div>
+            <div className="flex justify-between items-start mb-3">
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-3/4 bg-white/20 rounded-lg" />
+                <div className="h-4 w-1/2 bg-white/15 rounded-lg" />
+              </div>
+              <div className="text-right space-y-1">
+                <div className="h-6 w-20 bg-white/20 rounded-lg" />
+                <div className="h-3 w-12 bg-white/15 rounded-lg ml-auto" />
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <div className="h-4 w-12 bg-white/15 rounded-full" />
+              <div className="h-4 w-12 bg-white/15 rounded-full" />
+              <div className="h-4 w-16 bg-white/15 rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex-shrink-0 flex justify-center items-center py-3 px-4">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
+          <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
+          <div className="w-11 h-11 rounded-full bg-muted/30 animate-pulse" />
+          <div className="w-14 h-14 rounded-full bg-muted/40 animate-pulse" />
+        </div>
+      </div>
+    </motion.div>
+  </AnimatePresence>
+);
 
 interface SwipessSwipeContainerProps {
   onListingTap: (listingId: string) => void;
@@ -58,9 +541,9 @@ interface SwipessSwipeContainerProps {
   filters?: ListingFilters;
 }
 
-const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageClick, locationFilter, filters }: SwipessSwipeContainerProps) => {
+const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights, onMessageClick: _onMessageClick, locationFilter: _locationFilter, filters }: SwipessSwipeContainerProps) => {
   const [page, setPage] = useState(0);
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
+  const [_swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
   const [isCreatingConversation, setIsCreatingConversation] = useState(false);
   const [insightsModalOpen, setInsightsModalOpen] = useState(false);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
@@ -74,6 +557,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const radiusKm = useFilterStore((s) => s.radiusKm);
   const setRadiusKm = useFilterStore((s) => s.setRadiusKm);
   const setUserLocation = useFilterStore((s) => s.setUserLocation);
+  const setCategories = useFilterStore((s) => s.setCategories);
   const [locationDetecting, setLocationDetecting] = useState(false);
   const [locationDetected, setLocationDetected] = useState(false);
 
@@ -117,7 +601,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // FIX: Track deck length in state to force re-render when listings are appended
   // Without this, appending to deckQueueRef doesn't trigger re-render and empty state persists
-  const [deckLength, setDeckLength] = useState(0);
+  const [_deckLength, setDeckLength] = useState(0);
 
   // Prevents skeleton flash when filters change — holds back skeleton for one render frame
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -149,7 +633,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const deckQueueRef = useRef<any[]>(getInitialDeck());
   const currentIndexRef = useRef(useSwipeDeckStore.getState().clientDeck.currentIndex);
   const swipedIdsRef = useRef<Set<string>>(new Set(useSwipeDeckStore.getState().clientDeck.swipedIds));
-  const initializedRef = useRef(deckQueueRef.current.length > 0);
+  const _initializedRef = useRef(deckQueueRef.current.length > 0);
 
   // Ref to trigger swipe animations from the fixed action buttons
   const cardRef = useRef<SimpleSwipeCardRef>(null);
@@ -168,7 +652,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   const isReturningRef = useRef(
     deckQueueRef.current.length > 0 && useSwipeDeckStore.getState().clientDeck.isReady
   );
-  const hasAnimatedOnceRef = useRef(isReturningRef.current);
+  const _hasAnimatedOnceRef = useRef(isReturningRef.current);
 
   // PERF FIX: Eagerly preload top 5 cards' images when we have hydrated deck data
   // This runs SYNCHRONOUSLY during component initialization (before first paint)
@@ -239,7 +723,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // No need to restore stale cached decks that may contain already-swiped items
   useEffect(() => {
     // Clear any stale session storage on mount
-    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch { /* Ignore session storage errors */ }
+    try { sessionStorage.removeItem('swipe-deck-client-listings'); } catch (_err) { /* Ignore session storage errors */ }
   }, []);
 
   // PERF FIX: Removed competing filter hydration from client_filter_preferences.
@@ -250,20 +734,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // Cleanup on unmount
   useEffect(() => {
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
   }, []);
 
   // Hooks for functionality
   const { canAccess: hasPremiumMessaging, needsUpgrade } = useCanAccessMessaging();
   const navigate = useNavigate();
-  const { recordSwipe, undoLastSwipe, canUndo, isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
+  const { recordSwipe, undoLastSwipe, canUndo, isUndoing: _isUndoing, undoSuccess, resetUndoState } = useSwipeUndo();
   const swipeMutation = useSwipe();
   const startConversation = useStartConversation();
 
   // Swipe dismissal tracking
-  const { dismissedIds, dismissTarget, filterDismissed } = useSwipeDismissal('listing');
+  const { dismissedIds, dismissTarget, filterDismissed: _filterDismissed } = useSwipeDismissal('listing');
 
   // FIX: Sync local state when undo completes successfully
   useEffect(() => {
@@ -444,8 +929,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       }, 300);
     }
 
+    const scheduler = prefetchSchedulerRef.current;
     return () => {
-      prefetchSchedulerRef.current.cancel();
+      scheduler.cancel();
     };
 
   }, [currentIndex, prefetchListingDetails, isDashboard]); // currentIndex updates on each swipe, triggering reliable prefetch
@@ -500,6 +986,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
 
     isFetchingMore.current = false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listingIdsSignature, isLoading, isFetching, smartListings, setClientDeck, isClientReady, markClientReady, dismissedIds]);
 
   // Get current visible cards for 2-card stack (top + next)
@@ -508,7 +995,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   // FIX: Don't clamp the index - allow topCard to be null when all cards are swiped
   // This ensures the "All Caught Up" screen shows correctly
   const topCard = currentIndex < deckQueue.length ? deckQueue[currentIndex] : null;
-  const nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
+  const _nextCard = currentIndex + 1 < deckQueue.length ? deckQueue[currentIndex + 1] : null;
 
   // =============================================================================
   // FIX #1: SWIPE PHASE ISOLATION - Two-phase swipe for Tinder-level feel
@@ -655,6 +1142,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       imageCache.set(nextNextCard.images[0], true);
       imagePreloadController.preload(nextNextCard.images[0], 'high');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordSwipe, recordProfileView, markClientSwiped, queryClient, dismissTarget, swipeMutation, error]);
 
   // PHASE 1: Called when user swipes - ONLY updates refs and triggers animation
@@ -763,7 +1251,7 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
       toast.success(`${String(refreshCategoryInfo?.plural || 'Listings')} Refreshed`, {
         description: `Showing ${refreshLabel} you passed on. Liked ones stay saved!`,
       });
-    } catch (err) {
+    } catch (_err) {
       toast.error('Refresh Failed', {
         description: 'Please try again.',
       });
@@ -773,7 +1261,12 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
   };
 
   const handleInsights = () => {
-    setInsightsModalOpen(true);
+    const listing = deckQueueRef.current[currentIndexRef.current];
+    if (listing?.id) {
+      navigate(`/listing/${listing.id}`);
+    } else {
+      setInsightsModalOpen(true);
+    }
     triggerHaptic('light');
   };
 
@@ -908,24 +1401,21 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
     }
   }, []);
 
-  const progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
-
-  const deckFadeVariants = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1, transition: { duration: 0.2, ease: 'easeOut' as const } },
-    exit:    { opacity: 0, transition: { duration: 0.15, ease: 'easeIn' as const } },
-  };
+  const _progress = deckQueue.length > 0 ? ((currentIndex + 1) / deckQueue.length) * 100 : 0;
 
   // Check if we have hydrated data (from store/session) - prevents blank deck flash
   // isReady means we've fully initialized at least once - skip loading UI on return
   // CRITICAL FIX: When filters change, deck is reset, so check if we're actually loading new data
   const hasHydratedData = (isClientHydrated() || isClientReady() || deckQueue.length > 0) && !isLoading;
 
+  // ── "ALL" DASHBOARD: Shown when no category filter is selected ──────────────
+  if (storeCategories.length === 0) {
+    return <SwipeAllDashboard setCategories={setCategories} />;
+  }
+
   // STABLE LOADING SHELL: Only show full skeleton if NOT hydrated AND loading
-  // Once hydrated or ready, never show full skeleton again (use placeholderData from query)
-  // PERF: GPU-accelerated skeleton to match card styling
   if (!hasHydratedData && isLoading && !isTransitioning) {
-    return <SwipeSkeletonState />;
+    return <SwipeLoadingSkeleton />;
   }
 
   // Exhausted/Empty state - dynamic based on category
@@ -990,9 +1480,9 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights, onMessageCli
 
   // Get current category info for the page title
   const activeCategoryInfo = getActiveCategoryInfo(filters);
-  const activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
-  const ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
-  const activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
+  const _activeCategoryLabel = String(activeCategoryInfo?.plural || 'Listings');
+  const _ActiveCategoryIcon = activeCategoryInfo?.icon || Home;
+  const _activeCategoryColor = activeCategoryInfo?.color || 'text-primary';
 
   // Main swipe view - FULL-BLEED edge-to-edge cards (no max-width constraint)
   return (

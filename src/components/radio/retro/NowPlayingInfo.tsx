@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Disc3, Wifi } from 'lucide-react';
+import { Disc3 } from 'lucide-react';
 import { RadioStation, CityTheme } from '@/types/radio';
 
 interface NowPlayingInfoProps {
@@ -18,7 +18,7 @@ interface NowPlayingInfoProps {
  */
 export function NowPlayingInfo({
   station,
-  isPlaying,
+  isPlaying: _isPlaying,
   cityTheme,
 }: NowPlayingInfoProps) {
   return (

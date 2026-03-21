@@ -85,7 +85,7 @@ export default function OwnerPropertyClientDiscovery() {
   }, [filters]);
 
   // PERF: pass userId to avoid getUser() inside queryFn
-  const { data: clients = [], refetch } = useSmartClientMatching(user?.id, 'property', 0, 10, false, clientFilters);
+  const { data: clients = [], refetch: _refetch } = useSmartClientMatching(user?.id, 'property', 0, 10, false, clientFilters);
   const startConversation = useStartConversation();
 
   const filteredClients = (clients || []).filter(client =>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -13,7 +13,6 @@ import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
-import { SwipessLogo } from './SwipessLogo';
 import { logger } from '@/utils/prodLogger';
 
 const NATIONALITY_OPTIONS = [
@@ -71,7 +70,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
       const fileName = `${uniqueId}.${fileExt}`;
       const filePath = `${user?.id}/${fileName}`;
 
-      const { data, error } = await supabase.storage
+      const { data: _data, error } = await supabase.storage
         .from('profile-images')
         .upload(filePath, file, {
           cacheControl: '3600',

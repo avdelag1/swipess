@@ -218,7 +218,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
       const fileName = `${uniqueId}.${fileExt}`;
       const filePath = `${user.data.user.id}/${fileName}`;
 
-      const { data, error } = await supabase.storage
+      const { data: _data, error } = await supabase.storage
         .from('profile-images')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -397,6 +397,7 @@ function ClientProfileDialogComponent({ open, onOpenChange }: Props) {
                 uploadType="profile"
                 onUpload={handleImageUpload}
                 showCameraButton={false}
+                replaceOnFull
               />
             </div>
 

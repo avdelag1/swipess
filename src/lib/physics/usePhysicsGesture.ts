@@ -25,7 +25,6 @@ import {
   createExitAnimator,
   createSnapBackAnimator,
 } from './InertialAnimator';
-import { IOS_PHYSICS } from './PhysicsEngine';
 
 export interface PhysicsGestureConfig {
   // Thresholds
@@ -176,7 +175,7 @@ export function usePhysicsGesture(
       if (elementRef.current && pointerIdRef.current !== null) {
         try {
           elementRef.current.releasePointerCapture(pointerIdRef.current);
-        } catch (e) {
+        } catch (_e) {
           // Pointer may already be released
         }
       }
@@ -246,6 +245,7 @@ export function usePhysicsGesture(
 
       callbacksRef.current.onDragStart?.();
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [mergedConfig.disabled]
   );
 

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Users, Check, RotateCcw, UserCircle, Baby, Briefcase, ShoppingBag, Building2, Globe } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
-import { Button } from '@/components/ui/button';
 
 import { useFilterStore } from '@/state/filterStore';
 import { useQueryClient } from '@tanstack/react-query';
@@ -93,7 +92,7 @@ const BUDGET_MAX = 50000;
 export default function OwnerFilters() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { theme } = useTheme();
+  const { theme: _theme } = useTheme();
 
   const storeGender = useFilterStore((state) => state.clientGender);
   const storeClientType = useFilterStore((state) => state.clientType);

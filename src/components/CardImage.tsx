@@ -64,7 +64,7 @@ const CardImage = memo(({
       if (!mounted) return;
       try {
         if ((img as any).decode) await (img as any).decode();
-      } catch (e) {
+      } catch (_e) {
         // ignore decode errors
       }
       imageCache.set(src, true);

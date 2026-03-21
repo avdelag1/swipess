@@ -236,13 +236,13 @@ interface SimpleOwnerSwipeCardProps {
 const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, SimpleOwnerSwipeCardProps>(({
   profile,
   onSwipe,
-  onTap,
+  onTap: _onTap,
   onDetails,
   onInsights,
-  onMessage,
-  onShare,
-  onUndo,
-  canUndo,
+  onMessage: _onMessage,
+  onShare: _onShare,
+  onUndo: _onUndo,
+  canUndo: _canUndo,
   isTop = true,
   fullScreen = false,
 }, ref) => {
@@ -278,7 +278,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
   // Image state
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [magnifierActive, setMagnifierActive] = useState(false);
+  const [_magnifierActive, setMagnifierActive] = useState(false);
 
   const images = useMemo(() => {
     // FIX: Add null check for profile
@@ -324,6 +324,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
         x.set(0);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.user_id, x, y]);
 
 
@@ -446,7 +447,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     setTimeout(() => {
       isDragging.current = false;
     }, 100);
-  }, [profile?.user_id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   const handleCardTap = useCallback(() => {
     if (!isDragging.current && onDetails) {
@@ -466,18 +467,24 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
     const clickX = e.clientX - rect.left;
     const width = rect.width;
 
-    // Left third - previous image (only if multiple images)
-    if (clickX < width * 0.33 && imageCount > 1) {
-      setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
-      triggerHaptic('light');
-    }
-    // Right third - next image (only if multiple images)
-    else if (clickX > width * 0.67 && imageCount > 1) {
-      setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
-      triggerHaptic('light');
-    }
-    // Middle third - open insights
-    else if (onInsights && clickX >= width * 0.33 && clickX <= width * 0.67) {
+    if (imageCount > 1) {
+      // Left third - previous image
+      if (clickX < width * 0.33) {
+        setCurrentImageIndex(prev => prev === 0 ? imageCount - 1 : prev - 1);
+        triggerHaptic('light');
+      }
+      // Right third - next image
+      else if (clickX > width * 0.67) {
+        setCurrentImageIndex(prev => prev === imageCount - 1 ? 0 : prev + 1);
+        triggerHaptic('light');
+      }
+      // Middle third - open inside page
+      else if (onInsights) {
+        triggerHaptic('light');
+        onInsights();
+      }
+    } else if (onInsights) {
+      // Single image: any tap opens the inside page
       triggerHaptic('light');
       onInsights();
     }
@@ -518,7 +525,7 @@ const SimpleOwnerSwipeCardComponent = forwardRef<SimpleOwnerSwipeCardRef, Simple
 
     // SAFETY NET: If animation callback doesn't fire within 350ms, force it
     setTimeout(fireSwipe, 350);
-  }, [profile?.user_id, onSwipe, x, y]);
+  }, [onSwipe, x, y]);
 
   // Expose triggerSwipe method to parent via ref
   useImperativeHandle(ref, () => ({

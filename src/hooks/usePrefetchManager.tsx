@@ -29,7 +29,7 @@ export function usePrefetchManager() {
     await queryClient.prefetchQuery({
       queryKey: ['smart-listings', currentPage + 1],
       queryFn: async () => {
-        const { data } = await (supabase as any)
+        const { data } = await supabase
           .from('listings')
           .select('*')
           .eq('status', 'active')

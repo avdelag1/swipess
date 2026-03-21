@@ -39,7 +39,6 @@ import { triggerHaptic } from '@/utils/haptics';
 import { useNavigate } from 'react-router-dom';
 
 import { GradientOverlay } from '@/components/ui/GradientMasks';
-import CardImage from '@/components/CardImage';
 
 // ── Physics ───────────────────────────────────────────────────────────────────
 const SWIPE_THRESHOLD = 90;

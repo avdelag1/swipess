@@ -5,14 +5,19 @@ import { logger } from '@/utils/prodLogger';
 
 type Theme = 'dark' | 'light';
 
+export interface ThemeToggleCoords {
+  x: number;
+  y: number;
+}
+
 interface ThemeContextType {
   theme: Theme;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: Theme, coords?: ThemeToggleCoords) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const VALID_THEMES: Theme[] = ['dark', 'light'];
+const _VALID_THEMES: Theme[] = ['dark', 'light'];
 const DEFAULT_THEME: Theme = 'dark';
 
 /** Map legacy DB values to new theme names */
@@ -29,6 +34,11 @@ const ALL_THEME_CLASSES = [
 
 function applyThemeToDOM(theme: Theme) {
   const root = window.document.documentElement;
+  
+  // Mark transition start for smooth color shift
+  root.style.colorScheme = theme;
+  
+  // Remove all old theme classes
   root.classList.remove(...ALL_THEME_CLASSES);
 
   // Add the theme class — .dark or .light
@@ -39,14 +49,18 @@ function applyThemeToDOM(theme: Theme) {
     root.classList.add('black-matte');
   }
 
-  // Update status bar color
+  // Update status bar color for PWA (respects safe-area)
   let meta = document.querySelector('meta[name="theme-color"]');
   if (!meta) {
     meta = document.createElement('meta');
     meta.setAttribute('name', 'theme-color');
     document.head.appendChild(meta);
   }
-  meta.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+  
+  // Smooth transition for status bar in PWA
+  const targetColor = theme === 'dark' ? '#000000' : '#ffffff';
+  meta.setAttribute('content', targetColor);
+  
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -83,10 +97,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   // Save theme to database and update state
-  const setTheme = async (newTheme: Theme) => {
-    // Apply CSS immediately to prevent flash
-    applyThemeToDOM(newTheme);
-    setThemeState(newTheme);
+  const setTheme = async (newTheme: Theme, coords?: ThemeToggleCoords) => {
+    const root = window.document.documentElement;
+
+    // Store click origin for the CSS clip-path reveal animation
+    if (coords) {
+      root.style.setProperty('--theme-reveal-x', `${coords.x}px`);
+      root.style.setProperty('--theme-reveal-y', `${coords.y}px`);
+    } else {
+      root.style.setProperty('--theme-reveal-x', '50%');
+      root.style.setProperty('--theme-reveal-y', '50%');
+    }
+
+    // Use View Transitions API for circular ripple reveal if supported
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    if (doc.startViewTransition) {
+      doc.startViewTransition(() => {
+        applyThemeToDOM(newTheme);
+        setThemeState(newTheme);
+      });
+    } else {
+      // Fallback: apply immediately (CSS transition handles the rest)
+      applyThemeToDOM(newTheme);
+      setThemeState(newTheme);
+    }
 
     if (user?.id) {
       try {

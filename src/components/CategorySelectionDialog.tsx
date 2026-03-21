@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Zap, Key, Tag, Repeat } from "lucide-react";
+import { Building2, Bike, ArrowRight, Sparkles, Briefcase, Key, Tag, Repeat } from "lucide-react";
 import { MotorcycleIcon } from "@/components/icons/MotorcycleIcon";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";

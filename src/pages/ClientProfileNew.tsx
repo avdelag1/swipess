@@ -8,12 +8,11 @@ import { useClientProfile } from "@/hooks/useClientProfile";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, User, Camera, Sparkles, Crown,
-  Flame, ThumbsUp, Settings, Radio, Zap, MessageSquare
+  Flame, ThumbsUp, Settings, Radio, MessageSquare, Megaphone, CalendarDays
 } from "lucide-react";
 import { useClientStats } from "@/hooks/useClientStats";
 import { MyHubQuickFilters } from "@/components/MyHubQuickFilters";
 import { MyHubActivityFeed } from "@/components/MyHubActivityFeed";
-import { ExploreFeatureLinks } from "@/components/ExploreFeatureLinks";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/hooks/useTheme";
@@ -74,7 +73,7 @@ const ClientProfileNew = () => {
 
   return (
     <>
-      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full">
+      <div className="w-full max-w-lg mx-auto p-4 pt-4 pb-4 space-y-6 bg-background min-h-full stagger-children">
         {/* Profile Header */}
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -124,7 +123,10 @@ const ClientProfileNew = () => {
               )}
             >
               <stat.icon className={cn("w-4 h-4 mx-auto mb-2", stat.color)} />
-              <div className="text-lg font-semibold text-foreground leading-none mb-1">{stat.value}</div>
+              <div
+                className="text-lg font-black leading-none mb-1"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #f97316)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}
+              >{stat.value}</div>
               <div className="text-[10px] font-medium text-muted-foreground">{stat.label}</div>
             </div>
           ))}
@@ -299,6 +301,37 @@ const ClientProfileNew = () => {
             <Radio className="w-5 h-5 text-emerald-400" />
             Radio Station
           </button>
+
+          {/* Events + Promote — side by side */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => { haptics.tap(); navigate('/explore/eventos'); }}
+              data-testid="button-events"
+              className="flex-1 h-14 flex items-center justify-center gap-2 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(249,115,22,0.15) 100%)',
+                border: '1.5px solid rgba(239,68,68,0.35)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <CalendarDays className="w-5 h-5 text-red-400" />
+              <span className="bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent">Events</span>
+            </button>
+
+            <button
+              onClick={() => { haptics.tap(); navigate('/client/advertise'); }}
+              data-testid="button-advertise"
+              className="flex-1 h-14 flex items-center justify-center gap-2 rounded-2xl font-bold text-sm transition-all active:scale-[0.97] relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(168,85,247,0.15) 100%)',
+                border: '1.5px solid rgba(251,146,60,0.35)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              <Megaphone className="w-5 h-5 text-orange-400" />
+              <span className="bg-gradient-to-r from-orange-400 to-purple-400 bg-clip-text text-transparent">Promote</span>
+            </button>
+          </div>
 
           {/* Settings */}
           <button

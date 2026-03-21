@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Play, Pause, Volume2, VolumeX, MapPin, DollarSign, Eye, ChevronLeft, Heart, Share2, Info, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, MapPin, DollarSign, Eye, ChevronLeft, Heart, Share2, Info, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { triggerHaptic } from '@/utils/haptics';
+import { logger } from '@/utils/prodLogger';
 
 interface VideoListing {
   id: string;
@@ -35,7 +36,7 @@ export default function VideoTours() {
           .limit(20);
         setListings((data || []) as VideoListing[]);
       } catch (e) {
-        console.error(e);
+        logger.error(e);
       } finally {
         setIsLoading(false);
       }

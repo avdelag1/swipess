@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useUserSubscription } from './useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -44,14 +43,16 @@ export function useMessagingQuota() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('tokens')
         .select('remaining_activations, activation_type')
         .eq('user_id', user.id)
         .gt('remaining_activations', 0);
 
       if (error) {
-        logger.error('[useMessagingQuota] Error fetching tokens:', error);
+        if (error.code !== '42703') {
+          logger.error('[useMessagingQuota] Error fetching tokens:', error);
+        }
         return [];
       }
 
@@ -64,7 +65,7 @@ export function useMessagingQuota() {
   const tokenType = (tokenData || []).length > 0 ? (tokenData as any[])[0]?.activation_type : null;
   
   // Check free messaging matches - query conversations directly
-  const { data: freeMessagingCount = 0, isLoading: loadingMatches } = useQuery({
+  const { data: freeMessagingCount = 0, isLoading: _loadingMatches } = useQuery({
     queryKey: ['free-messaging-matches', user?.id],
     queryFn: async () => {
       if (!user?.id) return 0;

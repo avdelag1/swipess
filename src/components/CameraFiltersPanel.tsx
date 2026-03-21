@@ -14,9 +14,7 @@ import {
   FilterType,
   CAMERA_FILTERS,
   PortraitModeConfig,
-  DEFAULT_PORTRAIT_CONFIG,
   NightModeConfig,
-  DEFAULT_NIGHT_CONFIG,
 } from '@/utils/cameraFilters';
 
 interface CameraFiltersPanelProps {

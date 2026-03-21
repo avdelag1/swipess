@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Camera, CameraResultType, CameraSource, CameraDirection, Photo } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capacitor/camera';
 import { Capacitor } from '@capacitor/core';
 import { toast } from '@/components/ui/sonner';
 import { logger } from '@/utils/prodLogger';

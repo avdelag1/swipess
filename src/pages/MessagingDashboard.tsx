@@ -5,8 +5,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
-  MessageCircle, Search, Inbox, CircleDot,
-  Ghost, FolderArchive, MoreVertical, Check, Archive, Trash
+  MessageCircle, Search,
+  MoreVertical, Archive, Trash, Check, Inbox, CircleDot,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
@@ -16,7 +16,8 @@ import {
   useStartConversation,
   useDeleteConversation,
   useUpdateConversationStatus,
-  useMarkConversationAsRead
+  useMarkConversationAsRead,
+  type Conversation
 } from '@/hooks/useConversations';
 import { useMarkMessagesAsRead } from '@/hooks/useMarkMessagesAsRead';
 import { MessagingInterface } from '@/components/MessagingInterface';
@@ -54,12 +55,14 @@ async function checkFreeMessagingCategory(userId: string): Promise<boolean> {
 }
 
 export function MessagingDashboard() {
+  const _navigate = useNavigate();
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'archived'>('all');
   const [isStartingConversation, setIsStartingConversation] = useState(false);
+  const [_directConversationId, _setDirectConversationId] = useState<string | null>(null);
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
   const [showActivationBanner, setShowActivationBanner] = useState(false);
 
@@ -72,7 +75,7 @@ export function MessagingDashboard() {
   const updateStatus = useUpdateConversationStatus();
   const markChatAsRead = useMarkConversationAsRead();
 
-  const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<any>(null);
+  const [directlyFetchedConversation, setDirectlyFetchedConversation] = useState<Conversation | null>(null);
   const startConversation = useStartConversation();
   const { totalActivations, canSendMessage } = useMessageActivations();
 
@@ -91,7 +94,7 @@ export function MessagingDashboard() {
     }
   }, [conversations, prefetchTopConversationMessages]);
 
-  const refetchTimeoutRef = useRef<any>(null);
+  const refetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedRefetch = useCallback(() => {
     if (refetchTimeoutRef.current) clearTimeout(refetchTimeoutRef.current);
     refetchTimeoutRef.current = setTimeout(() => refetch(), 500);
@@ -141,7 +144,7 @@ export function MessagingDashboard() {
           setSearchParams({});
         }
       }
-    } catch {
+    } catch (_e) {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
@@ -175,7 +178,7 @@ export function MessagingDashboard() {
         setSelectedConversationId(result.conversationId);
         setSearchParams({});
       }
-    } catch {
+    } catch (_e) {
       setSearchParams({});
     } finally {
       setIsStartingConversation(false);
@@ -200,7 +203,7 @@ export function MessagingDashboard() {
           {otherUser ? (
             <MessagingInterface
               conversationId={selectedConversationId}
-              otherUser={otherUser}
+              otherUser={otherUser as any}
               listing={listing}
               currentUserRole={userRole}
               onBack={() => { setSelectedConversationId(null); setDirectlyFetchedConversation(null); }}
@@ -268,6 +271,7 @@ export function MessagingDashboard() {
               <div className="flex flex-col items-center justify-center py-20"><MessageCircle className="w-10 h-10 text-primary animate-pulse mb-3" /></div>
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map((conversation, index) => {
+                const _isOwner = conversation.other_user?.role === 'owner';
                 const isUnread = conversation.last_message?.sender_id !== user?.id && conversation.last_message?.is_read === false;
                 const lastAt = conversation.last_message_at ? new Date(conversation.last_message_at) : null;
 
@@ -311,7 +315,7 @@ export function MessagingDashboard() {
               })
             ) : (
               <div className="flex flex-col items-center justify-center py-24 text-center">
-                <Ghost className="w-12 h-12 text-muted-foreground/20 mb-4" />
+                <MessageCircle className="w-12 h-12 text-muted-foreground/20 mb-4" />
                 <h3 className="font-black">No messages found</h3>
                 <p className="text-sm text-muted-foreground">Try clearing filters or starting a new chat.</p>
               </div>

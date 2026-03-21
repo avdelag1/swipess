@@ -48,7 +48,7 @@ function SparklesIcon(props: any) {
   );
 }
 
-export function NotificationBar({ notifications, onDismiss, onMarkAllRead, onNotificationClick }: NotificationBarProps) {
+export function NotificationBar({ notifications, onDismiss, onMarkAllRead: _onMarkAllRead, onNotificationClick }: NotificationBarProps) {
   const [visible, setVisible] = useState(false);
   const [isCoolingDown, setIsCoolingDown] = useState(false);
   const dismissedRef = useRef(false);

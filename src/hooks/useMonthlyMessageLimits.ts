@@ -5,7 +5,7 @@ import { useAuth } from './useAuth';
  * Currently disabled - all messaging is free for testing
  */
 export function useMonthlyMessageLimits() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
 
   return {
     // Usage info

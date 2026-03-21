@@ -13,7 +13,7 @@ export function useMessageActivations() {
       if (!user?.id) return { totalRemaining: 999 };
 
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from('tokens')
           .select('*')
           .eq('user_id', user.id);
@@ -38,7 +38,7 @@ export function useMessageActivations() {
 
   // Use a token (conversation start) - simplified
   const useActivation = useMutation({
-    mutationFn: async ({ conversationId }: { conversationId: string }) => {
+    mutationFn: async ({ conversationId: _conversationId }: { conversationId: string }) => {
       // No-op for now - messaging is free
       return { success: true };
     },

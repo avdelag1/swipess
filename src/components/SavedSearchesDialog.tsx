@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, Bell, BellOff, Trash2, Edit, Plus, Search, AlertCircle, Loader2 } from 'lucide-react';
+import { Save, Bell, BellOff, Trash2, Plus, Search, AlertCircle, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/sonner';
@@ -75,7 +75,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     setFetchError(null);
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('saved_searches')
         .select('*')
         .eq('user_id', user.id)
@@ -83,8 +83,8 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
       if (error) throw error;
       setSavedSearches((data || []) as any[]);
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to load saved searches';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load saved searches';
       setFetchError(errorMessage);
       toast({
         title: 'Error Loading Searches',
@@ -149,7 +149,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
         city: city || null,
       };
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('saved_searches')
         .insert({
           user_id: user?.id,
@@ -173,10 +173,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       setCity('');
       setActiveTab('list');
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {
@@ -186,7 +186,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
 
   const handleToggleAlerts = async (searchId: string, currentStatus: boolean) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('saved_searches')
         .update({ last_matched_at: new Date().toISOString() } as any)
         .eq('id', searchId);
@@ -199,10 +199,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       });
 
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     }
@@ -217,7 +217,7 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
     if (!deleteTarget) return;
 
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('saved_searches')
         .delete()
         .eq('id', deleteTarget.id);
@@ -230,10 +230,10 @@ export function SavedSearchesDialog({ open, onOpenChange }: SavedSearchesDialogP
       });
 
       fetchSavedSearches();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
     } finally {

@@ -47,7 +47,7 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
         diagnostics.errors.push('localStorage is not working properly. Session persistence will fail.');
         diagnostics.recommendations.push('Check browser settings: Private/Incognito mode may disable localStorage. Clear browser cache and cookies.');
       }
-    } catch (e) {
+    } catch (_e) {
       diagnostics.localStorageAvailable = false;
       diagnostics.errors.push('localStorage is not accessible. This will prevent session persistence.');
       diagnostics.recommendations.push('Enable localStorage in browser settings or check if you\'re in private/incognito mode.');
@@ -58,7 +58,7 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
       const testValue = sessionStorage.getItem('__test__');
       diagnostics.sessionStorageAvailable = testValue === 'test';
       sessionStorage.removeItem('__test__');
-    } catch (e) {
+    } catch (_e) {
       diagnostics.sessionStorageAvailable = false;
       diagnostics.warnings.push('sessionStorage is not accessible.');
     }
@@ -97,8 +97,8 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
           diagnostics.warnings.push(`Google OAuth check returned: ${googleError.message}`);
         }
       }
-    } catch (e: any) {
-      diagnostics.warnings.push(`Google OAuth test failed: ${e.message}`);
+    } catch (e: unknown) {
+      diagnostics.warnings.push(`Google OAuth test failed: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Test Facebook OAuth
@@ -130,8 +130,8 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
           diagnostics.warnings.push(`Facebook OAuth check returned: ${facebookError.message}`);
         }
       }
-    } catch (e: any) {
-      diagnostics.warnings.push(`Facebook OAuth test failed: ${e.message}`);
+    } catch (e: unknown) {
+      diagnostics.warnings.push(`Facebook OAuth test failed: ${e instanceof Error ? e.message : String(e)}`);
     }
 
     // Check current URL configuration
@@ -152,8 +152,8 @@ export async function diagnoseOAuthSetup(): Promise<OAuthDiagnostics> {
       diagnostics.recommendations.push('OAuth configuration appears to be correct!');
     }
 
-  } catch (error: any) {
-    diagnostics.errors.push(`Diagnostic failed: ${error.message}`);
+  } catch (error: unknown) {
+    diagnostics.errors.push(`Diagnostic failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   return diagnostics;

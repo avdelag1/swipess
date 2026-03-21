@@ -30,7 +30,7 @@ import { StationDrawer } from '@/components/radio/retro/StationDrawer';
 import { triggerHaptic } from '@/utils/haptics';
 import {
   ArrowLeft, ListMusic, Play, Pause, ThumbsUp,
-  SkipBack, SkipForward, Square, Circle, Shuffle
+  SkipBack, SkipForward, Square, Shuffle
 } from 'lucide-react';
 
 // ── Font injection ──────────────────────────────────────────────────────────
@@ -360,7 +360,7 @@ export default function RetroRadioStation() {
         top="64.5%" left="81%" width="14%" height="16%"
         onClick={() => {
           triggerHaptic('success');
-          state.currentStation && toggleFavorite(state.currentStation.id);
+          if (state.currentStation) toggleFavorite(state.currentStation.id);
         }}
         label={isFav ? 'Remove from favorites' : 'Save station (Record)'}
       >

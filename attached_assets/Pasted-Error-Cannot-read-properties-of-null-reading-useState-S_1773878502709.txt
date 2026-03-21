@@ -1,0 +1,25 @@
+Error: Cannot read properties of null (reading 'useState')
+
+Stack Trace:
+TypeError: Cannot read properties of null (reading 'useState')
+    at useState (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-QCHXOAYK.js?v=d2bcecf4:1066:29)
+    at useConnectionHealth (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/src/hooks/useConnectionHealth.ts:43:33)
+    at ConnectionGuard (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/src/App.tsx:300:43)
+    at renderWithHooks (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:11548:26)
+    at mountIndeterminateComponent (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:14926:21)
+    at beginWork (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:15914:22)
+    at beginWork$1 (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:19753:22)
+    at performUnitOfWork (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:19198:20)
+    at workLoopSync (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:19137:13)
+    at renderRootSync (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/node_modules/.vite/deps/chunk-RPCDYKBN.js?v=0eb893f8:19116:15)
+
+Component Stack:
+
+    at ConnectionGuard (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/src/App.tsx:298:28)
+    at GlobalErrorBoundary (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/src/components/GlobalErrorBoundary.tsx:144:9)
+    at App (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/src/App.tsx:329:49)
+    at ErrorBoundaryWrapper (https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/src/components/ErrorBoundaryWrapper.tsx:184:9)
+
+User Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36 OPR/128.0.0.0 (Edition ms_store)
+URL: https://dbbea4c8-7435-4d60-9add-792511a9cf84-00-1bvqad7gz5vas.picard.replit.dev/
+Timestamp: 2026-03-19T00:01:39.510Z
