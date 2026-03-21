@@ -276,14 +276,22 @@ const FAN_CARDS = [
   { id: 'services' as const, label: 'Workers', emoji: '🛠️', accent: '#a855f7', accentRgb: '168,85,247', description: 'Skilled freelancers', rotate: 11, tx: 56, ty: 14 },
 ];
 
-const CARD_W = 178;
-const CARD_H = 282;
+// Card dimensions — large enough to feel immersive, tight enough to fit the fan
+const CARD_W = 215;
+const CARD_H = 355;
 
-const FanPokerCard = memo(({ card, index, isHovered, isSelected, onTap, photoIdx }: {
-  card: typeof FAN_CARDS[0];
+// Fan geometry — very slight tilt so cards feel almost upright
+const FAN_CARDS_WITH_POS = [
+  { ...FAN_CARDS[0], rotate: -7,  tx: -26, ty: 10  },
+  { ...FAN_CARDS[1], rotate: -2.2,tx: -9,  ty: 2   },
+  { ...FAN_CARDS[2], rotate: 2.2, tx: 9,   ty: 2   },
+  { ...FAN_CARDS[3], rotate: 7,   tx: 26,  ty: 10  },
+];
+
+const FanPokerCard = memo(({ card, index, isTapped, onTap, photoIdx }: {
+  card: typeof FAN_CARDS_WITH_POS[0];
   index: number;
-  isHovered: boolean;
-  isSelected: boolean;
+  isTapped: boolean;
   onTap: () => void;
   photoIdx: number;
 }) => {
@@ -294,25 +302,15 @@ const FanPokerCard = memo(({ card, index, isHovered, isSelected, onTap, photoIdx
     <motion.button
       onClick={onTap}
       data-testid={`fan-filter-${card.id}`}
-      initial={{ opacity: 0, scale: 0.72, rotate: card.rotate, x: card.tx, y: card.ty + 44 }}
-      animate={isSelected ? {
-        opacity: 1,
-        scale: 1.18,
-        rotate: 0,
-        x: 0,
-        y: -28,
-        zIndex: 30,
+      initial={{ opacity: 0, scale: 0.78, rotate: card.rotate, x: card.tx, y: card.ty + 50 }}
+      animate={isTapped ? {
+        opacity: 1, scale: 1.06, rotate: 0, x: 0, y: -24, zIndex: 30,
       } : {
-        opacity: 1,
-        scale: isHovered ? 1.07 : 1,
-        rotate: card.rotate,
-        x: card.tx,
-        y: isHovered ? card.ty - 16 : card.ty,
-        zIndex: isHovered ? 20 : index + 1,
+        opacity: 1, scale: 1, rotate: card.rotate, x: card.tx, y: card.ty, zIndex: index + 1,
       }}
-      transition={{ type: 'spring', stiffness: 340, damping: 30, mass: 0.75, delay: isSelected ? 0 : index * 0.065 }}
-      whileTap={{ scale: isSelected ? 1.12 : 0.96 }}
-      className="absolute"
+      transition={{ type: 'spring', stiffness: 380, damping: 34, mass: 0.7, delay: isTapped ? 0 : index * 0.055 }}
+      whileTap={{ scale: 0.97 }}
+      className="absolute pointer-events-auto"
       style={{
         width: CARD_W,
         height: CARD_H,
@@ -320,19 +318,17 @@ const FanPokerCard = memo(({ card, index, isHovered, isSelected, onTap, photoIdx
         top: '50%',
         marginLeft: -(CARD_W / 2),
         marginTop: -(CARD_H / 2),
-        borderRadius: 22,
+        borderRadius: 24,
         overflow: 'hidden',
-        boxShadow: isSelected
-          ? `0 32px 64px rgba(${card.accentRgb},0.55), 0 12px 32px rgba(0,0,0,0.6)`
-          : isHovered
-          ? `0 26px 52px rgba(${card.accentRgb},0.42), 0 8px 24px rgba(0,0,0,0.5)`
-          : `0 16px 40px rgba(0,0,0,0.48), 0 4px 12px rgba(0,0,0,0.28)`,
+        boxShadow: isTapped
+          ? `0 30px 60px rgba(${card.accentRgb},0.5), 0 10px 30px rgba(0,0,0,0.55)`
+          : `0 14px 36px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.25)`,
         transformOrigin: 'bottom center',
         WebkitTapHighlightColor: 'transparent',
-        border: `1.5px solid rgba(${card.accentRgb},${isSelected ? 0.85 : isHovered ? 0.55 : 0.28})`,
+        border: `1.5px solid rgba(${card.accentRgb},${isTapped ? 0.75 : 0.22})`,
       }}
     >
-      {/* Photo carousel — CSS crossfade, one card at a time */}
+      {/* Photos — CSS crossfade, silky 3s ease */}
       <div className="absolute inset-0 bg-zinc-900">
         {photos.map((src, i) => (
           <img
@@ -343,73 +339,55 @@ const FanPokerCard = memo(({ card, index, isHovered, isSelected, onTap, photoIdx
             loading="eager"
             style={{
               opacity: i === activePhoto ? 1 : 0,
-              transition: 'opacity 2.4s cubic-bezier(0.4,0,0.2,1)',
+              transition: 'opacity 3s ease-in-out',
             }}
           />
         ))}
       </div>
 
-      {/* Dark gradient overlay */}
+      {/* Gradient vignette — dark at bottom for label readability */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `linear-gradient(170deg, rgba(${card.accentRgb},0.06) 0%, rgba(0,0,0,0.10) 35%, rgba(0,0,0,0.78) 100%)`,
+          background: `linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,0.82) 100%)`,
         }}
       />
 
-      {/* Glossy shine — top edge */}
-      <div
-        className="absolute top-0 left-0 right-0 pointer-events-none"
-        style={{
-          height: 56,
-          background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, transparent 100%)',
-          borderRadius: '20px 20px 0 0',
-        }}
-      />
-
-      {/* Progress dots */}
-      <div className="absolute top-2.5 left-0 right-0 flex justify-center gap-1 px-3">
+      {/* Top progress dots */}
+      <div className="absolute top-3 left-0 right-0 flex justify-center gap-[3px] px-4">
         {photos.map((_, i) => (
           <div
             key={i}
             className="flex-1 rounded-full"
             style={{
               height: 2.5,
-              background: i === activePhoto ? `rgba(${card.accentRgb},1)` : 'rgba(255,255,255,0.28)',
-              transition: 'background 0.8s ease',
+              background: i === activePhoto
+                ? `rgba(${card.accentRgb},1)`
+                : 'rgba(255,255,255,0.25)',
+              transition: 'background 1s ease',
             }}
           />
         ))}
       </div>
 
       {/* Bottom label */}
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <div
-          className="rounded-xl p-2.5"
-          style={{
-            background: 'rgba(0,0,0,0.50)',
-            backdropFilter: 'blur(14px)',
-            border: '1px solid rgba(255,255,255,0.13)',
-          }}
-        >
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <span style={{ fontSize: 15 }}>{card.emoji}</span>
-            <span className="text-white font-black text-[12px] tracking-tight leading-none">{card.label}</span>
+      <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="flex items-center gap-2">
+          <span style={{ fontSize: 20 }}>{card.emoji}</span>
+          <div>
+            <p className="text-white font-black text-[14px] tracking-tight leading-tight">{card.label}</p>
+            <p className="text-white/60 text-[11px] leading-tight">{card.description}</p>
           </div>
-          <p className="text-white/55 text-[10px] leading-tight">
-            {isSelected ? 'Tap again to explore →' : card.description}
-          </p>
         </div>
       </div>
 
-      {/* Selected: pulsing accent ring */}
-      {isSelected && (
+      {/* Tapped: accent glow ring */}
+      {isTapped && (
         <motion.div
           className="absolute inset-0 pointer-events-none"
           initial={{ opacity: 0 }}
-          animate={{ opacity: [0.6, 1, 0.6] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.85)`, borderRadius: 20 }}
+          animate={{ opacity: 1 }}
+          style={{ boxShadow: `inset 0 0 0 2.5px rgba(${card.accentRgb},0.8)`, borderRadius: 22 }}
         />
       )}
     </motion.button>
@@ -423,13 +401,12 @@ interface SwipeAllDashboardProps {
 }
 
 const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [selectedCard, setSelectedCard] = useState<string | null>(null);
-  // All cards start at photo 0 — guarantees first photo is always loaded
+  const [tappedCard, setTappedCard] = useState<string | null>(null);
   const [photoIndices, setPhotoIndices] = useState([0, 0, 0, 0]);
   const cyclingCardRef = useRef(0);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Staggered cycling: one card changes every 5 seconds, in sequence
+  // Staggered cycling: one card's photo changes every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       const cardTurn = cyclingCardRef.current;
@@ -443,21 +420,17 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Cleanup nav timer on unmount
+  useEffect(() => () => { if (navTimerRef.current) clearTimeout(navTimerRef.current); }, []);
+
   const handleTap = useCallback((id: string) => {
     triggerHaptic('light');
-    if (selectedCard === id) {
-      // Second tap on the same card — navigate
+    setTappedCard(id);
+    // Brief lift animation (380ms), then navigate
+    navTimerRef.current = setTimeout(() => {
       setCategories([id]);
-    } else {
-      // First tap — preview this card (bring to front)
-      setSelectedCard(id);
-    }
-  }, [selectedCard, setCategories]);
-
-  // Dismiss selection when tapping the backdrop
-  const handleBackdropTap = useCallback(() => {
-    if (selectedCard) setSelectedCard(null);
-  }, [selectedCard]);
+    }, 380);
+  }, [setCategories]);
 
   return (
     <AnimatePresence mode="wait">
@@ -469,66 +442,25 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
         exit="exit"
         className="relative w-full flex-1 flex flex-col items-center justify-center"
         style={{ minHeight: 'calc(100dvh - 140px)' }}
-        onClick={handleBackdropTap}
       >
-        {/* Subtle ambient glow */}
+        {/* Ambient glow */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full opacity-[0.07] blur-3xl bg-gradient-radial from-primary via-purple-500 to-transparent" />
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full opacity-[0.06] blur-3xl bg-gradient-radial from-primary via-purple-500 to-transparent" />
         </div>
 
-        {/* Title — changes hint when a card is selected */}
-        <motion.div
-          className="text-center mb-10 z-10 relative"
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-        >
-          <motion.p
-            key={selectedCard ?? 'default'}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground"
-          >
-            {selectedCard
-              ? `${FAN_CARDS.find(c => c.id === selectedCard)?.emoji} Tap again to explore`
-              : 'Tap a card to explore'}
-          </motion.p>
-        </motion.div>
-
-        {/* Fan of cards */}
+        {/* Fan container — sized to hold the larger cards */}
         <div
-          className="relative z-10"
-          style={{ width: 340, height: 310 }}
-          onClick={e => e.stopPropagation()}
+          className="relative"
+          style={{ width: '100%', maxWidth: 380, height: CARD_H + 60, zIndex: 10 }}
         >
-          {FAN_CARDS.map((card, i) => (
+          {FAN_CARDS_WITH_POS.map((card, i) => (
             <FanPokerCard
               key={card.id}
               card={card}
               index={i}
-              isHovered={hoveredCard === card.id}
-              isSelected={selectedCard === card.id}
+              isTapped={tappedCard === card.id}
               onTap={() => handleTap(card.id)}
               photoIdx={photoIndices[i]}
-            />
-          ))}
-          {/* Invisible hover zones for desktop */}
-          {FAN_CARDS.map((card) => (
-            <div
-              key={`hover-${card.id}`}
-              className="absolute"
-              style={{
-                width: CARD_W,
-                height: CARD_H,
-                left: '50%',
-                top: '50%',
-                transform: `translate(-50%, -50%) translateX(${card.tx}px) translateY(${card.ty}px) rotate(${card.rotate}deg)`,
-                transformOrigin: 'bottom center',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={() => setHoveredCard(card.id)}
-              onMouseLeave={() => setHoveredCard(null)}
             />
           ))}
         </div>
