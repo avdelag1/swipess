@@ -4,8 +4,9 @@ import {
 } from 'framer-motion';
 import {
   Eye, EyeOff, Mail, Lock, User,
-  ArrowLeft, Loader, Check
+  ArrowLeft, Loader, Check, Gamepad2
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -46,6 +47,7 @@ const LandingView = memo(({
 }: {
   onEnterAuth: () => void;
 }) => {
+  const navigate = useNavigate();
   const x = useMotionValue(0);
   const logoOpacity = useTransform(x, [0, 100, 220], [1, 0.6, 0]);
   const logoScale = useTransform(x, [0, 120, 220], [1, 0.96, 0.86]);
@@ -104,6 +106,21 @@ const LandingView = memo(({
           />
         </div>
       </motion.div>
+
+      {/* Game button — bottom-left corner */}
+      <button
+        onClick={(e) => { e.stopPropagation(); navigate('/game/trumps-bad-day'); }}
+        data-testid="button-game"
+        className="absolute bottom-6 left-6 w-11 h-11 flex items-center justify-center rounded-full transition-all active:scale-90"
+        style={{
+          background: 'rgba(255,255,255,0.07)',
+          border: '1px solid rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(10px)',
+        }}
+        title="Mini Game"
+      >
+        <Gamepad2 className="w-5 h-5 text-white/50" />
+      </button>
 
     </motion.div>
   );
