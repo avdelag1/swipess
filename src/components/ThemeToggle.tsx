@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { triggerHaptic } from '@/utils/haptics';
@@ -11,11 +11,13 @@ interface ThemeToggleProps {
 
 function ThemeToggleComponent({ className }: ThemeToggleProps) {
     const { theme, setTheme } = useTheme();
-    const isDark = theme === 'dark';
 
-    const glassBg = isDark ? 'var(--glass-bg)' : 'rgba(255, 255, 255, 0.95)';
-    const glassBorder = isDark ? '1px solid var(--glass-border)' : '1px solid rgba(0, 0, 0, 0.05)';
-    const floatingShadow = isDark
+    // Cycle: light → dark → cheers → light
+    const nextTheme = theme === 'light' ? 'dark' : theme === 'dark' ? 'cheers' : 'light';
+    
+    const glassBg = theme === 'dark' || theme === 'cheers' ? 'var(--glass-bg)' : 'rgba(255, 255, 255, 0.95)';
+    const glassBorder = theme === 'dark' || theme === 'cheers' ? '1px solid var(--glass-border)' : '1px solid rgba(0, 0, 0, 0.05)';
+    const floatingShadow = theme === 'dark' || theme === 'cheers'
         ? '0 10px 30px -10px rgba(0,0,0,0.5)'
         : '0 10px 30px -10px rgba(0,0,0,0.1)';
 
@@ -23,7 +25,16 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
         e.preventDefault();
         e.stopPropagation();
         triggerHaptic('light');
-        setTheme(isDark ? 'light' : 'dark', { x: e.clientX, y: e.clientY });
+        setTheme(nextTheme, { x: e.clientX, y: e.clientY });
+    };
+
+    const getThemeLabel = () => {
+        switch (theme) {
+            case 'light': return 'Light';
+            case 'dark': return 'Dark';
+            case 'cheers': return 'Animal Print';
+            default: return 'Dark';
+        }
     };
 
     return (
@@ -43,7 +54,8 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                 border: glassBorder,
                 boxShadow: floatingShadow,
             }}
-            aria-label={`Switch to ${isDark ? 'Light' : 'Dark'} mode`}
+            aria-label={`Current: ${getThemeLabel()}. Click to cycle themes`}
+            title={`Themes: Light → Dark → Animal Print`}
         >
             <AnimatePresence mode="wait">
                 <motion.div
@@ -53,10 +65,14 @@ function ThemeToggleComponent({ className }: ThemeToggleProps) {
                     exit={{ opacity: 0, scale: 0.8, rotate: 180 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
-                    {isDark ? (
-                        <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
-                    ) : (
+                    {theme === 'light' && (
                         <Moon strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-400" />
+                    )}
+                    {theme === 'dark' && (
+                        <Sun strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-amber-400" />
+                    )}
+                    {theme === 'cheers' && (
+                        <Sparkles strokeWidth={3} className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400" />
                     )}
                 </motion.div>
             </AnimatePresence>
