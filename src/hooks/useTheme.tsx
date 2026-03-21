@@ -101,25 +101,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = window.document.documentElement;
 
     // Store click origin for the CSS clip-path reveal animation
-    if (coords) {
-      root.style.setProperty('--theme-reveal-x', `${coords.x}px`);
-      root.style.setProperty('--theme-reveal-y', `${coords.y}px`);
-    } else {
-      root.style.setProperty('--theme-reveal-x', '50%');
-      root.style.setProperty('--theme-reveal-y', '50%');
-    }
+    root.style.setProperty('--theme-reveal-x', coords ? `${coords.x}px` : '50%');
+    root.style.setProperty('--theme-reveal-y', coords ? `${coords.y}px` : '50%');
+
+    // Freeze all element-level transitions so nothing "bleeds" during the view transition
+    root.classList.add('theme-switching');
 
     // Use View Transitions API for circular ripple reveal if supported
-    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
     if (doc.startViewTransition) {
-      doc.startViewTransition(() => {
+      const vt = doc.startViewTransition(() => {
         applyThemeToDOM(newTheme);
         setThemeState(newTheme);
       });
+      // Remove the freeze class only after the full animation is done
+      vt.finished.finally(() => {
+        root.classList.remove('theme-switching');
+      });
     } else {
-      // Fallback: apply immediately (CSS transition handles the rest)
+      // Fallback: apply immediately, remove freeze on next tick
       applyThemeToDOM(newTheme);
       setThemeState(newTheme);
+      requestAnimationFrame(() => root.classList.remove('theme-switching'));
     }
 
     if (user?.id) {

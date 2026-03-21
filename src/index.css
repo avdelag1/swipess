@@ -9,9 +9,7 @@
 @tailwind utilities;
 
 html {
-  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  transition-property: background-color, color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  /* No background-color CSS transition — View Transitions API owns the theme change entirely */
 }
 
 body, html {
@@ -21,40 +19,41 @@ body, html {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── View Transitions: circular ripple reveal from toggle button ─── */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 0.5s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+/* ─── While the theme is switching: freeze every element's own transitions  ─── */
+/* This prevents the "parts changing at different times" stagger artefact.      */
+html.theme-switching,
+html.theme-switching * {
+  transition: none !important;
+  animation-play-state: paused !important;
 }
 
-/* Old theme snapshot: freeze in place, let the new one slide over it */
+/* ─── View Transitions: circular ripple reveal from toggle button ─── */
+/* Both directions use the same circle-expand, so it looks identical   */
+/* whether you're going dark→light or light→dark.                      */
 ::view-transition-old(root) {
+  /* Keep the OLD snapshot perfectly still — the NEW circle slides over it */
   animation: none;
   z-index: 1;
+  mix-blend-mode: normal;
 }
 
-/* New theme snapshot: expand as a circle from the toggle button origin */
 ::view-transition-new(root) {
-  animation: theme-circle-reveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  /* Expand as a sharp-edged circle from the toggle button's tap point */
+  animation: theme-circle-reveal 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
   z-index: 2;
+  mix-blend-mode: normal;
 }
 
 @keyframes theme-circle-reveal {
   from {
     clip-path: circle(0% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
-    opacity: 0.92;
   }
   to {
-    clip-path: circle(150% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
-    opacity: 1;
+    clip-path: circle(160% at var(--theme-reveal-x, 50%) var(--theme-reveal-y, 50%));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    transition: none;
-  }
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
