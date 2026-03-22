@@ -293,10 +293,11 @@ function ShareModal({
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 function EventCard({
-  event, isActive, onLike, liked, onChat, onShare, onMiddleTap,
+  event, isActive, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
 }: {
   event: EventItem; isActive: boolean; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
+  onNextEvent: () => void; onPrevEvent: () => void;
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -336,12 +337,40 @@ function EventCard({
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
 
-      {/* Middle-tap zone for insights */}
+      {/* LEFT tap zone — previous event */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
+        className="absolute left-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-start pl-3"
+        aria-label="Previous event"
+      >
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+        >
+          <ChevronLeft className="w-4 h-4 text-white" />
+        </div>
+      </button>
+
+      {/* MIDDLE tap zone — view details */}
       <button
         onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
-        className="absolute inset-x-0 top-[30%] bottom-[40%] z-10"
+        className="absolute inset-x-[30%] top-[8%] bottom-[40%] z-10"
         aria-label="View event details"
       />
+
+      {/* RIGHT tap zone — next event */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
+        className="absolute right-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-end pr-3"
+        aria-label="Next event"
+      >
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+        >
+          <ChevronRight className="w-4 h-4 text-white" />
+        </div>
+      </button>
 
       {/* Double-tap to like overlay */}
       <AnimatePresence>
@@ -390,7 +419,7 @@ function EventCard({
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl font-black text-white leading-[1.05] tracking-tight drop-shadow-lg">
+              <h2 className="text-3xl font-black font-brand text-white leading-[1.05] tracking-tight drop-shadow-lg">
                 {event.title}
               </h2>
 
@@ -849,64 +878,28 @@ export default function EventosFeed() {
     navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
   }, [navigate]);
 
-  // Swipe navigation: left = next, right = previous
-  const touchStartX = useRef<number | null>(null);
-  const touchStartTime = useRef<number | null>(null);
-  const SWIPE_THRESHOLD = 50;
-  const VELOCITY_THRESHOLD = 300;
-
-  const handleSwipeLeft = useCallback(() => {
+  // Tap navigation: left zone = previous, right zone = next
+  const handleTapNext = useCallback(() => {
     if (activeIdx < filteredEvents.length - 1) {
       const el = scrollRef.current;
       if (el) {
-        const nextIdx = activeIdx + 1;
-        el.scrollTo({ top: nextIdx * el.clientHeight, behavior: 'smooth' });
+        el.scrollTo({ top: (activeIdx + 1) * el.clientHeight, behavior: 'smooth' });
         triggerHaptic('light');
-        pauseAutoPlay();
+        setAnimKey(k => k + 1); // reset progress bar
       }
     }
-  }, [activeIdx, filteredEvents.length, pauseAutoPlay]);
+  }, [activeIdx, filteredEvents.length]);
 
-  const handleSwipeRight = useCallback(() => {
+  const handleTapPrev = useCallback(() => {
     if (activeIdx > 0) {
       const el = scrollRef.current;
       if (el) {
-        const prevIdx = activeIdx - 1;
-        el.scrollTo({ top: prevIdx * el.clientHeight, behavior: 'smooth' });
+        el.scrollTo({ top: (activeIdx - 1) * el.clientHeight, behavior: 'smooth' });
         triggerHaptic('light');
-        pauseAutoPlay();
+        setAnimKey(k => k + 1); // reset progress bar
       }
     }
-  }, [activeIdx, pauseAutoPlay]);
-
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartTime.current = Date.now();
-  }, []);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (touchStartX.current === null || touchStartTime.current === null) return;
-
-    const touchEndX = e.changedTouches[0].clientX;
-    const distance = touchStartX.current - touchEndX;
-    const duration = Date.now() - touchStartTime.current;
-    const velocity = Math.abs(distance) / duration;
-
-    touchStartX.current = null;
-    touchStartTime.current = null;
-
-    // Check if swipe meets threshold
-    const isSwipe = Math.abs(distance) > SWIPE_THRESHOLD || velocity > VELOCITY_THRESHOLD;
-    if (!isSwipe) return;
-
-    if (distance > 0) {
-      // Swiped left → next event
-      handleSwipeLeft();
-    } else {
-      // Swiped right → previous event
-      handleSwipeRight();
-    }
-  }, [handleSwipeLeft, handleSwipeRight]);
+  }, [activeIdx]);
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
@@ -923,7 +916,7 @@ export default function EventosFeed() {
             <ArrowLeft className="w-4 h-4 text-white" />
           </button>
           <div className="flex-1">
-            <h1 className="text-white font-black text-lg tracking-tight">Tulum Events</h1>
+            <h1 className="text-white font-black font-brand text-lg tracking-tight">Tulum Events</h1>
             <p className="text-white/50 text-[10px]">{filteredEvents.length} events near you</p>
           </div>
           <div className="flex items-center gap-2">
@@ -986,7 +979,7 @@ export default function EventosFeed() {
               <button
                 key={cat.key}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
-                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black uppercase tracking-wide transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black font-brand uppercase tracking-wide transition-all active:scale-95"
                 style={{
                   background: active ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.4)',
                   color: active ? '#000' : 'rgba(255,255,255,0.8)',
@@ -1006,8 +999,6 @@ export default function EventosFeed() {
       <div
         ref={scrollRef}
         className="w-full h-full overflow-y-scroll"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
         style={{
           scrollSnapType: 'y mandatory',
           WebkitOverflowScrolling: 'touch',
@@ -1031,6 +1022,8 @@ export default function EventosFeed() {
                 onChat={() => handleOpenChat(event)}
                 onShare={() => handleShare(event)}
                 onMiddleTap={() => handleMiddleTap(event)}
+                onNextEvent={handleTapNext}
+                onPrevEvent={handleTapPrev}
               />
             ))}
             {/* Promote CTA card at the end */}
