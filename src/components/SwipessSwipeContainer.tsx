@@ -1259,8 +1259,8 @@ const SwipessSwipeContainerComponent = ({ onListingTap, onInsights: _onInsights,
     const listing = deckQueueRef.current[currentIndexRef.current];
     if (!listing) return;
 
-    // Immediate haptic feedback
-    triggerHaptic(direction === 'right' ? 'success' : 'warning');
+    // NOTE: Haptic is fired by the card component (handleDragEnd or handleButtonSwipe)
+    // or by ActionButton — do NOT fire again here to avoid double/triple haptic on device.
 
     // Play swipe sound effect
     playSwipeSound(direction);
