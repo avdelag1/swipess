@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { loginSchema, signupSchema, forgotPasswordSchema } from '@/schemas/auth';
 import { nuclearReset } from '@/utils/cacheManager';
 import { cn } from '@/lib/utils';
+import { haptics } from '@/utils/microPolish';
 
 // Lazy-load heavy deps that aren't needed for first paint
 const LandingBackgroundEffects = lazy(() => import('./LandingBackgroundEffects'));
@@ -146,8 +147,8 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [_showResendConfirmation, setShowResendConfirmation] = useState(false);
-  const [errorDetails, setErrorDetails] = useState<any>(null);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
+  const [role, setRole] = useState<'client' | 'owner'>('client');
 
   const { signIn, signUp, signInWithOAuth: _signInWithOAuth } = useAuth();
   const passwordStrength = useMemo(() => checkPasswordStrength(password), [password]);
@@ -201,7 +202,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
     try {
       if (isLogin) {
         const validated = loginSchema.parse({ email, password });
-        const { error } = await signIn(validated.email, validated.password, 'client');
+        const { error } = await signIn(validated.email, validated.password, role);
         if (!error) {
           if (rememberMe) localStorage.setItem('auth_client_email', validated.email);
           else localStorage.removeItem('auth_client_email');
@@ -213,7 +214,7 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           return;
         }
         const validated = signupSchema.parse({ name, email, password });
-        const { error } = await signUp(validated.email, validated.password, 'client', validated.name);
+        const { error } = await signUp(validated.email, validated.password, role, validated.name);
         if (error) throw error;
       }
     } catch (error: any) {
@@ -307,6 +308,30 @@ const AuthView = memo(({ onBack }: { onBack: () => void }) => {
           )}
 
           <motion.div variants={itemVariants} className="bg-card border border-border rounded-2xl p-5">
+            {/* Role Toggle */}
+            <div className="flex p-1 bg-muted rounded-xl mb-4 border border-border/50">
+              <button
+                type="button"
+                onClick={() => { setRole('client'); haptics.tap(); }}
+                className={cn(
+                  "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all",
+                  role === 'client' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Explorer
+              </button>
+              <button
+                type="button"
+                onClick={() => { setRole('owner'); haptics.tap(); }}
+                className={cn(
+                  "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all",
+                  role === 'owner' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Provider
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-3">
               {!isLogin && !isForgotPassword && (
                 <motion.div variants={itemVariants}>

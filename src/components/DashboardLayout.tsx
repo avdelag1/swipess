@@ -668,10 +668,30 @@ export function DashboardLayout({ children, userRole }: DashboardLayoutProps) {
     // User wants header gone from Events to avoid interference
     const isEventsMain = location.pathname === '/explore/eventos' || location.pathname === '/explore/eventos/';
 
+    // Rare sub-pages that manage their own navigation/back behavior
+    const isSpecialSubPage = [
+      '/client/advertise',
+      '/explore/eventos/promote',
+      '/explore/prices',
+      '/explore/intel',
+      '/explore/tours',
+      '/documents',
+      '/escrow',
+      '/admin/eventos',
+      '/about',
+      '/contact',
+      '/privacy-policy',
+      '/terms-of-service',
+      '/legal',
+      '/agl',
+      '/subscription/packages',
+      '/notifications'
+    ].some(path => location.pathname === path || location.pathname === path + '/');
+
     return isCameraRoute || isRadioRoute || 
            location.pathname.includes('/client/filters') || 
            location.pathname.includes('/owner/filters') ||
-           isEventoDetail || isEventsMain || isRoommatesPage;
+           isEventoDetail || isEventsMain || isRoommatesPage || isSpecialSubPage;
   }, [isCameraRoute, isRadioRoute, location.pathname, isRoommatesPage]);
 
   // Round 8: Page titles removed — bottom nav is sufficient indicator
