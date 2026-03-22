@@ -880,190 +880,151 @@ const ClientSwipeContainerComponent = ({
     );
   }
 
-  // "All Caught Up" - finished swiping through all cards
-  if (isDeckFinished) {
-    const { Icon: CaughtUpIcon, color: caughtUpColor } = labels;
-    return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Ambient glow */}
-        <div className={`absolute inset-0 pointer-events-none ${caughtUpColor} opacity-[0.03] blur-3xl`} />
+import { Reorder } from 'framer-motion';
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
-        >
-          {/* Animated circle with category icon — matching client swipe style */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <motion.div
-                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute inset-0 rounded-full ${caughtUpColor} blur-lg`}
-              />
-              <motion.div
-                animate={isRefreshing
-                  ? { rotate: 360 }
-                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
-                }
-                transition={isRefreshing
-                  ? { duration: 1, repeat: Infinity, ease: "linear" }
-                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
-                }
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${caughtUpColor} shadow-lg`}
-              >
-                <CaughtUpIcon className="w-11 h-11" strokeWidth={1.5} />
-              </motion.div>
-            </div>
-          </div>
+// ── OWNER REORDERABLE DISCOVERY DECK ───────────────────
+// Specialized for owners to discover client leads in various categories.
 
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">
-              All Caught Up!
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed px-4">
-              You've seen all available {labels.plural.toLowerCase()}. Check back soon for fresh opportunities.
-            </p>
-          </div>
+const OWNER_DISCOVERY_CARDS = [
+  { id: 'property', label: 'Property Buyers', Icon: MapPin, accent: '#3b82f6', accentRgb: '59,130,246', description: 'Clients seeking homes' },
+  { id: 'motorcycle', label: 'Moto Buyers', Icon: MotorcycleIcon, accent: '#f97316', accentRgb: '249,115,22', description: 'Clients seeking bikes' },
+  { id: 'bicycle', label: 'Cyclists', Icon: Bike, accent: '#f43f5e', accentRgb: '244,63,94', description: 'Clients seeking bicycles' },
+  { id: 'worker', label: 'Job Seekers', Icon: Wrench, accent: '#a855f7', accentRgb: '168,85,247', description: 'Clients seeking services' },
+];
 
-          <div className="flex flex-col w-full gap-3">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-                {isRefreshing ? `Scanning for ${labels.plural}...` : `Discover More ${labels.plural}`}
-              </Button>
-            </motion.div>
-
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
-              New {labels.plural.toLowerCase()} are added daily
-            </p>
-
-            {/* Distance filter slider */}
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
-
-  // Error state - ONLY show if we have NO cards at all (not when deck is exhausted)
-  if (showInitialError) {
-    return (
-      <div className="relative w-full h-full flex-1 flex items-center justify-center bg-background">
-        <div className="text-center bg-muted/30 border border-border rounded-xl p-8">
-          <div className="text-6xl mb-4">😞</div>
-          <h3 className="text-xl font-bold text-foreground mb-2">Error</h3>
-          <Button
-            onClick={handleRefresh}
-            variant="outline"
-            className="gap-2"
-            size="lg"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </Button>
+const DiscoveryCard = memo(({ 
+  card, 
+  value,
+  onTap, 
+}: {
+  card: typeof OWNER_DISCOVERY_CARDS[0];
+  value: typeof OWNER_DISCOVERY_CARDS[0];
+  onTap: () => void;
+}) => {
+  return (
+    <Reorder.Item
+      value={value}
+      id={card.id}
+      whileDrag={{ scale: 1.1, zIndex: 100, rotate: [0, -1, 1, 0] }}
+      className="relative flex-shrink-0 cursor-grab active:cursor-grabbing pb-12"
+      style={{ width: 180, height: 360, borderRadius: 28 }}
+    >
+      <motion.div
+        onClick={(e) => { e.stopPropagation(); onTap(); }}
+        className="w-full h-full relative rounded-[28px] overflow-hidden border-2 border-white/10 shadow-xl bg-zinc-950"
+        style={{
+          boxShadow: `0 20px 40px rgba(0,0,0,0.3), inset 0 0 100px rgba(${card.accentRgb}, 0.05)`,
+        }}
+      >
+        <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col gap-1 z-10">
+          <h3 className="text-white text-lg font-black tracking-tighter uppercase">{card.label}</h3>
+          <p className="text-white/40 text-[9px] font-bold uppercase tracking-widest">{card.description}</p>
         </div>
-      </div>
-    );
-  }
 
-  // Empty state (no cards fetched yet)
-  if (showEmptyState || !topCard) {
-    const { Icon: EmptyIcon, color: emptyColor } = labels;
-    return (
-      <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
-        {/* Ambient glow */}
-        <div className={`absolute inset-0 pointer-events-none ${emptyColor} opacity-[0.03] blur-3xl`} />
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col items-center max-w-xs w-full gap-8 text-center"
+        <div 
+          className="absolute top-4 right-4 w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-md border border-white/10"
+          style={{ background: `rgba(${card.accentRgb}, 0.15)`, color: '#fff' }}
         >
-          {/* Animated circle with category icon — matching client swipe style */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <motion.div
-                animate={{ scale: [1, 1.18, 1], opacity: [0.15, 0.3, 0.15] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                className={`absolute inset-0 rounded-full ${emptyColor} blur-lg`}
-              />
-              <motion.div
-                animate={isRefreshing
-                  ? { rotate: 360 }
-                  : { scale: [1, 1.06, 1], y: [0, -4, 0] }
-                }
-                transition={isRefreshing
-                  ? { duration: 1, repeat: Infinity, ease: "linear" }
-                  : { duration: 3, repeat: Infinity, ease: "easeInOut" }
-                }
-                className={`relative w-24 h-24 rounded-full bg-gradient-to-br from-current/10 to-current/5 border border-current/25 flex items-center justify-center ${emptyColor} shadow-lg`}
-              >
-                <EmptyIcon className="w-11 h-11" strokeWidth={1.5} />
-              </motion.div>
-            </div>
-          </div>
+          <card.Icon className="w-5 h-5" />
+        </div>
 
-          <div className="space-y-2.5">
-            <h3 className="text-lg font-black text-foreground tracking-tight">
-              No {labels.plural} Found
-            </h3>
-            <p className="text-muted-foreground text-sm leading-relaxed px-4">
-              Try adjusting your filters or refresh to discover new {labels.plural.toLowerCase()} in your area.
-            </p>
-          </div>
+        {/* Ambient Glow */}
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-white/5 opacity-20" />
+      </motion.div>
+    </Reorder.Item>
+  );
+});
 
-          <div className="flex flex-col w-full gap-3">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-              <Button
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg text-xs font-black uppercase tracking-widest"
-              >
-                {isRefreshing ? (
-                  <RadarSearchIcon size={20} isActive={true} />
-                ) : (
-                  <RefreshCw className="w-4 h-4" />
-                )}
-                {isRefreshing ? `Scanning for ${labels.plural}...` : `Refresh ${labels.plural}`}
-              </Button>
-            </motion.div>
+DiscoveryCard.displayName = 'DiscoveryCard';
 
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-40">
-              Fresh listings arrive every hour
-            </p>
+// Empty/Caught-up state now features a premium Reorderable Hub
+const OwnerDiscoveryHub = ({ onRefresh, radiusKm, setRadiusKm, detectLocation, locationDetecting, locationDetected, labels }: any) => {
+  const [items, setItems] = useState(OWNER_DISCOVERY_CARDS);
+  const setCategories = useFilterStore(s => s.setCategories);
 
-            {/* Distance filter slider */}
-            <DistanceSlider
-              radiusKm={radiusKm}
-              onRadiusChange={setRadiusKm}
-              onDetectLocation={detectLocation}
-              detecting={locationDetecting}
-              detected={locationDetected}
-            />
-          </div>
-        </motion.div>
+  return (
+    <div className="relative w-full h-full flex-1 flex flex-col items-center justify-center px-4 overflow-hidden" style={{ minHeight: 'calc(100dvh - 140px)' }}>
+      <div className="text-center mb-10 space-y-3 z-20">
+        <motion.h2 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-[10px] font-black uppercase tracking-[0.4em] text-primary"
+        >
+          Partner Dashboard
+        </motion.h2>
+        <motion.p 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-3xl font-black tracking-tight text-foreground"
+        >
+          Discover <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-500 italic">Opportunities</span>
+        </motion.p>
       </div>
-    );
-  }
+
+      <div className="w-full overflow-x-auto no-scrollbar pb-10">
+        <Reorder.Group 
+          axis="x" 
+          values={items} 
+          onReorder={(newOrder) => {
+            setItems(newOrder);
+            triggerHaptic('light');
+          }}
+          className="flex gap-4 px-12 min-w-max"
+        >
+          {items.map((card) => (
+            <DiscoveryCard
+              key={card.id}
+              card={card}
+              value={card}
+              onTap={() => {
+                triggerHaptic('medium');
+                setCategories([card.id]);
+              }}
+            />
+          ))}
+        </Reorder.Group>
+      </div>
+
+      <div className="w-full max-w-xs space-y-6">
+        <Button
+          onClick={onRefresh}
+          className="w-full gap-2.5 rounded-full px-8 py-6 bg-gradient-to-r from-primary to-primary/80 shadow-lg text-xs font-black uppercase tracking-widest"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Refresh {labels.plural}
+        </Button>
+
+        <DistanceSlider
+          radiusKm={radiusKm}
+          onRadiusChange={setRadiusKm}
+          onDetectLocation={detectLocation}
+          detecting={locationDetecting}
+          detected={locationDetected}
+        />
+      </div>
+
+      <div className="absolute inset-0 pointer-events-none -z-10">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.03] blur-[100px] bg-primary animate-pulse" />
+      </div>
+    </div>
+  );
+};
 
   // Main swipe view - edge-to-edge cards with next card visible behind
+  if (isDeckFinished || showEmptyState || !topCard) {
+    return (
+      <OwnerDiscoveryHub 
+        onRefresh={handleRefresh}
+        radiusKm={radiusKm}
+        setRadiusKm={setRadiusKm}
+        detectLocation={detectLocation}
+        locationDetecting={locationDetecting}
+        locationDetected={locationDetected}
+        labels={labels}
+      />
+    );
+  }
+
   return (
     <div className="relative w-full flex flex-col" style={{ minHeight: '100dvh' }}>
       <div className="relative flex-1 w-full">

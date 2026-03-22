@@ -249,11 +249,6 @@ const ClientProfileNew = () => {
           </div>
         )}
 
-        {/* Discover Categories */}
-        <div>
-          <MyHubQuickFilters />
-        </div>
-
         {/* Recent Activity */}
         <div>
           <h3 className="text-xs font-medium text-muted-foreground mb-3 px-1">
