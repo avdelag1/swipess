@@ -124,78 +124,86 @@ export const RadarSearchEffect = memo(function RadarSearchEffect({
           ))}
         </AnimatePresence>
 
-        {/* The Central Hub - Loading Spin when Active */}
-        <motion.div
-          animate={isActive ? {
-            scale: [1, 1.15, 1],
-            boxShadow: [
-              `0 0 20px ${color}30`,
-              `0 0 60px ${color}60`,
-              `0 0 20px ${color}30`,
-            ],
-          } : {
-            scale: 1,
-            boxShadow: `0 0 20px ${color}10`,
-          }}
-          transition={{
-            duration: 2,
-            repeat: isActive ? Infinity : 0,
-            ease: 'easeInOut',
-          }}
-          style={{
-            position: 'absolute',
-            width: centerSize,
-            height: centerSize,
-            borderRadius: '2.5rem',
-            backgroundColor: 'rgba(0,0,0,0.92)',
-            border: `3px solid ${color}`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: color,
-            
-            zIndex: 10,
-            overflow: 'hidden',
-          }}
-        >
-          {/* Internal Glow for depth */}
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              background: `radial-gradient(circle at center, ${color} 0%, transparent 100%)`
-            }}
-          />
-
-          <motion.div
-            className="relative z-10 scale-[1.5]"
-            animate={isActive ? {
-              rotate: 360,
-              scale: [1.5, 1.8, 1.5],
-            } : {
-              rotate: 0,
-              scale: 1.5,
-            }}
-            transition={isActive ? {
-              rotate: { duration: 3, repeat: Infinity, ease: "linear" },
-              scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-            } : { duration: 0.5 }}
-          >
-            {icon || <User size={36} strokeWidth={3} />}
-          </motion.div>
-        </motion.div>
-
-        {/* Subtle base guide */}
+        {/* Premium static accent ring */}
         <div
           style={{
             position: 'absolute',
-            width: size * 1.1,
-            height: size * 1.1,
+            width: size * 0.72,
+            height: size * 0.72,
             borderRadius: '50%',
-            border: `1px solid ${color}15`,
-            opacity: isActive ? 0.5 : 0.2,
-            transition: 'opacity 0.5s ease',
+            border: `1px solid ${color}35`,
+            boxShadow: `0 0 12px ${color}20, inset 0 0 12px ${color}10`,
+            zIndex: 5,
           }}
         />
+
+        {/* Gradient ring frame wrapper with conic-gradient border */}
+        <div
+          style={{
+            position: 'absolute',
+            width: centerSize + 8,
+            height: centerSize + 8,
+            borderRadius: '2.8rem',
+            background: `conic-gradient(from 0deg, ${color}, #f97316, #ec4899, ${color})`,
+            padding: 2,
+            zIndex: 10,
+          }}
+        >
+          <motion.div
+            animate={isActive ? {
+              scale: [1, 1.15, 1],
+              boxShadow: [
+                `0 0 20px ${color}30`,
+                `0 0 60px ${color}60`,
+                `0 0 20px ${color}30`,
+              ],
+            } : {
+              scale: 1,
+              boxShadow: `0 0 20px ${color}10`,
+            }}
+            transition={{
+              duration: 2,
+              repeat: isActive ? Infinity : 0,
+              ease: 'easeInOut',
+            }}
+            style={{
+              width: '100%',
+              height: '100%',
+              borderRadius: '2.5rem',
+              backgroundColor: 'rgba(0,0,0,0.92)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: color,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Internal Glow for depth */}
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                background: `radial-gradient(circle at center, ${color} 0%, transparent 100%)`
+              }}
+            />
+
+            <motion.div
+              className="relative z-10 scale-[1.5]"
+              animate={isActive ? {
+                rotate: 360,
+                scale: [1.5, 1.8, 1.5],
+              } : {
+                rotate: 0,
+                scale: 1.5,
+              }}
+              transition={isActive ? {
+                rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+                scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+              } : { duration: 0.5 }}
+            >
+              {icon || <User size={36} strokeWidth={3} />}
+            </motion.div>
+          </motion.div>
+        </div>
       </div>
 
       {/* Optional label */}

@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, MapPin, Calendar, Sparkles, Waves, Trees, Music,
   Utensils, Ticket, ArrowLeft, MessageCircle, Share2,
-  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause
+  Megaphone, ChevronUp, ExternalLink, Info, Play, Pause, ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { triggerHaptic } from '@/utils/haptics';
@@ -293,10 +293,11 @@ function ShareModal({
 
 // ── SINGLE EVENT CARD ─────────────────────────────────────────────────────────
 function EventCard({
-  event, isActive, onLike, liked, onChat, onShare, onMiddleTap,
+  event, isActive, onLike, liked, onChat, onShare, onMiddleTap, onNextEvent, onPrevEvent,
 }: {
   event: EventItem; isActive: boolean; onLike: () => void; liked: boolean;
   onChat: () => void; onShare: () => void; onMiddleTap: () => void;
+  onNextEvent: () => void; onPrevEvent: () => void;
 }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
@@ -336,12 +337,40 @@ function EventCard({
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-black/40 pointer-events-none" />
 
-      {/* Middle-tap zone for insights */}
+      {/* LEFT tap zone — previous event */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onPrevEvent(); }}
+        className="absolute left-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-start pl-3"
+        aria-label="Previous event"
+      >
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+        >
+          <ChevronLeft className="w-4 h-4 text-white" />
+        </div>
+      </button>
+
+      {/* MIDDLE tap zone — view details */}
       <button
         onClick={(e) => { e.stopPropagation(); onMiddleTap(); }}
-        className="absolute inset-x-0 top-[30%] bottom-[40%] z-10"
+        className="absolute inset-x-[30%] top-[8%] bottom-[40%] z-10"
         aria-label="View event details"
       />
+
+      {/* RIGHT tap zone — next event */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onNextEvent(); }}
+        className="absolute right-0 top-[8%] bottom-[40%] w-[30%] z-10 flex items-center justify-end pr-3"
+        aria-label="Next event"
+      >
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center opacity-0 active:opacity-100 transition-opacity"
+          style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.2)' }}
+        >
+          <ChevronRight className="w-4 h-4 text-white" />
+        </div>
+      </button>
 
       {/* Double-tap to like overlay */}
       <AnimatePresence>
@@ -390,7 +419,7 @@ function EventCard({
               </div>
 
               {/* Title */}
-              <h2 className="text-3xl font-black text-white leading-[1.05] tracking-tight drop-shadow-lg">
+              <h2 className="text-3xl font-black font-brand text-white leading-[1.05] tracking-tight drop-shadow-lg">
                 {event.title}
               </h2>
 
@@ -849,6 +878,29 @@ export default function EventosFeed() {
     navigate(`/explore/eventos/${event.id}`, { state: { eventData: event } });
   }, [navigate]);
 
+  // Tap navigation: left zone = previous, right zone = next
+  const handleTapNext = useCallback(() => {
+    if (activeIdx < filteredEvents.length - 1) {
+      const el = scrollRef.current;
+      if (el) {
+        el.scrollTo({ top: (activeIdx + 1) * el.clientHeight, behavior: 'smooth' });
+        triggerHaptic('light');
+        setAnimKey(k => k + 1); // reset progress bar
+      }
+    }
+  }, [activeIdx, filteredEvents.length]);
+
+  const handleTapPrev = useCallback(() => {
+    if (activeIdx > 0) {
+      const el = scrollRef.current;
+      if (el) {
+        el.scrollTo({ top: (activeIdx - 1) * el.clientHeight, behavior: 'smooth' });
+        triggerHaptic('light');
+        setAnimKey(k => k + 1); // reset progress bar
+      }
+    }
+  }, [activeIdx]);
+
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black flex flex-col">
 
@@ -864,7 +916,7 @@ export default function EventosFeed() {
             <ArrowLeft className="w-4 h-4 text-white" />
           </button>
           <div className="flex-1">
-            <h1 className="text-white font-black text-lg tracking-tight">Tulum Events</h1>
+            <h1 className="text-white font-black font-brand text-lg tracking-tight">Tulum Events</h1>
             <p className="text-white/50 text-[10px]">{filteredEvents.length} events near you</p>
           </div>
           <div className="flex items-center gap-2">
@@ -927,7 +979,7 @@ export default function EventosFeed() {
               <button
                 key={cat.key}
                 onClick={() => { triggerHaptic('light'); setActiveCategory(cat.key); }}
-                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black uppercase tracking-wide transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-3 h-7 rounded-full shrink-0 text-[11px] font-black font-brand uppercase tracking-wide transition-all active:scale-95"
                 style={{
                   background: active ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.4)',
                   color: active ? '#000' : 'rgba(255,255,255,0.8)',
@@ -970,6 +1022,8 @@ export default function EventosFeed() {
                 onChat={() => handleOpenChat(event)}
                 onShare={() => handleShare(event)}
                 onMiddleTap={() => handleMiddleTap(event)}
+                onNextEvent={handleTapNext}
+                onPrevEvent={handleTapPrev}
               />
             ))}
             {/* Promote CTA card at the end */}
@@ -977,6 +1031,33 @@ export default function EventosFeed() {
           </>
         )}
       </div>
+
+      {/* ── SWIPE HINT OVERLAYS ── */}
+      {/* Left swipe hint - show when not on first event */}
+      {activeIdx > 0 && (
+        <motion.div
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 0.3, x: 0 }}
+          exit={{ opacity: 0, x: -10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
+        >
+          <ChevronLeft className="w-8 h-8 text-white/40" />
+        </motion.div>
+      )}
+
+      {/* Right swipe hint - show when not on last event */}
+      {activeIdx < filteredEvents.length - 1 && (
+        <motion.div
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 0.3, x: 0 }}
+          exit={{ opacity: 0, x: 10 }}
+          transition={{ duration: 0.3 }}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 pointer-events-none"
+        >
+          <ChevronRight className="w-8 h-8 text-white/40" />
+        </motion.div>
+      )}
 
       {/* ── SHARE OVERLAY ── */}
       {showShareModal && shareEventData && (
