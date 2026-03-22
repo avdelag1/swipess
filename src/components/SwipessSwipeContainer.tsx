@@ -302,7 +302,7 @@ const FAN_CARDS = [
 ];
 
 const CARD_W = 200;
-const CARD_H = 500;
+const CARD_H = 380;
 
 const STACK_OFFSETS = [
   { rotate: 0, tx: 0, ty: 0, scale: 1 },
@@ -344,7 +344,7 @@ const ReorderableCategoryCard = memo(({
   const isTop = reverseIndex === 0;
   
   // Stacking logic: depth affects scale, y-offset, and rotation
-  const stackY = -reverseIndex * 14; 
+  const stackY = -reverseIndex * 20; 
   const stackScale = 1 - (reverseIndex * 0.05);
   const stackRotate = isTop ? 0 : (index % 2 === 0 ? 2 : -2);
   const stackOpacity = reverseIndex > 3 ? 0 : 1;
@@ -548,7 +548,7 @@ const SwipeAllDashboard = ({ setCategories }: SwipeAllDashboardProps) => {
 
         <div 
           className="relative pointer-events-none" 
-          style={{ width: '100%', maxWidth: 480, height: 600, zIndex: 10 }}
+          style={{ width: '100%', maxWidth: 420, height: 480, zIndex: 10 }}
         >
           {items.map((card, i) => {
             return (
