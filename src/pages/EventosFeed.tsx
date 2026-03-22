@@ -316,12 +316,11 @@ function EventCard({
       style={{ height: '100dvh', scrollSnapAlign: 'start', scrollSnapStop: 'always' }}
       data-testid={`event-card-${event.id}`}
     >
-      {/* Background photo with Ken Burns zoom */}
+      {/* Background photo with slow zoom-out on ALL cards */}
       <motion.div
         className="absolute inset-0"
-        initial={{ scale: 1 }}
-        animate={isActive ? { scale: 1.12, filter: 'brightness(1.05)' } : { scale: 1, filter: 'brightness(1)' }}
-        transition={{ duration: AUTOPLAY_DURATION / 1000, ease: 'linear' }}
+        animate={{ scale: [1.06, 1.0], filter: isActive ? 'brightness(1.05)' : 'brightness(1)' }}
+        transition={{ scale: { duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }, filter: { duration: 0.4 } }}
       >
         <img
           src={event.image_url || ''}

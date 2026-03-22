@@ -376,14 +376,14 @@ const PokerCategoryCard = memo(({ card, index, isTop, onSwipeOut, onBringToFront
           background: '#0a0a0a',
         }}
       >
-        {/* Background photo — ken-burns only on front card */}
+        {/* Background photo — slow zoom-out on ALL cards */}
         <motion.img
           src={photo}
           alt={card.label}
           className="absolute inset-0 w-full h-full object-cover"
           loading="eager"
-          animate={isTop ? { scale: [1.05, 1.14, 1.05] } : { scale: 1.08 }}
-          transition={isTop ? { duration: 10, repeat: Infinity, ease: 'easeInOut' } : {}}
+          animate={{ scale: [1.06, 1.0] }}
+          transition={{ duration: 8, ease: 'easeOut', repeat: Infinity, repeatType: 'reverse' }}
         />
 
         {/* Gradient overlay */}
