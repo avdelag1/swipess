@@ -160,7 +160,12 @@ function TopBarComponent({
     e.preventDefault();
     e.stopPropagation();
     haptics.tap();
-    navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+    // Use history-based navigation as requested by user
+    if (window.history.length > 2) {
+      window.history.back();
+    } else {
+      navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+    }
   };
 
   return (
@@ -246,21 +251,24 @@ function TopBarComponent({
             )}
           </div>
 
-          {/* Center tap zone - navigates back to dashboard, shows page title only when on sub-pages */}
+          {/* Global Header Tap Zone: Navigates back to Dashboard from anywhere on the header background */}
           <div
-            className="flex-1 h-full cursor-pointer flex items-center justify-center touch-manipulation"
+            className="absolute inset-0 z-0 cursor-pointer pointer-events-auto"
             style={{ WebkitTapHighlightColor: 'transparent' }}
             onPointerDown={(e) => {
-              e.preventDefault();
-              haptics.tap();
-              navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+              // Only trigger if we tap the background, not children buttons
+              if (e.target === e.currentTarget) {
+                haptics.tap();
+                navigate(userRole === 'owner' ? '/owner/dashboard' : '/client/dashboard');
+              }
             }}
-            onClick={(e) => e.preventDefault()}
-            aria-label="Go to dashboard"
-          >
+          />
+
+          {/* Center Content Section */}
+          <div className="flex-1 h-full flex items-center justify-center pointer-events-none relative z-10">
             {title ? (
               <span className={cn(
-                "font-black text-xl uppercase tracking-tighter leading-none pointer-events-none select-none",
+                "font-black text-xl uppercase tracking-tighter leading-none select-none",
                 isLight
                   ? "text-foreground drop-shadow-[0_1px_3px_rgba(255,255,255,0.5)]"
                   : "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"

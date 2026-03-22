@@ -10,11 +10,14 @@ import { useNavigate } from 'react-router-dom';
 import { useFilterStore } from '@/state/filterStore';
 import { useShallow } from 'zustand/react/shallow';
 import { useOwnerClientPreferences } from '@/hooks/useOwnerClientPreferences';
+import { User, Megaphone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ClientFilters } from '@/hooks/useSmartMatching';
 
 interface EnhancedOwnerDashboardProps {
   onClientInsights?: (clientId: string) => void;
   onMessageClick?: () => void;
-  filters?: any; // Combined quick filters + advanced filters from DashboardLayout
+  filters?: any; 
 }
 
 const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: EnhancedOwnerDashboardProps) => {
@@ -26,9 +29,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const _navigate = useNavigate();
   // PERF: Get userId from auth to pass to query (avoids getUser() inside queryFn)
   const { user } = useAuth();
+  // useAuth in this codebase might not have isLoading, so let's check profile loading instead or just use user
+  const isAuthLoading = false; 
 
   // Hydrate owner filter store from DB on mount
-  const { preferences: ownerPrefs } = useOwnerClientPreferences();
+  const { preferences: ownerPrefs, isLoading: isPrefsLoading } = useOwnerClientPreferences();
   const { setClientGender, setClientAgeRange, setClientBudgetRange, setClientNationalities, storeGender } = useFilterStore(
     useShallow((s) => ({
       setClientGender: s.setClientGender,
@@ -83,11 +88,11 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   if (import.meta.env.DEV) console.log('[EnhancedOwnerDashboard] Rendering with clientFilters:', mergedFilters);
   const { data: clientProfiles = [], isLoading, error } = useSmartClientMatching(
     user?.id,
-    filterCategory as any,
+    filterCategory,
     0,      // page
     50,     // limit
     false,  // isRefreshMode
-    mergedFilters as any // Now correctly typed as ClientFilters!
+    mergedFilters as ClientFilters
   );
 
   if (import.meta.env.DEV) {
@@ -105,6 +110,33 @@ const EnhancedOwnerDashboard = ({ onClientInsights, onMessageClick, filters }: E
   const handleInsights = (clientId: string) => {
     onClientInsights?.(clientId);
   };
+
+  // Loading state handling
+  if (isAuthLoading || isPrefsLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+          <p className="text-sm font-medium text-muted-foreground animate-pulse">Loading Owner Experience...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error/Auth state check
+  if (!user) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8 text-center">
+        <div className="max-w-xs space-y-4">
+          <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto">
+            <User className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-lg font-bold">Access Required</h2>
+          <p className="text-sm text-muted-foreground">Please log in to access the owner dashboard features.</p>
+        </div>
+      </div>
+    );
+  }
 
   // NotificationBar is rendered globally in AppLayout — no duplicate here
   return (

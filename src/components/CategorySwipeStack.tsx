@@ -122,7 +122,7 @@ function CategoryCard({ category, isTop, index, isActive, isDark, onSwipeRight, 
                 y: yOffset,
                 zIndex: 10 - index,
             }}
-            exit={{ x: x.get() > 0 ? 400 : -400, opacity: 0, transition: { duration: 0.3 } }}
+            exit={{ x: x.get() > 0 ? 600 : -600, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
             style={{ x, rotate, opacity }}
             className={cn(
                 "absolute inset-0 flex flex-col items-center justify-center rounded-[32px] p-8 select-none transition-shadow duration-300",

@@ -244,7 +244,14 @@ export default function RoommateMatching() {
           <div className="flex items-center gap-4">
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => navigate('/client/dashboard')}
+              onClick={() => {
+                triggerHaptic('light');
+                if (window.history.length > 2) {
+                  navigate(-1);
+                } else {
+                  navigate('/client/dashboard');
+                }
+              }}
               className={cn(
                 "w-11 h-11 rounded-[1.2rem] flex items-center justify-center border backdrop-blur-3xl transition-all",
                 isLight ? "bg-white/80 border-slate-200 text-slate-900 shadow-sm" : "bg-black/30 border-white/10 text-white"

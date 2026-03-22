@@ -174,6 +174,7 @@ export const useFilterStore = create<FilterState>()(
 
     // ========== CATEGORY ACTIONS ==========
     setActiveCategory: (category) => {
+      if (get().activeCategory === category) return;
       logger.info('[FilterStore] setActiveCategory:', category);
       set((state) => ({
         activeCategory: category,
