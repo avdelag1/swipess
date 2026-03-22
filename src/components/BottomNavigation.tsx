@@ -180,6 +180,8 @@ export function BottomNavigation({
     }
   }, []);
 
+  const [ripple, setRipple] = useState<{ x: number, id: string } | null>(null);
+
   const handlePointerUp = useCallback(
     (_e: React.PointerEvent) => {
       touchState.current = null;
@@ -189,13 +191,22 @@ export function BottomNavigation({
 
   // Primary navigation handler — fires after pointer events, checks drag state
   const handleNavClick = useCallback(
-    (item: NavItem) => {
+    (item: NavItem, event?: React.MouseEvent | React.PointerEvent) => {
       if (isDraggingRef.current) {
         isDraggingRef.current = false;
         return;
       }
       isDraggingRef.current = false;
       haptics.select();
+
+      // Trigger ripple at click position
+      if (event && scrollRef.current) {
+        const rect = scrollRef.current.getBoundingClientRect();
+        const x = (event as any).clientX - rect.left;
+        setRipple({ x, id: Math.random().toString() });
+        setTimeout(() => setRipple(null), 800);
+      }
+
       if (item.onClick) {
         item.onClick();
       } else if (item.path) {
@@ -277,6 +288,28 @@ export function BottomNavigation({
           }}
         />
 
+        {/* Liquid Ripple FX */}
+        <AnimatePresence>
+          {ripple && (
+            <motion.div
+              key={ripple.id}
+              initial={{ scale: 0, opacity: 0.35 }}
+              animate={{ scale: 4, opacity: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="absolute w-24 h-24 rounded-full pointer-events-none"
+              style={{
+                left: ripple.x - 48,
+                bottom: -10,
+                background: isLight 
+                  ? 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)' 
+                  : 'radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%)',
+                zIndex: 1.5,
+              }}
+            />
+          )}
+        </AnimatePresence>
+
         {/* Nav items row */}
         <LayoutGroup id="bottom-nav">
         <div
@@ -307,7 +340,7 @@ export function BottomNavigation({
                 onPointerUp={(e) => handlePointerUp(e)}
                 onKeyDown={(e) => handleNavKeyDown(e, item)}
                 onTouchStart={(e) => e.stopPropagation()}
-                onClick={() => handleNavClick(item)}
+                onClick={(e) => handleNavClick(item, e)}
                 whileTap={{ scale: 0.88, transition: TAP_SPRING }}
                 aria-label={item.label}
                 aria-current={isActive(item) ? 'page' : undefined}
