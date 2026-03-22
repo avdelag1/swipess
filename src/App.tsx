@@ -141,6 +141,13 @@ const AITestPage = lazy(() => import("./pages/AITestPage"));
 const GuidedTourLazy = lazy(() => import("./components/GuidedTour").then(m => ({ default: m.GuidedTour })));
 
 
+// Route-deciding redirect for /dashboard
+const DashboardRedirect = () => {
+  const { user } = useAuth();
+  const metadataRole = user?.user_metadata?.role;
+  return <Navigate to={metadataRole === 'owner' ? "/owner/dashboard" : "/client/dashboard"} replace />;
+};
+
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
@@ -347,8 +354,8 @@ const App = () => {
                                       {/* AI Test — public, no login required */}
                                       <Route path="/ai-test" element={<AITestPage />} />
 
-                                      {/* Legacy /dashboard redirect — always go to client dashboard */}
-                                      <Route path="/dashboard" element={<Navigate to="/client/dashboard" replace />} />
+                                      {/* Legacy /dashboard redirect — smartly role-aware */}
+                                      <Route path="/dashboard" element={<DashboardRedirect />} />
 
                                       {/* Info Pages - Public Access */}
                                       <Route path="/about" element={<AboutPage />} />

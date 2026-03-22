@@ -237,8 +237,10 @@ const Index = () => {
       // Fallback 3: Metadata or Default
       if (!isNewUser && !isLoadingRole) {
         hasNavigated.current = true;
-        logger.log("[Index] Last resort navigation to unified hub");
-        navigate("/client/dashboard", { replace: true });
+        const metadataRole = user?.user_metadata?.role;
+        const fallbackRole = (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
+        logger.log("[Index] Last resort navigation to unified hub with role:", fallbackRole);
+        navigate(fallbackRole === 'owner' ? "/owner/dashboard" : "/client/dashboard", { replace: true });
         return;
       }
 
@@ -246,8 +248,10 @@ const Index = () => {
       // Fires when role query is in-flight AND user is new with no metadata role
       if (!hasNavigated.current) {
         hasNavigated.current = true;
-        logger.warn("[Index] Unconditional fallback navigation to unified hub");
-        navigate("/client/dashboard", { replace: true });
+        const metadataRole = user?.user_metadata?.role;
+        const fallbackRole = (metadataRole === 'client' || metadataRole === 'owner') ? metadataRole : 'client';
+        logger.warn("[Index] Unconditional fallback navigation to unified hub with role:", fallbackRole);
+        navigate(fallbackRole === 'owner' ? "/owner/dashboard" : "/client/dashboard", { replace: true });
       }
     };
 
