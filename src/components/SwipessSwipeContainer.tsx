@@ -343,12 +343,14 @@ const ReorderableCategoryCard = memo(({
   const reverseIndex = total - 1 - index;
   const isTop = reverseIndex === 0;
   
-  // Poker fan stacking: horizontal left-to-right with rotation
-  // Cards fanned from left (first card) to right (last card)
-  const stackX = -reverseIndex * 55;  // Horizontal offset: right to left (fanned left)
-  const stackY = reverseIndex * 6;    // Subtle vertical stagger
-  const stackScale = 1 - (reverseIndex * 0.02);
-  const stackRotate = reverseIndex * 7;  // Fan rotation (counter-clockwise from left)
+  // Bottom-pivot fan: cards pivot from bottom corners together, tops spread apart
+  // Like poker cards in hand - bottoms touch, tops fan outward
+  const fanAngle = reverseIndex * 10;  // Rotation angle from bottom pivot
+  // For bottom-pivot, reduce X offset since rotation handles the spread
+  const stackX = -reverseIndex * 20;  // Minimal horizontal offset
+  const stackY = reverseIndex * 3;    // Minimal vertical stagger
+  const stackScale = 1 - (reverseIndex * 0.01);
+  const stackRotate = fanAngle;  // Rotate around bottom center
   const stackOpacity = reverseIndex > 3 ? 0 : 1;
 
   // Drag-and-release cycle logic
@@ -374,6 +376,7 @@ const ReorderableCategoryCard = memo(({
         top: '50%',
         marginLeft: -(CARD_W / 2),
         marginTop: -(CARD_H / 2),
+        transformOrigin: 'center bottom',
         zIndex: index + 10,
         x: isTop ? dragX : stackX,
         y: isTop ? dragY : stackY,
