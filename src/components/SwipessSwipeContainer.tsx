@@ -438,20 +438,12 @@ const ReorderableCategoryCard = memo(({
 
         {/* Card Content Overlay */}
         <div className="absolute inset-x-0 bottom-0 p-8 flex flex-col gap-2 translate-z-0">
-          <div className="flex items-center gap-3 mb-1">
-             <div 
-              className="w-10 h-10 rounded-2xl flex items-center justify-center backdrop-blur-xl border border-white/10"
-              style={{ background: `rgba(${card.accentRgb}, 0.3)`, color: '#fff' }}
-            >
-              <card.Icon />
-            </div>
-            <motion.p 
-              layout
-              className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50"
-            >
-              {card.description}
-            </motion.p>
-          </div>
+          <motion.p 
+            layout
+            className="text-[10px] font-black uppercase tracking-[0.3em] text-white/50"
+          >
+            {card.description}
+          </motion.p>
           <motion.h3 
             layout
             className="text-white text-3xl font-black tracking-tighter uppercase drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
@@ -473,7 +465,7 @@ const ReorderableCategoryCard = memo(({
                     }}
                     className="w-full py-3 rounded-2xl bg-white text-black font-black text-xs uppercase tracking-widest shadow-xl hover:bg-white/90 active:scale-95 transition-all"
                 >
-                    Explore Sector
+                    Apply Filter
                 </button>
             </motion.div>
           )}
